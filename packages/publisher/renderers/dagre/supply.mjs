@@ -1,44 +1,44 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readFileEnvelope } from '../../src/file-input/read.mjs';
-import { fail, hasExactFields } from '../../src/protocol/values.mjs';
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { readFileEnvelope } from "../../src/file-input/read.mjs";
+import { fail, hasExactFields } from "../../src/protocol/values.mjs";
 
-const root = fileURLToPath(new URL('./supply/', import.meta.url));
-const manifestSha256 = '28a1a53ac46f760ccdf04ad98dfdf4d01af081ba49d9611fc1793bb9902714a2';
-const error = 'render_dagre_supply_invalid';
+const root = fileURLToPath(new URL("./supply/", import.meta.url));
+const manifestSha256 = "28a1a53ac46f760ccdf04ad98dfdf4d01af081ba49d9611fc1793bb9902714a2";
+const error = "render_dagre_supply_invalid";
 const packages = [
   {
-    name: '@dagrejs/dagre',
-    version: '3.1.1',
-    license: 'MIT',
+    name: "@dagrejs/dagre",
+    version: "3.1.1",
+    license: "MIT",
     integrity:
-      'sha512-zroZB1dFOFiGgv4Xcrn1DckB1o4aOikPqD2NDQPV0WM//CXGcS6xiD0rNkqHmw6FEg4tabt4nxPLwgCWT+Vb2A==',
+      "sha512-zroZB1dFOFiGgv4Xcrn1DckB1o4aOikPqD2NDQPV0WM//CXGcS6xiD0rNkqHmw6FEg4tabt4nxPLwgCWT+Vb2A==",
   },
   {
-    name: '@dagrejs/graphlib',
-    version: '4.0.5',
-    license: 'MIT',
+    name: "@dagrejs/graphlib",
+    version: "4.0.5",
+    license: "MIT",
     integrity:
-      'sha512-7xrBTqIts3o+PMUZX97wSc+7TUbW+/rULzGNCTP6yooNVDXbzw4Wutg/H/xOutTB/c/k0YqOAavgPh4/Zk9PFA==',
+      "sha512-7xrBTqIts3o+PMUZX97wSc+7TUbW+/rULzGNCTP6yooNVDXbzw4Wutg/H/xOutTB/c/k0YqOAavgPh4/Zk9PFA==",
   },
 ];
 
 /** Verify the selected geometry implementation and its two locked package identities. */
 export function validateDagreManifest(value) {
   if (
-    !hasExactFields(value, ['schema', 'packages', 'files']) ||
-    value.schema !== 'architecture.geometry-supply/v1' ||
+    !hasExactFields(value, ["schema", "packages", "files"]) ||
+    value.schema !== "architecture.geometry-supply/v1" ||
     !Array.isArray(value.packages) ||
     value.packages.length !== packages.length ||
     value.packages.some(
       (item, index) =>
-        !hasExactFields(item, ['name', 'version', 'license', 'integrity']) ||
+        !hasExactFields(item, ["name", "version", "license", "integrity"]) ||
         Object.entries(packages[index]).some(([key, expected]) => item[key] !== expected),
     ) ||
     !Array.isArray(value.files) ||
     value.files.length !== 2 ||
-    value.files[0]?.path !== 'dagre.min.js' ||
-    value.files[1]?.path !== 'LICENSE'
+    value.files[0]?.path !== "dagre.min.js" ||
+    value.files[1]?.path !== "LICENSE"
   )
     fail(error);
   return value;
@@ -48,13 +48,13 @@ export function validateDagreManifest(value) {
 export async function verifyDagreSupply(directory) {
   try {
     const selected = await readFileEnvelope(
-      path.join(directory, 'supply.json'),
+      path.join(directory, "supply.json"),
       manifestSha256,
       validateDagreManifest,
       true,
     );
     return {
-      version: '3.1.1',
+      version: "3.1.1",
       manifestSha256: selected.manifestSha256,
       script: Buffer.from(selected.members[0].content),
       license: Buffer.from(selected.members[1].content),

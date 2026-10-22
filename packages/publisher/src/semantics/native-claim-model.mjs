@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
-import { canonical, deepFreeze, normalizedClaimModel, record, text } from './document.mjs';
-import { parseStrictJson } from '../protocol/json.mjs';
-import { fail, isDigest } from '../protocol/values.mjs';
+import { createHash } from "node:crypto";
+import { canonical, deepFreeze, normalizedClaimModel, record, text } from "./document.mjs";
+import { parseStrictJson } from "../protocol/json.mjs";
+import { fail, isDigest } from "../protocol/values.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const format = 'architecture.claim-model/v2';
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const format = "architecture.claim-model/v2";
 const originFor = (source) => ({ namespace: source.namespace, sha256: source.sha256 });
 
 /** Import exact selected Claim Model bytes without endorsing internal provenance. */
@@ -13,25 +13,25 @@ export function importClaimModel(source, content, sourceClass) {
     !record(source) ||
     !text(source.namespace) ||
     !isDigest(source.sha256) ||
-    source.format?.id !== 'architecture.claim-model' ||
-    source.format?.version !== '2' ||
-    !['native', 'derived'].includes(sourceClass) ||
+    source.format?.id !== "architecture.claim-model" ||
+    source.format?.version !== "2" ||
+    !["native", "derived"].includes(sourceClass) ||
     !Buffer.isBuffer(content)
   )
-    fail('native_claim_model_input_invalid');
-  if (sha(content) !== source.sha256) fail('native_claim_model_digest_mismatch');
+    fail("native_claim_model_input_invalid");
+  if (sha(content) !== source.sha256) fail("native_claim_model_digest_mismatch");
   const model = normalizedClaimModel(
     parseStrictJson(
       content,
-      'native_claim_model_json_invalid',
-      'native_claim_model_json_duplicate_key',
+      "native_claim_model_json_invalid",
+      "native_claim_model_json_duplicate_key",
     ),
   );
   return deepFreeze({
     source: structuredClone(source),
     sourceClass,
     model,
-    semanticLimits: ['claim-model-provenance-unverified'],
+    semanticLimits: ["claim-model-provenance-unverified"],
   });
 }
 
@@ -45,17 +45,17 @@ export function resolveClaimModelSelection(imported, selection) {
     !text(selection.id) ||
     selection.namespace !== imported.source.namespace
   )
-    fail('native_claim_model_reference_invalid');
-  if (selection.kind === 'query') fail('native_claim_model_query_unadmitted');
+    fail("native_claim_model_reference_invalid");
+  if (selection.kind === "query") fail("native_claim_model_query_unadmitted");
   const match =
-    selection.kind === 'reference' && typeof selection.reference === 'string'
+    selection.kind === "reference" && typeof selection.reference === "string"
       ? /^(entity|relation|claim):([^\s].*)$/u.exec(selection.reference)
       : null;
-  if (!match) fail('native_claim_model_reference_invalid');
+  if (!match) fail("native_claim_model_reference_invalid");
   const [, kind, id] = match;
-  const section = { entity: 'entities', relation: 'relations', claim: 'claims' }[kind];
+  const section = { entity: "entities", relation: "relations", claim: "claims" }[kind];
   const item = imported.model[section]?.[id];
-  if (!item) fail('native_claim_model_reference_unselected');
+  if (!item) fail("native_claim_model_reference_unselected");
   const origin = originFor(imported.source);
   const element = (entityId) => ({
     id: entityId,
@@ -68,18 +68,18 @@ export function resolveClaimModelSelection(imported, selection) {
     origin: structuredClone(origin),
   });
   const entityIds =
-    kind === 'entity'
+    kind === "entity"
       ? [id]
-      : kind === 'relation'
+      : kind === "relation"
         ? [item.subject, item.object]
         : [item.subject, ...(item.object === null ? [] : [item.object])];
   const elements = [...new Set(entityIds)].sort().map(element);
   const relations =
-    kind === 'relation'
+    kind === "relation"
       ? [
           {
             id,
-            identityScope: 'claim-model-id',
+            identityScope: "claim-model-id",
             from: { namespace: origin.namespace, id: item.subject },
             to: { namespace: origin.namespace, id: item.object },
             kind: item.type,
@@ -89,9 +89,9 @@ export function resolveClaimModelSelection(imported, selection) {
           },
         ]
       : [];
-  const claims = kind === 'claim' ? [{ id, ...structuredClone(item), origin }] : [];
+  const claims = kind === "claim" ? [{ id, ...structuredClone(item), origin }] : [];
   const dependencyBindings =
-    kind === 'claim'
+    kind === "claim"
       ? item.dependsOn.map(({ section, id: dependencyId }) => ({
           section,
           id: dependencyId,
@@ -99,7 +99,7 @@ export function resolveClaimModelSelection(imported, selection) {
         }))
       : null;
   const predicate =
-    kind === 'claim' ? structuredClone(imported.model.vocabulary.predicates[item.predicate]) : null;
+    kind === "claim" ? structuredClone(imported.model.vocabulary.predicates[item.predicate]) : null;
   const sourceIds = new Set([
     ...elements.flatMap(({ provenance }) => provenance),
     ...relations.flatMap(({ provenance }) => provenance),
@@ -117,14 +117,14 @@ export function resolveClaimModelSelection(imported, selection) {
     sourceClass: imported.sourceClass,
     sourceOwner: imported.model.owner,
     source: structuredClone(imported.source),
-    target: { kind, id, identityScope: 'claim-model-id', origin: structuredClone(origin) },
+    target: { kind, id, identityScope: "claim-model-id", origin: structuredClone(origin) },
     members: { elements, relations, claims },
     ...(dependencyBindings === null ? {} : { dependencyBindings }),
     ...(predicate === null ? {} : { predicate }),
     provenanceSources,
     limits: [
       ...imported.semanticLimits,
-      ...(kind === 'claim' && item.coverage === 'unknown' ? [`claim-coverage-unknown:${id}`] : []),
+      ...(kind === "claim" && item.coverage === "unknown" ? [`claim-coverage-unknown:${id}`] : []),
     ],
   });
 }
@@ -136,15 +136,15 @@ export function claimDependsOnSelectedRelation(claimSelection, relationSelection
   return Boolean(
     claimSelection?.format === format &&
     relationSelection?.format === format &&
-    claimSelection.target?.kind === 'claim' &&
-    relationSelection.target?.kind === 'relation' &&
+    claimSelection.target?.kind === "claim" &&
+    relationSelection.target?.kind === "relation" &&
     record(claimSelection.source) &&
     record(relationSelection.source) &&
     text(claimSelection.source.namespace) &&
     isDigest(claimSelection.source.sha256) &&
     text(claimSelection.source.claimant) &&
     text(claimSelection.sourceOwner) &&
-    ['native', 'derived'].includes(claimSelection.sourceClass) &&
+    ["native", "derived"].includes(claimSelection.sourceClass) &&
     claimSelection.source?.namespace === relationSelection.source?.namespace &&
     claimSelection.source?.sha256 === relationSelection.source?.sha256 &&
     claimSelection.source?.claimant === relationSelection.source?.claimant &&
@@ -154,7 +154,7 @@ export function claimDependsOnSelectedRelation(claimSelection, relationSelection
     claim.id === claimSelection.target.id &&
     relation?.id === relationSelection.target.id &&
     claim.dependsOn.some(
-      (ref) => ref?.section === 'relations' && ref.id === relationSelection.target.id,
+      (ref) => ref?.section === "relations" && ref.id === relationSelection.target.id,
     ) &&
     claim.subject === relation?.from?.id &&
     claim.predicate === relation?.kind &&

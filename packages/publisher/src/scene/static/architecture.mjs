@@ -1,19 +1,19 @@
-import { fail } from '../../protocol/values.mjs';
+import { fail } from "../../protocol/values.mjs";
 
-const sides = new Set(['top', 'right', 'bottom', 'left']);
-const routes = new Set(['straight', 'orthogonal-h', 'orthogonal-v']);
+const sides = new Set(["top", "right", "bottom", "left"]);
+const routes = new Set(["straight", "orthogonal-h", "orthogonal-v"]);
 const portSpacing = 22;
 
 function point(box, side, offset = 0) {
-  if (side === 'top') return [box.x + box.w / 2 + offset, box.y];
-  if (side === 'right') return [box.x + box.w, box.y + box.h / 2 + offset];
-  if (side === 'bottom') return [box.x + box.w / 2 + offset, box.y + box.h];
+  if (side === "top") return [box.x + box.w / 2 + offset, box.y];
+  if (side === "right") return [box.x + box.w, box.y + box.h / 2 + offset];
+  if (side === "bottom") return [box.x + box.w / 2 + offset, box.y + box.h];
   return [box.x, box.y + box.h / 2 + offset];
 }
 
 function routePoints(from, to, route, bend) {
-  if (route === 'straight') return [from, to];
-  if (route === 'orthogonal-h') {
+  if (route === "straight") return [from, to];
+  if (route === "orthogonal-h") {
     if (from[1] === to[1]) return [from, to];
     const middle = (from[0] + to[0]) / 2;
     return [from, [middle, from[1]], [middle, to[1]], to];
@@ -91,54 +91,54 @@ function checkedGraph(input) {
     !input.groups.length ||
     !Array.isArray(input.relations)
   )
-    fail('grouped_geometry_input_invalid');
+    fail("grouped_geometry_input_invalid");
   const nodes = new Map();
   for (const node of input.nodes) {
     if (
-      typeof node?.id !== 'string' ||
+      typeof node?.id !== "string" ||
       !node.id ||
-      typeof node.label !== 'string' ||
+      typeof node.label !== "string" ||
       !node.label ||
       nodes.has(node.id)
     )
-      fail('grouped_geometry_input_invalid');
+      fail("grouped_geometry_input_invalid");
     nodes.set(node.id, node);
   }
   const groupIds = new Set();
   const members = new Set();
   for (const group of input.groups) {
     if (
-      typeof group?.id !== 'string' ||
+      typeof group?.id !== "string" ||
       !group.id ||
       groupIds.has(group.id) ||
-      typeof group.label !== 'string' ||
+      typeof group.label !== "string" ||
       !group.label ||
       !Array.isArray(group.members) ||
       !group.members.length ||
       group.members.length > 8
     )
-      fail('grouped_geometry_input_invalid');
+      fail("grouped_geometry_input_invalid");
     groupIds.add(group.id);
     for (const id of group.members) {
-      if (!nodes.has(id) || members.has(id)) fail('grouped_geometry_input_invalid');
+      if (!nodes.has(id) || members.has(id)) fail("grouped_geometry_input_invalid");
       members.add(id);
     }
   }
-  if (members.size !== nodes.size) fail('grouped_geometry_input_invalid');
+  if (members.size !== nodes.size) fail("grouped_geometry_input_invalid");
   const relationIds = new Set();
   for (const relation of input.relations) {
     if (
-      typeof relation?.id !== 'string' ||
+      typeof relation?.id !== "string" ||
       !relation.id ||
       relationIds.has(relation.id) ||
       !nodes.has(relation.from) ||
       !nodes.has(relation.to) ||
-      typeof relation.text !== 'string' ||
+      typeof relation.text !== "string" ||
       !sides.has(relation.fromSide) ||
       !sides.has(relation.toSide) ||
       !routes.has(relation.route)
     )
-      fail('grouped_geometry_input_invalid');
+      fail("grouped_geometry_input_invalid");
     relationIds.add(relation.id);
   }
   return { nodes, groups: input.groups, relations: input.relations };
@@ -152,11 +152,11 @@ function adjacentVerticalGap(relation, rows) {
   const from = rows.get(relation.from);
   const to = rows.get(relation.to);
   if (
-    relation.route !== 'orthogonal-v' ||
+    relation.route !== "orthogonal-v" ||
     Math.abs(from - to) !== 1 ||
     !(
-      (from < to && relation.fromSide === 'bottom' && relation.toSide === 'top') ||
-      (from > to && relation.fromSide === 'top' && relation.toSide === 'bottom')
+      (from < to && relation.fromSide === "bottom" && relation.toSide === "top") ||
+      (from > to && relation.fromSide === "top" && relation.toSide === "bottom")
     )
   )
     return null;
@@ -165,8 +165,8 @@ function adjacentVerticalGap(relation, rows) {
 
 function endpoints(relation, layout, offsets) {
   return [
-    point(layout.nodes.get(relation.from), relation.fromSide, offsets.get(relation.id + ':from')),
-    point(layout.nodes.get(relation.to), relation.toSide, offsets.get(relation.id + ':to')),
+    point(layout.nodes.get(relation.from), relation.fromSide, offsets.get(relation.id + ":from")),
+    point(layout.nodes.get(relation.to), relation.toSide, offsets.get(relation.id + ":to")),
   ];
 }
 
@@ -202,7 +202,7 @@ function verticalCorridors(graph, layout, offsets) {
     const predecessors = new Map(entries.map(({ relation }) => [relation.id, new Set()]));
     for (const [index, left] of entries.entries())
       for (const right of entries.slice(index + 1)) {
-        const routed = (entry, bend) => routePoints(entry.from, entry.to, 'orthogonal-v', bend);
+        const routed = (entry, bend) => routePoints(entry.from, entry.to, "orthogonal-v", bend);
         const leftBeforeRight = !pathsTouch(
           routed(left, start),
           routed(right, start + portSpacing),
@@ -213,8 +213,8 @@ function verticalCorridors(graph, layout, offsets) {
         );
         if (!leftBeforeRight && !rightBeforeLeft)
           fail(
-            'semantic_publication_static_route_crossing',
-            left.relation.id + ':' + right.relation.id,
+            "semantic_publication_static_route_crossing",
+            left.relation.id + ":" + right.relation.id,
           );
         if (!leftBeforeRight) predecessors.get(left.relation.id).add(right.relation.id);
         if (!rightBeforeLeft) predecessors.get(right.relation.id).add(left.relation.id);
@@ -226,7 +226,7 @@ function verticalCorridors(graph, layout, offsets) {
           pending.has(relation.id) &&
           [...predecessors.get(relation.id)].every((id) => !pending.has(id)),
       );
-      if (!next) fail('semantic_publication_static_route_crossing');
+      if (!next) fail("semantic_publication_static_route_crossing");
       bends.set(next.relation.id, start + index * portSpacing);
       pending.delete(next.relation.id);
     }
@@ -238,10 +238,10 @@ function composeRoutes(graph, layout) {
   const slots = new Map();
   for (const authored of graph.relations) {
     for (const [id, side, peer, endpoint] of [
-      [authored.from, authored.fromSide, authored.to, 'from'],
-      [authored.to, authored.toSide, authored.from, 'to'],
+      [authored.from, authored.fromSide, authored.to, "from"],
+      [authored.to, authored.toSide, authored.from, "to"],
     ]) {
-      const key = id + ':' + side,
+      const key = id + ":" + side,
         entries = slots.get(key) ?? [];
       entries.push({ authored, peer: layout.nodes.get(peer), endpoint });
       slots.set(key, entries);
@@ -249,19 +249,19 @@ function composeRoutes(graph, layout) {
   }
   const offsets = new Map();
   for (const [key, entries] of slots) {
-    const side = key.split(':').at(-1),
-      horizontal = ['top', 'bottom'].includes(side);
+    const side = key.split(":").at(-1),
+      horizontal = ["top", "bottom"].includes(side);
     entries.sort(
       (a, b) =>
         (horizontal ? a.peer.x - b.peer.x : a.peer.y - b.peer.y) ||
         a.authored.id.localeCompare(b.authored.id),
     );
-    const box = layout.nodes.get(key.slice(0, key.lastIndexOf(':')));
+    const box = layout.nodes.get(key.slice(0, key.lastIndexOf(":")));
     if ((entries.length - 1) * portSpacing > (horizontal ? box.w : box.h) - 40)
-      fail('semantic_publication_static_port_infeasible');
+      fail("semantic_publication_static_port_infeasible");
     entries.forEach((entry, index) =>
       offsets.set(
-        entry.authored.id + ':' + entry.endpoint,
+        entry.authored.id + ":" + entry.endpoint,
         (index - (entries.length - 1) / 2) * portSpacing,
       ),
     );
@@ -273,14 +273,14 @@ function composeRoutes(graph, layout) {
     for (const [id, box] of layout.nodes) {
       if ([authored.from, authored.to].includes(id)) continue;
       if (segments(points).some(([a, b]) => intersectsSegment(a, b, box, 6)))
-        fail('semantic_publication_static_route_infeasible', authored.id + ':' + id);
+        fail("semantic_publication_static_route_infeasible", authored.id + ":" + id);
     }
     return { id: authored.id, from: authored.from, to: authored.to, text: authored.text, points };
   });
   for (const [index, left] of selected.entries())
     for (const right of selected.slice(index + 1))
       if (pathsTouch(left.points, right.points))
-        fail('semantic_publication_static_route_crossing', left.id + ':' + right.id);
+        fail("semantic_publication_static_route_crossing", left.id + ":" + right.id);
   return selected;
 }
 
@@ -342,7 +342,7 @@ function placeLabels(selectedRoutes, layout) {
         }
       }
     }
-    fail('semantic_publication_static_label_infeasible', route.id);
+    fail("semantic_publication_static_label_infeasible", route.id);
   });
 }
 
@@ -356,7 +356,7 @@ function groupLayout(graph) {
       [relation.from, relation.fromSide],
       [relation.to, relation.toSide],
     ])
-      if (side === 'top') topPorts.set(id, (topPorts.get(id) ?? 0) + 1);
+      if (side === "top") topPorts.set(id, (topPorts.get(id) ?? 0) + 1);
     const gap = adjacentVerticalGap(relation, rows);
     if (gap) corridorCounts.set(gap.row, (corridorCounts.get(gap.row) ?? 0) + 1);
     const from = rows.get(relation.from);
@@ -370,7 +370,7 @@ function groupLayout(graph) {
     ),
     longestRelation = Math.max(0, ...graph.relations.map((item) => [...item.text].length));
   if (longestNode > 32 || longestRelation > 32)
-    fail('semantic_publication_static_label_infeasible');
+    fail("semantic_publication_static_label_infeasible");
   const onGraphLabels = longestRelation > 0;
   const nodeWidth = Math.max(230, Math.ceil(longestNode * 9.76 + 32)),
     nodeHeight = 92,
@@ -437,7 +437,7 @@ export function composeStaticArchitectureScene(document, edition, view) {
     relations: view.relations.map((authored) => {
       const relation = document.relations[authored.id];
       const text = edition.visualGrammar.relationTypes[relation.type].label;
-      if (typeof text !== 'string' || !text) fail('grouped_geometry_input_invalid');
+      if (typeof text !== "string" || !text) fail("grouped_geometry_input_invalid");
       return {
         ...authored,
         from: relation.subject,

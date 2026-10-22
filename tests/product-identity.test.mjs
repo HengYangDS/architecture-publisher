@@ -1,95 +1,98 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { spawnSync } from 'node:child_process';
-import { spawnNativeSync, parseNpmPackRecord } from './fixtures/npm-pack-report.mjs';
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { spawnNativeSync, parseNpmPackRecord } from "./fixtures/npm-pack-report.mjs";
 
-const root = path.resolve(import.meta.dirname, '..');
+const root = path.resolve(import.meta.dirname, "..");
 const runGit = (...args) => {
-  const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+  const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 };
 
-test('a signed release version is not reused for changed package inputs', async () => {
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
-  const tag = `v${workspace.version}`;
-  if (!runGit('tag', '--list', tag)) return;
-  const packagePaths = ['packages/publisher', 'editions/self'];
-  const tracked = spawnSync('git', ['diff', '--quiet', tag, '--', ...packagePaths], {
+test("a signed release version is not reused for changed package inputs", async () => {
+  const version = (await fs.readFile(path.join(root, "VERSION"), "utf8")).trim();
+  const tag = `v${version}`;
+  if (!runGit("tag", "--list", tag)) return;
+  const packagePaths = ["packages/publisher", "editions/self"];
+  const tracked = spawnSync("git", ["diff", "--quiet", tag, "--", ...packagePaths], {
     cwd: root,
-    encoding: 'utf8',
+    encoding: "utf8",
   });
-  assert.equal(tracked.status, 0, tracked.stderr || 'released package inputs changed');
-  assert.equal(runGit('ls-files', '--others', '--exclude-standard', '--', ...packagePaths), '');
+  assert.equal(tracked.status, 0, tracked.stderr || "released package inputs changed");
+  assert.equal(runGit("ls-files", "--others", "--exclude-standard", "--", ...packagePaths), "");
 });
 
-test('alpha.7 migration baseline preserves exact local and remote identities', async () => {
+test("alpha.7 migration baseline preserves exact local and remote identities", async () => {
   const baseline = JSON.parse(
-    await fs.readFile(path.join(root, 'docs/migration/alpha7-baseline.json'), 'utf8'),
+    await fs.readFile(path.join(root, "docs/migration/alpha7-baseline.json"), "utf8"),
   );
-  const gitlabCi = await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8');
-  assert.equal(baseline.schema, 'architecture-publisher.migration-baseline/v1');
-  assert.equal(baseline.observedAt, '2026-09-20');
-  assert.equal(baseline.predecessor.product, 'Architecture Publishing');
-  assert.equal(baseline.predecessor.repositoryPath, 'ethos-architecture');
-  assert.equal(baseline.predecessor.package, 'architecture-publishing');
-  assert.equal(baseline.predecessor.command, 'architecture');
-  assert.equal(baseline.git.tag, 'v0.1.0-alpha.7');
-  assert.equal(runGit('rev-parse', baseline.git.tag), baseline.git.tagObject);
-  assert.equal(runGit('rev-parse', `${baseline.git.tag}^{}`), baseline.git.commit);
-  assert.equal(runGit('rev-parse', `${baseline.git.commit}^{tree}`), baseline.git.tree);
-  assert.equal(baseline.git.signature, 'PASS');
+  const gitlabCi = await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8");
+  assert.equal(baseline.schema, "architecture-publisher.migration-baseline/v1");
+  assert.equal(baseline.observedAt, "2026-09-20");
+  assert.equal(baseline.predecessor.product, "Architecture Publishing");
+  assert.equal(baseline.predecessor.repositoryPath, "ethos-architecture");
+  assert.equal(baseline.predecessor.package, "architecture-publishing");
+  assert.equal(baseline.predecessor.command, "architecture");
+  assert.equal(baseline.git.tag, "v0.1.0-alpha.7");
+  assert.equal(runGit("rev-parse", baseline.git.tag), baseline.git.tagObject);
+  assert.equal(runGit("rev-parse", `${baseline.git.tag}^{}`), baseline.git.commit);
+  assert.equal(runGit("rev-parse", `${baseline.git.commit}^{tree}`), baseline.git.tree);
+  assert.equal(baseline.git.signature, "PASS");
   assert.equal(baseline.gitlab.projectId, 1323);
   assert.equal(
     baseline.gitlab.pathWithNamespace,
-    'dig/research/human-agent-stewardship/ethos-architecture',
+    "dig/research/human-agent-stewardship/ethos-architecture",
   );
-  assert.equal(baseline.gitlab.defaultBranch, 'main');
-  assert.equal(baseline.gitlab.visibility, 'private');
+  assert.equal(baseline.gitlab.defaultBranch, "main");
+  assert.equal(baseline.gitlab.visibility, "private");
   assert.equal(baseline.release.package.sha256.length, 64);
   assert.equal(baseline.release.qualification.sha256.length, 64);
   assert.equal(baseline.release.assetCount, 9);
   assert.equal(baseline.documents.staticPng.width, 6000);
   assert.equal(baseline.documents.staticPng.height, 3375);
-  assert.equal(baseline.limits.independentOffHostRestore, 'UNPROVED');
+  assert.equal(baseline.limits.independentOffHostRestore, "UNPROVED");
   assert.match(gitlabCi, /^variables:$/mu);
   assert.match(gitlabCi, /^[ ]{2}GIT_DEPTH: ['"]0['"]$/mu);
 });
 
-test('current product surfaces expose one Architecture Publisher identity', async () => {
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+test("current product surfaces expose one Architecture Publisher identity", async () => {
+  const version = (await fs.readFile(path.join(root, "VERSION"), "utf8")).trim();
+  const workspace = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
   const packageJson = JSON.parse(
-    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
+    await fs.readFile(path.join(root, "packages/publisher/package.json"), "utf8"),
   );
   const selfPackage = JSON.parse(
-    await fs.readFile(path.join(root, 'editions/self/package.json'), 'utf8'),
+    await fs.readFile(path.join(root, "editions/self/package.json"), "utf8"),
   );
-  const packageLock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
-  const profile = await fs.readFile(path.join(root, '.ethos/profile.toml'), 'utf8');
-  const openspec = await fs.readFile(path.join(root, 'openspec/config.yaml'), 'utf8');
-  const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
+  const packageLock = JSON.parse(await fs.readFile(path.join(root, "package-lock.json"), "utf8"));
+  const profile = await fs.readFile(path.join(root, ".ethos/profile.toml"), "utf8");
+  const openspec = await fs.readFile(path.join(root, "openspec/config.yaml"), "utf8");
+  const readme = await fs.readFile(path.join(root, "README.md"), "utf8");
   const skill = await fs.readFile(
-    path.join(root, 'skills/architecture-publisher/SKILL.md'),
-    'utf8',
+    path.join(root, "skills/architecture-publisher/SKILL.md"),
+    "utf8",
   );
-  const cli = await fs.readFile(path.join(root, 'packages/publisher/src/cli/main.mjs'), 'utf8');
+  const cli = await fs.readFile(path.join(root, "packages/publisher/src/cli/main.mjs"), "utf8");
 
-  assert.equal(packageJson.name, 'architecture-publisher');
+  assert.equal(packageJson.name, "architecture-publisher");
   assert.match(packageJson.version, /^0\.3\.0-alpha\.[0-9]+$/u);
-  assert.deepEqual(packageJson.bin, { archpub: 'src/cli/main.mjs' });
-  assert.equal(packageJson.exports['./provider'], './src/provider/index.mjs');
-  assert.deepEqual(Object.keys(packageJson.bin), ['archpub']);
-  assert.equal(workspace.name, 'architecture-publisher-workspace');
+  assert.deepEqual(packageJson.bin, { archpub: "src/cli/main.mjs" });
+  assert.equal(packageJson.exports["./provider"], "./src/provider/index.mjs");
+  assert.deepEqual(Object.keys(packageJson.bin), ["archpub"]);
+  assert.equal(workspace.name, "architecture-publisher-workspace");
   assert.equal(workspace.private, true);
-  assert.equal(workspace.version, packageJson.version);
+  assert.equal(Object.hasOwn(workspace, "version"), false);
+  assert.equal(packageJson.version, version);
   assert.equal(selfPackage.version, packageJson.version);
-  assert.equal(selfPackage.dependencies['architecture-publisher'], packageJson.version);
+  assert.equal(selfPackage.dependencies["architecture-publisher"], packageJson.version);
   assert.equal(packageLock.name, workspace.name);
-  assert.equal(packageLock.version, workspace.version);
-  assert.deepEqual(packageLock.packages['packages/publisher'].bin, packageJson.bin);
-  assert.match(profile, new RegExp(`^profile_id = "${packageJson.name}"$`, 'm'));
+  assert.equal(Object.hasOwn(packageLock, "version"), false);
+  assert.equal(Object.hasOwn(packageLock.packages[""], "version"), false);
+  assert.deepEqual(packageLock.packages["packages/publisher"].bin, packageJson.bin);
+  assert.match(profile, new RegExp(`^profile_id = "${packageJson.name}"$`, "m"));
   assert.match(openspec, /Govern Architecture Publisher changes through ETHOS\./);
   assert.match(readme, /^# Architecture Publisher$/m);
   assert.match(readme, /\|\s*Canonical repository\s*\|\s*`architecture-publisher`\s*\|/);
@@ -106,16 +109,16 @@ test('current product surfaces expose one Architecture Publisher identity', asyn
   assert.doesNotMatch(cli, /\b(?:ethos|aigw|archify|resvg|coretext)\b/i);
 });
 
-test('release history follows Keep a Changelog with one SemVer identity', async () => {
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
-  const changelog = await fs.readFile(path.join(root, 'CHANGELOG.md'), 'utf8');
+test("release history follows Keep a Changelog with one SemVer identity", async () => {
+  const version = (await fs.readFile(path.join(root, "VERSION"), "utf8")).trim();
+  const changelog = await fs.readFile(path.join(root, "CHANGELOG.md"), "utf8");
   const semanticVersion =
     /^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
 
-  assert.match(workspace.version, semanticVersion);
+  assert.match(version, semanticVersion);
   assert.match(changelog, /^# Changelog$/mu);
   assert.match(changelog, /Keep a Changelog.*Semantic Versioning/su);
-  assert.match(changelog, /^## Unreleased$/mu);
+  assert.match(changelog, /^## \[Unreleased\]$/mu);
   assert.match(changelog, /^### Added$/mu);
   assert.match(changelog, /^### Changed$/mu);
   assert.match(changelog, /^### Fixed$/mu);
@@ -135,79 +138,78 @@ test('release history follows Keep a Changelog with one SemVer identity', async 
     assert.equal(new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10), date);
     assert.match(
       changelog,
-      new RegExp(`^\\[${version.replaceAll('.', '\\.')}\\]: https?://\\S+$`, 'mu'),
+      new RegExp(`^\\[${version.replaceAll(".", "\\.")}\\]: https?://\\S+$`, "mu"),
     );
   }
-  const tags = runGit('tag', '--list', 'v*', '--sort=-version:refname').split('\n').filter(Boolean);
+  const tags = runGit("tag", "--list", "v*", "--sort=-version:refname").split("\n").filter(Boolean);
   const taggedVersions = tags.map((tag) => tag.slice(1));
-  const preparedVersion =
-    !taggedVersions.includes(workspace.version) && releaseVersions[0] === workspace.version;
+  const preparedVersion = !taggedVersions.includes(version) && releaseVersions[0] === version;
   assert.deepEqual(preparedVersion ? releaseVersions.slice(1) : releaseVersions, taggedVersions);
   for (const tag of tags) {
     const version = tag.slice(1);
     assert.equal(
       releases.get(version),
-      runGit('for-each-ref', '--format=%(creatordate:short)', `refs/tags/${tag}`),
+      runGit("for-each-ref", "--format=%(creatordate:short)", `refs/tags/${tag}`),
       tag,
     );
   }
   const selectedTag = process.env.CI_COMMIT_TAG;
   if (selectedTag) {
-    assert.equal(selectedTag, `v${workspace.version}`);
-    assert.equal(runGit('cat-file', '-t', `refs/tags/${selectedTag}`), 'tag');
-    assert.equal(runGit('rev-parse', `${selectedTag}^{}`), runGit('rev-parse', 'HEAD'));
+    assert.equal(selectedTag, `v${version}`);
+    assert.equal(runGit("cat-file", "-t", `refs/tags/${selectedTag}`), "tag");
+    assert.equal(runGit("rev-parse", `${selectedTag}^{}`), runGit("rev-parse", "HEAD"));
   }
 });
 
-test('installed package exposes archpub and no architecture compatibility command', async (t) => {
-  const scratch = path.join(root, 'build/test-work');
+test("installed package exposes archpub and no architecture compatibility command", async (t) => {
+  const scratch = path.join(root, "build/test-work");
   await fs.mkdir(scratch, { recursive: true });
-  const out = await fs.mkdtemp(path.join(scratch, 'identity-'));
+  const out = await fs.mkdtemp(path.join(scratch, "identity-"));
   t.after(() => fs.rm(out, { recursive: true, force: true }));
   const packed = spawnNativeSync(
-    'npm',
-    ['pack', '--json', '--ignore-scripts', '--pack-destination', out],
-    { cwd: path.join(root, 'packages/publisher'), encoding: 'utf8' },
+    "npm",
+    ["pack", "--json", "--ignore-scripts", "--pack-destination", out],
+    { cwd: path.join(root, "packages/publisher"), encoding: "utf8" },
   );
   assert.equal(packed.status, 0, packed.stderr);
   const info = parseNpmPackRecord(packed.stdout);
-  const consumer = path.join(out, 'consumer');
+  const consumer = path.join(out, "consumer");
   await fs.mkdir(consumer);
   const installed = spawnNativeSync(
-    'npm',
+    "npm",
     [
-      'install',
-      '--offline',
-      '--ignore-scripts',
-      '--no-audit',
-      '--no-fund',
-      '--prefix',
+      "install",
+      "--offline",
+      "--ignore-scripts",
+      "--no-audit",
+      "--no-fund",
+      "--prefix",
       consumer,
       path.join(out, info.filename),
     ],
-    { cwd: consumer, encoding: 'utf8' },
+    { cwd: consumer, encoding: "utf8" },
   );
   assert.equal(installed.status, 0, installed.stderr);
-  const bin = path.join(consumer, 'node_modules/.bin');
+  const bin = path.join(consumer, "node_modules/.bin");
   let usage;
-  if (process.platform === 'win32') {
-    const shim = await fs.readFile(path.join(bin, 'archpub.cmd'), 'utf8');
+  if (process.platform === "win32") {
+    const shim = await fs.readFile(path.join(bin, "archpub.cmd"), "utf8");
     assert.match(shim, /architecture-publisher[\\/]src[\\/]cli[\\/]main\.mjs/u);
-    await assert.rejects(fs.lstat(path.join(bin, 'architecture.cmd')), { code: 'ENOENT' });
-    const npmCli = path.isAbsolute(process.env.npm_execpath ?? '')
+    await assert.rejects(fs.lstat(path.join(bin, "architecture.cmd")), { code: "ENOENT" });
+    const npmCli = path.isAbsolute(process.env.npm_execpath ?? "")
       ? process.env.npm_execpath
-      : path.join(path.dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
-    usage = spawnSync(process.execPath, [npmCli, 'exec', '--offline', '--', 'archpub'], {
+      : path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js");
+    usage = spawnSync(process.execPath, [npmCli, "exec", "--offline", "--", "archpub"], {
       cwd: consumer,
-      encoding: 'utf8',
+      encoding: "utf8",
       timeout: 30_000,
     });
   } else {
-    assert.equal((await fs.lstat(path.join(bin, 'archpub'))).isSymbolicLink(), true);
-    await assert.rejects(fs.lstat(path.join(bin, 'architecture')), { code: 'ENOENT' });
-    usage = spawnSync(path.join(bin, 'archpub'), [], {
+    assert.equal((await fs.lstat(path.join(bin, "archpub"))).isSymbolicLink(), true);
+    await assert.rejects(fs.lstat(path.join(bin, "architecture")), { code: "ENOENT" });
+    usage = spawnSync(path.join(bin, "archpub"), [], {
       cwd: consumer,
-      encoding: 'utf8',
+      encoding: "utf8",
       timeout: 30_000,
     });
   }
@@ -215,29 +217,29 @@ test('installed package exposes archpub and no architecture compatibility comman
   assert.match(usage.stdout, /^Architecture Publisher$/m);
 });
 
-test('product documentation has one semantic owner and a concise entry point', async () => {
-  const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
-  const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
-  const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
-  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
+test("product documentation has one semantic owner and a concise entry point", async () => {
+  const readme = await fs.readFile(path.join(root, "README.md"), "utf8");
+  const product = await fs.readFile(path.join(root, "docs/product-contract.md"), "utf8");
+  const edition = await fs.readFile(path.join(root, "docs/edition-contract.md"), "utf8");
+  const operations = await fs.readFile(path.join(root, "docs/reference/operations.md"), "utf8");
   const skill = await fs.readFile(
-    path.join(root, 'skills/architecture-publisher/SKILL.md'),
-    'utf8',
+    path.join(root, "skills/architecture-publisher/SKILL.md"),
+    "utf8",
   );
   const packageJson = JSON.parse(
-    await fs.readFile(path.join(root, 'packages/publisher/package.json'), 'utf8'),
+    await fs.readFile(path.join(root, "packages/publisher/package.json"), "utf8"),
   );
 
-  assert(readme.split('\n').length <= 260, 'README is an entry point, not an operations archive');
-  const releaseIdentity = operations.split('## Release identity\n')[1]?.split('\n## ')[0];
-  const releaseEvidence = operations.split('## Release evidence\n')[1]?.split('\n## ')[0];
-  assert(releaseIdentity, 'the release contract has one current reference owner');
+  assert(readme.split("\n").length <= 260, "README is an entry point, not an operations archive");
+  const releaseIdentity = operations.split("## Release identity\n")[1]?.split("\n## ")[0];
+  const releaseEvidence = operations.split("## Release evidence\n")[1]?.split("\n## ")[0];
+  assert(releaseIdentity, "the release contract has one current reference owner");
   assert.doesNotMatch(
     releaseIdentity,
     /^### /m,
-    'release observations belong to evidence, not nested current policy',
+    "release observations belong to evidence, not nested current policy",
   );
-  assert(releaseEvidence, 'historical observations have a separate evidence index');
+  assert(releaseEvidence, "historical observations have a separate evidence index");
   assert.match(releaseEvidence, /release-alpha14-readback\.json/u);
   assert.match(releaseEvidence, /blob\/[a-f0-9]{40}\/docs\/reference\/operations\.md/u);
   assert.match(readme, /\[Product contract\]\(docs\/product-contract\.md\)/);
@@ -245,22 +247,26 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.match(readme, /\[Operational reference\]\(docs\/reference\/operations\.md\)/);
   assert.match(edition, /^# Architecture Edition$/m);
   assert.match(edition, /^## Current authoring$/m);
-  assert.match(edition, /^## Historical Edition v1$/m);
+  assert.match(edition, /^## Claim-backed Edition$/m);
+  assert.match(edition, /current `architecture\.edition\/v2` contract/u);
+  assert.match(edition, /no quality class/u);
+  assert.match(edition, /Historical Edition v1 inputs retain exact bytes for recovery/u);
+  assert.match(edition, /original\s+versioned executor/u);
   const example = JSON.parse(
-    await fs.readFile(path.join(root, 'examples/selected-edition/edition/project.json'), 'utf8'),
+    await fs.readFile(path.join(root, "examples/selected-edition/edition/project.json"), "utf8"),
   );
-  assert.equal(example.schema, 'architecture.edition-project/v1');
+  assert.equal(example.schema, "architecture.edition-project/v1");
   for (const field of [
-    'audiences',
-    'questions',
-    'scope.selections',
-    'presentation.static',
-    'visualPolicy',
+    "audiences",
+    "questions",
+    "scope.selections",
+    "presentation.static",
+    "visualPolicy",
   ]) {
     assert(edition.includes(`\`${field}\``), `missing current authoring field: ${field}`);
   }
   const diagrams = [...product.matchAll(/```mermaid\n([\s\S]*?)```/gu)].map((match) => match[1]);
-  assert.equal(diagrams.length, 2, 'build and local effect have distinct dependency diagrams');
+  assert.equal(diagrams.length, 2, "build and local effect have distinct dependency diagrams");
   assert.match(diagrams[0], /editor\["Edition Project"\] --> request/u);
   assert.match(diagrams[0], /compose --> static/u);
   assert.match(diagrams[0], /compose --> interactive/u);
@@ -275,22 +281,14 @@ test('product documentation has one semantic owner and a concise entry point', a
   );
   assert.match(
     edition,
-    /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive scenes/i,
+    /audience[\s\S]*questions[\s\S]*required claims[\s\S]*omission policy[\s\S]*static scene[\s\S]*interactive overview plus optional complete mechanism scenes/i,
   );
-  const selfOperations = operations
-    .split('The first-party self-Edition exports:')[1]
-    ?.split('The current source-owned ETHOS integration package exports:')[0];
-  assert(selfOperations);
-  assert.match(selfOperations, /prepares explicit source-bound inputs/iu);
-  assert.match(selfOperations, /generic (?:Core|compiler).*both media/isu);
-  assert.doesNotMatch(selfOperations, /\brenders\b/iu);
-  assert.match(operations, /architecture\.edition\/v1/);
+  assert.match(operations, /architecture\.edition\/v2/);
   assert.match(operations, /editionSha256/);
   assert.match(operations, /describes the 0\.3 CLI surface/i);
   assert.match(operations, /development checkout is not a\s+release/i);
   assert.match(operations, /Publisher release is not adopter acceptance/i);
   assert.doesNotMatch(operations, /current 0\.2 public surface/i);
-  assert.match(operations, /root `package\.json` is the sole release-version authority/i);
   assert.match(operations, /Changelog[\s\S]*is not evidence that a tag/i);
   assert.match(operations, /signed,\s+annotated `v<version>` tag/i);
   assert.doesNotMatch(operations, /architecture\.semantic-publication\/v2/);
@@ -298,24 +296,24 @@ test('product documentation has one semantic owner and a concise entry point', a
   assert.doesNotMatch(skill, /semantic member, authoring file/);
   assert.match(operations, /Historical alpha\.7 identity/i);
   assert.doesNotMatch(readme, /active 0\.2 Change/i);
-  assert(packageJson.files.includes('README.md'));
-  assert(!packageJson.files.includes('docs/product-design.md'));
-  await assert.rejects(fs.stat(path.join(root, 'docs/product-design.md')), { code: 'ENOENT' });
+  assert(packageJson.files.includes("README.md"));
+  assert(!packageJson.files.includes("docs/product-design.md"));
+  await assert.rejects(fs.stat(path.join(root, "docs/product-design.md")), { code: "ENOENT" });
 });
 
-test('adopter authority does not require source-repository co-location', async () => {
-  const readme = await fs.readFile(path.join(root, 'README.md'), 'utf8');
-  const product = await fs.readFile(path.join(root, 'docs/product-contract.md'), 'utf8');
-  const edition = await fs.readFile(path.join(root, 'docs/edition-contract.md'), 'utf8');
-  const operations = await fs.readFile(path.join(root, 'docs/reference/operations.md'), 'utf8');
+test("adopter authority does not require source-repository co-location", async () => {
+  const readme = await fs.readFile(path.join(root, "README.md"), "utf8");
+  const product = await fs.readFile(path.join(root, "docs/product-contract.md"), "utf8");
+  const edition = await fs.readFile(path.join(root, "docs/edition-contract.md"), "utf8");
+  const operations = await fs.readFile(path.join(root, "docs/reference/operations.md"), "utf8");
   const adoption = await fs.readFile(
-    path.join(root, 'openspec/specs/ecosystem-adoption/spec.md'),
-    'utf8',
+    path.join(root, "openspec/specs/ecosystem-adoption/spec.md"),
+    "utf8",
   );
-  await assert.rejects(fs.stat(path.join(root, 'openspec/changes/architecture-publisher-0-2')), {
-    code: 'ENOENT',
+  await assert.rejects(fs.stat(path.join(root, "openspec/changes/architecture-publisher-0-2")), {
+    code: "ENOENT",
   });
-  const contract = [readme, product, edition, operations, adoption].join('\n');
+  const contract = [readme, product, edition, operations, adoption].join("\n");
 
   assert.match(contract, /declaratively or through one selected\s+executable package/i);
   assert.match(contract, /no adjacent checkout/i);
@@ -334,25 +332,28 @@ test('adopter authority does not require source-repository co-location', async (
     adoption,
     /Each mutable first-party adopter Provider and Edition SHALL live with/u,
   );
-  assert.match(readme, /Edition placement\s+follows the designated editor/u);
+  assert.match(
+    readme,
+    /The Edition, preparation code and output\s+live outside the source repository/u,
+  );
   assert.match(product, /A live Edition belongs to its designated editor/u);
   assert.match(
     edition,
-    /An independent Edition may be maintained outside any selected source repository/u,
+    /do not\s+transfer layout duties to the source owner or define another quality tier/u,
   );
-  assert.match(operations, /First-party co-location is optional/u);
+  assert.match(operations, /Source-product publication preparation is external/u);
 });
 
-test('the current self Edition does not treat dated adopter handoffs as live authority', async () => {
+test("the current self Edition does not treat dated adopter handoffs as live authority", async () => {
   const selfSources = await Promise.all(
     [
-      'editions/self/src/edition/model.mjs',
-      'editions/self/src/edition/prepare.mjs',
-      'editions/self/src/edition/project.mjs',
-      'editions/self/src/edition/refinement.mjs',
-    ].map((file) => fs.readFile(path.join(root, file), 'utf8')),
+      "editions/self/src/edition/model.mjs",
+      "editions/self/src/edition/prepare.mjs",
+      "editions/self/src/edition/project.mjs",
+      "editions/self/src/edition/refinement.mjs",
+    ].map((file) => fs.readFile(path.join(root, file), "utf8")),
   );
-  const current = selfSources.join('\n');
+  const current = selfSources.join("\n");
   assert.doesNotMatch(current, /active-design/u);
   assert.doesNotMatch(current, /openspec\/changes\/architecture-publisher-0-2/u);
   assert.doesNotMatch(current, /ethos-source-owned-handoff/u);

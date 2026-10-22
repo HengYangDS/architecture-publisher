@@ -1,8 +1,8 @@
-import { createContext, Script } from 'node:vm';
-import { fail } from '../../src/protocol/values.mjs';
-import { loadDagreSupply } from './supply.mjs';
+import { createContext, Script } from "node:vm";
+import { fail } from "../../src/protocol/values.mjs";
+import { loadDagreSupply } from "./supply.mjs";
 
-const text = (value) => typeof value === 'string' && value.trim().length > 0;
+const text = (value) => typeof value === "string" && value.trim().length > 0;
 
 async function selectedRuntime() {
   const supply = await loadDagreSupply();
@@ -10,32 +10,32 @@ async function selectedRuntime() {
     { structuredClone },
     { codeGeneration: { strings: false, wasm: false } },
   );
-  new Script(supply.script.toString('utf8'), { filename: 'dagre-supply.js' }).runInContext(
+  new Script(supply.script.toString("utf8"), { filename: "dagre-supply.js" }).runInContext(
     context,
     { timeout: 1000 },
   );
   const dagre = context.dagre;
-  if (dagre.version !== supply.version) fail('render_static_layout_infeasible');
+  if (dagre.version !== supply.version) fail("render_static_layout_infeasible");
   return {
     supply,
     context,
     dagre,
-    layoutScript: new Script('dagre.layout(graph)'),
+    layoutScript: new Script("dagre.layout(graph)"),
   };
 }
 
 /** Use the already pinned Dagre supply for source-neutral flat static coordinates. */
-export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) {
+export async function layoutStaticGraph(input, { alignment = "balanced" } = {}) {
   if (
     !input ||
-    !['balanced', 'regular'].includes(alignment) ||
+    !["balanced", "regular"].includes(alignment) ||
     !Array.isArray(input.nodes) ||
     !input.nodes.length ||
     input.nodes.length > 512 ||
     !Array.isArray(input.relations) ||
     input.relations.length > 2048
   )
-    fail('render_static_layout_invalid');
+    fail("render_static_layout_invalid");
   const ids = new Set();
   for (const node of input.nodes) {
     if (
@@ -45,7 +45,7 @@ export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) 
         (value) => Number.isFinite(value) && value > 0 && value <= 1024,
       )
     )
-      fail('render_static_layout_invalid');
+      fail("render_static_layout_invalid");
     ids.add(node.id);
   }
   const relations = new Set();
@@ -59,16 +59,16 @@ export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) 
         (value) => Number.isFinite(value) && value >= 0 && value <= 1024,
       )
     )
-      fail('render_static_layout_invalid');
+      fail("render_static_layout_invalid");
     relations.add(relation.id);
   }
   const runtime = await selectedRuntime();
   const graph = new runtime.dagre.graphlib.Graph({ multigraph: true });
   graph.setGraph({
-    rankdir: 'LR',
-    ...(alignment === 'regular' ? { align: 'DR' } : {}),
+    rankdir: "LR",
+    ...(alignment === "regular" ? { align: "DR" } : {}),
     ranksep: 70,
-    nodesep: alignment === 'regular' ? 32 : 34,
+    nodesep: alignment === "regular" ? 32 : 34,
     edgesep: 16,
     marginx: 20,
     marginy: 20,
@@ -87,15 +87,15 @@ export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) 
     runtime.context.graph = graph;
     runtime.layoutScript.runInContext(runtime.context, { timeout: 5000 });
   } catch (cause) {
-    throw Object.assign(new Error('render_static_layout_infeasible', { cause }), {
-      code: 'render_static_layout_infeasible',
+    throw Object.assign(new Error("render_static_layout_infeasible", { cause }), {
+      code: "render_static_layout_infeasible",
     });
   } finally {
     delete runtime.context.graph;
   }
   const { width, height } = graph.graph();
   if (![width, height].every((value) => Number.isFinite(value) && value > 0 && value <= 100_000))
-    fail('render_static_layout_infeasible');
+    fail("render_static_layout_infeasible");
   const nodes = input.nodes.map(({ id }) => {
     const { x, y, width: w, height: h } = graph.node(id);
     return { id, x, y, width: w, height: h };
@@ -118,6 +118,6 @@ export async function layoutStaticGraph(input, { alignment = 'balanced' } = {}) 
         points.some(({ x, y }) => ![x, y].every(Number.isFinite)),
     )
   )
-    fail('render_static_layout_infeasible');
+    fail("render_static_layout_infeasible");
   return { width, height, nodes, edges, supplySha256: runtime.supply.manifestSha256 };
 }

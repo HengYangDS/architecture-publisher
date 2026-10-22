@@ -1,7 +1,7 @@
-import { canonical } from '../semantics/document.mjs';
-import { fail } from '../protocol/values.mjs';
-import { claimCard } from './claim-card.mjs';
-import { linkClaimModelSources } from './claim-relations.mjs';
+import { canonical } from "../semantics/document.mjs";
+import { fail } from "../protocol/values.mjs";
+import { claimCard } from "./claim-card.mjs";
+import { linkClaimModelSources } from "./claim-relations.mjs";
 
 /** Parse one exact reference; callers restrict which roles their carrier admits. */
 export function authoredReference(value, kinds, errorCode) {
@@ -12,10 +12,10 @@ export function authoredReference(value, kinds, errorCode) {
     fail(errorCode);
   }
   if (
-    typeof value !== 'string' ||
+    typeof value !== "string" ||
     !Array.isArray(parts) ||
     parts.length !== 3 ||
-    parts.some((part) => typeof part !== 'string' || !part) ||
+    parts.some((part) => typeof part !== "string" || !part) ||
     !kinds.includes(parts[1]) ||
     JSON.stringify(parts) !== value
   )
@@ -35,15 +35,15 @@ export function deriveAuthoredStatements(
   const claimFacts = new Map();
   for (const id of requiredIds) {
     const assertion = assertions.get(id);
-    if (assertion?.kind === 'editorial') {
+    if (assertion?.kind === "editorial") {
       if (
-        typeof edition?.id !== 'string' ||
+        typeof edition?.id !== "string" ||
         !edition.id ||
-        typeof edition.sha256 !== 'string' ||
+        typeof edition.sha256 !== "string" ||
         !/^[a-f0-9]{64}$/u.test(edition.sha256) ||
-        typeof assertion.statement !== 'string' ||
+        typeof assertion.statement !== "string" ||
         !assertion.statement.trim() ||
-        typeof assertion.proponent !== 'string' ||
+        typeof assertion.proponent !== "string" ||
         !assertion.proponent.trim() ||
         !Array.isArray(assertion.basis) ||
         !assertion.basis.length ||
@@ -54,16 +54,16 @@ export function deriveAuthoredStatements(
         fail(errorCode);
       editorial.set(id, {
         assertion,
-        reference: JSON.stringify([edition.id, 'editorial', id]),
+        reference: JSON.stringify([edition.id, "editorial", id]),
         edition: { ...edition },
       });
       continue;
     }
-    if (assertion?.kind !== 'source') fail(errorCode);
+    if (assertion?.kind !== "source") fail(errorCode);
     const selected = selections.get(assertion.selection);
-    if (selected?.target?.kind !== 'claim') continue;
+    if (selected?.target?.kind !== "claim") continue;
     const card = claimCard(selected);
-    const reference = JSON.stringify([card.namespace, 'claim', card.id]);
+    const reference = JSON.stringify([card.namespace, "claim", card.id]);
     const previous = claimFacts.get(reference);
     if (previous && previous !== canonical(card)) fail(errorCode);
     claimFacts.set(reference, canonical(card));
@@ -76,13 +76,13 @@ export function deriveAuthoredStatements(
   for (const reference of declared) {
     const [, kind] = authoredReference(
       reference,
-      ['entity', 'relation', 'claim', 'editorial'],
+      ["entity", "relation", "claim", "editorial"],
       errorCode,
     );
-    if (kind === 'claim') {
+    if (kind === "claim") {
       if (!claimFacts.has(reference)) fail(errorCode);
       directReferences.add(reference);
-    } else if (kind === 'editorial') {
+    } else if (kind === "editorial") {
       if (!editorialReferences.has(reference)) fail(errorCode);
     } else if (!structuralReferences.has(reference)) fail(errorCode);
   }
@@ -113,14 +113,14 @@ export function deriveAuthoredStatements(
       const selected = selections.get(assertions.get(relationAssertionId).selection);
       claims.get(claimAssertionId).anchor = JSON.stringify([
         selected.source.namespace,
-        'relation',
+        "relation",
         selected.target.id,
       ]);
     }
     for (const { claimAssertionId, subject } of linked.subjectLinks)
       claims.get(claimAssertionId).anchor = JSON.stringify([
         subject.namespace,
-        'entity',
+        "entity",
         subject.id,
       ]);
   }
@@ -139,5 +139,5 @@ export function requireAuthoredStatementText(statements, textGraphics) {
     }
   for (const id of references)
     if (!(textGraphics.get(id) ?? []).some((graphicId) => owners.get(graphicId).size === 1))
-      fail('authored_statement_unbound');
+      fail("authored_statement_unbound");
 }

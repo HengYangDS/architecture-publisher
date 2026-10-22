@@ -1,8 +1,15 @@
 node_modules/
 coverage/
 .serena/
+.config/ci/linux/.pixi/
 build/
 .DS_Store
 .env
 .env.*
 !.env.example
+
+# Runtime build outputs are generated explicitly before tests and packaging.
+packages/publisher/renderers/resvg/supply/resvg/index.mjs
+packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm
+packages/publisher/supplies/likec4/parser.mjs
+packages/publisher/src/edition/generated/validators.mjs

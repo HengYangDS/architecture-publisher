@@ -1,17 +1,17 @@
-import { createHash } from 'node:crypto';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-const root = path.resolve(import.meta.dirname, '../../..');
-const manifestPath = path.join(root, 'packages/publisher/renderers/resvg/supply/resvg/source.json');
-const modes = ['--archive', '--inputs', '--outputs', '--registry-url'];
+const root = path.resolve(import.meta.dirname, "../../..");
+const manifestPath = path.join(root, "packages/publisher/renderers/resvg/supply/resvg/source.json");
+const modes = ["--archive", "--inputs", "--outputs", "--registry-url", "--stage"];
 
 async function check(file, selected, message) {
   const info = await fs.lstat(file);
   if (!info.isFile() || (selected.bytes !== undefined && info.size !== selected.bytes))
     throw new Error(message);
   const bytes = await fs.readFile(file);
-  if (createHash('sha256').update(bytes).digest('hex') !== selected.sha256)
+  if (createHash("sha256").update(bytes).digest("hex") !== selected.sha256)
     throw new Error(message);
   return bytes;
 }
@@ -19,12 +19,12 @@ async function check(file, selected, message) {
 function toolIdentity(tools) {
   const exact = (value, keys) =>
     value !== null &&
-    typeof value === 'object' &&
+    typeof value === "object" &&
     !Array.isArray(value) &&
     Object.keys(value).length === keys.length &&
     keys.every((key) => Object.hasOwn(value, key));
-  if (!exact(tools, ['rustc', 'cargo', 'wasmBindgen'])) return null;
-  const fields = ['release', 'commit', 'host'];
+  if (!exact(tools, ["rustc", "cargo", "wasmBindgen"])) return null;
+  const fields = ["release", "commit", "host"];
   for (const compiler of [tools.rustc, tools.cargo]) {
     if (
       !exact(compiler, fields) ||
@@ -45,12 +45,12 @@ function toolIdentity(tools) {
 
 async function nativeWitness(manifest, identityPath) {
   const info = await fs.lstat(identityPath);
-  if (!info.isFile() || info.size > 8192) throw new Error('native tool identity not admitted');
-  const identity = toolIdentity(JSON.parse(await fs.readFile(identityPath, 'utf8')));
+  if (!info.isFile() || info.size > 8192) throw new Error("native tool identity not admitted");
+  const identity = toolIdentity(JSON.parse(await fs.readFile(identityPath, "utf8")));
   const selected = (manifest.build.nativeWitnesses ?? []).filter(
     (witness) => identity !== null && toolIdentity(witness.tools) === identity,
   );
-  if (selected.length !== 1) throw new Error('native tool identity not admitted');
+  if (selected.length !== 1) throw new Error("native tool identity not admitted");
   const witness = selected[0];
   if (
     witness.tools.rustc.release !== manifest.toolchain.rust ||
@@ -60,28 +60,64 @@ async function nativeWitness(manifest, identityPath) {
     witness.wasm.bytes <= 0 ||
     !/^[a-f0-9]{64}$/u.test(witness.wasm.sha256)
   )
-    throw new Error('native witness invalid');
+    throw new Error("native witness invalid");
   return witness.wasm;
 }
 
 async function verify(mode, selectedPath, identityPath) {
-  const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf8'));
-  if (mode === '--registry-url') {
+  const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8"));
+  if (mode === "--stage") {
+    const destination = path.dirname(manifestPath);
+    const source = path.resolve(selectedPath ?? destination);
+    if (!(await fs.lstat(source)).isDirectory())
+      throw new Error("prebuilt Raster directory invalid");
+    const outputs = [];
+    for (const selected of manifest.outputs) {
+      const name = path.basename(selected.path);
+      if (!["index.mjs", "index_bg.wasm"].includes(name))
+        throw new Error("prebuilt Raster member invalid");
+      outputs.push({
+        name,
+        bytes: await check(path.join(source, name), selected, `prebuilt Raster mismatch: ${name}`),
+      });
+    }
+    if (new Set(outputs.map(({ name }) => name)).size !== 2)
+      throw new Error("prebuilt Raster pair required");
+    for (const { name } of outputs) {
+      try {
+        if (!(await fs.lstat(path.join(destination, name))).isFile())
+          throw new Error("prebuilt Raster destination invalid");
+      } catch (error) {
+        if (error.code !== "ENOENT") throw error;
+      }
+    }
+    for (const { name, bytes } of outputs) {
+      const file = path.join(destination, name);
+      const present = await fs.readFile(file).catch((error) => {
+        if (error.code !== "ENOENT") throw error;
+        return null;
+      });
+      if (!present?.equals(bytes)) await fs.writeFile(file, bytes);
+    }
+    process.stdout.write("Canonical Raster pair prepared\n");
+    return;
+  }
+  if (mode === "--registry-url") {
     const base = new URL(selectedPath);
     if (
-      !['http:', 'https:'].includes(base.protocol) ||
+      !["http:", "https:"].includes(base.protocol) ||
       base.username ||
       base.password ||
       base.search ||
       base.hash ||
       !/^\/api\/v4\/?$/u.test(base.pathname)
     )
-      throw new Error('source registry API base invalid');
+      throw new Error("source registry API base invalid");
     const registry = manifest.source.registry;
-    if (registry.provider !== 'gitlab') throw new Error('source registry provider invalid');
+    if (registry.provider !== "gitlab") throw new Error("source registry provider invalid");
     const segments = [registry.projectPath, registry.package, registry.version, registry.file];
-    if (segments.some((value) => typeof value !== 'string' || !value))
-      throw new Error('source registry identity invalid');
+    if (segments.some((value) => typeof value !== "string" || !value))
+      throw new Error("source registry identity invalid");
     const [project, name, version, file] = segments.map((value) => encodeURIComponent(value));
     process.stdout.write(
       `${base.origin}/api/v4/projects/${project}/packages/generic/${name}/${version}/${file}\n`,
@@ -89,23 +125,23 @@ async function verify(mode, selectedPath, identityPath) {
     return;
   }
   const directory = path.resolve(selectedPath);
-  if (mode === '--archive') {
+  if (mode === "--archive") {
     await check(
       directory,
       { sha256: manifest.source.archiveSha256 },
-      'source closure digest mismatch',
+      "source closure digest mismatch",
     );
     return;
   }
-  if (mode === '--inputs') {
+  if (mode === "--inputs") {
     for (const selected of manifest.build.inputs) {
-      const relative = selected.path.slice('tools/raster/resvg/'.length);
+      const relative = selected.path.slice("tools/raster/resvg/".length);
       if (
-        !selected.path.startsWith('tools/raster/resvg/') ||
+        !selected.path.startsWith("tools/raster/resvg/") ||
         !relative ||
-        relative.split(/[\\/]/u).some((segment) => segment === '..' || segment === '.')
+        relative.split(/[\\/]/u).some((segment) => segment === ".." || segment === ".")
       )
-        throw new Error('source closure input path invalid');
+        throw new Error("source closure input path invalid");
       await check(
         path.join(directory, relative),
         selected,
@@ -118,27 +154,32 @@ async function verify(mode, selectedPath, identityPath) {
   for (const selected of manifest.outputs) {
     const bytes = await check(
       path.join(directory, selected.nativeFile),
-      witness && selected.nativeFile === 'index_bg.wasm' ? witness : selected,
+      witness && selected.nativeFile === "index_bg.wasm" ? witness : selected,
       `generated output mismatch: ${selected.nativeFile}`,
     );
     process.stdout.write(
-      `${createHash('sha256').update(bytes).digest('hex')}  ${selected.nativeFile}\n`,
+      `${createHash("sha256").update(bytes).digest("hex")}  ${selected.nativeFile}\n`,
     );
   }
 }
 
 const mode = process.argv[2];
 const selectedPath =
-  process.argv[3] ?? (mode === '--registry-url' ? process.env.CI_API_V4_URL : undefined);
+  process.argv[3] ??
+  (mode === "--registry-url"
+    ? process.env.CI_API_V4_URL
+    : mode === "--stage"
+      ? process.env.ARCHPUB_RESVG_PREBUILT
+      : undefined);
 const identityPath = process.argv[4];
 if (
   !modes.includes(mode) ||
-  !selectedPath ||
+  (!selectedPath && mode !== "--stage") ||
   process.argv.length > 5 ||
-  (identityPath && mode !== '--outputs')
+  (identityPath && mode !== "--outputs")
 ) {
   process.stderr.write(
-    'usage: node verify.mjs <--archive|--inputs> <path> | --outputs <path> [tool-identity.json] | --registry-url [API_BASE]\n',
+    "usage: node verify.mjs <--archive|--inputs> <path> | --outputs <path> [tool-identity.json] | --registry-url [API_BASE] | --stage [prebuilt-directory]\n",
   );
   process.exitCode = 64;
 } else {

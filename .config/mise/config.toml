@@ -1,0 +1,72 @@
+[settings]
+locked = true
+
+[tasks.bootstrap]
+description = "Install locked development dependencies"
+run = [
+  "rustup component add rust-std",
+  "npm ci --ignore-scripts --no-audit --no-fund",
+  "mise run raster-supply",
+  "npm run generate",
+]
+
+[tasks.raster-supply]
+description = "Restore the canonical prebuilt Raster pair from immutable Git custody"
+run = [
+  "git restore --source=758f0e33077ea9290be2d0ffd36aeef44a35a4ac --worktree -- packages/publisher/renderers/resvg/supply/resvg/index.mjs packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
+  "node tools/raster/resvg/verify.mjs --stage",
+]
+
+[tasks.check]
+description = "Verify the complete native quality graph"
+run = "npm run check"
+
+[tasks.fix]
+description = "Format the maintained inputs through their native owners"
+run = "npm run format"
+
+[env]
+MISE_RUSTUP_HOME = "{{config_root}}/build/runtime/tool-cache/rustup"
+MISE_CARGO_HOME = "{{config_root}}/build/runtime/tool-cache/cargo"
+ARCHPUB_RESVG_SOURCE_ARCHIVE = "{{config_root}}/build/runtime/tool-cache/raster/source.tar.xz"
+PLAYWRIGHT_BROWSERS_PATH = "{{ get_env(name='PLAYWRIGHT_BROWSERS_PATH', default=config_root ~ '/build/runtime/tool-cache/playwright') }}"
+ARCHPUB_RESVG_BINDGEN = { value = "{% if tools['github:wasm-bindgen/wasm-bindgen'] is defined %}{% set tool = tools['github:wasm-bindgen/wasm-bindgen'] %}{% if tool is map %}{{tool.path}}{% else %}{{tool[0].path}}{% endif %}/wasm-bindgen{% if os() == 'windows' %}.exe{% endif %}{% endif %}", tools = true }
+
+[tools]
+cue = "0.17.1"
+"npm:npm" = "12.2.1"
+node = "26.12.0"
+pixi = { version = "0.82.0", os = ["linux/arm64"] }
+rust = { version = "1.99.1", profile = "minimal", components = [
+  "cargo",
+  "rust-std",
+  "rustc",
+], targets = [
+  "wasm32-unknown-unknown",
+] }
+
+[tools."github:wasm-bindgen/wasm-bindgen"]
+version = "0.2.129"
+matching_regex = "^wasm-bindgen-[0-9.]+-(aarch64-apple-darwin|aarch64-unknown-linux-gnu|x86_64-pc-windows-msvc)\\.tar\\.gz$"
+strip_components = 1
+
+[tools."github:wasm-bindgen/wasm-bindgen".platforms.windows-arm64]
+asset_pattern = "wasm-bindgen-0.2.129-x86_64-pc-windows-msvc.tar.gz"
+checksum = "sha256:79e348c169d0c10c0b287647f1e753d0985353ca96800bc29be8f4261baf13e6"
+
+[tools."github:tamasfe/taplo"]
+version = "0.10.0"
+version_prefix = ""
+rename_exe = "taplo"
+
+[tools."github:tamasfe/taplo".platforms.linux-arm64]
+asset_pattern = "taplo-linux-aarch64.gz"
+checksum = "sha256:033681d01eec8376c3fd38fa3703c79316f5e14bb013d859943b60a07bccdcc3"
+
+[tools."github:tamasfe/taplo".platforms.macos-arm64]
+asset_pattern = "taplo-darwin-aarch64.gz"
+checksum = "sha256:713734314c3e71894b9e77513c5349835eefbd52908445a0d73b0c7dc469347d"
+
+[tools."github:tamasfe/taplo".platforms.windows-arm64]
+asset_pattern = "taplo-windows-aarch64.zip"
+checksum = "sha256:65a50c5d3b78f6014e6bc6d64eb6dc1d4992bc236589c9bb29e5609fc3454674"

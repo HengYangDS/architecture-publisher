@@ -1,50 +1,50 @@
 export function validateHtmlObservation(observed, view, errors) {
-  assertSet(observed.nodeIds, view.nodeIds, 'node');
+  assertSet(observed.nodeIds, view.nodeIds, "node");
   assertSet(
     observed.edges.map((edge) => edge.id),
     view.relationIds,
-    'relation',
+    "relation",
   );
-  assertEdges(observed.edges, view.relations, 'HTML');
-  assertAttachment(observed.edges, view.relations, 'HTML');
+  assertEdges(observed.edges, view.relations, "HTML");
+  assertAttachment(observed.edges, view.relations, "HTML");
   if (
-    observed.edges.some((edge) => !edge.path?.startsWith('M ') || !edge.from || !edge.to) ||
+    observed.edges.some((edge) => !edge.path?.startsWith("M ") || !edge.from || !edge.to) ||
     observed.overlap.length ||
     observed.overflow.length ||
     observed.minimumFont < 8 ||
     observed.scrollWidth > observed.viewportWidth ||
-    observed.surfaceBadges.some((value) => !['none', 'normal', '""'].includes(value)) ||
+    observed.surfaceBadges.some((value) => !["none", "normal", '""'].includes(value)) ||
     errors.length
   )
-    throw Error('Browser geometry failed: ' + JSON.stringify(observed));
+    throw Error("Browser geometry failed: " + JSON.stringify(observed));
 }
 
 export function validateStaticObservation(observed, overview, errors) {
   if (!Array.isArray(observed.labelStrokeOverlap) || !Array.isArray(observed.edgeNodeOverlap))
-    throw Error('Static SVG stroke coverage missing');
+    throw Error("Static SVG stroke coverage missing");
   if (
     !Array.isArray(observed.fontFaces) ||
-    !['400', '600'].every((weight) =>
+    !["400", "600"].every((weight) =>
       observed.fontFaces.some(
         (font) =>
-          font.family.replaceAll(/["']/g, '') === 'JetBrains Mono' &&
+          font.family.replaceAll(/["']/g, "") === "JetBrains Mono" &&
           font.weight === weight &&
-          font.status === 'loaded',
+          font.status === "loaded",
       ),
     )
   )
-    throw Error('Static SVG embedded fonts missing');
-  assertSet(observed.nodeIds, overview.nodeIds, 'static SVG node');
+    throw Error("Static SVG embedded fonts missing");
+  assertSet(observed.nodeIds, overview.nodeIds, "static SVG node");
   assertSet(
     observed.edges.map((edge) => edge.id),
     overview.relationIds,
-    'static SVG relation',
+    "static SVG relation",
   );
-  assertEdges(observed.edges, overview.relations, 'static SVG');
-  assertAttachment(observed.edges, overview.relations, 'static SVG');
+  assertEdges(observed.edges, overview.relations, "static SVG");
+  assertAttachment(observed.edges, overview.relations, "static SVG");
   if (
     errors.length ||
-    observed.root !== 'svg' ||
+    observed.root !== "svg" ||
     observed.width <= 0 ||
     observed.height <= 0 ||
     observed.viewBox[2] <= 0 ||
@@ -56,10 +56,10 @@ export function validateStaticObservation(observed, overview, errors) {
     observed.overflow.length ||
     observed.minimumFont < 8 ||
     observed.edges.some(
-      (edge) => !edge.path?.startsWith('M ') || !edge.from || !edge.to || edge.stroke === 'none',
+      (edge) => !edge.path?.startsWith("M ") || !edge.from || !edge.to || edge.stroke === "none",
     )
   )
-    throw Error('Static SVG paint failed: ' + JSON.stringify(observed));
+    throw Error("Static SVG paint failed: " + JSON.stringify(observed));
 }
 
 function assertSet(actual, expected, label) {
@@ -92,11 +92,11 @@ function assertAttachment(actual, expected, label) {
 
 function distanceToSide(point, box, side) {
   const between = (value, minimum, maximum) => value >= minimum - 1 && value <= maximum + 1;
-  if (side === 'left')
+  if (side === "left")
     return between(point.y, box.y, box.bottom) ? Math.abs(point.x - box.x) : Infinity;
-  if (side === 'right')
+  if (side === "right")
     return between(point.y, box.y, box.bottom) ? Math.abs(point.x - box.right) : Infinity;
-  if (side === 'top')
+  if (side === "top")
     return between(point.x, box.x, box.right) ? Math.abs(point.y - box.y) : Infinity;
   return between(point.x, box.x, box.right) ? Math.abs(point.y - box.bottom) : Infinity;
 }

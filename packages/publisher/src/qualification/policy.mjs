@@ -1,15 +1,20 @@
-import { canonical, deepFreeze, exact, jsonValue, text } from '../semantics/document.mjs';
-import { fail, isDigest } from '../protocol/values.mjs';
+import { canonical, deepFreeze, exact, jsonValue, text } from "../semantics/document.mjs";
+import { fail, isDigest } from "../protocol/values.mjs";
+import {
+  hasCompleteVisualReviewScopes,
+  isHumanReviewScope,
+  VISUAL_REVIEW_PREDICATES,
+} from "../edition/contract.mjs";
 import {
   selectedEditionCandidateDigest,
   validateSelectedEditionCandidate,
-} from '../compiler/candidate.mjs';
+} from "../compiler/candidate.mjs";
 import {
   bindSelectedQualificationSet,
   bindSubmittedQualificationSet,
   requiredText,
   selectedScope,
-} from './selected.mjs';
+} from "./selected.mjs";
 
 const policyKey = ({ predicate, scope, verifier, method }) =>
   canonical({ predicate, scope, verifier, method });
@@ -20,20 +25,20 @@ function uniqueTexts(values, valid = requiredText) {
 
 function selectedRequirement(value, candidate, obligations, candidateSha256) {
   if (
-    !exact(value, ['predicate', 'scope', 'verifier', 'method', 'allowedLimitations']) ||
+    !exact(value, ["predicate", "scope", "verifier", "method", "allowedLimitations"]) ||
     !requiredText(value.predicate) ||
     !requiredText(value.method) ||
     !uniqueTexts(value.allowedLimitations) ||
-    !exact(value.verifier, ['kind', 'id', 'implementationSha256']) ||
-    !['human', 'machine'].includes(value.verifier.kind) ||
+    !exact(value.verifier, ["kind", "id", "implementationSha256"]) ||
+    !["human", "machine"].includes(value.verifier.kind) ||
     !requiredText(value.verifier.id) ||
     !isDigest(value.verifier.implementationSha256)
   )
-    fail('selected_qualification_policy_requirement_invalid');
+    fail("selected_qualification_policy_requirement_invalid");
   try {
     selectedScope(value.scope, candidate, obligations, candidateSha256);
   } catch {
-    fail('selected_qualification_policy_scope_invalid');
+    fail("selected_qualification_policy_scope_invalid");
   }
 }
 
@@ -41,18 +46,18 @@ function selectedPolicy(value, candidate, obligations, candidateSha256) {
   try {
     jsonValue(value, 0, new Set(), { nodes: 0, bytes: 0 }, new Set());
   } catch {
-    fail('selected_qualification_policy_invalid');
+    fail("selected_qualification_policy_invalid");
   }
   if (
     !exact(value, [
-      'schema',
-      'id',
-      'accepter',
-      'candidateSha256',
-      'acceptedCandidateLimits',
-      'requirements',
+      "schema",
+      "id",
+      "accepter",
+      "candidateSha256",
+      "acceptedCandidateLimits",
+      "requirements",
     ]) ||
-    value.schema !== 'architecture.qualification-policy/v1' ||
+    value.schema !== "architecture.qualification-policy/v1" ||
     !requiredText(value.id) ||
     !requiredText(value.accepter) ||
     !isDigest(value.candidateSha256) ||
@@ -61,21 +66,21 @@ function selectedPolicy(value, candidate, obligations, candidateSha256) {
     !value.requirements.length ||
     value.requirements.length > 4096
   )
-    fail('selected_qualification_policy_invalid');
+    fail("selected_qualification_policy_invalid");
   if (value.candidateSha256 !== candidateSha256)
-    fail('selected_qualification_policy_identity_mismatch');
+    fail("selected_qualification_policy_identity_mismatch");
   if (
     canonical([...value.acceptedCandidateLimits].sort()) !== canonical([...candidate.limits].sort())
   )
-    fail('selected_qualification_policy_limits_mismatch');
+    fail("selected_qualification_policy_limits_mismatch");
   const requirements = new Map();
   const coveredQuestions = new Set();
   for (const [index, requirement] of value.requirements.entries()) {
     selectedRequirement(requirement, candidate, obligations, candidateSha256);
     const key = policyKey(requirement);
-    if (requirements.has(key)) fail('selected_qualification_policy_duplicate');
+    if (requirements.has(key)) fail("selected_qualification_policy_duplicate");
     requirements.set(key, { index, requirement });
-    if (requirement.scope.kind === 'question')
+    if (requirement.scope.kind === "question")
       coveredQuestions.add(
         JSON.stringify([
           requirement.scope.medium,
@@ -88,7 +93,31 @@ function selectedPolicy(value, candidate, obligations, candidateSha256) {
     for (const view of obligations[medium].views)
       for (const question of view.questionIds)
         if (!coveredQuestions.has(JSON.stringify([medium, view.id, question])))
-          fail('selected_qualification_policy_question_missing');
+          fail("selected_qualification_policy_question_missing");
+  if (
+    !hasCompleteVisualReviewScopes(
+      value.requirements.filter(
+        ({ verifier, scope }) => verifier.kind === "human" && isHumanReviewScope(scope),
+      ),
+    )
+  )
+    fail("selected_qualification_policy_visual_review_missing");
+  for (const [medium, { artifacts }] of Object.entries(candidate.media))
+    for (const artifact of artifacts)
+      if (["image/png", "text/html"].includes(artifact.mediaType))
+        for (const predicate of VISUAL_REVIEW_PREDICATES)
+          if (
+            !value.requirements.some(
+              (requirement) =>
+                requirement.predicate === predicate &&
+                requirement.verifier.kind === "human" &&
+                requirement.scope.kind ===
+                  (artifact.mediaType === "image/png" ? "physical" : "viewport") &&
+                requirement.scope.medium === medium &&
+                requirement.scope.artifact === artifact.id,
+            )
+          )
+            fail("selected_qualification_policy_visual_review_missing");
   return requirements;
 }
 
@@ -111,14 +140,14 @@ function assessBoundPolicy(candidate, bound, obligations, policyValue) {
       unselectedRecords.push(record.id);
       continue;
     }
-    if (seen.has(key)) fail('selected_qualification_policy_record_duplicate');
+    if (seen.has(key)) fail("selected_qualification_policy_record_duplicate");
     seen.add(key);
     if (
       record.limitations.some((limit) => !selected.requirement.allowedLimitations.includes(limit))
     )
       unacceptedLimitations.push(record.id);
-    if (record.verdict !== 'PASS') nonPassingRecords.push(record.id);
-    if (record.verdict === 'FAIL') matchedFailure = true;
+    if (record.verdict !== "PASS") nonPassingRecords.push(record.id);
+    if (record.verdict === "FAIL") matchedFailure = true;
   }
   const missingRequirements = [...requirements]
     .filter(([key]) => !seen.has(key))
@@ -126,23 +155,23 @@ function assessBoundPolicy(candidate, bound, obligations, policyValue) {
   const complete =
     !missingRequirements.length && !unselectedRecords.length && !unacceptedLimitations.length;
   const submittedVerdict = matchedFailure
-    ? 'FAIL'
+    ? "FAIL"
     : !complete || nonPassingRecords.length
-      ? 'UNKNOWN'
-      : 'PASS';
+      ? "UNKNOWN"
+      : "PASS";
   return deepFreeze({
     ...bound,
     policy: { id: policyValue.id, accepter: policyValue.accepter },
-    policyAttribution: 'invoker-selected-unverified',
-    completeness: complete ? 'submitted-policy-complete' : 'submitted-policy-incomplete',
+    policyAttribution: "invoker-selected-unverified",
+    completeness: complete ? "submitted-policy-complete" : "submitted-policy-incomplete",
     submittedVerdict,
     missingRequirements,
     unselectedRecords: unselectedRecords.sort(),
     unacceptedLimitations: unacceptedLimitations.sort(),
     nonPassingRecords: nonPassingRecords.sort(),
     admitted: false,
-    acceptance: 'not-performed',
-    publication: 'not-performed',
+    acceptance: "not-performed",
+    publication: "not-performed",
   });
 }
 

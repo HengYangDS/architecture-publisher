@@ -1,22 +1,22 @@
-import fs from 'node:fs/promises';
-import { constants } from 'node:fs';
-import path from 'node:path';
-import { createHash } from 'node:crypto';
-import { fail, hasExactFields as fields } from '../../src/protocol/values.mjs';
-import { createRecordedMetricReader } from '../../src/scene/typography/recorded-metrics.mjs';
-import { fileIdentity } from './files.mjs';
-import { runCoreTextStage } from './coretext-process.mjs';
+import fs from "node:fs/promises";
+import { constants } from "node:fs";
+import path from "node:path";
+import { createHash } from "node:crypto";
+import { fail, hasExactFields as fields } from "../../src/protocol/values.mjs";
+import { createRecordedMetricReader } from "../../src/scene/typography/recorded-metrics.mjs";
+import { fileIdentity } from "./files.mjs";
+import { runCoreTextStage } from "./coretext-process.mjs";
 
-const sha = (b) => createHash('sha256').update(b).digest('hex');
-const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + '\n');
-const absolute = (p) => typeof p === 'string' && path.isAbsolute(p);
+const sha = (b) => createHash("sha256").update(b).digest("hex");
+const encode = (v) => Buffer.from(JSON.stringify(v, null, 2) + "\n");
+const absolute = (p) => typeof p === "string" && path.isAbsolute(p);
 
 /** Validate the selected request without reading host tools or requiring macOS. */
 export function validateCoreTextPlan(plan) {
   if (
-    !fields(plan, ['compiler', 'sdk', 'fonts', 'requests', 'scratchRoot']) ||
-    !fields(plan.compiler, ['path', 'sha256']) ||
-    !fields(plan.sdk, ['path', 'settingsSha256']) ||
+    !fields(plan, ["compiler", "sdk", "fonts", "requests", "scratchRoot"]) ||
+    !fields(plan.compiler, ["path", "sha256"]) ||
+    !fields(plan.sdk, ["path", "settingsSha256"]) ||
     !absolute(plan.scratchRoot) ||
     !absolute(plan.sdk.path) ||
     !Array.isArray(plan.fonts) ||
@@ -26,35 +26,35 @@ export function validateCoreTextPlan(plan) {
     !plan.requests.length ||
     plan.requests.length > 20000
   )
-    fail('coretext_plan_invalid');
+    fail("coretext_plan_invalid");
   const ids = new Set();
   for (const font of plan.fonts) {
     if (
-      !fields(font, ['id', 'path', 'sha256', 'postscript', 'cascade']) ||
-      typeof font.id !== 'string' ||
+      !fields(font, ["id", "path", "sha256", "postscript", "cascade"]) ||
+      typeof font.id !== "string" ||
       !font.id ||
       font.id.length > 128 ||
       ids.has(font.id) ||
-      typeof font.postscript !== 'string' ||
+      typeof font.postscript !== "string" ||
       !font.postscript ||
       font.postscript.length > 128 ||
       !Array.isArray(font.cascade) ||
       font.cascade.length > 16 ||
       new Set(font.cascade).size !== font.cascade.length
     )
-      fail('coretext_plan_invalid');
+      fail("coretext_plan_invalid");
     ids.add(font.id);
   }
   if (plan.fonts.some((f) => f.cascade.some((id) => !ids.has(id) || id === f.id)))
-    fail('coretext_plan_invalid');
+    fail("coretext_plan_invalid");
   const requests = structuredClone(plan.requests),
     keys = new Set();
   let textBytes = 0;
   for (const r of requests) {
-    if (!fields(r, ['text', 'size', 'font'])) fail('coretext_plan_invalid');
+    if (!fields(r, ["text", "size", "font"])) fail("coretext_plan_invalid");
     const key = JSON.stringify([r.text, r.size, r.font]);
     if (
-      typeof r.text !== 'string' ||
+      typeof r.text !== "string" ||
       !r.text.trim() ||
       r.text.length > 20000 ||
       !Number.isFinite(r.size) ||
@@ -63,38 +63,38 @@ export function validateCoreTextPlan(plan) {
       !ids.has(r.font) ||
       keys.has(key)
     )
-      fail('coretext_plan_invalid');
+      fail("coretext_plan_invalid");
     keys.add(key);
     textBytes += Buffer.byteLength(r.text);
   }
-  if (textBytes > 4 * 1024 * 1024) fail('coretext_plan_invalid');
+  if (textBytes > 4 * 1024 * 1024) fail("coretext_plan_invalid");
   return requests;
 }
 
 /** Explicit opt-in macOS measurement. This is not an SDK or OS sandbox. */
 export async function measureCoreTextBytes(plan) {
-  if (process.platform !== 'darwin') fail('coretext_platform_unsupported');
+  if (process.platform !== "darwin") fail("coretext_platform_unsupported");
   const requests = validateCoreTextPlan(plan);
   let selected;
   try {
     selected = structuredClone(plan);
   } catch {
-    fail('coretext_plan_invalid');
+    fail("coretext_plan_invalid");
   }
   const compiler = await fileIdentity(
     selected.compiler.path,
     selected.compiler.sha256,
     512 * 1024 * 1024,
-    'coretext_compiler_changed',
+    "coretext_compiler_changed",
   );
   await fs.access(compiler.path, constants.X_OK);
   const sdkPath = await fs.realpath(selected.sdk.path);
-  if (!(await fs.stat(sdkPath)).isDirectory()) fail('coretext_sdk_invalid');
+  if (!(await fs.stat(sdkPath)).isDirectory()) fail("coretext_sdk_invalid");
   const sdk = await fileIdentity(
-    path.join(sdkPath, 'SDKSettings.json'),
+    path.join(sdkPath, "SDKSettings.json"),
     selected.sdk.settingsSha256,
     1024 * 1024,
-    'coretext_sdk_changed',
+    "coretext_sdk_changed",
   );
   const fonts = [];
   let fontBytes = 0;
@@ -103,12 +103,12 @@ export async function measureCoreTextBytes(plan) {
       f.path,
       f.sha256,
       128 * 1024 * 1024,
-      'coretext_font_changed',
+      "coretext_font_changed",
     );
     fontBytes += identity.bytes;
     fonts.push({ ...structuredClone(f), ...identity });
   }
-  if (fontBytes > 256 * 1024 * 1024) fail('coretext_font_limit');
+  if (fontBytes > 256 * 1024 * 1024) fail("coretext_font_limit");
   const parent = selected.scratchRoot,
     parentStat = await fs.lstat(parent);
   if (
@@ -116,34 +116,34 @@ export async function measureCoreTextBytes(plan) {
     parentStat.isSymbolicLink() ||
     (await fs.realpath(parent)) !== parent
   )
-    fail('coretext_scratch_root_invalid');
-  const scratch = await fs.mkdtemp(path.join(parent, '.architecture-coretext-'));
+    fail("coretext_scratch_root_invalid");
+  const scratch = await fs.mkdtemp(path.join(parent, ".architecture-coretext-"));
   let primaryFailure;
   let measurement;
   try {
-    const helper = await fs.readFile(new URL('./coretext.swift', import.meta.url));
-    const script = path.join(scratch, 'measure.swift'),
-      executable = path.join(scratch, 'measure');
-    await fs.writeFile(script, helper, { flag: 'wx' });
+    const helper = await fs.readFile(new URL("./coretext.swift", import.meta.url));
+    const script = path.join(scratch, "measure.swift"),
+      executable = path.join(scratch, "measure");
+    await fs.writeFile(script, helper, { flag: "wx" });
     const env = {
       HOME: scratch,
       PATH: path.dirname(selected.compiler.path),
       TMPDIR: scratch,
       TMP: scratch,
       TEMP: scratch,
-      LANG: 'C.UTF-8',
+      LANG: "C.UTF-8",
       SDKROOT: sdkPath,
     };
     await runCoreTextStage({
-      stage: 'compile',
+      stage: "compile",
       executable: selected.compiler.path,
       args: [
-        '-sdk',
+        "-sdk",
         sdkPath,
-        '-module-cache-path',
-        path.join(scratch, 'module-cache'),
+        "-module-cache-path",
+        path.join(scratch, "module-cache"),
         script,
-        '-o',
+        "-o",
         executable,
       ],
       scratch,
@@ -152,7 +152,7 @@ export async function measureCoreTextBytes(plan) {
       maximumBytes: 8 * 1024 * 1024,
     });
     const response = await runCoreTextStage({
-      stage: 'execution',
+      stage: "execution",
       executable,
       args: [],
       scratch,
@@ -165,24 +165,24 @@ export async function measureCoreTextBytes(plan) {
     try {
       measured = JSON.parse(response.stdout);
     } catch {
-      const code = 'coretext_response_invalid';
+      const code = "coretext_response_invalid";
       throw Object.assign(new Error(code), { code, ...response });
     }
-    if (response.exitCode !== 0 || measured?.status !== 'measured') {
-      const code = measured?.code ?? 'coretext_measurement_failed';
+    if (response.exitCode !== 0 || measured?.status !== "measured") {
+      const code = measured?.code ?? "coretext_measurement_failed";
       throw Object.assign(new Error(code), { code, ...response });
     }
     if (!Array.isArray(measured.observations) || measured.observations.length !== requests.length)
-      fail('coretext_response_invalid');
+      fail("coretext_response_invalid");
     const observations = measured.observations.map((o, i) => {
-      if (!fields(o, ['fonts', 'metric']) || !Array.isArray(o.fonts) || !o.fonts.length)
-        fail('coretext_response_invalid');
+      if (!fields(o, ["fonts", "metric"]) || !Array.isArray(o.fonts) || !o.fonts.length)
+        fail("coretext_response_invalid");
       const primary = fonts.find((f) => f.id === requests[i].font);
       const selected = new Set([primary.id, ...primary.cascade]);
       return {
         ...o,
         fonts: o.fonts.map((f) => {
-          if (!fields(f, ['id', 'path', 'postscript'])) fail('coretext_response_invalid');
+          if (!fields(f, ["id", "path", "postscript"])) fail("coretext_response_invalid");
           const bound = fonts.find((x) => x.id === f.id);
           if (
             !bound ||
@@ -190,17 +190,17 @@ export async function measureCoreTextBytes(plan) {
             bound.path !== f.path ||
             bound.postscript !== f.postscript
           )
-            fail('coretext_font_unbound');
+            fail("coretext_font_unbound");
           return { ...f, sha256: bound.sha256 };
         }),
       };
     });
     const metrics = {
-      schema: 'architecture.text-metrics/v1',
+      schema: "architecture.text-metrics/v1",
       provenance: {
-        method: 'recorded',
-        environment: 'CoreText measured data; reading this table later is not fresh execution',
-        fonts: fonts.map((f) => f.postscript + ':' + f.sha256),
+        method: "recorded",
+        environment: "CoreText measured data; reading this table later is not fresh execution",
+        fonts: fonts.map((f) => f.postscript + ":" + f.sha256),
       },
       records: requests.map((r, i) => [
         JSON.stringify([r.text, r.size, r.font]),
@@ -212,20 +212,20 @@ export async function measureCoreTextBytes(plan) {
       selected.compiler.path,
       compiler.sha256,
       512 * 1024 * 1024,
-      'coretext_compiler_changed',
+      "coretext_compiler_changed",
     );
     await fileIdentity(
-      path.join(sdkPath, 'SDKSettings.json'),
+      path.join(sdkPath, "SDKSettings.json"),
       sdk.sha256,
       1024 * 1024,
-      'coretext_sdk_changed',
+      "coretext_sdk_changed",
     );
     for (const f of fonts)
-      await fileIdentity(f.path, f.sha256, 128 * 1024 * 1024, 'coretext_font_changed');
+      await fileIdentity(f.path, f.sha256, 128 * 1024 * 1024, "coretext_font_changed");
     const metricsBytes = encode(metrics);
     const result = {
-      status: 'measured',
-      freshMeasurement: 'performed',
+      status: "measured",
+      freshMeasurement: "performed",
       requestCount: requests.length,
       compiler,
       sdk,
@@ -233,10 +233,10 @@ export async function measureCoreTextBytes(plan) {
       fonts,
       observations,
       metricsSha256: sha(metricsBytes),
-      browserAcceptance: 'not-performed',
-      semanticAcceptance: 'not-performed',
+      browserAcceptance: "not-performed",
+      semanticAcceptance: "not-performed",
       scope:
-        'Fresh CoreText run with explicit font identities. Compiler bytes and SDK settings are checked, not the complete operating-system/SDK closure.',
+        "Fresh CoreText run with explicit font identities. Compiler bytes and SDK settings are checked, not the complete operating-system/SDK closure.",
     };
     measurement = { result, metricsBytes, requests };
   } catch (error) {
@@ -246,7 +246,7 @@ export async function measureCoreTextBytes(plan) {
     try {
       await fs.rm(scratch, { recursive: true, force: true });
     } catch (error) {
-      const code = 'coretext_scratch_cleanup_failed';
+      const code = "coretext_scratch_cleanup_failed";
       throw Object.assign(new Error(code), {
         code,
         primaryFailure,

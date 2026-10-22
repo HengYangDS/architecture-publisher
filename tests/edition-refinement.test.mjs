@@ -1,32 +1,33 @@
-import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import test from 'node:test';
-import { compileEditionMeaning } from '../packages/publisher/src/compiler/meaning.mjs';
-import { compileSelectedEditionCandidateInput } from '../packages/publisher/src/compiler/successor.mjs';
-import { composeStaticEditionSvg } from '../packages/publisher/renderers/svg/index.mjs';
-import { parseSelectedSceneRefinement } from '../packages/publisher/src/edition/refinement.mjs';
-import { materializeBuildRequestInput } from '../packages/publisher/src/compiler/build-input.mjs';
-import { composeStaticEditionScene } from '../packages/publisher/src/scene/static/edition.mjs';
-import { importLikeC4Layout } from '../packages/publisher/src/semantics/native-likec4.mjs';
-import { selectedNativeEdition, sha } from './fixtures/selected-native-edition.mjs';
-import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+import { compileEditionMeaning } from "../packages/publisher/src/compiler/meaning.mjs";
+import { compileSelectedEditionCandidateInput } from "../packages/publisher/src/compiler/successor.mjs";
+import { composeStaticEditionSvg } from "../packages/publisher/renderers/svg/index.mjs";
+import { parseSelectedSceneRefinement } from "../packages/publisher/src/edition/refinement.mjs";
+import { materializeBuildRequestInput } from "../packages/publisher/src/compiler/build-input.mjs";
+import { composeStaticEditionScene } from "../packages/publisher/src/scene/static/edition.mjs";
+import { importLikeC4Layout } from "../packages/publisher/src/semantics/native-likec4.mjs";
+import { selectedNativeEdition, sha } from "./fixtures/selected-native-edition.mjs";
+import { loadFigureIconSupply } from "../packages/publisher/renderers/icons/index.mjs";
+import { interactiveDocument, interactivePage } from "./fixtures/interactive-member.mjs";
 
 const figureIcons = await loadFigureIconSupply();
 
-async function inputWithRefinement(t, change = (value) => value, media = ['static']) {
+async function inputWithRefinement(t, change = (value) => value, media = ["static"]) {
   const fixture = await selectedNativeEdition(t, { media });
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   const layout = await importLikeC4Layout({
     lock: selected.lock,
     readSource: selected.readSource,
-    view: { namespace: 'fixture/views', id: 'overview' },
+    view: { namespace: "fixture/views", id: "overview" },
   });
   const refinement = change({
-    schema: 'architecture.scene-refinement/v1',
+    schema: "architecture.scene-refinement/v1",
     media: {
       static: {
-        view: 'overview',
+        view: "overview",
         nodes: layout.nodes.map(({ namespace, id, x, y, width, height }) => ({
           namespace,
           id,
@@ -45,35 +46,35 @@ async function inputWithRefinement(t, change = (value) => value, media = ['stati
       },
     },
   });
-  const bytes = Buffer.from(JSON.stringify(refinement) + '\n');
-  fixture.project.visualPolicy.override = 'refinement.json';
+  const bytes = Buffer.from(JSON.stringify(refinement) + "\n");
+  fixture.project.visualPolicy.override = "refinement.json";
   await fs.writeFile(
-    path.join(fixture.root, 'edition/project.json'),
-    JSON.stringify(fixture.project) + '\n',
+    path.join(fixture.root, "edition/project.json"),
+    JSON.stringify(fixture.project) + "\n",
   );
-  await fs.writeFile(path.join(fixture.root, 'edition/refinement.json'), bytes);
+  await fs.writeFile(path.join(fixture.root, "edition/refinement.json"), bytes);
   return { ...fixture, refinement, overrideDigest: sha(bytes) };
 }
 
 function authoredInteractive(label) {
   return {
-    kind: 'authored-architecture',
+    kind: "authored-architecture",
     pages: [
       {
-        id: 'overview',
+        id: "overview",
         label,
-        purpose: 'overview',
+        purpose: "overview",
         scene: {
-          schema: 'architecture.interactive-scene/v1',
-          id: 'overview',
-          title: 'Selected architecture',
+          schema: "architecture.interactive-scene/v1",
+          id: "overview",
+          title: "Selected architecture",
           subtitle: label,
           viewport: { width: 800, height: 600 },
           nodes: [
             {
-              id: 'alpha',
-              label: 'Alpha',
-              visualRole: 'structure',
+              id: "alpha",
+              label: "Alpha",
+              visualRole: "structure",
               position: { x: 80, y: 100 },
               size: { width: 160, height: 80 },
             },
@@ -86,15 +87,15 @@ function authoredInteractive(label) {
   };
 }
 
-test('selected static refinement is byte-bound and changes only public-build geometry', async (t) => {
-  const neutral = await selectedNativeEdition(t, { media: ['static'] });
+test("selected static refinement is byte-bound and changes only public-build geometry", async (t) => {
+  const neutral = await selectedNativeEdition(t, { media: ["static"] });
   const neutralBuilt = await compileSelectedEditionCandidateInput(
     neutral.file,
     neutral.digest,
-    path.join(neutral.root, 'candidate'),
+    path.join(neutral.root, "candidate"),
   );
   const neutralCandidate = JSON.parse(
-    await fs.readFile(path.join(neutralBuilt.output, 'candidate.json'), 'utf8'),
+    await fs.readFile(path.join(neutralBuilt.output, "candidate.json"), "utf8"),
   );
   const fixture = await inputWithRefinement(t, (value) => {
     value.media.static.nodes[0].x += 45;
@@ -102,18 +103,18 @@ test('selected static refinement is byte-bound and changes only public-build geo
   });
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   const meaning = await compileEditionMeaning(selected);
-  assert.equal(meaning.refinement.schema, 'architecture.scene-refinement/v1');
+  assert.equal(meaning.refinement.schema, "architecture.scene-refinement/v1");
   assert.equal(meaning.refinement.sha256, fixture.overrideDigest);
   assert.equal(Object.isFrozen(meaning.refinement.media.static.nodes[0]), true);
   const built = await compileSelectedEditionCandidateInput(
     fixture.file,
     fixture.digest,
-    path.join(fixture.root, 'candidate'),
+    path.join(fixture.root, "candidate"),
   );
-  assert.equal(built.status, 'built');
-  assert.deepEqual(built.media, ['static']);
+  assert.equal(built.status, "built");
+  assert.deepEqual(built.media, ["static"]);
   const candidate = JSON.parse(
-    await fs.readFile(path.join(built.output, 'candidate.json'), 'utf8'),
+    await fs.readFile(path.join(built.output, "candidate.json"), "utf8"),
   );
   assert.equal(candidate.media.static.artifacts.length, 2);
   assert.notEqual(candidate.media.static.sceneSha256, neutralCandidate.media.static.sceneSha256);
@@ -123,33 +124,33 @@ test('selected static refinement is byte-bound and changes only public-build geo
   );
 });
 
-test('explicit neutral interactive keeps a static refinement medium-local', async (t) => {
+test("explicit neutral interactive keeps a static refinement medium-local", async (t) => {
   const first = await inputWithRefinement(
     t,
     (value) => {
-      value.media.interactive = { kind: 'neutral' };
+      value.media.interactive = { kind: "neutral" };
       return value;
     },
-    ['static', 'interactive'],
+    ["static", "interactive"],
   );
   const second = await inputWithRefinement(
     t,
     (value) => {
       value.media.static.nodes[0].x += 45;
-      value.media.interactive = { kind: 'neutral' };
+      value.media.interactive = { kind: "neutral" };
       return value;
     },
-    ['static', 'interactive'],
+    ["static", "interactive"],
   );
   const build = async (fixture) => {
     const result = await compileSelectedEditionCandidateInput(
       fixture.file,
       fixture.digest,
-      path.join(fixture.root, 'candidate'),
+      path.join(fixture.root, "candidate"),
     );
     return {
       result,
-      candidate: JSON.parse(await fs.readFile(path.join(result.output, 'candidate.json'), 'utf8')),
+      candidate: JSON.parse(await fs.readFile(path.join(result.output, "candidate.json"), "utf8")),
     };
   };
   const original = await build(first);
@@ -167,50 +168,72 @@ test('explicit neutral interactive keeps a static refinement medium-local', asyn
     original.candidate.media.interactive.sceneSha256,
     refined.candidate.media.interactive.sceneSha256,
   );
-  assert.equal(
+  assert.notEqual(
     original.candidate.media.interactive.artifacts[0].sha256,
     refined.candidate.media.interactive.artifacts[0].sha256,
   );
+  const originalHtml = await fs.readFile(
+    path.join(original.result.output, "interactive/architecture.html"),
+  );
+  const refinedHtml = await fs.readFile(
+    path.join(refined.result.output, "interactive/architecture.html"),
+  );
+  const originalWork = interactiveDocument(originalHtml);
+  const refinedWork = interactiveDocument(refinedHtml);
+  assert.notEqual(originalWork.build.lockSha256, refinedWork.build.lockSha256);
+  assert.deepEqual(originalWork.order, refinedWork.order);
+  for (const id of originalWork.order) {
+    assert.equal(
+      interactivePage(originalHtml, id),
+      interactivePage(refinedHtml, id),
+      `${id}: artwork is medium-local`,
+    );
+    assert.deepEqual(
+      originalWork.pages[id].facts,
+      refinedWork.pages[id].facts,
+      `${id}: selected source facts are unchanged`,
+    );
+  }
 });
 
-test('explicit neutral static does not inherit interactive-only refinement identity', async (t) => {
-  const fixture = await selectedNativeEdition(t, { media: ['static', 'interactive'] });
+test("explicit neutral static does not inherit interactive-only refinement identity", async (t) => {
+  const fixture = await selectedNativeEdition(t, { media: ["static", "interactive"] });
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   const meaning = await compileEditionMeaning(selected);
   const layout = await importLikeC4Layout({
     lock: selected.lock,
     readSource: selected.readSource,
-    view: { namespace: 'fixture/views', id: 'overview' },
+    view: { namespace: "fixture/views", id: "overview" },
   });
   const sceneFor = (label) => {
     const value = {
-      schema: 'architecture.scene-refinement/v1',
+      schema: "architecture.scene-refinement/v1",
       media: {
-        static: { kind: 'neutral' },
+        static: { kind: "neutral" },
         interactive: authoredInteractive(label),
       },
     };
-    const bytes = Buffer.from(JSON.stringify(value) + '\n');
-    const refinement = parseSelectedSceneRefinement(bytes, ['static', 'interactive'], sha(bytes));
+    const bytes = Buffer.from(JSON.stringify(value) + "\n");
+    const refinement = parseSelectedSceneRefinement(bytes, ["static", "interactive"], sha(bytes));
     return composeStaticEditionScene(
       {
         ...meaning,
         editorial: {
           ...meaning.editorial,
-          visualPolicy: { ...meaning.editorial.visualPolicy, override: 'refinement.json' },
+          visualPolicy: { ...meaning.editorial.visualPolicy, override: "refinement.json" },
         },
         refinement,
       },
       layout,
     );
   };
-  const first = sceneFor('First direction');
-  const second = sceneFor('Second direction');
+  const first = sceneFor("First direction");
+  const second = sceneFor("Second direction");
   assert.deepEqual(first, second);
-  assert.equal(Object.hasOwn(first, 'refinement'), false);
+  assert.equal(Object.hasOwn(first, "refinement"), false);
 });
 
-test('authored static identity excludes a sibling authored interactive decision', async (t) => {
+test("authored static identity excludes a sibling authored interactive decision", async (t) => {
   const sceneFor = async (label) => {
     const fixture = await inputWithRefinement(
       t,
@@ -218,92 +241,92 @@ test('authored static identity excludes a sibling authored interactive decision'
         value.media.interactive = authoredInteractive(label);
         return value;
       },
-      ['static', 'interactive'],
+      ["static", "interactive"],
     );
     const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
     const meaning = await compileEditionMeaning(selected);
     const layout = await importLikeC4Layout({
       lock: selected.lock,
       readSource: selected.readSource,
-      view: { namespace: 'fixture/views', id: 'overview' },
+      view: { namespace: "fixture/views", id: "overview" },
     });
     return composeStaticEditionScene(meaning, layout);
   };
-  const first = await sceneFor('First direction');
-  const second = await sceneFor('Second direction');
+  const first = await sceneFor("First direction");
+  const second = await sceneFor("Second direction");
   assert.deepEqual(first, second);
   assert.match(first.refinement.decisionSha256, /^[a-f0-9]{64}$/u);
-  assert.equal(Object.hasOwn(first.refinement, 'sha256'), false);
+  assert.equal(Object.hasOwn(first.refinement, "sha256"), false);
   assert.deepEqual(
     composeStaticEditionSvg(first, { icons: figureIcons }).bytes,
     composeStaticEditionSvg(second, { icons: figureIcons }).bytes,
   );
 });
 
-test('neutral decisions cannot become an unobserved no-op or media payload', async (t) => {
+test("neutral decisions cannot become an unobserved no-op or media payload", async (t) => {
   for (const [name, mutate] of [
-    ['all-neutral', (value) => (value.media.static = { kind: 'neutral' })],
+    ["all-neutral", (value) => (value.media.static = { kind: "neutral" })],
     [
-      'neutral-media-payload',
+      "neutral-media-payload",
       (value) => {
-        value.media.interactive = { kind: 'neutral', html: '<p>unselected</p>' };
+        value.media.interactive = { kind: "neutral", html: "<p>unselected</p>" };
       },
     ],
   ]) {
     const fixture = await inputWithRefinement(
       t,
       mutate,
-      name === 'all-neutral' ? ['static'] : ['static', 'interactive'],
+      name === "all-neutral" ? ["static"] : ["static", "interactive"],
     );
     await assert.rejects(
       compileEditionMeaning(await materializeBuildRequestInput(fixture.file, fixture.digest)),
-      { code: 'scene_refinement_invalid' },
+      { code: "scene_refinement_invalid" },
       name,
     );
   }
 });
 
-test('a selected refinement cannot add or remove source members', async (t) => {
+test("a selected refinement cannot add or remove source members", async (t) => {
   const fixture = await inputWithRefinement(t, (value) => {
-    value.media.static.nodes[0].id = 'invented';
+    value.media.static.nodes[0].id = "invented";
     return value;
   });
   await assert.rejects(
     compileSelectedEditionCandidateInput(
       fixture.file,
       fixture.digest,
-      path.join(fixture.root, 'candidate'),
+      path.join(fixture.root, "candidate"),
     ),
-    { code: 'scene_refinement_membership_mismatch' },
+    { code: "scene_refinement_membership_mismatch" },
   );
 });
 
-test('pre-rendered media is not a data-only refinement', async (t) => {
+test("pre-rendered media is not a data-only refinement", async (t) => {
   const fixture = await inputWithRefinement(t, (value) => {
-    value.media.static.html = '<svg/>';
+    value.media.static.html = "<svg/>";
     return value;
   });
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   await assert.rejects(compileEditionMeaning(selected), {
-    code: 'scene_refinement_invalid',
+    code: "scene_refinement_invalid",
   });
 });
 
-test('an unknown refinement version cannot masquerade as a medium decision', async (t) => {
+test("an unknown refinement version cannot masquerade as a medium decision", async (t) => {
   const fixture = await inputWithRefinement(t, (value) => {
-    value.schema = 'architecture.scene-refinement/v99';
+    value.schema = "architecture.scene-refinement/v99";
     return value;
   });
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   await assert.rejects(compileEditionMeaning(selected), {
-    code: 'scene_refinement_invalid',
+    code: "scene_refinement_invalid",
   });
 });
 
-test('an unsupported selected medium fails instead of silently using neutral output', async (t) => {
-  const fixture = await inputWithRefinement(t, (value) => value, ['static', 'interactive']);
+test("an unsupported selected medium fails instead of silently using neutral output", async (t) => {
+  const fixture = await inputWithRefinement(t, (value) => value, ["static", "interactive"]);
   const selected = await materializeBuildRequestInput(fixture.file, fixture.digest);
   await assert.rejects(compileEditionMeaning(selected), {
-    code: 'scene_refinement_medium_unadmitted',
+    code: "scene_refinement_medium_unadmitted",
   });
 });

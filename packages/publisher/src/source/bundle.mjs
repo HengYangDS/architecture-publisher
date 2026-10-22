@@ -1,5 +1,5 @@
-import { validateManifest } from './manifest.mjs';
-import { readFileEnvelope } from '../file-input/read.mjs';
+import { validateManifest } from "./manifest.mjs";
+import { readFileEnvelope } from "../file-input/read.mjs";
 
 /** Source schema and meaning stay separate from the shared file envelope. */
 export async function readSourceBundle(manifestPath, expectedSha256, strictManifestJson = false) {
@@ -13,8 +13,8 @@ export async function readSourceBundle(manifestPath, expectedSha256, strictManif
     source: manifest.source,
     manifestSha256,
     members,
-    scope: 'source-file-integrity',
-    officialReplay: 'not-performed',
-    semanticAcceptance: 'not-performed',
+    scope: "source-file-integrity",
+    officialReplay: "not-performed",
+    semanticAcceptance: "not-performed",
   };
 }

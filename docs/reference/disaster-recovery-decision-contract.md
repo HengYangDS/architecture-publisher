@@ -1,7 +1,7 @@
 ---
 subject: architecture-publisher:off-host-recovery
-role: decision-contract
-state: unproved
+role: reference
+state: active
 relations:
   governed_by: ../product-contract.md
 ---

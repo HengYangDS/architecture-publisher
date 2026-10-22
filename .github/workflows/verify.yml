@@ -1,0 +1,456 @@
+# Generated from .config/ci/pipeline.cue. Do not edit.
+
+name: Architecture Publisher verification
+on:
+  pull_request: null
+  push: null
+  workflow_dispatch: null
+permissions:
+  contents: read
+env:
+  MISE_ENV: ci
+  MISE_LOCKED: "1"
+  MISE_HTTP_TIMEOUT: 180s
+  MISE_DATA_DIR: ${{ github.workspace }}/build/runtime/tool-cache/mise
+  MISE_CACHE_DIR: ${{ github.workspace }}/build/runtime/tool-cache/mise/cache
+  MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/build/runtime/tool-cache/playwright
+jobs:
+  verify-linux-review:
+    env:
+      PIXI_HOME: ${{ github.workspace
+        }}/build/runtime/work/native-linux-prerequisites/home
+      PIXI_CACHE_DIR: ${{ github.workspace }}/build/runtime/tool-cache/pixi
+    name: linux / review
+    if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
+      !github.ref_protected) }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-linux-review
+      cancel-in-progress: true
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde
+        with:
+          version: 2026.10.17
+          install: false
+          cache: false
+          env: false
+          export_path: false
+          add_shims_to_path: false
+      - run: mise --version
+      - run: mise install
+      - run: mise exec -- rustup component add rust-std
+      - run: mise exec -- node --version
+      - run: mise exec -- npm --version
+      - run: git --version
+      - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+      - run: mise run raster-supply
+      - run: mise exec -- npm run generate
+      - run: mise exec -- npm run check:ci
+      - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
+      - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
+          CI honors the invoker-owned pinned browser root|self preparation
+          selects one direct Project instead of a legacy Edition authority'
+          tests/quality-contract.test.mjs tests/self-edition.test.mjs
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-name-pattern='standalone reader policy blocks dynamic page
+          connections' tests/interactive-html.test.mjs
+      - run: mise exec -- node -e
+          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+      - name: Retrieve exact Raster source closure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: gh release download "0.48.1-06b5d64d0fcc" --repo
+          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
+          build/runtime/tool-cache/raster
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable xz --version
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable aarch64-conda-linux-gnu-cc
+          --version
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable node
+          tools/raster/resvg/verify.mjs --archive
+          build/runtime/tool-cache/raster/source.tar.xz
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable node --test
+          tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable npm run check
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ always() }}
+        with:
+          name: coverage-${{ github.job }}
+          path: coverage/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: error
+  verify-linux-protected:
+    env:
+      PIXI_HOME: ${{ github.workspace
+        }}/build/runtime/work/native-linux-prerequisites/home
+      PIXI_CACHE_DIR: ${{ github.workspace }}/build/runtime/tool-cache/pixi
+    name: linux / protected
+    if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
+      github.ref_type == 'tag') }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-linux-protected
+      cancel-in-progress: true
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde
+        with:
+          version: 2026.10.17
+          install: false
+          cache: false
+          env: false
+          export_path: false
+          add_shims_to_path: false
+      - run: mise --version
+      - run: mise install
+      - run: mise exec -- rustup component add rust-std
+      - run: mise exec -- node --version
+      - run: mise exec -- npm --version
+      - run: git --version
+      - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+      - run: mise run raster-supply
+      - run: mise exec -- npm run generate
+      - run: mise exec -- npm run check:ci
+      - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
+      - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
+          CI honors the invoker-owned pinned browser root|self preparation
+          selects one direct Project instead of a legacy Edition authority'
+          tests/quality-contract.test.mjs tests/self-edition.test.mjs
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-name-pattern='standalone reader policy blocks dynamic page
+          connections' tests/interactive-html.test.mjs
+      - run: mise exec -- node -e
+          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+      - name: Retrieve exact Raster source closure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: gh release download "0.48.1-06b5d64d0fcc" --repo
+          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
+          build/runtime/tool-cache/raster
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable xz --version
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable aarch64-conda-linux-gnu-cc
+          --version
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable node
+          tools/raster/resvg/verify.mjs --archive
+          build/runtime/tool-cache/raster/source.tar.xz
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable node --test
+          tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable npm run check
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ always() }}
+        with:
+          name: coverage-${{ github.job }}
+          path: coverage/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: error
+  verify-macos-review:
+    name: macos / review
+    if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
+      !github.ref_protected) }}
+    runs-on: macos-15
+    timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-macos-review
+      cancel-in-progress: true
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde
+        with:
+          version: 2026.10.17
+          install: false
+          cache: false
+          env: false
+          export_path: false
+          add_shims_to_path: false
+      - run: mise --version
+      - run: mise install
+      - run: mise exec -- rustup component add rust-std
+      - run: mise exec -- node --version
+      - run: mise exec -- npm --version
+      - run: git --version
+      - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+      - run: mise run raster-supply
+      - run: mise exec -- npm run generate
+      - run: mise exec -- npm run check:ci
+      - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
+          CI honors the invoker-owned pinned browser root|self preparation
+          selects one direct Project instead of a legacy Edition authority'
+          tests/quality-contract.test.mjs tests/self-edition.test.mjs
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-name-pattern='standalone reader policy blocks dynamic page
+          connections' tests/interactive-html.test.mjs
+      - run: mise exec -- node -e
+          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+      - name: Retrieve exact Raster source closure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: gh release download "0.48.1-06b5d64d0fcc" --repo
+          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
+          build/runtime/tool-cache/raster
+      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
+          build/runtime/tool-cache/raster/source.tar.xz
+      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- npm run check
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ always() }}
+        with:
+          name: coverage-${{ github.job }}
+          path: coverage/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: error
+  verify-macos-protected:
+    name: macos / protected
+    if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
+      github.ref_type == 'tag') }}
+    runs-on: macos-15
+    timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-macos-protected
+      cancel-in-progress: true
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde
+        with:
+          version: 2026.10.17
+          install: false
+          cache: false
+          env: false
+          export_path: false
+          add_shims_to_path: false
+      - run: mise --version
+      - run: mise install
+      - run: mise exec -- rustup component add rust-std
+      - run: mise exec -- node --version
+      - run: mise exec -- npm --version
+      - run: git --version
+      - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+      - run: mise run raster-supply
+      - run: mise exec -- npm run generate
+      - run: mise exec -- npm run check:ci
+      - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
+          CI honors the invoker-owned pinned browser root|self preparation
+          selects one direct Project instead of a legacy Edition authority'
+          tests/quality-contract.test.mjs tests/self-edition.test.mjs
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-name-pattern='standalone reader policy blocks dynamic page
+          connections' tests/interactive-html.test.mjs
+      - run: mise exec -- node -e
+          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+      - name: Retrieve exact Raster source closure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: gh release download "0.48.1-06b5d64d0fcc" --repo
+          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
+          build/runtime/tool-cache/raster
+      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
+          build/runtime/tool-cache/raster/source.tar.xz
+      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- npm run check
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ always() }}
+        with:
+          name: coverage-${{ github.job }}
+          path: coverage/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: error
+  verify-windows-review:
+    env:
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.longPaths
+      GIT_CONFIG_VALUE_0: "true"
+    name: windows / review
+    if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
+      !github.ref_protected) }}
+    runs-on: windows-11-arm
+    timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-windows-review
+      cancel-in-progress: true
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde
+        with:
+          version: 2026.10.17
+          install: false
+          cache: false
+          env: false
+          export_path: false
+          add_shims_to_path: false
+      - run: mise --version
+      - run: mise install
+      - run: mise exec -- rustup component add rust-std
+      - run: mise exec -- node --version
+      - run: mise exec -- npm --version
+      - run: git --version
+      - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+      - run: mise run raster-supply
+      - run: mise exec -- npm run generate
+      - run: mise exec -- npm run check:ci
+      - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
+          CI honors the invoker-owned pinned browser root|self preparation
+          selects one direct Project instead of a legacy Edition authority'
+          tests/quality-contract.test.mjs tests/self-edition.test.mjs
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-name-pattern='standalone reader policy blocks dynamic page
+          connections' tests/interactive-html.test.mjs
+      - run: mise exec -- node -e
+          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+      - name: Retrieve exact Raster source closure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: gh release download "0.48.1-06b5d64d0fcc" --repo
+          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
+          build/runtime/tool-cache/raster
+      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
+          build/runtime/tool-cache/raster/source.tar.xz
+      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- npm run check
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ always() }}
+        with:
+          name: coverage-${{ github.job }}
+          path: coverage/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: error
+  verify-windows-protected:
+    env:
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: core.longPaths
+      GIT_CONFIG_VALUE_0: "true"
+    name: windows / protected
+    if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
+      github.ref_type == 'tag') }}
+    runs-on: windows-11-arm
+    timeout-minutes: 60
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-windows-protected
+      cancel-in-progress: true
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde
+        with:
+          version: 2026.10.17
+          install: false
+          cache: false
+          env: false
+          export_path: false
+          add_shims_to_path: false
+      - run: mise --version
+      - run: mise install
+      - run: mise exec -- rustup component add rust-std
+      - run: mise exec -- node --version
+      - run: mise exec -- npm --version
+      - run: git --version
+      - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+      - run: mise run raster-supply
+      - run: mise exec -- npm run generate
+      - run: mise exec -- npm run check:ci
+      - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
+          CI honors the invoker-owned pinned browser root|self preparation
+          selects one direct Project instead of a legacy Edition authority'
+          tests/quality-contract.test.mjs tests/self-edition.test.mjs
+      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+          --test-name-pattern='standalone reader policy blocks dynamic page
+          connections' tests/interactive-html.test.mjs
+      - run: mise exec -- node -e
+          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+      - name: Retrieve exact Raster source closure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_PROMPT_DISABLED: "1"
+        run: gh release download "0.48.1-06b5d64d0fcc" --repo
+          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
+          build/runtime/tool-cache/raster
+      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
+          build/runtime/tool-cache/raster/source.tar.xz
+      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- npm run check
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: ${{ always() }}
+        with:
+          name: coverage-${{ github.job }}
+          path: coverage/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: error

@@ -1,4 +1,4 @@
-import { inflateSync } from 'node:zlib';
+import { inflateSync } from "node:zlib";
 
 const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
 const fail = (code) => {
@@ -18,21 +18,21 @@ const paeth = (left, above, upperLeft) => {
 
 function decodeRgbaPng(bytes) {
   if (!Buffer.isBuffer(bytes) || !bytes.subarray(0, 8).equals(signature))
-    fail('png_canvas_invalid');
+    fail("png_canvas_invalid");
   const chunks = [],
     ids = [];
   let offset = 8,
     width,
     height;
   while (offset < bytes.length) {
-    if (offset + 12 > bytes.length) fail('png_canvas_invalid');
+    if (offset + 12 > bytes.length) fail("png_canvas_invalid");
     const length = bytes.readUInt32BE(offset),
-      type = bytes.subarray(offset + 4, offset + 8).toString('ascii'),
+      type = bytes.subarray(offset + 4, offset + 8).toString("ascii"),
       end = offset + 12 + length;
-    if (end > bytes.length) fail('png_canvas_invalid');
+    if (end > bytes.length) fail("png_canvas_invalid");
     const data = bytes.subarray(offset + 8, offset + 8 + length);
     ids.push(type);
-    if (type === 'IHDR') {
+    if (type === "IHDR") {
       if (
         width !== undefined ||
         length !== 13 ||
@@ -42,37 +42,37 @@ function decodeRgbaPng(bytes) {
         data[11] !== 0 ||
         data[12] !== 0
       )
-        fail('png_canvas_unsupported');
+        fail("png_canvas_unsupported");
       width = data.readUInt32BE(0);
       height = data.readUInt32BE(4);
-    } else if (type === 'IDAT') chunks.push(data);
-    else if (type === 'IEND') {
+    } else if (type === "IDAT") chunks.push(data);
+    else if (type === "IEND") {
       offset = end;
       break;
-    } else if (type[0] === type[0].toUpperCase()) fail('png_canvas_unsupported');
+    } else if (type[0] === type[0].toUpperCase()) fail("png_canvas_unsupported");
     offset = end;
   }
   if (
     offset !== bytes.length ||
-    ids[0] !== 'IHDR' ||
-    ids.at(-1) !== 'IEND' ||
+    ids[0] !== "IHDR" ||
+    ids.at(-1) !== "IEND" ||
     !chunks.length ||
     !Number.isSafeInteger(width) ||
     !Number.isSafeInteger(height) ||
     width < 1 ||
     height < 1
   )
-    fail('png_canvas_invalid');
+    fail("png_canvas_invalid");
   let raw;
   try {
     raw = inflateSync(Buffer.concat(chunks), {
       maxOutputLength: height * (width * 4 + 1),
     });
   } catch {
-    fail('png_canvas_invalid');
+    fail("png_canvas_invalid");
   }
   const stride = width * 4;
-  if (raw.length !== height * (stride + 1)) fail('png_canvas_invalid');
+  if (raw.length !== height * (stride + 1)) fail("png_canvas_invalid");
   const pixels = Buffer.alloc(width * height * 4),
     row = Buffer.alloc(stride),
     previous = Buffer.alloc(stride);
@@ -95,7 +95,7 @@ function decodeRgbaPng(bytes) {
                 ? (encoded + Math.floor((before + above) / 2)) & 255
                 : filter === 4
                   ? (encoded + paeth(before, above, upperLeft)) & 255
-                  : fail('png_canvas_unsupported');
+                  : fail("png_canvas_unsupported");
     }
     row.copy(pixels, y * stride);
     row.copy(previous);
@@ -104,8 +104,8 @@ function decodeRgbaPng(bytes) {
 }
 
 function color(value) {
-  if (typeof value !== 'string' || !/^#[0-9a-f]{6}$/i.test(value))
-    fail('png_elements_scene_invalid');
+  if (typeof value !== "string" || !/^#[0-9a-f]{6}$/i.test(value))
+    fail("png_elements_scene_invalid");
   return [
     Number.parseInt(value.slice(1, 3), 16),
     Number.parseInt(value.slice(3, 5), 16),
@@ -174,7 +174,7 @@ function arrowPoints(edge) {
       (value) => Number.isFinite(value) && value > 0,
     )
   )
-    fail('png_elements_scene_invalid');
+    fail("png_elements_scene_invalid");
   const ux = (tip.x - previous.x) / length,
     uy = (tip.y - previous.y) / length,
     wing = (sign) => ({
@@ -197,42 +197,42 @@ function sceneRegions(scene, padding) {
     !Array.isArray(scene.edges) ||
     !Array.isArray(scene.decorations)
   )
-    fail('png_elements_scene_invalid');
+    fail("png_elements_scene_invalid");
   const tone = (name) => color(scene.paint[name]);
   return [
     ...scene.texts
       .filter((label) => label.visible && label.text.trim())
       .map((label) => ({
         id: `text:${label.id}`,
-        kind: 'glyph',
+        kind: "glyph",
         paint: tone(label.tone),
         box: expanded(label.box, padding),
       })),
     ...scene.nodes.map((node) => ({
       id: `node:${node.id}`,
-      kind: 'node',
+      kind: "node",
       paint: tone(node.tone),
       box: expanded(node.paintBox ?? node.box, padding),
     })),
     ...scene.edges.flatMap((edge) => {
       const edgeTone =
-        edge.kind === 'renewal'
-          ? 'proof'
-          : edge.kind === 'trust'
-            ? 'accent'
-            : edge.kind === 'feedback'
-              ? 'ghost'
-              : 'line';
+        edge.kind === "renewal"
+          ? "proof"
+          : edge.kind === "trust"
+            ? "accent"
+            : edge.kind === "feedback"
+              ? "ghost"
+              : "line";
       return [
         {
           id: `edge:${edge.id}:stroke`,
-          kind: 'stroke',
+          kind: "stroke",
           paint: tone(edgeTone),
           box: pathBox(edge.points, padding + (edge.strokeWidth ?? 1) / 2),
         },
         {
           id: `edge:${edge.id}:arrow`,
-          kind: 'arrowhead',
+          kind: "arrowhead",
           paint: tone(edgeTone),
           box: pathBox(arrowPoints(edge), padding + edge.arrowGeometry.strokeWidth / 2),
         },
@@ -240,7 +240,7 @@ function sceneRegions(scene, padding) {
     }),
     ...scene.decorations.map((rule) => ({
       id: `rule:${rule.id}`,
-      kind: 'stroke',
+      kind: "stroke",
       paint: tone(rule.tone),
       box: pathBox(rule.points, padding + (rule.strokeWidth ?? 1) / 2),
     })),
@@ -252,7 +252,7 @@ function pixelBox(box, scaleX, scaleY, width, height) {
     top = Math.max(0, Math.floor(box.y * scaleY)),
     right = Math.min(width - 1, Math.ceil((box.x + box.width) * scaleX) - 1),
     bottom = Math.min(height - 1, Math.ceil((box.y + box.height) * scaleY) - 1);
-  if (right < left || bottom < top) fail('png_elements_scene_invalid');
+  if (right < left || bottom < top) fail("png_elements_scene_invalid");
   return { left, top, right, bottom };
 }
 
@@ -266,7 +266,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       contract.background.length !== 4 ||
       contract.background.some((value) => !Number.isSafeInteger(value) || value < 0 || value > 255))
   )
-    fail('png_canvas_contract_invalid');
+    fail("png_canvas_contract_invalid");
   const background = contract.background ? [...contract.background] : [],
     threshold = Number.isFinite(contract.colorDistance) ? contract.colorDistance : 8,
     minimumClearance = Number.isSafeInteger(contract.minimumClearance)
@@ -284,7 +284,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
     maximumCenterOffsetFraction < 0 ||
     maximumCenterOffsetFraction > 0.5
   )
-    fail('png_canvas_contract_invalid');
+    fail("png_canvas_contract_invalid");
   let inkPixels = 0,
     left = width,
     top = height,
@@ -303,7 +303,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       bottom = Math.max(bottom, y);
     }
   }
-  if (!inkPixels) fail('png_canvas_empty');
+  if (!inkPixels) fail("png_canvas_empty");
   const clearance = {
       left,
       top,
@@ -320,7 +320,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       ...(actualMinimum < minimumClearance
         ? [
             {
-              code: 'png-canvas-clearance',
+              code: "png-canvas-clearance",
               actual: actualMinimum,
               minimum: minimumClearance,
             },
@@ -329,7 +329,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       ...(envelopeFraction < minimumEnvelopeFraction
         ? [
             {
-              code: 'png-canvas-fill',
+              code: "png-canvas-fill",
               actual: envelopeFraction,
               minimum: minimumEnvelopeFraction,
             },
@@ -338,7 +338,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
       ...(Math.max(centerOffset.x, centerOffset.y) > maximumCenterOffsetFraction
         ? [
             {
-              code: 'png-canvas-balance',
+              code: "png-canvas-balance",
               actual: centerOffset,
               maximum: maximumCenterOffsetFraction,
             },
@@ -348,7 +348,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
   return {
     width,
     height,
-    colorType: 'rgba',
+    colorType: "rgba",
     bitDepth: 8,
     background,
     inkPixels,
@@ -359,7 +359,7 @@ export function inspectRgbaPngCanvas(bytes, contract = {}) {
     clearance,
     failures,
     scope:
-      'Actual RGBA raster pixels, non-background canvas envelope, fill and center balance. Not per-element glyph, stroke, route, endpoint or aesthetic acceptance.',
+      "Actual RGBA raster pixels, non-background canvas envelope, fill and center balance. Not per-element glyph, stroke, route, endpoint or aesthetic acceptance.",
   };
 }
 
@@ -378,7 +378,7 @@ export function inspectRgbaPngElements(bytes, scene, contract = {}) {
     !Number.isFinite(contract.paintTolerance ?? 18) ||
     (contract.paintTolerance ?? 18) < 0
   )
-    fail('png_elements_contract_invalid');
+    fail("png_elements_contract_invalid");
   const threshold = Number.isFinite(contract.colorDistance) ? contract.colorDistance : 8,
     sourcePadding = contract.sourcePadding ?? 2,
     paintTolerance = contract.paintTolerance ?? 18,
@@ -390,7 +390,7 @@ export function inspectRgbaPngElements(bytes, scene, contract = {}) {
       inkPixels: 0,
     })),
     ids = new Set(regions.map(({ id }) => id));
-  if (ids.size !== regions.length) fail('png_elements_scene_invalid');
+  if (ids.size !== regions.length) fail("png_elements_scene_invalid");
   const byRow = Array.from({ length: height }, () => []);
   for (let index = 0; index < regions.length; index++) {
     const { top, bottom } = regions[index].pixelBox;
@@ -438,11 +438,11 @@ export function inspectRgbaPngElements(bytes, scene, contract = {}) {
     failures: [
       ...summaries
         .filter((region) => region.inkPixels === 0)
-        .map((region) => ({ code: 'png-element-empty', id: region.id })),
+        .map((region) => ({ code: "png-element-empty", id: region.id })),
       ...(unassignedInkPixels
         ? [
             {
-              code: 'png-unassigned-ink',
+              code: "png-unassigned-ink",
               pixels: unassignedInkPixels,
               samples: unassignedSamples,
             },
@@ -450,6 +450,6 @@ export function inspectRgbaPngElements(bytes, scene, contract = {}) {
         : []),
     ],
     scope:
-      'Actual delivery-resolution RGBA paint presence within renderer-declared element envelopes and absence of stray paint. Not semantic, perceptual or formal flagship qualification.',
+      "Actual delivery-resolution RGBA paint presence within renderer-declared element envelopes and absence of stray paint. Not semantic, perceptual or complete publication qualification.",
   };
 }

@@ -1,11 +1,17 @@
 {
   "schema": "architecture.edition-provider/v1",
-  "provider": { "id": "fixture-executable-provider", "revision": "1.0.0" },
-  "subject": { "id": "example:system", "revision": "release-1" },
+  "provider": {
+    "id": "fixture-executable-provider",
+    "revision": "1.0.0"
+  },
+  "subject": {
+    "id": "example:system",
+    "revision": "release-1"
+  },
   "contracts": {
     "sourceBundle": "architecture.source-bundle/v1",
     "claimModel": "architecture.claim-model/v2",
-    "edition": "architecture.edition/v1",
+    "edition": "architecture.edition/v2",
     "evolution": null
   },
   "delivery": {
@@ -14,7 +20,7 @@
       "name": "@example/architecture-edition-provider",
       "version": "1.0.0",
       "packageJsonSha256": "215f749e71cbf7426fc7e39ea99dd60f1480dcbf90506fb21623348206a73584",
-      "contentSha256": "4cfdb7a36a400aad6319b99ef62744ea1e0956a52844a07abe2515b5db476ccd",
+      "contentSha256": "39282145dd7228f6cb210efc2334deeb5b75232f9279cd04575f96db346ff894",
       "entrypoint": "./provider"
     },
     "inputs": [
@@ -22,16 +28,21 @@
         "id": "source",
         "path": "inputs/source.json",
         "mediaType": "application/json",
-        "bytes": 10723,
-        "sha256": "1c38a877dd7b02baeae169bed4e8617ebf817f1ca921d40523260d21e30138a7"
+        "bytes": 14711,
+        "sha256": "4c0c5e740f7703a22a149da9cd510c3e6e988abbe821b2f54eaba9e544899c8e"
       }
     ]
   },
   "expected": {
     "sourceManifestSha256": "41d5919d465304184b5c95d7dfff6d764ebe6a46567552c90007f9270e002563",
     "claimModelDigest": "d52364f26bccb45a299d9364ef42c0a7b4859c2b87abf2a7fc99d9c1d6e35363",
-    "editionDigest": "936c85d5e4168eb767d2e623961391fd073d3ebc0f43ae0ca9d00b840989e5d2",
+    "editionDigest": "f89cf94572222df7ddc80ae28bbfebf19b6fa822e67cf7d753260c8f50e8bdc3",
     "evolutionSha256": null
   },
-  "limits": { "inputs": 16, "inputBytes": 1048576, "replyBytes": 2097152, "timeoutMs": 2000 }
+  "limits": {
+    "inputs": 16,
+    "inputBytes": 1048576,
+    "replyBytes": 2097152,
+    "timeoutMs": 2000
+  }
 }

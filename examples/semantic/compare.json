@@ -8,7 +8,7 @@
     "editions": [
       {
         "path": "before-edition.json",
-        "sha256": "12fe5b2d842d2d77f4d1b75e6f35a756914139f818ab13c05ee85e571e2a1e22"
+        "sha256": "112f5a6e9c311c07c262559c6ba1985d2f8088b07facf58b0d548747ba88b107"
       }
     ]
   },
@@ -20,7 +20,7 @@
     "editions": [
       {
         "path": "after-edition.json",
-        "sha256": "cd60f8d11be6b84d4805de23068192ffecd94265e6f19b865433148d788f5d78"
+        "sha256": "125c46f31d125667fb7daa49bc3ac9bfdae6614859625ba21f3e1abe960228b6"
       }
     ]
   },

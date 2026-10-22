@@ -1,34 +1,34 @@
-import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import test from 'node:test';
-import { fromSources } from '@likec4/language-services/node';
-import * as semantics from '../packages/publisher/src/semantics/index.mjs';
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import test from "node:test";
+import { fromSources } from "@likec4/language-services/node";
+import * as semantics from "../packages/publisher/src/semantics/index.mjs";
 import {
   buildLikeC4Layout,
   validateLikeC4LayoutReply,
-} from '../packages/publisher/src/semantics/native-layout.mjs';
-import { importLikeC4NativeWithParser } from '../packages/publisher/src/semantics/native-likec4.mjs';
+} from "../packages/publisher/src/semantics/native-layout.mjs";
+import { importLikeC4NativeWithParser } from "../packages/publisher/src/semantics/native-likec4.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const files = new Map([
   [
-    'example/model',
+    "example/model",
     Buffer.from(
       "specification { element component }\nmodel { a = component 'A'\n b = component 'B'\n a -> b }\n",
     ),
   ],
-  ['example/views', Buffer.from('views { view overview { include * } }\n')],
+  ["example/views", Buffer.from("views { view overview { include * } }\n")],
 ]);
 
-function selection(contents = files, view = { namespace: 'example/views', id: 'overview' }) {
+function selection(contents = files, view = { namespace: "example/views", id: "overview" }) {
   return {
     lock: {
-      schema: 'architecture.materialized-input-lock/v1',
+      schema: "architecture.materialized-input-lock/v1",
       sources: [...contents].map(([namespace, content]) => ({
         namespace,
-        claimant: 'fixture-maintainer',
-        format: { id: 'likec4/dsl', version: 'unversioned' },
-        revision: { kind: 'content', algorithm: 'sha256', value: sha(content) },
+        claimant: "fixture-maintainer",
+        format: { id: "likec4/dsl", version: "unversioned" },
+        revision: { kind: "content", algorithm: "sha256", value: sha(content) },
         sha256: sha(content),
       })),
     },
@@ -39,27 +39,27 @@ function selection(contents = files, view = { namespace: 'example/views', id: 'o
   };
 }
 
-test('a supervised layout is separate geometry with exact visible source bindings', async () => {
-  assert.equal(typeof semantics.importLikeC4Layout, 'function');
+test("a supervised layout is separate geometry with exact visible source bindings", async () => {
+  assert.equal(typeof semantics.importLikeC4Layout, "function");
   const selected = selection();
   const layout = await semantics.importLikeC4Layout(selected);
-  assert.equal(layout.closure, 'upstream-layout-unqualified');
+  assert.equal(layout.closure, "upstream-layout-unqualified");
   assert.deepEqual(layout.view, {
-    namespace: 'example/views',
-    id: 'overview',
-    sha256: sha(files.get('example/views')),
+    namespace: "example/views",
+    id: "overview",
+    sha256: sha(files.get("example/views")),
   });
   assert.deepEqual(
     layout.nodes.map(({ id }) => id),
-    ['a', 'b'],
+    ["a", "b"],
   );
   assert(layout.bounds.width > 0 && layout.bounds.height > 0);
   assert.equal(layout.edges.length, 1);
-  assert.deepEqual(layout.edges[0].from, { namespace: 'example/model', id: 'a' });
-  assert.deepEqual(layout.edges[0].to, { namespace: 'example/model', id: 'b' });
+  assert.deepEqual(layout.edges[0].from, { namespace: "example/model", id: "a" });
+  assert.deepEqual(layout.edges[0].to, { namespace: "example/model", id: "b" });
   assert.deepEqual(
     layout.edges[0].relations.map(({ namespace }) => namespace),
-    ['example/model'],
+    ["example/model"],
   );
   assert.match(layout.edges[0].relations[0].reference, /^relation:[1-9]\d*:[1-9]\d*$/u);
   assert(layout.edges[0].points.length >= 2);
@@ -70,14 +70,38 @@ test('a supervised layout is separate geometry with exact visible source binding
   assert.equal(native.parserSupply.sha256, layout.parserSupply.sha256);
 });
 
-test('an unknown authored view cannot request geometry from a generated or ambient view', async () => {
+test("an unknown authored view cannot request geometry from a generated or ambient view", async () => {
   await assert.rejects(
-    semantics.importLikeC4Layout(selection(files, { namespace: 'example/views', id: 'missing' })),
-    { code: 'native_likec4_reference_unselected' },
+    semantics.importLikeC4Layout(selection(files, { namespace: "example/views", id: "missing" })),
+    { code: "native_likec4_reference_unselected" },
   );
 });
 
-test('layout reply validation rejects lost, forged, or geometry-only semantic carriers', async () => {
+test("the structural layout refuses view wording it cannot express", async () => {
+  for (const view of [
+    "views { view overview { include a with { title 'Explained A' } include b } }\n",
+    "views { view overview { include a,b include a -> b with { title 'Explained link' } } }\n",
+  ]) {
+    const contents = new Map(files);
+    contents.set("example/views", Buffer.from(view));
+    await assert.rejects(semantics.importLikeC4Layout(selection(contents)), {
+      code: "native_likec4_layout_label_unrepresentable",
+    });
+  }
+});
+
+test("the structural layout refuses view-only groups without losing their meaning", async () => {
+  const contents = new Map(files);
+  contents.set(
+    "example/views",
+    Buffer.from("views { view overview { group 'Pair' { include a,b } } }\n"),
+  );
+  await assert.rejects(semantics.importLikeC4Layout(selection(contents)), {
+    code: "native_likec4_layout_unrepresentable",
+  });
+});
+
+test("layout reply validation rejects lost, forged, or geometry-only semantic carriers", async () => {
   const selected = selection();
   const layout = await semantics.importLikeC4Layout(selected);
   const { parserSupply, ...reply } = layout;
@@ -85,36 +109,36 @@ test('layout reply validation rejects lost, forged, or geometry-only semantic ca
   const index = await semantics.importLikeC4Native(selected);
   assert.doesNotThrow(() => validateLikeC4LayoutReply(reply, index, selected.view));
   assert.throws(
-    () => validateLikeC4LayoutReply(reply, index, { namespace: 'example/views', id: 'missing' }),
-    { code: 'native_likec4_reference_unselected' },
+    () => validateLikeC4LayoutReply(reply, index, { namespace: "example/views", id: "missing" }),
+    { code: "native_likec4_reference_unselected" },
   );
   const edits = [
-    (value) => (value.schema = 'architecture.native-layout/unknown'),
+    (value) => (value.schema = "architecture.native-layout/unknown"),
     (value) => value.nodes.pop(),
-    (value) => (value.nodes[0].id = 'ambient'),
+    (value) => (value.nodes[0].id = "ambient"),
     (value) => (value.nodes[0].width = 0),
     (value) => (value.nodes[0].x = 10_000_001),
-    (value) => (value.edges[0].from.id = 'ambient'),
-    (value) => (value.edges[0].relations[0].reference = 'relation:999:999'),
-    (value) => (value.edges[0].relations[0].sha256 = '0'.repeat(64)),
-    (value) => (value.edges[0].relations[0].generatedId = 'parser-run-only'),
+    (value) => (value.edges[0].from.id = "ambient"),
+    (value) => (value.edges[0].relations[0].reference = "relation:999:999"),
+    (value) => (value.edges[0].relations[0].sha256 = "0".repeat(64)),
+    (value) => (value.edges[0].relations[0].generatedId = "parser-run-only"),
     (value) => (value.edges[0].points[0][0] = Number.NaN),
-    (value) => (value.edges[0].generatedId = 'parser-run-only'),
+    (value) => (value.edges[0].generatedId = "parser-run-only"),
     (value) => (value.edges = []),
   ];
   for (const edit of edits) {
     const changed = structuredClone(reply);
     edit(changed);
     assert.throws(() => validateLikeC4LayoutReply(changed, index, selected.view), {
-      code: 'native_likec4_response_invalid',
+      code: "native_likec4_response_invalid",
     });
   }
 });
 
-test('equal-endpoint source relations remain two traced members of layout', async () => {
+test("equal-endpoint source relations remain two traced members of layout", async () => {
   const duplicate = new Map(files);
   duplicate.set(
-    'example/model',
+    "example/model",
     Buffer.from(
       "specification { element component }\nmodel { a = component 'A'\n b = component 'B'\n a -> b\n a -> b }\n",
     ),
@@ -130,38 +154,38 @@ test('equal-endpoint source relations remain two traced members of layout', asyn
   const { parserSupply, ...reply } = layout;
   assert(parserSupply);
   assert.throws(
-    () => validateLikeC4LayoutReply(reply, index, { namespace: 'example/views', id: 'overview' }),
-    { code: 'native_likec4_response_invalid' },
+    () => validateLikeC4LayoutReply(reply, index, { namespace: "example/views", id: "overview" }),
+    { code: "native_likec4_response_invalid" },
   );
 });
 
-test('a dynamic view cannot masquerade as an authored structural layout', async () => {
+test("a dynamic view cannot masquerade as an authored structural layout", async () => {
   const dynamic = new Map(files);
   dynamic.set(
-    'example/views',
-    Buffer.from('views { view overview { include * } dynamic view flow { a -> b } }\n'),
+    "example/views",
+    Buffer.from("views { view overview { include * } dynamic view flow { a -> b } }\n"),
   );
   await assert.rejects(
-    semantics.importLikeC4Layout(selection(dynamic, { namespace: 'example/views', id: 'flow' })),
-    { code: 'native_likec4_view_uninterpreted' },
+    semantics.importLikeC4Layout(selection(dynamic, { namespace: "example/views", id: "flow" })),
+    { code: "native_likec4_view_uninterpreted" },
   );
 });
 
-test('view choice is snapshotted before asynchronous supply access', async () => {
+test("view choice is snapshotted before asynchronous supply access", async () => {
   const input = selection();
   const pending = semantics.importLikeC4Layout(input);
-  input.view.id = 'missing';
+  input.view.id = "missing";
   const layout = await pending;
-  assert.equal(layout.view.id, 'overview');
+  assert.equal(layout.view.id, "overview");
   await assert.rejects(
     semantics.importLikeC4Layout(
-      selection(files, { namespace: 'example/views', id: 'x'.repeat(2049) }),
+      selection(files, { namespace: "example/views", id: "x".repeat(2049) }),
     ),
-    { code: 'native_likec4_reference_invalid' },
+    { code: "native_likec4_reference_invalid" },
   );
 });
 
-test('the native layout projector maps pinned upstream geometry without parser IDs', async () => {
+test("the native layout projector maps pinned upstream geometry without parser IDs", async () => {
   let parsed;
   const index = await importLikeC4NativeWithParser(selection(), async (sources, options) => {
     parsed = await fromSources(sources, options);
@@ -171,7 +195,7 @@ test('the native layout projector maps pinned upstream geometry without parser I
     const layout = await buildLikeC4Layout(index, parsed, selection().view);
     assert.deepEqual(
       layout.nodes.map(({ id }) => id),
-      ['a', 'b'],
+      ["a", "b"],
     );
     assert.equal(layout.edges.length, 1);
     assert.match(layout.edges[0].relations[0].reference, /^relation:[1-9]\d*:[1-9]\d*$/u);
@@ -182,21 +206,21 @@ test('the native layout projector maps pinned upstream geometry without parser I
   }
 });
 
-test('the native layout projector rejects incomplete or unselected geometry', async () => {
+test("the native layout projector rejects incomplete or unselected geometry", async () => {
   let parsed;
   const index = await importLikeC4NativeWithParser(selection(), async (sources, options) => {
     parsed = await fromSources(sources, options);
     return parsed;
   });
   try {
-    const original = (await parsed.layoutedModel()).view('overview').$layouted;
+    const original = (await parsed.layoutedModel()).view("overview").$layouted;
     const invalid = [
-      (view) => (view._stage = 'computed'),
+      (view) => (view._stage = "computed"),
       (view) => (view.nodes = null),
-      (view) => (view.nodes[0].modelRef = 'absent'),
+      (view) => (view.nodes[0].modelRef = "absent"),
       (view) => (view.nodes[1].id = view.nodes[0].id),
-      (view) => (view.edges[0].source = 'absent'),
-      (view) => (view.edges[0].relations[0] = 'absent'),
+      (view) => (view.edges[0].source = "absent"),
+      (view) => (view.edges[0].relations[0] = "absent"),
       (view) => (view.edges[0].points = null),
     ];
     for (const edit of invalid) {
@@ -208,7 +232,7 @@ test('the native layout projector rejects incomplete or unselected geometry', as
         },
       };
       await assert.rejects(buildLikeC4Layout(index, fake, selection().view), {
-        code: 'native_likec4_layout_unrepresentable',
+        code: "native_likec4_layout_unrepresentable",
       });
     }
     await assert.rejects(
@@ -216,19 +240,19 @@ test('the native layout projector rejects incomplete or unselected geometry', as
         index,
         {
           async layoutedModel() {
-            throw new Error('layout failed');
+            throw new Error("layout failed");
           },
         },
         selection().view,
       ),
-      { code: 'native_likec4_layout_unrepresentable' },
+      { code: "native_likec4_layout_unrepresentable" },
     );
   } finally {
     await parsed.dispose();
   }
 });
 
-test('source-duplicate native IDs cannot be mapped by label or last-writer wins', async () => {
+test("source-duplicate native IDs cannot be mapped by label or last-writer wins", async () => {
   let parsed;
   const index = await importLikeC4NativeWithParser(selection(), async (sources, options) => {
     parsed = await fromSources(sources, options);
@@ -236,16 +260,21 @@ test('source-duplicate native IDs cannot be mapped by label or last-writer wins'
   });
   try {
     const ambiguous = structuredClone(index);
-    ambiguous.sources.push({ ...ambiguous.sources[0], namespace: 'other-source' });
-    const first = ambiguous.elements.find(({ id }) => id === 'a');
+    ambiguous.sources.push({ ...ambiguous.sources[0], namespace: "other-source" });
+    const first = ambiguous.elements.find(({ id }) => id === "a");
     ambiguous.elements.push({
       ...first,
-      namespace: 'other-source',
-      origin: { ...first.origin, namespace: 'other-source' },
+      namespace: "other-source",
+      origin: { ...first.origin, namespace: "other-source" },
     });
-    ambiguous.views[0].elements.push({ namespace: 'other-source', id: 'a' });
+    ambiguous.views[0].nodes.push({
+      id: "other-a",
+      parent: null,
+      label: first.label,
+      element: { namespace: "other-source", id: "a" },
+    });
     await assert.rejects(buildLikeC4Layout(ambiguous, parsed, selection().view), {
-      code: 'native_likec4_layout_unrepresentable',
+      code: "native_likec4_layout_unrepresentable",
     });
   } finally {
     await parsed.dispose();

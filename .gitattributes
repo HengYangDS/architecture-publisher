@@ -13,12 +13,17 @@ tools/**/*.cjs ethos-role=tooling
 tools/**/*.js ethos-role=tooling
 tools/**/*.sh ethos-role=tooling
 .config/** ethos-role=config
-eslint.config.mjs ethos-role=config
 packages/publisher/src/edition/generated/** ethos-role=generated
 packages/publisher/supplies/** ethos-role=snapshot
 packages/publisher/renderers/*/supply/** ethos-role=snapshot
 .config/mise/locks/** ethos-role=snapshot
 .config/ci/linux/pixi.lock ethos-role=snapshot
+
+# Native received-path classification preserves upstream and generator names.
+packages/publisher/src/edition/generated/** linguist-generated
+packages/publisher/supplies/** linguist-vendored
+packages/publisher/renderers/*/supply/** linguist-vendored
+tools/supply/licenses/** linguist-vendored
 
 # Generated and third-party supply retain their exact recorded bytes.
 packages/publisher/src/edition/generated/** -text
@@ -31,3 +36,10 @@ packages/publisher/supplies/likec4/parser.mjs -whitespace
 packages/publisher/supplies/likec4/THIRD-PARTY-NOTICES.txt -whitespace
 packages/publisher/renderers/archify/supply/** -whitespace
 packages/publisher/renderers/elk/supply/elk.cjs -whitespace
+
+# Received release archives retain exact upstream bytes under the supply owner.
+tools/supply/archives/** -text linguist-vendored ethos-role=snapshot
+
+# The received LGPL notice is byte-identical to its locked npm member.
+packages/publisher/renderers/avoid/supply/LICENSE -whitespace
+tools/supply/notices/libavoid/LICENSE -whitespace

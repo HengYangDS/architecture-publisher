@@ -1,11 +1,11 @@
-import { parseStrictJson } from '../protocol/json.mjs';
-import { createHash } from 'node:crypto';
-import { fail, isDigest } from '../protocol/values.mjs';
-import { LIMITS } from '../file-input/contract.mjs';
-import { sealMaterializedInputLock } from '../source/materialize.mjs';
-import { deepFreeze } from '../semantics/document.mjs';
-import { deriveEditionAssertions, validateEditionProject } from './authoring.mjs';
-import { selectedEditionResources } from './resources.mjs';
+import { parseStrictJson } from "../protocol/json.mjs";
+import { createHash } from "node:crypto";
+import { fail, isDigest } from "../protocol/values.mjs";
+import { LIMITS } from "../file-input/contract.mjs";
+import { sealMaterializedInputLock } from "../source/materialize.mjs";
+import { deepFreeze } from "../semantics/document.mjs";
+import { deriveEditionAssertions, validateEditionProject } from "./authoring.mjs";
+import { selectedEditionResources } from "./resources.mjs";
 
 function sameSet(left, right) {
   return left.length === right.length && left.every((value) => right.includes(value));
@@ -20,11 +20,11 @@ function unansweredViewQuestion(project, editionSha256, medium, view, question, 
     ? [
         {
           code,
-          severity: 'error',
-          message: 'Edition view question has no visible assertion or explicit limit.',
-          predicate: 'view-question-answered',
+          severity: "error",
+          message: "Edition view question has no visible assertion or explicit limit.",
+          predicate: "view-question-answered",
           subject: {
-            kind: 'edition-view-question',
+            kind: "edition-view-question",
             editionId: project.id,
             editionSha256,
             medium,
@@ -38,7 +38,7 @@ function unansweredViewQuestion(project, editionSha256, medium, view, question, 
                 ...(coveredIn ? { coveredIn } : {}),
               })),
           },
-          responsibility: { role: 'edition-editor', declaredOwner: project.editor },
+          responsibility: { role: "edition-editor", declaredOwner: project.editor },
           evidence: {},
           supportedFixes: [],
         },
@@ -67,12 +67,12 @@ export function deriveEditionQuestionObligations(project, media, editionSha256 =
               [
                 ...project.scope.limits
                   .filter((item) => item.question === question)
-                  .map(({ reason }) => ({ kind: 'scope', reason })),
+                  .map(({ reason }) => ({ kind: "scope", reason })),
                 ...omissions
                   .filter(
-                    (item) => item.question === question && item.disposition === 'explicit-limit',
+                    (item) => item.question === question && item.disposition === "explicit-limit",
                   )
-                  .map(({ selection, reason }) => ({ kind: 'omission', selection, reason })),
+                  .map(({ selection, reason }) => ({ kind: "omission", selection, reason })),
               ],
             ]),
           );
@@ -87,7 +87,7 @@ export function deriveEditionQuestionObligations(project, media, editionSha256 =
               const assertionIds = candidates
                 .filter(
                   (assertion) =>
-                    assertion.kind !== 'source' || !omittedSelections.has(assertion.selection),
+                    assertion.kind !== "source" || !omittedSelections.has(assertion.selection),
                 )
                 .map(({ id }) => id);
               const limited = limitsByQuestion[question].length > 0;
@@ -100,8 +100,8 @@ export function deriveEditionQuestionObligations(project, media, editionSha256 =
                   question,
                   omissions,
                   candidates.length
-                    ? 'materialized_view_question_unanswered'
-                    : 'materialized_question_unanswered',
+                    ? "materialized_view_question_unanswered"
+                    : "materialized_question_unanswered",
                 );
               return [question, assertionIds];
             }),
@@ -154,19 +154,19 @@ export function assembleEditionSelection({
   observations = /** @type {{kind: string, key: string, method: string}[]} */ ([]),
   invocations = /** @type {unknown[]} */ ([]),
 }) {
-  if (!edition) fail('materialized_provider_edition_missing');
+  if (!edition) fail("materialized_provider_edition_missing");
   const project = validateEditionProject(
     parseStrictJson(
       edition.content,
-      'materialized_edition_json_invalid',
-      'materialized_edition_json_duplicate_key',
+      "materialized_edition_json_invalid",
+      "materialized_edition_json_duplicate_key",
     ),
   );
   if (
     edition.expected &&
     (edition.expected.id !== project.id || edition.expected.editor !== project.editor)
   )
-    fail('materialized_provider_edition_identity_mismatch');
+    fail("materialized_provider_edition_identity_mismatch");
 
   const override = project.visualPolicy.override ?? null;
   const resources = edition.resources;
@@ -178,15 +178,15 @@ export function assembleEditionSelection({
       expectedResources.map(({ ref }) => ref),
     )
   )
-    fail('materialized_edition_resource_missing');
+    fail("materialized_edition_resource_missing");
   for (const selected of expectedResources) {
     if (selected.sha256 === null) continue;
     const content = resources.find(({ ref }) => ref === selected.ref)?.content;
     if (
       !Buffer.isBuffer(content) ||
-      createHash('sha256').update(content).digest('hex') !== selected.sha256
+      createHash("sha256").update(content).digest("hex") !== selected.sha256
     )
-      fail('materialized_edition_resource_digest_mismatch');
+      fail("materialized_edition_resource_digest_mismatch");
   }
 
   const selectedBytes = [
@@ -196,7 +196,7 @@ export function assembleEditionSelection({
     ...derived.map(({ content }) => content),
   ];
   if (selectedBytes.reduce((total, content) => total + content.length, 0) > LIMITS.totalBytes)
-    fail('bundle_size_exceeded');
+    fail("bundle_size_exceeded");
 
   const sealed = sealMaterializedInputLock({
     edition: { id: project.id, editor: project.editor, content: edition.content, resources },
@@ -211,19 +211,19 @@ export function assembleEditionSelection({
       project.scope.sourceNamespaces,
     )
   )
-    fail('materialized_edition_sources_mismatch');
+    fail("materialized_edition_sources_mismatch");
   const derivedNamespaces = new Set(sealed.lock.derived.map(({ namespace }) => namespace));
   if (
     (project.scope.projectionNamespaces ?? []).some(
       (namespace) => !derivedNamespaces.has(namespace),
     )
   )
-    fail('materialized_edition_projections_mismatch');
+    fail("materialized_edition_projections_mismatch");
   const selectedQuestions = new Set(
     request.media.flatMap((medium) => mediaQuestions(project, medium)),
   );
   if (project.questions.some(({ id }) => !selectedQuestions.has(id)))
-    fail('materialized_selected_media_incomplete');
+    fail("materialized_selected_media_incomplete");
   const obligations = deriveEditionQuestionObligations(
     project,
     request.media,
@@ -237,7 +237,7 @@ export function assembleEditionSelection({
   });
   const invocationJson = JSON.stringify(invocations);
   return Object.freeze({
-    closure: request.providers.length ? 'selected-inputs-only' : 'selected-roots-only',
+    closure: request.providers.length ? "selected-inputs-only" : "selected-roots-only",
     get lock() {
       return sealed.lock;
     },
@@ -249,7 +249,7 @@ export function assembleEditionSelection({
     },
     read(id) {
       const namespace = sourceNamespaceById.get(id);
-      if (!namespace) fail('materialized_item_unknown');
+      if (!namespace) fail("materialized_item_unknown");
       return sealed.readSource(namespace);
     },
     readSource: sealed.readSource,

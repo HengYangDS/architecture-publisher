@@ -1,29 +1,29 @@
-import path from 'node:path';
-import { readBuildRequestSelection, readDirectSelectedInputs } from '../edition/materialize.mjs';
-import { deriveSourceRevision } from '../edition/revision.mjs';
-import { assembleEditionSelection } from '../edition/selection.mjs';
-import { exact } from '../semantics/document.mjs';
-import { fail, isDigest } from '../protocol/values.mjs';
-import { materializeSelectedDeclarativeFiles } from '../provider/declarative-selection.mjs';
+import path from "node:path";
+import { readBuildRequestSelection, readDirectSelectedInputs } from "../edition/materialize.mjs";
+import { deriveSourceRevision } from "../edition/revision.mjs";
+import { assembleEditionSelection } from "../edition/selection.mjs";
+import { exact } from "../semantics/document.mjs";
+import { fail, isDigest } from "../protocol/values.mjs";
+import { materializeSelectedDeclarativeFiles } from "../provider/declarative-selection.mjs";
 import {
   materializePreparedExecutableInputs,
   prepareSelectedExecutableInputs,
-} from '../provider/executable-selection.mjs';
-import { readSelectedProviderManifest } from '../provider/manifest.mjs';
+} from "../provider/executable-selection.mjs";
+import { readSelectedProviderManifest } from "../provider/manifest.mjs";
 
 function selectedExecutionChoice(choice) {
   if (choice === undefined) return new Map();
-  if (!Array.isArray(choice)) fail('materialized_provider_execution_choice_invalid');
+  if (!Array.isArray(choice)) fail("materialized_provider_execution_choice_invalid");
   const selected = new Map();
   for (const item of choice) {
     if (
-      !exact(item, ['id', 'manifestSha256']) ||
-      typeof item.id !== 'string' ||
+      !exact(item, ["id", "manifestSha256"]) ||
+      typeof item.id !== "string" ||
       !item.id ||
       !isDigest(item.manifestSha256)
     )
-      fail('materialized_provider_execution_choice_invalid');
-    if (selected.has(item.id)) fail('materialized_provider_execution_choice_invalid');
+      fail("materialized_provider_execution_choice_invalid");
+    if (selected.has(item.id)) fail("materialized_provider_execution_choice_invalid");
     selected.set(item.id, item.manifestSha256);
   }
   return selected;
@@ -36,30 +36,30 @@ export async function prepareBuildRequestInput(requestPath, expectedSha256, exec
   const direct = await readDirectSelectedInputs({ file, root, request });
   const providers = [];
   for (const selection of request.providers) {
-    const manifestPath = path.resolve(root, ...selection.manifest.split('/'));
+    const manifestPath = path.resolve(root, ...selection.manifest.split("/"));
     let selectedManifest;
     try {
       selectedManifest = await readSelectedProviderManifest(manifestPath, selection.sha256);
     } catch (error) {
       if (
         error &&
-        typeof error === 'object' &&
-        'code' in error &&
-        error.code === 'edition_provider_v2_invalid'
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "edition_provider_v2_invalid"
       ) {
         Object.assign(error, {
           diagnostics: [
             {
-              code: 'edition_provider_v2_invalid',
-              severity: 'error',
-              message: 'Selected Provider manifest violates the v2 contract.',
-              predicate: 'provider-manifest-schema',
+              code: "edition_provider_v2_invalid",
+              severity: "error",
+              message: "Selected Provider manifest violates the v2 contract.",
+              predicate: "provider-manifest-schema",
               subject: {
-                kind: 'provider-manifest',
+                kind: "provider-manifest",
                 selectionId: selection.id,
                 sha256: selection.sha256,
               },
-              responsibility: { role: 'provider-author', declaredOwner: null },
+              responsibility: { role: "provider-author", declaredOwner: null },
               evidence: {},
               supportedFixes: [],
             },
@@ -71,7 +71,7 @@ export async function prepareBuildRequestInput(requestPath, expectedSha256, exec
     providers.push({ selection, selectedManifest });
   }
   const executable = providers.filter(
-    ({ selectedManifest }) => selectedManifest.manifest.delivery.kind === 'executable',
+    ({ selectedManifest }) => selectedManifest.manifest.delivery.kind === "executable",
   );
   const required = new Map(executable.map(({ selection }) => [selection.id, selection.sha256]));
   if (
@@ -79,19 +79,19 @@ export async function prepareBuildRequestInput(requestPath, expectedSha256, exec
     offered.size !== required.size ||
     [...offered].some(([id, digest]) => required.get(id) !== digest)
   )
-    fail('materialized_provider_execution_choice_mismatch');
+    fail("materialized_provider_execution_choice_mismatch");
 
   const prepared = [];
   for (const { selection, selectedManifest } of providers) {
     let provider;
-    if (selectedManifest.manifest.delivery.kind === 'declarative') {
-      if (Object.hasOwn(selection, 'packageRoot'))
-        fail('materialized_provider_package_root_invalid');
+    if (selectedManifest.manifest.delivery.kind === "declarative") {
+      if (Object.hasOwn(selection, "packageRoot"))
+        fail("materialized_provider_package_root_invalid");
       provider = await materializeSelectedDeclarativeFiles(selectedManifest, selection.sha256);
     } else {
-      if (!Object.hasOwn(selection, 'packageRoot'))
-        fail('materialized_provider_package_root_required');
-      const packageRoot = path.resolve(root, ...selection.packageRoot.split('/'));
+      if (!Object.hasOwn(selection, "packageRoot"))
+        fail("materialized_provider_package_root_required");
+      const packageRoot = path.resolve(root, ...selection.packageRoot.split("/"));
       provider = await prepareSelectedExecutableInputs(
         selectedManifest,
         selection.sha256,
@@ -122,44 +122,44 @@ export async function materializePreparedBuildRequestInput({ request, direct, pr
 
   for (const { selection, selectedManifest, provider: prepared } of providers) {
     const provider =
-      selectedManifest.manifest.delivery.kind === 'declarative'
+      selectedManifest.manifest.delivery.kind === "declarative"
         ? prepared
         : await materializePreparedExecutableInputs(prepared);
     const selected = provider.selected;
     const invocation = provider.invocation;
     const inputMethod =
-      invocation.delivery === 'executable'
-        ? 'provider-input-sha256/v2'
-        : 'filesystem-read-sha256/v1';
+      invocation.delivery === "executable"
+        ? "provider-input-sha256/v2"
+        : "filesystem-read-sha256/v1";
     const derivedMethod =
-      invocation.delivery === 'executable'
-        ? 'provider-reply-sha256/v2'
-        : 'filesystem-read-sha256/v1';
+      invocation.delivery === "executable"
+        ? "provider-reply-sha256/v2"
+        : "filesystem-read-sha256/v1";
     if (selected.edition !== null) {
       if (
         edition !== null ||
-        request.edition.kind !== 'provider' ||
+        request.edition.kind !== "provider" ||
         request.edition.provider !== selection.id
       )
-        fail('materialized_edition_ambiguous');
+        fail("materialized_edition_ambiguous");
       edition = {
-        content: provider.read('edition', selected.edition.id),
+        content: provider.read("edition", selected.edition.id),
         resources: selected.edition.resources.map(({ ref }) => ({
           ref,
-          content: provider.read('edition-resource', ref),
+          content: provider.read("edition-resource", ref),
         })),
         expected: { id: selected.edition.id, editor: selected.edition.editor },
       };
       observations.push({
-        kind: 'edition',
+        kind: "edition",
         key: selected.edition.id,
         method: inputMethod,
       });
       for (const { ref } of selected.edition.resources)
-        observations.push({ kind: 'edition-resource', key: ref, method: inputMethod });
+        observations.push({ kind: "edition-resource", key: ref, method: inputMethod });
     }
     for (const item of selected.native) {
-      const content = provider.read('native', item.id);
+      const content = provider.read("native", item.id);
       sources.push({
         namespace: item.namespace,
         format: item.format,
@@ -167,9 +167,9 @@ export async function materializePreparedBuildRequestInput({ request, direct, pr
         revisionEvidence: deriveSourceRevision(item.revision, content, null, null),
         content,
       });
-      if (item.revision.kind === 'vcs') limits.push(`vcs-provenance-unverified:${item.namespace}`);
+      if (item.revision.kind === "vcs") limits.push(`vcs-provenance-unverified:${item.namespace}`);
       observations.push({
-        kind: 'native',
+        kind: "native",
         key: item.namespace,
         method: inputMethod,
       });
@@ -182,18 +182,18 @@ export async function materializePreparedBuildRequestInput({ request, direct, pr
         derivedFrom: item.derivedFrom.map(({ namespace, sha256 }) => ({ namespace, sha256 })),
         adapter: item.adapter,
         method: item.method,
-        content: provider.read('derived', item.id),
+        content: provider.read("derived", item.id),
       });
       observations.push({
-        kind: 'derived',
+        kind: "derived",
         key: `${selection.id}/${item.id}`,
         method: derivedMethod,
       });
     }
     for (const limit of provider.limits)
       limits.push(
-        limit.startsWith('adapter-code-unverified:')
-          ? `adapter-code-unverified:${selection.id}/${limit.slice('adapter-code-unverified:'.length)}`
+        limit.startsWith("adapter-code-unverified:")
+          ? `adapter-code-unverified:${selection.id}/${limit.slice("adapter-code-unverified:".length)}`
           : limit,
       );
     invocations.push({
@@ -202,8 +202,8 @@ export async function materializePreparedBuildRequestInput({ request, direct, pr
       ...invocation,
     });
   }
-  if (request.edition.kind === 'provider' && edition === null)
-    fail('materialized_provider_edition_missing');
+  if (request.edition.kind === "provider" && edition === null)
+    fail("materialized_provider_edition_missing");
   return assembleEditionSelection({
     request,
     edition,

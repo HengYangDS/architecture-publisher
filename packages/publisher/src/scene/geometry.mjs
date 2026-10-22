@@ -19,6 +19,24 @@ export const boundaryDistance = (point, box) =>
     Math.hypot(point.y - boxBottom(box), Math.max(box.x - point.x, 0, point.x - boxRight(box))),
   );
 
+export function parallelStrokesOverlap(left, right, width) {
+  const horizontal = left.start.y === left.end.y;
+  if (horizontal !== (right.start.y === right.end.y)) return false;
+  const along = horizontal ? "x" : "y";
+  const across = horizontal ? "y" : "x";
+  return (
+    Math.min(
+      Math.max(left.start[along], left.end[along]),
+      Math.max(right.start[along], right.end[along]),
+    ) -
+      Math.max(
+        Math.min(left.start[along], left.end[along]),
+        Math.min(right.start[along], right.end[along]),
+      ) >
+      0.0001 && Math.abs(left.start[across] - right.start[across]) < width - 0.0001
+  );
+}
+
 export function segmentHitsBox(start, end, box) {
   let lower = 0;
   let upper = 1;

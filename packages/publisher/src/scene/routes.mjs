@@ -1,19 +1,66 @@
-import { AUTHORED_ROUTE_LIMITS as limits } from '../edition/schema.mjs';
-import { authoredRoutesValid, literalSegmentValid } from '../edition/generated/validators.mjs';
-import { fail } from '../protocol/values.mjs';
-import { boundaryDistance, pointDistance, segmentHitsBox, expandBox } from './geometry.mjs';
-import { authoredReference } from './statements.mjs';
+import { AUTHORED_ROUTE_LIMITS as limits } from "../edition/schema/primitive.mjs";
+import { authoredRoutesValid, literalSegmentValid } from "../edition/generated/validators.mjs";
+import { fail } from "../protocol/values.mjs";
+import { boundaryDistance, pointDistance, segmentHitsBox, expandBox } from "./geometry.mjs";
+import { authoredReference } from "./statements.mjs";
+import { literalArrowMinimumTerminal } from "./marks.mjs";
 
-const referenceFor = (namespace, id) => JSON.stringify([namespace, 'entity', id]);
+const referenceFor = (namespace, id) => JSON.stringify([namespace, "entity", id]);
 const endpoint = (edge, medium, target = false) =>
-  medium === 'static' ? edge[target ? 'target' : 'source'] : edge[target ? 'to' : 'from'];
+  medium === "static" ? edge[target ? "target" : "source"] : edge[target ? "to" : "from"];
 const portBox = (node, medium) =>
-  medium === 'static' ? node.box : { ...node.position, ...node.size };
-const invalid = () => fail('authored_route_invalid');
+  medium === "static" ? node.box : { ...node.position, ...node.size };
+const invalid = () => fail("authored_route_invalid");
+
+/** Directed occurrence traversal is independent of coordinates and paint. */
+export function validateAuthoredRouteTopology(scene, medium) {
+  const routes = scene.routes ?? [];
+  if (!authoredRoutesValid(routes)) invalid();
+  const nodes = new Set(scene.nodes.map(({ id }) => id));
+  const edges = new Map(scene.edges.map((edge) => [edge.id, edge]));
+  if (nodes.size !== scene.nodes.length || edges.size !== scene.edges.length) invalid();
+  const routeIds = new Set();
+  let count = 0;
+  for (const route of routes) {
+    if (
+      routeIds.has(route.id) ||
+      nodes.has(route.id) ||
+      edges.has(route.id) ||
+      !nodes.has(route.source) ||
+      !nodes.has(route.target)
+    )
+      invalid();
+    routeIds.add(route.id);
+    const traversed = new Set();
+    let previous = route.source;
+    for (const { edge: id, direction } of route.traversals) {
+      if (++count > limits.references) fail("authored_route_budget_exceeded");
+      const edge = edges.get(id);
+      const reverse = direction === "reverse";
+      if (
+        !edge?.adornment ||
+        traversed.has(id) ||
+        (reverse && edge.arrow) ||
+        endpoint(edge, medium, reverse) !== previous
+      )
+        invalid();
+      traversed.add(id);
+      previous = endpoint(edge, medium, !reverse);
+    }
+    const terminal = route.traversals.at(-1);
+    if (
+      previous !== route.target ||
+      terminal.direction !== "forward" ||
+      !edges.get(terminal.edge).arrow
+    )
+      invalid();
+  }
+  return routes;
+}
 
 function assertLiteralPaintGeometry(scene, edge, nodes, medium) {
-  const width = medium === 'static' ? scene.width : scene.viewport.width;
-  const height = medium === 'static' ? scene.height : scene.viewport.height;
+  const width = medium === "static" ? scene.width : scene.viewport.width;
+  const height = medium === "static" ? scene.height : scene.viewport.height;
   const parts = edge.points
     .slice(1)
     .map((end, index) => ({ start: edge.points[index], end, width: edge.strokeWidth }));
@@ -45,7 +92,7 @@ function assertLiteralPaintGeometry(scene, edge, nodes, medium) {
           point.y + half > height,
       )
     )
-      fail('authored_route_paint_geometry_invalid');
+      fail("authored_route_paint_geometry_invalid");
     if (
       (scene.texts ?? []).some(
         (text) =>
@@ -54,19 +101,19 @@ function assertLiteralPaintGeometry(scene, edge, nodes, medium) {
           segmentHitsBox(part.start, part.end, expandBox(text.box, 5 + half)),
       )
     )
-      fail('authored_route_paint_geometry_invalid');
+      fail("authored_route_paint_geometry_invalid");
     for (const node of nodes.values()) {
       if ([endpoint(edge, medium), endpoint(edge, medium, true)].includes(node.id)) continue;
       const box = node.paintBox ?? portBox(node, medium);
       if (segmentHitsBox(part.start, part.end, expandBox(box, 2 + half)))
-        fail('authored_route_paint_geometry_invalid');
+        fail("authored_route_paint_geometry_invalid");
     }
   }
 }
 
 /** Physical contacts and finite traversal admission; no source meaning is inferred. */
 export function validateAuthoredRouteGeometry(scene, medium) {
-  const routes = Object.hasOwn(scene, 'routes') ? scene.routes : [];
+  const routes = Object.hasOwn(scene, "routes") ? scene.routes : [];
   if (!authoredRoutesValid(routes)) invalid();
   const nodes = new Map(scene.nodes.map((node) => [node.id, node]));
   const edges = new Map();
@@ -74,15 +121,15 @@ export function validateAuthoredRouteGeometry(scene, medium) {
   for (const edge of scene.edges) {
     if (edges.has(edge.id)) invalid();
     edges.set(edge.id, edge);
-    if (!Object.hasOwn(edge, 'adornment')) continue;
+    if (!Object.hasOwn(edge, "adornment")) continue;
     if (
       !literalSegmentValid(edge) ||
-      !Object.hasOwn(edge, medium === 'static' ? 'source' : 'from') ||
+      !Object.hasOwn(edge, medium === "static" ? "source" : "from") ||
       nodes.has(edge.id)
     )
       invalid();
     pointCount += edge.points.length;
-    if (pointCount > limits.points) fail('authored_route_budget_exceeded');
+    if (pointCount > limits.points) fail("authored_route_budget_exceeded");
     const from = nodes.get(endpoint(edge, medium));
     const to = nodes.get(endpoint(edge, medium, true));
     if (
@@ -101,12 +148,12 @@ export function validateAuthoredRouteGeometry(scene, medium) {
       edge.arrow &&
       (Object.values(edge.arrowGeometry).some((value) => value <= 0) ||
         pointDistance(edge.points.at(-2), edge.points.at(-1)) <
-          Math.max(14, edge.arrowGeometry.length))
+          Math.max(literalArrowMinimumTerminal, edge.arrowGeometry.length))
     )
       invalid();
     const ink =
-      medium === 'static' ? scene.paint?.[edge.strokeTone]?.toLowerCase() : edge.strokeTone;
-    const background = medium === 'static' ? scene.paint?.paper?.toLowerCase() : 'paper';
+      medium === "static" ? scene.paint?.[edge.strokeTone]?.toLowerCase() : edge.strokeTone;
+    const background = medium === "static" ? scene.paint?.paper?.toLowerCase() : "paper";
     if (!ink || ink === background) invalid();
     assertLiteralPaintGeometry(scene, edge, nodes, medium);
   }
@@ -114,7 +161,7 @@ export function validateAuthoredRouteGeometry(scene, medium) {
   let traversalCount = 0;
   for (const route of routes) {
     traversalCount += route.traversals.length;
-    if (traversalCount > limits.references) fail('authored_route_budget_exceeded');
+    if (traversalCount > limits.references) fail("authored_route_budget_exceeded");
     if (routeIds.has(route.id) || !nodes.has(route.source) || !nodes.has(route.target)) invalid();
     routeIds.add(route.id);
     const traversed = new Set();
@@ -122,10 +169,10 @@ export function validateAuthoredRouteGeometry(scene, medium) {
     let previousContact;
     for (const { edge: id, direction } of route.traversals) {
       const edge = edges.get(id);
-      if (!edge?.adornment || traversed.has(id) || (direction === 'reverse' && edge.arrow))
+      if (!edge?.adornment || traversed.has(id) || (direction === "reverse" && edge.arrow))
         invalid();
       traversed.add(id);
-      const reverse = direction === 'reverse';
+      const reverse = direction === "reverse";
       const from = endpoint(edge, medium, reverse),
         to = endpoint(edge, medium, !reverse);
       const start = reverse ? edge.points.at(-1) : edge.points[0];
@@ -138,7 +185,7 @@ export function validateAuthoredRouteGeometry(scene, medium) {
     const terminal = route.traversals.at(-1);
     if (
       previousId !== route.target ||
-      terminal.direction !== 'forward' ||
+      terminal.direction !== "forward" ||
       !edges.get(terminal.edge).arrow
     )
       invalid();
@@ -148,22 +195,22 @@ export function validateAuthoredRouteGeometry(scene, medium) {
 
 /** Exact reference bindings reuse upstream assertions and the existing physical edges. */
 export function bindAuthoredRoutes(scene, { medium, entities, relations, editorials, selections }) {
-  const routes = validateAuthoredRouteGeometry(scene, medium);
+  const routes = validateAuthoredRouteTopology(scene, medium);
   const represented = new Map();
   let pairs = 0;
   for (const route of routes) {
     const [namespace, kind, id] = authoredReference(
       route.reference,
-      ['relation', 'editorial'],
-      'authored_route_reference_invalid',
+      ["relation", "editorial"],
+      "authored_route_reference_invalid",
     );
     const from = entities.get(route.source),
       to = entities.get(route.target);
     if (!from || !to) invalid();
-    if (kind === 'relation') {
+    if (kind === "relation") {
       const relation = relations.get(route.reference);
       if (
-        Object.hasOwn(route, 'editionSha256') ||
+        Object.hasOwn(route, "editionSha256") ||
         !relation ||
         !from.has(referenceFor(namespace, relation.from.id)) ||
         !to.has(referenceFor(namespace, relation.to.id))
@@ -190,7 +237,7 @@ export function bindAuthoredRoutes(scene, { medium, entities, relations, editori
     const graphics = represented.get(route.reference) ?? [];
     for (const traversal of route.traversals) {
       pairs++;
-      if (pairs > limits.pairs) fail('authored_route_budget_exceeded');
+      if (pairs > limits.pairs) fail("authored_route_budget_exceeded");
       if (!graphics.includes(traversal.edge)) graphics.push(traversal.edge);
     }
     represented.set(route.reference, graphics);

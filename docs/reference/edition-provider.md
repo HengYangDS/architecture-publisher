@@ -17,6 +17,10 @@ An **Edition Provider** is a narrow boundary that transports exact source or
 editor-owned inputs to Architecture Publisher. It is not a second compiler,
 registry, workflow engine, or authority.
 
+The independent editor owns this optional boundary outside the source product.
+Source repositories supply existing selected material read-only; they gain no
+drawing files, dependencies, configuration, tests or CI obligations.
+
 | Step        | Owner and effect                                                                               |
 | ----------- | ---------------------------------------------------------------------------------------------- |
 | Author      | The source owner supplies facts; the editor supplies the Edition.                              |
@@ -85,16 +89,19 @@ repository transition, or prove publication.
 ### Build scope and authored media
 
 Provider v1 transports a Source Bundle, Claim Model, Edition, and optional
-evolution values. It selects no source-owned renderer and returns no SVG, PNG,
+evolution values. Its current `contracts.edition` value is
+`architecture.edition/v2`; retired Edition v1 values require their original
+versioned executor for recovery. It selects no source-owned renderer and returns no SVG, PNG,
 HTML, browser verdict, or human
 approval. The generic `archpub edition build` compiler uses its finite scene
-composition; Provider conformance proves materialization, not visual parity with
-a separately authored flagship Edition.
+composition; Provider conformance proves materialization, not artwork quality or
+visual parity with another composition. All current publications share the same
+strict quality floor.
 
 `authoredInputSha256` is a scene dependency identity. In the generic build it
 changes scene and Candidate identities but does not make the compiler read the
-corresponding authoring bytes. An adopter must separately verify that its
-source-owned media composition consumed exact selected authoring inputs and
+corresponding authoring bytes. An editor must separately verify that its
+externally owned media composition consumed exact selected authoring inputs and
 that the resulting static and interactive artifacts satisfy their own semantics,
 browser, accessibility, and human-review obligations. A digest alone is not a
 rendering or acceptance proof.

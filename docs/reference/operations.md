@@ -1,3 +1,11 @@
+---
+subject: architecture-publisher:operations
+role: reference
+state: canonical
+relations:
+  governed_by: ../product-contract.md
+---
+
 # Architecture Publisher operational reference
 
 This document describes the 0.3 CLI surface. A development checkout is not a
@@ -7,9 +15,12 @@ this reference does not.
 
 ## Release identity
 
-The root `package.json` is the sole release-version authority for this npm
-workspace. The core package, self-Edition package, dependency projection, and
-lockfile must carry the same strict Semantic Versioning 2.0.0 identity.
+`VERSION` is the sole manually maintained product-version source. The existing
+release projection derives npm package versions, internal dependency pins and
+lock identities from its strict Semantic Versioning 2.0.0 value. The private
+root manifest has no product version. `node tools/release/version.mjs --check`
+refuses drift without changing files; `--write` updates those owned projections.
+Installed packages read their projected manifest version without a source checkout.
 
 The root [`CHANGELOG.md`](../../CHANGELOG.md) is the human-facing release
 history. It follows Keep a Changelog, but it is not evidence that a tag, package,
@@ -17,64 +28,9 @@ Forge release, hosted pipeline, or installation exists. Those projections are
 verified independently. Published bytes are immutable; any change requires a
 new version.
 
-The development and CI projections pin Node.js 26.10.0; the Core runtime
-contract remains `node >=22`. Node.js 22 is in Maintenance LTS through
-2027-04-30 and is still declared by the ETHOS source-owned integration. Its
-support is a runtime compatibility promise, not a requirement to develop with
-Node.js 22. The private development workspace selects npm 12.2.0, independently
-released from the npm 11.19.1 bundled with Node.js 26.10.0. Native `devEngines`
-admission rejects a different development Node/npm before installation or
-scripts. Every native CI job uses the locked `.config/mise.ci.toml` tool selection
-in its own ignored tool cache, including the independently selected npm. Mise
-owns installation and execution; shell Runners retain their existing Mise
-installation owner. This does not raise the installed Core runtime floor.
-Knip excludes the external `mise` bootstrap binary from npm dependency lookup;
-the native CI environment regression executes that installed owner directly.
-The private workspace also locks that same npm as a development tool. Native
-packaging subprocesses prepend workspace bins and the Node directory, so an
-external PATH selection alone can fall back to Node's bundled npm. The local
-dependency closes that real execution gap without a wrapper or runtime dependency.
-
-The common CI job installs the locked Chromium through Playwright, downloads the
-manifest-selected Raster source archive through the caller's `CI_API_V4_URL`,
-verifies its hash and executes the frozen native Raster journey before
-`npm run check`. Curl imports the native job token from its environment; it is
-not embedded in a command argument or copied into repository configuration.
-Missing browser or Raster supply fails required execution. Linux uses a non-root
-job principal and retains Chromium's sandbox; actual native job results, not
-installation or YAML inspection, qualify each platform.
-
-The 2026-10-07 official npm audit reports 15 affected development-package
-entries in the selected stable tool closure, not 15 independent advisories.
-OpenSpec and Markdownlint retain the affected glob chain; Markdownlint also
-retains affected math and TOML parsers. npm 12.2.0 bundles affected
-brace-expansion, HTTP-cache, address, selector and Undici dependencies. Native
-compatible resolution does not remove these findings; forcing a downgrade or
-editing bundled packages is not remediation. The operator accepts these tools
-only for this Publisher checkout and project 1323 CI: trusted local source and
-configuration, pinned verified supply, isolated job identities/directories,
-disabled installer lifecycle scripts and bounded execution. Do not pass
-untrusted repository, glob, Markdown, TOML or arbitrary network input to them.
-This exception does not authorize production use or weaken renderer admission.
-The existing supply-update owner must re-audit exact selected bytes when an
-upstream stable fix arrives; that fix, a new affected shipped dependency or an
-expanded consumer invalidates this disposition. Raw audit and resolver evidence
-is retained under `build/evidence/guided-architecture-reading/stable-supply-20261006/`.
-The next supply-owner review is 2026-10-08; the accepted restriction remains in
-force until a verified upstream fix or an explicit successor disposition.
-
-The development workspace pins OpenSpec 1.14.1. Its official apply instructions
-return each task's concrete `sourcePath` and one-based `line`; the repository
-checks those against a relocated, isolated task fixture. This is task-location
-evidence, not implementation completion or permission to mark a checkbox.
-Strict native validation and archive rehearsal remain separate checks.
-
-The LikeC4 parser supply is rebuilt from the npm lockfile. Chevrotain 11.0.3
-declares the older `lodash-es` version exactly, so the workspace uses one npm
-`overrides` entry to select patched `lodash-es` 4.18.1 until upstream removes
-that constraint. `tools/supply/likec4.mjs --check` and the installed parser
-checks bind the selected bytes; an npm audit result covers the resolved npm
-tree, not every possible security property of generated code.
+The installed Core runtime contract remains `node >=22`. Development tool selection,
+CI prerequisites and remaining dependency risks belong to
+[Development and verification](development.md#toolchain-and-supply).
 
 Release tags belong to the protected `v*` family. Publication binds a signed,
 annotated `v<version>` tag directly to the selected release commit; the tag name,
@@ -153,10 +109,11 @@ npm pack --ignore-scripts --workspace architecture-publisher \
   --pack-destination build/packages
 ```
 
-The core package has no runtime npm dependencies. Source repositories own their
-concrete adapter and Edition packages and depend inward on an exact compatible
-core. Installed journeys accept caller-selected files and can run with an empty
-HOME and no adjacent checkout discovery.
+The core package has no runtime npm dependencies. External editors own any
+source-specific preparation and Edition packages; source repositories remain
+read-only and gain no drawing files, dependencies or obligations. Installed
+journeys accept caller-selected files and can run with an empty HOME and no
+adjacent checkout discovery.
 
 ## Public CLI
 
@@ -240,7 +197,7 @@ execution or complete common-compiler closure; remaining limits stay explicit.
 An Edition may select a versioned, data-only `visualPolicy.override`. Its
 `architecture.scene-refinement/v1` resource must name every requested medium:
 each selects authored composition or the exact `{ "kind": "neutral" }` choice.
-Neutral runs that medium's ordinary compiler; it does not borrow its sibling's
+Neutral runs that medium's automatic compiler; it does not borrow its sibling's
 geometry or approval. Missing or extra media, unsupported choices, and an
 all-neutral no-op resource fail rather than silently falling back. The whole
 resource is bound to the input lock. A medium Scene records only the digest of
@@ -313,11 +270,13 @@ before deduplication; repeated segments within one route are unsupported.
 These finite geometric checks do not certify source truth, editorial wording
 or subjective visual quality.
 
-Historical v1 plans retain their selected output field and original meaning.
+The retained Claim-backed plan format keeps its selected output field.
 They select a Source Bundle, Claim Model member, and exact
-`architecture.edition/v1` file, then emit an
+class-free `architecture.edition/v2` file, then emit an
 `architecture.edition-candidate/v1` bundle. The v1 request binds
 `editionSha256`; do not pass `--output` to a v1 plan.
+Edition v1 recovery uses its original versioned executor; the current runtime
+does not reinterpret its quality classes or historical approval.
 
 The result is `status: built` with `qualification: not-performed` and
 `publication: not-performed`. Generated files are never authoring inputs.
@@ -457,7 +416,15 @@ must select and verify it independently; a replay match alone cannot supply it.
 Candidate digest (which binds the input lock), accepted Candidate limits, and
 finite required predicate/scope/verifier/method tuples with permitted record
 limitations. It must require a question-scoped predicate for each selected
-view/question. The Qualification Set cannot choose its own policy. The result
+view/question and all three human visual predicates (`faithful`, `intelligible`,
+`aesthetic`) for every selected PNG and HTML. Each full physical or viewport
+scope declares the intended display width and height, not necessarily the PNG's
+raster dimensions. Every declared display scope needs all three predicates;
+evidence at another size or for a sibling artifact cannot satisfy it. Artifact-only
+diagnostic records cannot replace display-scoped review. The Qualification Set
+cannot choose its own policy. Review uses the product contract's substantive
+aesthetic duty, not restraint alone; machine geometry and pixel checks cannot
+supply that judgment. The result
 distinguishes missing, non-PASS, unselected, and unaccepted-limit submissions.
 It remains `records-bound` and `admitted: false`: neither verifier nor accepter
 identity is authenticated by this generic command. The source product owns
@@ -525,406 +492,36 @@ directory flushing on Windows, and `powerLossRecovery: "not-qualified"`.
 Required flush errors remain failures. Interrupted-process recovery verifies
 retained on-disk state; it is not qualified machine-power-loss recovery.
 
-## Public JavaScript contracts
-
-The core exports narrow owners:
-
-```text
-architecture-publisher/file-input
-architecture-publisher/source
-architecture-publisher/semantics
-architecture-publisher/edition
-architecture-publisher/scene
-architecture-publisher/compiler
-architecture-publisher/rendering
-architecture-publisher/qualification
-architecture-publisher/publication
-architecture-publisher/runtime
-architecture-publisher/renderers/archify
-architecture-publisher/renderers/fonts
-architecture-publisher/renderers/resvg
-architecture-publisher/renderers/svg
-```
-
-`file-input` exposes `readBoundedFile` and `parseStrictJson` for independent
-editors. The reader rejects observed symlinks, nonregular files, byte-limit
-violations, and changes detected during the read; it does not certify a digest,
-atomic ancestor confinement, source meaning, or acceptance. The `source`
-subpath exposes complete Source Bundle operations, not those generic helpers.
-
-`rendering` owns the public raster command's closed Source Bundle selection and
-the measurement command's Source Bundle output. Its backends expose
-`rasterizeBytes` and `measureCoreTextBytes`: they receive selected bytes or
-explicit measurement inputs, not Source Bundle authority. The compiler passes
-its already-selected SVG and font bytes directly to Resvg; it does not create
-a temporary Source Bundle merely to call the backend.
-
-The font-supply export owns verified font and license bytes used by the static
-and neutral interactive media paths. The selected Archify 3.0.1 runtime embeds its own
-licensed, self-contained font bytes in its pinned template; its interactive
-path does not claim the separate `font-supply` identity. The adapter records
-the original input digest, binds Archify's required `meta.output` only to a
-private candidate file, and publishes solely to the caller's explicit output
-path. The native update check is disabled for offline rendering.
-
-The first-party self-Edition exports:
-
-```text
-@architecture-publisher/self-edition
-@architecture-publisher/self-edition/edition
-@architecture-publisher/self-edition/runtime
-```
-
-Its public Edition surface prepares explicit source-bound inputs: a Claim
-Model, one Edition Project, a data-only visual refinement, and a Build Request.
-Its separate generated Source Bundle supports provenance audit; it is not
-selected again by the direct Build Request. The package does not emit a second
-editable `architecture.edition/v1` or a self-only publication plan. The
-generic Core builds both media through that Build
-Request and returns an unqualified Candidate. The self Project selects a
-structural static overview and eight interactive mechanism questions. Its
-static view does not select the Claim facts carried by the interactive views;
-the diagram's structural carriers therefore do not assert complete static
-Claim coverage. Qualification, acceptance, and publication remain separate
-decisions bound to exact Candidate bytes.
-
-The current source-owned ETHOS integration package exports:
-
-```text
-@architecture-publisher/ethos/provider
-@architecture-publisher/ethos/adapter
-@architecture-publisher/ethos/edition
-@architecture-publisher/ethos/runtime
-```
-
-`./provider` is the selected standard-value materializer. The other three
-exports are migration incumbents, not the terminal Provider surface. Their
-input adapters still support source import/verification, atlas, poster, review,
-and publication journeys; retirement requires exact installed semantic and
-flagship-media parity or a reviewed successor. The package is not a second CLI
-and cannot compile ETHOS Commitments, control Work Lanes, mint proof, execute
-CAS effects, or accept ETHOS state. This
-repository retains only the exact digest-bound source-ownership handoff under
-`tests/conformance/fixtures/ethos-source-owned-handoff.json`. Each package identity
-includes its repository, commit, repository-relative package path, Git tree
-object, archive name, exact archive digest, and portable uncompressed-tar
-content digest. The archive digest identifies one selected `.tgz` asset; the
-content digest verifies equivalent package content across gzip implementations.
-A tree object is never presented as a repository root or commit. Testing
-reconstructs the packed core from that exact subtree and compares every packaged
-file byte-for-byte.
-
-## Media independence
-
-Static and interactive scenes share semantic identities, selected coverage, and
-portable design tokens. They do not share required coordinates, DOM structure,
-artifact bytes, or approval.
-
-- Static output targets single-frame comprehension and exact SVG/PNG geometry.
-- Interactive output targets a complete first-screen overview plus complete
-  mechanism pages, navigation, focus, trace, and contextual inspection.
-
-The interactive `Inspect` state makes selected meaning and source identity
-readable without covering part of the diagram. It does not embed source files or
-invent a code link. Use the Candidate manifest and input lock for exact audit.
-
-Neutral graph pages put exact selected relation wording on the diagram, with
-font-measured wrapping and layout space; an ordinal is not a substitute for a
-relation's meaning. Linked source Claims keep their plane, predicate, subject,
-object, condition, scope, maturity, and declared validity in the reading view.
-Full source records and method limits remain available in Inspect. Moving a
-record there does not remove a selected meaning or qualify its truth.
-
-This compositor prepares a bounded batch of exact possible label lines through
-`renderers/resvg/measurement.mjs` and the existing supervised raster Worker.
-The native renderer shapes the selected fonts and returns actual outline ink,
-not summed character advances. A synchronous cache supplies ELK; an unprepared
-request fails without estimation or starting another process. Font bytes and
-the measurement implementation remain separately bound. Pinned ELK owns geometry;
-the SVG painter preserves its routes, labels, and node bounds. A pinned camera
-supplier owns viewport interaction only. Shared paint dimensions bind audits
-to emitted strokes and arrowheads; browser glyph checks remain separate.
-Flat groups retain exact membership and containment. Long acyclic graphs may
-use the same ELK owner's finite wrapping candidate, never an edited fallback.
-Static Dagre geometry and authored Archify geometry remain independent.
-
-Authored font resources select normal static TTF faces at weights 400, 500, 600
-or 700. Per-text selection overrides the medium default; absence alone selects
-bundled typography. Missing selections, glyphs or pins fail rather than falling
-back. Measurement supports single-line horizontal LTR Latin, Greek, Cyrillic,
-Common characters and explicitly supplied Han. Combining marks, controls,
-joiners, variation selectors and unsupported scripts are refused; no text
-normalization occurs. Both authored painters preserve spaces, disable synthetic
-faces and request geometric precision. Browser paint remains a separate check.
-
-Each preparation admits at most 4096 queries and 200000 glyphs, including
-static-only editorial framing. The existing raster bounds control font bytes,
-heap, WASM memory, time, output and owned-process reclamation. Font metadata
-and glyph-availability parsing still occur in the parent; native supervision
-does not imply sandboxed parsing or protection from a malicious installer.
-
-Authored statement text uses the same bounded text shape in each independent
-medium. Select a Claim with `semanticIds: ['["namespace","claim","claim-id"]']`;
-select an editorial assertion with
-`semanticIds: ['["edition-id","editorial","assertion-id"]']`. Add each direct
-reference to that scene's `requiredSemanticIds`. Source facts come only from
-selected native bytes; editorial statement, proponent, basis and questions
-come only from the selected Edition. Neither is copied into refinement facts.
-
-Every explicitly selected direct statement requires its own visible text.
-Opaque Claims need no invented document node or dependency. Typed relational
-and scalar Claims still require their selected relation or subject owners.
-Previously valid anchored aggregate text retains its existing v1 interpretation
-and limits. A direct statement cannot silently fall back to that representation
-when its text is missing. A statement-only interactive page may have no nodes.
-
-The Archify adapter validates finite text against the exact selected font bytes
-it embeds, native-shaped bounds and the desktop readability/route geometry.
-Each page records its exact adapted runtime identity; different page input is
-not a conflicting shared runtime. Inspection distinguishes source identity from
-Edition identity and returns keyboard focus to the selected text. These checks
-establish identity and visible coverage, not paraphrase equivalence or truth;
-wording remains unverified until the selected exact-artifact review.
-
-Supported delivery is SVG/PNG and standalone desktop HTML. PDF and PPTX are
-not supported and are outside the current work scope.
-
-A screenshot of HTML is not the static compiler. An HTML wrapper around a poster
-is not the interactive compiler.
-
-## Development and verification
-
-Use the repository-pinned Node/npm line and lockfile:
-
-```sh
-npm ci --ignore-scripts --no-audit --no-fund
-npm run check
-```
-
-`npm run check` is the repository's fail-closed quality entry. It composes
-Prettier, zero-warning ESLint, checked JavaScript contracts, module-direction
-and dead-code analysis, Markdown and strict OpenSpec validation, measured test
-coverage, and packed-package validation. Vendored Archify, font, and raster
-supply remain outside first-party rewrite and dead-code ownership; their pinned
-bytes are verified through supply-chain and behavior tests.
-
-### Native raster source rebuild
-
-The installed raster renderer uses packaged WASM; ordinary users need neither
-Rust nor a platform shell. Source rebuilding uses native archive extraction,
-Cargo and wasm-bindgen, with the exact toolchain and digests selected
-by `packages/publisher/renderers/resvg/supply/resvg/source.json`.
-
-In a caller-owned disposable directory:
-
-1. Download the selected source archive through its native registry consumer.
-2. Run `node tools/raster/resvg/verify.mjs --archive <archive>` before extraction.
-3. Extract the verified archive with the platform's native archive tool. Keep
-   the original extracted Cargo manifest and vendored dependencies unchanged.
-4. Run `node tools/raster/resvg/verify.mjs --inputs <absolute-source-root>`.
-5. Select the manifest's already installed Rust toolchain/target and matching
-   wasm-bindgen without replacing another installation owner. From the extracted
-   source root, execute the two native commands:
-
-   ```text
-   cargo build --release --target wasm32-unknown-unknown --offline --frozen
-     --config 'build.rustflags=["--remap-path-prefix=<absolute-source-root>=/workspace"]'
-
-   wasm-bindgen
-     target/wasm32-unknown-unknown/release/architecture_publisher_resvg_wasm.wasm
-     --target bundler --out-name index --out-dir native-output
-     --no-typescript --omit-default-module-path
-   ```
-
-6. Observe `rustc -vV`, `cargo -vV` and `wasm-bindgen --version` from the selected
-   executables. The native journey records their exact host, release and commit
-   identities in caller-owned JSON; it is evidence, not another configuration owner.
-7. Run `node tools/raster/resvg/verify.mjs --outputs <output-root> <tool-identity.json>`.
-   The source manifest selects the exact pre-admitted native WASM witness;
-   unknown identities fail without a fallback or learned hash. Without the JSON
-   argument, `--outputs` checks the canonical packaged bytes. Recheck `--inputs`
-   too: successful compilation cannot waive source drift. The binding always
-   matches packaged `index.mjs`; native output never replaces canonical supply.
-8. Repeat from a second clean extraction, using a different relocated root and
-   empty Cargo target. Both builds must match the selected witness. The native
-   journey also compares canonical and rebuilt imports/exports, exact PNG bytes,
-   selected fonts, text measurement, declared errors and an authored static workload.
-9. Preserve command/tool identities, both input/output digests and behavioral
-   comparison results, then reclaim only the caller-owned disposable roots.
-
-The command is native on each platform; placeholder resolution and command-line
-quoting belong to the caller's executor, not a repository Bash or PowerShell
-controller. A resolved absolute source root is required: remapping `.` produces
-different WASM bytes. Native CI supplies the execution deadline. A successful
-integrity test does not prove a full source rebuild or an untested architecture.
-Native witnesses do not claim cross-host WASM byte identity or universal behavioral
-equivalence. New witnesses require independent clean-build evidence and review;
-the source manifest remains their sole owner, not a runtime hash-acceptance list.
-The evaluated wasm-pack wrapper is not selected: its metadata discovery rewrites
-the original lockfile before applying its later offline/frozen build options.
-
-`.config/checks/markdownlint-cli2.jsonc` owns maintained Markdown selection and spacing;
-`npm run check:docs` consumes it without inline rule overrides. The native
-MD012 rule rejects repeated blank lines outside code, and
-`.config/checks/markdown.mjs` uses Markdownlint's parsed block structure to keep
-single-paragraph list items adjacent. Separate paragraphs and compound list
-items retain their structural spacing. Embedded code follows its language's
-formatter. Archived specifications, fixtures, and third-party supply retain
-their recorded bytes.
-
-Repository quality policy lives in `.config/checks/`; npm scripts select the
-native tools and their exact configuration paths. Prettier discovers its one
-rule file through the native `package.json` reference. Its root ignore file,
-ESLint's root entry and the JavaScript project remain native discovery inputs,
-not forwarding wrappers or duplicated policy. See
-[configuration ownership](../../.config/README.md) for the retained entries.
-
-Hosted CI runs this same command on Linux ARM64 and native macOS ARM64. GitLab's
-protected-ref flag selects the protected macOS Runner; merge requests and
-unprotected branches select the separate review Runner. Both inherit one
-project-local GitLab resource group, so Publisher's macOS verification jobs do
-not compete with each other for native compiler resources. Their Runner and
-trust identities stay separate; Linux and other projects are not serialized.
-This scheduling constraint is not a sandbox or a proof that every historical
-compiler stall had the same cause. Native macOS executes the CoreText Swift
-paths that skip on other platforms. Browser and external input tests still
-require their explicit selectors.
-
-Linux Docker jobs set GitLab Runner's native
-`FF_USE_INIT_WITH_DOCKER_EXECUTOR=true`. Its `--init` process reaps orphaned
-children after the existing supervisor kills an invocation's process group.
-Without an init, a terminated orphan may retain a zombie PID and fail the
-unchanged installed Provider and qualification lifetime assertions. This is a
-Runner precondition, not a Publisher process scanner, sandbox exception or
-direct-child-only fallback. Local container acceptance uses the same `--init`
-boundary; hosted execution must independently qualify its actual Runner.
-
-The standalone Raster rebuild initializes its own repository-local test workspace
-before allocating a unique execution directory. It does not depend on the npm
-suite having run first or on retained output from a previous checkout. Native
-test cleanup removes only that execution directory; the owning parent remains.
-
-Each CI job sets `umask 022` before checkout-derived package reproduction.
-Historical `contentTarSha256` identifies the complete uncompressed TAR stream,
-including member modes; it is independent of gzip encoding, not of TAR metadata.
-The job-local mask reproduces those recorded package modes inside the Runner's
-private home on POSIX. Native Windows filesystem metadata does not reproduce
-historical POSIX TAR headers: its historical repack tests instead verify the
-complete selected file set and every byte against the immutable Git tree. This
-is source-byte replay, not equality with the historical archive. Recorded TAR
-digests and signed release bytes remain unchanged. Runner service permissions
-and historical digests remain separate from that artifact-build setting.
-
-Repository-authored text checks out as LF through `.gitattributes`. Generated
-validators and third-party supply use `-text` to preserve recorded bytes,
-including mixed-line-ending notices and binary fonts. Native CI uses GitLab's
-fetch strategy and default cleaning, excluding only
-`build/runtime/tool-cache/`. A completed browser can retain a mapped DLL that
-prevents recursive workspace replacement on Windows; on Linux and macOS, deleting
-the same verified cache also needlessly repeats large upstream downloads.
-Windows additionally runs `git checkout-index --all --force` to refresh every
-tracked carrier before tool execution, including attribute-only changes and
-stat-clean CRLF files. Previous coverage and other generated output are cleaned;
-required evidence belongs outside that disposable job state. Retained tools
-remain subject to their locked supply checks. Each Runner and trust role retains
-only its own workspace cache; no shared GitLab cache or cross-role store is used.
-Linux selects `/ms-playwright` from its pinned official Playwright image instead
-of downloading a second browser copy into the workspace. The image and locked
-Playwright package must select the same native browser revision. Mise preserves
-the explicit invoker-owned browser root; without one, it uses the existing
-project-local cache. Native browser launch and the complete quality graph still
-qualify the selected bytes, not just their presence in the image.
-Native checkout logs and byte checks must confirm the effective strategy. This
-does not modify global Git configuration or prove that a previous process was
-reclaimed.
-The two Publisher Linux Docker Runner owners select the verified official
-Playwright seccomp profile, which permits user-namespace creation without
-privileged execution or disabling Chromium's sandbox. Only their Docker
-`security_opt` fields change; credentials, other Runner blocks, ownership and
-VM sharing remain unchanged. Original configuration bytes stay with their
-native owners until the corresponding full native job releases rollback
-custody. A successful sandboxed browser probe does not qualify the full CI
-matrix. Evidence: `build/evidence/guided-architecture-reading/stable-supply-20261006/linux-runner-seccomp-readback.log`
-and `linux-native-sandboxed-browser.log`. The protected image download remains
-unqualified after its bounded timeout; the protected job must verify its own
-selected image and browser.
-Mise's locked Rust declaration includes `cargo`, `rustc` and the host `rust-std`.
-Its native installation repairs missing selected components in the retained
-tool-cache; a minimal profile alone does not reconcile an already installed
-toolchain. The separate WASM target does not replace the host standard library
-needed to compile build scripts.
-The native bootstrap invokes `mise exec -- rustup component add rust-std`
-after locked installation. Rustup resolves the host from the selected toolchain;
-this is idempotent component reconciliation, not a second version declaration
-or installer. Mise's generic component predicate can otherwise count a WASM
-standard library as satisfying the unqualified host component.
-
-CI selects both `MISE_DATA_DIR` and `MISE_CACHE_DIR` within the job-owned
-tool-cache. The native npm backend hardlinks package files from the latter.
-Reinstall only a damaged locked tool using that same cache rather than granting
-a Runner access to a system-principal store. Verify the resulting files and
-version under the actual Runner identity; a management-principal probe alone
-does not establish hosted acceptance.
-
-The JavaScript coverage gate selects all tracked runtime `.mjs` under
-`packages/publisher/src/`, first-party
-`packages/publisher/renderers/`, and `editions/self/src/`, including
-`index.mjs` entrypoints. The selected module inventory is derived by the
-coverage command and policed by `tests/quality-contract.test.mjs`; this prose
-does not duplicate a revision-specific count. The only exclusions are the
-third-party/generated renderer supply and generated authoring validators. The
-validator module is reproduced from the versioned JSON Schemas by
-`tools/generate-authoring-validators.mjs --check` and carries the generator's
-MIT notice; the schemas and handwritten cross-reference validation remain
-covered. The installed product has no
-runtime npm dependencies. `tests/quality-contract.test.mjs` rejects a tracked
-first-party package module moved outside the selected roots. This is a
-JavaScript coverage claim, not coverage of the separately compiled CoreText
-Swift helper or a substitute for native platform acceptance.
-
-The `npm run check` coverage step executes ordinary offline source, semantic,
-Edition, scene, rendering, package, installed-use, publication, replacement,
-and recovery behavior. Cases requiring an external source root, historical
-delivery, or browser executable skip when not explicitly selected. A skip is
-not qualification evidence.
-
-Set `ARCHPUB_BROWSER_EXECUTABLE` to an absolute installed Chrome executable
-before `npm run check` to execute its browser tests. The source-owned AIGW
-conformance test separately requires absolute `AIGW_EDITION_ROOT` and
-`AIGW_SOURCE_ROOT` selections. The historical paired-file migration rehearsal
-requires both absolute `PAIR_PRIOR_NATIVE` and `PAIR_PRIOR_ATLAS` paths; it
-copies those deliveries into temporary test state before effects. None of
-these selectors grants source acceptance or a release decision.
-
-Never edit immutable release plans or substitute a similarly named newer
-generation. Evidence is applicable only to its exact bytes and declared scope.
+See [Compiler API and independent media](compiler-api.md) and
+[Development and verification](development.md) for their owning references.
 
 ## First-party conformance consumers
 
-First-party co-location is optional. The locations below describe current
-selected inputs, not a Publisher requirement or source-product CI gate.
+Source-product publication preparation is external. The locations below
+distinguish current generic conformance from retained historical handoffs;
+neither creates a source-product drawing dependency or CI gate.
 
-- `tests/conformance/journeys/self-host/` is a bounded structural self-use journey through the
-  public generic contracts. It is not the final flagship self-Edition.
+- `tests/conformance/journeys/self-host/` is a bounded self-use protocol journey
+  through the public generic contracts. Its Candidate declares the same strict
+  review duties; successful generation is not artwork acceptance.
 - `editions/self/` is the source-owned Architecture Publisher self-Edition.
 - `tests/conformance/fixtures/ethos-source-owned-handoff.json` records the immutable
-  ETHOS package, parity, semantic-successor, and remaining-acceptance boundary.
-  Current mutable ETHOS adapter and Edition files reside in ETHOS; their
-  continuation or retirement requires its product owner's decision. Their
-  placement grants Publisher no source authority.
+  historical ETHOS package, parity, semantic-successor and acceptance boundary.
+  It does not declare a current integration API or require continued source-side
+  drawing code. Current preparation reads pinned existing ETHOS material outside
+  ETHOS, while retained works keep their exact prior identities.
 - `tests/conformance/fixtures/aigw-source-owned-handoff.json` records the exact AIGW
-  source owner, current and historical semantic values, reproduced candidate,
-  and remaining governance limits. Current mutable AIGW Edition files reside
-  in AIGW; their continuation or retirement requires its product owner's
-  decision. Its opt-in conformance journey accepts explicit relocated Edition
-  and source roots; ordinary runtime never discovers an adjacent checkout.
+  historical source owner, semantic values, reproduced candidate and governance
+  limits. Current mutable preparation belongs to the external editor, not AIGW.
+  The opt-in conformance journey selects explicit external Edition and read-only
+  source roots; ordinary runtime never discovers an adjacent checkout.
 - The first-party contract matrix preserves the exact 0.2.0-alpha.0
   interoperability baseline and binds the published v0.3.0-alpha.1 successor to
   its signed release, package identities, qualification set, and human review.
   A pass-shared-kernel result means the consumer crosses the same
   identity-free qualification or publication implementation already exercised
-  against exact consumer bytes. ETHOS and AIGW migration, acceptance, and
-  publication remain source-owned and are not asserted by this matrix.
+  against exact consumer bytes. The matrix does not establish source endorsement,
+  designated artifact acceptance or custodian-authorized publication.
 
 ## Historical alpha.7 identity
 

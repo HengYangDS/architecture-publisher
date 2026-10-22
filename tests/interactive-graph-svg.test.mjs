@@ -1,57 +1,56 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
-import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
-import { layoutInteractivePages } from '../packages/publisher/renderers/elk/layout.mjs';
-import { interactiveLabelRequests } from '../packages/publisher/renderers/elk/text.mjs';
+import assert from "node:assert/strict";
+import test from "node:test";
+import { renderInteractiveEditionHtml } from "../packages/publisher/renderers/interactive/index.mjs";
+import { interactiveEditionScene } from "./fixtures/interactive-edition-scene.mjs";
+import { interactivePage, interactiveDocument } from "./fixtures/interactive-member.mjs";
 
-test('the painter emits exact graph paths and glyph positions without a second geometry engine', async () => {
-  const painter = await import('../packages/publisher/renderers/interactive/graph-svg.mjs').catch(
-    () => null,
-  );
-  assert.equal(typeof painter?.renderGraphSvg, 'function', 'the exact SVG painter must exist');
-  const page = {
-    nodes: [
-      { id: 'n-0', label: 'Input <exact>' },
-      { id: 'n-1', label: 'Output' },
-    ],
-    relations: [
-      {
-        id: 'r-0',
-        source: 'n-0',
-        target: 'n-1',
-        graphLabel: 'selects & binds',
-        direction: 'bidirectional',
-      },
-    ],
-    groups: [{ id: 'g-0', label: 'Reading boundary', nodeIds: ['n-0', 'n-1'] }],
-  };
-  const measure = await createBundledTextMeasurer(
-    await loadBundledFonts(),
-    interactiveLabelRequests([page]),
-  );
-  page.geometry = (await layoutInteractivePages([page], measure)).layouts[0];
-  const original = structuredClone(page);
-  const html = painter.renderGraphSvg(page, 0);
-  assert.deepEqual(page, original);
+test("the public native renderer retains exact labels and directed geometry without a private painter", async () => {
+  const scene = interactiveEditionScene();
+  scene.pages[0].nodes[0].label = "Input <exact>";
+  scene.pages[0].nodes[1].label = "Output";
+  Object.assign(scene.pages[0].relations[0], {
+    label: "selects & binds",
+    direction: "bidirectional",
+  });
+  scene.pages[0].groups = [
+    {
+      id: "boundary",
+      label: "Reading boundary",
+      elements: scene.pages[0].nodes.map(({ namespace, id }) => ({ namespace, id })),
+    },
+  ];
+  const original = structuredClone(scene);
+  const result = await renderInteractiveEditionHtml(scene);
+  assert.deepEqual(scene, original);
+  const html = interactivePage(result.bytes, "overview");
   assert.match(html, /<svg[^>]+viewBox="0 0 /u);
-  assert.match(html, /class="graph-viewport"/u);
   assert.match(html, /Input &lt;exact&gt;/u);
   assert.match(html, /selects &amp; binds/u);
-  for (const node of page.geometry.nodes) {
-    assert.equal(html.split(`data-graphic-id="${node.id}"`).length - 1, 1);
-    for (const line of node.label.baselines)
-      assert(html.includes(`x="${line.x}" y="${line.baseline}"`));
-  }
-  const relation = page.geometry.relations[0];
-  const expected = relation.points
-    .map(({ x, y }, index) => `${index ? 'L' : 'M'}${x} ${y}`)
-    .join(' ');
-  assert(html.includes(`d="${expected}"`));
-  assert.match(html, /marker-start="url\(#graph-0-arrow-start\)"/u);
-  assert.match(html, /marker-end="url\(#graph-0-arrow-end\)"/u);
-  assert.doesNotMatch(html, /canvas|cytoscape|bezier|<foreignObject/iu);
-  assert.doesNotMatch(html, /class="graph-node"[^>]*><rect[^>]* rx=/u);
-  assert.equal(html.split('data-graphic-id="r-0"').length - 1, 1);
-  assert.equal(html.split('data-graphic-id="g-0"').length - 1, 1);
+  assert.match(html, /data-group-id="g-0"/u);
+  const graphic = html.match(/<svg\b[^>]*data-diagram-type="architecture"[\s\S]*?<\/svg>/u)?.[0];
+  assert(graphic, "the selected native architecture has one canonical SVG");
+  for (const id of ["n-0", "n-1"])
+    assert.equal(
+      [...graphic.matchAll(new RegExp(`<g\\b[^>]*data-node-id="${id}"`, "gu"))].length,
+      1,
+    );
+  const route = html.match(/<path\b[^>]*data-composition-points="([^"]+)"[^>]*>/u)?.[0];
+  assert(route, "the emitted route binds its composition points");
+  const points = route.match(/data-composition-points="([^"]+)"/u)[1].split(";");
+  const expected = points
+    .map((point, index) => `${index ? "L" : "M"} ${point.replace(",", " ")}`)
+    .join(" ");
+  assert.equal(route.match(/\sd="([^"]+)"/u)[1], expected);
+  assert.match(route, /marker-start="url\(#[^)]+\)"/u);
+  assert.match(route, /marker-end="url\(#[^)]+\)"/u);
+  assert.doesNotMatch(html, /class="graph-viewport"|class="graph-svg"|cytoscape/u);
+  assert.equal(interactiveDocument(result.bytes).pages.overview.nativeReader, "archify/v1");
+  const facts = interactiveDocument(result.bytes).pages.overview.facts;
+  assert.equal(
+    facts
+      .find(({ graphicId }) => graphicId === "r-0")
+      .facts.find(({ label }) => label === "Direction").value,
+    "bidirectional",
+  );
+  assert.equal(result.completeness, "unqualified-medium");
 });

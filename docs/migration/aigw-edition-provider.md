@@ -1,92 +1,69 @@
 ---
-subject: aigw:edition-provider-migration
-role: handoff
-state: source-provider-migrated-publication-unverified
+subject: aigw:external-publication
+role: reference
+state: active
 relations:
-  uses: ../reference/edition-provider.md
+  uses: ../product-contract.md
 ---
 
-# AIGW Edition Provider boundary
+# AIGW external architecture publication
 
-AIGW's source-owned Client Projection uses declarative Provider v2 in the
-existing `architecture/edition-provider/` directory. The compiler selection is
-Publisher `0.3.0-alpha.7`; this packet neither changes that selection nor grants
-AIGW authorization, acceptance or publication. Publisher implementation or
-release does not authorize AIGW migration; no AIGW source change is authorized
-by this packet.
+AIGW is a read-only source product, not a Publisher integration target.
+Drawing its architecture adds no files, code, dependency, configuration, test
+or CI obligation to AIGW. The independent architecture-publications repository
+owns source selection, semantic adaptation, editorial inputs and artwork.
+Direct standard input is sufficient; an optional declarative Provider belongs
+to that external owner, never to AIGW.
 
-The source observation is dated 2026-10-04 and bound to AIGW
-`f43d304efd942a21400e5c6741503a7f3d09eaa3`. Its complete Provider inputs match
-the exercised source `86cd24fe4d27a3bb91c6cf7b580106278d1548e7`; later task-only
-commits do not change those bytes. The named AIGW source files and its existing
-task 8.6 own the source-adoption result. They do not establish final release,
-source-specific artwork acceptance or hosted publication.
+## Verified boundary
 
-## Source inputs and output
+Local AIGW `main`, `dev` and `candidate/dev`, and GitLab/GitHub `main/dev`,
+were verified at `03e210c5433d000fe6595520dfc7e6140e8fc04b` on 2026-10-14.
+That accepted history contains the complete source removal. The former
+`architecture/edition-provider/` files and active product callers are absent.
+The selected ETHOS runtime also contains no active drawing commands; native
+installation retired its obsolete runtime and package. Source and remote
+acceptance are not finished-artwork acceptance.
+Publisher implementation or release does not authorize AIGW migration;
+no AIGW source change is authorized by this handoff.
 
-The authored scope is **AIGW Client Projection**, not the whole AIGW product.
-A whole-product Edition requires its own reader questions and source selection,
-not a renamed chapter.
+The external input Change is officially archived and accepted locally at
+`208f220a7ecd557eb800d1d65b4733860db69435`, with three passing native gates
+and its owned lane retired. Required failed and recovery evidence is retained.
+No remote is selected for that independent repository, so its remote custody
+is not claimed.
 
-| Source carrier            | Responsibility                                                    |
-| ------------------------- | ----------------------------------------------------------------- |
-| `claim-model.json`        | AIGW-authored entities, typed relations, claims and provenance    |
-| `edition.json`            | Four reader questions, scope, narrative and independent media     |
-| `provider.json`           | Declarative v2 selection of the exact Claim Model and Edition     |
-| `build-request.json`      | One public build input selecting that Provider and both media     |
-| `selection.json`          | Exact published compiler package and Git-bound rollback selection |
-| `test/source.test.mjs`    | Live source provenance, selected identity and rollback checks     |
-| `test/installed.test.mjs` | Offline compiler installation, relocation and refusal checks      |
+The external model and original editorial input were preserved byte-for-byte
+from AIGW `e2eca41303f1aa7fd51ccc542bc15da40153ea5f`, in external signed
+commit `e30a26d5eb1b70355398b2fa5522785bf75a0eb8`. The selected scope remains
+**AIGW Client Projection**, not the whole AIGW product. A whole-product work
+requires its own source selection and reader questions.
 
-Claim Model `source/` locators refer to live repository-relative provenance;
-they are not captured source copies. Its selected revision is content-derived;
-it is not a Git commit. Byte consistency does not certify implementation truth.
-The compiler records that provenance limit rather than promoting an authored
-assertion into independent evidence.
+## Mechanism and ownership
 
-The normal public build emits an unqualified Candidate. Generated locks,
-Candidate manifests and media belong in owned untracked output, not beside the
-source inputs as another authority. Equal selected contents or media do not
-transfer approval between direct and declarative Candidate identities.
+| Input or result         | Owner and role                                                   |
+| ----------------------- | ---------------------------------------------------------------- |
+| Existing product source | AIGW; selected immutable Git objects are read-only               |
+| `model.json`            | External editor; preserved claims, relations and provenance      |
+| `edition/project.json`  | External editor; questions, scope and independent media          |
+| `build-request.json`    | External editor; direct public Publisher input                   |
+| HTML and PNG            | External publication output; not AIGW source or CI prerequisites |
 
-## Responsibility boundary
+The preserved model's revision is content-derived; it is not a Git commit.
+The external source pin separately records the selected Git identity. Neither
+byte equality nor successful rendering grants new AIGW endorsement.
 
-The [Authority Matrix](../product-contract.md#authority-matrix) governs the
-generic boundary. AIGW owns its native facts and any source-specific adaptation;
-the named Edition editor owns questions, omission and presentation. Publisher
-owns the versioned input contract, compilation, renderer integration,
-browser/accessibility observation and qualification mechanism. AIGW alone
-decides its source-product acceptance, protected refs, release and custody.
+Publisher owns generic compilation, composition and qualification. AIGW alone
+decides native source-product acceptance and release. The designated editor,
+artwork accepter and publication custodian retain their separate responsibilities.
 
-The v2 source has no materialization controller, duplicate captured-source tree
-or tracked generated Candidate identity. Necessary source-member and Provider
-hashes still bind authored inputs; they are not copies of Publisher's derived
-lock. There is no AIGW Provider command or neighboring Publisher source import.
+## Remaining acceptance
 
-## Finish source-owned delivery
+Source removal does not depend on a successful diagram build. The owning
+Publisher Change retains complete media, installed use and publication acceptance.
+Every external build must leave unchanged source Git state. Preserve accepted
+deliveries, immutable history and original input
+bytes; rollback uses exact Git objects, not a restored live integration.
 
-1. Keep the selected compiler or explicitly select another published package
-   by exact digest. The [release reference](../reference/operations.md#release-identity)
-   describes Publisher delivery, not an automatic AIGW upgrade.
-2. Follow the AIGW Provider README's locked source and installed journeys. The
-   latter requires its exact archive and Release manifest; missing inputs reject
-   the run. Source-only checks cannot replace installed acceptance.
-3. Review selected meaning and complete figures separately for static and
-   interactive media. A whole-product experiment or neutral visual baseline
-   does not approve Client Projection or AIGW release.
-4. Verify the signed Git-bound predecessor and required rollback input closure.
-   Preserve immutable history; do not restore displaced v1 copies as live owners.
-5. Apply AIGW's own acceptance and publication policy. Read back its exact
-   package, diagrams, target paths and remote refs before declaring delivery.
-
-Provider conformance establishes transport consistency, not AIGW implementation
-truth. The Publisher-side direct/declarative and relocated probes remain scoped
-evidence; they cannot approve an AIGW Change or complete its release.
-
-## Historical analysis
-
-The complete earlier v1 inventory and conditional migration analysis remains in
-this [published predecessor document](http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/blob/9f607e98a634819d92a508da96ac00da5d8c67e2/docs/migration/aigw-edition-provider.md).
-Its September observations describe that source revision, not the current
-canonical v2 owner. Required original inputs and rollback evidence retain their
-native owners; this concise handoff introduces no second progress ledger.
+Historical Provider inventories remain in Git history. They are not current
+instructions to install Publisher or reintroduce drawing tests into AIGW.

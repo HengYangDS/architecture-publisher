@@ -7,13 +7,13 @@
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
-      "version": "0.48.1-f8fad322964f",
+      "version": "0.48.1-06b5d64d0fcc",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "f8fad322964fb58fea53c442f8842d3fb491ec95dbd63c8709eb336fceda69b3"
+    "archiveSha256": "06b5d64d0fcc9005c48a854da778cf1c2cfa41dd93f3cfa53becc83a6fe36359"
   },
   "toolchain": {
-    "rust": "1.99.0",
+    "rust": "1.99.1",
     "target": "wasm32-unknown-unknown",
     "wasmBindgen": "0.2.129"
   },
@@ -36,7 +36,7 @@
       {
         "path": "tools/raster/resvg/rust-toolchain.toml",
         "bytes": 88,
-        "sha256": "d30dfd45f6ee9ef9f90db627260edb5c36434131e0b1964177cd25c9325ca225"
+        "sha256": "60c5407645e5d56f600e6ae713f0afc4aebbb858c5ceeef4a79c22b7dd2b51c9"
       },
       {
         "path": "tools/raster/resvg/.cargo/config.toml",
@@ -53,58 +53,20 @@
       {
         "tools": {
           "rustc": {
-            "release": "1.99.0",
-            "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+            "release": "1.99.1",
+            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
             "host": "aarch64-apple-darwin"
           },
           "cargo": {
-            "release": "1.99.0",
+            "release": "1.99.1",
             "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
             "host": "aarch64-apple-darwin"
           },
           "wasmBindgen": "0.2.129"
         },
         "wasm": {
-          "bytes": 3358713,
-          "sha256": "5075385aaedca6b93a5f76bd5e4134ea739b331db5eba77a1e449784d222af6f"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.99.0",
-            "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "cargo": {
-            "release": "1.99.0",
-            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "wasmBindgen": "0.2.129"
-        },
-        "wasm": {
-          "bytes": 3357161,
-          "sha256": "2f30f3ec643fd331e3116fd698378cf66b85637da84917846ff685509b1ace82"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.99.0",
-            "commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "cargo": {
-            "release": "1.99.0",
-            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "wasmBindgen": "0.2.129"
-        },
-        "wasm": {
-          "bytes": 3357569,
-          "sha256": "ff4b19750abf51c8c1a673467c478e3d3be3d5d0e074a00e1d4eba3cf1b74fce"
+          "bytes": 3359112,
+          "sha256": "151979e3f19b632c8b2968b5c5ae8ff54bc8507040f518dccce94fb25b5d3d2c"
         }
       }
     ]

@@ -22,35 +22,53 @@ The [complete small example](../examples/selected-edition/) shows the actual
 files; [the build reference](reference/operations.md#edition-candidate) gives
 the command and exact-input requirements.
 
-| Editor's choice              | Project field                                     | Meaning                                                |
-| ---------------------------- | ------------------------------------------------- | ------------------------------------------------------ |
-| Who is reading?              | `audiences`                                       | Named audiences, linked by ID                          |
-| What must they understand?   | `questions`                                       | Reader-facing text, not executable queries             |
-| Which source answers it?     | `scope.selections`                                | Exact namespace/reference and question IDs             |
-| What is outside this work?   | `omissions`, `scope.limits`                       | Explicit excluded meaning and reading limits           |
-| What appears in each medium? | `presentation.static`, `presentation.interactive` | Independent ordered views and intent                   |
-| How should it be expressed?  | `visualPolicy`                                    | Neutral composition or a selected data-only refinement |
+| Editor's choice                      | Project field                                              | Meaning                                            |
+| ------------------------------------ | ---------------------------------------------------------- | -------------------------------------------------- |
+| Who is reading?                      | `audiences`                                                | Named audiences, linked by ID                      |
+| What must they understand?           | `questions`                                                | Reader-facing text, not executable queries         |
+| Which material addresses it?         | `scope.selections`                                         | Exact namespace/reference and question IDs         |
+| What is outside this work?           | Optional `omissions`, `scope.limits`                       | Explicit excluded meaning and reading limits       |
+| Does a medium need different views?  | Optional `presentation.static`, `presentation.interactive` | Independent ordered views and intent               |
+| Does a visual role need an override? | Optional `visualPolicy`                                    | Editorial roles or a selected data-only refinement |
 
 The Build Request separately names source files and digests, optional Providers,
 the Project, requested media, and the selected toolchain. Publisher derives the
 input lock and emits a Candidate. Neither the Project nor the request proves
 source truth, grants Provider execution consent, or accepts the result.
 
-## Historical Edition v1
+Normal authoring supplies the audience, questions and source selections once.
+Without `presentation`, the compiler derives one `overview` in each requested
+medium with all selected question IDs and a 6000-pixel static width. Without a
+figure catalog, it derives distinct checked icons for the selected kinds.
+Optional presentation and visual choices refine these defaults; they do not
+transfer layout duties to the source owner or define another quality tier.
+Direct source `locator` values capture selected current bytes in the generated
+input lock; `pin` values require an exact digest and reject changed bytes.
+Rebuilding from a locator does not alter an accepted lock or carry approval.
+Question-to-scope choices remain editorial; default view lists, mechanical links
+and type encodings belong to the existing compiler owners, not a second brief
+format. Independent medium composition, installed behavior and complete-work
+qualification remain separately checked under the active Change.
 
-The retained `architecture.edition/v1` input selects one exact Claim Model and
-explicit scenes. Its identity fields below remain valid for historical builds;
-new Project authoring does not retroactively change it. Schema versions belong
-in their values, not in source filenames or a parallel editable Edition.
+## Claim-backed Edition
+
+The current `architecture.edition/v2` contract selects one exact Claim Model and
+explicit scenes. It has no quality class: every publication retains the same
+strict review requirements. Project authoring is also class-free. Schema
+versions belong in their values, not in source filenames or a second editable
+Edition.
+
+Historical Edition v1 inputs retain exact bytes for recovery with their original
+versioned executor. The current executor refuses those retired values and any
+quality-class field; preserving history does not grant it current acceptance.
 
 ### Required identity
 
-Every historical v1 Edition binds:
+Every current Claim-backed Edition binds:
 
 - stable Edition ID and owner;
 - exact product and semantic schema versions;
 - source and Claim Model digests;
-- class: `structural` or `flagship`;
 - audience and reader questions;
 - required claims and explicit omission policy;
 - narrative and reading order;
@@ -74,15 +92,19 @@ coverage expands review; it never licenses omission.
 
 ## Source ownership
 
-An independent Edition may be maintained outside any selected source repository.
-ETHOS and AIGW retain authority over their native assertions, while each
-designated editor owns its Edition's selection, omissions, and presentation.
-A source product may elect co-location or an external editor; neither physical
-choice grants source endorsement or approval. Architecture Publisher owns the
-Edition contract and compiler, not adopter Edition content or source policy.
+Publication work is maintained outside the source products it describes.
+ETHOS and AIGW supply existing, explicitly selected material read-only; drawing
+does not add files, packages, exporters, configuration, tests or CI obligations
+to either product. The independent editor owns source-specific adaptation,
+selection, omissions and artwork. Source facts and editorial assertions retain
+their distinct proponents. Architecture Publisher owns the generic contract,
+compiler, composition and qualification, not source policy or adopter content.
 
-The Publisher self-Edition is therefore owned by the Architecture Publisher
-repository. Historical Provider v1 may deliver portable standard values or one
+The Publisher self-Edition belongs to the product as its own publication work,
+not as a precedent for modifying unrelated source repositories. External work
+selects pinned material without writing or executing drawing code there.
+Providers, when selected, run under the external editor's ownership rather than
+as source-product prerequisites. Historical Provider v1 may deliver portable standard values or one
 independently installed package export. Its delivery metadata stays in outer
 provenance under that historical contract. The successor may combine direct and
 multiple Provider v2 inputs. Equal selected-input locks across delivery modes
@@ -118,8 +140,8 @@ when printed or viewed without interaction.
 An authored static refinement targets that complete medium, including every
 ordered static view, rather than selecting one view again. Publisher checks the
 union of source assertions against the authored scene and retains per-view
-assertion attribution in its carrier identity. This permits source-owned whole-
-page art direction without accepting pre-rendered media or transferring a
+assertion attribution in its carrier identity. This permits externally owned
+whole-page art direction without accepting pre-rendered media or transferring a
 relation or claim between reader questions. Neutral composition remains an
 explicit alternative, not an automatic fallback from a failed refinement.
 An explicitly selected relation supplies its exact endpoint members to the
@@ -147,7 +169,7 @@ SVG, browser or raster protocol directly.
 
 ## Visual grammar
 
-A flagship visual grammar declares:
+An Edition's visual grammar declares:
 
 - semantic hierarchy and emphasis levels;
 - typography roles and minimum painted sizes;
@@ -164,10 +186,11 @@ novelty is rejected.
 
 ### Figure types
 
-One Edition-wide `visualPolicy.figureTypes` catalog assigns an icon to each
-effective figure kind. The same kind uses the same icon on every selected page;
-different kinds require different resolved artwork. A renamed icon alias does
-not count as different artwork.
+One Edition-wide resolved catalog assigns an icon to each effective figure kind.
+Normal authoring uses compiler-derived encodings; an optional editorial override
+supplies `visualPolicy.figureTypes`. The same kind uses the same icon on every
+page; different kinds need different resolved artwork. An icon alias is not
+different artwork.
 
 ```json
 {
@@ -186,19 +209,23 @@ resolving a separate mapping. Type-identity rows place one icon before its label
 with bounded glyph size, readable label space and measured clearance; they do
 not display occurrence counts. Native analysis can retain counts in accessible
 descriptions and relationship summaries.
-An occurrence cannot override or suppress its icon. Missing kinds, unsupported
-icons, reused artwork, or insufficient painted clearance reject the candidate.
+An occurrence cannot override or suppress its icon. An incomplete resolved
+mapping, unsupported icons, reused artwork or insufficient clearance reject the
+candidate; derivation cannot silently collapse kinds to fit the glyph supply.
 
 A figure kind describes the reader-facing role, not a replacement source fact.
 Source kinds and membership remain available in Inspect; a null source kind
-stays null and requires the separate `source element` figure role. Source-owned
-primitive artwork and adornments remain unchanged. The catalog belongs to the
+stays null and requires the separate `source element` figure role. Automatic
+derivation rejects a role that would merge distinct implicit source kinds,
+including a missing kind and the literal declared kind `source element`.
+Explicit editorial figure roles may group kinds without changing source facts.
+Source-owned primitive artwork and adornments remain unchanged. The catalog belongs to the
 Edition, which may live outside the source repository; Publisher supplies the
 generic contract and checked glyph library, not a repository-specific taxonomy.
 
 ## Qualification
 
-An Edition lists non-substitutable predicates. At minimum a flagship requires:
+Every publication meets the same non-substitutable quality requirements:
 
 1. exact selected source and semantic interpretation integrity;
 2. required-claim and omission coverage;
@@ -208,12 +235,19 @@ An Edition lists non-substitutable predicates. At minimum a flagship requires:
 6. keyboard, focus, contrast, text-scale, and reduced-motion accessibility;
 7. installed offline reproduction;
 8. exact replacement and interrupted-effect recovery;
-9. human review of `faithful`, `intelligible`, and `restrained`, declared
+9. human review of `faithful`, `intelligible`, and `aesthetic`, declared
    separately for each exact static artifact and interactive viewport.
 
 Every qualification binds exact subjects, verifier identity, observations,
 verdict, and limitations. A changed artifact needs fresh applicable evidence.
 One medium's human decision never satisfies another medium's obligation.
+Claim-backed Editions declare all three visual predicates for both media.
+For selected Project builds, a complete publication policy must require human
+`faithful`, `intelligible`, and `aesthetic` review of each selected PNG and
+standalone HTML artifact. Question-only, candidate-wide, machine-only, or one-
+medium review does not satisfy that floor. Maintainer self-review is permitted
+when the designated policy allows it; it is not independent review. Policy
+assessment remains submitted, unauthenticated evidence, not acceptance.
 An authored static SVG may carry an editor-authored `description` distinct from
 its visible subtitle. The SVG title is its accessible name; the selected
 description is exposed separately. Without one, the subtitle remains the only

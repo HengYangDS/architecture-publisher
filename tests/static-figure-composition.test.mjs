@@ -1,47 +1,21 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import {
-  composeStaticEditionSvg,
-  composeStaticFigureSvg,
-} from '../packages/publisher/renderers/svg/index.mjs';
-import { staticEditionScene } from './fixtures/static-edition-scene.mjs';
-import { loadFigureIconSupply } from '../packages/publisher/renderers/icons/index.mjs';
+import assert from "node:assert/strict";
+import test from "node:test";
+import { composeStaticFigureSvg } from "../packages/publisher/renderers/svg/index.mjs";
+import { staticFigureView } from "./fixtures/static-edition-scene.mjs";
+import { loadFigureIconSupply } from "../packages/publisher/renderers/icons/index.mjs";
 
-const figureIcons = await loadFigureIconSupply();
+const view = staticFigureView.bind(null, await loadFigureIconSupply());
 
-function view(id, index, options = {}) {
-  const scene = staticEditionScene();
-  scene.editorialViewId = id;
-  scene.questions[0].text = options.question ?? `How does ${id} connect?`;
-  scene.limits = options.limits ?? ['source-not-observed'];
-  if (options.wide) {
-    scene.nodes[1].x = 640;
-    scene.edges[0].points[1][0] = 640;
-    scene.bounds.width = 800;
-  }
-  if (options.scopeLimits) scene.limitsByQuestion.shape = options.scopeLimits;
-  if (options.relationOnly) {
-    scene.claimCards = [];
-    scene.sourceAssertionCarriers[0].kind = 'relation';
-  }
-  const rendered = composeStaticEditionSvg(scene, {
-    icons: figureIcons,
-    idPrefix: `static-view-${index}-`,
-    fragment: true,
-  });
-  return { id, scene, rendered };
-}
-
-test('joint composition lays independent views side by side without a method ledger', () => {
-  const first = view('first', 0);
-  const second = view('second', 1);
+test("joint composition lays independent views side by side without a method ledger", () => {
+  const first = view("first", 0);
+  const second = view("second", 1);
   const result = composeStaticFigureSvg({
-    title: 'Joint figure',
-    summary: 'One source-bound reading.',
+    title: "Joint figure",
+    summary: "One source-bound reading.",
     rasterWidth: 1800,
     views: [first, second],
   });
-  const svg = result.bytes.toString('utf8');
+  const svg = result.bytes.toString("utf8");
   assert.equal(result.placements.length, 2);
   assert.equal(result.placements[0].y, result.placements[1].y);
   assert(result.placements[0].x < result.placements[1].x);
@@ -54,90 +28,90 @@ test('joint composition lays independent views side by side without a method led
   );
 });
 
-test('one figure cannot silently mix editorial owners across views', () => {
-  const first = view('first', 0);
-  const second = view('second', 1);
-  second.scene.edition.editor = 'another-editor';
+test("one figure cannot silently mix editorial owners across views", () => {
+  const first = view("first", 0);
+  const second = view("second", 1);
+  second.scene.edition.editor = "another-editor";
   assert.throws(
     () =>
       composeStaticFigureSvg({
-        title: 'Joint figure',
-        summary: 'One source-bound reading.',
+        title: "Joint figure",
+        summary: "One source-bound reading.",
         rasterWidth: 1800,
         views: [first, second],
       }),
-    { code: 'static_figure_editor_ambiguous' },
+    { code: "static_figure_editor_ambiguous" },
   );
 });
 
-test('a sole neutral view uses the same complete figure grammar', () => {
+test("a sole neutral view uses the same complete figure grammar", () => {
   const result = composeStaticFigureSvg({
-    title: 'One reading',
-    summary: 'Question, source structure, limits, and status share one page.',
+    title: "One reading",
+    summary: "Question, source structure, limits, and status share one page.",
     rasterWidth: 1800,
-    views: [view('sole', 0)],
+    views: [view("sole", 0)],
   });
-  const svg = result.bytes.toString('utf8');
+  const svg = result.bytes.toString("utf8");
 
   assert.equal(result.placements.length, 1);
   assert(svg.includes('data-static-view="sole"'));
-  assert(svg.includes('How does sole connect?'));
-  assert(!svg.includes('METHOD LIMITS'));
+  assert(svg.includes("How does sole connect?"));
+  assert(!svg.includes("METHOD LIMITS"));
 });
 
-test('a static figure keeps reader scope and source status without printing method codes', () => {
-  const selected = view('scope', 0, {
+test("a static figure keeps reader scope and source status without printing method codes", () => {
+  const selected = view("scope", 0, {
     relationOnly: true,
-    limits: ['dependency-closure-unchecked'],
-    scopeLimits: [{ kind: 'scope', reason: 'Runtime behavior is outside this reading.' }],
+    limits: ["dependency-closure-unchecked"],
+    scopeLimits: [{ kind: "scope", reason: "Runtime behavior is outside this reading." }],
   });
   const svg = composeStaticFigureSvg({
-    title: 'Selected structure',
-    summary: 'One source-bound reading.',
+    title: "Selected structure",
+    summary: "One source-bound reading.",
     rasterWidth: 1800,
     views: [selected],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
 
   assert.match(svg, /Runtime behavior is outside this reading\./u);
   assert.match(svg, /Source-reported topology/u);
   assert.doesNotMatch(svg, /METHOD LIMITS|dependency-closure-unchecked/u);
 });
 
-test('a complete figure states exact reading-group membership outside the causal graph', () => {
-  const selected = view('grouped', 0);
+test("a complete figure states exact reading-group membership outside the causal graph", () => {
+  const selected = view("grouped", 0);
   selected.rendered.parts.groups = [
-    { id: 'control', label: 'Control intent', members: ['Operator', 'Guarded transaction'] },
-    { id: 'projection', label: 'Client configuration', members: ['Native projection'] },
+    { id: "control", label: "Control intent", members: ["Operator", "Guarded transaction"] },
+    { id: "projection", label: "Client configuration", members: ["Native projection"] },
   ];
   const svg = composeStaticFigureSvg({
-    title: 'Grouped figure',
-    summary: 'Editorial grouping does not add causal edges.',
+    title: "Grouped figure",
+    summary: "Editorial grouping does not add causal edges.",
     rasterWidth: 1800,
     views: [selected],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
 
-  assert(svg.includes('READING GROUPS'));
-  assert(svg.includes('Control intent: Operator · Guarded transaction'));
-  assert(svg.includes('Client configuration: Native projection'));
+  assert(svg.includes("READING GROUPS"));
+  assert(svg.includes("Control intent: Operator · Guarded transaction"));
+  assert(svg.includes("Client configuration: Native projection"));
   assert.equal((svg.match(/READING GROUPS/gu) ?? []).length, 1);
 });
 
-test('reading groups use the available page width instead of a left-only list', () => {
-  const selected = view('grouped', 0);
+test("reading groups use the available page width instead of a left-only list", () => {
+  const selected = view("grouped", 0);
   selected.rendered.parts.bounds = { x: 0, y: 0, width: 1800, height: 80 };
   selected.rendered.parts.groups = [
-    { id: 'one', label: 'First boundary', members: ['Alpha & one'] },
-    { id: 'two', label: 'Second boundary', members: ['Beta'] },
-    { id: 'three', label: 'Third boundary', members: ['Gamma'] },
+    { id: "one", label: "First boundary", members: ["Alpha & one"] },
+    { id: "two", label: "Second boundary", members: ["Beta"] },
+    { id: "three", label: "Third boundary", members: ["Gamma"] },
   ];
   const svg = composeStaticFigureSvg({
-    title: 'Grouped figure',
-    summary: 'A source-bound reading.',
+    title: "Grouped figure",
+    summary: "A source-bound reading.",
     rasterWidth: 2600,
     views: [selected],
-  }).bytes.toString('utf8');
-  const positions = ['First boundary', 'Second boundary', 'Third boundary'].map((label) => {
-    const match = new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>${label}:`, 'u').exec(svg);
+  }).bytes.toString("utf8");
+  const positions = ["First boundary", "Second boundary", "Third boundary"].map((label) => {
+    const match = new RegExp(`<text x="([\\d.]+)" y="([\\d.]+)"[^>]*>${label}:`, "u").exec(svg);
     assert(match, label);
     return match.slice(1).map(Number);
   });
@@ -148,18 +122,18 @@ test('reading groups use the available page width instead of a left-only list', 
   assert.equal(positions[0][1], positions[2][1]);
 });
 
-test('relation columns preserve source order in a top-to-bottom reading path', () => {
-  const first = view('first', 0, { wide: true });
+test("relation columns preserve source order in a top-to-bottom reading path", () => {
+  const first = view("first", 0, { wide: true });
   first.rendered.parts.relations = Array.from({ length: 4 }, (_, index) => ({
     graphicId: `static-view-0-r-${index}`,
     text: `Relation ${index + 1}`,
   }));
   const svg = composeStaticFigureSvg({
-    title: 'Ordered relations',
-    summary: 'Read down the first column, then the second.',
+    title: "Ordered relations",
+    summary: "Read down the first column, then the second.",
     rasterWidth: 1800,
-    views: [first, view('second', 1, { wide: true })],
-  }).bytes.toString('utf8');
+    views: [first, view("second", 1, { wide: true })],
+  }).bytes.toString("utf8");
   const positions = [
     ...svg.matchAll(
       /<g data-graphic-id="static-view-0-r-(\d)">\n<text x="([\d.]+)" y="([\d.]+)"/gu,
@@ -177,98 +151,106 @@ test('relation columns preserve source order in a top-to-bottom reading path', (
   assert(positions[0].x < positions[2].x);
 });
 
-test('a repeated source qualifier context is stated once without dropping relation facts', () => {
-  const selected = view('qualifiers', 0);
-  const context = 'Source relation qualifiers (unverified)';
+test("a repeated source qualifier context is stated once without dropping relation facts", () => {
+  const selected = view("qualifiers", 0);
+  const context = "Source relation qualifiers (unverified)";
   selected.rendered.parts.relations = [
     {
-      graphicId: 'static-view-0-r-0',
+      graphicId: "static-view-0-r-0",
       text: `Configuration → Synchronizer · ${context}: state: desired bindings`,
       context,
     },
     {
-      graphicId: 'static-view-0-r-1',
+      graphicId: "static-view-0-r-1",
       text: `Discovery → Synchronizer · ${context}: state: observed surfaces`,
       context,
     },
   ];
   const svg = composeStaticFigureSvg({
-    title: 'Qualified relations',
-    summary: 'Each source fact remains distinct.',
+    title: "Qualified relations",
+    summary: "Each source fact remains distinct.",
     rasterWidth: 1800,
     views: [selected],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
 
   assert.equal((svg.match(/Source relation qualifiers \(unverified\)/gu) ?? []).length, 1);
-  assert(svg.includes('Configuration → Synchronizer · state: desired bindings'));
-  assert(svg.includes('Discovery → Synchronizer · state: observed surfaces'));
+  for (const [id, text] of [
+    ["static-view-0-r-0", "Configuration → Synchronizer · state: desired bindings"],
+    ["static-view-0-r-1", "Discovery → Synchronizer · state: observed surfaces"],
+  ]) {
+    const content = svg.match(new RegExp(`<g data-graphic-id="${id}">([\\s\\S]*?)</g>`))[1];
+    assert.equal(
+      [...content.matchAll(/<text[^>]*>([^<]+)<\/text>/gu)].map(([, line]) => line).join(""),
+      text,
+    );
+  }
   assert.equal((svg.match(/data-graphic-id="static-view-0-r-[01]"/gu) ?? []).length, 2);
 });
 
-test('a qualifier context is not generalized across unlike relation notes', () => {
-  const selected = view('mixed-notes', 0);
-  const context = 'Source relation qualifiers (unverified)';
+test("a qualifier context is not generalized across unlike relation notes", () => {
+  const selected = view("mixed-notes", 0);
+  const context = "Source relation qualifiers (unverified)";
   selected.rendered.parts.relations = [
     {
-      graphicId: 'static-view-0-r-0',
+      graphicId: "static-view-0-r-0",
       text: `Configuration → Synchronizer · ${context}: state: desired bindings`,
       context,
     },
-    { graphicId: 'static-view-0-r-1', text: 'Synchronizer → Registry · delegates' },
+    { graphicId: "static-view-0-r-1", text: "Synchronizer → Registry · delegates" },
   ];
   const svg = composeStaticFigureSvg({
-    title: 'Mixed relation notes',
-    summary: 'Only the first relation has an unverified qualifier.',
+    title: "Mixed relation notes",
+    summary: "Only the first relation has an unverified qualifier.",
     rasterWidth: 1800,
     views: [selected],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
   const visible = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
     .map(([, value]) => value)
-    .join(' ')
-    .replace(/\s+/gu, ' ');
+    .join(" ")
+    .replace(/\s+/gu, " ");
 
   assert(visible.includes(`${context}: state: desired bindings`));
-  assert(visible.includes('Synchronizer → Registry · delegates'));
+  assert(visible.includes("Synchronizer → Registry · delegates"));
   assert.equal((visible.match(/Source relation qualifiers \(unverified\)/gu) ?? []).length, 1);
 });
 
-test('a declared repeated context must occur in the full relation text', () => {
-  const selected = view('invalid-context', 0);
+test("a declared repeated context must occur in the full relation text", () => {
+  const selected = view("invalid-context", 0);
   selected.rendered.parts.relations = [
     {
-      graphicId: 'static-view-0-r-0',
-      text: 'Configuration → Synchronizer · state: desired bindings',
-      context: 'Source relation qualifiers (unverified)',
+      graphicId: "static-view-0-r-0",
+      text: "Configuration → Synchronizer · state: desired bindings",
+      context: "Source relation qualifiers (unverified)",
     },
   ];
 
   assert.throws(
     () =>
       composeStaticFigureSvg({
-        title: 'Invalid context',
-        summary: 'Do not make an unsupported shared claim.',
+        title: "Invalid context",
+        summary: "Do not make an unsupported shared claim.",
         rasterWidth: 1800,
         views: [selected],
       }),
-    { code: 'static_figure_relation_context_invalid' },
+    { code: "static_figure_relation_context_invalid" },
   );
 });
 
-test('wrapped figure relation lines reserve readable vertical clearance', () => {
-  const first = view('first', 0);
+test("wrapped figure relation lines reserve readable vertical clearance", () => {
+  const first = view("first", 0);
   first.rendered.parts.relations = [
     {
-      graphicId: 'static-view-0-r-0',
-      text: 'A source relation preserves its selected qualifier and ownership boundary '.repeat(3),
+      graphicId: "static-view-0-r-0",
+      text: "A source relation preserves its selected qualifier and ownership boundary ".repeat(3),
     },
   ];
   const svg = composeStaticFigureSvg({
-    title: 'Readable relation',
-    summary: 'Selected relation detail.',
+    title: "Readable relation",
+    summary: "Selected relation detail.",
     rasterWidth: 1800,
-    views: [first, view('second', 1)],
-  }).bytes.toString('utf8');
-  const lines = svg.match(/<g data-graphic-id="static-view-0-r-0">([\s\S]*?)<\/g>/u)?.[1] ?? '';
+    views: [first, view("second", 1)],
+  }).bytes.toString("utf8");
+  const lines = svg.match(/<g data-graphic-id="static-view-0-r-0">([\s\S]*?)<\/g>/u)?.[1] ?? "";
   const baselines = [...lines.matchAll(/<text x="[\d.]+" y="([\d.]+)"/gu)].map(([, y]) =>
     Number(y),
   );
@@ -277,11 +259,11 @@ test('wrapped figure relation lines reserve readable vertical clearance', () => 
     assert(baselines[index] - baselines[index - 1] >= 26);
 });
 
-test('narrow requested raster and an odd view count retain every selected view', () => {
-  const selected = [view('first', 0), view('second', 1), view('third', 2)];
+test("narrow requested raster and an odd view count retain every selected view", () => {
+  const selected = [view("first", 0), view("second", 1), view("third", 2)];
   const narrow = composeStaticFigureSvg({
-    title: 'Narrow figure',
-    summary: 'Every question remains visible.',
+    title: "Narrow figure",
+    summary: "Every question remains visible.",
     rasterWidth: 1000,
     views: selected.slice(0, 2),
   });
@@ -290,88 +272,88 @@ test('narrow requested raster and an odd view count retain every selected view',
   assert(narrow.placements[0].y < narrow.placements[1].y);
 
   const grid = composeStaticFigureSvg({
-    title: 'Three views',
-    summary: 'The final view is not discarded.',
+    title: "Three views",
+    summary: "The final view is not discarded.",
     rasterWidth: 1800,
     views: selected,
   });
   assert.deepEqual(
     grid.placements.map(({ id }) => id),
-    ['first', 'second', 'third'],
+    ["first", "second", "third"],
   );
   assert(grid.placements[2].y > grid.placements[1].y);
 });
 
-test('an empty common-note inventory does not reserve a phantom footer', () => {
+test("an empty common-note inventory does not reserve a phantom footer", () => {
   const result = composeStaticFigureSvg({
-    title: 'No common notes',
-    summary: 'Only selected structure is shown.',
+    title: "No common notes",
+    summary: "Only selected structure is shown.",
     rasterWidth: 1800,
-    views: [view('first', 0, { limits: [] }), view('second', 1, { limits: [] })],
+    views: [view("first", 0, { limits: [] }), view("second", 1, { limits: [] })],
   });
-  assert(!result.bytes.toString('utf8').includes('METHOD LIMITS'));
+  assert(!result.bytes.toString("utf8").includes("METHOD LIMITS"));
 });
 
-test('a severely unbalanced pair falls back to a single reading column', () => {
-  const long = view('long', 0, {
+test("a severely unbalanced pair falls back to a single reading column", () => {
+  const long = view("long", 0, {
     limits: [],
     scopeLimits: Array.from({ length: 25 }, (_, index) => ({
-      kind: 'scope',
+      kind: "scope",
       reason: `Distinct declared limitation ${index} remains visible.`,
     })),
   });
-  const short = view('short', 1, { limits: [] });
+  const short = view("short", 1, { limits: [] });
   const result = composeStaticFigureSvg({
-    title: 'Balanced reading',
-    summary: 'Do not leave the shorter column mostly empty.',
+    title: "Balanced reading",
+    summary: "Do not leave the shorter column mostly empty.",
     rasterWidth: 1800,
     views: [long, short],
   });
   assert.equal(result.placements[0].x, result.placements[1].x);
 });
 
-test('view-specific method limits do not become figure copy', () => {
-  const first = view('first', 0, { limits: ['first-only'] });
-  const second = view('second', 1, { limits: ['second-only'] });
+test("view-specific method limits do not become figure copy", () => {
+  const first = view("first", 0, { limits: ["first-only"] });
+  const second = view("second", 1, { limits: ["second-only"] });
   const svg = composeStaticFigureSvg({
-    title: 'Attribution',
-    summary: 'Different method limits.',
+    title: "Attribution",
+    summary: "Different method limits.",
     rasterWidth: 1800,
     views: [first, second],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
   assert.doesNotMatch(svg, /first-only|second-only|METHOD LIMITS/u);
 });
 
-test('a repeated method limit does not create figure copy', () => {
-  const first = view('first', 0, { limits: ['shared', 'shared'] });
-  const second = view('second', 1, { limits: ['shared'] });
+test("a repeated method limit does not create figure copy", () => {
+  const first = view("first", 0, { limits: ["shared", "shared"] });
+  const second = view("second", 1, { limits: ["shared"] });
   const svg = composeStaticFigureSvg({
-    title: 'Repeated source limit',
-    summary: 'The shared limit has one visible carrier.',
+    title: "Repeated source limit",
+    summary: "The shared limit has one visible carrier.",
     rasterWidth: 1800,
     views: [first, second],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
   assert.doesNotMatch(svg, />shared<\/text>|METHOD LIMITS/u);
 });
 
-test('one source-status explanation serves two relation-only views', () => {
+test("one source-status explanation serves two relation-only views", () => {
   const selected = [
-    view('first', 0, { relationOnly: true }),
-    view('second', 1, { relationOnly: true }),
+    view("first", 0, { relationOnly: true }),
+    view("second", 1, { relationOnly: true }),
   ];
   const svg = composeStaticFigureSvg({
-    title: 'Relation status',
-    summary: 'Source topology is not implementation proof.',
+    title: "Relation status",
+    summary: "Source topology is not implementation proof.",
     rasterWidth: 1800,
     views: selected,
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
   assert.equal((svg.match(/Source-reported topology/gu) ?? []).length, 1);
   assert.equal((svg.match(/SOURCE STATUS/gu) ?? []).length, 1);
 });
 
-test('a mixed view does not give an unlinked relation its selected claim status', () => {
-  const mixed = view('mixed', 0, { relationOnly: true });
-  mixed.scene.claimCards = [{ id: 'selected-claim' }];
+test("a mixed view does not give an unlinked relation its selected claim status", () => {
+  const mixed = view("mixed", 0, { relationOnly: true });
+  mixed.scene.claimCards = [{ id: "selected-claim" }];
   mixed.rendered.parts.claim = {
     markup: '<g data-graphic-id="static-view-0-c-0"><text x="0" y="20">Selected claim</text></g>',
     x: 0,
@@ -380,18 +362,18 @@ test('a mixed view does not give an unlinked relation its selected claim status'
     height: 40,
   };
   const svg = composeStaticFigureSvg({
-    title: 'Mixed status',
-    summary: 'A selected claim does not validate another source relation.',
+    title: "Mixed status",
+    summary: "A selected claim does not validate another source relation.",
     rasterWidth: 1800,
     views: [mixed],
-  }).bytes.toString('utf8');
+  }).bytes.toString("utf8");
 
-  assert(svg.includes('Unlinked relations show source topology only'));
-  assert(!svg.includes('Source-reported topology; provenance unverified'));
+  assert(svg.includes("Unlinked relations show source topology only"));
+  assert(!svg.includes("Source-reported topology; provenance unverified"));
 });
 
-test('a prevalidated local claim plate stays within its view', () => {
-  const first = view('first', 0);
+test("a prevalidated local claim plate stays within its view", () => {
+  const first = view("first", 0);
   first.rendered.parts.claim = {
     markup: '<g data-graphic-id="static-view-0-c-0"><text x="0" y="20">Claim witness</text></g>',
     x: 0,
@@ -400,100 +382,100 @@ test('a prevalidated local claim plate stays within its view', () => {
     height: 40,
   };
   const result = composeStaticFigureSvg({
-    title: 'Claim placement',
-    summary: 'The plate belongs to the first view.',
+    title: "Claim placement",
+    summary: "The plate belongs to the first view.",
     rasterWidth: 1800,
-    views: [first, view('second', 1)],
+    views: [first, view("second", 1)],
   });
-  assert(result.bytes.toString('utf8').includes('Claim witness'));
-  assert(result.bytes.toString('utf8').includes('SOURCE CLAIMS'));
+  assert(result.bytes.toString("utf8").includes("Claim witness"));
+  assert(result.bytes.toString("utf8").includes("SOURCE CLAIMS"));
   first.rendered.parts.claim.width = 20_000;
   assert.throws(
     () =>
       composeStaticFigureSvg({
-        title: 'Claim placement',
-        summary: 'The plate does not fit.',
+        title: "Claim placement",
+        summary: "The plate does not fit.",
         rasterWidth: 1800,
-        views: [first, view('second', 1)],
+        views: [first, view("second", 1)],
       }),
-    { code: 'static_figure_width_unrepresentable' },
+    { code: "static_figure_width_unrepresentable" },
   );
   first.rendered.parts.claim.width = 320;
   first.rendered.parts.claim.height = 0;
   assert.throws(
     () =>
       composeStaticFigureSvg({
-        title: 'Claim placement',
-        summary: 'An empty plate cannot be shown.',
+        title: "Claim placement",
+        summary: "An empty plate cannot be shown.",
         rasterWidth: 1800,
-        views: [first, view('second', 1)],
+        views: [first, view("second", 1)],
       }),
-    { code: 'static_figure_claim_unrepresentable' },
+    { code: "static_figure_claim_unrepresentable" },
   );
 });
 
-test('the figure rejects malformed membership and an unrepresentable relation ledger', () => {
-  const first = view('first', 0);
-  const second = view('second', 1);
-  const input = { title: 'Figure', summary: 'Selected views.', rasterWidth: 1800 };
+test("the figure rejects malformed membership and an unrepresentable relation ledger", () => {
+  const first = view("first", 0);
+  const second = view("second", 1);
+  const input = { title: "Figure", summary: "Selected views.", rasterWidth: 1800 };
   assert.throws(() => composeStaticFigureSvg({ ...input, views: [] }), {
-    code: 'static_figure_views_invalid',
+    code: "static_figure_views_invalid",
   });
   assert.throws(() => composeStaticFigureSvg({ ...input, views: [first, first] }), {
-    code: 'static_figure_views_invalid',
+    code: "static_figure_views_invalid",
   });
   assert.throws(
     () => composeStaticFigureSvg({ ...input, rasterWidth: 100, views: [first, second] }),
     {
-      code: 'static_figure_width_invalid',
+      code: "static_figure_width_invalid",
     },
   );
   const malformed = structuredClone(second);
-  malformed.rendered.parts.relations[0].text = 'unbroken'.repeat(500);
+  malformed.rendered.parts.relations[0].text = "unbroken".repeat(500);
   assert.throws(() => composeStaticFigureSvg({ ...input, views: [first, malformed] }), {
-    code: 'static_edition_text_unrepresentable',
+    code: "static_edition_text_unrepresentable",
   });
 
   for (const mutate of [
-    (item) => (item.id = 'Invalid'),
-    (item) => (item.scene.editorialViewId = 'other'),
+    (item) => (item.id = "Invalid"),
+    (item) => (item.scene.editorialViewId = "other"),
     (item) => (item.scene.questions = []),
-    (item) => (item.scene.questions[0].text = ''),
+    (item) => (item.scene.questions[0].text = ""),
     (item) => (item.rendered.parts.graph = null),
     (item) => (item.rendered.parts.relations = null),
     (item) => (item.rendered.parts.groups = null),
-    (item) => (item.rendered.parts.groups = [{ id: 'empty', label: 'Empty', members: [] }]),
+    (item) => (item.rendered.parts.groups = [{ id: "empty", label: "Empty", members: [] }]),
     (item) =>
       (item.rendered.parts.groups = [
-        { id: 'first', label: 'First', members: ['Alpha'] },
-        { id: 'second', label: 'Second', members: ['Alpha'] },
+        { id: "first", label: "First", members: ["Alpha"] },
+        { id: "second", label: "Second", members: ["Alpha"] },
       ]),
     (item) =>
       (item.rendered.parts.groups = [
-        { id: 'first', label: 'Same', members: ['Alpha'] },
-        { id: 'second', label: 'Same', members: ['Beta'] },
+        { id: "first", label: "Same", members: ["Alpha"] },
+        { id: "second", label: "Same", members: ["Beta"] },
       ]),
-    (item) => (item.rendered.parts.claim = { markup: 'claim', x: NaN }),
+    (item) => (item.rendered.parts.claim = { markup: "claim", x: NaN }),
     (item) => (item.rendered.rasterWidth = 1800.5),
   ]) {
     const invalid = structuredClone(second);
     mutate(invalid);
     assert.throws(() => composeStaticFigureSvg({ ...input, views: [first, invalid] }), {
-      code: 'static_figure_views_invalid',
+      code: "static_figure_views_invalid",
     });
   }
 });
 
-test('an otherwise valid selection fails when its complete figure exceeds the canvas', () => {
+test("an otherwise valid selection fails when its complete figure exceeds the canvas", () => {
   const selected = Array.from({ length: 100 }, (_, index) => view(`view${index}`, index));
   assert.throws(
     () =>
       composeStaticFigureSvg({
-        title: 'Too many views',
-        summary: 'No view is silently dropped.',
+        title: "Too many views",
+        summary: "No view is silently dropped.",
         rasterWidth: 1800,
         views: selected,
       }),
-    { code: 'static_figure_geometry_unrepresentable' },
+    { code: "static_figure_geometry_unrepresentable" },
   );
 });

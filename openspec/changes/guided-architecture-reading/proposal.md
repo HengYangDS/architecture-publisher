@@ -11,10 +11,13 @@ source-repository invasion or repeated manual reconstruction.
   build entry, with optional declarative Providers and external editorial roots.
 - Reuse checked native parsing, layout, reading and export mechanisms; preserve
   semantic identity without treating drawing junctions as source relationships.
+- Remove historical output-quality tiers; retain the strictest shared quality
+  requirements through one class-free successor and acceptance mechanism.
 - Deliver independently composed PNG overviews and standalone desktop HTML;
   qualify typography, geometry, accessibility and complete mechanism diagrams.
-- Complete source-owned AIGW and minimal ETHOS adoption, including exact target
-  mechanisms, finite north-star feedback and implementation-grounded research.
+- Retire AIGW and ETHOS drawing integrations and qualify externally owned
+  publication input. Retain exact target mechanisms, finite north-star feedback
+  and implementation-grounded research with their proper owners.
 - Verify native macOS, Linux and Windows rebuilding, installed operation,
   recoverable custody, signed release and governed lifecycle closure.
 
@@ -22,13 +25,24 @@ source-repository invasion or repeated manual reconstruction.
 
 ### New Capabilities
 
-None. PDF and PPTX support was withdrawn by the human on 2026-10-05.
+- `publication-qualification`: the existing complete strict quality contract,
+  with no ordinary/flagship split. This replaces its tier-named owner, not its
+  requirements. PDF and PPTX remain excluded.
 
 ### Modified Capabilities
 
-- `semantic-publication`: native editorial input, exploration and visual quality.
+- `semantic-compilation`: portable input, Candidate compilation and native
+  editorial selection.
+- `semantic-publication`: renderer-neutral scenes, independent media and
+  question-matched visual forms.
+- `archify-renderer`: native exploration, appearance, Inspect and node text.
+- `static-publishing`: complete static composition and native Raster rebuilding.
 - `browser-evidence`: desktop reading, addressed state and native lifecycle.
 - `ecosystem-adoption`: finite source feedback and research settlement.
+- `edition-publication`: explicit class-free Edition successor and retirement
+  of live classed input without changing immutable historical artifacts.
+- Retire `flagship-qualification` into `publication-qualification`, preserving
+  all strict gates under one owner without a historical quality bypass.
 - Retire `ethos-input` and `ethos-atlas`: source-specific replay and historical
   media obligations are not generic Publisher capabilities. Existing generic
   intake, Provider, Edition, qualification and publication contracts retain

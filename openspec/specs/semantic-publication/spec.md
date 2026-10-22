@@ -372,3 +372,102 @@ revision without source evidence.
   the proposed Candidate carriers
 - **THEN** preparation fails with the unmapped identity and field
 - **AND** a visually similar line is not counted as full semantic preservation
+
+### Requirement: Static and interactive scenes are independent projections
+
+An Edition SHALL author static and interactive scenes independently. They SHALL
+share semantic identities and coverage obligations but SHALL NOT share required
+coordinates, DOM structure, page shape, or renderer-specific layout data.
+
+#### Scenario: A static composition changes without semantic change
+
+- **WHEN** only the static scene is revised
+- **THEN** interactive artifact identities remain unchanged
+- **AND** the static artifact receives fresh medium-specific qualification
+
+#### Scenario: An interactive atlas expands a mechanism
+
+- **WHEN** a complete overview links to a mechanism page
+- **THEN** the mechanism page remains a complete intelligible view of its named
+  question rather than a detached fragment
+- **AND** the overview remains understandable without opening that page
+
+### Requirement: Source-to-graphic maps are trace carriers
+
+Each medium SHALL bind the digest of a private source-to-graphic carrier map
+without placing raw source identifiers in public static or interactive media.
+The map is traceability evidence, not proof that the corresponding words and
+shapes are painted or understood. Source assertion carriers SHALL retain
+source-qualified identities so same-ID members of distinct namespaces cannot
+collapse into one assertion.
+
+#### Scenario: Two sources reuse one local identifier
+
+- **WHEN** selected source assertions have the same local ID in distinct
+  namespaces
+- **THEN** each private carrier binding retains its source-qualified identity
+- **AND** public media need not expose the raw source identifiers
+
+### Requirement: Edition selects a question-matched visual form
+
+Per question and medium, Edition SHALL select a source-bound form for the
+dominant relationship, preserving assertions and limits without a second model
+or requiring authored pixel positions. Publisher SHALL validate representability
+before layout and SHALL NOT infer ownership, temporal order or evidence status
+from node order, edge direction, labels or layout. Typed native views may supply
+the form without a duplicate Edition field; ambiguous generic selections
+require an editor's choice.
+
+#### Scenario: Ownership question is not a traffic flow
+
+- **WHEN** an Edition asks which actor owns a responsibility or handoff
+- **THEN** its visual form distinguishes authority and boundary from traffic
+  direction using selected source-backed assertions
+- **AND** a generic left-to-right relation chain is not accepted solely
+  because every selected entity and edge appears somewhere in it
+
+#### Scenario: A responsibility role lacks its attributed basis
+
+- **WHEN** a selected responsibility/handoff form assigns a visible zone,
+  membership, or handoff without a same-question selected source assertion or
+  separately attributed editorial assertion naming its basis
+- **THEN** Publisher reports the affected question and unsupported role before
+  layout, without a complete Candidate
+- **AND** it does not derive ownership from entity type, box position, line
+  direction, or a free narrative summary
+
+#### Scenario: A relation is not an ownership claim
+
+- **WHEN** an Edition binds a responsibility role or handoff directly to a
+  selected entity, relation, or structural view rather than a typed Claim or
+  editor-attributed assertion with selected source basis
+- **THEN** Publisher reports the affected view question and unsupported role
+  before layout, even if all referenced source endpoints are present
+- **AND** it does not silently reinterpret a traffic route as an authority
+  handoff
+
+#### Scenario: Every responsibility role has an attributed basis
+
+- **WHEN** the selected form binds each visible role and handoff to exact
+  same-question assertions and discloses applicable conditions and limits
+- **THEN** Publisher preserves source versus editorial attribution while
+  composing the form without requiring authored pixel positions
+- **AND** finite reference validation does not claim that free editorial
+  wording is source-endorsed or substantively correct
+
+#### Scenario: Group storage order differs from responsibility reading order
+
+- **WHEN** an Editor changes only the order of the view's group records while
+  retaining each group's members and the responsibility form's role order
+- **THEN** the form's ordered role references, not group-record position,
+  determine the visible reading order
+- **AND** the selected group membership and assertion carriers remain exact
+
+#### Scenario: Form or layout cannot answer the question
+
+- **WHEN** the selected form cannot express a required assertion, or every
+  complete painted candidate fails readable whole-page composition
+- **THEN** Publisher reports the affected question and a bounded editorial
+  form, grouping, or source-bound caption need before Candidate completion
+- **AND** it does not substitute a prose inventory, a different source claim,
+  or an unreviewed renderer-specific fallback

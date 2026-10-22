@@ -1,290 +1,335 @@
-import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import test from 'node:test';
-import npmPackage from 'npm/package.json' with { type: 'json' };
-import { parse } from 'yaml';
-import { main as lintMarkdown } from 'markdownlint-cli2';
-import { applyFixes } from 'markdownlint-cli2/markdownlint';
-import { lint } from 'markdownlint-cli2/markdownlint/promise';
-import { getFileInfo, resolveConfig } from 'prettier';
-import { npmInvocation } from './fixtures/npm-pack-report.mjs';
+import { parse as parseToml } from "smol-toml";
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import npmPackage from "npm/package.json" with { type: "json" };
+import { parse } from "yaml";
+import { npmInvocation } from "./fixtures/npm-pack-report.mjs";
+import { root } from "./fixtures/quality-contract.mjs";
 
-const root = path.resolve(import.meta.dirname, '..');
+test("captured SVG inputs retain exact bytes under one native proof owner", async () => {
+  const captured = {
+    "docs/research/evidence/aigw-d2-boundary-grid.svg":
+      "d05cff49289c71f3ef28cbce0d4a68b6ad7579d25930b3df72e4b3a9338b34aa",
+    "docs/research/evidence/aigw-echarts-matrix-graph.svg":
+      "9653853c38b0d269d391e10ed0ff523d9c6083b721245f01687ce0cdc6c2cc34",
+    "docs/research/evidence/aigw-static-tb-two-column.svg":
+      "85776de833998d1b253cc3bcc71c3e92b17a71b99208da07c4cdfe7179f1336c",
+    "examples/job-lifecycle-updated.svg":
+      "1a612f6c88b560356151b98311104f7fdf33deb52433e18221255ee0dcb0ff29",
+    "examples/job-lifecycle.svg":
+      "b4e2e7c4228229daa34c240d0cf54588ce9f6bd0fcb5b054ca8e68fd61e33ed2",
+    "examples/service-topology-updated.svg":
+      "916eaf4ed3a442ce495b2aa3ed6dd007a51d25bf539e7ffdf2ae01efe74b8468",
+    "examples/service-topology.svg":
+      "507fdb65dc3f7783b56334a889bf49554be9f04b1eca1cb5e3d61728e9da0f66",
+  };
+  for (const [relative, digest] of Object.entries(captured))
+    assert.equal(
+      createHash("sha256")
+        .update(await fs.readFile(path.join(root, relative)))
+        .digest("hex"),
+      digest,
+      relative,
+    );
+  const policy = parseToml(
+    await fs.readFile(path.join(root, ".config/checks/format-selection/policy.toml"), "utf8"),
+  );
+  assert.equal(policy.ownership.length, 1);
+  const [owner] = policy.ownership;
+  assert.deepEqual([...owner.paths].sort(), Object.keys(captured).sort());
+  assert.equal(owner.format_owner, "immutable-carrier");
+  assert.equal(owner.mutation_policy, "forbidden");
+  assert.equal(owner.validation_owner, "node-behavior");
+  assert.equal(owner.validation_command, "npm run test:coverage");
+});
 
-test('the generated gate validates Raster before its dependent implementation closure', async () => {
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
-  const steps = workspace.scripts['check:generated'].split(' && ');
-  const raster = steps.indexOf('node tools/supply/resvg.mjs --check');
-  const implementation = steps.indexOf('node tools/supply/implementation.mjs --check');
+test("the generated gate validates Raster before its dependent implementation closure", async () => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
+  const steps = workspace.scripts["check:generated"].split(" && ");
+  const raster = steps.indexOf("node tools/supply/resvg.mjs --check");
+  const implementation = steps.indexOf("node tools/supply/implementation.mjs --check");
   assert(
     raster >= 0 && implementation > raster,
-    'Raster supply must participate in the early dependency gate',
+    "Raster supply must participate in the early dependency gate",
   );
 });
 
-test('native package-manager admission rejects a mismatched toolchain before scripts', async (t) => {
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+test("native package-manager admission rejects a mismatched toolchain before scripts", async (t) => {
+  const workspace = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
   const selected = workspace.devEngines;
-  assert.equal(selected?.runtime.name, 'node');
+  assert.equal(selected?.runtime.name, "node");
   assert.equal(
     selected.runtime.version,
-    (await fs.readFile(path.join(root, '.node-version'), 'utf8')).trim(),
+    parseToml(await fs.readFile(path.join(root, ".config/mise/config.toml"), "utf8")).tools.node,
   );
-  assert.equal(selected.runtime.onFail, 'error');
-  assert.equal(selected.packageManager.name, 'npm');
+  assert.equal(selected.runtime.onFail, "error");
+  assert.equal(selected.packageManager.name, "npm");
   assert.equal(workspace.packageManager, `npm@${selected.packageManager.version}`);
   assert.equal(workspace.devDependencies.npm, selected.packageManager.version);
   assert.equal(npmPackage.version, selected.packageManager.version);
-  assert.equal(selected.packageManager.onFail, 'error');
+  assert.equal(selected.packageManager.onFail, "error");
   const scratch = await fs.mkdtemp(
-    path.join(await fs.realpath(os.tmpdir()), 'archpub-dev-engine-'),
+    path.join(await fs.realpath(os.tmpdir()), "archpub-dev-engine-"),
   );
   t.after(() => fs.rm(scratch, { recursive: true, force: true }));
-  const marker = path.join(scratch, 'ran');
+  const marker = path.join(scratch, "ran");
   const probe = "node -e \"require('node:fs').writeFileSync('ran','selected')\"";
-  const invoke = npmInvocation(['run', 'probe']);
+  const invoke = npmInvocation(["run", "probe"]);
   const options = {
     cwd: scratch,
-    encoding: 'utf8',
+    encoding: "utf8",
     timeout: 30_000,
-    stdio: 'pipe',
-    env: { ...process.env, npm_config_cache: path.join(scratch, 'npm-cache') },
+    stdio: "pipe",
+    env: { ...process.env, npm_config_cache: path.join(scratch, "npm-cache") },
   };
-  for (const kind of ['runtime', 'packageManager']) {
+  for (const kind of ["runtime", "packageManager"]) {
     const rejected = structuredClone(selected);
-    rejected[kind].version = '0.0.0';
+    rejected[kind].version = "0.0.0";
     await fs.writeFile(
-      path.join(scratch, 'package.json'),
+      path.join(scratch, "package.json"),
       JSON.stringify({ private: true, devEngines: rejected, scripts: { probe } }),
     );
     assert.throws(() => execFileSync(invoke.command, invoke.args, options), /EBADDEVENGINES/u);
-    await assert.rejects(fs.access(marker), { code: 'ENOENT' });
+    await assert.rejects(fs.access(marker), { code: "ENOENT" });
   }
   await fs.writeFile(
-    path.join(scratch, 'package.json'),
+    path.join(scratch, "package.json"),
     JSON.stringify({ private: true, devEngines: selected, scripts: { probe } }),
   );
   execFileSync(invoke.command, invoke.args, options);
-  assert.equal(await fs.readFile(marker, 'utf8'), 'selected');
+  assert.equal(await fs.readFile(marker, "utf8"), "selected");
 });
 
-test('native workflow selects one review pipeline without skipping protected refs or tags', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+test("native workflow selects one review pipeline without skipping protected refs or tags", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
   assert.deepEqual(pipeline.workflow?.rules, [
     { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
     { if: '$CI_COMMIT_TAG || $CI_COMMIT_REF_PROTECTED == "true"' },
     {
       if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS',
-      when: 'never',
+      when: "never",
     },
-    { if: '$CI_COMMIT_BRANCH' },
+    { if: "$CI_COMMIT_BRANCH" },
   ]);
 });
 
-test('native CI binds browser and frozen Raster journeys before the whole quality gate', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
-  const native = pipeline['.verify-native'];
-  assert.equal(native?.stage, 'verify');
-  assert.equal(native.timeout, '60m');
-  assert.equal(pipeline.variables?.GIT_STRATEGY, 'fetch');
-  assert.equal(pipeline.variables?.GIT_CLEAN_FLAGS, '-ffdx -e build/runtime/tool-cache/');
-  assert.equal(pipeline.variables?.MISE_ENV, 'ci');
-  assert.equal(pipeline.variables?.MISE_LOCKED, '1');
-  assert.equal(pipeline.variables?.MISE_DATA_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/mise');
+test("native CI binds browser and frozen Raster journeys before the whole quality gate", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  const native = pipeline[".verify-native"];
+  assert.equal(native?.stage, "verify");
+  assert.equal(native.timeout, "60m");
+  assert.equal(pipeline.variables?.GIT_STRATEGY, "fetch");
+  assert.equal(pipeline.variables?.GIT_CLEAN_FLAGS, "-ffdx -e build/runtime/tool-cache/");
+  assert.equal(pipeline.variables?.MISE_ENV, "ci");
+  assert.equal(pipeline.variables?.MISE_LOCKED, "1");
+  assert.equal(pipeline.variables?.MISE_DATA_DIR, "$CI_PROJECT_DIR/build/runtime/tool-cache/mise");
   assert.equal(
     pipeline.variables?.MISE_CACHE_DIR,
     `${pipeline.variables.MISE_DATA_DIR}/cache`,
-    'native npm hardlinks remain inside the job-owned Mise cache and permission boundary',
+    "native npm hardlinks remain inside the job-owned Mise cache and permission boundary",
   );
-  assert.equal(pipeline.variables?.MISE_TRUSTED_CONFIG_PATHS, '$CI_PROJECT_DIR');
-  const toolchain = await fs.readFile(path.join(root, '.config/mise.ci.toml'), 'utf8');
+  assert.equal(pipeline.variables?.MISE_TRUSTED_CONFIG_PATHS, "$CI_PROJECT_DIR");
+  const toolchain = await fs.readFile(path.join(root, ".config/mise/config.toml"), "utf8");
   assert.match(
     toolchain,
     /components = \[\s*"cargo",\s*"rust-std",\s*"rustc",?\s*\]/u,
-    'native Rust installation reconciles the required host build tools and standard library',
+    "native Rust installation reconciles the required host build tools and standard library",
   );
-  const toolchainLock = await fs.readFile(path.join(root, '.config/mise.ci.lock'), 'utf8');
+  const toolchainLock = await fs.readFile(path.join(root, ".config/mise/mise.lock"), "utf8");
   assert.equal(
     toolchainLock.match(/\[\[tools\.rust\]\]/gu)?.length,
     1,
-    'one native lock entry owns the selected Rust toolchain',
+    "one native lock entry owns the selected Rust toolchain",
   );
   assert.match(
     toolchainLock,
     /\[tools\.rust\.options\][\s\S]*components = "cargo,rust-std,rustc"/u,
-    'the native lock binds the required Rust component selection',
+    "the native lock binds the required Rust component selection",
   );
-  assert.equal(native.script.at(-1), 'mise exec -- npm run check');
-  assert(native.script.includes('mise install'));
+  assert.equal(native.script.at(-1), "mise exec -- npm run check");
+  assert(native.script.includes("mise install"));
   assert.equal(
-    native.script[native.script.indexOf('mise install') + 1],
-    'mise exec -- rustup component add rust-std',
-    'native rustup reconciles the selected host library before Cargo build scripts',
+    native.script[native.script.indexOf("mise install") + 1],
+    "mise exec -- rustup component add rust-std",
+    "native rustup reconciles the selected host library before Cargo build scripts",
   );
-  assert(native.script.includes('mise exec -- npm ci --ignore-scripts --no-audit --no-fund'));
+  assert(native.script.includes("mise exec -- npm ci --ignore-scripts --no-audit --no-fund"));
+  const installation = native.script.indexOf(
+    "mise exec -- npm ci --ignore-scripts --no-audit --no-fund",
+  );
+  assert.deepEqual(
+    native.script.slice(installation + 1, installation + 4),
+    ["mise run raster-supply", "mise exec -- npm run generate", "mise exec -- npm run check:ci"],
+    "locked runtime generation, projection and prerequisites precede expensive acceptance",
+  );
+  assert(
+    native.script.includes(
+      "mise exec -- node node_modules/playwright-core/cli.js install chromium",
+    ),
+  );
+  const browserInstallation = native.script.indexOf(
+    "mise exec -- node node_modules/playwright-core/cli.js install chromium",
+  );
   assert.equal(
-    native.script[
-      native.script.indexOf('mise exec -- npm ci --ignore-scripts --no-audit --no-fund') + 1
-    ],
+    native.script[browserInstallation + 1],
     "mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native CI honors the invoker-owned pinned browser root|self preparation selects one direct Project instead of a legacy Edition authority' tests/quality-contract.test.mjs tests/self-edition.test.mjs",
-    'selected runtime and self-use prerequisites fail before expensive native acceptance',
-  );
-  assert(
-    native.script.includes(
-      'mise exec -- node node_modules/playwright-core/cli.js install chromium',
-    ),
+    "browser-dependent prerequisite checks run only after the selected browser is installed",
   );
   assert.equal(
-    native.script[
-      native.script.indexOf(
-        'mise exec -- node node_modules/playwright-core/cli.js install chromium',
-      ) + 1
-    ],
+    native.script[browserInstallation + 2],
     "mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-name-pattern='standalone reader policy blocks dynamic page connections' tests/interactive-html.test.mjs",
-    'the existing sandboxed browser journey runs before expensive Raster and coverage gates',
+    "the existing sandboxed browser journey runs before expensive Raster and coverage gates",
   );
   assert(
     native.script.includes(
-      'mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt',
+      "mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt",
     ),
   );
-  const retrieval = native.script.find((command) => command.includes('--expand-url'));
+  const retrieval = native.script.find((command) => command.includes("--expand-url"));
   assert.match(retrieval, /--variable %CI_JOB_TOKEN/);
   assert.match(retrieval, /--expand-header/);
   assert.match(retrieval, /--max-time 180/);
   assert.doesNotMatch(retrieval, /\$\{?CI_JOB_TOKEN|\$env:CI_JOB_TOKEN/);
   assert(
     native.script.includes(
-      'mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz',
+      "mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz",
     ),
   );
   assert(
     native.script.includes(
-      'mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs',
+      "mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs",
     ),
   );
   assert.doesNotMatch(
-    native.script.join('\n'),
+    native.script.join("\n"),
     /npm install --global|--no-sandbox|continue-on-error|\|\| true/,
   );
-  assert.equal(native.artifacts?.when, 'always');
+  assert.equal(native.artifacts?.when, "always");
   const coverage = JSON.parse(
-    await fs.readFile(path.join(root, '.config/checks/coverage.json'), 'utf8'),
+    await fs.readFile(path.join(root, ".config/checks/c8/.c8rc.json"), "utf8"),
   );
   const outputs = new Map([
-    ['json-summary', 'coverage/coverage-summary.json'],
-    ['json', 'coverage/coverage-final.json'],
+    ["json-summary", "coverage/coverage-summary.json"],
+    ["json", "coverage/coverage-final.json"],
   ]);
   assert.deepEqual(
     native.artifacts.paths,
     coverage.reporter
       .filter((reporter) => outputs.has(reporter))
       .map((reporter) => outputs.get(reporter)),
-    'hosted artifact declarations match the selected coverage reporters',
+    "hosted artifact declarations match the selected coverage reporters",
   );
 });
 
-test('native CI honors the invoker-owned pinned browser root', () => {
-  const environment = { ...process.env, MISE_ENV: 'ci', MISE_LOCKED: '1' };
-  const selected = path.join(root, 'build/runtime/tool-cache/selected-browser');
+test("native CI honors the invoker-owned pinned browser root", () => {
+  const environment = { ...process.env, MISE_ENV: "ci", MISE_LOCKED: "1" };
+  const selected = path.join(root, "build/runtime/tool-cache/selected-browser");
   const readRoot = (env) =>
     execFileSync(
-      'mise',
+      "mise",
       [
-        'exec',
-        '--',
+        "exec",
+        "--",
         process.execPath,
-        '--eval',
-        'console.log(process.env.PLAYWRIGHT_BROWSERS_PATH)',
+        "--eval",
+        "console.log(process.env.PLAYWRIGHT_BROWSERS_PATH)",
       ],
-      { cwd: root, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 20_000 },
+      { cwd: root, env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 20_000 },
     ).trim();
   delete environment.PLAYWRIGHT_BROWSERS_PATH;
   assert.equal(
     path.normalize(readRoot(environment)),
-    path.join(root, 'build/runtime/tool-cache/playwright'),
+    path.join(root, "build/runtime/tool-cache/playwright"),
   );
   assert.equal(readRoot({ ...environment, PLAYWRIGHT_BROWSERS_PATH: selected }), selected);
 });
 
-test('Linux verification keeps the common gate and separates trust roles', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
-  const native = pipeline['.verify-linux'];
-  assert.equal(native.variables?.PLAYWRIGHT_BROWSERS_PATH, '/ms-playwright');
-  assert.equal(pipeline['.verify-native'].stage, 'verify');
+test("Linux verification keeps the common gate and separates trust roles", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  const native = pipeline[".verify-linux"];
+  assert.equal(native.variables?.PLAYWRIGHT_BROWSERS_PATH, "/ms-playwright");
+  assert.equal(pipeline[".verify-native"].stage, "verify");
   assert.equal(native.resource_group, undefined);
-  assert.equal(native.extends, '.verify-native');
-  assert.equal(native.variables.FF_USE_INIT_WITH_DOCKER_EXECUTOR, 'true');
-  assert.equal(native.variables.FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR, 'true');
-  assert.equal(pipeline.variables.MISE_HTTP_TIMEOUT, '180s');
-  assert(
-    native.before_script.some(
-      (command) => command.includes('--max-time 900') && command.includes('mise-v2026.10.3'),
-    ),
+  assert.equal(native.extends, ".verify-native");
+  assert.equal(native.variables.FF_USE_INIT_WITH_DOCKER_EXECUTOR, "true");
+  assert.equal(native.variables.FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR, "true");
+  assert.equal(pipeline.variables.MISE_HTTP_TIMEOUT, "180s");
+  assert.equal(native.before_script.length, 3);
+  assert.equal(native.before_script[1], "sha256sum --strict --check .config/ci/linux/mise.sha256");
+  assert.match(native.before_script[2], /^install --mode=0755 /u);
+  assert.equal(native.variables.MISE_VERSION, undefined);
+  assert.equal(native.variables.MISE_INSTALL_PATH, undefined);
+  assert.equal(
+    native.variables.PATH,
+    "$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH",
   );
-  assert(native.before_script.some((command) => command.includes('sha256sum --check')));
-  assert(native.before_script.some((command) => command.includes('mise-v2026.10.3-linux-arm64')));
-  for (const role of ['review', 'protected']) {
+  for (const role of ["review", "protected"]) {
     const job = pipeline[`verify:linux:${role}`];
-    assert.equal(job.extends, '.verify-linux');
+    assert.equal(job.extends, ".verify-linux");
     assert.equal(job.script, undefined);
     assert.deepEqual(job.tags, [
-      `ci-linux-arm64-container${role === 'protected' ? '-protected' : ''}`,
+      `ci-linux-arm64-container${role === "protected" ? "-protected" : ""}`,
     ]);
   }
-  assert.deepEqual(pipeline['verify:linux:review'].rules, [
+  assert.deepEqual(pipeline["verify:linux:review"].rules, [
     { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
     { if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH' },
   ]);
-  assert.deepEqual(pipeline['verify:linux:protected'].rules, [
+  assert.deepEqual(pipeline["verify:linux:protected"].rules, [
     { if: '$CI_COMMIT_REF_PROTECTED == "true"' },
   ]);
 });
 
-test('Linux image declares the non-root default inspected by Runner', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
+test("Linux image changes only its non-root default without project contents", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
   assert.equal(
     pipeline.image.docker,
     undefined,
-    'Runner ownership inspection must see the image default, not a late user override',
+    "Runner ownership inspection must see the image default, not a late user override",
   );
-  const recipe = await fs.readFile(path.join(root, '.config/ci/linux/Dockerfile'), 'utf8');
-  const [base, user, ...extra] = recipe.trim().split('\n');
+  const recipe = await fs.readFile(path.join(root, ".config/ci/linux/Dockerfile"), "utf8");
+  const [base, user, ...extra] = recipe.trim().split("\n");
   assert.match(base, /^FROM mcr\.microsoft\.com\/playwright:v[0-9.]+-noble@sha256:[a-f0-9]{64}$/u);
-  assert.equal(user, 'USER pwuser');
-  assert.deepEqual(extra, [], 'the supply changes only the official image default user');
+  assert.equal(user, "USER pwuser");
+  assert.deepEqual(
+    extra,
+    [],
+    "no filesystem layer, installer, project files or credentials enter the image",
+  );
   assert.match(pipeline.image.name, /^\S+@sha256:[a-f0-9]{64}$/u);
-  assert.notEqual(pipeline.image.name, base.slice('FROM '.length));
+  assert.notEqual(pipeline.image.name, base.slice("FROM ".length));
 });
 
-test('Linux native prerequisites use one locked rootless Pixi environment', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
-  const native = pipeline['.verify-linux'];
-  const setup = native.before_script.join('\n');
-  const toolchain = await fs.readFile(path.join(root, '.config/mise.ci.toml'), 'utf8');
-  assert.match(
-    toolchain,
-    /pixi\s*=\s*\{\s*version\s*=\s*"0\.81\.0",\s*os\s*=\s*\["linux\/arm64"\]/,
+test("Linux native prerequisites use one locked rootless Pixi environment", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  const native = pipeline[".verify-linux"];
+  const toolchain = parseToml(
+    await fs.readFile(path.join(root, ".config/mise/config.toml"), "utf8"),
   );
-  assert.equal(
-    native.variables.PIXI_HOME,
-    '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home',
+  const selected = parseToml(await fs.readFile(path.join(root, ".config/mise/mise.lock"), "utf8"));
+  assert.equal(toolchain.tools.pixi.version, selected.tools.pixi[0].version);
+  assert.deepEqual(toolchain.tools.pixi.os, ["linux/arm64"]);
+  assert.equal(native.variables.PIXI_CACHE_DIR, "$CI_PROJECT_DIR/build/runtime/tool-cache/pixi");
+  assert(
+    Array.isArray(native.script),
+    "Linux must execute acceptance inside its selected environment",
   );
-  assert.equal(native.variables.PIXI_CACHE_DIR, '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi');
-  assert.match(setup, /cp \.config\/ci\/linux\/pixi\.toml \.config\/ci\/linux\/pixi\.lock/);
-  assert.match(
-    setup,
-    /pixi shell-hook --locked --shell bash --manifest-path build\/runtime\/work\/native-linux-prerequisites\/pixi\.toml/,
-  );
-  assert.match(setup, /\. build\/runtime\/work\/native-linux-prerequisites\/activation\.bash/);
-  assert.doesNotMatch(setup, /sudo|apt(?:-get)?|--no-sandbox|\|\| true/);
-  const lock = parse(await fs.readFile(path.join(root, '.config/ci/linux/pixi.lock'), 'utf8'));
+  const executor =
+    "mise exec -- pixi run --locked --config-file .config/ci/linux/pixi-config.toml " +
+    "--manifest-path .config/ci/linux/pixi.toml --executable ";
+  for (const command of pipeline[".verify-native"].script.slice(-3))
+    assert(native.script.includes(executor + command.slice("mise exec -- ".length)), command);
+  for (const executable of ["xz", "aarch64-conda-linux-gnu-cc"])
+    assert(native.script.includes(executor + executable + " --version"));
+  const lock = parse(await fs.readFile(path.join(root, ".config/ci/linux/pixi.lock"), "utf8"));
   assert.deepEqual(
     lock.platforms.map((platform) => platform.name),
-    ['linux-aarch64'],
+    ["linux-aarch64"],
   );
   for (const entry of lock.packages) {
     assert.match(entry.conda, /^https:\/\/conda\.anaconda\.org\/conda-forge\//);
@@ -292,531 +337,79 @@ test('Linux native prerequisites use one locked rootless Pixi environment', asyn
   }
 });
 
-test('native Windows verification runs the whole quality graph with separate trust roles', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
-  const native = pipeline['.verify-windows'];
-  assert.equal(pipeline['.verify-native'].stage, 'verify');
+test("native Windows verification runs the whole quality graph with separate trust roles", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  const native = pipeline[".verify-windows"];
+  assert.equal(pipeline[".verify-native"].stage, "verify");
   assert.equal(native.image, null);
-  assert.equal(native.resource_group, 'native-windows-verification');
-  assert.equal(native.timeout, '60m');
+  assert.equal(native.resource_group, "native-windows-verification");
+  assert.equal(native.timeout, "60m");
   assert.equal(native.variables?.GIT_STRATEGY, undefined);
   assert.equal(native.variables?.GIT_CLEAN_FLAGS, undefined);
   assert.deepEqual(native.variables, {
-    GIT_CONFIG_COUNT: '1',
-    GIT_CONFIG_KEY_0: 'core.longPaths',
-    GIT_CONFIG_VALUE_0: 'true',
+    GIT_CONFIG_COUNT: "1",
+    GIT_CONFIG_KEY_0: "core.longPaths",
+    GIT_CONFIG_VALUE_0: "true",
   });
   assert.equal(
-    execFileSync('git', ['config', '--get', 'core.longPaths'], {
+    execFileSync("git", ["config", "--get", "core.longPaths"], {
       cwd: root,
       env: { ...process.env, ...native.variables },
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
       timeout: 20_000,
     }).trim(),
-    'true',
-    'native source retrieval and cleanup inherit job-scoped Windows long-path support',
+    "true",
+    "native source retrieval and cleanup inherit job-scoped Windows long-path support",
   );
-  assert.equal(native.extends, '.verify-native');
-  assert(native.before_script.some((command) => command.includes("process.platform !== 'win32'")));
+  assert.equal(native.extends, ".verify-native");
   assert.deepEqual(native.before_script, [
-    'git checkout-index --all --force',
+    "git checkout-index --all --force",
     '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH',
-    "node -e \"if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)\"",
   ]);
-  const execution = pipeline['.verify-native'].script;
-  assert(execution.includes('mise install'));
+  const execution = pipeline[".verify-native"].script;
+  assert(execution.includes("mise install"));
   const rebuild = execution.indexOf(
-    'mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs',
+    "mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs",
   );
-  const quality = execution.indexOf('mise exec -- npm run check');
-  assert(rebuild >= 0 && quality > rebuild, 'native compilation must precede full quality');
-  for (const role of ['review', 'protected']) {
+  const quality = execution.indexOf("mise exec -- npm run check");
+  assert(rebuild >= 0 && quality > rebuild, "native compilation must precede full quality");
+  for (const role of ["review", "protected"]) {
     const job = pipeline[`verify:windows:${role}`];
-    assert.equal(job.extends, '.verify-windows');
+    assert.equal(job.extends, ".verify-windows");
     assert.equal(job.script, undefined);
     assert.equal(job.resource_group, undefined);
     assert.equal(job.variables?.GIT_STRATEGY, undefined);
-    assert.deepEqual(job.tags, [`ci-windows-arm64-${role === 'review' ? 'review' : 'shell'}`]);
+    assert.deepEqual(job.tags, [`ci-windows-arm64-${role === "review" ? "review" : "shell"}`]);
   }
-  assert.deepEqual(pipeline['verify:windows:review'].rules, [
+  assert.deepEqual(pipeline["verify:windows:review"].rules, [
     { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
     { if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH' },
   ]);
-  assert.deepEqual(pipeline['verify:windows:protected'].rules, [
+  assert.deepEqual(pipeline["verify:windows:protected"].rules, [
     { if: '$CI_COMMIT_REF_PROTECTED == "true"' },
   ]);
 });
 
-test('native macOS verification shares one project resource without merging trust roles', async () => {
-  const pipeline = parse(await fs.readFile(path.join(root, '.gitlab-ci.yml'), 'utf8'));
-  const native = pipeline['.verify-macos'];
-  assert.equal(native.extends, '.verify-native');
-  assert.equal(typeof native.resource_group, 'string');
+test("native macOS verification shares one project resource without merging trust roles", async () => {
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  const native = pipeline[".verify-macos"];
+  assert.equal(native.extends, ".verify-native");
+  assert.equal(typeof native.resource_group, "string");
   assert(native.resource_group.trim());
-  assert.equal(pipeline['.verify-linux'].resource_group, undefined);
-  const review = pipeline['verify:macos:review'];
-  const protectedJob = pipeline['verify:macos:protected'];
+  assert.equal(pipeline[".verify-linux"].resource_group, undefined);
+  const review = pipeline["verify:macos:review"];
+  const protectedJob = pipeline["verify:macos:protected"];
   for (const job of [review, protectedJob]) {
-    assert.equal(job.extends, '.verify-macos');
+    assert.equal(job.extends, ".verify-macos");
     assert.equal(job.resource_group, undefined);
     assert.equal(job.script, undefined);
   }
-  assert.deepEqual(review.tags, ['ci-macos-arm64-review']);
-  assert.deepEqual(protectedJob.tags, ['ci-macos-arm64-shell']);
+  assert.deepEqual(review.tags, ["ci-macos-arm64-review"]);
+  assert.deepEqual(protectedJob.tags, ["ci-macos-arm64-shell"]);
   assert.deepEqual(review.rules, [
     { if: '$CI_PIPELINE_SOURCE == "merge_request_event"' },
     { if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH' },
   ]);
   assert.deepEqual(protectedJob.rules, [{ if: '$CI_COMMIT_REF_PROTECTED == "true"' }]);
-});
-
-test('one fail-closed quality entry point covers the repository contract', async () => {
-  const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json')));
-  assert.equal(
-    manifest.scripts.test,
-    'node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=2 tests/*.test.mjs',
-  );
-  assert.equal(
-    manifest.scripts.check,
-    'npm run check:static && npm run test:coverage && npm run check:package',
-  );
-  assert.equal(
-    manifest.scripts['check:static'],
-    'npm run check:generated && npm run check:format && npm run check:lint && npm run check:types && npm run check:imports && npm run check:dead-code && npm run check:docs && npm run check:spec',
-  );
-  assert.equal(
-    manifest.scripts['check:generated'],
-    'node tools/generate-authoring-validators.mjs --check && node tools/supply/likec4.mjs --check && node tools/supply/interactive.mjs --check && node tools/supply/elk.mjs --check && node tools/supply/dagre.mjs --check && node tools/supply/icons.mjs --check && node tools/supply/resvg.mjs --check && node tools/supply/implementation.mjs --check',
-  );
-  assert.equal(manifest.scripts['check:format'], 'prettier --check .');
-  assert.equal(manifest.scripts['check:lint'], 'eslint . --max-warnings 0');
-  assert.equal(manifest.scripts['check:types'], 'tsc --project jsconfig.json --noEmit');
-  assert.equal(manifest.scripts['check:imports'], 'node --test tests/module-boundaries.test.mjs');
-  assert.equal(
-    manifest.scripts['check:docs'],
-    'markdownlint-cli2 --config .config/checks/markdownlint-cli2.jsonc',
-  );
-  assert.equal(manifest.scripts['check:spec'], 'openspec validate --all --strict --no-interactive');
-  assert.equal(
-    manifest.scripts['test:coverage'],
-    'c8 --config .config/checks/coverage.json npm test',
-  );
-  const coverage = JSON.parse(
-    await fs.readFile(path.join(root, '.config/checks/coverage.json'), 'utf8'),
-  );
-  assert.equal(coverage.all, true);
-  assert.equal(coverage['check-coverage'], true);
-  assert.deepEqual(coverage.include, [
-    'packages/publisher/src/**/*.mjs',
-    'packages/publisher/renderers/**/*.mjs',
-    'editions/self/src/**/*.mjs',
-  ]);
-  assert.deepEqual(coverage.exclude, [
-    'packages/publisher/src/edition/generated/**',
-    'packages/publisher/renderers/**/supply/**',
-  ]);
-  assert.deepEqual(coverage.reporter, ['text', 'json-summary']);
-  for (const dimension of ['statements', 'lines', 'branches', 'functions'])
-    assert.equal(coverage[dimension], 95);
-  assert.equal(manifest.scripts['check:package'], 'publint packages/publisher');
-
-  assert.equal(manifest.devDependencies.c8, '12.0.0');
-  for (const [name, version] of Object.entries(manifest.devDependencies))
-    assert.match(version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u, name);
-
-  for (const file of [
-    '.config/checks/markdownlint-cli2.jsonc',
-    '.config/checks/markdown.mjs',
-    '.config/checks/knip.json',
-    '.config/checks/prettier.json',
-    '.prettierignore',
-    'eslint.config.mjs',
-    'jsconfig.json',
-  ])
-    assert((await fs.stat(path.join(root, file))).isFile(), file);
-});
-
-test('native formatter discovery retains one rule owner and preserved input boundaries', async () => {
-  const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(manifest.prettier, './.config/checks/prettier.json');
-  assert.deepEqual(
-    await resolveConfig(path.join(root, 'README.md')),
-    JSON.parse(await fs.readFile(path.join(root, '.config/checks/prettier.json'), 'utf8')),
-  );
-  const ignorePath = [path.join(root, '.gitignore'), path.join(root, '.prettierignore')];
-  for (const [file, ignored] of [
-    ['.config/checks/prettier.json', false],
-    ['tests/quality-contract.test.mjs', false],
-    ['packages/publisher/renderers/archify/supply/archify.html', true],
-    ['editions/self/src/edition/static/authoring/metrics.json', true],
-    ['.config/mise/locks/mise.ci/npm-npm/12.2.0/aube-lock.yaml', true],
-    ['.config/mise/locks/mise.ci/npm-npm/12.2.0/package.json', true],
-    ['.config/ci/linux/pixi.lock', true],
-    ['.config/ci/linux/pixi.toml', false],
-  ])
-    assert.equal((await getFileInfo(path.join(root, file), { ignorePath })).ignored, ignored, file);
-});
-
-test('the native documentation gate enforces one blank line across maintained Markdown', async (t) => {
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
-  const scratch = await fs.mkdtemp(
-    path.join(await fs.realpath(os.tmpdir()), 'archpub-markdown-spacing-'),
-  );
-  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
-  await fs.mkdir(path.join(scratch, '.config/checks'), { recursive: true });
-  for (const file of [
-    '.config/checks/markdownlint-cli2.jsonc',
-    '.config/checks/markdown.mjs',
-    '.gitignore',
-  ])
-    await fs.copyFile(path.join(root, file), path.join(scratch, file));
-  await fs.writeFile(
-    path.join(scratch, 'package.json'),
-    JSON.stringify({
-      name: 'documentation-spacing-fixture',
-      version: '1.0.0',
-      scripts: { 'check:docs': workspace.scripts['check:docs'] },
-    }),
-  );
-  const files = [
-    'README.md',
-    '.config/README.md',
-    'packages/publisher/README.md',
-    'editions/self/README.md',
-    'tests/conformance/journeys/self-host/README.md',
-    'examples/README.md',
-    'docs/reference/guide.md',
-    'openspec/changes/current/tasks.md',
-    'openspec/changes/current/design.md',
-    'openspec/changes/current/specs/owner/spec.md',
-  ];
-  const valid = '# Scope\n\nRead the selected contract.\n';
-  for (const file of files) {
-    await fs.mkdir(path.dirname(path.join(scratch, file)), { recursive: true });
-    await fs.writeFile(path.join(scratch, file), valid);
-  }
-  const invoke = npmInvocation(['run', 'check:docs']);
-  const options = {
-    cwd: scratch,
-    encoding: 'utf8',
-    timeout: 30_000,
-    stdio: 'pipe',
-    env: {
-      ...process.env,
-      PATH: [path.join(root, 'node_modules/.bin'), process.env.PATH].join(path.delimiter),
-      npm_config_cache: path.join(scratch, 'npm-cache'),
-    },
-  };
-  const check = async () => {
-    const diagnostics = [];
-    const code = await lintMarkdown({
-      directory: scratch,
-      argv: ['--config', '.config/checks/markdownlint-cli2.jsonc'],
-      logError: (message) => diagnostics.push(message),
-    });
-    return { code, diagnostics: diagnostics.join('\n') };
-  };
-  assert.equal((await check()).code, 0);
-  for (const file of files) {
-    await fs.writeFile(path.join(scratch, file), '# Scope\n\n\nRead the selected contract.\n');
-    const result = await check();
-    assert.equal(result.code, 1, file);
-    assert.match(result.diagnostics, /MD012/u, file);
-    await fs.writeFile(path.join(scratch, file), valid);
-  }
-  for (const source of [
-    '# Scope\n\n- [ ] First task\n\n- [x] Second task\n',
-    '# Scope\n\n- First item\n  with a wrapped paragraph.\n\n- Second item\n',
-    '# Scope\n\n1. First item\n\n2. Second item\n',
-    '# Scope\n\n- Group\n  - First item\n\n  - Second item\n',
-    '# Scope\n\n> - First item\n>\n> - Second item\n',
-    '<!-- markdownlint-disable compact-simple-lists -->\n\n# Scope\n\n- First item\n\n- Second item\n',
-  ]) {
-    await fs.writeFile(path.join(scratch, 'README.md'), source);
-    const result = await check();
-    assert.equal(result.code, 1);
-    assert.match(result.diagnostics, /compact-simple-lists/u);
-  }
-  await fs.writeFile(
-    path.join(scratch, 'README.md'),
-    '<!-- markdownlint-disable MD012 -->\n\n# Scope\n\n\nRead the selected contract.\n',
-  );
-  const disabledRule = await check();
-  assert.equal(disabledRule.code, 1);
-  assert.match(disabledRule.diagnostics, /MD012/u);
-  await fs.writeFile(
-    path.join(scratch, 'README.md'),
-    '# Scope\n\n```python\nclass First:\n    pass\n\n\nclass Second:\n    pass\n```\n',
-  );
-  for (const file of [
-    '.git/ethos/runtime/dependency/README.md',
-    'openspec/changes/archive/retained/spec.md',
-    'tests/fixtures/source.md',
-    'tests/conformance/fixtures/source.md',
-    'packages/publisher/renderers/example/supply/README.md',
-    'build/output.md',
-    'node_modules/supplier/README.md',
-  ]) {
-    await fs.mkdir(path.dirname(path.join(scratch, file)), { recursive: true });
-    await fs.writeFile(path.join(scratch, file), '# Retained bytes\n\n\nDo not format.\n');
-  }
-  assert.equal((await check()).code, 0, 'Language-significant spacing and retained inputs');
-  for (const source of [
-    '# Scope\n\n-\n\n- First paragraph\n\n  Second paragraph\n',
-    '# Scope\n\n- First item\n\n  A separate paragraph.\n\n- Second item\n',
-    '# Scope\n\n- Group\n\n  - First item\n  - Second item\n\n- Another group\n\n  ```python\n  def first():\n      pass\n\n\n  def second():\n      pass\n  ```\n',
-  ]) {
-    await fs.writeFile(path.join(scratch, 'README.md'), source);
-    assert.equal((await check()).code, 0, 'Multi-block items retain their structural spacing');
-  }
-  execFileSync(invoke.command, invoke.args, options);
-  const { default: spacingRule } = await import('../.config/checks/markdown.mjs');
-  for (const [source, expected] of [
-    [
-      '-\n  First paragraph.\n\n- Second paragraph.\n',
-      '-\n  First paragraph.\n- Second paragraph.\n',
-    ],
-    [
-      '<pre>\n\n- First literal line\n\n- Second literal line\n\n</pre>\n',
-      '<pre>\n\n- First literal line\n\n- Second literal line\n\n</pre>\n',
-    ],
-  ]) {
-    const findings = await lint({
-      strings: { fixture: source },
-      config: { default: false, 'compact-simple-lists': true },
-      customRules: [spacingRule],
-      noInlineConfig: true,
-    });
-    assert.equal(applyFixes(source, findings.fixture), expected);
-  }
-});
-
-test('the selected LikeC4 parser supply uses the patched lodash-es release', async () => {
-  const lock = JSON.parse(await fs.readFile(path.join(root, 'package-lock.json'), 'utf8'));
-  const supply = JSON.parse(
-    await fs.readFile(path.join(root, 'packages/publisher/supplies/likec4/supply.json'), 'utf8'),
-  );
-  const selected = lock.packages['node_modules/lodash-es'];
-  assert.equal(selected?.version, '4.18.1');
-  assert.equal(supply.packages.find(({ name }) => name === 'lodash-es')?.version, selected.version);
-});
-
-test('official OpenSpec apply instructions bind each task to its exact source checkbox', async (t) => {
-  const work = await fs.mkdtemp(path.join(await fs.realpath(os.tmpdir()), 'archpub-task-source-'));
-  t.after(() => fs.rm(work, { recursive: true, force: true }));
-  const change = path.join(work, 'openspec/changes/task-source');
-  await fs.mkdir(change, { recursive: true });
-  await fs.writeFile(
-    path.join(change, '.openspec.yaml'),
-    'schema: spec-driven\ncreated: 2026-10-01\n',
-  );
-  const taskFile = path.join(change, 'tasks.md');
-  await fs.writeFile(
-    taskFile,
-    '# Tasks\n\n- [x] 1. Preserve accepted inputs.\n  - [ ] 1.1 Verify the selected receiver.\n- [ ] 2. Close source-owned adoption.\n',
-  );
-  const cli = path.join(root, 'node_modules/@fission-ai/openspec/bin/openspec.js');
-  const instruction = JSON.parse(
-    execFileSync(
-      process.execPath,
-      [
-        cli,
-        'instructions',
-        'apply',
-        '--change',
-        'task-source',
-        '--schema',
-        'spec-driven',
-        '--json',
-      ],
-      {
-        cwd: work,
-        encoding: 'utf8',
-        timeout: 30_000,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          HOME: work,
-          XDG_CONFIG_HOME: path.join(work, 'config'),
-          CI: 'true',
-          OPENSPEC_TELEMETRY: '0',
-        },
-      },
-    ),
-  );
-  const lines = (await fs.readFile(taskFile, 'utf8')).split('\n');
-  const checkboxes = lines.flatMap((line, index) => {
-    const match = /^\s*- \[([ xX])\] (.+)$/u.exec(line);
-    return match ? [{ line: index + 1, done: match[1] !== ' ', description: match[2] }] : [];
-  });
-  assert.equal(instruction.tasks.length, checkboxes.length);
-  assert.equal(instruction.progress.total, checkboxes.length);
-  for (const [index, task] of instruction.tasks.entries()) {
-    assert.equal(typeof task.sourcePath, 'string', 'The official task source must be explicit');
-    const source = path.isAbsolute(task.sourcePath)
-      ? task.sourcePath
-      : path.resolve(work, task.sourcePath);
-    assert.equal(source, taskFile);
-    assert.equal(task.line, checkboxes[index].line);
-    assert.equal(task.done, checkboxes[index].done);
-    assert.equal(task.description, checkboxes[index].description);
-  }
-});
-
-test('coverage roots include all tracked first-party package runtime modules', () => {
-  const tracked = execFileSync('git', ['ls-files', '--', 'packages/publisher', 'editions/self'], {
-    cwd: root,
-    encoding: 'utf8',
-  })
-    .trim()
-    .split('\n')
-    .filter((file) => file.endsWith('.mjs'));
-  for (const file of tracked) {
-    if (/^packages\/publisher\/renderers\/[^/]+\/supply\//u.test(file)) continue;
-    if (file === 'packages/publisher/supplies/likec4/parser.mjs') continue;
-    assert.match(
-      file,
-      /^(?:packages\/publisher\/(?:src|renderers)\/|editions\/self\/src\/)/u,
-      `${file} escapes the owned runtime coverage scope`,
-    );
-  }
-});
-
-test('native Git carrier roles preserve authored coverage and frozen supply obligations', async () => {
-  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
-    .split('\0')
-    .filter(Boolean);
-  const attributes = execFileSync('git', ['check-attr', '-z', '--stdin', 'ethos-role'], {
-    cwd: root,
-    encoding: 'utf8',
-    input: `${tracked.join('\0')}\0`,
-  }).split('\0');
-  const roles = new Map();
-  for (let index = 0; index + 2 < attributes.length; index += 3) {
-    assert.equal(attributes[index + 1], 'ethos-role');
-    roles.set(attributes[index], attributes[index + 2]);
-  }
-  assert.equal(roles.size, tracked.length);
-  const coverage = JSON.parse(
-    await fs.readFile(path.join(root, '.config/checks/coverage.json'), 'utf8'),
-  );
-  const covered = new Set();
-  for await (const file of fs.glob(coverage.include, { cwd: root, exclude: coverage.exclude }))
-    covered.add(file.split(path.sep).join('/'));
-  const runtime = new Set();
-  for (const file of tracked) {
-    const role = roles.get(file);
-    if (file.endsWith('.sh')) {
-      assert.equal(role, 'tooling', `${file} has no native script responsibility`);
-      assert.match(file, /^tools\//u);
-      continue;
-    }
-    if (!/\.(?:mjs|cjs|js)$/u.test(file)) {
-      assert(!['code', 'test', 'tooling'].includes(role), `${file} is not a JavaScript carrier`);
-      continue;
-    }
-    assert.notEqual(role, 'unspecified', `${file} has no native responsibility`);
-    if (role === 'code') runtime.add(file);
-    else if (role === 'test') assert.match(file, /^tests\//u);
-    else if (role === 'tooling') assert.match(file, /^tools\//u);
-    else if (role === 'config') assert.match(file, /^(?:\.config\/|eslint\.config\.mjs$)/u);
-    else if (role === 'generated') {
-      assert.match(file, /^packages\/publisher\/src\/edition\/generated\//u);
-      assert.match(await fs.readFile(path.join(root, file), 'utf8'), /^\/\/ Generated from /u);
-    } else if (role === 'snapshot') {
-      assert.match(file, /^packages\/publisher\/(?:renderers\/[^/]+\/supply\/|supplies\/)/u);
-      const owner = file.match(
-        /^(packages\/publisher\/(?:renderers\/[^/]+\/supply|supplies\/[^/]+))\//u,
-      )?.[1];
-      assert(owner);
-      await fs.access(path.join(root, owner, 'supply.json'));
-    } else assert.fail(`${file} has an unsupported carrier role: ${role}`);
-  }
-  assert.deepEqual([...runtime].sort(), [...covered].sort());
-  assert(coverage.all);
-  for (const dimension of ['statements', 'lines', 'branches', 'functions'])
-    assert(coverage[dimension] >= 95);
-  const workspace = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
-  assert.match(workspace.scripts['check:static'], /npm run check:generated/u);
-  assert.match(workspace.scripts['check:generated'], /generate-authoring-validators\.mjs --check/u);
-});
-
-test('the existing type-check project includes every Provider runtime module', async () => {
-  const selected = new Set(
-    execFileSync(
-      process.execPath,
-      [
-        path.join(root, 'node_modules/typescript/bin/tsc'),
-        '--project',
-        'jsconfig.json',
-        '--listFilesOnly',
-      ],
-      { cwd: root, encoding: 'utf8', timeout: 30_000 },
-    )
-      .trim()
-      .split('\n')
-      .map((file) => path.resolve(file.trim())),
-  );
-  const providers = execFileSync('git', ['ls-files', '--', 'packages/publisher/src/provider'], {
-    cwd: root,
-    encoding: 'utf8',
-  })
-    .trim()
-    .split('\n')
-    .filter((file) => file.endsWith('.mjs'));
-  assert(providers.length > 0);
-  for (const file of providers) assert(selected.has(path.join(root, file)), file);
-
-  // TypeScript resolves this declaration; Knip resolves its config name to the runtime package.
-  assert(selected.has(path.join(root, 'node_modules/@types/punycode/index.d.ts')));
-  const knip = JSON.parse(await fs.readFile(path.join(root, '.config/checks/knip.json')));
-  assert.deepEqual(knip.ignoreDependencies, ['@types/punycode']);
-});
-
-test('first-party code filenames describe responsibilities, not protocol generations', () => {
-  const versionSuffix = /(?:^|[-_.])v\d+(?=[-_.]|$)/iu;
-  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' })
-    .split('\0')
-    .filter((file) => /\.(?:cjs|js|jsx|mjs|ts|tsx)$/u.test(file));
-  for (const file of tracked) {
-    if (/^packages\/publisher\/renderers\/[^/]+\/supply\//u.test(file)) continue;
-    assert.doesNotMatch(path.posix.basename(file), versionSuffix, file);
-  }
-});
-
-test('public package indexes enumerate exports instead of widening by wildcard', async () => {
-  const manifests = ['packages/publisher', 'editions/self'];
-  const files = new Set();
-  for (const directory of manifests) {
-    const manifest = JSON.parse(await fs.readFile(path.join(root, directory, 'package.json')));
-    for (const target of Object.values(manifest.exports))
-      if (target.endsWith('.mjs')) files.add(path.posix.join(directory, target));
-  }
-  for (const file of files) {
-    const source = await fs.readFile(path.join(root, file), 'utf8');
-    assert.doesNotMatch(source, /export\s+\*/u, file);
-  }
-});
-
-test('ETHOS projects non-overlapping repository quality gates from package scripts', async () => {
-  const profile = await fs.readFile(path.join(root, '.ethos/profile.toml'), 'utf8');
-
-  assert.match(
-    profile,
-    /code_correctness_gates = \["node-behavior", "node-static", "node-package"\]/u,
-  );
-  assert.match(profile, /behavior = "node-behavior"/u);
-  assert.match(profile, /static-analysis = "node-static"/u);
-  assert.equal(profile.match(/^\[\[proof\.gates\]\]$/gmu)?.length, 3);
-  assert.match(profile, /providers = \["ethos.adapters.gates.code_quality:behavior_report"\]/u);
-  assert.match(
-    profile,
-    /verification_providers = \["ethos.adapters.gates.code_quality:static_report"\]/u,
-  );
-  assert.match(profile, /execution_mode = "provider"/u);
-  assert.doesNotMatch(profile, /command = \["npm", "run", "test:coverage"\]/u);
-  assert.match(profile, /command = \["npm", "run", "check:static"\]/u);
-  assert.match(profile, /command = \["npm", "run", "check:package"\]/u);
-  assert.doesNotMatch(profile, /node-syntax/u);
 });

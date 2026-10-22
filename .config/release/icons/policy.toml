@@ -1,0 +1,5 @@
+package = "lucide-static"
+version = "1.61.0"
+license = "ISC"
+integrity = "sha512-yLAiQB3MWUJEstsEDAwenSA3m7vr1tdLvgnC16Q/XMxRRma0DWwMs8M2bWlvgShrIs1m2mWMJ+0AiahqQO4GrA=="
+viewBox = [0, 0, 24, 24]

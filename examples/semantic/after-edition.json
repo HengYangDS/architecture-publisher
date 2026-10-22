@@ -1,8 +1,7 @@
 {
-  "schema": "architecture.edition/v1",
+  "schema": "architecture.edition/v2",
   "id": "request-service",
   "owner": "example:request-service",
-  "class": "structural",
   "product": {
     "name": "Architecture Publisher",
     "schema": "architecture.publisher/v1",
@@ -16,84 +15,42 @@
     "digest": "41ee8c280feff60cb094a0213a569d5953388ece44608c4305ba35ec896a3066"
   },
   "title": "Request service",
-  "audiences": {
-    "maintainer": {
-      "label": "Maintainers"
-    }
-  },
+  "audiences": { "maintainer": { "label": "Maintainers" } },
   "questions": {
     "overview": {
       "audience": "maintainer",
       "prompt": "How is an authorized request admitted and executed?",
-      "claims": [
-        "admission",
-        "request"
-      ],
+      "claims": ["admission", "request"],
       "detail": "overview",
       "risk": "Omission would hide the declared request path."
     },
     "admission": {
       "audience": "maintainer",
       "prompt": "What condition admits the request?",
-      "claims": [
-        "admission"
-      ],
+      "claims": ["admission"],
       "detail": "mechanism",
       "risk": "Omission would hide the authorization condition."
     }
   },
-  "requiredClaims": [
-    "admission",
-    "request"
-  ],
+  "requiredClaims": ["admission", "request"],
   "omissions": {},
-  "narrative": [
-    "overview",
-    "admission"
-  ],
+  "narrative": ["overview", "admission"],
   "visualGrammar": {
-    "entityTypes": {
-      "component": "backend"
-    },
-    "relationTypes": {
-      "calls": {
-        "label": "calls",
-        "variant": "emphasis"
-      }
-    },
-    "principles": [
-      "Meaning before decoration",
-      "One causal path"
-    ]
+    "entityTypes": { "component": "backend" },
+    "relationTypes": { "calls": { "label": "calls", "variant": "emphasis" } },
+    "principles": ["Meaning before decoration", "One causal path"]
   },
   "scenes": {
     "static": {
       "label": "Authorized request path",
-      "questions": [
-        "overview"
-      ],
-      "claims": [
-        "admission",
-        "request"
-      ],
+      "questions": ["overview"],
+      "claims": ["admission", "request"],
       "composition": {
         "groups": [
-          {
-            "id": "request-path",
-            "label": "Request path",
-            "entities": [
-              "client",
-              "server"
-            ]
-          }
+          { "id": "request-path", "label": "Request path", "entities": ["client", "server"] }
         ],
         "relations": [
-          {
-            "id": "request",
-            "fromSide": "right",
-            "toSide": "left",
-            "route": "orthogonal-h"
-          }
+          { "id": "request", "fromSide": "right", "toSide": "left", "route": "orthogonal-h" }
         ]
       }
     },
@@ -101,87 +58,133 @@
       "overview": {
         "label": "Authorized request path",
         "purpose": "overview",
-        "questions": [
-          "overview"
-        ],
-        "claims": [
-          "admission",
-          "request"
-        ],
+        "questions": ["overview"],
+        "claims": ["admission", "request"],
         "composition": {
           "groups": [
-            {
-              "id": "request-path",
-              "label": "Request path",
-              "entities": [
-                "client",
-                "server"
-              ]
-            }
+            { "id": "request-path", "label": "Request path", "entities": ["client", "server"] }
           ],
           "relations": [
-            {
-              "id": "request",
-              "fromSide": "right",
-              "toSide": "left",
-              "route": "orthogonal-h"
-            }
+            { "id": "request", "fromSide": "right", "toSide": "left", "route": "orthogonal-h" }
           ]
         }
       },
       "admission": {
         "label": "Admission condition",
         "purpose": "mechanism",
-        "questions": [
-          "admission"
-        ],
-        "claims": [
-          "admission"
-        ],
+        "questions": ["admission"],
+        "claims": ["admission"],
         "composition": {
           "groups": [
-            {
-              "id": "request-path",
-              "label": "Request path",
-              "entities": [
-                "client",
-                "server"
-              ]
-            }
+            { "id": "request-path", "label": "Request path", "entities": ["client", "server"] }
           ],
           "relations": [
-            {
-              "id": "request",
-              "fromSide": "right",
-              "toSide": "left",
-              "route": "orthogonal-h"
-            }
+            { "id": "request", "fromSide": "right", "toSide": "left", "route": "orthogonal-h" }
           ]
         }
       }
     }
   },
   "qualification": {
-    "semantic": [
-      "claim-model-valid"
-    ],
-    "coverage": [
-      "required-claims-visible"
-    ],
-    "static": [
-      "painted-geometry"
-    ],
-    "interactive": [
-      "browser-behavior"
-    ],
-    "accessibility": [
-      "keyboard-and-reduced-motion"
-    ],
-    "installed": [
-      "offline-reproduction"
-    ],
+    "semantic": ["claim-model-valid"],
+    "coverage": ["required-claims-visible"],
+    "static": ["painted-geometry"],
+    "interactive": ["browser-behavior"],
+    "accessibility": ["keyboard-and-reduced-motion"],
+    "installed": ["offline-reproduction"],
     "recovery": [],
-    "human": []
+    "human": [
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "overview-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "overview",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "admission",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "overview-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "overview",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "admission",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "aesthetic",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "overview-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "aesthetic",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "overview",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "aesthetic",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "admission",
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
   },
   "scope": "Synthetic runnable example; no implementation or aesthetic acceptance."
 }

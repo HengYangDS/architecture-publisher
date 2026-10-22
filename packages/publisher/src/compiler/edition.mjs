@@ -1,53 +1,53 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { createHash } from 'node:crypto';
-import { readSourceBundle } from '../source/bundle.mjs';
-import { writeSourceBundle } from '../source/write.mjs';
-import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
-import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
-import { portablePath } from '../file-input/contract.mjs';
-import { interactiveArchitectureScene } from '../scene/interactive/architecture.mjs';
-import { semanticArchitectureProjections } from '../scene/contract.mjs';
-import { composeStaticOverview } from '../../renderers/svg/architecture.mjs';
-import { canonical, claimModelDigest, validateClaimModel } from '../semantics/document.mjs';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createHash } from "node:crypto";
+import { readSourceBundle } from "../source/bundle.mjs";
+import { writeSourceBundle } from "../source/write.mjs";
+import { noSymlinkAncestors, regularBytes } from "../file-input/read.mjs";
+import { fail, hasExactFields as exact, isDigest } from "../protocol/values.mjs";
+import { portablePath } from "../file-input/contract.mjs";
+import { interactiveArchitectureScene } from "../scene/interactive/architecture.mjs";
+import { semanticArchitectureProjections } from "../scene/contract.mjs";
+import { composeStaticOverview } from "../../renderers/svg/architecture.mjs";
+import { canonical, claimModelDigest, validateClaimModel } from "../semantics/document.mjs";
 import {
   editionDigest,
   editionQualificationObligations,
   interactiveSceneDigest,
   staticSceneDigest,
   validateEdition,
-} from '../edition/contract.mjs';
-import { renderArchitectureScene } from '../../renderers/archify/index.mjs';
-import { loadBundledFonts } from '../../renderers/fonts/index.mjs';
-import { editionCandidateDigest, validateEditionCandidate } from './candidate.mjs';
-import { embedFonts, rasterizeSvg } from './media.mjs';
-import { resolveEditionProviderSelection } from '../provider/input.mjs';
-import { withMaterializedEditionProvider } from '../provider/materialize.mjs';
+} from "../edition/contract.mjs";
+import { renderArchitectureScene } from "../../renderers/archify/index.mjs";
+import { loadBundledFonts } from "../../renderers/fonts/index.mjs";
+import { editionCandidateDigest, validateEditionCandidate } from "./candidate.mjs";
+import { embedFonts, rasterizeSvg } from "./media.mjs";
+import { resolveEditionProviderSelection } from "../provider/input.mjs";
+import { withMaterializedEditionProvider } from "../provider/materialize.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 function json(bytes, code) {
   try {
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+    return JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
   } catch {
     fail(code);
   }
 }
 
 async function selectedEdition(file, digest) {
-  if (!isDigest(digest)) fail('edition_digest_required');
+  if (!isDigest(digest)) fail("edition_digest_required");
   await noSymlinkAncestors(file);
   const bytes = await regularBytes(file, 4 * 1024 * 1024);
-  if (sha(bytes) !== digest) fail('edition_digest_mismatch');
-  return { bytes, value: json(bytes, 'edition_json_invalid') };
+  if (sha(bytes) !== digest) fail("edition_digest_mismatch");
+  return { bytes, value: json(bytes, "edition_json_invalid") };
 }
 
 async function selectedPlan(file, digest) {
-  if (!isDigest(digest)) fail('semantic_plan_digest_required');
+  if (!isDigest(digest)) fail("semantic_plan_digest_required");
   await noSymlinkAncestors(file);
   const bytes = await regularBytes(file, 1024 * 1024);
-  if (sha(bytes) !== digest) fail('semantic_plan_digest_mismatch');
-  return json(bytes, 'semantic_plan_json_invalid');
+  if (sha(bytes) !== digest) fail("semantic_plan_digest_mismatch");
+  return json(bytes, "semantic_plan_json_invalid");
 }
 
 function sourceBindings(document, members) {
@@ -55,7 +55,7 @@ function sourceBindings(document, members) {
   for (const [id, source] of Object.entries(document.sources)) {
     portablePath(source.locator);
     const content = members.get(source.locator);
-    if (!content || sha(content) !== source.sha256) fail('semantic_source_binding_mismatch', id);
+    if (!content || sha(content) !== source.sha256) fail("semantic_source_binding_mismatch", id);
     bound.push({ id, path: source.locator, sha256: source.sha256 });
   }
   return bound.sort((left, right) => left.id.localeCompare(right.id));
@@ -66,24 +66,24 @@ function sourceBindings(document, members) {
 export async function compileEditionCandidate(plan, providerReceipt = null) {
   if (
     !exact(plan, [
-      'sourceManifest',
-      'sourceSha256',
-      'semanticMember',
-      'edition',
-      'editionSha256',
-      'output',
+      "sourceManifest",
+      "sourceSha256",
+      "semanticMember",
+      "edition",
+      "editionSha256",
+      "output",
     ]) ||
-    !path.isAbsolute(plan.sourceManifest ?? '') ||
-    !path.isAbsolute(plan.edition ?? '') ||
-    !path.isAbsolute(plan.output ?? '')
+    !path.isAbsolute(plan.sourceManifest ?? "") ||
+    !path.isAbsolute(plan.edition ?? "") ||
+    !path.isAbsolute(plan.output ?? "")
   )
-    fail('edition_candidate_plan_invalid');
+    fail("edition_candidate_plan_invalid");
   portablePath(plan.semanticMember);
   const source = await readSourceBundle(plan.sourceManifest, plan.sourceSha256),
     members = new Map(source.members.map((item) => [item.path, item.content])),
     semanticBytes = members.get(plan.semanticMember);
-  if (!semanticBytes) fail('edition_candidate_document_missing');
-  const document = validateClaimModel(json(semanticBytes, 'edition_candidate_document_invalid')),
+  if (!semanticBytes) fail("edition_candidate_document_missing");
+  const document = validateClaimModel(json(semanticBytes, "edition_candidate_document_invalid")),
     digest = claimModelDigest(document),
     selected = await selectedEdition(plan.edition, plan.editionSha256),
     edition = validateEdition(document, selected.value),
@@ -94,14 +94,14 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
     parent = path.dirname(plan.output),
     parentStat = await fs.lstat(parent);
   sourceBindings(document, members);
-  if (edition.source.manifestSha256 !== source.manifestSha256) fail('edition_source_mismatch');
+  if (edition.source.manifestSha256 !== source.manifestSha256) fail("edition_source_mismatch");
   if (
     !parentStat.isDirectory() ||
     parentStat.isSymbolicLink() ||
     (await fs.realpath(parent)) !== parent
   )
-    fail('edition_candidate_output_parent_invalid');
-  const scratch = await fs.mkdtemp(path.join(parent, '.edition-candidate-'));
+    fail("edition_candidate_output_parent_invalid");
+  const scratch = await fs.mkdtemp(path.join(parent, ".edition-candidate-"));
   try {
     const artifacts = [],
       receipts = [],
@@ -111,7 +111,7 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
       overviewSvg = embedFonts(staticResult.bytes, fonts, selectedFonts.license),
       overviewPng = await rasterizeSvg(scratch, staticResult.bytes, fonts, 2400);
     for (const view of projections.interactiveScenes) {
-      const output = path.join(scratch, view.id + '.html'),
+      const output = path.join(scratch, view.id + ".html"),
         scene = interactiveArchitectureScene(document, selected.value, view),
         receipt = await renderArchitectureScene({
           scene,
@@ -141,13 +141,13 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
       });
     }
     artifacts.push(
-      { path: 'overview.svg', content: overviewSvg },
-      { path: 'overview.png', content: overviewPng.bytes },
-      { path: 'semantic.json', content: semanticBytes },
-      { path: 'edition.json', content: selected.bytes },
+      { path: "overview.svg", content: overviewSvg },
+      { path: "overview.png", content: overviewPng.bytes },
+      { path: "semantic.json", content: semanticBytes },
+      { path: "edition.json", content: selected.bytes },
     );
     const candidate = validateEditionCandidate({
-      schema: 'architecture.edition-candidate/v1',
+      schema: "architecture.edition-candidate/v1",
       source: {
         manifestSha256: source.manifestSha256,
       },
@@ -164,23 +164,23 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
           sceneSha256: selectedStaticSceneDigest,
           artifacts: [
             {
-              id: 'overview-svg',
-              path: 'overview.svg',
-              mediaType: 'image/svg+xml',
+              id: "overview-svg",
+              path: "overview.svg",
+              mediaType: "image/svg+xml",
               bytes: overviewSvg.length,
               sha256: sha(overviewSvg),
             },
             {
-              id: 'overview-png',
-              path: 'overview.png',
-              mediaType: 'image/png',
+              id: "overview-png",
+              path: "overview.png",
+              mediaType: "image/png",
               bytes: overviewPng.bytes.length,
               sha256: sha(overviewPng.bytes),
             },
           ],
           supplies: [
-            { id: 'font-supply', sha256: selectedFonts.sha256 },
-            { id: 'raster-supply', sha256: overviewPng.result.supply.sha256 },
+            { id: "font-supply", sha256: selectedFonts.sha256 },
+            { id: "raster-supply", sha256: overviewPng.result.supply.sha256 },
           ],
         },
         interactive: {
@@ -188,7 +188,7 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
           artifacts: receipts.map(({ id, htmlSha256, bytes }) => ({
             id,
             path: `views/${id}.html`,
-            mediaType: 'text/html',
+            mediaType: "text/html",
             bytes,
             sha256: htmlSha256,
           })),
@@ -202,18 +202,18 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
       obligations: editionQualificationObligations(document, edition),
     });
     artifacts.unshift({
-      path: 'candidate.json',
-      content: Buffer.from(JSON.stringify(candidate, null, 2) + '\n'),
+      path: "candidate.json",
+      content: Buffer.from(JSON.stringify(candidate, null, 2) + "\n"),
     });
     let providerMaterializationSha256;
     if (providerReceipt !== null) {
       const bytes = Buffer.from(canonical(providerReceipt));
-      artifacts.push({ path: 'provider.json', content: bytes });
+      artifacts.push({ path: "provider.json", content: bytes });
       providerMaterializationSha256 = sha(bytes);
     }
     const written = await writeSourceBundle(plan.output, source.source, artifacts);
     const result = {
-      status: 'built',
+      status: "built",
       ...written,
       views: receipts.length,
       candidateSha256: editionCandidateDigest(candidate),
@@ -231,25 +231,25 @@ export async function compileEditionCandidate(plan, providerReceipt = null) {
 export async function compileEditionCandidateInput(file, digest, output, executionChoice) {
   const planPath = path.resolve(file),
     plan = await selectedPlan(planPath, digest);
-  if (plan?.schema === 'architecture.build-request/v1') {
-    if (typeof output !== 'string' || !output) fail('edition_candidate_output_required');
-    const { compileSelectedEditionCandidateInput } = await import('./successor.mjs');
+  if (plan?.schema === "architecture.build-request/v1") {
+    if (typeof output !== "string" || !output) fail("edition_candidate_output_required");
+    const { compileSelectedEditionCandidateInput } = await import("./successor.mjs");
     return compileSelectedEditionCandidateInput(planPath, digest, output, executionChoice);
   }
-  if (executionChoice !== undefined) fail('edition_candidate_execution_choice_unadmitted');
-  if (output !== undefined) fail('edition_candidate_output_conflict');
+  if (executionChoice !== undefined) fail("edition_candidate_execution_choice_unadmitted");
+  if (output !== undefined) fail("edition_candidate_output_conflict");
   if (
     exact(plan, [
-      'sourceManifest',
-      'sourceSha256',
-      'semanticMember',
-      'edition',
-      'editionSha256',
-      'output',
+      "sourceManifest",
+      "sourceSha256",
+      "semanticMember",
+      "edition",
+      "editionSha256",
+      "output",
     ])
   ) {
-    for (const key of ['sourceManifest', 'edition', 'output']) {
-      if (typeof plan[key] !== 'string' || !plan[key]) fail('edition_candidate_plan_invalid');
+    for (const key of ["sourceManifest", "edition", "output"]) {
+      if (typeof plan[key] !== "string" || !plan[key]) fail("edition_candidate_plan_invalid");
       plan[key] = path.resolve(path.dirname(planPath), plan[key]);
     }
     return compileEditionCandidate(plan);

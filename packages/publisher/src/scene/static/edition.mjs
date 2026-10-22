@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
-import { canonical, deepFreeze } from '../../semantics/document.mjs';
-import { fail } from '../../protocol/values.mjs';
-import { claimCard } from '../claim-card.mjs';
-import { claimRelationLabel, linkClaimModelSources } from '../claim-relations.mjs';
-import { selectedStaticNativeViews, selectedStaticSourceSelections } from './selection.mjs';
-import { neutralFigurePolicy, resolveFigureTypes } from '../figure-types.mjs';
+import { createHash } from "node:crypto";
+import { canonical, deepFreeze } from "../../semantics/document.mjs";
+import { fail } from "../../protocol/values.mjs";
+import { claimCard } from "../claim-card.mjs";
+import { claimRelationLabel, linkClaimModelSources } from "../claim-relations.mjs";
+import { selectedStaticNativeViews, selectedStaticSourceSelections } from "./selection.mjs";
+import { neutralFigurePolicy, resolveFigureTypes } from "../figure-types.mjs";
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) =>
@@ -22,12 +22,20 @@ const sameMembers = (actual, expected) =>
 
 function addBound(map, identity, value) {
   const previous = map.get(identity);
-  if (previous && canonical(previous) !== canonical(value)) fail('static_scene_semantic_conflict');
+  if (previous && canonical(previous) !== canonical(value)) fail("static_scene_semantic_conflict");
   map.set(identity, value);
 }
 
-function assertVisualFormRenderable(view) {
-  if (view.form !== undefined) fail('edition_visual_form_renderer_unavailable');
+function assertVisualPolicyRenderable(meaning) {
+  if (
+    meaning.editorial?.visualPolicy?.profile !== "neutral" ||
+    (meaning.editorial.visualPolicy.override !== undefined &&
+      meaning.editorial.visualPolicy.override !== null &&
+      meaning.refinement?.media?.static === undefined)
+  )
+    fail("static_scene_visual_policy_unadmitted");
+  if (meaning.editorial.presentation.static.views[0].form !== undefined)
+    fail("edition_visual_form_renderer_unavailable");
 }
 
 function visibleBounds(nodes, edges, groups = []) {
@@ -37,7 +45,7 @@ function visibleBounds(nodes, edges, groups = []) {
   let maxX = -Infinity;
   let maxY = -Infinity;
   const include = (x, y) => {
-    if (!Number.isFinite(x) || !Number.isFinite(y)) fail('static_scene_geometry_invalid');
+    if (!Number.isFinite(x) || !Number.isFinite(y)) fail("static_scene_geometry_invalid");
     minX = Math.min(minX, x);
     minY = Math.min(minY, y);
     maxX = Math.max(maxX, x);
@@ -49,18 +57,18 @@ function visibleBounds(nodes, edges, groups = []) {
   }
   for (const edge of edges) {
     for (const point of edge.points) include(point[0], point[1]);
-    if (Object.hasOwn(edge, 'caption')) {
-      if (!edge.caption || typeof edge.caption !== 'object' || Array.isArray(edge.caption))
-        fail('static_scene_geometry_invalid');
+    if (Object.hasOwn(edge, "caption")) {
+      if (!edge.caption || typeof edge.caption !== "object" || Array.isArray(edge.caption))
+        fail("static_scene_geometry_invalid");
       const box = edge.caption.box;
       if (!box || ![box.x, box.y, box.w, box.h].every(Number.isFinite) || box.w <= 0 || box.h <= 0)
-        fail('static_scene_geometry_invalid');
+        fail("static_scene_geometry_invalid");
       include(box.x, box.y);
       include(box.x + box.w, box.y + box.h);
     }
   }
   for (const group of groups) {
-    if (group.width <= 0 || group.height <= 0) fail('static_scene_geometry_invalid');
+    if (group.width <= 0 || group.height <= 0) fail("static_scene_geometry_invalid");
     include(group.x, group.y);
     include(group.x + group.width, group.y + group.height);
   }
@@ -69,7 +77,7 @@ function visibleBounds(nodes, edges, groups = []) {
 
 function composeClaimScene(meaning, layout) {
   if (layout !== null || meaning.media.static.views.length !== 1)
-    fail('static_scene_composition_ambiguous');
+    fail("static_scene_composition_ambiguous");
   const editorialView = meaning.media.static.views[0];
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
@@ -78,18 +86,18 @@ function composeClaimScene(meaning, layout) {
   const editorialAssertions = [];
   for (const id of editorialView.assertionIds) {
     const assertion = assertions.get(id);
-    if (!assertion) fail('static_scene_assertion_unbound');
-    if (assertion.kind === 'editorial') {
+    if (!assertion) fail("static_scene_assertion_unbound");
+    if (assertion.kind === "editorial") {
       editorialAssertions.push(assertion);
       continue;
     }
     const selected = selections.get(assertion.selection);
-    if (!selected) fail('static_scene_assertion_unbound');
+    if (!selected) fail("static_scene_assertion_unbound");
     const card = claimCard(selected);
     cards.set(claimKey(card), card);
     sourceAssertionCarriers.push({
       assertionId: id,
-      kind: 'claim',
+      kind: "claim",
       selectionId: assertion.selection,
       nodeRefs: [],
       relationRefs: [],
@@ -98,11 +106,13 @@ function composeClaimScene(meaning, layout) {
   }
   const questions = new Map(meaning.questions.map((item) => [item.id, item]));
   return deepFreeze({
-    schema: 'architecture.edition-static-scene/v1',
-    completeness: 'unqualified-scene',
+    schema: "architecture.edition-static-scene/v1",
+    completeness: "unqualified-scene",
     edition: meaning.edition,
     title: meaning.editorial.title,
-    summary: meaning.editorial.narrative.summary,
+    ...(meaning.editorial.narrative.summary === undefined
+      ? {}
+      : { summary: meaning.editorial.narrative.summary }),
     visualPolicy: meaning.editorial.visualPolicy,
     requestedWidth: meaning.editorial.presentation.static.width ?? null,
     editorialViewId: editorialView.id,
@@ -123,48 +133,45 @@ function composeClaimScene(meaning, layout) {
 /** Compose one unqualified static scene from bound assertions and native geometry. */
 export function composeStaticEditionScene(meaning, layout) {
   if (
-    meaning?.completeness !== 'finite-unqualified-obligations' ||
+    meaning?.completeness !== "finite-unqualified-obligations" ||
     !Array.isArray(meaning.native?.selections) ||
     !Array.isArray(meaning.assertions) ||
     !Array.isArray(meaning.media?.static?.views)
   )
-    fail('static_scene_input_invalid');
-  if (meaning.media.static.views.length !== 1) fail('static_scene_composition_ambiguous');
-  if (
-    meaning.editorial?.visualPolicy?.profile !== 'neutral' ||
-    (meaning.editorial.visualPolicy.override !== undefined &&
-      meaning.editorial.visualPolicy.override !== null &&
-      meaning.refinement?.media?.static === undefined)
-  )
-    fail('static_scene_visual_policy_unadmitted');
-  assertVisualFormRenderable(meaning.editorial.presentation.static.views[0]);
+    fail("static_scene_input_invalid");
+  if (meaning.media.static.views.length !== 1) fail("static_scene_composition_ambiguous");
+  assertVisualPolicyRenderable(meaning);
   const claimModelMode = meaning.native.selections.some(
-    ({ format }) => format === 'architecture.claim-model/v2',
+    ({ format }) => format === "architecture.claim-model/v2",
   );
   const authoredGroups = meaning.editorial.presentation.static.views[0].groups;
   if (claimModelMode) {
-    if (meaning.native.selections.some(({ format }) => format !== 'architecture.claim-model/v2'))
-      fail('edition_scene_claim_model_unadmitted');
+    if (meaning.native.selections.some(({ format }) => format !== "architecture.claim-model/v2"))
+      fail("edition_scene_claim_model_unadmitted");
     if (
       selectedStaticSourceSelections(meaning, meaning.media.static.views[0]).every(
-        ({ target }) => target.kind === 'claim',
+        ({ target }) => target.kind === "claim",
       )
     ) {
-      if (authoredGroups !== undefined) fail('static_scene_group_unadmitted');
+      if (authoredGroups !== undefined) fail("static_scene_group_unadmitted");
       return composeClaimScene(meaning, layout);
     }
   }
+  const editorialView = meaning.media.static.views[0];
+  const nativeViews = selectedStaticNativeViews(meaning, editorialView);
+  const viewless = !nativeViews.length;
+  const recomposed = claimModelMode || nativeViews.length !== 1;
   if (
     layout?.closure !==
       (authoredGroups !== undefined
-        ? 'grouped-layout-unqualified'
-        : claimModelMode
-          ? 'flat-layout-unqualified'
-          : 'upstream-layout-unqualified') ||
+        ? "grouped-layout-unqualified"
+        : recomposed
+          ? "flat-layout-unqualified"
+          : "upstream-layout-unqualified") ||
     !Array.isArray(layout.nodes) ||
     !Array.isArray(layout.edges)
   )
-    fail('static_scene_input_invalid');
+    fail("static_scene_input_invalid");
   const groups = authoredGroups === undefined ? [] : layout.groups;
   if (
     authoredGroups !== undefined &&
@@ -182,19 +189,17 @@ export function composeStaticEditionScene(meaning, layout) {
         );
       }))
   )
-    fail('static_scene_group_mismatch');
-  const editorialView = meaning.media.static.views[0];
-  const nativeViews = selectedStaticNativeViews(meaning, editorialView);
-  if (nativeViews.length !== (claimModelMode ? 0 : 1)) fail('static_scene_composition_ambiguous');
+    fail("static_scene_group_mismatch");
+  if (claimModelMode && !viewless) fail("static_scene_composition_ambiguous");
   const nativeView = nativeViews[0];
-  if (claimModelMode) {
-    if (layout.view !== null) fail('static_scene_native_membership_mismatch');
+  if (nativeViews.length !== 1) {
+    if (layout.view !== null) fail("static_scene_native_membership_mismatch");
   } else if (
     layout.view?.namespace !== nativeView.source.namespace ||
     layout.view?.id !== nativeView.target.id ||
     layout.view?.sha256 !== nativeView.source.sha256
   )
-    fail('static_scene_native_membership_mismatch');
+    fail("static_scene_native_membership_mismatch");
   if (
     groups.some((group) =>
       group.elements.some((element) => {
@@ -209,7 +214,7 @@ export function composeStaticEditionScene(meaning, layout) {
       }),
     )
   )
-    fail('static_scene_group_mismatch');
+    fail("static_scene_group_mismatch");
 
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
@@ -218,21 +223,23 @@ export function composeStaticEditionScene(meaning, layout) {
         editorialView,
         assertions,
         selections,
-        'static_scene_claim_relation_unbound',
+        "static_scene_claim_relation_unbound",
       )
     : null;
-  const structural = claimModelMode
+  const structural = recomposed
     ? editorialView.assertionIds
         .map((id) => assertions.get(id))
-        .filter((assertion) => assertion?.kind === 'source')
+        .filter((assertion) => assertion?.kind === "source")
         .map(({ selection }) => selections.get(selection))
-        .filter((selected) => ['entity', 'relation'].includes(selected?.target.kind))
+        .filter((selected) =>
+          ["entity", "element", "relation", "view"].includes(selected?.target.kind),
+        )
     : [nativeView];
   const semanticNodes = new Map();
   const semanticRelations = new Map();
   for (const selected of structural) {
     if (!Array.isArray(selected?.members?.elements) || !Array.isArray(selected.members.relations))
-      fail('static_scene_assertion_unbound');
+      fail("static_scene_assertion_unbound");
     for (const node of selected.members.elements) addBound(semanticNodes, key(node), node);
     for (const relation of selected.members.relations)
       addBound(semanticRelations, memberRelationKey(relation), relation);
@@ -244,19 +251,19 @@ export function composeStaticEditionScene(meaning, layout) {
   const editorialAssertions = [];
   for (const id of editorialView.assertionIds) {
     const assertion = assertions.get(id);
-    if (!assertion) fail('static_scene_assertion_unbound');
-    if (assertion.kind === 'editorial') {
+    if (!assertion) fail("static_scene_assertion_unbound");
+    if (assertion.kind === "editorial") {
       editorialAssertions.push(assertion);
       continue;
     }
     const selected = selections.get(assertion.selection);
-    if (!selected) fail('static_scene_assertion_unbound');
-    if (claimModelMode && selected.target.kind === 'claim') {
+    if (!selected) fail("static_scene_assertion_unbound");
+    if (claimModelMode && selected.target.kind === "claim") {
       const card = claimCard(selected);
       addBound(cards, claimKey(card), card);
       sourceAssertionCarriers.push({
         assertionId: id,
-        kind: 'claim',
+        kind: "claim",
         selectionId: assertion.selection,
         nodeRefs: [],
         relationRefs: [],
@@ -266,13 +273,13 @@ export function composeStaticEditionScene(meaning, layout) {
     }
     const nodeRefs = selected.members.elements.map((node) => {
       const identity = key(node);
-      if (!semanticNodes.has(identity)) fail('static_scene_assertion_unbound');
+      if (!semanticNodes.has(identity)) fail("static_scene_assertion_unbound");
       requiredNodes.add(identity);
       return { namespace: node.namespace, id: node.id };
     });
     const relationRefs = selected.members.relations.map((relation) => {
       const identity = memberRelationKey(relation);
-      if (!semanticRelations.has(identity)) fail('static_scene_assertion_unbound');
+      if (!semanticRelations.has(identity)) fail("static_scene_assertion_unbound");
       requiredRelations.add(identity);
       return {
         namespace: relation.origin.namespace,
@@ -311,7 +318,7 @@ export function composeStaticEditionScene(meaning, layout) {
         }),
     )
   )
-    fail('static_scene_native_membership_mismatch');
+    fail("static_scene_native_membership_mismatch");
 
   const selectedNodes = layout.nodes
     .filter((node) => requiredNodes.has(key(node)))
@@ -333,7 +340,7 @@ export function composeStaticEditionScene(meaning, layout) {
       const identities = edge.relations.map(relationKey);
       if (identities.some((identity) => requiredRelations.has(identity))) {
         if (identities.some((identity) => !requiredRelations.has(identity)))
-          fail('static_scene_aggregate_unrepresentable');
+          fail("static_scene_aggregate_unrepresentable");
         return true;
       }
       return false;
@@ -345,10 +352,10 @@ export function composeStaticEditionScene(meaning, layout) {
         return {
           ...relation,
           label: claimModelMode
-            ? claimRelationLabel(semantic, 'static_scene_relation_qualifiers_invalid')
+            ? claimRelationLabel(semantic, "static_scene_relation_qualifiers_invalid")
             : semantic.label,
           kind: semantic.kind,
-          direction: claimModelMode ? 'forward' : semantic.direction,
+          direction: claimModelMode ? "forward" : semantic.direction,
           origin: semantic.origin,
         };
       }),
@@ -356,19 +363,21 @@ export function composeStaticEditionScene(meaning, layout) {
   const questions = new Map(meaning.questions.map((item) => [item.id, item]));
   const staticRefinement = meaning.refinement?.media?.static;
   return deepFreeze({
-    schema: 'architecture.edition-static-scene/v1',
-    completeness: 'unqualified-scene',
+    schema: "architecture.edition-static-scene/v1",
+    completeness: "unqualified-scene",
     edition: meaning.edition,
     title: meaning.editorial.title,
-    summary: meaning.editorial.narrative.summary,
+    ...(meaning.editorial.narrative.summary === undefined
+      ? {}
+      : { summary: meaning.editorial.narrative.summary }),
     visualPolicy: meaning.refinement
       ? neutralFigurePolicy(meaning.editorial.visualPolicy)
       : meaning.editorial.visualPolicy,
-    ...(staticRefinement && staticRefinement.kind !== 'neutral'
+    ...(staticRefinement && staticRefinement.kind !== "neutral"
       ? {
           refinement: {
             schema: meaning.refinement.schema,
-            decisionSha256: createHash('sha256').update(canonical(staticRefinement)).digest('hex'),
+            decisionSha256: createHash("sha256").update(canonical(staticRefinement)).digest("hex"),
           },
         }
       : {}),

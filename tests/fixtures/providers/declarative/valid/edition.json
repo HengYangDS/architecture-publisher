@@ -1,8 +1,7 @@
 {
-  "schema": "architecture.edition/v1",
+  "schema": "architecture.edition/v2",
   "id": "example-system",
   "owner": "example:system",
-  "class": "structural",
   "product": {
     "name": "Architecture Publisher",
     "schema": "architecture.publisher/v1",
@@ -90,7 +89,98 @@
     "accessibility": ["keyboard-and-reduced-motion"],
     "installed": ["offline-reproduction"],
     "recovery": [],
-    "human": []
+    "human": [
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "overview-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "overview",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "faithful",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "runtime",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "overview-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "overview",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "intelligible",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "runtime",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "aesthetic",
+        "scope": {
+          "kind": "physical",
+          "medium": "static",
+          "artifact": "overview-png",
+          "width": 6000,
+          "height": 3375
+        }
+      },
+      {
+        "predicate": "aesthetic",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "overview",
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      {
+        "predicate": "aesthetic",
+        "scope": {
+          "kind": "viewport",
+          "medium": "interactive",
+          "artifact": "runtime",
+          "width": 1440,
+          "height": 1000
+        }
+      }
+    ]
   },
-  "scope": "Structural fixture; no aesthetic approval."
+  "scope": "Protocol fixture with mandatory review duties; no aesthetic approval."
 }

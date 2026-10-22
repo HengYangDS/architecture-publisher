@@ -1,14 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
   "diagram_type": "lifecycle",
   "meta": {
     "title": "Durable job lifecycle",
     "locale": "en",
     "quality_profile": "showcase",
-    "viewBox": [
-      1080,
-      680
-    ],
     "views": [
       {
         "id": "retry",
@@ -21,104 +17,102 @@
       }
     ]
   },
-  "lanes": [
-    {
-      "id": "main",
-      "label": "Job progression"
-    },
-    {
-      "id": "waiting",
-      "label": "Recovery event"
-    },
-    {
-      "id": "terminal",
-      "label": "Failed outcome"
-    }
+  "mainPath": [
+    "accepted",
+    "ready",
+    "run",
+    "result",
+    "done"
   ],
   "states": [
     {
       "id": "accepted",
       "type": "start",
       "label": "Accepted",
-      "lane": "main",
-      "col": 0,
-      "sublabel": "Request recorded"
+      "sublabel": "Request recorded",
+      "tag": "Job progression"
     },
     {
       "id": "ready",
       "type": "active",
       "label": "Ready",
-      "lane": "main",
-      "col": 1,
-      "sublabel": "Capacity available"
+      "sublabel": "Capacity available",
+      "tag": "Job progression"
     },
     {
       "id": "run",
       "type": "active",
       "label": "Running",
-      "lane": "main",
-      "col": 2,
-      "sublabel": "Attempt in progress"
+      "sublabel": "Attempt in progress",
+      "tag": "Job progression"
     },
     {
       "id": "result",
       "type": "decision",
       "label": "Result",
-      "lane": "main",
-      "col": 3,
-      "sublabel": "Outcome classified"
+      "sublabel": "Outcome classified",
+      "tag": "Job progression"
     },
     {
       "id": "done",
       "type": "success",
       "label": "Complete",
-      "lane": "main",
-      "col": 4,
-      "sublabel": "Output durable"
+      "sublabel": "Output durable",
+      "tag": "Job progression"
     },
     {
       "id": "wait",
       "type": "waiting",
       "label": "Retry wait",
-      "lane": "waiting",
-      "col": 0,
-      "sublabel": "Transient failure"
+      "sublabel": "Transient failure",
+      "tag": "Recovery event"
     },
     {
       "id": "failed",
       "type": "failure",
       "label": "Failed",
-      "lane": "terminal",
-      "col": 1,
-      "sublabel": "Permanent failure"
+      "sublabel": "Permanent failure",
+      "tag": "Failed outcome"
     }
   ],
   "transitions": [
     {
+      "id": "phase-ready",
+      "from": "accepted",
+      "to": "ready"
+    },
+    {
+      "id": "phase-run",
+      "from": "ready",
+      "to": "run"
+    },
+    {
+      "id": "phase-result",
+      "from": "run",
+      "to": "result"
+    },
+    {
+      "id": "phase-done",
+      "from": "result",
+      "to": "done"
+    },
+    {
       "id": "transient",
       "from": "run",
       "to": "wait",
-      "variant": "dashed",
-      "fromSide": "bottom",
-      "toSide": "top"
+      "variant": "dashed"
     },
     {
       "id": "retry",
       "from": "wait",
       "to": "run",
-      "variant": "emphasis",
-      "fromSide": "left",
-      "toSide": "left",
-      "route": "left-channel",
-      "channelX": 326
+      "variant": "emphasis"
     },
     {
       "id": "permanent",
       "from": "result",
       "to": "failed",
-      "variant": "security",
-      "fromSide": "bottom",
-      "toSide": "top"
+      "variant": "security"
     }
   ],
   "cards": [

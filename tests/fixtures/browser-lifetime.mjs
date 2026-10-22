@@ -10,11 +10,11 @@ export function browserLifetime(testContext) {
     defer: resources.defer.bind(resources),
     async acquire(create) {
       testContext.signal?.throwIfAborted();
-      if (lifetime.disposed) throw new Error('Browser lifetime has ended');
+      if (lifetime.disposed) throw new Error("Browser lifetime has ended");
       let transferred = false;
       const acquisition = Promise.resolve().then(() => {
         testContext.signal?.throwIfAborted();
-        if (lifetime.disposed) throw new Error('Browser lifetime has ended');
+        if (lifetime.disposed) throw new Error("Browser lifetime has ended");
         return create();
       });
       pending.defer(async () => {
@@ -31,7 +31,7 @@ export function browserLifetime(testContext) {
       });
       const resource = await acquisition;
       testContext.signal?.throwIfAborted();
-      if (lifetime.disposed) throw new Error('Browser lifetime has ended');
+      if (lifetime.disposed) throw new Error("Browser lifetime has ended");
       resources.use(resource);
       transferred = true;
       return resource;

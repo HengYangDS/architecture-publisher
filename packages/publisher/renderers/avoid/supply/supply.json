@@ -1,0 +1,28 @@
+{
+  "schema": "architecture.geometry-supply/v1",
+  "packages": [
+    {
+      "name": "libavoid-js",
+      "version": "0.4.5",
+      "license": "LGPL-2.1-or-later",
+      "integrity": "sha512-9BrYRXAQ+nmLuHZSqf4z52YN8TroBPxyqo6A6h6Pj03j5UYNx/Hhnd/rg+kiLVrE76wzBeBVO3OW7kaEpzYC9Q=="
+    }
+  ],
+  "files": [
+    {
+      "path": "router.mjs",
+      "bytes": 76344,
+      "sha256": "7c15e8ea6e2559c546c0a19cbed6a7f31a19c872ad9eee1febedeed7bc4c509c"
+    },
+    {
+      "path": "libavoid.wasm",
+      "bytes": 485460,
+      "sha256": "d17aa83a84896e65b15f4453913dac00953f4f698c7c271d43c5e93ea9ac16ac"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 26527,
+      "sha256": "6da7ddf40cfea6f568961825b14478e879875f6ad033fad57889ae5bd52103f4"
+    }
+  ]
+}

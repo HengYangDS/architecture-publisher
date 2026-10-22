@@ -268,3 +268,152 @@ bytes unless their exact selected supply binding is refreshed.
 
 - **WHEN** a notice location or digest disagrees with the selected manifest
 - **THEN** source-supply qualification rejects the disagreement
+
+### Requirement: Static views compose one faithful figure
+
+Selected static views SHALL yield one complete-page SVG and PNG, each retaining
+questions, assertions, reader-question limits, source-status qualifiers and
+graphic-carrier bindings. Views SHALL remain distinct without inventing
+cross-view relations or transferring claims or acceptance. Text, structural
+marks, annotation and decoration SHALL fit without clipping, occlusion, overlap
+or inadequate clearance. Missing carriers fail before Candidate; graph-only
+layout success is insufficient.
+
+#### Scenario: Two static views answer distinct questions
+
+- **WHEN** an Edition selects two static views with distinct questions and
+  source assertions, including one source entity present in both views
+- **THEN** one static SVG and PNG visibly distinguish both views and retain
+  each view's own assertion-to-graphic carriers and limits
+- **AND** no edge or endorsement is inferred merely from the shared entity
+
+#### Scenario: Claim Model structure has no authored groups
+
+- **WHEN** a static view selects Claim Model entities or relations and the
+  editor declares no visual groups
+- **THEN** Publisher uses its selected bounded structural geometry to render
+  every required entity, relation, direction, and qualifier without inventing
+  group membership or printing a reading-group key
+- **AND** unsupported or infeasible geometry fails before Candidate rather
+  than requiring a dummy authored group or dropping a source assertion
+
+#### Scenario: One neutral raw-structure view retains the complete figure grammar
+
+- **WHEN** exactly one unrefined static view selects source entities or
+  relations without selecting Claim cards for that view
+- **THEN** its question leads one complete figure containing its exact graph,
+  relation explanation, source status, and declared limits
+- **AND** absence of authored groups does not switch to a separate side-rail
+  composition or imply that an unreviewed result is visually accepted
+- **AND** a selected upstream authored view without editorial groups retains
+  its source-view composition instead of being mistaken for raw structure
+
+#### Scenario: Neutral peer nodes have unequal label lengths
+
+- **WHEN** the selected Dagre adapter composes source nodes with different
+  label lengths in one structural view
+- **THEN** it measures one sufficient node width for that view, rounds the
+  box to its 32-unit grid, and gives every peer the same width and height
+- **AND** same-rank left edges align while relations and captions are routed
+  against the resulting boxes, not the former varying widths
+- **AND** a regular-row Dagre candidate is preferred when every caption clears
+  every route; a caption-clearance failure may select the balanced Dagre
+  candidate, with its own routes and captions recomputed
+- **AND** if neither candidate clears its captions, composition fails rather
+  than shrinking text or moving nodes after layout without updating edges
+
+#### Scenario: Method evidence does not become figure copy
+
+- **WHEN** an Edition's selected source and compiler have method or
+  dependency-closure limitations that do not alter a promised reader answer
+- **THEN** the static SVG and PNG retain reader-question limits and source
+  status without printing raw method-limit identifiers as a diagnostic ledger
+- **AND** the Candidate retains the exact limitations for inspection and
+  qualification, without implying that their absence from the art clears them
+
+#### Scenario: An unsupported construct affects the answer
+
+- **WHEN** a selected reader question depends on source meaning that its
+  admitted interpreter cannot preserve
+- **THEN** compilation fails before Candidate rather than suppressing the
+  limitation in the figure and claiming complete coverage
+
+#### Scenario: A view forbids two selected members in one visual group
+
+- **WHEN** its Edition declares a reasoned forbidden pair of source-qualified
+  members and an authored group contains both
+- **THEN** Publisher rejects that medium before layout
+- **AND** an unselected or duplicate unordered pair fails rather than being
+  treated as source authority or silently ignored
+
+#### Scenario: One authored static canvas covers ordered views
+
+- **WHEN** an editor selects one data-only authored static scene for two or
+  more ordered static views
+- **THEN** Publisher binds the complete scene to the union of their selected
+  source assertions and retains each view's own assertion attribution
+- **AND** the scene is rendered through the ordinary static SVG and PNG path,
+  not accepted as pre-rendered media
+- **AND** absent, duplicated, or extra source meaning fails rather than being
+  repaired by dropping a view, forging a cross-view relation, or reusing an
+  unrelated graphic carrier
+
+#### Scenario: Authored static wording retains source identity
+
+- **WHEN** an authored canvas changes visible wording while retaining the same
+  source-qualified graphic bindings
+- **THEN** the Candidate declares authored text meaning unverified
+- **AND** exact membership and geometry checks do not certify the wording as a
+  source assertion or turn the unqualified Candidate into accepted media
+
+#### Scenario: A structural overview does not inherit sibling Claim coverage
+
+- **WHEN** a static view selects source entities and relations but no Claim
+  facts, while interactive views select the source Claim facts
+- **THEN** the static figure binds and renders its selected structural
+  assertions without claiming to paint the unselected Claim facts
+- **AND** interactive Claim coverage cannot be transferred to the static
+  figure or treated as a shared approval
+
+#### Scenario: A selected relation supplies its endpoint members
+
+- **WHEN** an authored static canvas selects a source relation without separate
+  entity selections for its exact endpoints
+- **THEN** Publisher admits those source-bound endpoint members as visible
+  nodes without requiring duplicate Edition selections
+- **AND** an unrelated or source-inconsistent entity still fails
+
+#### Scenario: One static view cannot be represented
+
+- **WHEN** any selected static view cannot fit without structural loss or
+  overlap in the composed figure
+- **THEN** no complete static Candidate is emitted
+- **AND** Publisher does not silently drop or shrink that view to force a pass
+
+#### Scenario: Text clearance dimensions remain distinct
+
+- **WHEN** a source-selected quality rule specifies clearance between text and
+  non-owner geometry but does not specify a text-to-text gap
+- **THEN** the scene audit applies that distance only to the selected geometry
+  predicate and still rejects actual glyph overlap
+- **AND** it does not infer the same numeric distance for text pairs
+- **AND** a successor authored canvas retains its separately selected
+  text-to-text clearance floor
+
+#### Scenario: Editorial groups interleave in causal placement
+
+- **WHEN** a source-authorized static view assigns each selected node to one
+  editorial group but a compact causal layout interleaves those groups
+- **THEN** Publisher preserves every group label and exact member list in a
+  reading key outside the causal graph
+- **AND** it does not paint a floating group heading or enclosure that could
+  imply a different membership or invent a source relation
+- **AND** missing, duplicate, or visually ambiguous members fail with a named
+  diagnostic rather than being omitted or silently reassigned
+
+#### Scenario: Compactness conflicts with legibility
+
+- **WHEN** two layouts carry the same selected assertions and one reduces
+  empty area only by shrinking text or increasing collisions or crossings
+- **THEN** Publisher does not choose that layout solely for its smaller canvas
+- **AND** human review of visual hierarchy and unused space remains required

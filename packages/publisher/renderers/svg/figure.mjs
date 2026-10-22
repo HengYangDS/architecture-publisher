@@ -1,78 +1,18 @@
-import { fail } from '../../src/protocol/values.mjs';
-import { editorialFraming } from '../../src/scene/framing.mjs';
+import { fail } from "../../src/protocol/values.mjs";
+import { editorialFraming } from "../../src/scene/framing.mjs";
 import {
   SOURCE_REPORTED_TOPOLOGY_NOTE,
   UNLINKED_RELATION_NOTE,
-} from '../../src/scene/claim-relations.mjs';
-import { escapeStaticText as escape, wrapStaticText as wrap } from './text.mjs';
+} from "../../src/scene/claim-relations.mjs";
+import { escapeStaticText as escape, wrapStaticText as wrap } from "./text.mjs";
+import { checkedViews } from "./figure-contract.mjs";
+import { selectMeasuredComposition } from "./composition.mjs";
 
 const margin = 54;
 const gutter = 42;
 const maximum = 12_000;
-const sourceWidthLimit = 2_600;
 const bodyLeading = 26;
 const number = (value) => Number(value.toFixed(2));
-
-function validGroups(groups) {
-  if (!Array.isArray(groups)) return false;
-  const ids = new Set();
-  const labels = new Set();
-  const members = new Set();
-  for (const group of groups) {
-    if (
-      typeof group?.id !== 'string' ||
-      !group.id ||
-      ids.has(group.id) ||
-      typeof group.label !== 'string' ||
-      !group.label.trim() ||
-      labels.has(group.label) ||
-      !Array.isArray(group.members) ||
-      !group.members.length
-    )
-      return false;
-    ids.add(group.id);
-    labels.add(group.label);
-    for (const member of group.members) {
-      if (typeof member !== 'string' || !member.trim() || members.has(member)) return false;
-      members.add(member);
-    }
-  }
-  return true;
-}
-
-function checkedViews(views) {
-  if (!Array.isArray(views) || views.length < 1 || views.length > 256)
-    fail('static_figure_views_invalid');
-  const ids = new Set();
-  return views.map(({ id, scene, rendered }) => {
-    const parts = rendered?.parts;
-    if (
-      typeof id !== 'string' ||
-      !/^[a-z][a-z0-9-]*$/u.test(id) ||
-      ids.has(id) ||
-      scene?.editorialViewId !== id ||
-      !Array.isArray(scene.questions) ||
-      !scene.questions.length ||
-      scene.questions.some(({ text }) => typeof text !== 'string' || !text.trim()) ||
-      typeof parts?.graph !== 'string' ||
-      (scene.nodes?.length &&
-        (!parts.figureTypes ||
-          typeof parts.figureTypes.markup !== 'string' ||
-          ![parts.figureTypes.width, parts.figureTypes.height].every(Number.isFinite))) ||
-      !validGroups(parts.groups) ||
-      !Array.isArray(parts.relations) ||
-      (parts.claim !== null &&
-        (typeof parts.claim?.markup !== 'string' ||
-          ![parts.claim.x, parts.claim.y, parts.claim.width, parts.claim.height].every(
-            Number.isFinite,
-          ))) ||
-      !Number.isSafeInteger(rendered.rasterWidth)
-    )
-      fail('static_figure_views_invalid');
-    ids.add(id);
-    return { id, scene, rendered, parts };
-  });
-}
 
 function wrapped(output, value, x, y, width, size, color, weight = 400, limit = 12) {
   const lines = wrap(value, width, size, limit);
@@ -92,14 +32,14 @@ function section(output, heading, items, width, y) {
   y += 38;
   for (const item of items) {
     const lines = wrap(item.text, width, 14, 5);
-    output.push('<g>');
+    output.push("<g>");
     for (const line of lines) {
       output.push(
         `<text x="0" y="${number(y)}" fill="#27352e" font-size="14">${escape(line)}</text>`,
       );
       y += bodyLeading;
     }
-    output.push('</g>');
+    output.push("</g>");
     y += 9;
   }
   return y + 10;
@@ -117,7 +57,7 @@ function readingGroupKey(output, groups, width, y) {
   for (let start = 0; start < groups.length; start += columns) {
     const row = groups
       .slice(start, start + columns)
-      .map(({ label, members }) => wrap(`${label}: ${members.join(' · ')}`, columnWidth, 14, 4));
+      .map(({ label, members }) => wrap(`${label}: ${members.join(" · ")}`, columnWidth, 14, 4));
     for (const [column, lines] of row.entries()) {
       const x = column * (columnWidth + columnGap);
       for (const [index, line] of lines.entries())
@@ -131,9 +71,10 @@ function readingGroupKey(output, groups, width, y) {
 }
 
 function relationColumns(items, width) {
-  const candidates = [1, 2]
-    .filter((columns) => columns === 1 || (width >= 760 && items.length > 1))
-    .map((columns) => {
+  const candidates = [];
+  for (const columns of [1, 2]) {
+    if (columns === 2 && (width < 760 || items.length < 2)) continue;
+    try {
       const columnWidth = (width - (columns - 1) * 28) / columns;
       const measured = items.map((item) => {
         const lines = wrap(item.text, columnWidth, 14, 5);
@@ -157,14 +98,18 @@ function relationColumns(items, width) {
         column: index < split ? 0 : 1,
         y: index < split ? prefix[index] : prefix[index] - prefix[split],
       }));
-      return {
+      candidates.push({
         entries,
         columns,
         columnWidth,
         height:
           columns === 1 ? prefix.at(-1) : Math.max(prefix[split], prefix.at(-1) - prefix[split]),
-      };
-    });
+      });
+    } catch (cause) {
+      if (cause?.code !== "static_edition_text_unrepresentable") throw cause;
+    }
+  }
+  if (!candidates.length) fail("static_edition_text_unrepresentable");
   return candidates.sort((a, b) => a.height - b.height || a.columns - b.columns)[0];
 }
 
@@ -174,7 +119,7 @@ function sourceStatus(scene) {
     (scene.claimRelationLinks ?? []).map(({ relationAssertionId }) => relationAssertionId),
   );
   const unlinked = scene.sourceAssertionCarriers.some(
-    ({ assertionId, kind }) => kind === 'relation' && !linked.has(assertionId),
+    ({ assertionId, kind }) => kind === "relation" && !linked.has(assertionId),
   );
   if (!unlinked) return null;
   return scene.claimCards.length ? UNLINKED_RELATION_NOTE : SOURCE_REPORTED_TOPOLOGY_NOTE;
@@ -189,38 +134,52 @@ function sharedNotes(views, width) {
   }
   const attributed = (entries) =>
     [...entries].map(([text, ids]) => ({
-      text: ids.size === views.length ? text : `${[...ids].join(', ')}: ${text}`,
+      text: ids.size === views.length ? text : `${[...ids].join(", ")}: ${text}`,
     }));
   const output = [];
   let y = 0;
-  y = section(output, 'SOURCE STATUS', attributed(status), width, y);
-  return { markup: output.join('\n'), height: y };
+  y = section(output, "SOURCE STATUS", attributed(status), width, y);
+  return { markup: output.join("\n"), height: y };
 }
 
 function panel(view, width, options = {}) {
   const { scene, parts } = view;
   const notesWidth = options.notesWidth ?? width;
-  if (notesWidth < 320 || notesWidth > width) fail('static_figure_width_unrepresentable');
+  if (notesWidth < 320 || notesWidth > width) fail("static_figure_width_unrepresentable");
+  const beside = options.claimPlacement === "beside-source";
   const output = [];
   let y = 0;
   for (const question of scene.questions)
-    y = wrapped(output, question.text, 0, y + 19, width, 18, '#21332a', 600, 4) + 8;
+    y = wrapped(output, question.text, 0, y + 19, width, 18, "#21332a", 600, 4) + 8;
   y += 22;
   const graphStart = y;
   if (parts.bounds) {
     const { bounds } = parts;
-    const graphAreaWidth = options.graphAlign === 'local-center' ? notesWidth : width;
+    const graphAreaWidth = beside
+      ? bounds.width
+      : options.graphAlign === "local-center"
+        ? notesWidth
+        : width;
     const graphX = (graphAreaWidth - bounds.width) / 2;
-    if (graphX < 0) fail('static_figure_width_unrepresentable');
+    if (graphX < 0) fail("static_figure_width_unrepresentable");
     output.push(
       `<g transform="translate(${number(graphX - bounds.x)} ${number(y - bounds.y)})">`,
       parts.graph,
-      '</g>',
+      "</g>",
     );
     y += bounds.height + 28;
   }
+  if (beside) {
+    const claim = parts.claim;
+    const x = parts.bounds.width + gutter;
+    output.push(
+      `<text x="${number(x)}" y="${number(graphStart + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE CLAIMS</text>`,
+      `<g data-claim-placement="beside-source" transform="translate(${number(x - claim.x)} ${number(graphStart + 30 - claim.y)})">${claim.markup}</g>`,
+    );
+    y = Math.max(y, graphStart + 30 + claim.height + 20);
+  }
   if (parts.figureTypes) {
-    if (parts.figureTypes.width > width) fail('static_figure_width_unrepresentable');
+    if (parts.figureTypes.width > width) fail("static_figure_width_unrepresentable");
     output.push(`<g transform="translate(0 ${number(y)})">${parts.figureTypes.markup}</g>`);
     y += parts.figureTypes.height + 14;
   }
@@ -229,19 +188,19 @@ function panel(view, width, options = {}) {
   if (parts.relations.length) {
     const context = parts.relations[0].context;
     const sharedContext =
-      typeof context === 'string' &&
+      typeof context === "string" &&
       context.trim() &&
       parts.relations.every((item) => item.context === context);
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE RELATIONS</text>`,
     );
     y += 38;
-    if (sharedContext) y = wrapped(output, context, 0, y, notesWidth, 12, '#66736b') + 8;
+    if (sharedContext) y = wrapped(output, context, 0, y, notesWidth, 12, "#66736b") + 8;
     const items = sharedContext
       ? parts.relations.map((item) => {
           const marker = ` · ${context}: `;
           const index = item.text.lastIndexOf(marker);
-          if (index < 0) fail('static_figure_relation_context_invalid');
+          if (index < 0) fail("static_figure_relation_context_invalid");
           return {
             ...item,
             text: `${item.text.slice(0, index)} · ${item.text.slice(index + marker.length)}`,
@@ -256,13 +215,13 @@ function panel(view, width, options = {}) {
         output.push(
           `<text x="${number(x)}" y="${number(y + item.y + index * bodyLeading)}" fill="#27352e" font-size="14">${escape(line)}</text>`,
         );
-      output.push('</g>');
+      output.push("</g>");
     }
     y += columns.height + 10;
   }
-  if (parts.claim) {
+  if (parts.claim && !beside) {
     const claim = parts.claim;
-    if (claim.width > width || claim.height <= 0) fail('static_figure_claim_unrepresentable');
+    if (claim.width > width || claim.height <= 0) fail("static_figure_claim_unrepresentable");
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE CLAIMS</text>`,
     );
@@ -270,13 +229,13 @@ function panel(view, width, options = {}) {
     output.push(
       `<g transform="translate(${number((width - claim.width) / 2 - claim.x)} ${number(y - claim.y)})">`,
       claim.markup,
-      '</g>',
+      "</g>",
     );
     y += claim.height + 20;
   }
   y = section(
     output,
-    'DECLARED LIMITS',
+    "DECLARED LIMITS",
     Object.values(scene.limitsByQuestion)
       .flat()
       .map(({ reason }) => ({ text: reason })),
@@ -285,56 +244,34 @@ function panel(view, width, options = {}) {
   );
   y = section(
     output,
-    'EDITORIAL ASSERTIONS',
+    "EDITORIAL ASSERTIONS",
     scene.editorialAssertions.map(({ statement, proponent }) => ({
       text: `${statement} · Editorial judgment · ${proponent} · unverified`,
     })),
     notesWidth,
     y,
   );
-  return { markup: output.join('\n'), height: Math.ceil(y), graphStart, notesStart };
+  const result = { markup: output.join("\n"), height: Math.ceil(y), graphStart, notesStart };
+  if (
+    options.claimPlacement === undefined &&
+    parts.bounds &&
+    parts.claim &&
+    parts.bounds.width + gutter + parts.claim.width <= width
+  ) {
+    const alternative = panel(view, width, { ...options, claimPlacement: "beside-source" });
+    if (alternative.height < result.height) return alternative;
+  }
+  return result;
 }
 
 /** Compose scene parts on one canvas; a completed page is not a panel primitive. */
-export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
-  const selected = checkedViews(views);
-  const editor = selected[0].scene.edition?.editor;
-  if (
-    typeof editor !== 'string' ||
-    !editor.trim() ||
-    selected.some(({ scene }) => scene.edition?.editor !== editor)
-  )
-    fail('static_figure_editor_ambiguous');
-  const framing = editorialFraming(editor);
-  if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > maximum)
-    fail('static_figure_width_invalid');
-  const available = Math.min(sourceWidthLimit, rasterWidth) - 2 * margin;
-  const minimumWidths = selected.map(({ parts }) =>
-    Math.max(620, Math.ceil(parts.bounds?.width ?? 0), Math.ceil(parts.claim?.width ?? 0)),
-  );
-  const even = Math.max(...minimumWidths.filter((_, index) => index % 2 === 0));
-  const odd = Math.max(...minimumWidths.filter((_, index) => index % 2 === 1));
-  let columns = selected.length > 1 && even + odd + gutter <= available ? 2 : 1;
-  let widths = columns === 2 ? [even, odd] : [Math.max(...minimumWidths)];
-  let painted = selected.map((view, index) => panel(view, widths[index % columns]));
-  if (columns === 2 && selected.length === 2) {
-    const shorter = painted[0].height <= painted[1].height ? 0 : 1;
-    const unused = Math.max(
-      0,
-      Math.abs(painted[0].height - painted[1].height) -
-        sharedNotes(selected, widths[shorter]).height -
-        32,
-    );
-    if (unused / Math.max(...painted.map(({ height }) => height)) > 0.35) {
-      columns = 1;
-      widths = [Math.max(...minimumWidths)];
-      painted = selected.map((view) => panel(view, widths[0]));
-    }
-  }
+function paintFigure(selected, widths, { title, summary, rasterWidth, framing }) {
+  const columns = widths.length;
+  const painted = selected.map((view, index) => panel(view, widths[index % columns]));
   const width = Math.ceil(
     widths.reduce((sum, value) => sum + value, 0) + (columns - 1) * gutter + 2 * margin,
   );
-  if (width > sourceWidthLimit || width > rasterWidth) fail('static_figure_width_unrepresentable');
+  if (width > rasterWidth) fail("static_figure_width_unrepresentable");
   let sharedSidecar = null;
   if (columns === 1 && !selected.at(-1).parts.claim) {
     const index = selected.length - 1;
@@ -342,7 +279,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     const stackedHeight = painted[index].height + (common.height ? 25 + common.height : 0);
     for (const asideWidth of [360, 420, 480, 540]) {
       const localWidth = widths[0] - asideWidth - gutter;
-      if (localWidth < 620) continue;
+      if (localWidth < Math.max(320, selected[index].parts.bounds?.width ?? 0)) continue;
       let aside;
       let item;
       try {
@@ -350,7 +287,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
         const graphFits = (selected[index].parts.bounds?.width ?? Infinity) <= localWidth;
         item = panel(selected[index], widths[0], {
           notesWidth: localWidth,
-          graphAlign: graphFits ? 'local-center' : 'center',
+          graphAlign: graphFits ? "local-center" : "center",
         });
         const asideY = graphFits ? item.graphStart : item.notesStart;
         item.height = Math.max(item.height, Math.ceil(asideY + aside.height + 20));
@@ -361,7 +298,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
         )
           sharedSidecar = { index, localWidth, asideWidth, asideY, aside, item };
       } catch (cause) {
-        if (cause?.code !== 'static_edition_text_unrepresentable') throw cause;
+        if (cause?.code !== "static_edition_text_unrepresentable") throw cause;
       }
     }
     if (sharedSidecar) painted[index] = sharedSidecar.item;
@@ -369,11 +306,12 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
 
   const content = [];
   let headerY = margin + 31;
-  headerY = wrapped(content, title, margin, headerY, width - 2 * margin, 32, '#21332a', 600, 2) + 4;
+  headerY = wrapped(content, title, margin, headerY, width - 2 * margin, 32, "#21332a", 600, 2) + 4;
+  if (summary !== undefined)
+    headerY =
+      wrapped(content, summary, margin, headerY, width - 2 * margin, 15, "#53645a", 400, 5) + 4;
   headerY =
-    wrapped(content, summary, margin, headerY, width - 2 * margin, 15, '#53645a', 400, 5) + 4;
-  headerY =
-    wrapped(content, framing, margin, headerY, width - 2 * margin, 12, '#66736b', 400, 5) + 16;
+    wrapped(content, framing, margin, headerY, width - 2 * margin, 12, "#66736b", 400, 5) + 16;
   content.push(
     `<line x1="${margin}" y1="${number(headerY)}" x2="${number(width - margin)}" y2="${number(headerY)}" stroke="#c4ccc2" stroke-width="1"/>`,
   );
@@ -389,7 +327,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
       content.push(
         `<g data-static-view="${escape(selected[index].id)}" transform="translate(${number(x)} ${number(rowY)})">`,
         item.markup,
-        '</g>',
+        "</g>",
       );
       placements.push({
         id: selected[index].id,
@@ -414,7 +352,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
         `<g data-common-sidecar="true" transform="translate(${number(x)} ${number(y)})">`,
         `<line x1="${-gutter / 2}" y1="0" x2="${-gutter / 2}" y2="${number(sharedSidecar.aside.height)}" stroke="#c4ccc2" stroke-width="1"/>`,
         sharedSidecar.aside.markup,
-        '</g>',
+        "</g>",
       );
     } else if (columns === 2 && selected.length === 2) {
       const x = margin + (shorter ? widths[0] + gutter : 0);
@@ -423,7 +361,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
         `<g transform="translate(${number(x)} ${number(y)})">`,
         `<line x1="0" y1="0" x2="${number(sharedWidth)}" y2="0" stroke="#c4ccc2" stroke-width="1"/>`,
         `<g transform="translate(0 20)">${common.markup}</g>`,
-        '</g>',
+        "</g>",
       );
       bottom = Math.max(bottom, y + 20 + common.height);
     } else {
@@ -435,7 +373,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     }
   }
   const height = Math.ceil(bottom + margin);
-  if (height > maximum) fail('static_figure_geometry_unrepresentable');
+  if (height > maximum) fail("static_figure_geometry_unrepresentable");
   const defs = selected.map(
     (_, index) =>
       `<marker id="static-view-${index}-source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker>`,
@@ -443,13 +381,97 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
   const svg = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="static-figure-title static-figure-description" font-family="JetBrains Mono" font-weight="400" font-style="normal" xml:space="preserve">`,
     `<title id="static-figure-title">${escape(title)}</title>`,
-    `<desc id="static-figure-description">${escape(summary)} ${escape(framing)}</desc>`,
+    `<desc id="static-figure-description">${summary === undefined ? "" : escape(summary) + " "}${escape(framing)}</desc>`,
     `<rect width="${width}" height="${height}" fill="#f5f3ed"/>`,
-    `<defs>${defs.join('')}</defs>`,
+    `<defs>${defs.join("")}</defs>`,
     ...content,
     ...new Set(selected.map(({ parts }) => parts.iconLicense).filter(Boolean)),
-    '</svg>',
-    '',
+    "</svg>",
+    "",
   ];
-  return { bytes: Buffer.from(svg.join('\n')), width, height, rasterWidth, placements };
+  return { bytes: Buffer.from(svg.join("\n")), width, height, rasterWidth, placements };
+}
+
+/** Fit the complete reading, not just the graph's minimum width, to a desktop canvas. */
+export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
+  const selected = checkedViews(views);
+  const editor = selected[0].scene.edition?.editor;
+  if (
+    typeof editor !== "string" ||
+    !editor.trim() ||
+    selected.some(({ scene }) => scene.edition?.editor !== editor)
+  )
+    fail("static_figure_editor_ambiguous");
+  const framing = editorialFraming(editor);
+  if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > maximum)
+    fail("static_figure_width_invalid");
+  const maximumWidth = rasterWidth;
+  const available = maximumWidth - 2 * margin;
+  const minimumWidths = selected.map(({ parts }) =>
+    Math.max(
+      620,
+      Math.ceil(parts.bounds?.width ?? 0),
+      Math.ceil(parts.claim?.width ?? 0),
+      Math.ceil(parts.figureTypes?.width ?? 0),
+    ),
+  );
+  const even = Math.max(...minimumWidths.filter((_, index) => index % 2 === 0));
+  const odd = Math.max(...minimumWidths.filter((_, index) => index % 2 === 1));
+  let widths =
+    selected.length > 1 && even + odd + gutter <= available
+      ? [even, odd]
+      : [Math.max(...minimumWidths)];
+  if (widths.length === 2 && selected.length === 2) {
+    try {
+      const measured = selected.map((view, index) => panel(view, widths[index]));
+      const shorter = measured[0].height <= measured[1].height ? 0 : 1;
+      const unused = Math.max(
+        0,
+        Math.abs(measured[0].height - measured[1].height) -
+          sharedNotes(selected, widths[shorter]).height -
+          32,
+      );
+      if (unused / Math.max(...measured.map(({ height }) => height)) > 0.35)
+        widths = [Math.max(...minimumWidths)];
+    } catch (cause) {
+      if (cause?.code !== "static_edition_text_unrepresentable") throw cause;
+      widths = [Math.max(...minimumWidths)];
+    }
+  }
+  const frame = { title, summary, rasterWidth, framing };
+  const arrangements = [widths];
+  for (let columns = widths.length + 1; columns <= selected.length; columns++) {
+    if (selected.length === 2) break;
+    const candidate = Array.from({ length: columns }, (_, column) =>
+      Math.max(...minimumWidths.filter((_, index) => index % columns === column)),
+    );
+    if (candidate.reduce((sum, value) => sum + value, 0) + (columns - 1) * gutter <= available)
+      arrangements.push(candidate);
+  }
+  const candidates = [];
+  for (const columns of arrangements) {
+    const minimumWidth =
+      columns.reduce((sum, value) => sum + value, 0) + (columns.length - 1) * gutter + 2 * margin;
+    if (minimumWidth > maximumWidth) continue;
+    const canvasWidths = new Set([minimumWidth, maximumWidth]);
+    for (let width = minimumWidth + 32; width < maximumWidth; width += 32) canvasWidths.add(width);
+    if (columns.length === 1)
+      for (const { parts } of selected) {
+        if (!parts.bounds || !parts.claim) continue;
+        const width = Math.ceil(parts.bounds.width + gutter + parts.claim.width + 2 * margin);
+        if (width >= minimumWidth && width <= maximumWidth) canvasWidths.add(width);
+      }
+    for (const width of [...canvasWidths].sort((a, b) => a - b)) {
+      const spare = width - minimumWidth;
+      const perColumn = Math.floor(spare / columns.length);
+      candidates.push(
+        columns.map((value, index) => value + perColumn + (index < spare % columns.length ? 1 : 0)),
+      );
+    }
+  }
+  if (!candidates.length) fail("static_figure_width_unrepresentable");
+  return selectMeasuredComposition(candidates, (columns) => paintFigure(selected, columns, frame), [
+    "static_edition_text_unrepresentable",
+    "static_figure_geometry_unrepresentable",
+  ]);
 }

@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import { auditInteractiveGeometry } from '../packages/publisher/renderers/elk/audit.mjs';
+import assert from "node:assert/strict";
+import test from "node:test";
+import { auditInteractiveGeometry } from "../packages/publisher/renderers/elk/audit.mjs";
 
 const label = (x, y) => ({ baselines: [{ box: { x, y, width: 50, height: 16 } }] });
 function graph() {
@@ -8,15 +8,15 @@ function graph() {
     bounds: { width: 800, height: 300 },
     groups: [],
     nodes: [
-      { id: 'n-0', groupId: null, x: 50, y: 100, width: 170, height: 64, label: label(90, 123) },
-      { id: 'n-1', groupId: null, x: 550, y: 100, width: 170, height: 64, label: label(590, 123) },
+      { id: "n-0", groupId: null, x: 50, y: 100, width: 170, height: 64, label: label(90, 123) },
+      { id: "n-1", groupId: null, x: 550, y: 100, width: 170, height: 64, label: label(590, 123) },
     ],
     relations: [
       {
-        id: 'r-0',
-        source: 'n-0',
-        target: 'n-1',
-        direction: 'forward',
+        id: "r-0",
+        source: "n-0",
+        target: "n-1",
+        direction: "forward",
         points: [
           { x: 220, y: 132 },
           { x: 550, y: 132 },
@@ -27,60 +27,60 @@ function graph() {
   };
 }
 
-test('each measured paint failure rejects an invalid composition before SVG output', () => {
+test("each measured paint failure rejects an invalid composition before SVG output", () => {
   assert.doesNotThrow(() => auditInteractiveGeometry(graph()));
   const cases = [
     [
-      'node-bounds',
+      "node-bounds",
       (g) => {
         g.nodes[0].x = 0;
       },
     ],
     [
-      'text-containment',
+      "text-containment",
       (g) => {
         g.nodes[0].label.baselines[0].box.x = 51;
       },
     ],
     [
-      'node-collision',
+      "node-collision",
       (g) => {
         g.nodes[1].x = 200;
         g.nodes[1].label = label(240, 123);
       },
     ],
     [
-      'label-bounds',
+      "label-bounds",
       (g) => {
         g.relations[0].label = label(790, 151);
       },
     ],
     [
-      'text-collision',
+      "text-collision",
       (g) => {
         g.relations[0].label = label(90, 123);
       },
     ],
     [
-      'label-node-collision',
+      "label-node-collision",
       (g) => {
         g.relations[0].label = label(55, 147);
       },
     ],
     [
-      'detached-terminal',
+      "detached-terminal",
       (g) => {
         g.relations[0].points[1].x = 530;
       },
     ],
     [
-      'short-terminal',
+      "short-terminal",
       (g) => {
         g.relations[0].points.splice(1, 0, { x: 545, y: 132 });
       },
     ],
     [
-      'route-bounds',
+      "route-bounds",
       (g) => {
         g.relations[0].points = [
           { x: 220, y: 132 },
@@ -91,16 +91,16 @@ test('each measured paint failure rejects an invalid composition before SVG outp
       },
     ],
     [
-      'route-text-collision',
+      "route-text-collision",
       (g) => {
         g.relations[0].label = label(320, 132);
       },
     ],
     [
-      'route-node-collision',
+      "route-node-collision",
       (g) => {
         g.nodes.push({
-          id: 'n-2',
+          id: "n-2",
           groupId: null,
           x: 300,
           y: 110,
@@ -112,7 +112,7 @@ test('each measured paint failure rejects an invalid composition before SVG outp
       },
     ],
     [
-      'arrow-text-collision',
+      "arrow-text-collision",
       (g) => {
         g.relations[0].label = label(538, 123.5);
         g.relations[0].label.baselines[0].box.width = 2;
@@ -120,10 +120,10 @@ test('each measured paint failure rejects an invalid composition before SVG outp
       },
     ],
     [
-      'arrow-node-collision',
+      "arrow-node-collision",
       (g) => {
         g.nodes.push({
-          id: 'n-2',
+          id: "n-2",
           groupId: null,
           x: 582.5,
           y: 60,
@@ -147,20 +147,20 @@ test('each measured paint failure rejects an invalid composition before SVG outp
     assert.throws(
       () => auditInteractiveGeometry(input),
       (error) =>
-        error.code === 'render_interactive_layout_infeasible' && error.message.includes(reason),
+        error.code === "render_interactive_layout_infeasible" && error.message.includes(reason),
       reason,
     );
   }
 });
 
-test('groups cannot overlap or visually claim an unrelated leaf', () => {
+test("groups cannot overlap or visually claim an unrelated leaf", () => {
   const base = graph();
   base.relations = [];
-  base.nodes[0].groupId = 'g-0';
-  base.nodes[1].groupId = 'g-1';
+  base.nodes[0].groupId = "g-0";
+  base.nodes[1].groupId = "g-1";
   base.groups = [
-    { id: 'g-0', x: 24, y: 24, width: 250, height: 210, label: label(70, 47) },
-    { id: 'g-1', x: 524, y: 24, width: 250, height: 210, label: label(570, 47) },
+    { id: "g-0", x: 24, y: 24, width: 250, height: 210, label: label(70, 47) },
+    { id: "g-1", x: 524, y: 24, width: 250, height: 210, label: label(570, 47) },
   ];
   assert.doesNotThrow(() => auditInteractiveGeometry(base));
   const overlap = structuredClone(base);
@@ -168,12 +168,12 @@ test('groups cannot overlap or visually claim an unrelated leaf', () => {
   overlap.groups[1].label = label(285, 47);
   assert.throws(
     () => auditInteractiveGeometry(overlap),
-    (error) => error.message.includes('group-collision'),
+    (error) => error.message.includes("group-collision"),
   );
   const borrowed = structuredClone(base);
   borrowed.nodes[0].groupId = null;
   assert.throws(
     () => auditInteractiveGeometry(borrowed),
-    (error) => error.message.includes('group-nonmember-collision'),
+    (error) => error.message.includes("group-nonmember-collision"),
   );
 });

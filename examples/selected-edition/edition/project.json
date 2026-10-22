@@ -21,21 +21,7 @@
         "reference": "view:overview",
         "questions": ["flow"]
       }
-    ],
-    "limits": []
+    ]
   },
-  "omissions": [],
-  "narrative": { "summary": "One source-bound view of two connected components." },
-  "presentation": {
-    "static": {
-      "views": [{ "id": "overview", "questions": ["flow"] }],
-      "intent": "Show the selected connection at a glance.",
-      "width": 1800
-    },
-    "interactive": {
-      "views": [{ "id": "overview", "questions": ["flow"] }],
-      "intent": "Explore the selected connection."
-    }
-  },
-  "visualPolicy": { "profile": "neutral", "figureTypes": { "component": "lucide:box" } }
+  "narrative": { "summary": "One source-bound view of two connected components." }
 }

@@ -61,13 +61,13 @@
       "path": "resvg/THIRD-PARTY-NOTICES.txt",
       "source": "license texts for every Cargo.lock package in the pinned source closure",
       "bytes": 173456,
-      "sha256": "3468071364d96cbfe078fb9082687820915b0ede69acc724b58fabddd8e089f2"
+      "sha256": "1fa1f17b69a36c9946c39ed838a5420823283c60c2a3debe015fc1fb83f5a850"
     },
     {
       "path": "resvg/source.json",
       "source": "source, toolchain, build and output identity binding",
-      "bytes": 3936,
-      "sha256": "a8f80b216c18e24e46f1303ce656908dae016b36ae861ea1fe93eb90c930432c"
+      "bytes": 2766,
+      "sha256": "ee4680174677c98034f7665a65efbcd950367107b95cf86820cfab8708e10913"
     },
     {
       "path": "sax/sax.cjs",

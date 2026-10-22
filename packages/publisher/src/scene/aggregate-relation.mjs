@@ -5,5 +5,5 @@ export function classifyAggregateRelation(from, to, subject, object) {
   const toContext = to.has(subject) && to.has(object);
   const reverse = to.has(subject) && from.has(object);
   if (reverse || Number(cross) + Number(fromContext) + Number(toContext) !== 1) return null;
-  return cross ? 'cross' : fromContext ? 'from-context' : 'to-context';
+  return cross ? "cross" : fromContext ? "from-context" : "to-context";
 }

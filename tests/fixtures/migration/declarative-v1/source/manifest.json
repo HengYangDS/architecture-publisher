@@ -1,0 +1,16 @@
+{
+  "schema": "architecture.source-bundle/v1",
+  "source": { "id": "example:system", "revision": "release-1" },
+  "files": [
+    {
+      "path": "contract.md",
+      "bytes": 56,
+      "sha256": "6745a600e15251de2d55276894a0afd83edd7fee2b4d8ca3cd0f426edbf290ad"
+    },
+    {
+      "path": "semantic.json",
+      "bytes": 4343,
+      "sha256": "70844a60a44f9c9ffea5fea9b251ce7c4e768dfed4bec9f08df80c0ad50b31e4"
+    }
+  ]
+}

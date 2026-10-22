@@ -1,10 +1,10 @@
-import { createHash } from 'node:crypto';
-import { parse } from './supply/opentype/opentype.mjs';
-import { fail } from '../../src/protocol/values.mjs';
-import { RASTER_LIMITS } from './limits.mjs';
-import { verifyRasterSupply } from './supply.mjs';
+import { createHash } from "node:crypto";
+import { parse } from "./supply/opentype/opentype.mjs";
+import { fail } from "../../src/protocol/values.mjs";
+import { RASTER_LIMITS } from "./limits.mjs";
+import { verifyRasterSupply } from "./supply.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 /** Parse once at the font owner; aliases never establish a second actual face. */
 export function readFontFace(bytes, invalidCode) {
@@ -22,7 +22,7 @@ export function readFontFace(bytes, invalidCode) {
   const tables = new Set();
   for (let index = 0; index < count; index++) {
     const entry = 12 + index * 16;
-    const tag = bytes.toString('ascii', entry, entry + 4);
+    const tag = bytes.toString("ascii", entry, entry + 4);
     const offset = bytes.readUInt32BE(entry + 8);
     const length = bytes.readUInt32BE(entry + 12);
     if (
@@ -42,10 +42,10 @@ export function readFontFace(bytes, invalidCode) {
   }
   const aliases = new Set();
   for (const platform of Object.values(font.names))
-    for (const key of ['typographicFamily', 'preferredFamily', 'fontFamily'])
+    for (const key of ["typographicFamily", "preferredFamily", "fontFamily"])
       for (const name of Object.values(platform[key] ?? {})) aliases.add(name);
   let family;
-  for (const key of ['typographicFamily', 'preferredFamily', 'fontFamily']) {
+  for (const key of ["typographicFamily", "preferredFamily", "fontFamily"]) {
     family = font.names.windows?.[key]?.en ?? font.names.macintosh?.[key]?.en;
     if (family) break;
   }
@@ -58,15 +58,15 @@ export function readFontFace(bytes, invalidCode) {
     ) ||
     /[,;{}()<>"'\\]/u.test(family)
   )
-    fail('authored_canvas_font_family_unsupported');
+    fail("authored_canvas_font_family_unsupported");
   return {
     font,
     family,
     aliases,
     weight: font.tables.os2.usWeightClass,
     normal: font.tables.post?.italicAngle === 0 && !(font.tables.os2.fsSelection & 1),
-    staticTtf: font.outlinesFormat === 'truetype' && !font.tables.fvar,
-    sha256: createHash('sha256').update(bytes).digest('hex'),
+    staticTtf: font.outlinesFormat === "truetype" && !font.tables.fvar,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
   };
 }
 
@@ -79,16 +79,29 @@ export async function resolveAuthoredFontSupply({
   bundled,
   backendDefaults = false,
   includeFraming = true,
+  nativeTextWeights = [],
 }) {
   await verifyRasterSupply();
   if (!Array.isArray(texts) || !Array.isArray(catalogue) || !Array.isArray(bundled?.fonts))
-    fail('authored_canvas_font_measurement_invalid');
+    fail("authored_canvas_font_measurement_invalid");
   const choices = new Map(catalogue.map((choice) => [choice.id, choice]));
-  if (choices.size !== catalogue.length) fail('authored_canvas_font_identity_ambiguous');
+  if (choices.size !== catalogue.length) fail("authored_canvas_font_identity_ambiguous");
   if (defaultFont !== undefined && !choices.has(defaultFont))
-    fail('authored_canvas_font_unselected');
-  if (!includeFraming && !texts.some(({ visible }) => visible) && defaultFont !== undefined)
-    fail('authored_canvas_font_selection_unused');
+    fail("authored_canvas_font_unselected");
+  if (
+    !Array.isArray(nativeTextWeights) ||
+    nativeTextWeights.some(
+      (weight) => !bundled.fonts.some((face) => String(face.weight) === weight),
+    )
+  )
+    fail("authored_canvas_font_measurement_invalid");
+  if (
+    !includeFraming &&
+    !nativeTextWeights.length &&
+    !texts.some(({ visible }) => visible) &&
+    defaultFont !== undefined
+  )
+    fail("authored_canvas_font_selection_unused");
   const defaults = new Map(bundled.fonts.map((face) => [String(face.weight), face]));
   const faces = new Map();
   const resolved = new Map();
@@ -96,18 +109,18 @@ export async function resolveAuthoredFontSupply({
   const distributions = new Map();
   const consumed = new Map();
   const admit = (selected) => {
-    const actual = readFontFace(selected.bytes, 'authored_canvas_font_measurement_invalid');
+    const actual = readFontFace(selected.bytes, "authored_canvas_font_measurement_invalid");
     if (
       !actual.aliases.has(selected.family) ||
       actual.weight !== Number(selected.weight) ||
       !actual.normal ||
       !actual.staticTtf
     )
-      fail('authored_canvas_font_identity_mismatch');
+      fail("authored_canvas_font_identity_mismatch");
     const key = JSON.stringify([actual.family, actual.weight]);
     const previous = faces.get(key);
     if (previous && previous.sha256 !== actual.sha256)
-      fail('authored_canvas_font_identity_ambiguous');
+      fail("authored_canvas_font_identity_ambiguous");
     const face = {
       family: actual.family,
       weight: actual.weight,
@@ -122,17 +135,17 @@ export async function resolveAuthoredFontSupply({
     if (resolved.has(selectionKey)) return resolved.get(selectionKey);
     if (fontId === undefined) {
       const selected = defaults.get(weight);
-      if (!selected) fail('authored_canvas_font_unselected');
+      if (!selected) fail("authored_canvas_font_unselected");
       const face = admit({ ...selected, family: bundled.manifest.family });
       resolved.set(selectionKey, face);
       return face;
     }
     const choice = choices.get(fontId);
     const selected = choice?.faces.find((face) => face.weight === weight);
-    if (!selected || typeof readResource !== 'function') fail('authored_canvas_font_unselected');
+    if (!selected || typeof readResource !== "function") fail("authored_canvas_font_unselected");
     const bytes = readResource(selected.ref);
     if (!Buffer.isBuffer(bytes) || sha(bytes) !== selected.sha256)
-      fail('materialized_edition_resource_digest_mismatch');
+      fail("materialized_edition_resource_digest_mismatch");
     const face = admit({ family: choice.family, weight: Number(weight), bytes });
     selectedFaces.set(JSON.stringify([fontId, weight]), {
       id: fontId,
@@ -145,12 +158,12 @@ export async function resolveAuthoredFontSupply({
     for (const evidence of choice.distribution) {
       if (distributions.has(evidence.ref)) {
         if (distributions.get(evidence.ref).sha256 !== evidence.sha256)
-          fail('authored_canvas_font_identity_ambiguous');
+          fail("authored_canvas_font_identity_ambiguous");
         continue;
       }
       const content = readResource(evidence.ref);
       if (!Buffer.isBuffer(content) || !content.length || sha(content) !== evidence.sha256)
-        fail('materialized_edition_resource_digest_mismatch');
+        fail("materialized_edition_resource_digest_mismatch");
       distributions.set(evidence.ref, { ...evidence, bytes: content });
       consumed.set(evidence.ref, evidence.sha256);
     }
@@ -159,12 +172,14 @@ export async function resolveAuthoredFontSupply({
   };
   if (backendDefaults)
     for (const face of bundled.fonts) admit({ ...face, family: bundled.manifest.family });
-  const defaultFamily = includeFraming
-    ? select(defaultFont, '400').family
-    : bundled.manifest.family;
+  for (const weight of new Set(nativeTextWeights)) select(defaultFont, weight);
+  const defaultFamily =
+    includeFraming || nativeTextWeights.length
+      ? select(defaultFont, "400").family
+      : bundled.manifest.family;
   const labels = texts.map((label) => {
     const chosen = label.font ?? defaultFont;
-    if (chosen !== undefined && !choices.has(chosen)) fail('authored_canvas_font_unselected');
+    if (chosen !== undefined && !choices.has(chosen)) fail("authored_canvas_font_unselected");
     if (!label.visible) return { ...label };
     const face = select(chosen, label.weight);
     return { ...label, family: face.family };
@@ -177,7 +192,7 @@ export async function resolveAuthoredFontSupply({
     fontValues.some(({ bytes }) => bytes.length > RASTER_LIMITS.fontBytes) ||
     fontValues.reduce((total, { bytes }) => total + bytes.length, 0) > RASTER_LIMITS.fontTotalBytes
   )
-    fail('raster_fonts_invalid');
+    fail("raster_fonts_invalid");
   const identity = {
     defaults: defaultFont === undefined || backendDefaults ? bundled.sha256 : null,
     faces: fontValues.map(({ family, weight, sha256 }) => ({ family, weight, sha256 })),

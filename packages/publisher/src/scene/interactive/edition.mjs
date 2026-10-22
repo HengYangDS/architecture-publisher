@@ -1,9 +1,10 @@
-import { canonical, deepFreeze, record, text } from '../../semantics/document.mjs';
-import { fail, hasExactFields, isDigest } from '../../protocol/values.mjs';
-import { claimCard } from '../claim-card.mjs';
-import { claimRelationQualifiers, linkClaimModelSources } from '../claim-relations.mjs';
-import { interactiveAppearance } from '../appearance.mjs';
-import { resolveFigureTypes } from '../figure-types.mjs';
+import { canonical, deepFreeze, record, text } from "../../semantics/document.mjs";
+import { fail, hasExactFields, isDigest } from "../../protocol/values.mjs";
+import { claimCard } from "../claim-card.mjs";
+import { claimRelationQualifiers, linkClaimModelSources } from "../claim-relations.mjs";
+import { interactiveAppearance } from "../appearance.mjs";
+import { resolveFigureTypes } from "../figure-types.mjs";
+import { deriveSourceReadingScope } from "./source-reading.mjs";
 
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationKey = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
@@ -19,13 +20,13 @@ function element(value) {
     value.origin?.namespace !== value.namespace ||
     value.origin?.sha256 !== value.sha256
   )
-    fail('interactive_scene_source_binding_invalid');
+    fail("interactive_scene_source_binding_invalid");
   return {
     namespace: value.namespace,
     id: value.id,
     sha256: value.sha256,
     kind: value.kind,
-    figureKind: value.kind ?? 'source element',
+    figureKind: value.kind ?? "source element",
     label: value.label,
     origin: structuredClone(value.origin),
   };
@@ -44,7 +45,7 @@ function relation(value) {
     !text(value.origin?.namespace) ||
     !isDigest(value.origin?.sha256)
   )
-    fail('interactive_scene_source_binding_invalid');
+    fail("interactive_scene_source_binding_invalid");
   return {
     id: value.id,
     from: structuredClone(value.from),
@@ -62,37 +63,37 @@ function relation(value) {
 function addBound(map, identity, value) {
   const previous = map.get(identity);
   if (previous && canonical(previous) !== canonical(value))
-    fail('interactive_scene_semantic_conflict');
+    fail("interactive_scene_semantic_conflict");
   map.set(identity, value);
 }
 
 function selectedGroups(authored, nodes) {
   if (authored === undefined) return {};
   if (!Array.isArray(authored) || !authored.length)
-    fail('interactive_scene_group_membership_invalid');
+    fail("interactive_scene_group_membership_invalid");
   const groupIds = new Set();
   const members = new Set();
   for (const group of authored) {
     if (
-      !hasExactFields(group, ['id', 'label', 'elements']) ||
+      !hasExactFields(group, ["id", "label", "elements"]) ||
       !text(group.id) ||
       !text(group.label) ||
       groupIds.has(group.id) ||
       !Array.isArray(group.elements) ||
       !group.elements.length
     )
-      fail('interactive_scene_group_membership_invalid');
+      fail("interactive_scene_group_membership_invalid");
     groupIds.add(group.id);
     for (const item of group.elements) {
-      if (!hasExactFields(item, ['namespace', 'id']) || !text(item.namespace) || !text(item.id))
-        fail('interactive_scene_group_membership_invalid');
+      if (!hasExactFields(item, ["namespace", "id"]) || !text(item.namespace) || !text(item.id))
+        fail("interactive_scene_group_membership_invalid");
       const identity = key(item);
       if (!nodes.has(identity) || members.has(identity))
-        fail('interactive_scene_group_membership_invalid');
+        fail("interactive_scene_group_membership_invalid");
       members.add(identity);
     }
   }
-  if (members.size !== nodes.size) fail('interactive_scene_group_membership_invalid');
+  if (members.size !== nodes.size) fail("interactive_scene_group_membership_invalid");
   return { groups: structuredClone(authored) };
 }
 
@@ -112,28 +113,28 @@ function composePage(
   const editorialAssertions = [];
   for (const id of view.assertionIds) {
     const assertion = assertions.get(id);
-    if (!assertion) fail('interactive_scene_assertion_unbound');
-    if (assertion.kind === 'editorial') {
+    if (!assertion) fail("interactive_scene_assertion_unbound");
+    if (assertion.kind === "editorial") {
       editorialAssertions.push(structuredClone(assertion));
       continue;
     }
     const selected = selections.get(assertion.selection);
-    if (!selected) fail('interactive_scene_assertion_unbound');
-    if (claimMode && selected.target.kind === 'claim') {
+    if (!selected) fail("interactive_scene_assertion_unbound");
+    if (claimMode && selected.target.kind === "claim") {
       const card = claimCard(selected);
       addBound(claims, claimKey(card), card);
       sourceAssertionCarriers.push({
         assertionId: id,
         selectionId: assertion.selection,
-        kind: 'claim',
+        kind: "claim",
         nodeRefs: [],
         relationRefs: [],
         claimRefs: [{ namespace: card.namespace, reference: card.id, sha256: card.sha256 }],
       });
       continue;
     }
-    if (claimMode && !['entity', 'relation'].includes(selected.target.kind))
-      fail('edition_scene_claim_model_unadmitted');
+    if (claimMode && !["entity", "relation"].includes(selected.target.kind))
+      fail("edition_scene_claim_model_unadmitted");
     const nodeRefs = selected.members.elements.map((member) => {
       const projected = element(member);
       addBound(nodes, key(projected), projected);
@@ -141,7 +142,7 @@ function composePage(
     });
     const relationRefs = selected.members.relations.map((member) => {
       const sourceQualifiers = claimMode
-        ? claimRelationQualifiers(member, 'interactive_scene_relation_qualifiers_invalid').map(
+        ? claimRelationQualifiers(member, "interactive_scene_relation_qualifiers_invalid").map(
             ({ name, value }) => ({ name, value: canonical(value) }),
           )
         : [];
@@ -149,7 +150,7 @@ function composePage(
         claimMode
           ? {
               ...member,
-              direction: 'forward',
+              direction: "forward",
               label: null,
               ...(sourceQualifiers.length ? { sourceQualifiers } : {}),
             }
@@ -172,10 +173,10 @@ function composePage(
   }
   for (const item of relations.values())
     if (!nodes.has(key(item.from)) || !nodes.has(key(item.to)))
-      fail('interactive_scene_relation_endpoint_missing');
+      fail("interactive_scene_relation_endpoint_missing");
   const questionRecords = view.questionIds.map((id) => {
     const question = questions.get(id);
-    if (!question) fail('interactive_scene_question_unbound');
+    if (!question) fail("interactive_scene_question_unbound");
     return question;
   });
   const claimSourceLinks =
@@ -184,10 +185,10 @@ function composePage(
           view,
           assertions,
           selections,
-          'interactive_scene_claim_relation_unbound',
+          "interactive_scene_claim_relation_unbound",
         )
       : null;
-  return {
+  const page = {
     id: view.id,
     questionIds: view.questionIds,
     questions: questionRecords,
@@ -214,12 +215,52 @@ function composePage(
     sourceAssertionCarriers,
     editorialAssertions,
   };
+  const reference = (namespace, kind, id) => JSON.stringify([namespace, kind, id]);
+  const facts = [
+    ...page.nodes.map((node, index) => ({
+      reference: reference(node.namespace, "entity", node.id),
+      graphicId: `n-${index}`,
+    })),
+    ...page.relations.map((relation, index) => ({
+      reference: reference(relation.origin.namespace, "relation", relation.id),
+      graphicId: `r-${index}`,
+    })),
+    ...(page.claimCards ?? []).map((claim, index) => ({
+      reference: reference(claim.namespace, "claim", claim.id),
+      graphicId: `c-${index}`,
+    })),
+    ...(page.groups ?? []).flatMap((group, index) =>
+      group.elements.map((member) => ({
+        reference: reference(member.namespace, "entity", member.id),
+        graphicId: `g-${index}`,
+      })),
+    ),
+  ];
+  const bindSourceBasis = (basis, graphicId) => {
+    const carrier = sourceAssertionCarriers.find((item) => item.assertionId === basis);
+    for (const claim of carrier?.claimRefs ?? [])
+      facts.push({
+        reference: reference(claim.namespace, "claim", claim.reference),
+        graphicId,
+      });
+  };
+  for (const role of page.visualForm?.roles ?? [])
+    bindSourceBasis(
+      role.basis,
+      `g-${(page.groups ?? []).findIndex((group) => group.id === role.group)}`,
+    );
+  for (const [index, handoff] of (page.visualForm?.handoffs ?? []).entries())
+    bindSourceBasis(handoff.basis, `h-${index}`);
+  return {
+    ...page,
+    sourceReading: deriveSourceReadingScope({ view, assertions, selections, facts }),
+  };
 }
 
 /** Compile page-local semantic work, leaving geometry and DOM to its medium owner. */
 export function composeInteractiveEditionScene(meaning) {
   if (
-    meaning?.completeness !== 'finite-unqualified-obligations' ||
+    meaning?.completeness !== "finite-unqualified-obligations" ||
     !Array.isArray(meaning.native?.selections) ||
     !Array.isArray(meaning.assertions) ||
     !Array.isArray(meaning.questions) ||
@@ -227,19 +268,19 @@ export function composeInteractiveEditionScene(meaning) {
     !meaning.media.interactive.views.length ||
     !record(meaning.editorial)
   )
-    fail('interactive_scene_input_invalid');
+    fail("interactive_scene_input_invalid");
   const claimMode = meaning.native.selections.some(
-    ({ format }) => format === 'architecture.claim-model/v2',
+    ({ format }) => format === "architecture.claim-model/v2",
   );
   if (
     claimMode &&
     !meaning.native.selections.every(
       ({ format, target }) =>
-        format === 'architecture.claim-model/v2' &&
-        ['claim', 'entity', 'relation'].includes(target.kind),
+        format === "architecture.claim-model/v2" &&
+        ["claim", "entity", "relation"].includes(target.kind),
     )
   )
-    fail('edition_scene_claim_model_unadmitted');
+    fail("edition_scene_claim_model_unadmitted");
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const questions = new Map(meaning.questions.map((item) => [item.id, item]));
@@ -255,18 +296,20 @@ export function composeInteractiveEditionScene(meaning) {
         authoredViews.length !== views.length ||
         authoredViews.some((view, index) => view?.id !== views[index].id)))
   )
-    fail('interactive_scene_identity_ambiguous');
+    fail("interactive_scene_identity_ambiguous");
   return deepFreeze({
-    schema: 'architecture.edition-interactive-scene/v1',
-    completeness: 'unqualified-scene',
+    schema: "architecture.edition-interactive-scene/v1",
+    completeness: "unqualified-scene",
     edition: meaning.edition,
     title: meaning.editorial.title,
-    summary: meaning.editorial.narrative.summary,
+    ...(meaning.editorial.narrative.summary === undefined
+      ? {}
+      : { summary: meaning.editorial.narrative.summary }),
     appearance: interactiveAppearance(meaning.editorial.presentation?.interactive?.appearance),
     visualPolicy:
-      meaning.refinement?.media?.interactive?.kind === 'neutral'
+      meaning.refinement?.media?.interactive?.kind === "neutral"
         ? {
-            profile: 'neutral',
+            profile: "neutral",
             ...(meaning.editorial.visualPolicy?.figureTypes === undefined
               ? {}
               : { figureTypes: meaning.editorial.visualPolicy.figureTypes }),

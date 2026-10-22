@@ -1,0 +1,26 @@
+globs:
+  - "*.md"
+  - "**/README.md"
+  - docs/**/*.md
+  - openspec/**/*.md
+  - skills/**/*.md
+gitignore: .gitignore
+ignores:
+  - .git/**
+  - openspec/changes/archive/**
+  - tests/fixtures/**
+  - tests/conformance/fixtures/**
+  - "**/supply/**"
+  - packages/publisher/supplies/**
+customRules:
+  - ../../../tools/checks/markdown-budget.mjs
+noInlineConfig: true
+config:
+  default: true
+  MD012:
+    maximum: 1
+  MD013: false
+  MD024:
+    siblings_only: true
+  MD033: false
+  MD041: false

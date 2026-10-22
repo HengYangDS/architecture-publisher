@@ -2,7 +2,7 @@
   "schema": "architecture.native-parser-supply/v1",
   "parser": {
     "name": "@likec4/language-services",
-    "version": "1.59.4"
+    "version": "1.60.0"
   },
   "builder": {
     "name": "esbuild",
@@ -15,105 +15,105 @@
     {
       "lockPath": "node_modules/@chevrotain/cst-dts-gen",
       "name": "@chevrotain/cst-dts-gen",
-      "version": "11.0.3",
+      "version": "13.2.0",
       "license": "Apache-2.0",
-      "integrity": "sha512-BvIKpRLeS/8UbfxXxgC33xOumsacaeCKAjAeLyOn7Pcp95HiRbrpl14S+9vaZLolnbssPIUuiUd8IvgkRyt6NQ==",
+      "integrity": "sha512-bA9dvWlhAUcHkNwU+8w9yiUxJPlj/Lm3VqS7MD+NbIR/7LmpNLuK/AWNFdCo/T3SK5ND0/UHf3IJvl/Jn/i6yg==",
       "noticeSha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     {
       "lockPath": "node_modules/@chevrotain/gast",
       "name": "@chevrotain/gast",
-      "version": "11.0.3",
+      "version": "13.2.0",
       "license": "Apache-2.0",
-      "integrity": "sha512-+qNfcoNk70PyS/uxmj3li5NiECO+2YKZZQMbmjTqRI3Qchu8Hig/Q9vgkHpI3alNjr7M+a2St5pw5w5F6NL5/Q==",
+      "integrity": "sha512-bCARdAsG+eEbOveSXcOAC7pVxA04I1ionzeMOwIYf5NX7SaS7zgn4Dgug2BSqoL+iyKeMNSorQjsFSHJHsCNwg==",
       "noticeSha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     {
       "lockPath": "node_modules/@chevrotain/regexp-to-ast",
       "name": "@chevrotain/regexp-to-ast",
-      "version": "11.0.3",
+      "version": "13.2.0",
       "license": "Apache-2.0",
-      "integrity": "sha512-1fMHaBZxLFvWI067AVbGJav1eRY7N8DDvYCTwGBiE/ytKBgP8azTdgyrKyWZ9Mfh09eHWb5PgTSO8wi7U824RA==",
+      "integrity": "sha512-kxpUkLtiaK09ph+dib+Yvm+3sWSnuwlo25gqfKRgTPNmF6H7uW4gVkMjaRdtnN783S9sM6vUNWh9CsxYX4QwKw==",
       "noticeSha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     {
       "lockPath": "node_modules/@chevrotain/utils",
       "name": "@chevrotain/utils",
-      "version": "11.0.3",
+      "version": "13.2.0",
       "license": "Apache-2.0",
-      "integrity": "sha512-YslZMgtJUyuMbZ+aKvfF3x1f5liK4mWNxghFRv7jqRR9C3R3fAOGTTKvxXDa2Y1s9zSbcpuO0cAxDYsc9SrXoQ==",
+      "integrity": "sha512-SzKYY68rseOrb9KILVzPsl6SjkQtdWw01SRGB5aCVI5kFcHltQsOYV3JB0Ffst72DgkvHCyDQ0NLwxtmCCf97Q==",
       "noticeSha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     {
       "lockPath": "node_modules/@hpcc-js/wasm-graphviz",
       "name": "@hpcc-js/wasm-graphviz",
-      "version": "1.22.2",
+      "version": "1.29.2",
       "license": "Apache-2.0",
-      "integrity": "sha512-qofkC1bxiQKljs95A/7a0j3mvjEdTBiDPq2W6Eh3mJGOLJ+CEtLVe5pFtzf+FZhYW/V9p9hssS1TRl9PxoV8Sw==",
+      "integrity": "sha512-AkArBAZERT5OxH52/+kvCHB07cZ6ZNd9GnOvjw+S880bR88D6i27XfK6xj4dBhUDxNA2QPPMdgEcky3x4TJ3KA==",
       "noticeSha256": "5ad8c213095c573921d7388edf93f6a9f54490b8ebf3b165ae8ef1947cf70846"
     },
     {
       "lockPath": "node_modules/@likec4/config",
       "name": "@likec4/config",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-Msk5wlgjGHJChWn8Ojg3XkZmJWmelhaVvCCFJfKtebdfOkukWFS0bGdwfBl9qgQG8K0DHUcVXB+VeJZN9Lx4cw==",
+      "integrity": "sha512-utAD5MMH1G9YlBa6GPtc39drbbmUuv8YXUEd/RPv7K9tvS9Z+GDg0dW9lH5z26Sc7GcL7tCVsDT7+hG55BCHOw==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@likec4/core",
       "name": "@likec4/core",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-0XhT/wWV/UALGkiYR0X3oxUV8MxcWN8W+5h6P79jh8A7ZAZZVeu2UYYESX1X4cVWdVKQughU2Ne/AqpNA/wPuw==",
+      "integrity": "sha512-gY2ukBIIORj0bFLSXghPZwChOMzlebtZEpcsMKaDP6iJNwDmW2Os+ftRhx2QeTXSvgdRm3uyM2xCFhMtch41jg==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@likec4/generators",
       "name": "@likec4/generators",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-aBkirsGAHI3fnsUrLGmewTJ+tILTZjlSMmxHrGc7SP9csJmTXb9q4TkyPIi7oq9HsgVIgKLYYxYKNhhRcdWl6g==",
+      "integrity": "sha512-N+1frlfuoETIUpRtTGz3M445vIQ5ncnB9FWIx2b174U72We+P9mcNYDVu7votOIPmbnU6rDtrzhA+WFj0/bHwg==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@likec4/language-server",
       "name": "@likec4/language-server",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-ysHXXWNxL/ZQTczlppDA9vnyX/dNQKSpzQ/vpDiOd+x9WswVLF3CXzrfaaZ2HxHVN5IutLohLVNZTdB5wH20ug==",
+      "integrity": "sha512-zosTH2oC2av19H8vbKVqsCAuLiclMyPPUD/YA7NjEkirztsPLIHtE8HMF+bK2v2vZJpIGDoOQikuVj4W/Ta0RA==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@likec4/language-services",
       "name": "@likec4/language-services",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-2ML2bealiZJFlLt1W0G0sJmAX2m6ChEj9ZtjfiZmy+zl05/E3EzGdCyGwNtBL/WkH8JYfekCW0kcj8H2TP8slA==",
+      "integrity": "sha512-T9QR9KMviOn71GjMv0Jt7GtpZVGHZf/Ij26y1N32HYAknSsoBLr1/HaOWJa0GxIQsGYfzeQ5F/zK5AYSNAzvuQ==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@likec4/layouts",
       "name": "@likec4/layouts",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-KJcJVOL7pXyf7btWutZ8MTAWtpvjnOIe6daulCarV4oyGPVcK9+ClvR3Lq444sjfR/LHZ04Wq6pJIqktJLkmJA==",
+      "integrity": "sha512-DIPxCo4f0EDDKmGg19XcYkPZjND0ARkZMNwPmTaS987tjiOCYO9XWcIwxSb4JyDjpnAhjqSZZCww/QjGsHP47A==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@likec4/log",
       "name": "@likec4/log",
-      "version": "1.59.4",
+      "version": "1.60.0",
       "license": "MIT",
-      "integrity": "sha512-qX517bn8ShgjqVzl3kLjEzX7U/QRw3SmoHwGybFZDFbD0Wc9eIQzsKa2NOzW2gVNot01J1d5o3qLtlW7HFajDg==",
+      "integrity": "sha512-RZwgua4zf18FwieepLpOIvjFbf9MzRcFT//d7DRfWAx3pdYj8FGeOmRiQg0Qg8PBkWz/8QVGWJfwbPEge9PABw==",
       "noticeSha256": "6e5813e49c8f031666c877d41ccae76a1e1f1ca76de949c00b4853f331953e3f"
     },
     {
       "lockPath": "node_modules/@logtape/logtape",
       "name": "@logtape/logtape",
-      "version": "2.3.11",
+      "version": "2.4.2",
       "license": "MIT",
-      "integrity": "sha512-T7T+IShQBxofHCs7J1kVMZPLLHYAXAOqPEc/xwzd6/2q8va/D/t/HP7uCeJzTQOywpXF1tbyz15O4VHT8NF2hw==",
+      "integrity": "sha512-YJyC1gEMgWmTqJTRtKkjgasEbi8/0gP7Dj8n6bL46gQIAhpTY8uXJ+1QYMOgF5asotlGMvy3G7ejXUe45Yd1MQ==",
       "noticeSha256": "df0568292586954cb6d8bf3360e3177f7f77a34025d2a553b0f47edb1a383601"
     },
     {
@@ -159,17 +159,17 @@
     {
       "lockPath": "node_modules/chevrotain",
       "name": "chevrotain",
-      "version": "11.0.3",
+      "version": "13.2.0",
       "license": "Apache-2.0",
-      "integrity": "sha512-ci2iJH6LeIkvP9eJW6gpueU8cnZhv85ELY8w8WiFtNjMHA5ad6pQLaJo9mEly/9qUyCpvqX8/POVUTf18/HFdw==",
+      "integrity": "sha512-GTouk5YzgBxlTPCaDn5q0q2EJKkrYmnPF+HmF8v0Qo4r3iyPG7HJivkN1wthCXZcm3sIcZFpGTRovLPNdJNRCA==",
       "noticeSha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
     },
     {
       "lockPath": "node_modules/chevrotain-allstar",
       "name": "chevrotain-allstar",
-      "version": "0.3.1",
+      "version": "0.5.0",
       "license": "MIT",
-      "integrity": "sha512-b7g+y9A0v4mxCW1qUhf3BSVPg+/NvGErk/dOkrDaHA0nQIQGAtrOjlX//9OQtRlSCy+x9rfB5N8yC71lH1nvMw==",
+      "integrity": "sha512-KV7jVd28Qp4Kg9Ovhwlx5vyucoQxqxB22DLpxqRR2YDsHUHirr/NHAHx5bYk+bhJCD88xrLvOrfjlrrZRVa2Mg==",
       "noticeSha256": "9650a08dc7dae6722cfd0e2da8c9158a04843dd6ef94a2057ebb782e7fb164a6"
     },
     {
@@ -255,17 +255,17 @@
     {
       "lockPath": "node_modules/langium",
       "name": "langium",
-      "version": "3.5.0",
+      "version": "4.4.0",
       "license": "MIT",
-      "integrity": "sha512-tnqVzWOkUcoiY0bWlyE8diFrZjmGBCF7MesC1bjUaZM+YGQSfdPC+KkhmHM0DWFG+uLcPxidKaPP1SYGtg3J0Q==",
-      "noticeSha256": "43598a00139a43496a51c3d2a21775d56a44b2c4c5f0b164420f1a72f7ff0ec5"
+      "integrity": "sha512-VFIFtohpsmJeQ+LkaeuUNtyvkklecklI0FSLxFS8JfiGABE9XCpUJwYUNnLk6C2aOyk0w99tNlvd0pmbJ2AW/w==",
+      "noticeSha256": "167b69205f44e8cd57b79383047a678feefd8ad1048752fce6177a12f8839a8f"
     },
     {
       "lockPath": "node_modules/langium/node_modules/vscode-uri",
       "name": "vscode-uri",
-      "version": "3.0.8",
+      "version": "3.1.0",
       "license": "MIT",
-      "integrity": "sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==",
+      "integrity": "sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==",
       "noticeSha256": "c669138cb1eb01fbb745e8e460b291e4f2869c14a40061390b6095d845ed4c82"
     },
     {
@@ -295,9 +295,9 @@
     {
       "lockPath": "node_modules/p-limit",
       "name": "p-limit",
-      "version": "7.3.2",
+      "version": "7.3.3",
       "license": "MIT",
-      "integrity": "sha512-Ll0w3fU24vYpXoZmjjZIee6bJQDgG0oAyo1PdmFYI8UDwJJddaHAypxIH9avUu+t+lSsAwKVsb1jDCMIIChliw==",
+      "integrity": "sha512-SKgVvDU5TNIxQ4r30U75BNLC6a+6GOEjngrk/ysM5+Zu3oJuk1SC5ApzIzY/7PjCEjoVPMWJ0zho/4QUiEB7TQ==",
       "noticeSha256": "1529f88b3675095087120854c6fa2cc1113ab2da2f88c4f6aa4ffe52e98ef81b"
     },
     {
@@ -319,9 +319,9 @@
     {
       "lockPath": "node_modules/p-timeout",
       "name": "p-timeout",
-      "version": "7.0.1",
+      "version": "7.0.2",
       "license": "MIT",
-      "integrity": "sha512-AxTM2wDGORHGEkPCt8yqxOTMgpfbEHqF51f/5fJCmwFC3C/zNcGT63SymH2ttOAaiIws2zVg4+izQCjrakcwHg==",
+      "integrity": "sha512-prbX4Z3YszrFNgH+MW5Zoeq3baXrMtP/MQnFeET90UB/GtGcGDQ5Usg9OCy6ETjTTntOw1SL2z9fMPUppN3Guw==",
       "noticeSha256": "1529f88b3675095087120854c6fa2cc1113ab2da2f88c4f6aa4ffe52e98ef81b"
     },
     {
@@ -415,57 +415,57 @@
     {
       "lockPath": "node_modules/unstorage",
       "name": "unstorage",
-      "version": "1.17.5",
+      "version": "1.17.6",
       "license": "MIT",
-      "integrity": "sha512-0i3iqvRfx29hkNntHyQvJTpf5W9dQ9ZadSoRU8+xVlhVtT7jAX57fazYO9EHvcRCfBCyi5YRya7XCDOsbTgkPg==",
+      "integrity": "sha512-gjKtcmn/KwZuJZO9o2sc0esAQnhmTw0LviDHwevTXbJMYs0dRTp8ZEEWXHU0vTpzbN3cA0yxlTeyXssMp3zDqw==",
       "noticeSha256": "f7673e959327e93e07c08b1772835c239b565a14946d275ed1b5af1c5f7b4a94"
     },
     {
       "lockPath": "node_modules/vscode-jsonrpc",
       "name": "vscode-jsonrpc",
-      "version": "8.2.0",
+      "version": "9.0.3",
       "license": "MIT",
-      "integrity": "sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==",
+      "integrity": "sha512-qETYf9PCl1lVfwR+oBmMfc4vP2nqLNA35ABxorw3j06+xlKRgDVxbLgKm4Y/xPL0YWdeDjLoI4ImICIT3nB0zQ==",
       "noticeSha256": "ae00cb6006eaaa72d9b56c1d66cc8033398ec51f06add68be4e69742f9e63ea7"
     },
     {
       "lockPath": "node_modules/vscode-languageserver",
       "name": "vscode-languageserver",
-      "version": "9.0.1",
+      "version": "10.1.2",
       "license": "MIT",
-      "integrity": "sha512-woByF3PDpkHFUreUa7Hos7+pUWdeWMXRd26+ZX2A8cFx6v/JPTtd4/uN0/jB6XQHYaOlHbio03NTHCqrgG5n7g==",
+      "integrity": "sha512-pXPWde3RytdeBVEs6PulOOT5OpeXC5GkWRpcT11f5rNn41jviQsAYPyAqJ/0oVGETQLKPJtYbHNiMPlfLb0NTQ==",
       "noticeSha256": "ae00cb6006eaaa72d9b56c1d66cc8033398ec51f06add68be4e69742f9e63ea7"
     },
     {
       "lockPath": "node_modules/vscode-languageserver-protocol",
       "name": "vscode-languageserver-protocol",
-      "version": "3.17.5",
+      "version": "3.18.4",
       "license": "MIT",
-      "integrity": "sha512-mb1bvRJN8SVznADSGWM9u/b07H7Ecg0I3OgXDuLdn307rl/J3A9YD6/eYOssqhecL27hK1IPZAsaqh00i/Jljg==",
+      "integrity": "sha512-CCXbyr99dafRJzJH/0Ryk7ly5T8XPmSR0//OuF2w4m+9JiOin7zcAT5iET8GRE7Z9taFBejb3GbM0a0mbjdbrg==",
       "noticeSha256": "ae00cb6006eaaa72d9b56c1d66cc8033398ec51f06add68be4e69742f9e63ea7"
     },
     {
       "lockPath": "node_modules/vscode-languageserver-textdocument",
       "name": "vscode-languageserver-textdocument",
-      "version": "1.0.11",
+      "version": "1.0.15",
       "license": "MIT",
-      "integrity": "sha512-X+8T3GoiwTVlJbicx/sIAF+yuJAqz8VvwJyoMVhwEMoEKE/fkDmrqUgDMyBECcM2A2frVZIUj5HI/ErRXCfOeA==",
+      "integrity": "sha512-Gsfr9S8LU3S6885cS+NaleasJ0n3V5y/SOTqHCifQiXWFw3G9w9/YItDfwHrlCz+dSZWWZ8ilYVMcJe7Sz7Sxw==",
       "noticeSha256": "ae00cb6006eaaa72d9b56c1d66cc8033398ec51f06add68be4e69742f9e63ea7"
     },
     {
       "lockPath": "node_modules/vscode-languageserver-types",
       "name": "vscode-languageserver-types",
-      "version": "3.17.5",
+      "version": "3.18.4",
       "license": "MIT",
-      "integrity": "sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==",
+      "integrity": "sha512-nQsacoiijvl0fRf2q28uFDrAVwRhdCa3QveiF7/CX0r18mLR5FU/1WskSsCKOjmEbtteKUnY8x8Yzxop+k0zwg==",
       "noticeSha256": "ae00cb6006eaaa72d9b56c1d66cc8033398ec51f06add68be4e69742f9e63ea7"
     },
     {
       "lockPath": "node_modules/vscode-uri",
       "name": "vscode-uri",
-      "version": "3.1.0",
+      "version": "3.2.0",
       "license": "MIT",
-      "integrity": "sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==",
+      "integrity": "sha512-m2gXo3bn0G1kT9InzMf07fTbqMbGtyckj3bH5ktLO+1Ssv+yiATZ4dhwaQv9UZWxJh6E9IFGnQyjgWVDWVBDrg==",
       "noticeSha256": "c669138cb1eb01fbb745e8e460b291e4f2869c14a40061390b6095d845ed4c82"
     },
     {
@@ -504,13 +504,13 @@
   "files": [
     {
       "path": "parser.mjs",
-      "bytes": 5171293,
-      "sha256": "9412574f9c9258e5a4ad5640af4163a2af261df0c2f81e2d59de7f0286a41837"
+      "bytes": 5239905,
+      "sha256": "ff66c04cc293bd8071d3aceef885b22487bafd7dc5848cdc49f9d706768bf87d"
     },
     {
       "path": "THIRD-PARTY-NOTICES.txt",
-      "bytes": 136250,
-      "sha256": "1c3be3450fad8d3c35110a220e64c7fa7406d29ea7cfaced39cb442409bb5393"
+      "bytes": 136235,
+      "sha256": "e37f7c8b9fbd78327cb6a4cfab13eb5bce3dfca019c2881c40c2e8d86e8ac4cb"
     }
   ]
 }

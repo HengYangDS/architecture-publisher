@@ -1,35 +1,35 @@
-import { fail, hasExactFields } from '../../src/protocol/values.mjs';
-import { placeMeasuredLabel } from './text.mjs';
-import { auditInteractiveGeometry } from './audit.mjs';
+import { fail, hasExactFields } from "../../src/protocol/values.mjs";
+import { placeMeasuredLabel } from "./text.mjs";
+import { auditInteractiveGeometry } from "./audit.mjs";
 
-const invalid = () => fail('render_interactive_layout_response_invalid');
+const invalid = () => fail("render_interactive_layout_response_invalid");
 const coordinate = (value) => Number.isFinite(value) && Math.abs(value) <= 100_000;
 const extent = (value) => Number.isFinite(value) && value > 0 && value <= 100_000;
 const canonicalCoordinate = (value) => Math.round(value * 1_000_000) / 1_000_000;
 
 /** The owned worker protocol fails closed before geometric normalization. */
 export function decodeInteractiveLayoutReply(raw, state, reason) {
-  if (reason === 'timeout') fail('render_interactive_layout_execution_timeout');
-  if (reason === 'overflow') fail('render_interactive_layout_response_limit');
+  if (reason === "timeout") fail("render_interactive_layout_execution_timeout");
+  if (reason === "overflow") fail("render_interactive_layout_response_limit");
   if (
-    !['closed', 'reply'].includes(reason) ||
+    !["closed", "reply"].includes(reason) ||
     state.spawnError ||
     state.stderrBytes ||
-    (reason === 'closed' && (!state.closed || state.closed.code !== 0 || state.closed.signal))
+    (reason === "closed" && (!state.closed || state.closed.code !== 0 || state.closed.signal))
   )
-    fail('render_interactive_layout_execution_failed');
+    fail("render_interactive_layout_execution_failed");
   let value;
   try {
     value = JSON.parse(raw);
   } catch {
-    fail('render_interactive_layout_response_invalid');
+    fail("render_interactive_layout_response_invalid");
   }
   if (
-    !hasExactFields(value, ['status', 'layouts']) ||
-    value.status !== 'ok' ||
+    !hasExactFields(value, ["status", "layouts"]) ||
+    value.status !== "ok" ||
     !Array.isArray(value.layouts)
   )
-    fail('render_interactive_layout_response_invalid');
+    fail("render_interactive_layout_response_invalid");
   return value.layouts;
 }
 
@@ -40,7 +40,7 @@ function labelAt(raw, plan, offset) {
     !coordinate(raw.y) ||
     raw.width !== plan.width ||
     raw.height !== plan.height ||
-    raw.text !== plan.lines.join('\n')
+    raw.text !== plan.lines.join("\n")
   )
     invalid();
   return placeMeasuredLabel(
@@ -51,22 +51,28 @@ function labelAt(raw, plan, offset) {
 }
 
 /** Container-relative layout output becomes one closed geometry value. */
-export function normalizeInteractiveGeometry(raw, prepared) {
+export function normalizeInteractiveGeometry(
+  raw,
+  prepared,
+  composeCandidate = undefined,
+  deferPaintAudit = false,
+  expandTracks = false,
+) {
   if (
     !raw ||
-    raw.id !== 'root' ||
+    raw.id !== "root" ||
     !extent(raw.width) ||
     !extent(raw.height) ||
     !Array.isArray(raw.children)
   )
     invalid();
-  const boxes = new Map([['root', { x: 0, y: 0 }]]);
+  const boxes = new Map([["root", { x: 0, y: 0 }]]);
   const leaves = new Map(prepared.nodes.map((node) => [node.id, node]));
   const groups = new Map(prepared.groups.map((group) => [group.id, group]));
   const selectedNodes = new Map();
   const selectedGroups = new Map();
   const rawEdges = [];
-  const seen = new Set(['root']);
+  const seen = new Set(["root"]);
   function visit(parent, offset, parentId) {
     if (parent.edges !== undefined) {
       if (!Array.isArray(parent.edges)) invalid();
@@ -94,7 +100,7 @@ export function normalizeInteractiveGeometry(raw, prepared) {
       };
       boxes.set(child.id, box);
       if (groups.has(child.id)) {
-        if (parentId !== 'root' || !Array.isArray(child.children)) invalid();
+        if (parentId !== "root" || !Array.isArray(child.children)) invalid();
         const plan = groups.get(child.id);
         if (
           child.children.length !== plan.nodeIds.length ||
@@ -108,12 +114,13 @@ export function normalizeInteractiveGeometry(raw, prepared) {
         if (
           !plan ||
           child.children !== undefined ||
-          child.width !== plan.width ||
-          child.height !== plan.height ||
-          (plan.groupId ?? 'root') !== parentId
+          (expandTracks
+            ? child.width < plan.width || child.height < plan.height
+            : child.width !== plan.width || child.height !== plan.height) ||
+          (plan.groupId ?? "root") !== parentId
         )
           invalid();
-        if (parentId !== 'root') {
+        if (parentId !== "root") {
           const parentBox = selectedGroups.get(parentId);
           if (
             box.x < parentBox.x + 8 ||
@@ -133,7 +140,7 @@ export function normalizeInteractiveGeometry(raw, prepared) {
       }
     }
   }
-  visit(raw, { x: 0, y: 0 }, 'root');
+  visit(raw, { x: 0, y: 0 }, "root");
   if (
     selectedNodes.size !== leaves.size ||
     selectedGroups.size !== groups.size ||
@@ -151,13 +158,13 @@ export function normalizeInteractiveGeometry(raw, prepared) {
     if (
       !edge ||
       !offset ||
-      (edge.container !== 'root' && !groups.has(edge.container)) ||
+      (edge.container !== "root" && !groups.has(edge.container)) ||
       !Array.isArray(edge.sources) ||
       edge.sources.length !== 1 ||
-      edge.sources[0] !== plan.source ||
+      edge.sources[0] !== (plan.sourcePort ?? plan.source) ||
       !Array.isArray(edge.targets) ||
       edge.targets.length !== 1 ||
-      edge.targets[0] !== plan.target ||
+      edge.targets[0] !== (plan.targetPort ?? plan.target) ||
       !Array.isArray(edge.sections) ||
       edge.sections.length !== 1
     )
@@ -165,19 +172,20 @@ export function normalizeInteractiveGeometry(raw, prepared) {
     const section = edge.sections[0];
     if (
       !section ||
-      section.incomingShape !== plan.source ||
-      section.outgoingShape !== plan.target ||
+      section.incomingShape !== (plan.sourcePort ?? plan.source) ||
+      section.outgoingShape !== (plan.targetPort ?? plan.target) ||
       section.incomingSections !== undefined ||
       section.outgoingSections !== undefined ||
       (section.bendPoints !== undefined && !Array.isArray(section.bendPoints))
     )
       invalid();
     const points = [section.startPoint, ...(section.bendPoints ?? []), section.endPoint];
-    if (
-      points.length > 128 ||
-      points.some((point) => !point || !coordinate(point.x) || !coordinate(point.y))
-    )
-      invalid();
+    if (points.some((point) => !point || !coordinate(point.x) || !coordinate(point.y))) invalid();
+    if (points.length > 128)
+      fail(
+        "render_interactive_layout_infeasible",
+        `render_interactive_layout_infeasible:route-complexity:${plan.id}`,
+      );
     const normalized = points.map(({ x, y }) => ({
       x: canonicalCoordinate(x + offset.x),
       y: canonicalCoordinate(y + offset.y),
@@ -208,6 +216,7 @@ export function normalizeInteractiveGeometry(raw, prepared) {
     groups: prepared.groups.map(({ id }) => selectedGroups.get(id)),
     relations,
   };
-  auditInteractiveGeometry(result);
+  composeCandidate?.(result);
+  if (!deferPaintAudit) auditInteractiveGeometry(result);
   return result;
 }

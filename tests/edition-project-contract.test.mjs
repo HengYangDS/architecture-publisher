@@ -1,133 +1,233 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+import assert from "node:assert/strict";
+import test from "node:test";
 import {
   EDITION_PROJECT_SCHEMA,
   validateEditionProject,
-} from '../packages/publisher/src/edition/index.mjs';
+} from "../packages/publisher/src/edition/index.mjs";
 
 function project() {
   return {
-    schema: 'architecture.edition-project/v1',
-    id: 'system-atlas',
-    editor: 'architecture-editor',
-    title: 'System architecture',
-    audiences: [{ id: 'maintainer', label: 'Maintainers' }],
+    schema: "architecture.edition-project/v1",
+    id: "system-atlas",
+    editor: "architecture-editor",
+    title: "System architecture",
+    audiences: [{ id: "maintainer", label: "Maintainers" }],
     questions: [
-      { id: 'flow', audience: 'maintainer', text: 'How does a change reach publication?' },
+      { id: "flow", audience: "maintainer", text: "How does a change reach publication?" },
     ],
     scope: {
-      sourceNamespaces: ['ethos'],
+      sourceNamespaces: ["ethos"],
       selections: [
         {
-          id: 'lanes',
-          namespace: 'ethos',
-          kind: 'reference',
-          reference: 'architecture.lanes',
-          questions: ['flow'],
+          id: "lanes",
+          namespace: "ethos",
+          kind: "reference",
+          reference: "architecture.lanes",
+          questions: ["flow"],
         },
       ],
       limits: [],
     },
     omissions: [],
     narrative: {
-      summary: 'Follow the change through review and publication.',
+      summary: "Follow the change through review and publication.",
     },
     presentation: {
       static: {
-        views: [{ id: 'overview', questions: ['flow'] }],
-        intent: 'One legible overview.',
+        views: [{ id: "overview", questions: ["flow"] }],
+        intent: "One legible overview.",
         width: 6000,
       },
       interactive: {
         views: [
-          { id: 'overview', questions: ['flow'] },
-          { id: 'mechanism', questions: ['flow'] },
+          { id: "overview", questions: ["flow"] },
+          { id: "mechanism", questions: ["flow"] },
         ],
-        intent: 'Explorable mechanisms.',
+        intent: "Explorable mechanisms.",
       },
     },
-    visualPolicy: { profile: 'neutral', override: null },
+    visualPolicy: { profile: "neutral", override: null },
   };
 }
 
-test('unimplemented queries and transformations are not authored as usable controls', () => {
+test("one question-bound scope derives independent medium views without a view inventory", () => {
+  const value = project();
+  delete value.presentation;
+  delete value.visualPolicy;
+  delete value.omissions;
+  delete value.scope.limits;
+  const before = structuredClone(value);
+  const selected = validateEditionProject(value);
+  assert.deepEqual(selected.presentation, {
+    static: { views: [{ id: "overview", questions: ["flow"] }], width: 6000 },
+    interactive: { views: [{ id: "overview", questions: ["flow"] }] },
+  });
+  assert.deepEqual(selected.visualPolicy, { profile: "neutral" });
+  assert.deepEqual(selected.omissions, []);
+  assert.deepEqual(selected.scope.limits, []);
+  assert.deepEqual(selected.scope.selections, before.scope.selections);
+  assert.deepEqual(value, before);
+  assert.deepEqual(validateEditionProject(selected), selected);
+});
+
+test("the default overview retains all questions instead of fragmenting the explanation", () => {
+  const value = project();
+  value.questions.push({ id: "risk", audience: "maintainer", text: "What remains unknown?" });
+  value.scope.limits.push({ question: "risk", reason: "The source does not describe this." });
+  delete value.presentation;
+  const selected = validateEditionProject(value);
+  assert.deepEqual(selected.presentation.static.views, [
+    { id: "overview", questions: ["flow", "risk"] },
+  ]);
+  assert.deepEqual(selected.presentation.interactive.views, [
+    { id: "overview", questions: ["flow", "risk"] },
+  ]);
+  assert.deepEqual(selected.scope.limits, value.scope.limits);
+});
+
+test("medium defaults preserve explicit views, dimensions and refinement", () => {
+  const value = project();
+  delete value.presentation.interactive;
+  value.visualPolicy.override = "scenes/selected.json";
+  const selected = validateEditionProject(value);
+  assert.deepEqual(selected.presentation.static, value.presentation.static);
+  assert.deepEqual(selected.presentation.interactive.views, [
+    { id: "overview", questions: ["flow"] },
+  ]);
+  assert.deepEqual(selected.visualPolicy, value.visualPolicy);
+
+  const interactiveOnly = project();
+  delete interactiveOnly.presentation.static;
+  assert.deepEqual(
+    validateEditionProject(interactiveOnly).presentation.interactive,
+    interactiveOnly.presentation.interactive,
+  );
+});
+
+test("an optional medium preference does not require a repeated view inventory", () => {
+  const value = project();
+  value.presentation = { static: { width: 4800 } };
+  const selected = validateEditionProject(value);
+  assert.deepEqual(selected.presentation.static, {
+    views: [{ id: "overview", questions: ["flow"] }],
+    width: 4800,
+  });
+  assert.deepEqual(selected.presentation.interactive.views, [
+    { id: "overview", questions: ["flow"] },
+  ]);
+});
+
+test("the default raster width does not depend on whether views were authored", () => {
+  const value = project();
+  delete value.presentation.static.width;
+  const before = structuredClone(value.presentation.static.views);
+  const selected = validateEditionProject(value);
+  assert.equal(selected.presentation.static.width, 6000);
+  assert.deepEqual(selected.presentation.static.views, before);
+});
+
+test("defaults do not rescue empty, null or misspelled authored presentation", () => {
+  for (const presentation of [null, { static: null }, { static: { views: [] } }, { statik: {} }]) {
+    const value = project();
+    value.presentation = presentation;
+    assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
+  }
+  const value = project();
+  value.visualPolicy = null;
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
+});
+
+test("editorial summary is optional and never replaced by invented prose", () => {
+  const value = project();
+  delete value.narrative;
+  const selected = validateEditionProject(value);
+  assert.deepEqual(selected.narrative, {});
+  assert.deepEqual(validateEditionProject(selected), selected);
+  assert.equal(value.narrative, undefined);
+  value.narrative = { summary: "" };
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
+  value.narrative = null;
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
+});
+
+test("unimplemented queries and transformations are not authored as usable controls", () => {
   const value = project();
   assert.doesNotThrow(() => validateEditionProject(value));
 
   const query = structuredClone(value);
   query.scope.selections[0] = {
-    id: 'lanes',
-    namespace: 'ethos',
-    kind: 'query',
-    language: 'likec4',
-    expression: 'element lane',
-    questions: ['flow'],
+    id: "lanes",
+    namespace: "ethos",
+    kind: "query",
+    language: "likec4",
+    expression: "element lane",
+    questions: ["flow"],
   };
-  assert.throws(() => validateEditionProject(query), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(query), { code: "edition_project_invalid" });
 
   const transformation = structuredClone(value);
   transformation.transformations = [];
-  assert.throws(() => validateEditionProject(transformation), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(transformation), { code: "edition_project_invalid" });
 });
 
-test('presentation intent is optional when the views already express the selected questions', () => {
+test("presentation intent is optional when the views already express the selected questions", () => {
   const value = project();
   delete value.presentation.static.intent;
   delete value.presentation.interactive.intent;
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
-test('one selection authors one source assertion without a second order list', () => {
+test("one selection authors one source assertion without a second order list", () => {
   const value = project();
   assert.doesNotThrow(() => validateEditionProject(value));
   value.requiredAssertions = [];
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('context-only evidence cannot claim source coverage elsewhere', () => {
+test("context-only evidence cannot claim source coverage elsewhere", () => {
   const value = project();
   delete value.scope.selections[0].questions;
   value.editorialAssertions = [
     {
-      id: 'editorial-flow',
-      statement: 'The source does not prove the whole workflow.',
+      id: "editorial-flow",
+      statement: "The source does not prove the whole workflow.",
       proponent: value.editor,
-      basis: ['lanes'],
-      questions: ['flow'],
+      basis: ["lanes"],
+      questions: ["flow"],
     },
   ];
-  value.presentation.interactive.views.push({ id: 'detail', questions: ['flow'] });
+  value.presentation.interactive.views.push({ id: "detail", questions: ["flow"] });
   value.omissions.push({
-    selection: 'lanes',
-    question: 'flow',
-    medium: 'interactive',
-    disposition: 'covered-elsewhere',
-    view: 'overview',
-    coveredIn: 'detail',
-    reason: 'The detail carries the source fact.',
+    selection: "lanes",
+    question: "flow",
+    medium: "interactive",
+    disposition: "covered-elsewhere",
+    view: "overview",
+    coveredIn: "detail",
+    reason: "The detail carries the source fact.",
   });
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('an editorial assertion cannot reuse a selected source assertion identity', () => {
+test("an editorial assertion cannot reuse a selected source assertion identity", () => {
   const value = project();
   value.editorialAssertions = [
     {
-      id: 'lanes',
-      statement: 'This is an editorial interpretation.',
+      id: "lanes",
+      statement: "This is an editorial interpretation.",
       proponent: value.editor,
-      basis: ['lanes'],
-      questions: ['flow'],
+      basis: ["lanes"],
+      questions: ["flow"],
     },
   ];
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('Edition Project owns editorial choices without copied source facts or pixels', () => {
+test("Edition Project owns editorial choices without copied source facts or pixels", () => {
   const value = project();
   const before = structuredClone(value);
   const selected = validateEditionProject(value);
-  assert.equal(EDITION_PROJECT_SCHEMA.$id, 'architecture.edition-project/v1');
+  assert.equal(EDITION_PROJECT_SCHEMA.$id, "architecture.edition-project/v1");
   assert.deepEqual(selected, before);
   assert.deepEqual(value, before);
   assert.notEqual(selected, value);
@@ -135,13 +235,13 @@ test('Edition Project owns editorial choices without copied source facts or pixe
   assert.equal(Object.isFrozen(value.scope.selections[0].questions), false);
 });
 
-test('Edition Project admits source-qualified grouping without authored coordinates', () => {
+test("Edition Project admits source-qualified grouping without authored coordinates", () => {
   const value = project();
   const groups = [
     {
-      id: 'control',
-      label: 'Control boundary',
-      elements: [{ namespace: 'ethos', id: 'lane' }],
+      id: "control",
+      label: "Control boundary",
+      elements: [{ namespace: "ethos", id: "lane" }],
     },
   ];
   value.presentation.static.views[0].groups = groups;
@@ -152,266 +252,266 @@ test('Edition Project admits source-qualified grouping without authored coordina
   assert.equal(Object.isFrozen(selected.presentation.static.views[0].groups[0]), true);
 });
 
-test('Edition grouping rejects duplicate, foreign, and pixel-level members', () => {
+test("Edition grouping rejects duplicate, foreign, and pixel-level members", () => {
   const grouped = project();
   grouped.presentation.static.views[0].groups = [
-    { id: 'first', label: 'First', elements: [{ namespace: 'ethos', id: 'lane' }] },
-    { id: 'second', label: 'Second', elements: [{ namespace: 'ethos', id: 'quality' }] },
+    { id: "first", label: "First", elements: [{ namespace: "ethos", id: "lane" }] },
+    { id: "second", label: "Second", elements: [{ namespace: "ethos", id: "quality" }] },
   ];
   for (const change of [
-    (value) => (value.presentation.static.views[0].groups[1].elements[0].id = 'lane'),
-    (value) => (value.presentation.static.views[0].groups[0].elements[0].namespace = 'foreign'),
+    (value) => (value.presentation.static.views[0].groups[1].elements[0].id = "lane"),
+    (value) => (value.presentation.static.views[0].groups[0].elements[0].namespace = "foreign"),
     (value) => (value.presentation.static.views[0].groups[0].elements[0].x = 100),
-    (value) => (value.presentation.static.views[0].groups[1].id = 'first'),
+    (value) => (value.presentation.static.views[0].groups[1].id = "first"),
   ]) {
     const value = structuredClone(grouped);
     change(value);
-    assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+    assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
   }
 });
 
-test('Edition Project admits a separately attributed cross-source editorial assertion', () => {
+test("Edition Project admits a separately attributed cross-source editorial assertion", () => {
   const value = project();
-  value.scope.sourceNamespaces.push('aigw');
+  value.scope.sourceNamespaces.push("aigw");
   value.scope.selections.push({
-    id: 'proxy',
-    namespace: 'aigw',
-    kind: 'reference',
-    reference: 'element:proxy',
+    id: "proxy",
+    namespace: "aigw",
+    kind: "reference",
+    reference: "element:proxy",
   });
   value.editorialAssertions = [
     {
-      id: 'comparison',
-      statement: 'The two products expose distinct control boundaries.',
-      proponent: 'architecture-editor',
-      basis: ['lanes', 'proxy'],
-      questions: ['flow'],
+      id: "comparison",
+      statement: "The two products expose distinct control boundaries.",
+      proponent: "architecture-editor",
+      basis: ["lanes", "proxy"],
+      questions: ["flow"],
     },
   ];
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
-test('Edition Project addresses a derived projection separately from native source scope', () => {
+test("Edition Project addresses a derived projection separately from native source scope", () => {
   const value = project();
-  value.scope.projectionNamespaces = ['ethos/claims'];
-  value.scope.selections[0].namespace = 'ethos/claims';
+  value.scope.projectionNamespaces = ["ethos/claims"];
+  value.scope.selections[0].namespace = "ethos/claims";
   assert.deepEqual(validateEditionProject(value), value);
-  value.scope.projectionNamespaces.push('ethos/unused');
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  value.scope.projectionNamespaces.push("ethos/unused");
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
   value.scope.projectionNamespaces.pop();
   value.scope.projectionNamespaces = [];
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('Edition Project rejects unknown fields, generated seals, and authored geometry', () => {
+test("Edition Project rejects unknown fields, generated seals, and authored geometry", () => {
   for (const change of [
-    (v) => (v.schema = 'architecture.edition-project/v2'),
-    (v) => (v.candidateDigest = 'a'.repeat(64)),
+    (v) => (v.schema = "architecture.edition-project/v2"),
+    (v) => (v.candidateDigest = "a".repeat(64)),
     (v) => (v.scope.selections[0].x = 100),
     (v) => (v.presentation.static.nodePositions = {}),
-    (v) => (v.visualPolicy.renderer = './custom.mjs'),
+    (v) => (v.visualPolicy.renderer = "./custom.mjs"),
     (v) => (v.questions[0].approved = true),
   ]) {
     const value = project();
     change(value);
-    assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+    assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
   }
 });
 
-test('Edition Project rejects unresolved editorial references and duplicate identities', () => {
+test("Edition Project rejects unresolved editorial references and duplicate identities", () => {
   for (const change of [
-    (v) => (v.questions[0].audience = 'unknown'),
-    (v) => (v.scope.selections[0].questions = ['missing']),
+    (v) => (v.questions[0].audience = "unknown"),
+    (v) => (v.scope.selections[0].questions = ["missing"]),
     (v) => (v.scope.selections[0].questions = []),
-    (v) => (v.scope.selections[0].namespace = 'unselected'),
+    (v) => (v.scope.selections[0].namespace = "unselected"),
     (v) => v.questions.push(structuredClone(v.questions[0])),
     (v) => (v.narrative.readingOrder = []),
-    (v) => (v.presentation.static.views[0].questions = ['missing']),
+    (v) => (v.presentation.static.views[0].questions = ["missing"]),
   ]) {
     const value = project();
     change(value);
-    assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+    assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
   }
 });
 
-test('Edition Project classifies explicit omissions and editorial propositions', () => {
+test("Edition Project classifies explicit omissions and editorial propositions", () => {
   const value = project();
   value.omissions.push({
-    selection: 'lanes',
-    question: 'flow',
-    medium: 'static',
-    disposition: 'explicit-limit',
-    view: 'overview',
-    reason: 'The overview does not explain every Lane transition.',
+    selection: "lanes",
+    question: "flow",
+    medium: "static",
+    disposition: "explicit-limit",
+    view: "overview",
+    reason: "The overview does not explain every Lane transition.",
   });
   value.scope.limits.push({
-    question: 'flow',
-    reason: 'Runtime truth requires separate observation.',
+    question: "flow",
+    reason: "Runtime truth requires separate observation.",
   });
   assert.doesNotThrow(() => validateEditionProject(value));
 
   for (const change of [
-    (v) => (v.omissions[0].disposition = 'silent'),
-    (v) => (v.omissions[0].reason = ''),
-    (v) => (v.omissions[0].question = 'unknown'),
-    (v) => (v.scope.selections[0].questions = ['unknown']),
+    (v) => (v.omissions[0].disposition = "silent"),
+    (v) => (v.omissions[0].reason = ""),
+    (v) => (v.omissions[0].question = "unknown"),
+    (v) => (v.scope.selections[0].questions = ["unknown"]),
   ]) {
     const invalid = structuredClone(value);
     change(invalid);
-    assert.throws(() => validateEditionProject(invalid), { code: 'edition_project_invalid' });
+    assert.throws(() => validateEditionProject(invalid), { code: "edition_project_invalid" });
   }
 
   const contradictory = structuredClone(value);
   contradictory.omissions.push({
     ...contradictory.omissions[0],
-    disposition: 'outside-question',
+    disposition: "outside-question",
   });
   assert.throws(() => validateEditionProject(contradictory), {
-    code: 'edition_project_invalid',
+    code: "edition_project_invalid",
   });
 });
 
-test('Edition selection preserves an owner-qualified source namespace', () => {
+test("Edition selection preserves an owner-qualified source namespace", () => {
   const value = project();
-  value.scope.sourceNamespaces[0] = 'org.example/ethos.architecture';
+  value.scope.sourceNamespaces[0] = "org.example/ethos.architecture";
   value.scope.selections[0].namespace = value.scope.sourceNamespaces[0];
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
-test('neutral authoring does not require pixel dimensions or a visual override', () => {
+test("neutral authoring does not require pixel dimensions or a visual override", () => {
   const value = project();
   delete value.presentation.static.width;
   delete value.visualPolicy.override;
   assert.doesNotThrow(() => validateEditionProject(value));
 });
 
-test('an editorial assertion cannot relabel itself as a source assertion', () => {
+test("an editorial assertion cannot relabel itself as a source assertion", () => {
   const value = project();
   value.editorialAssertions = [
     {
-      id: 'interpretation',
-      statement: 'This is an interpretation of the source.',
+      id: "interpretation",
+      statement: "This is an interpretation of the source.",
       proponent: value.editor,
-      basis: ['lanes'],
-      questions: ['flow'],
-      kind: 'source',
+      basis: ["lanes"],
+      questions: ["flow"],
+      kind: "source",
     },
   ];
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('covered-elsewhere omission names a distinct target view', () => {
+test("covered-elsewhere omission names a distinct target view", () => {
   const value = project();
   value.omissions.push({
-    selection: 'lanes',
-    question: 'flow',
-    medium: 'interactive',
-    disposition: 'covered-elsewhere',
-    view: 'overview',
-    coveredIn: 'mechanism',
-    reason: 'The mechanism view carries the complete assertion.',
+    selection: "lanes",
+    question: "flow",
+    medium: "interactive",
+    disposition: "covered-elsewhere",
+    view: "overview",
+    coveredIn: "mechanism",
+    reason: "The mechanism view carries the complete assertion.",
   });
   assert.doesNotThrow(() => validateEditionProject(value));
   delete value.omissions[0].coveredIn;
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('editorial attribution and exact selected basis are required', () => {
+test("editorial attribution and exact selected basis are required", () => {
   const value = project();
   value.scope.selections.push({
-    id: 'other',
-    namespace: 'ethos',
-    kind: 'reference',
-    reference: 'architecture.proof',
+    id: "other",
+    namespace: "ethos",
+    kind: "reference",
+    reference: "architecture.proof",
   });
   value.editorialAssertions = [
     {
-      id: 'editorial-fact',
-      statement: 'The two mechanisms meet at a verified boundary.',
-      proponent: 'architecture-editor',
-      basis: ['lanes', 'other'],
-      questions: ['flow'],
+      id: "editorial-fact",
+      statement: "The two mechanisms meet at a verified boundary.",
+      proponent: "architecture-editor",
+      basis: ["lanes", "other"],
+      questions: ["flow"],
     },
   ];
   assert.doesNotThrow(() => validateEditionProject(value));
   const missing = structuredClone(value);
-  missing.editorialAssertions[0].basis = ['absent'];
-  assert.throws(() => validateEditionProject(missing), { code: 'edition_project_invalid' });
+  missing.editorialAssertions[0].basis = ["absent"];
+  assert.throws(() => validateEditionProject(missing), { code: "edition_project_invalid" });
   const foreign = structuredClone(value);
-  foreign.editorialAssertions[0].proponent = 'other-editor';
-  assert.throws(() => validateEditionProject(foreign), { code: 'edition_project_invalid' });
+  foreign.editorialAssertions[0].proponent = "other-editor";
+  assert.throws(() => validateEditionProject(foreign), { code: "edition_project_invalid" });
 });
 
-test('every promised question appears in a selected medium', () => {
+test("every promised question appears in a selected medium", () => {
   const value = project();
   value.questions.push({
-    id: 'orphan',
-    audience: 'maintainer',
-    text: 'What evidence supports the claimed transition?',
+    id: "orphan",
+    audience: "maintainer",
+    text: "What evidence supports the claimed transition?",
   });
-  value.scope.selections[0].questions.push('orphan');
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  value.scope.selections[0].questions.push("orphan");
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('declared views are the sole question inventory for each medium', () => {
+test("declared views are the sole question inventory for each medium", () => {
   const value = project();
   assert.doesNotThrow(() => validateEditionProject(value));
-  value.presentation.static.questions = ['flow'];
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  value.presentation.static.questions = ["flow"];
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
   delete value.presentation.static.questions;
-  value.presentation.interactive.views.push({ id: 'overview', questions: ['flow'] });
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  value.presentation.interactive.views.push({ id: "overview", questions: ["flow"] });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });
 
-test('an omission resolves to declared views in one medium', () => {
+test("an omission resolves to declared views in one medium", () => {
   const value = project();
   value.omissions.push({
-    medium: 'interactive',
-    view: 'overview',
-    coveredIn: 'mechanism',
-    selection: 'lanes',
-    question: 'flow',
-    disposition: 'covered-elsewhere',
-    reason: 'The mechanism view carries this source assertion.',
+    medium: "interactive",
+    view: "overview",
+    coveredIn: "mechanism",
+    selection: "lanes",
+    question: "flow",
+    disposition: "covered-elsewhere",
+    reason: "The mechanism view carries this source assertion.",
   });
   assert.doesNotThrow(() => validateEditionProject(value));
 
   const missingTarget = structuredClone(value);
-  missingTarget.omissions[0].coveredIn = 'unknown';
-  assert.throws(() => validateEditionProject(missingTarget), { code: 'edition_project_invalid' });
+  missingTarget.omissions[0].coveredIn = "unknown";
+  assert.throws(() => validateEditionProject(missingTarget), { code: "edition_project_invalid" });
 
   const missingSource = structuredClone(value);
-  missingSource.omissions[0].view = 'unknown';
-  assert.throws(() => validateEditionProject(missingSource), { code: 'edition_project_invalid' });
+  missingSource.omissions[0].view = "unknown";
+  assert.throws(() => validateEditionProject(missingSource), { code: "edition_project_invalid" });
 
   const otherMedium = structuredClone(value);
   otherMedium.presentation.interactive.views.pop();
-  otherMedium.presentation.static.views.push({ id: 'mechanism', questions: ['flow'] });
-  assert.throws(() => validateEditionProject(otherMedium), { code: 'edition_project_invalid' });
+  otherMedium.presentation.static.views.push({ id: "mechanism", questions: ["flow"] });
+  assert.throws(() => validateEditionProject(otherMedium), { code: "edition_project_invalid" });
 
   const wrongQuestion = structuredClone(value);
   wrongQuestion.questions.push({
-    id: 'risk',
-    audience: 'maintainer',
-    text: 'What remains unknown?',
+    id: "risk",
+    audience: "maintainer",
+    text: "What remains unknown?",
   });
-  wrongQuestion.presentation.interactive.views[1].questions = ['risk'];
-  assert.throws(() => validateEditionProject(wrongQuestion), { code: 'edition_project_invalid' });
+  wrongQuestion.presentation.interactive.views[1].questions = ["risk"];
+  assert.throws(() => validateEditionProject(wrongQuestion), { code: "edition_project_invalid" });
 
   const cyclic = structuredClone(value);
-  cyclic.omissions.push({ ...cyclic.omissions[0], view: 'mechanism', coveredIn: 'overview' });
-  assert.throws(() => validateEditionProject(cyclic), { code: 'edition_project_invalid' });
+  cyclic.omissions.push({ ...cyclic.omissions[0], view: "mechanism", coveredIn: "overview" });
+  assert.throws(() => validateEditionProject(cyclic), { code: "edition_project_invalid" });
 });
 
-test('an outside-question omission cannot contradict its view questions', () => {
+test("an outside-question omission cannot contradict its view questions", () => {
   const value = project();
   value.omissions.push({
-    medium: 'static',
-    view: 'overview',
-    selection: 'lanes',
-    question: 'flow',
-    disposition: 'outside-question',
-    reason: 'This view excludes the flow question.',
+    medium: "static",
+    view: "overview",
+    selection: "lanes",
+    question: "flow",
+    disposition: "outside-question",
+    reason: "This view excludes the flow question.",
   });
-  assert.throws(() => validateEditionProject(value), { code: 'edition_project_invalid' });
+  assert.throws(() => validateEditionProject(value), { code: "edition_project_invalid" });
 });

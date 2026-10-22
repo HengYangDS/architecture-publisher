@@ -1,16 +1,11 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import {
-  editionDigest,
-  interactiveSceneDigest,
-  staticSceneDigest,
-  validateEdition,
-} from '../packages/publisher/src/edition/contract.mjs';
-import { semanticArchitectureProjections } from '../packages/publisher/src/scene/contract.mjs';
-import { claimModelDigest } from '../packages/publisher/src/semantics/document.mjs';
-import { editionFixture } from './fixtures/edition.mjs';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { editionDigest, validateEdition } from "../packages/publisher/src/edition/contract.mjs";
+import { semanticArchitectureProjections } from "../packages/publisher/src/scene/contract.mjs";
+import { claimModelDigest } from "../packages/publisher/src/semantics/document.mjs";
+import { editionFixture, editionVisualReviewDuties } from "./fixtures/edition.mjs";
 
-test('Edition binds audience, questions, claims, scenes and obligations', () => {
+test("Edition binds audience, questions, claims, scenes and obligations", () => {
   const { model, edition } = editionFixture(),
     before = structuredClone(edition);
   assert.deepEqual(validateEdition(model, edition), edition);
@@ -18,17 +13,75 @@ test('Edition binds audience, questions, claims, scenes and obligations', () => 
   assert.equal(editionDigest(model, edition).length, 64);
 });
 
-test('Edition is closed and binds the exact product and Claim Model', () => {
+test("one current Edition contract rejects quality tiers and retired input without mutation", () => {
+  const { model, edition } = editionFixture();
+  edition.schema = "architecture.edition/v2";
+  delete edition.class;
+  edition.qualification.human = editionVisualReviewDuties();
+  assert.doesNotThrow(() => validateEdition(model, edition));
+  for (const qualityClass of ["structural", "flagship"]) {
+    const classed = { ...structuredClone(edition), class: qualityClass };
+    const before = structuredClone(classed);
+    assert.throws(() => validateEdition(model, classed), { code: "edition_contract_invalid" });
+    assert.deepEqual(classed, before);
+  }
+  const retired = { ...structuredClone(edition), schema: "architecture.edition/v1" };
+  assert.throws(() => validateEdition(model, retired), { code: "edition_contract_invalid" });
+});
+
+test("every Edition requires each visual predicate for both media without mutation", () => {
+  const { model, edition } = editionFixture();
+  edition.qualification.human = editionVisualReviewDuties();
+  assert.doesNotThrow(() => validateEdition(model, edition));
+  for (const duty of editionVisualReviewDuties()) {
+    const incomplete = structuredClone(edition);
+    incomplete.qualification.human = incomplete.qualification.human.filter(
+      ({ predicate, scope }) => predicate !== duty.predicate || scope.medium !== duty.scope.medium,
+    );
+    const before = structuredClone(incomplete);
+    assert.throws(() => validateEdition(model, incomplete), {
+      code: "edition_human_qualification_required",
+    });
+    assert.deepEqual(incomplete, before);
+  }
+});
+
+test("each declared Edition display requires the complete visual review trio", () => {
+  const { model, edition } = editionFixture();
+  const split = structuredClone(edition);
+  split.qualification.human.forEach((duty, index) => {
+    duty.scope.width += index;
+  });
+  const before = structuredClone(split);
+  assert.throws(() => validateEdition(model, split), {
+    code: "edition_human_qualification_required",
+  });
+  assert.deepEqual(split, before);
+  const additional = structuredClone(edition);
+  additional.qualification.human.push(
+    ...edition.qualification.human.map((duty) => ({
+      ...structuredClone(duty),
+      scope: { ...duty.scope, width: duty.scope.width + 100 },
+    })),
+  );
+  assert.doesNotThrow(() => validateEdition(model, additional));
+  additional.qualification.human.pop();
+  assert.throws(() => validateEdition(model, additional), {
+    code: "edition_human_qualification_required",
+  });
+});
+
+test("Edition is closed and binds the exact product and Claim Model", () => {
   for (const mutate of [
     (e) => (e.extra = true),
-    (e) => (e.schema = 'architecture.semantic-publication/v2'),
-    (e) => (e.id = ''),
-    (e) => (e.owner = ''),
-    (e) => (e.class = 'theme'),
-    (e) => (e.product.name = 'Another Product'),
-    (e) => (e.product.schema = 'architecture.publisher/v2'),
-    (e) => (e.claimModel.schema = 'architecture.semantic-document/v1'),
-    (e) => (e.claimModel.digest = '0'.repeat(64)),
+    (e) => (e.schema = "architecture.semantic-publication/v2"),
+    (e) => (e.id = ""),
+    (e) => (e.owner = ""),
+    (e) => (e.class = "theme"),
+    (e) => (e.product.name = "Another Product"),
+    (e) => (e.product.schema = "architecture.publisher/v2"),
+    (e) => (e.claimModel.schema = "architecture.semantic-document/v1"),
+    (e) => (e.claimModel.digest = "0".repeat(64)),
   ]) {
     const { model, edition } = editionFixture();
     mutate(edition);
@@ -36,43 +89,43 @@ test('Edition is closed and binds the exact product and Claim Model', () => {
   }
 });
 
-test('Edition rejects malformed authored scenes and reader commitments at their owner', () => {
+test("Edition rejects malformed authored scenes and reader commitments at their owner", () => {
   const cases = [
     [
-      'composition',
+      "composition",
       (v) => (v.scenes.static.composition = null),
-      'edition_scene_composition_invalid',
+      "edition_scene_composition_invalid",
     ],
     [
-      'label vertical offset',
-      (v) => (v.scenes.interactive.overview.composition.relations[0].labelDy = 'far'),
-      'edition_scene_relation_invalid',
+      "label vertical offset",
+      (v) => (v.scenes.interactive.overview.composition.relations[0].labelDy = "far"),
+      "edition_scene_relation_invalid",
     ],
     [
-      'label segment',
+      "label segment",
       (v) => (v.scenes.interactive.overview.composition.relations[0].labelSegment = -1),
-      'edition_scene_relation_invalid',
+      "edition_scene_relation_invalid",
     ],
     [
-      'authored identity',
-      (v) => (v.scenes.static.authoredInputSha256 = 'bad'),
-      'edition_scene_invalid',
+      "authored identity",
+      (v) => (v.scenes.static.authoredInputSha256 = "bad"),
+      "edition_scene_invalid",
     ],
     [
-      'audience identity',
-      (v) => (v.audiences['Bad ID'] = { label: 'Unknown' }),
-      'edition_audience_invalid',
+      "audience identity",
+      (v) => (v.audiences["Bad ID"] = { label: "Unknown" }),
+      "edition_audience_invalid",
     ],
     [
-      'question audience',
-      (v) => (v.questions.system.audience = 'absent'),
-      'edition_question_invalid',
+      "question audience",
+      (v) => (v.questions.system.audience = "absent"),
+      "edition_question_invalid",
     ],
-    ['unknown required claim', (v) => v.requiredClaims.push('absent'), 'edition_claim_unknown'],
+    ["unknown required claim", (v) => v.requiredClaims.push("absent"), "edition_claim_unknown"],
     [
-      'scene identity',
-      (v) => (v.scenes.interactive['Bad ID'] = structuredClone(v.scenes.interactive.runtime)),
-      'edition_scene_invalid',
+      "scene identity",
+      (v) => (v.scenes.interactive["Bad ID"] = structuredClone(v.scenes.interactive.runtime)),
+      "edition_scene_invalid",
     ],
   ];
   for (const [name, mutate, code] of cases) {
@@ -82,29 +135,7 @@ test('Edition rejects malformed authored scenes and reader commitments at their 
   }
 });
 
-test('Edition product versions conform to Semantic Versioning 2.0.0', () => {
-  for (const version of ['0.0.0', '1.2.3', '0.3.0-alpha.0', '1.0.0-rc.1+build.20260922']) {
-    const { model, edition } = editionFixture();
-    edition.product.version = version;
-    assert.doesNotThrow(() => validateEdition(model, edition), version);
-  }
-
-  for (const version of [
-    'v1.2.3',
-    '01.2.3',
-    '1.02.3',
-    '1.2.03',
-    '1.2.3-alpha.01',
-    '1.2.3-alpha..1',
-    '1.2.3+',
-  ]) {
-    const { model, edition } = editionFixture();
-    edition.product.version = version;
-    assert.throws(() => validateEdition(model, edition), /edition_identity_invalid/, version);
-  }
-});
-
-test('every Claim Model claim is required or explicitly omitted exactly once', () => {
+test("every Claim Model claim is required or explicitly omitted exactly once", () => {
   const { model, edition } = editionFixture();
   edition.requiredClaims.pop();
   assert.throws(() => validateEdition(model, edition), /edition_claim_classification_incomplete/);
@@ -112,8 +143,8 @@ test('every Claim Model claim is required or explicitly omitted exactly once', (
   const classified = editionFixture();
   const omitted = classified.edition.requiredClaims.pop();
   classified.edition.omissions[omitted] = {
-    disposition: 'out-of-scope',
-    reason: 'The bounded reader question does not require this claim.',
+    disposition: "out-of-scope",
+    reason: "The bounded reader question does not require this claim.",
     view: null,
   };
   for (const scene of [
@@ -133,7 +164,7 @@ test('every Claim Model claim is required or explicitly omitted exactly once', (
   );
 });
 
-test('overview and mechanism scenes completely answer their questions', () => {
+test("overview and mechanism scenes completely answer their questions", () => {
   const staticGap = editionFixture();
   staticGap.edition.scenes.static.claims.pop();
   assert.throws(
@@ -156,19 +187,19 @@ test('overview and mechanism scenes completely answer their questions', () => {
   );
 
   const carrierGap = editionFixture();
-  carrierGap.edition.scenes.interactive.runtime.composition.groups[0].entities = ['server'];
+  carrierGap.edition.scenes.interactive.runtime.composition.groups[0].entities = ["server"];
   assert.throws(
     () => validateEdition(carrierGap.model, carrierGap.edition),
     /edition_scene_claim_carrier_missing.*runtime.*observed/,
   );
 });
 
-test('narrative order names every interactive scene once and starts with overview', () => {
+test("narrative order names every interactive scene once and starts with overview", () => {
   for (const narrative of [
-    ['runtime', 'overview'],
-    ['overview'],
-    ['overview', 'runtime', 'runtime'],
-    ['overview', 'missing'],
+    ["runtime", "overview"],
+    ["overview"],
+    ["overview", "runtime", "runtime"],
+    ["overview", "missing"],
   ]) {
     const { model, edition } = editionFixture();
     edition.narrative = narrative;
@@ -176,7 +207,7 @@ test('narrative order names every interactive scene once and starts with overvie
   }
 });
 
-test('visual grammar and qualification obligations are explicit', () => {
+test("visual grammar and qualification obligations are explicit", () => {
   const missingGrammar = editionFixture();
   missingGrammar.edition.visualGrammar.principles = [];
   assert.throws(
@@ -191,43 +222,43 @@ test('visual grammar and qualification obligations are explicit', () => {
     /edition_qualification_invalid/,
   );
 
-  const flagship = editionFixture();
-  flagship.edition.class = 'flagship';
+  const selected = editionFixture();
+  selected.edition.qualification.human = [];
   assert.throws(
-    () => validateEdition(flagship.model, flagship.edition),
+    () => validateEdition(selected.model, selected.edition),
     /edition_human_qualification_required/,
   );
   const targets = [
     {
-      kind: 'physical',
-      medium: 'static',
-      artifact: 'overview-png',
+      kind: "physical",
+      medium: "static",
+      artifact: "overview-png",
       width: 6000,
       height: 3375,
     },
     {
-      kind: 'viewport',
-      medium: 'interactive',
-      artifact: 'atlas',
+      kind: "viewport",
+      medium: "interactive",
+      artifact: "atlas",
       width: 1440,
       height: 1000,
     },
   ];
-  flagship.edition.qualification.human = ['faithful', 'intelligible', 'restrained'].flatMap(
+  selected.edition.qualification.human = ["faithful", "intelligible", "aesthetic"].flatMap(
     (predicate) => targets.map((scope) => ({ predicate, scope: { ...scope } })),
   );
-  assert.doesNotThrow(() => validateEdition(flagship.model, flagship.edition));
+  assert.doesNotThrow(() => validateEdition(selected.model, selected.edition));
 
-  const oneMedium = structuredClone(flagship);
+  const oneMedium = structuredClone(selected);
   oneMedium.edition.qualification.human = oneMedium.edition.qualification.human.filter(
-    ({ scope }) => scope.medium === 'static',
+    ({ scope }) => scope.medium === "static",
   );
   assert.throws(
     () => validateEdition(oneMedium.model, oneMedium.edition),
     /edition_human_qualification_required/,
   );
 
-  const duplicate = structuredClone(flagship);
+  const duplicate = structuredClone(selected);
   duplicate.edition.qualification.human.push(
     structuredClone(duplicate.edition.qualification.human[0]),
   );
@@ -237,92 +268,31 @@ test('visual grammar and qualification obligations are explicit', () => {
   );
 });
 
-test('static and interactive scenes have independent identities', () => {
-  const { model, edition } = editionFixture(),
-    staticBefore = staticSceneDigest(model, edition),
-    interactiveBefore = interactiveSceneDigest(model, edition);
-  edition.scenes.interactive.overview.label = 'Changed interactive overview';
-  assert.equal(staticSceneDigest(model, edition), staticBefore);
-  assert.notEqual(interactiveSceneDigest(model, edition), interactiveBefore);
-  validateEdition(model, edition);
-
-  const aliased = editionFixture();
-  aliased.edition.scenes.interactive.overview = aliased.edition.scenes.static;
-  assert.throws(() => validateEdition(aliased.model, aliased.edition), /edition_json_alias/);
-});
-
-test('complete overview media carry the same semantic identities', () => {
-  const missingUnclaimedEntity = editionFixture();
-  missingUnclaimedEntity.model.entities.worker = {
-    type: 'component',
-    label: 'worker',
-    qualifiers: {},
-    provenance: ['contract'],
-  };
-  missingUnclaimedEntity.edition.claimModel.digest = claimModelDigest(missingUnclaimedEntity.model);
-
-  assert.throws(
-    () => validateEdition(missingUnclaimedEntity.model, missingUnclaimedEntity.edition),
-    /edition_overview_incomplete/,
+test("visual admission requires aesthetic judgment rather than restraint alone", () => {
+  const { model, edition } = editionFixture();
+  const scopes = [
+    { kind: "physical", medium: "static", artifact: "overview-png", width: 6000, height: 3375 },
+    { kind: "viewport", medium: "interactive", artifact: "atlas", width: 1440, height: 1000 },
+  ];
+  edition.qualification.human = ["faithful", "intelligible", "aesthetic"].flatMap((predicate) =>
+    scopes.map((scope) => ({ predicate, scope: { ...scope } })),
   );
-
-  const missingUnclaimedRelation = editionFixture();
-  missingUnclaimedRelation.model.relations.observes = {
-    type: 'calls',
-    subject: 'server',
-    object: 'other',
-    qualifiers: {},
-    provenance: ['contract'],
-  };
-  missingUnclaimedRelation.edition.claimModel.digest = claimModelDigest(
-    missingUnclaimedRelation.model,
-  );
-
-  assert.throws(
-    () => validateEdition(missingUnclaimedRelation.model, missingUnclaimedRelation.edition),
-    /edition_overview_incomplete/,
-  );
-
-  const entityDrift = editionFixture();
-  entityDrift.model.entities.worker = {
-    type: 'component',
-    label: 'worker',
-    qualifiers: {},
-    provenance: ['contract'],
-  };
-  entityDrift.edition.claimModel.digest = claimModelDigest(entityDrift.model);
-  entityDrift.edition.scenes.static.composition.groups[0].entities.push('worker');
-
-  assert.throws(
-    () => validateEdition(entityDrift.model, entityDrift.edition),
-    /edition_overview_carrier_drift/,
-  );
-
-  const relationDrift = editionFixture();
-  relationDrift.model.relations.observes = {
-    type: 'calls',
-    subject: 'server',
-    object: 'other',
-    qualifiers: {},
-    provenance: ['contract'],
-  };
-  relationDrift.edition.claimModel.digest = claimModelDigest(relationDrift.model);
-  relationDrift.edition.scenes.static.composition.relations.push({
-    id: 'observes',
-    fromSide: 'right',
-    toSide: 'left',
-    route: 'orthogonal-h',
+  const before = structuredClone(edition);
+  assert.doesNotThrow(() => validateEdition(model, edition));
+  assert.deepEqual(edition, before);
+  const restrained = structuredClone(edition);
+  for (const item of restrained.qualification.human)
+    if (item.predicate === "aesthetic") item.predicate = "restrained";
+  const restrainedBefore = structuredClone(restrained);
+  assert.throws(() => validateEdition(model, restrained), {
+    code: "edition_human_qualification_required",
   });
-
-  assert.throws(
-    () => validateEdition(relationDrift.model, relationDrift.edition),
-    /edition_overview_carrier_drift/,
-  );
+  assert.deepEqual(restrained, restrainedBefore);
 });
 
-test('Edition owns medium-specific composition admission', () => {
+test("Edition owns medium-specific composition admission", () => {
   const staticAuto = editionFixture();
-  staticAuto.edition.scenes.static.composition.relations[0].route = 'auto';
+  staticAuto.edition.scenes.static.composition.relations[0].route = "auto";
   assert.throws(
     () => validateEdition(staticAuto.model, staticAuto.edition),
     /edition_scene_relation_invalid.*static/,
@@ -337,7 +307,7 @@ test('Edition owns medium-specific composition admission', () => {
 
   const interactiveAuto = editionFixture();
   const relation = interactiveAuto.edition.scenes.interactive.overview.composition.relations[0];
-  relation.route = 'auto';
+  relation.route = "auto";
   relation.labelAt = [420, 240];
   assert.equal(
     validateEdition(interactiveAuto.model, interactiveAuto.edition),
@@ -346,16 +316,16 @@ test('Edition owns medium-specific composition admission', () => {
   assert.equal(
     semanticArchitectureProjections(interactiveAuto.model, interactiveAuto.edition)
       .interactiveScenes[0].relations[0].route,
-    'auto',
+    "auto",
   );
 
   const overfull = editionFixture();
   for (let index = 0; index < 6; index++)
     overfull.model.entities[`extra-${index}`] = {
-      type: 'component',
+      type: "component",
       label: `Extra ${index}`,
       qualifiers: {},
-      provenance: ['contract'],
+      provenance: ["contract"],
     };
   overfull.edition.claimModel.digest = claimModelDigest(overfull.model);
   const entityIds = Object.keys(overfull.model.entities);
@@ -364,112 +334,5 @@ test('Edition owns medium-specific composition admission', () => {
   assert.throws(
     () => validateEdition(overfull.model, overfull.edition),
     /edition_scene_group_invalid.*static/,
-  );
-});
-
-test('rendered title participates in both medium identities', () => {
-  const { model, edition } = editionFixture(),
-    staticBefore = staticSceneDigest(model, edition),
-    interactiveBefore = interactiveSceneDigest(model, edition);
-  edition.title = 'Changed rendered title';
-  assert.notEqual(staticSceneDigest(model, edition), staticBefore);
-  assert.notEqual(interactiveSceneDigest(model, edition), interactiveBefore);
-});
-
-test('medium identities bind selected semantic renderer inputs and normalize scene sets', () => {
-  const baseline = editionFixture(),
-    label = editionFixture(),
-    endpoint = editionFixture(),
-    reordered = editionFixture();
-
-  label.model.entities.server.label = 'Renamed rendered server';
-  label.edition.claimModel.digest = claimModelDigest(label.model);
-  assert.notEqual(
-    staticSceneDigest(label.model, label.edition),
-    staticSceneDigest(baseline.model, baseline.edition),
-  );
-  assert.notEqual(
-    interactiveSceneDigest(label.model, label.edition),
-    interactiveSceneDigest(baseline.model, baseline.edition),
-  );
-
-  [endpoint.model.relations.request.subject, endpoint.model.relations.request.object] = [
-    'server',
-    'client',
-  ];
-  for (const id of ['intended', 'implemented', 'governed'])
-    [endpoint.model.claims[id].subject, endpoint.model.claims[id].object] = ['server', 'client'];
-  endpoint.edition.claimModel.digest = claimModelDigest(endpoint.model);
-  assert.notEqual(
-    staticSceneDigest(endpoint.model, endpoint.edition),
-    staticSceneDigest(baseline.model, baseline.edition),
-  );
-  assert.notEqual(
-    interactiveSceneDigest(endpoint.model, endpoint.edition),
-    interactiveSceneDigest(baseline.model, baseline.edition),
-  );
-
-  reordered.edition.scenes.static.claims.reverse();
-  for (const scene of Object.values(reordered.edition.scenes.interactive)) {
-    scene.claims.reverse();
-    scene.questions.reverse();
-  }
-  assert.equal(
-    staticSceneDigest(reordered.model, reordered.edition),
-    staticSceneDigest(baseline.model, baseline.edition),
-  );
-  assert.equal(
-    interactiveSceneDigest(reordered.model, reordered.edition),
-    interactiveSceneDigest(baseline.model, baseline.edition),
-  );
-});
-
-test('Edition digest normalizes declared sets but preserves narrative order', () => {
-  const first = editionFixture(),
-    second = editionFixture();
-  for (const fixture of [first, second]) {
-    fixture.edition.questions.delivery = {
-      audience: 'maintainer',
-      prompt: 'How is implemented behavior delivered?',
-      claims: ['implemented'],
-      detail: 'mechanism',
-      risk: 'Omission would hide the delivery boundary.',
-    };
-    fixture.edition.scenes.interactive.delivery = {
-      label: 'Delivery boundary',
-      purpose: 'mechanism',
-      questions: ['delivery'],
-      claims: ['implemented'],
-      composition: {
-        groups: [
-          {
-            id: 'delivery',
-            label: 'Delivery',
-            entities: ['client', 'server'],
-          },
-        ],
-        relations: [
-          {
-            id: 'request',
-            fromSide: 'right',
-            toSide: 'left',
-            route: 'orthogonal-h',
-          },
-        ],
-      },
-    };
-    fixture.edition.narrative = ['overview', 'runtime', 'delivery'];
-  }
-  second.edition.requiredClaims.reverse();
-  second.edition.questions.system.claims.reverse();
-  second.edition.qualification.semantic.reverse();
-  assert.equal(
-    editionDigest(first.model, first.edition),
-    editionDigest(second.model, second.edition),
-  );
-  second.edition.narrative = ['overview', 'delivery', 'runtime'];
-  assert.notEqual(
-    editionDigest(first.model, first.edition),
-    editionDigest(second.model, second.edition),
   );
 });

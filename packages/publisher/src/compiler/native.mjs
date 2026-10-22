@@ -1,43 +1,43 @@
-import { createHash } from 'node:crypto';
-import { validateEditionProject } from '../edition/authoring.mjs';
-import { importLikeC4Native } from '../semantics/native-likec4.mjs';
-import { resolveLikeC4Selection } from '../semantics/native-selection.mjs';
-import { importClaimModel, resolveClaimModelSelection } from '../semantics/native-claim-model.mjs';
-import { deepFreeze } from '../semantics/document.mjs';
-import { canonical, parseStrictJson } from '../protocol/json.mjs';
-import { fail, isDigest } from '../protocol/values.mjs';
+import { createHash } from "node:crypto";
+import { validateEditionProject } from "../edition/authoring.mjs";
+import { importLikeC4Native } from "../semantics/native-likec4.mjs";
+import { resolveLikeC4Selection } from "../semantics/native-selection.mjs";
+import { importClaimModel, resolveClaimModelSelection } from "../semantics/native-claim-model.mjs";
+import { deepFreeze } from "../semantics/document.mjs";
+import { canonical, parseStrictJson } from "../protocol/json.mjs";
+import { fail, isDigest } from "../protocol/values.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 function importSelectedClaimModel(source, content, sourceClass) {
   try {
     return importClaimModel(source, content, sourceClass);
   } catch (error) {
     const field =
-      error?.code === 'semantic_claim_condition_invalid'
-        ? 'condition'
-        : error?.code === 'semantic_claim_scope_invalid'
-          ? 'scope'
+      error?.code === "semantic_claim_condition_invalid"
+        ? "condition"
+        : error?.code === "semantic_claim_scope_invalid"
+          ? "scope"
           : null;
-    if (field && typeof error.detail === 'string' && error.detail)
+    if (field && typeof error.detail === "string" && error.detail)
       error.diagnostics = [
         {
           code: error.code,
-          severity: 'error',
+          severity: "error",
           message: `Selected Claim Model assertion has an invalid ${field}.`,
           predicate: `claim-${field}-valid`,
           subject: {
-            kind: 'claim-model-assertion',
+            kind: "claim-model-assertion",
             sourceClass,
             namespace: source.namespace,
             sourceSha256: source.sha256,
             claimId: error.detail,
-            ...(sourceClass === 'derived' && source.adapter ? { adapter: source.adapter } : {}),
+            ...(sourceClass === "derived" && source.adapter ? { adapter: source.adapter } : {}),
           },
           responsibility: {
-            role: sourceClass === 'native' ? 'source-claimant' : 'projection-claimant',
+            role: sourceClass === "native" ? "source-claimant" : "projection-claimant",
             declaredOwner:
-              typeof source.claimant === 'string' && source.claimant.trim()
+              typeof source.claimant === "string" && source.claimant.trim()
                 ? source.claimant
                 : null,
           },
@@ -53,30 +53,30 @@ function importSelectedClaimModel(source, content, sourceClass) {
 export async function compileEditionNativeSelections(input) {
   const lock = input?.lock;
   if (
-    lock?.schema !== 'architecture.materialized-input-lock/v1' ||
+    lock?.schema !== "architecture.materialized-input-lock/v1" ||
     !Array.isArray(lock.sources) ||
     !Array.isArray(lock.derived) ||
     !Array.isArray(input.limits) ||
-    input.limits.some((limit) => typeof limit !== 'string' || !limit) ||
+    input.limits.some((limit) => typeof limit !== "string" || !limit) ||
     !isDigest(input.lockSha256) ||
-    typeof input.readEdition !== 'function' ||
-    typeof input.readSource !== 'function' ||
+    typeof input.readEdition !== "function" ||
+    typeof input.readSource !== "function" ||
     sha(Buffer.from(canonical(lock))) !== input.lockSha256
   )
-    fail('edition_native_input_invalid');
+    fail("edition_native_input_invalid");
 
   const editionBytes = input.readEdition();
   if (!Buffer.isBuffer(editionBytes) || sha(editionBytes) !== lock.edition?.sha256)
-    fail('edition_native_input_invalid');
+    fail("edition_native_input_invalid");
   const project = validateEditionProject(
     parseStrictJson(
       editionBytes,
-      'materialized_edition_json_invalid',
-      'materialized_edition_json_duplicate_key',
+      "materialized_edition_json_invalid",
+      "materialized_edition_json_duplicate_key",
     ),
   );
   if (project.id !== lock.edition.id || project.editor !== lock.edition.editor)
-    fail('edition_native_input_invalid');
+    fail("edition_native_input_invalid");
 
   const sources = new Map(lock.sources.map((source) => [source.namespace, source]));
   const derived = new Map(lock.derived.map((projection) => [projection.namespace, projection]));
@@ -91,10 +91,10 @@ export async function compileEditionNativeSelections(input) {
     project.scope.sourceNamespaces.some((namespace) => !sources.has(namespace)) ||
     addressedProjections.some((projection) => projection === undefined)
   )
-    fail('edition_native_input_invalid');
+    fail("edition_native_input_invalid");
   const claimFormat = (format) =>
-    format?.id === 'architecture.claim-model' && format.version === '2';
-  const likeFormat = (format) => format?.id === 'likec4/dsl' && format.version === 'unversioned';
+    format?.id === "architecture.claim-model" && format.version === "2";
+  const likeFormat = (format) => format?.id === "likec4/dsl" && format.version === "unversioned";
   if (
     addressedProjections.some(
       (projection) =>
@@ -104,7 +104,7 @@ export async function compileEditionNativeSelections(input) {
           projection.derivedFrom.length,
     )
   )
-    fail('edition_native_input_invalid');
+    fail("edition_native_input_invalid");
   const ancestor = new Set(
     addressedProjections.flatMap((projection) =>
       projection.derivedFrom.map((item) => item?.namespace),
@@ -116,17 +116,17 @@ export async function compileEditionNativeSelections(input) {
       !claimFormat(source.format) &&
       !ancestor.has(source.namespace)
     )
-      fail('native_format_unadmitted');
+      fail("native_format_unadmitted");
   }
   if (addressedProjections.some((projection) => !claimFormat(projection.format)))
-    fail('native_format_unadmitted');
+    fail("native_format_unadmitted");
   for (const projection of addressedProjections) {
     for (const ancestor of projection.derivedFrom) {
       const source = sources.get(ancestor?.namespace);
-      if (!source || source.sha256 !== ancestor.sha256) fail('edition_native_input_invalid');
+      if (!source || source.sha256 !== ancestor.sha256) fail("edition_native_input_invalid");
       const bytes = input.readSource(source.namespace);
       if (!Buffer.isBuffer(bytes) || sha(bytes) !== source.sha256)
-        fail('native_claim_model_ancestor_digest_mismatch');
+        fail("native_claim_model_ancestor_digest_mismatch");
     }
   }
 
@@ -138,13 +138,13 @@ export async function compileEditionNativeSelections(input) {
     if (claimFormat(source.format))
       claimModels.set(
         source.namespace,
-        importSelectedClaimModel(source, input.readSource(source.namespace), 'native'),
+        importSelectedClaimModel(source, input.readSource(source.namespace), "native"),
       );
   for (const projection of addressedProjections) {
-    if (typeof input.readDerived !== 'function') fail('edition_native_input_invalid');
+    if (typeof input.readDerived !== "function") fail("edition_native_input_invalid");
     claimModels.set(
       projection.namespace,
-      importSelectedClaimModel(projection, input.readDerived(projection), 'derived'),
+      importSelectedClaimModel(projection, input.readDerived(projection), "derived"),
     );
   }
 
@@ -154,15 +154,15 @@ export async function compileEditionNativeSelections(input) {
       try {
         return resolveClaimModelSelection(imported, selection);
       } catch (error) {
-        if (error?.code === 'native_claim_model_reference_unselected')
+        if (error?.code === "native_claim_model_reference_unselected")
           error.diagnostics = [
             {
               code: error.code,
-              severity: 'error',
-              message: 'Selected Claim Model reference is absent from the bound model.',
-              predicate: 'selected-reference-resolves',
+              severity: "error",
+              message: "Selected Claim Model reference is absent from the bound model.",
+              predicate: "selected-reference-resolves",
               subject: {
-                kind: 'edition-source-reference',
+                kind: "edition-source-reference",
                 editionId: project.id,
                 editionSha256: lock.edition.sha256,
                 selectionId: selection.id,
@@ -170,7 +170,7 @@ export async function compileEditionNativeSelections(input) {
                 reference: selection.reference,
                 sourceSha256: imported.source.sha256,
               },
-              responsibility: { role: 'edition-editor', declaredOwner: project.editor },
+              responsibility: { role: "edition-editor", declaredOwner: project.editor },
               evidence: {},
               supportedFixes: [],
             },
@@ -180,18 +180,25 @@ export async function compileEditionNativeSelections(input) {
     }
     if (sources.has(selection.namespace) && likeFormat(sources.get(selection.namespace).format))
       return resolveLikeC4Selection(likeIndex, selection);
-    fail('native_format_unadmitted');
+    fail("native_format_unadmitted");
   });
   const semanticDigest = sha(Buffer.from(canonical(selections)));
   return deepFreeze({
     subjectLockSha256: input.lockSha256,
     semanticDigest,
     selections,
+    sourceReading: {
+      subjectLockSha256: input.lockSha256,
+      claimModels: [...claimModels.values()].sort((left, right) =>
+        left.source.namespace.localeCompare(right.source.namespace, "en"),
+      ),
+      likec4: likeIndex,
+    },
     nativeClosure: likeIndex
       ? claimModels.size
-        ? 'mixed-selected-models-unqualified'
+        ? "mixed-selected-models-unqualified"
         : likeIndex.closure
-      : 'selected-model-bytes-only',
+      : "selected-model-bytes-only",
     parserSupply: likeIndex?.parserSupply ?? null,
     limits: [
       ...new Set([

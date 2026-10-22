@@ -1,0 +1,18 @@
+[[ownership]]
+id = "captured-svg-inputs"
+paths = [
+  "docs/research/evidence/aigw-d2-boundary-grid.svg",
+  "docs/research/evidence/aigw-echarts-matrix-graph.svg",
+  "docs/research/evidence/aigw-static-tb-two-column.svg",
+  "examples/job-lifecycle-updated.svg",
+  "examples/job-lifecycle.svg",
+  "examples/service-topology-updated.svg",
+  "examples/service-topology.svg",
+]
+format_owner = "immutable-carrier"
+format_command = "not-applicable:captured-input"
+format_check = "npm run test:coverage"
+validation_owner = "node-behavior"
+validation_command = "npm run test:coverage"
+semantic_companions = ["raster-rebuild", "example-journeys"]
+mutation_policy = "forbidden"

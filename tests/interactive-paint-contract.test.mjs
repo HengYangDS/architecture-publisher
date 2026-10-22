@@ -1,209 +1,78 @@
-import assert from 'node:assert/strict';
-import path from 'node:path';
-import test from 'node:test';
-import { chromium } from 'playwright-core';
-import { missingPaintedWitnesses, paintedContactCounts } from './fixtures/painted-contact.mjs';
-import { renderInteractiveEditionHtml } from '../packages/publisher/renderers/interactive/index.mjs';
-import { interactiveGraphMarks as marks } from '../packages/publisher/src/scene/marks.mjs';
-import { interactiveEditionScene } from './fixtures/interactive-edition-scene.mjs';
-import { inspectRgbaPngCanvas } from '../packages/publisher/src/qualification/static/png.mjs';
+import assert from "node:assert/strict";
+import path from "node:path";
+import test from "node:test";
+import { chromium } from "playwright-core";
+import { paintedContactCounts } from "./fixtures/painted-contact.mjs";
+import { renderInteractiveEditionHtml } from "../packages/publisher/renderers/interactive/index.mjs";
+import { interactiveEditionScene } from "./fixtures/interactive-edition-scene.mjs";
+import { selectedInteractiveMember } from "./fixtures/interactive-member.mjs";
+import { browserLifetime } from "./fixtures/browser-lifetime.mjs";
+import { loadBundledFonts } from "../packages/publisher/renderers/fonts/index.mjs";
+import { createBundledTextMeasurer } from "../packages/publisher/renderers/resvg/measurement.mjs";
+import { inspectRgbaPngCanvas } from "../packages/publisher/src/qualification/static/png.mjs";
+import { browserExecutable, assertGraphicPaint } from "./fixtures/interactive-paint-contract.mjs";
 
-const browserExecutable = process.env.ARCHPUB_BROWSER_EXECUTABLE;
+const runBrowser = { skip: !path.isAbsolute(browserExecutable ?? ""), timeout: 120_000 };
 
-async function assertGraphicPaint(browser, layers, geometry) {
-  const analysis = await browser.newPage();
-  try {
-    const mask = (css) =>
-      layers.evaluate((css) => {
-        globalThis.document.getElementById('mask-mode').textContent = css;
-      }, css);
-    const suppress = (selector, property, value) =>
-      layers.evaluate(
-        ({ selector, property, value }) => {
-          const element = globalThis.document.querySelector(selector);
-          const previous = element.getAttribute('style');
-          element.style.setProperty(property, value, 'important');
-          return previous;
-        },
-        { selector, property, value },
-      );
-    const restore = (selector, previous) =>
-      layers.evaluate(
-        ({ selector, previous }) => {
-          const element = globalThis.document.querySelector(selector);
-          if (previous === null) element.removeAttribute('style');
-          else element.setAttribute('style', previous);
-        },
-        { selector, previous },
-      );
-    const witness = async (present, selector, property, value, witnesses, reason) => {
-      const previous = await suppress(selector, property, value);
-      try {
-        const absent = await layers.screenshot({ omitBackground: true });
-        assert.deepEqual(
-          await missingPaintedWitnesses(analysis, present, absent, witnesses),
-          [],
-          reason,
-        );
-      } finally {
-        await restore(selector, previous);
-      }
-    };
-    await mask('rect,path{visibility:hidden!important}');
-    const textLayer = await layers.screenshot({ omitBackground: true });
-    const glyphs = await layers.evaluate((geometry) => {
-      const viewport = globalThis.document.querySelector('.graph-viewport');
-      const owners = [
-        ...geometry.groups,
-        ...geometry.nodes,
-        ...geometry.relations.filter(({ label }) => label),
-      ];
-      const expectedCount = owners.reduce(
-        (count, owner) => count + owner.label.baselines.length,
-        0,
-      );
-      if (viewport.querySelectorAll('text').length !== expectedCount)
-        throw Error('painted text differs from selected geometry');
-      for (const owner of owners) {
-        const elements = [
-          ...viewport.querySelector(`[data-graphic-id="${owner.id}"]`).querySelectorAll('text'),
-        ];
-        if (elements.length !== owner.label.baselines.length)
-          throw Error('painted text differs from selected geometry');
-        for (const [index, element] of elements.entries()) {
-          const baseline = owner.label.baselines[index];
-          if (
-            element.textContent !== baseline.text ||
-            Number(element.getAttribute('x')) !== baseline.x ||
-            Number(element.getAttribute('y')) !== baseline.baseline ||
-            Number(element.getAttribute('font-size')) !== owner.label.fontSize ||
-            element.getAttribute('font-weight') !== owner.label.weight
-          )
-            throw Error('painted text differs from selected geometry');
-        }
-      }
-      return [...viewport.querySelectorAll('text')].map((element, index) => {
-        element.dataset.paintWitness = String(index);
-        const witnesses = [];
-        for (let at = 0; at < element.getNumberOfChars(); at++) {
-          if (!element.textContent[at]?.trim()) continue;
-          const box = element.getExtentOfChar(at);
-          witnesses.push({
-            id: `${index}:${at}`,
-            x: box.x,
-            y: box.y,
-            width: box.width,
-            height: box.height,
-          });
-        }
-        return { index, witnesses };
-      });
-    }, geometry);
-    for (const { index, witnesses } of glyphs) {
-      assert(witnesses.length > 0);
-      await witness(
-        textLayer,
-        `[data-paint-witness="${index}"]`,
-        'opacity',
-        '0',
-        witnesses,
-        'missing painted glyph',
-      );
-    }
-    await mask(
-      'text{visibility:hidden!important}.graph-group>rect,.graph-node>rect{fill:none!important}.graph-hit{visibility:hidden!important}',
-    );
-    const markLayer = await layers.screenshot({ omitBackground: true });
-    const pointBox = (id, x, y) => ({ id, x: x - 0.5, y: y - 0.5, width: 1, height: 1 });
-    for (const node of [...geometry.groups, ...geometry.nodes])
-      await witness(
-        markLayer,
-        `[data-graphic-id="${node.id}"]>rect`,
-        'opacity',
-        '0',
-        [pointBox(node.id, node.x + node.width / 2, node.y)],
-        'missing painted frame',
-      );
-    for (const relation of geometry.relations) {
-      const selector = `[data-graphic-id="${relation.id}"] .graph-route`;
-      const segments = relation.points
-        .slice(1)
-        .map((end, index) => {
-          const start = relation.points[index];
-          return { start, end, length: Math.hypot(end.x - start.x, end.y - start.y) };
-        })
-        .sort((left, right) => right.length - left.length);
-      const { start, end, length } = segments[0];
-      assert(length > marks.arrowLength * 2);
-      await witness(
-        markLayer,
-        selector,
-        'stroke',
-        'none',
-        [pointBox(relation.id, (start.x + end.x) / 2, (start.y + end.y) / 2)],
-        'missing painted route',
-      );
-      const terminals = [['marker-end', relation.points.at(-1), relation.points.at(-2)]];
-      if (relation.direction === 'bidirectional')
-        terminals.push(['marker-start', relation.points[0], relation.points[1]]);
-      for (const [property, tip, previous] of terminals) {
-        const distance = Math.hypot(tip.x - previous.x, tip.y - previous.y);
-        const ux = (tip.x - previous.x) / distance,
-          uy = (tip.y - previous.y) / distance;
-        const behind = (marks.arrowLength * 5) / 6,
-          side = (marks.arrowHalfWidth * 5) / 8;
-        const witnesses = [-1, 1].map((sign) =>
-          pointBox(
-            `${relation.id}:${property}:${sign}`,
-            tip.x - ux * behind - uy * side * sign,
-            tip.y - uy * behind + ux * side * sign,
-          ),
-        );
-        await witness(markLayer, selector, property, 'none', witnesses, 'missing painted arrow');
-      }
-    }
-    return { textLayer, markLayer };
-  } finally {
-    await analysis.close();
-  }
+async function nativePage(t, scene) {
+  const candidate = await renderInteractiveEditionHtml(scene);
+  const browser = await browserLifetime(t).acquire(() =>
+    chromium.launch({
+      executablePath: browserExecutable,
+      headless: true,
+      chromiumSandbox: true,
+      timeout: 10_000,
+    }),
+  );
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 900 },
+    reducedMotion: "reduce",
+  });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.setContent(candidate.bytes.toString(), { waitUntil: "load" });
+  const member = await selectedInteractiveMember(page, "overview");
+  await member.locator(".diagram-container > svg").waitFor();
+  await member.evaluate(() => globalThis.Archify.layoutStability.whenStable());
+  return { browser, page, member, errors };
 }
 
 test(
-  'actual SVG glyphs, route strokes, and arrowheads preserve the exact grouped cyclic scene',
-  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 30_000 },
+  "actual SVG glyphs, route strokes, and arrowheads preserve the exact grouped cyclic scene",
+  runBrowser,
   async (t) => {
     const scene = interactiveEditionScene();
     const first = scene.pages[0];
-    const nodeTemplate = first.nodes[0];
-    const edgeTemplate = first.relations[0];
-    first.nodes = ['Alpha', 'Beta', 'Gamma'].map((label, index) => ({
+    const nodeTemplate = first.nodes[0],
+      edgeTemplate = first.relations[0];
+    first.nodes = ["Alpha", "Beta", "Gamma"].map((label, index) => ({
       ...nodeTemplate,
       id: `source-${index}`,
       label,
     }));
     first.relations = [
-      [0, 1, 'selects'],
-      [0, 1, 'observes'],
-      [1, 2, 'controls'],
-      [2, 0, 'returns'],
-      [2, 2, 'retries'],
+      [0, 1, "selects"],
+      [0, 1, "observes"],
+      [1, 2, "controls"],
+      [2, 0, "returns"],
+      [2, 2, "retries"],
     ].map(([from, to, label], index) => ({
       ...edgeTemplate,
       id: `relation-${index}`,
-      direction: index === 0 ? 'bidirectional' : 'forward',
+      direction: index === 0 ? "bidirectional" : "forward",
       label,
       from: { namespace: nodeTemplate.namespace, id: first.nodes[from].id },
       to: { namespace: nodeTemplate.namespace, id: first.nodes[to].id },
     }));
     first.groups = [
       {
-        id: 'source',
-        label: 'Source ownership',
+        id: "source",
+        label: "Source ownership",
         elements: first.nodes.slice(0, 1).map(({ namespace, id }) => ({ namespace, id })),
       },
       {
-        id: 'execution',
-        label: 'Execution',
+        id: "execution",
+        label: "Execution",
         elements: first.nodes.slice(1).map(({ namespace, id }) => ({ namespace, id })),
       },
     ];
@@ -216,317 +85,246 @@ test(
       reference: id,
       sha256: origin.sha256,
     }));
-    const candidate = await renderInteractiveEditionHtml(scene);
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-      timeout: 10_000,
+    const { browser, member, errors } = await nativePage(t, scene);
+    assert.deepEqual(await member.locator("g[data-node-id] text").allTextContents(), [
+      "Alpha",
+      "Beta",
+      "Gamma",
+    ]);
+    assert.deepEqual(
+      await member.locator("[data-intrinsic-relation-label] text").allTextContents(),
+      first.relations.map(({ label }) => label),
+    );
+    const graphic = await member.locator(".diagram-container > svg").evaluate((element) => {
+      const clone = element.cloneNode(true);
+      clone.removeAttribute("style");
+      for (const overlay of clone.querySelectorAll(
+        "[data-relationship-hit-overlay],[data-legend-bridge-runtime]",
+      ))
+        overlay.remove();
+      return clone.outerHTML;
     });
-    t.after(() => browser.close());
-    const page = await browser.newPage({
-      viewport: { width: 1440, height: 900 },
-      reducedMotion: 'reduce',
-    });
-    const errors = [];
-    page.on('pageerror', (error) => errors.push(error.message));
-    await page.setContent(candidate.bytes.toString('utf8'), { waitUntil: 'load' });
-    await page.waitForSelector('#graph-0[data-rendered=true]', { timeout: 8_000 });
-    await page.evaluate(() => globalThis.document.fonts.ready);
-    const audit = await page.evaluate(() => {
-      const geometry = JSON.parse(globalThis.document.getElementById('edition-data').textContent)[0]
-        .geometry;
-      const viewport = globalThis.document.querySelector('#graph-0 .graph-viewport');
-      const texts = [...viewport.querySelectorAll('text')];
-      const glyphs = [];
-      let maximumMetricDrift = 0;
-      for (const owner of [
-        ...geometry.nodes,
-        ...geometry.groups,
-        ...geometry.relations.filter((edge) => edge.label),
-      ]) {
-        const emitted = [
-          ...viewport.querySelector(`[data-graphic-id="${owner.id}"]`).querySelectorAll('text'),
-        ];
-        for (const [index, element] of emitted.entries()) {
-          const box = element.getBBox();
-          const painted = owner.label.baselines[index].box;
-          let left = Infinity,
-            top = Infinity,
-            right = -Infinity,
-            bottom = -Infinity;
-          for (let character = 0; character < element.getNumberOfChars(); character++) {
-            const box = element.getExtentOfChar(character);
-            left = Math.min(left, box.x);
-            top = Math.min(top, box.y);
-            right = Math.max(right, box.x + box.width);
-            bottom = Math.max(bottom, box.y + box.height);
-          }
-          glyphs.push({
-            owner: owner.id,
-            x: left,
-            y: top,
-            width: right - left,
-            height: bottom - top,
-          });
-          if (!(box.width > 0 && box.height > 0)) throw new Error('empty actual text');
-          maximumMetricDrift = Math.max(
-            maximumMetricDrift,
-            Math.abs(Number(element.getAttribute('x')) - owner.label.baselines[index].x),
-            Math.abs(Number(element.getAttribute('y')) - owner.label.baselines[index].baseline),
-          );
-          if (!(painted.width > 0 && painted.height > 0)) throw new Error('empty selected text');
-        }
-      }
-      const boxOverlap = (a, b) =>
-        Math.min(a.x + a.width, b.x + b.width) > Math.max(a.x, b.x) &&
-        Math.min(a.y + a.height, b.y + b.height) > Math.max(a.y, b.y);
-      const collisions = [];
-      for (const [index, glyph] of glyphs.entries())
-        for (const other of glyphs.slice(index + 1))
-          if (boxOverlap(glyph, other)) collisions.push(['text', glyph.owner, other.owner]);
-      for (const edge of geometry.relations) {
-        const path = viewport.querySelector(`[data-graphic-id="${edge.id}"] .graph-route`);
-        const length = path.getTotalLength();
-        for (let at = 0; at <= length; at += 2) {
-          const point = path.getPointAtLength(at);
-          for (const glyph of glyphs)
-            if (
-              point.x > glyph.x - 1.75 &&
-              point.x < glyph.x + glyph.width + 1.75 &&
-              point.y > glyph.y - 1.75 &&
-              point.y < glyph.y + glyph.height + 1.75
-            )
-              collisions.push(['route-text', edge.id, glyph.owner]);
-        }
-      }
-      return {
-        nodeCount: geometry.nodes.length,
-        relationCount: geometry.relations.length,
-        textCount: texts.length,
-        maximumMetricDrift,
-        collisions,
-      };
-    });
-
-    const layers = await browser.newPage({
-      viewport: { width: 1200, height: 900 },
-      deviceScaleFactor: 1,
-    });
-    const graphic = await page
-      .locator('#graph-0 .graph-svg')
-      .evaluate((element) => element.outerHTML);
-    const faces = candidate.bytes.toString('utf8').match(/<style>([\s\S]*?)<\/style>/u)[1];
-    const appearance = await page
-      .locator('html')
-      .evaluate((element) => ({ style: element.dataset.style, theme: element.dataset.theme }));
+    const styles = await member.locator("style").allTextContents();
+    const appearance = await member
+      .locator("html")
+      .evaluate((el) => ({ style: el.dataset.style, theme: el.dataset.theme }));
+    const dimensions = await member
+      .locator("svg")
+      .first()
+      .evaluate((svg) => ({
+        width: Math.ceil(svg.viewBox.baseVal.width),
+        height: Math.ceil(svg.viewBox.baseVal.height),
+      }));
+    const layers = await browser.newPage({ viewport: dimensions, deviceScaleFactor: 1 });
     await layers.setContent(
-      '<!doctype html><html data-style="' +
-        appearance.style +
-        '" data-theme="' +
-        appearance.theme +
-        '"><style>' +
-        faces +
-        '</style>' +
-        graphic +
-        '</html>',
+      `<!doctype html><html data-style="${appearance.style}" data-theme="${appearance.theme}"><head><style>${styles.join("\n")}html,body,svg{background:transparent!important}html,body{margin:0!important;padding:0!important}svg{display:block!important;transform:none!important;width:${dimensions.width}px!important;height:${dimensions.height}px!important}.legend{transform:none!important}</style><style id="mask-mode"></style></head><body>${graphic}</body></html>`,
     );
     await layers.evaluate(() => globalThis.document.fonts.ready);
-    const geometry = await page.evaluate(
-      () => JSON.parse(globalThis.document.getElementById('edition-data').textContent)[0].geometry,
-    );
-    const dimensions = {
-      width: Math.ceil(geometry.bounds.width),
-      height: Math.ceil(geometry.bounds.height),
-    };
-    await layers.setViewportSize(dimensions);
-    const captured = await layers.evaluate(({ width, height }) => {
-      const svg = globalThis.document.querySelector('svg');
-      const viewport = svg.querySelector('.graph-viewport');
-      viewport.removeAttribute('transform');
-      viewport.style.removeProperty('transform');
-      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-      svg.style.width = `${width}px`;
-      svg.style.height = `${height}px`;
-      globalThis.document.body.style.margin = '0';
-      globalThis.document.body.style.background = 'transparent';
-      globalThis.document.documentElement.style.background = 'transparent';
-      const style = globalThis.document.createElement('style');
-      style.id = 'mask-mode';
-      globalThis.document.head.append(style);
-      const matrix = viewport.getScreenCTM();
+    const expected = await layers.evaluate(() => {
+      const svg = globalThis.document.querySelector("svg");
+      const labels = [...svg.querySelectorAll("text")].map((el) => ({
+        text: el.textContent,
+        x: el.getAttribute("x"),
+        y: el.getAttribute("y"),
+        fontSize: el.getAttribute("font-size"),
+        weight: el.getAttribute("font-weight"),
+      }));
+      const frame = (element, id, selector) => ({
+        id,
+        selector,
+        x: Number(element.getAttribute("x")),
+        y: Number(element.getAttribute("y")),
+        width: Number(element.getAttribute("width")),
+        height: Number(element.getAttribute("height")),
+      });
+      const nodes = [...svg.querySelectorAll("g[data-node-id]")].map((el) =>
+        frame(
+          el.querySelector("rect:not(.c-mask)"),
+          el.dataset.nodeId,
+          `g[data-node-id="${el.dataset.nodeId}"]>rect:not(.c-mask)`,
+        ),
+      );
+      const groups = [...svg.querySelectorAll("rect[data-group-id]")].map((el) =>
+        frame(el, el.dataset.groupId, `rect[data-group-id="${el.dataset.groupId}"]`),
+      );
+      const relations = [...svg.querySelectorAll("path[data-composition-points]")].map((el) => ({
+        id: el.dataset.edgeId,
+        selector: `path[data-composition-points][data-edge-id="${el.dataset.edgeId}"]`,
+        points: el.dataset.compositionPoints.split(";").map((value) => {
+          const [x, y] = value.split(",").map(Number);
+          return { x, y };
+        }),
+        markers: ["marker-start", "marker-end"].flatMap((property) => {
+          const id = el.getAttribute(property)?.match(/url\(#([^)]*)\)/u)?.[1];
+          if (!id) return [];
+          const marker = globalThis.document.getElementById(id);
+          return [
+            {
+              property,
+              refX: Number(marker.getAttribute("refX")),
+              width: Number(marker.getAttribute("markerWidth")),
+              height: Number(marker.getAttribute("markerHeight")),
+              scale:
+                marker.getAttribute("markerUnits") === "userSpaceOnUse"
+                  ? 1
+                  : Number(el.getAttribute("stroke-width")),
+            },
+          ];
+        }),
+      }));
+      const matrix = svg.getScreenCTM();
       return {
+        labels,
+        nodes,
+        groups,
+        relations,
         matrix: [matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f],
-        clippedText: [...viewport.querySelectorAll('text')]
-          .filter((element) => {
-            const box = element.getBoundingClientRect();
-            return box.left < 0 || box.top < 0 || box.right > width || box.bottom > height;
+        clippedText: [...svg.querySelectorAll("text")]
+          .filter((el) => {
+            const b = el.getBoundingClientRect();
+            return (
+              b.left < 0 ||
+              b.top < 0 ||
+              b.right > globalThis.innerWidth ||
+              b.bottom > globalThis.innerHeight
+            );
           })
-          .map((element) => element.textContent),
+          .map((el) => el.textContent),
       };
-    }, dimensions);
-    assert.deepEqual(captured.matrix, [1, 0, 0, 1, 0, 0]);
-    assert.deepEqual(captured.clippedText, []);
-    const { textLayer, markLayer } = await assertGraphicPaint(browser, layers, geometry);
+    });
+    assert.deepEqual(expected.matrix, [1, 0, 0, 1, 0, 0]);
+    assert.deepEqual(expected.clippedText, []);
+    assert.equal(expected.nodes.length, 3);
+    assert.equal(expected.relations.length, 5);
+    assert.equal(expected.relations[0].markers.length, 2);
+    const { textLayer, markLayer } = await assertGraphicPaint(browser, layers, expected);
     const analysis = await browser.newPage();
     assert.deepEqual(await paintedContactCounts(analysis, textLayer, markLayer), {
       contact: 0,
       withinTwoPixels: 0,
     });
     for (const [css, reason] of [
-      ['.graph-label--relation{opacity:0!important}', 'missing painted glyph'],
-      ['.graph-route{stroke:transparent!important}', 'missing painted route'],
-      ['.graph-svg marker path{fill:transparent!important}', 'missing painted arrow'],
-      ['.graph-node>rect{stroke:transparent!important}', 'missing painted frame'],
+      ["[data-intrinsic-relation-label]{opacity:0!important}", "missing painted glyph"],
+      ["path[data-composition-points]{stroke:transparent!important}", "missing painted route"],
+      ["svg marker polygon{fill:transparent!important}", "missing painted arrow"],
+      ["g[data-node-id]>rect:not(.c-mask){stroke:transparent!important}", "missing painted frame"],
     ]) {
       const defect = await layers.addStyleTag({ content: css });
       try {
-        await assert.rejects(assertGraphicPaint(browser, layers, geometry), (error) =>
+        await assert.rejects(assertGraphicPaint(browser, layers, expected), (error) =>
           error.message.includes(reason),
         );
       } finally {
-        await defect.evaluate((element) => element.remove());
+        await defect.evaluate((el) => el.remove());
       }
     }
-    const caption = layers.locator('.graph-label--relation').first();
-    const selectedCaption = await caption.textContent();
-    await caption.evaluate((element) => {
-      element.textContent = element.textContent.slice(0, 1);
+    const caption = layers.locator("[data-intrinsic-relation-label] text").first();
+    const originalCaption = await caption.textContent();
+    await caption.evaluate((el) => {
+      el.textContent = el.textContent.slice(0, 1);
     });
-    await assert.rejects(assertGraphicPaint(browser, layers, geometry), (error) =>
-      error.message.includes('painted text differs'),
-    );
-    await caption.evaluate((element, text) => {
-      element.textContent = text;
-    }, selectedCaption);
+    await assert.rejects(assertGraphicPaint(browser, layers, expected), /painted text differs/u);
+    await caption.evaluate((el, text) => {
+      el.textContent = text;
+    }, originalCaption);
     await layers.evaluate(() => {
-      const svg = globalThis.document.querySelector('svg');
-      const box = svg.querySelector('text').getBBox();
-      const line = globalThis.document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const svg = globalThis.document.querySelector("svg"),
+        box = svg.querySelector("text").getBBox();
+      const line = globalThis.document.createElementNS("http://www.w3.org/2000/svg", "path");
       line.setAttribute(
-        'd',
-        'M' +
-          box.x +
-          ' ' +
-          (box.y + box.height / 2) +
-          ' L' +
-          (box.x + box.width) +
-          ' ' +
-          (box.y + box.height / 2),
+        "d",
+        `M ${box.x} ${box.y + box.height / 2} L ${box.x + box.width} ${box.y + box.height / 2}`,
       );
-      line.setAttribute('stroke', '#24362e');
-      line.setAttribute('stroke-width', '3');
-      svg.querySelector('.graph-viewport').append(line);
+      line.setAttribute("stroke", "#24362e");
+      line.setAttribute("stroke-width", "3");
+      svg.append(line);
     });
-    const controlled = await layers.screenshot({ omitBackground: true });
-    const detected = await paintedContactCounts(analysis, textLayer, controlled);
+    const detected = await paintedContactCounts(
+      analysis,
+      textLayer,
+      await layers.screenshot({ omitBackground: true }),
+    );
     assert(detected.contact > 0);
     assert(detected.withinTwoPixels >= detected.contact);
-
     assert.deepEqual(errors, []);
-    assert.equal(audit.nodeCount, 3);
-    assert.equal(audit.relationCount, 5);
-    assert(audit.textCount >= 10);
-    assert(audit.maximumMetricDrift < 0.001);
-    assert.deepEqual(audit.collisions, [], JSON.stringify(audit));
   },
 );
 
 test(
-  'neutral production-size labels paint within renderer-native shaped ink under one text profile',
-  { skip: !path.isAbsolute(browserExecutable ?? ''), timeout: 30000 },
+  "neutral production-size labels paint within renderer-native shaped ink under one text profile",
+  runBrowser,
   async (t) => {
     const scene = interactiveEditionScene();
-    const first = scene.pages[0];
-    first.nodes[0].label = 'AV office ffi -> ==';
-    first.nodes[1].label = 'Exact output';
-    for (const relation of first.relations) relation.label = 'ffi -> ==';
-    const candidate = await renderInteractiveEditionHtml(scene);
-    const browser = await chromium.launch({
-      executablePath: browserExecutable,
-      headless: true,
-      chromiumSandbox: true,
-    });
-    t.after(() => browser.close());
-    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
-    await page.setContent(candidate.bytes.toString('utf8'), { waitUntil: 'load' });
-    await page.waitForSelector('#graph-0[data-rendered=true]');
-    await page.evaluate(() => globalThis.document.fonts.ready);
-    const geometry = await page.evaluate(
-      () => JSON.parse(globalThis.document.getElementById('edition-data').textContent)[0].geometry,
+    scene.pages[0].nodes[0].label = "AV office ffi -> ==";
+    scene.pages[0].nodes[1].label = "Exact output";
+    for (const relation of scene.pages[0].relations) relation.label = "ffi -> ==";
+    const { browser, member, errors } = await nativePage(t, scene);
+    const observed = await member
+      .locator("g[data-node-id] text,[data-intrinsic-relation-label] text")
+      .evaluateAll((texts) =>
+        texts.map((el) => ({
+          text: el.textContent,
+          fontSize: Number(el.getAttribute("font-size")),
+          weight: el.getAttribute("font-weight"),
+          family: globalThis.getComputedStyle(el).fontFamily.replaceAll('"', ""),
+          anchor: el.getAttribute("text-anchor"),
+          x: 300,
+          baseline: 120,
+          emitted: el.outerHTML,
+          profile: {
+            rendering: globalThis.getComputedStyle(el).textRendering,
+            synthesis: globalThis.getComputedStyle(el).fontSynthesis,
+            whitespace: globalThis.getComputedStyle(el).whiteSpace,
+          },
+        })),
+      );
+    assert.deepEqual(
+      observed.map(({ text }) => text),
+      ["AV office ffi -> ==", "Exact output", "ffi -> =="],
     );
-    const styles = await page.locator('style').allTextContents();
+    const measure = await createBundledTextMeasurer(await loadBundledFonts(), observed);
+    const styles = await member.locator("style").allTextContents();
     const inkPage = await browser.newPage({ viewport: { width: 600, height: 180 } });
     const assertInk = (observed, expected) => {
       const detail = JSON.stringify({ observed, expected });
       assert(Math.abs(observed.left - expected.x) <= 1.1, `native ink left: ${detail}`);
       assert(Math.abs(observed.top - expected.y) <= 1.1, `native ink top: ${detail}`);
       assert(
-        Math.abs(observed.right + 1 - (expected.x + expected.width)) <= 1.1,
+        Math.abs(observed.right + 1 - expected.x - expected.width) <= 1.1,
         `native ink right: ${detail}`,
       );
       assert(
-        Math.abs(observed.bottom + 1 - (expected.y + expected.height)) <= 1.1,
+        Math.abs(observed.bottom + 1 - expected.y - expected.height) <= 1.1,
         `native ink bottom: ${detail}`,
       );
     };
     let probed = false;
-    for (const owner of [
-      ...geometry.groups,
-      ...geometry.nodes,
-      ...geometry.relations.filter(({ label }) => label),
-    ]) {
-      for (const [index, baseline] of owner.label.baselines.entries()) {
-        const text = page.locator(`[data-graphic-id="${owner.id}"] text`).nth(index);
-        const profile = await text.evaluate((node) => {
-          const style = globalThis.getComputedStyle(node);
-          return {
-            rendering: style.textRendering,
-            synthesis: style.fontSynthesis,
-            whitespace: style.whiteSpace,
-          };
-        });
-        assert.equal(profile.rendering, 'geometricprecision');
-        assert.equal(profile.synthesis, 'none');
-        assert.equal(profile.whitespace, 'pre');
-        assert.equal(await text.textContent(), baseline.text);
-        const emitted = await text.evaluate((node) => {
-          const svg = node.closest('svg').cloneNode(false);
-          svg.setAttribute('width', '600');
-          svg.setAttribute('height', '180');
-          svg.setAttribute('viewBox', '0 0 600 180');
-          svg.removeAttribute('style');
-          const owner = node.parentElement.cloneNode(false);
-          const label = node.cloneNode(true);
-          label.setAttribute('x', '80');
-          label.setAttribute('y', '120');
-          owner.append(label);
-          svg.append(owner);
-          return svg.outerHTML;
-        });
-        await inkPage.setContent(
-          `<style>${styles.join('\n')}html,body,svg{background:transparent!important}html,body{margin:0!important}svg{display:block!important;width:600px!important;height:180px!important}</style>${emitted}`,
-        );
-        await inkPage.evaluate(() => globalThis.document.fonts.ready);
-        const expected = {
-          ...baseline.box,
-          x: baseline.box.x + 80 - baseline.x,
-          y: baseline.box.y + 120 - baseline.baseline,
-        };
-        const paint = async () =>
-          inspectRgbaPngCanvas(await inkPage.locator('svg').screenshot({ omitBackground: true }), {
-            background: [0, 0, 0, 0],
-            colorDistance: 0,
-          }).envelope;
-        assertInk(await paint(), expected);
-        if (!probed) {
-          await inkPage.locator('text').evaluate((node) => node.setAttribute('x', '84'));
-          const shifted = await paint();
-          assert.throws(() => assertInk(shifted, expected), /native ink/u);
-          probed = true;
-        }
+    for (const label of observed) {
+      assert.equal(label.profile.rendering, "geometricprecision");
+      assert.equal(label.profile.synthesis, "none");
+      assert.equal(label.profile.whitespace, "pre");
+      const text = label.emitted
+        .replace(/\sx="[^"]+"/u, ' x="300"')
+        .replace(/\sy="[^"]+"/u, ' y="120"');
+      await inkPage.setContent(
+        `<style>${styles.join("\n")}html,body,svg{background:transparent!important}html,body{margin:0!important;padding:0!important}svg{display:block!important;transform:none!important;width:600px!important;height:180px!important}svg text{fill:#111!important}</style><svg width="600" height="180" viewBox="0 0 600 180">${text}</svg>`,
+      );
+      await inkPage.evaluate(() => globalThis.document.fonts.ready);
+      const paint = async () =>
+        inspectRgbaPngCanvas(await inkPage.locator("svg").screenshot({ omitBackground: true }), {
+          background: [0, 0, 0, 0],
+          colorDistance: 0,
+        }).envelope;
+      const expected = measure.box(label);
+      assertInk(await paint(), expected);
+      if (!probed) {
+        await inkPage.locator("text").evaluate((el) => el.setAttribute("x", "304"));
+        const shifted = await paint();
+        assert.throws(() => assertInk(shifted, expected), /native ink/u);
+        probed = true;
       }
     }
     assert.equal(probed, true);
+    assert.deepEqual(errors, []);
   },
 );

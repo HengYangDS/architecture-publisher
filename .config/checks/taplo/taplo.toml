@@ -1,0 +1,5 @@
+include = [".config/**/*.toml", ".ethos/*.toml"]
+exclude = [".config/mise/locks/**"]
+
+[formatting]
+column_width = 100

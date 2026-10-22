@@ -1,4 +1,4 @@
-# ethos-input Specification
+# `ethos-input` Specification
 
 ## Purpose
 

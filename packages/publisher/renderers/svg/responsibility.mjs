@@ -1,252 +1,14 @@
-import { fail } from '../../src/protocol/values.mjs';
-import { editorialFraming } from '../../src/scene/framing.mjs';
-import { renderFigureIcon } from '../icons/index.mjs';
-import { composeFigureTypeLegend, figureIconLicenseMetadata } from './figure-types.mjs';
-import { UNLINKED_RELATION_NOTE } from '../../src/scene/claim-relations.mjs';
-
-const colors = {
-  paper: '#f8f7f2',
-  ink: '#24362e',
-  muted: '#5c6d60',
-  rule: '#bac8bb',
-  source: '#617e69',
-  editorial: '#a46f4c',
-};
-const margin = 56;
-const nodeWidth = 142;
-const nodeHeight = 50;
-const rankGap = 142;
-const roleGap = 152;
-const nodeKey = ({ namespace, id }) => JSON.stringify([namespace, id]);
-const sourceKey = ({ namespace, reference, sha256 }) =>
-  JSON.stringify([namespace, reference, sha256]);
-const escape = (value) =>
-  String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-const number = (value) => {
-  if (!Number.isFinite(value) || Math.abs(value) > 10_000_000)
-    fail('static_responsibility_geometry_invalid');
-  return Number(value.toFixed(2));
-};
-const advance = (value, size) => [...value].length * size * 0.61;
-
-function wrap(value, width, size, limit = 6) {
-  if (typeof value !== 'string' || !value.trim() || width < size * 3)
-    fail('static_responsibility_text_unrepresentable');
-  const result = [];
-  let current = '';
-  for (const word of value.trim().split(/\s+/u)) {
-    const joined = current ? `${current} ${word}` : word;
-    if (advance(joined, size) <= width) {
-      current = joined;
-      continue;
-    }
-    if (current) result.push(current);
-    if (advance(word, size) > width || result.length >= limit)
-      fail('static_responsibility_text_unrepresentable');
-    current = word;
-  }
-  if (current) result.push(current);
-  if (result.length > limit) fail('static_responsibility_text_unrepresentable');
-  return result;
-}
-
-function textLines(
-  output,
-  value,
-  x,
-  y,
-  width,
-  size,
-  color,
-  weight = 400,
-  limit = 6,
-  anchor = 'start',
-) {
-  const content = wrap(value, width, size, limit);
-  for (const [index, line] of content.entries())
-    output.push(
-      `<text x="${number(x)}" y="${number(y + index * size * 1.43)}" text-anchor="${anchor}" fill="${color}" font-size="${size}" font-weight="${weight}">${escape(line)}</text>`,
-    );
-  return y + content.length * size * 1.43;
-}
-
-function selectedForm(scene) {
-  const form = scene?.visualForm;
-  if (
-    scene?.schema !== 'architecture.edition-static-responsibility-scene/v1' ||
-    scene.completeness !== 'unqualified-scene' ||
-    form?.schema !== 'architecture.visual-form/v1' ||
-    form.kind !== 'responsibility' ||
-    !Array.isArray(form.roles) ||
-    !form.roles.length ||
-    form.roles.length > 6 ||
-    !Array.isArray(form.handoffs) ||
-    scene.groups?.length !== form.roles.length ||
-    !Array.isArray(scene.nodes) ||
-    !scene.nodes.length ||
-    !Array.isArray(scene.relations) ||
-    !Array.isArray(scene.sourceAssertionCarriers) ||
-    !Array.isArray(scene.editorialAssertions) ||
-    scene.questionIds?.length !== 1 ||
-    scene.questions?.length !== 1 ||
-    scene.questions[0].id !== scene.questionIds[0] ||
-    !Array.isArray(scene.limitsByQuestion?.[scene.questionIds[0]])
-  )
-    fail('static_responsibility_scene_invalid');
-  const groups = new Map(scene.groups.map((item) => [item.id, item]));
-  const nodes = new Map(scene.nodes.map((item) => [nodeKey(item), item]));
-  const editorial = new Map(scene.editorialAssertions.map((item) => [item.id, item]));
-  const sources = new Map(scene.sourceAssertionCarriers.map((item) => [item.assertionId, item]));
-  const claims = new Map(
-    (scene.claimCards ?? []).map((card) => [
-      sourceKey({ namespace: card.namespace, reference: card.id, sha256: card.sha256 }),
-      card,
-    ]),
-  );
-  if (groups.size !== scene.groups.length || nodes.size !== scene.nodes.length)
-    fail('static_responsibility_identity_ambiguous');
-  const basis = (id) => {
-    const item = editorial.get(id);
-    if (item) {
-      if (item.kind !== 'editorial' || item.semanticStatus !== 'editor-attributed-unverified')
-        fail('static_responsibility_basis_invalid');
-      return {
-        statement: item.statement,
-        attribution: `Editorial judgment · ${item.proponent} · unverified`,
-      };
-    }
-    const selected = sources.get(id);
-    const ref = selected?.kind === 'claim' ? selected.claimRefs?.[0] : null;
-    if (!ref || !claims.has(sourceKey(ref))) fail('static_responsibility_basis_invalid');
-    return {
-      statement: 'Selected source Claim; editorial interpretation',
-      attribution: 'Source-attributed; interpretation not endorsed',
-    };
-  };
-  const roles = form.roles.map(({ group, basis: id }) => {
-    const selected = groups.get(group);
-    if (!selected || selected.elements.length > 4)
-      fail('static_responsibility_group_unrepresentable');
-    return { group: selected, basis: basis(id) };
-  });
-  if (new Set(roles.map(({ group }) => group.id)).size !== groups.size)
-    fail('static_responsibility_group_invalid');
-  const roleByNode = new Map();
-  for (const [index, { group }] of roles.entries())
-    for (const member of group.elements) {
-      const id = nodeKey(member);
-      if (!nodes.has(id) || roleByNode.has(id)) fail('static_responsibility_group_invalid');
-      roleByNode.set(id, index);
-    }
-  if (roleByNode.size !== nodes.size) fail('static_responsibility_group_invalid');
-  const handoffs = form.handoffs.map(({ from, to, basis: id }) => {
-    const first = roles.findIndex(({ group }) => group.id === from);
-    const last = roles.findIndex(({ group }) => group.id === to);
-    if (first < 0 || last < 0 || first === last) fail('static_responsibility_handoff_invalid');
-    return { first, last, basis: basis(id) };
-  });
-  return { roles, nodes, roleByNode, handoffs };
-}
-
-function groupRanks(group, relations) {
-  const order = group.elements.map(nodeKey);
-  const pending = new Set(order);
-  const rank = new Map(order.map((id) => [id, 0]));
-  const parents = new Map(order.map((id) => [id, new Set()]));
-  for (const relation of relations) parents.get(nodeKey(relation.to)).add(nodeKey(relation.from));
-  while (pending.size) {
-    const next = order.find(
-      (id) => pending.has(id) && [...parents.get(id)].every((parent) => !pending.has(parent)),
-    );
-    if (!next) fail('static_responsibility_graph_unrepresentable');
-    pending.delete(next);
-    for (const relation of relations)
-      if (nodeKey(relation.from) === next) {
-        const target = nodeKey(relation.to);
-        rank.set(target, Math.max(rank.get(target), rank.get(next) + 1));
-      }
-  }
-  const buckets = new Map();
-  for (const id of order) {
-    const level = rank.get(id);
-    buckets.set(level, [...(buckets.get(level) ?? []), id]);
-  }
-  if (buckets.size > 3 || [...buckets.values()].some((bucket) => bucket.length > 2))
-    fail('static_responsibility_graph_unrepresentable');
-  return buckets;
-}
-
-function layout(scene, roles, roleByNode) {
-  const widths = roles.map(({ group }) => 210 + 60 * (group.elements.length - 1));
-  const xs = widths.map(
-    (_, index) => margin + widths.slice(0, index).reduce((a, b) => a + b, 0) + roleGap * index,
-  );
-  const width = margin * 2 + widths.reduce((a, b) => a + b, 0) + roleGap * (roles.length - 1);
-  const internal = roles.map(() => []);
-  const cross = [];
-  const pairs = new Set();
-  for (const relation of scene.relations) {
-    const from = roleByNode.get(nodeKey(relation.from));
-    const to = roleByNode.get(nodeKey(relation.to));
-    if (from === undefined || to === undefined)
-      fail('static_responsibility_relation_endpoint_missing');
-    if (from === to) internal[from].push(relation);
-    else {
-      const pair = `${from}:${to}`;
-      if (to !== from + 1 || pairs.has(pair)) fail('static_responsibility_graph_unrepresentable');
-      pairs.add(pair);
-      cross.push(relation);
-    }
-  }
-  const buckets = roles.map(({ group }, index) => groupRanks(group, internal[index]));
-  const highest = Math.max(0, ...buckets.flatMap((item) => [...item.keys()]));
-  const positions = new Map();
-  const graphTop = 265;
-  for (const [roleIndex, levels] of buckets.entries()) {
-    if (roles[roleIndex].group.elements.length === 1) continue;
-    for (const [level, ids] of levels)
-      for (const [at, id] of ids.entries())
-        positions.set(id, {
-          x: xs[roleIndex] + widths[roleIndex] / 2 + (at - (ids.length - 1) / 2) * 166,
-          y: graphTop + level * rankGap,
-        });
-  }
-  if (!positions.size)
-    positions.set(nodeKey(roles[0].group.elements[0]), { x: xs[0] + widths[0] / 2, y: graphTop });
-  for (let pass = 0; pass < roles.length; pass += 1)
-    for (const relation of cross) {
-      const first = nodeKey(relation.from);
-      const last = nodeKey(relation.to);
-      if (positions.has(first) && !positions.has(last)) {
-        const role = roleByNode.get(last);
-        positions.set(last, { x: xs[role] + widths[role] / 2, y: positions.get(first).y });
-      } else if (positions.has(last) && !positions.has(first)) {
-        const role = roleByNode.get(first);
-        positions.set(first, { x: xs[role] + widths[role] / 2, y: positions.get(last).y });
-      }
-    }
-  for (const [index, { group }] of roles.entries())
-    for (const member of group.elements) {
-      const id = nodeKey(member);
-      if (!positions.has(id))
-        positions.set(id, {
-          x: xs[index] + widths[index] / 2,
-          y: graphTop + (highest * rankGap) / 2,
-        });
-    }
-  return {
-    xs,
-    widths,
-    width,
-    positions,
-    graphTop,
-    graphBottom: graphTop + highest * rankGap + nodeHeight,
-  };
-}
+import { fail } from "../../src/protocol/values.mjs";
+import { editorialFraming } from "../../src/scene/framing.mjs";
+import { renderFigureIcon } from "../icons/index.mjs";
+import { composeFigureTypeLegend, figureIconLicenseMetadata } from "./figure-types.mjs";
+import { UNLINKED_RELATION_NOTE } from "../../src/scene/claim-relations.mjs";
+import { colors, escape, number, advance, wrap, textLines } from "./responsibility-text.mjs";
+import { margin, nodeWidth, nodeHeight, roleGap, layout } from "./responsibility-layout.mjs";
+import { nodeKey, sourceKey, selectedForm } from "./responsibility-contract.mjs";
+import { staticBodyGeometry } from "./edition-claims.mjs";
+import { selectMeasuredComposition } from "./composition.mjs";
+import { paintResponsibilityClaims } from "./responsibility-claims.mjs";
 
 function sourceRelation(relation, position, roleByNode, geometry, output) {
   const first = geometry.positions.get(nodeKey(relation.from));
@@ -262,10 +24,10 @@ function sourceRelation(relation, position, roleByNode, geometry, output) {
     (internal && end[1] <= start[1]) ||
     (!internal && Math.abs(start[1] - end[1]) > nodeHeight / 2)
   )
-    fail('static_responsibility_graph_unrepresentable');
-  const label = relation.kind?.replaceAll('-', ' ') || 'source relation';
+    fail("static_responsibility_graph_unrepresentable");
+  const label = relation.kind?.replaceAll("-", " ") || "source relation";
   if (advance(label, 11) > (internal ? 126 : roleGap + 26))
-    fail('static_responsibility_relation_label_unrepresentable');
+    fail("static_responsibility_relation_label_unrepresentable");
   const graphicId = `r-${position}`;
   const d = `M ${number(start[0])} ${number(start[1])} L ${number(end[0])} ${number(end[1])}`;
   const middleX = (start[0] + end[0]) / 2;
@@ -273,12 +35,12 @@ function sourceRelation(relation, position, roleByNode, geometry, output) {
   const side = end[0] < start[0] ? -1 : 1;
   const labelX = internal ? middleX + side * 22 : middleX;
   const labelY = internal ? middleY + 4 : middleY - 10;
-  const anchor = internal ? (side < 0 ? 'end' : 'start') : 'middle';
+  const anchor = internal ? (side < 0 ? "end" : "start") : "middle";
   output.push(
     `<g data-graphic-id="${graphicId}" data-source-relation="${graphicId}">`,
-    `<path d="${d}" fill="none" stroke="${colors.source}" stroke-width="1.8" stroke-linecap="round" marker-end="url(#source-arrow)"${relation.direction === 'bidirectional' ? ' marker-start="url(#source-arrow)"' : ''}/>`,
+    `<path d="${d}" fill="none" stroke="${colors.source}" stroke-width="1.8" stroke-linecap="round" marker-end="url(#source-arrow)"${relation.direction === "bidirectional" ? ' marker-start="url(#source-arrow)"' : ""}/>`,
     `<text x="${number(labelX)}" y="${number(labelY)}" text-anchor="${anchor}" fill="${colors.source}" font-size="11" font-weight="600">${escape(label)}</text>`,
-    '</g>',
+    "</g>",
   );
   return {
     graphicId,
@@ -291,14 +53,14 @@ function sourceRelation(relation, position, roleByNode, geometry, output) {
   };
 }
 
-/** Paint a selected responsibility map without borrowing interactive geometry or DOM. */
-export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
-  const { roles, nodes, roleByNode, handoffs } = selectedForm(scene);
-  const geometry = layout(scene, roles, roleByNode);
-  const figureTypes = composeFigureTypeLegend(scene.nodes, icons, geometry.width - 2 * margin);
+function paintResponsibility(scene, icons, form, arrangement = {}) {
+  const { roles, nodes, roleByNode, handoffs } = form;
+  const geometry = layout(scene, roles, roleByNode, arrangement);
+  const sourceWidth = arrangement.beside ? geometry.graphWidth : geometry.width;
+  const figureTypes = composeFigureTypeLegend(scene.nodes, icons, sourceWidth - 2 * margin);
   const rasterWidth = scene.requestedWidth ?? 1800;
   if (!Number.isSafeInteger(rasterWidth) || rasterWidth < 320 || rasterWidth > 12_000)
-    fail('static_responsibility_width_invalid');
+    fail("static_responsibility_width_invalid");
   const body = [];
   let y = 68;
   y =
@@ -316,18 +78,19 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
       400,
       3,
     ) + 5;
-  y =
-    textLines(
-      body,
-      scene.summary,
-      margin,
-      y,
-      geometry.width - 2 * margin,
-      13,
-      colors.muted,
-      400,
-      4,
-    ) + 10;
+  if (scene.summary !== undefined)
+    y =
+      textLines(
+        body,
+        scene.summary,
+        margin,
+        y,
+        geometry.width - 2 * margin,
+        13,
+        colors.muted,
+        400,
+        4,
+      ) + 10;
   body.push(
     `<line x1="${margin}" y1="${number(y)}" x2="${geometry.width - margin}" y2="${number(y)}" stroke="${colors.ink}" stroke-width="1.5"/>`,
   );
@@ -343,7 +106,8 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
       16 *
       1.43 +
     16;
-  if (roleRuleY + 12 >= geometry.graphTop) fail('static_responsibility_header_unrepresentable');
+  if (roleRuleY + 12 >= geometry.graphTop) fail("static_responsibility_header_unrepresentable");
+  const claimTop = y + 32;
   for (const [index, { group }] of roles.entries()) {
     const center = geometry.xs[index] + geometry.widths[index] / 2;
     textLines(
@@ -356,7 +120,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
       colors.ink,
       600,
       2,
-      'middle',
+      "middle",
     );
     body.push(
       `<line data-role-rule="g-${index}" x1="${number(geometry.xs[index])}" y1="${number(roleRuleY)}" x2="${number(geometry.xs[index] + geometry.widths[index])}" y2="${number(roleRuleY)}" stroke="${colors.rule}"/>`,
@@ -391,14 +155,14 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
         body.push(
           `<text x="${number(position.x + 12)}" y="${number(position.y + 21 + line * 16)}" text-anchor="middle" fill="${colors.ink}" font-size="12" font-weight="600">${escape(text)}</text>`,
         );
-      body.push('</g>');
+      body.push("</g>");
       nodeCarriers.push({
         graphicId,
         source: { namespace: node.namespace, id: node.id, sha256: node.sha256 },
       });
       nodeIds.push(graphicId);
     }
-    body.push('</g>');
+    body.push("</g>");
     groupCarriers.push({
       graphicId: `g-${index}`,
       editorialId: group.id,
@@ -440,7 +204,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
         `${from.label} → ${to.label} · ${relation.label}`,
         margin,
         y,
-        geometry.width - 2 * margin,
+        sourceWidth - 2 * margin,
         10,
         colors.muted,
         400,
@@ -451,7 +215,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
     const start = geometry.xs[handoff.first] + geometry.widths[handoff.first] / 2;
     const end = geometry.xs[handoff.last] + geometry.widths[handoff.last] / 2;
     const middle = (start + end) / 2;
-    const captionWidth = Math.min(geometry.width - 2 * margin, 760);
+    const captionWidth = Math.min(sourceWidth - 2 * margin, 760);
     y += 20;
     body.push(
       `<path d="M ${number(start)} ${number(y - 9)} L ${number(start)} ${number(y)} L ${number(end)} ${number(y)}" fill="none" stroke="${colors.editorial}" stroke-width="2" marker-end="url(#editorial-arrow)"/>`,
@@ -466,7 +230,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
       colors.editorial,
       600,
       2,
-      'middle',
+      "middle",
     );
     y =
       textLines(
@@ -479,7 +243,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
         colors.ink,
         400,
         4,
-        'middle',
+        "middle",
       ) + 3;
     y =
       textLines(
@@ -492,7 +256,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
         colors.muted,
         400,
         3,
-        'middle',
+        "middle",
       ) + 12;
   }
   const linkedRelations = new Set(
@@ -502,7 +266,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
     scene.claimCards !== undefined &&
     scene.relations.length &&
     scene.sourceAssertionCarriers.some(
-      ({ assertionId, kind }) => kind === 'relation' && !linkedRelations.has(assertionId),
+      ({ assertionId, kind }) => kind === "relation" && !linkedRelations.has(assertionId),
     )
   )
     y =
@@ -511,89 +275,37 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
         UNLINKED_RELATION_NOTE,
         margin,
         y + 12,
-        geometry.width - 2 * margin,
+        sourceWidth - 2 * margin,
         10,
         colors.muted,
         400,
         3,
       ) + 8;
-  const claimCarriers = [];
+  let claimCarriers = [];
   if (scene.claimCards?.length) {
-    y += 16;
+    const x = arrangement.beside ? sourceWidth - margin + 42 : margin;
+    const top = arrangement.beside ? claimTop : y + 43;
+    if (!arrangement.beside)
+      body.push(
+        `<line x1="${margin}" y1="${number(y + 16)}" x2="${geometry.width - margin}" y2="${number(y + 16)}" stroke="${colors.rule}"/>`,
+      );
     body.push(
-      `<line x1="${margin}" y1="${number(y)}" x2="${geometry.width - margin}" y2="${number(y)}" stroke="${colors.rule}"/>`,
+      `<text x="${number(x)}" y="${number(top)}" fill="${colors.editorial}" font-size="11" font-weight="600">SELECTED SOURCE CLAIMS</text>`,
     );
-    y += 27;
-    body.push(
-      `<text x="${margin}" y="${number(y)}" fill="${colors.editorial}" font-size="11" font-weight="600">SELECTED SOURCE CLAIMS</text>`,
-    );
-    y += 24;
-    for (const card of scene.claimCards) {
-      if (!Array.isArray(card.facts) || !card.facts.length)
-        fail('static_responsibility_claim_invalid');
-      const graphicId = `c-${claimCarriers.length}`;
-      body.push(`<g data-graphic-id="${graphicId}">`);
-      const claimAssertion = scene.sourceAssertionCarriers.find(
-        ({ kind, claimRefs }) =>
-          kind === 'claim' &&
-          claimRefs?.some(
-            (ref) =>
-              sourceKey(ref) ===
-              sourceKey({ namespace: card.namespace, reference: card.id, sha256: card.sha256 }),
-          ),
+    const { columns } = staticBodyGeometry(null, scene.claimCards);
+    const claims = paintResponsibilityClaims(scene, nodes, {
+      x,
+      y: top + 24,
+      width: geometry.width - margin - x,
+      columns,
+    });
+    body.push(claims.markup);
+    claimCarriers = claims.carriers;
+    if (arrangement.beside)
+      body.push(
+        `<line x1="${number(x - 21)}" y1="${number(top - 16)}" x2="${number(x - 21)}" y2="${number(Math.max(y, claims.bottom))}" stroke="${colors.rule}"/>`,
       );
-      const linked = scene.claimRelationLinks?.find(
-        ({ claimAssertionId }) => claimAssertionId === claimAssertion?.assertionId,
-      );
-      const relationRef = scene.sourceAssertionCarriers.find(
-        ({ assertionId }) => assertionId === linked?.relationAssertionId,
-      )?.relationRefs?.[0];
-      const relation = relationRef
-        ? scene.relations.find(
-            (item) =>
-              sourceKey({
-                namespace: item.origin.namespace,
-                reference: item.id,
-                sha256: item.origin.sha256,
-              }) === sourceKey(relationRef),
-          )
-        : null;
-      if (linked && !relation) fail('static_responsibility_claim_relation_invalid');
-      const subjectLink = scene.claimSubjectLinks?.find(
-        ({ claimAssertionId }) => claimAssertionId === claimAssertion?.assertionId,
-      );
-      const subject = subjectLink ? nodes.get(nodeKey(subjectLink.subject)) : null;
-      if (subjectLink && (!subject || subject.sha256 !== subjectLink.subject.sha256))
-        fail('static_responsibility_claim_relation_invalid');
-      if (relation && subjectLink) fail('static_responsibility_claim_relation_invalid');
-      const heading = relation
-        ? `CLAIM ON ${nodes.get(nodeKey(relation.from)).label} → ${nodes.get(nodeKey(relation.to)).label}`
-        : subject
-          ? `CLAIM ON ${subject.label}`
-          : null;
-      if (heading) {
-        y =
-          textLines(body, heading, margin, y, geometry.width - 2 * margin, 12, colors.ink, 600, 2) +
-          9;
-      }
-      const cellWidth = (geometry.width - 2 * margin - 36) / 3;
-      for (let start = 0; start < card.facts.length; start += 3) {
-        const cells = card.facts.slice(start, start + 3).map((fact, index) => {
-          const out = [];
-          const x = margin + index * (cellWidth + 18);
-          let bottom = textLines(out, fact.label, x, y, cellWidth, 10, colors.muted, 600, 2) + 2;
-          bottom = textLines(out, fact.value, x, bottom, cellWidth, 11, colors.ink, 400, 5) + 9;
-          return { out, bottom };
-        });
-        for (const cell of cells) body.push(...cell.out);
-        y = Math.max(...cells.map(({ bottom }) => bottom)) + 6;
-      }
-      body.push('</g>');
-      claimCarriers.push({
-        graphicId,
-        source: { namespace: card.namespace, reference: card.id, sha256: card.sha256 },
-      });
-    }
+    y = arrangement.beside ? Math.max(y, claims.bottom) : claims.bottom;
   }
   const limits = scene.limitsByQuestion[scene.questionIds[0]];
   if (limits.length) {
@@ -629,7 +341,7 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
       3,
     ) + 35;
   const height = Math.ceil(y);
-  if (height > 6000) fail('static_responsibility_geometry_unrepresentable');
+  if (height > 6000) fail("static_responsibility_geometry_unrepresentable");
   const nodeGraphics = new Map(
     nodeCarriers.map(({ source, graphicId }) => [nodeKey(source), graphicId]),
   );
@@ -658,14 +370,16 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
   const svg = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${geometry.width}" height="${height}" viewBox="0 0 ${geometry.width} ${height}" role="img" data-form="responsibility" aria-labelledby="responsibility-title responsibility-description" font-family="JetBrains Mono" font-weight="400">`,
     `<title id="responsibility-title">${escape(scene.title)}</title>`,
-    `<desc id="responsibility-description">${escape(scene.questions[0].text)} ${escape(scene.summary)} ${escape(framing)}</desc>`,
+    `<desc id="responsibility-description">${escape(scene.questions[0].text)} ${scene.summary === undefined ? "" : escape(scene.summary)} ${escape(framing)}</desc>`,
     `<rect width="${geometry.width}" height="${height}" fill="${colors.paper}"/>`,
     ...body,
     ...(figureTypes ? [figureIconLicenseMetadata(icons)] : []),
-    '</svg>',
-    '',
-  ].join('\n');
+    "</svg>",
+    "",
+  ].join("\n");
   return {
+    width: geometry.width,
+    height,
     bytes: Buffer.from(svg),
     rasterWidth,
     carriers,
@@ -678,5 +392,32 @@ export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
         relations: relationCarriers.map(({ graphicId, path }) => ({ graphicId, path })),
       },
     },
+  };
+}
+
+/** Arrange complete selected content without borrowing interactive geometry or DOM. */
+export function composeStaticResponsibilitySvg(scene, { icons } = {}) {
+  const form = selectedForm(scene);
+  const geometry = layout(scene, form.roles, form.roleByNode);
+  const candidates = [{}];
+  if (scene.claimCards?.length) {
+    const { columns, width } = staticBodyGeometry(null, scene.claimCards);
+    for (let claimWidth = columns * 320 + (columns - 1) * 24; claimWidth <= width; claimWidth += 32)
+      candidates.push({ beside: true, width: geometry.graphWidth + 42 + claimWidth });
+  }
+  const result = selectMeasuredComposition(
+    candidates,
+    (arrangement) => paintResponsibility(scene, icons, form, arrangement),
+    [
+      "static_responsibility_text_unrepresentable",
+      "static_responsibility_header_unrepresentable",
+      "static_responsibility_geometry_unrepresentable",
+    ],
+  );
+  return {
+    bytes: result.bytes,
+    rasterWidth: result.rasterWidth,
+    carriers: result.carriers,
+    scene: result.scene,
   };
 }

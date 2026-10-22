@@ -5,10 +5,10 @@ async function observePaintedLayers(page, firstPng, secondPng, witnesses = null)
         const image = new globalThis.Image();
         image.src = `data:image/png;base64,${base64}`;
         await image.decode();
-        const canvas = globalThis.document.createElement('canvas');
+        const canvas = globalThis.document.createElement("canvas");
         canvas.width = image.naturalWidth;
         canvas.height = image.naturalHeight;
-        const context = canvas.getContext('2d');
+        const context = canvas.getContext("2d");
         context.drawImage(image, 0, 0);
         return {
           width: canvas.width,
@@ -19,7 +19,7 @@ async function observePaintedLayers(page, firstPng, secondPng, witnesses = null)
       const text = await pixels(textBase64);
       const marks = await pixels(marksBase64);
       if (text.width !== marks.width || text.height !== marks.height)
-        throw Error('painted_mask_dimensions_mismatch');
+        throw Error("painted_mask_dimensions_mismatch");
       if (witnesses !== null)
         return witnesses
           .filter(({ x, y, width, height }) => {
@@ -69,7 +69,7 @@ async function observePaintedLayers(page, firstPng, secondPng, witnesses = null)
         }
       return { contact, withinTwoPixels };
     },
-    [firstPng.toString('base64'), secondPng.toString('base64'), witnesses],
+    [firstPng.toString("base64"), secondPng.toString("base64"), witnesses],
   );
 }
 

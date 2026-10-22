@@ -1,21 +1,21 @@
 const PAINT = Object.freeze({
-  paper: '#f3f0e8',
-  ink: '#26362f',
-  muted: '#68716a',
-  line: '#7d9183',
-  accent: '#9b6f43',
-  proof: '#75664d',
-  ghost: '#c7cbc0',
-  wash: '#e3e8df',
+  paper: "#f3f0e8",
+  ink: "#26362f",
+  muted: "#68716a",
+  line: "#7d9183",
+  accent: "#9b6f43",
+  proof: "#75664d",
+  ghost: "#c7cbc0",
+  wash: "#e3e8df",
 });
 const ARROW = Object.freeze({ length: 8, halfWidth: 4, strokeWidth: 1.2 });
 
 function metricBox(label, measure) {
   const measured = measure(label.text, label.size, label.weight),
     origin =
-      label.anchor === 'middle'
+      label.anchor === "middle"
         ? label.x - measured.width / 2
-        : label.anchor === 'end'
+        : label.anchor === "end"
           ? label.x - measured.width
           : label.x,
     glyph = measured.glyph;
@@ -29,7 +29,7 @@ function metricBox(label, measure) {
 
 export function compileArchitecturePublisherStaticScene(composition, measure) {
   return {
-    schema: 'architecture.publisher-static-scene/v1',
+    schema: "architecture.publisher-static-scene/v1",
     title: composition.title,
     subtitle: composition.subtitle,
     description: composition.description,
@@ -40,17 +40,17 @@ export function compileArchitecturePublisherStaticScene(composition, measure) {
     paint: { ...PAINT },
     nodes: composition.marks.map((mark) => ({
       id: mark.id,
-      kind: mark.id.startsWith('feedback-return')
-        ? 'feedback'
-        : mark.id.startsWith('evolution') ||
+      kind: mark.id.startsWith("feedback-return")
+        ? "feedback"
+        : mark.id.startsWith("evolution") ||
             [
-              'semantic-delta',
-              'affected-views',
-              'rebuild-verification',
-              'review-publication',
+              "semantic-delta",
+              "affected-views",
+              "rebuild-verification",
+              "review-publication",
             ].includes(mark.id)
-          ? 'evolution'
-          : 'spine',
+          ? "evolution"
+          : "spine",
       tone: mark.tone,
       center: { x: mark.x, y: mark.y },
       radius: mark.r,
@@ -87,15 +87,15 @@ export function compileArchitecturePublisherStaticScene(composition, measure) {
       source: edge.source,
       target: edge.target,
       points: edge.points.map((point) => ({ ...point })),
-      strokeWidth: edge.kind === 'trust' ? 2 : edge.kind === 'feedback' ? 1.2 : 1.5,
+      strokeWidth: edge.kind === "trust" ? 2 : edge.kind === "feedback" ? 1.2 : 1.5,
       arrow: true,
       arrowGeometry: { ...ARROW },
       semanticIds: [...edge.semantics],
     })),
     decorations: composition.rules.map((rule) => ({
       id: rule.id,
-      role: 'rule',
-      tone: 'ghost',
+      role: "rule",
+      tone: "ghost",
       points: rule.points.map((point) => ({ ...point })),
       strokeWidth: 1,
     })),

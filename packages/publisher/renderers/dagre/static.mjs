@@ -1,5 +1,5 @@
-import { fail } from '../../src/protocol/values.mjs';
-import { layoutStaticGraph } from './layout.mjs';
+import { fail } from "../../src/protocol/values.mjs";
+import { layoutStaticGraph } from "./layout.mjs";
 
 function checkedInput(input) {
   if (
@@ -12,55 +12,55 @@ function checkedInput(input) {
     !Array.isArray(input.relations) ||
     input.relations.length > 2048
   )
-    fail('static_dagre_input_invalid');
+    fail("static_dagre_input_invalid");
   const nodes = new Map();
   for (const node of input.nodes) {
     if (
-      typeof node?.id !== 'string' ||
+      typeof node?.id !== "string" ||
       !node.id ||
-      typeof node.label !== 'string' ||
+      typeof node.label !== "string" ||
       !node.label.trim() ||
       [...node.label].length > 256 ||
       nodes.has(node.id)
     )
-      fail('static_dagre_input_invalid');
+      fail("static_dagre_input_invalid");
     nodes.set(node.id, node);
   }
   const members = new Set();
   const groups = new Set();
   for (const group of input.groups) {
     if (
-      typeof group?.id !== 'string' ||
+      typeof group?.id !== "string" ||
       !group.id ||
       groups.has(group.id) ||
-      typeof group.label !== 'string' ||
+      typeof group.label !== "string" ||
       !group.label.trim() ||
       [...group.label].length > 256 ||
       !Array.isArray(group.members) ||
       !group.members.length ||
       group.members.length > 32
     )
-      fail('static_dagre_input_invalid');
+      fail("static_dagre_input_invalid");
     groups.add(group.id);
     for (const id of group.members) {
-      if (!nodes.has(id) || members.has(id)) fail('static_dagre_input_invalid');
+      if (!nodes.has(id) || members.has(id)) fail("static_dagre_input_invalid");
       members.add(id);
     }
   }
-  if (input.groups.length && members.size !== nodes.size) fail('static_dagre_input_invalid');
+  if (input.groups.length && members.size !== nodes.size) fail("static_dagre_input_invalid");
   const relations = new Set();
   for (const relation of input.relations) {
     if (
-      typeof relation?.id !== 'string' ||
+      typeof relation?.id !== "string" ||
       !relation.id ||
       relations.has(relation.id) ||
       !nodes.has(relation.from) ||
       !nodes.has(relation.to) ||
       relation.from === relation.to ||
-      typeof relation.text !== 'string' ||
+      typeof relation.text !== "string" ||
       [...relation.text].length > 256
     )
-      fail('static_dagre_input_invalid');
+      fail("static_dagre_input_invalid");
     relations.add(relation.id);
   }
   return input;
@@ -147,7 +147,7 @@ function placeRelationLabels(routes, nodes) {
           const candidate = place(route.labelAnchor[0] + shiftX, route.labelAnchor[1] + shiftY);
           if (candidate) return candidate;
         }
-    fail('static_dagre_relation_caption_infeasible', route.id);
+    fail("static_dagre_relation_caption_infeasible", route.id);
   });
 }
 
@@ -179,7 +179,7 @@ async function composeWithAlignment(input, opaque, alignment) {
   const nodes = new Map(
     input.nodes.map((node, index) => {
       const placed = placedNodes.get(`n${index}`);
-      if (!placed) fail('static_dagre_geometry_invalid');
+      if (!placed) fail("static_dagre_geometry_invalid");
       return [
         node.id,
         {
@@ -194,7 +194,7 @@ async function composeWithAlignment(input, opaque, alignment) {
   const placedEdges = new Map(selected.edges.map((edge) => [edge.id, edge]));
   const routes = input.relations.map((relation, index) => {
     const edge = placedEdges.get(`e${index}`);
-    if (!edge) fail('static_dagre_geometry_invalid');
+    if (!edge) fail("static_dagre_geometry_invalid");
     const points = edge.points.map(({ x, y }) => [x + 80, y + 190]);
     return {
       ...relation,
@@ -204,7 +204,7 @@ async function composeWithAlignment(input, opaque, alignment) {
     };
   });
   if (nodes.size !== input.nodes.length || placedEdges.size !== input.relations.length)
-    fail('static_dagre_geometry_invalid');
+    fail("static_dagre_geometry_invalid");
   const memberGroups = input.groups.map((group) => {
     const members = group.members.map((id) => nodes.get(id));
     const left = Math.min(...members.map(({ x }) => x)) - 16;
@@ -231,7 +231,7 @@ async function composeWithAlignment(input, opaque, alignment) {
       ...layout,
       groups,
       nodes,
-      ...(groups.length ? { groupPresentation: 'key' } : {}),
+      ...(groups.length ? { groupPresentation: "key" } : {}),
     },
     routes: labeledRoutes,
     supplySha256: selected.supplySha256,
@@ -243,9 +243,9 @@ export async function composeDagreStaticGeometry(value) {
   const input = checkedInput(value);
   const opaque = new Map(input.nodes.map(({ id }, index) => [id, `n${index}`]));
   try {
-    return await composeWithAlignment(input, opaque, 'regular');
+    return await composeWithAlignment(input, opaque, "regular");
   } catch (error) {
-    if (error?.code !== 'static_dagre_relation_caption_infeasible') throw error;
+    if (error?.code !== "static_dagre_relation_caption_infeasible") throw error;
   }
-  return composeWithAlignment(input, opaque, 'balanced');
+  return composeWithAlignment(input, opaque, "balanced");
 }

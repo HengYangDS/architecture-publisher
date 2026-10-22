@@ -1,8 +1,8 @@
 # Structural examples
 
 These examples demonstrate portable, source-bound use of the generic product.
-They are intentionally small and do not claim flagship visual acceptance or
-support for every architecture domain.
+They deliberately explain limited scope and do not claim visual acceptance or
+support for every architecture domain. They retain the same product-quality floor.
 
 The low-level rendering examples contain independently authored interactive
 JSON and static SVG with shared semantic identities. Neither medium is derived

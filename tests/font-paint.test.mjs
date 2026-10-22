@@ -1,13 +1,13 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import * as paint from './fixtures/font-paint.mjs';
+import assert from "node:assert/strict";
+import test from "node:test";
+import * as paint from "./fixtures/font-paint.mjs";
 
 const observation = (envelope, scale = 4) => ({
   scale,
   samples: [{ threshold: 0, count: 1, envelope }],
 });
 
-test('paint bounds retain the complete inclusive single-pixel footprint', () => {
+test("paint bounds retain the complete inclusive single-pixel footprint", () => {
   const actual = paint.assertGlyphPaintBounds(
     observation({ left: 8, top: 12, right: 8, bottom: 12 }),
     { x: 2, y: 3, width: 0.25, height: 0.25 },
@@ -16,7 +16,7 @@ test('paint bounds retain the complete inclusive single-pixel footprint', () => 
   assert.deepEqual(actual, { left: 2, top: 3, right: 2.25, bottom: 3.25 });
 });
 
-test('paint bounds normalize each scale and retain nonzero logical origins', () => {
+test("paint bounds normalize each scale and retain nonzero logical origins", () => {
   const actual = paint.assertGlyphPaintBounds(
     observation({ left: 6, top: 8, right: 9, bottom: 11 }),
     { x: 13, y: -6, width: 2, height: 1 },
@@ -26,7 +26,7 @@ test('paint bounds normalize each scale and retain nonzero logical origins', () 
   assert.deepEqual(actual, { left: 13, top: -6, right: 15, bottom: -5 });
 });
 
-test('paint bounds compare independent edges rather than accumulated width error', () => {
+test("paint bounds compare independent edges rather than accumulated width error", () => {
   const actual = paint.assertGlyphPaintBounds(
     observation({ left: 3, top: 4, right: 8, bottom: 7 }),
     { x: 1, y: 1, width: 1, height: 1 },
@@ -35,7 +35,7 @@ test('paint bounds compare independent edges rather than accumulated width error
   assert.equal(actual.right - actual.left, 1.5);
 });
 
-test('paint bounds reject displacement and clipping beyond the declared allowance', () => {
+test("paint bounds reject displacement and clipping beyond the declared allowance", () => {
   const expected = { x: 1, y: 1, width: 1, height: 1 };
   assert.throws(
     () =>
@@ -57,7 +57,7 @@ test('paint bounds reject displacement and clipping beyond the declared allowanc
   );
 });
 
-test('paint bounds use every nonzero alpha pixel rather than a selected opacity threshold', () => {
+test("paint bounds use every nonzero alpha pixel rather than a selected opacity threshold", () => {
   const input = observation({ left: 4, top: 4, right: 10, bottom: 7 });
   input.samples.unshift({
     threshold: 127,
@@ -70,7 +70,7 @@ test('paint bounds use every nonzero alpha pixel rather than a selected opacity 
   );
 });
 
-test('paint bounds reject absent paint instead of treating an empty footprint as agreement', () => {
+test("paint bounds reject absent paint instead of treating an empty footprint as agreement", () => {
   const input = observation({ left: 4, top: 4, right: 7, bottom: 7 });
   input.samples[0].count = 0;
   assert.throws(

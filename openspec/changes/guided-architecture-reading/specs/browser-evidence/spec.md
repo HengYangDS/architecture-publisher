@@ -40,6 +40,15 @@ remain unproved; historical playback or Node results do not qualify a reader.
 - **THEN** the old frame cannot resume deferred work or grant destination autoplay
 - **AND** selected source geometry remains unchanged
 
+#### Scenario: Rapid relationship replay supersedes queued navigation
+
+- **WHEN** a new addressed relationship choice replaces a destination before native arrival
+- **THEN** both the native current view and the requested destination must match before replay
+- **AND** the newest choice supersedes queued navigation through the public native API
+- **AND** Search or component-detail navigation clears the old address after destination arrival
+- **AND** reload cannot revive the superseded relationship or lose a repeated graphic occurrence
+- **AND** disposed readers ignore subsequent navigation observations
+
 #### Scenario: An unrelated iframe message arrives
 
 - **WHEN** a message has the wrong sender or page
@@ -47,24 +56,77 @@ remain unproved; historical playback or Node results do not qualify a reader.
 
 ### Requirement: Native capability admission follows semantic support
 
-The reader SHALL preserve source-bound graphic occurrences for native Finder,
-focus, Lens, viewport navigation and presentation. Relationship traversal SHALL
-require complete, unambiguous logical membership. Occurrence counts SHALL NOT
-claim source-entity counts, and unavailable relationship counts SHALL NOT appear
-as zero. Inspect retains the selected source facts without creating a second graph.
+The public build SHALL preserve every selected graphic occurrence and its exact
+source declarations in one Inspect surface. Supported native search, focus,
+relationship inspection and viewport navigation SHALL consume the selected
+source model, not explanatory geometry. Figure-occurrence counts SHALL NOT
+claim source-entity counts. Absent capability SHALL NOT mean zero relationships.
+
+#### Scenario: An authored node supplies a concise note
+
+- **WHEN** an ordinary authored node declares a valid `note`
+- **THEN** the renderer passes it unchanged to the native component detail field
+- **AND** native typography and reading levels own its presentation
+- **AND** it neither creates semantic membership nor relaxes text collision checks
+
+#### Scenario: Explicit literal geometry declares a desktop text budget
+
+- **WHEN** an authored scene declares `typography.minimumTextPx` between 6 and 32
+- **THEN** the adapter reuses the native desktop width budget, text fitting and row layout
+- **AND** it computes native font sizes, baselines and connection-label footprints together
+- **AND** native node type glyphs and Legend entries retain that desktop readability budget
+- **AND** the composition honors only the declared intrinsic-height reading mode
+- **AND** actual navigation bounds preserve the native stage gap before and after scrolling
+- **AND** a resting-position receipt alone does not prove control clearance
+- **AND** fixed nodes, routes, labels and selected semantics remain unchanged
+- **AND** insufficient space still refuses rendering without reducing the declared budget
+- **AND** scenes without this declaration retain their existing presentation
+
+#### Scenario: Intrinsic composition is measured after resolution
+
+- **WHEN** ordinary occurrences omit calculated geometry
+- **THEN** selected font measurements include complete text fields and type glyphs
+- **AND** browser evidence checks peer alignment, spacing and actual painted clearance
+- **AND** complete repeated occurrences and directed traversals survive resolution
+- **AND** a fit envelope alone does not prove text, label-mask or route clearance
 
 #### Scenario: A figure groups or repeats source members
 
-- **WHEN** complete logical relationship membership cannot be admitted
-- **THEN** native Finder and Lens still read uniquely identified graphic occurrences
-- **AND** Path and Reach refuse queries without claiming that no source path exists
-- **AND** Passport and Guide state the limitation without invented relationship counts
+- **WHEN** explanatory figure endpoints cannot stand for exact source relationships
+- **THEN** each figure occurrence still opens its complete selected declarations
+- **AND** native source reading retains exact distinct entities, relations and page scope
+- **AND** inspection returns keyboard focus to the original occurrence
+- **AND** collapsed endpoints do not create a source path or invent relationship counts
+
+#### Scenario: A raw native query request has incomplete membership
+
+- **WHEN** the raw renderer receives a native-mode request with declared exploration limits
+- **THEN** it refuses before emitting an executable document or partial output
+- **AND** the public build still renders the complete figure with checked source reading
 
 #### Scenario: Exact logical graph membership is admitted
 
 - **WHEN** source nodes and relationships have complete unambiguous graphic bindings
 - **THEN** native Path, Reach, Lens and relationship inspection consume those bindings
 - **AND** shared physical segments never become extra logical edges
+
+### Requirement: Complete source-query evidence
+
+Required directed multi-hop paths, transitive reach and exact source-kind grouping
+SHALL be qualified through the selected public build on exact source records.
+Editorial figure roles SHALL remain distinct from source kinds.
+
+#### Scenario: Native direct adjacency is available
+
+- **WHEN** a selected source reader offers direct incoming or outgoing relationships
+- **THEN** that observation does not qualify a multi-hop path or transitive-reach result
+- **AND** a missing required query remains open rather than reported as zero or unreachable
+
+#### Scenario: Exact source types contain similar or absent values
+
+- **WHEN** source kinds share a substring or a source element has no declared kind
+- **THEN** grouping retains each exact source kind and the separate undeclared state
+- **AND** substring search and editorial figure-role grouping do not qualify that result
 
 ### Requirement: Portable addressed reading
 
@@ -139,12 +201,29 @@ SHALL retain their separate meaning.
 - **THEN** its Passport, Legend and Lens identify the effective figure kind
 - **AND** no Backend identity is inferred from the paint or corner symbol
 
+#### Scenario: Reader wording differs from internal type identity
+
+- **GIVEN** the Edition catalog declares an icon and readable label for a kind
+- **WHEN** Publisher composes the selected static and interactive works
+- **THEN** every type-identifying key and reader control uses that label
+- **AND** its layout measures the displayed wording rather than the internal key
+- **AND** source kinds, exact membership and effective kind identity remain unchanged
+- **AND** conflicting labels for one kind or ambiguous labels across kinds are refused
+- **AND** string catalog entries retain their previously valid literal wording
+
 #### Scenario: Mixed source membership has an explicit reader role
 
 - **WHEN** an authored figure binds several source kinds and declares its figure kind
 - **THEN** native reading uses that declared architecture role
 - **AND** Inspect retains every bound entity and its original source kind
 - **AND** no repeated aggregate footer is inserted into the diagram
+
+#### Scenario: Mixed source kinds have no declared reader role
+
+- **WHEN** a graphic binds several source kinds without an editorial figure kind
+- **THEN** composition refuses the ambiguous type instead of inventing a grouping type
+- **AND** an explicit architecture role retains every member and original source kind
+- **AND** grouping alone does not establish a component, subsystem or execution role
 
 #### Scenario: A kind occurs on several selected pages
 

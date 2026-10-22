@@ -1,1 +1,1 @@
-export { renderInteractiveEditionHtml } from './edition.mjs';
+export { renderInteractiveEditionHtml } from "./edition.mjs";

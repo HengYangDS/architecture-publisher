@@ -1,5 +1,5 @@
-export { compileClaimModelDelta } from './change.mjs';
-export { importLikeC4Layout, importLikeC4Native } from './native-likec4.mjs';
+export { compileClaimModelDelta } from "./change.mjs";
+export { importLikeC4Layout, importLikeC4Native } from "./native-likec4.mjs";
 export {
   CLAIM_MODEL_SECTIONS,
   CLAIM_PLANES,
@@ -15,4 +15,4 @@ export {
   strings,
   text,
   validateClaimModel,
-} from './document.mjs';
+} from "./document.mjs";

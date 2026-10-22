@@ -1,9 +1,9 @@
-import { canonical } from '../protocol/json.mjs';
-import { fail } from '../protocol/values.mjs';
-import { claimCard } from '../scene/claim-card.mjs';
-import { linkClaimModelSources } from '../scene/claim-relations.mjs';
+import { canonical } from "../protocol/json.mjs";
+import { fail } from "../protocol/values.mjs";
+import { claimCard } from "../scene/claim-card.mjs";
+import { linkClaimModelSources } from "../scene/claim-relations.mjs";
 
-const mismatch = () => fail('edition_visible_coverage_mismatch');
+const mismatch = () => fail("edition_visible_coverage_mismatch");
 const same = (left, right) => canonical(left) === canonical(right);
 const nodeKey = ({ namespace, id }) => canonical([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) => canonical([namespace, reference, sha256]);
@@ -20,7 +20,7 @@ function validateClaimCarriers(page, selections, assertions) {
   const required = new Set();
   for (const carrier of page.sourceAssertionCarriers) {
     const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
-    if (selection?.target.kind !== 'claim') {
+    if (selection?.target.kind !== "claim") {
       if (carrier.claimRefs?.length) mismatch();
       continue;
     }
@@ -42,8 +42,8 @@ function validateClaimCarriers(page, selections, assertions) {
 function selectedRelationMatches(carrier, selection) {
   const relation = selection?.members?.relations?.[0];
   return (
-    carrier?.kind === 'relation' &&
-    selection?.target.kind === 'relation' &&
+    carrier?.kind === "relation" &&
+    selection?.target.kind === "relation" &&
     Array.isArray(selection.members?.relations) &&
     selection.members.relations.length === 1 &&
     relation?.origin?.namespace &&
@@ -68,7 +68,7 @@ function selectedRelationMatches(carrier, selection) {
 function validateClaimLinks(view, page, selections, assertions, required) {
   for (const carrier of page.sourceAssertionCarriers) {
     const selection = selections.get(assertions.get(carrier.assertionId)?.selection);
-    if (selection?.target.kind === 'relation' && !selectedRelationMatches(carrier, selection))
+    if (selection?.target.kind === "relation" && !selectedRelationMatches(carrier, selection))
       mismatch();
   }
   if (!required.size) {
@@ -79,7 +79,7 @@ function validateClaimLinks(view, page, selections, assertions, required) {
     view,
     assertions,
     selections,
-    'edition_visible_coverage_mismatch',
+    "edition_visible_coverage_mismatch",
   );
   if (expected.links.length + expected.subjectLinks.length !== required.size) mismatch();
   if (
@@ -124,7 +124,7 @@ function validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics
     if (
       !Array.isArray(authored?.elements) ||
       groupIds.has(authored.id) ||
-      typeof carrier?.graphicId !== 'string' ||
+      typeof carrier?.graphicId !== "string" ||
       !carrier.graphicId ||
       graphicIds.has(carrier.graphicId) ||
       groupGraphicIds.has(carrier.graphicId)
@@ -154,7 +154,7 @@ function validateStaticResponsibility(meaning, view, index, page, map, nodeGraph
   const authored = meaning.editorial?.presentation?.static?.views?.[index];
   if (
     authored === undefined &&
-    page.schema !== 'architecture.edition-static-responsibility-scene/v1' &&
+    page.schema !== "architecture.edition-static-responsibility-scene/v1" &&
     page.visualForm === undefined &&
     map.groups === undefined
   )
@@ -165,7 +165,7 @@ function validateStaticResponsibility(meaning, view, index, page, map, nodeGraph
     return;
   }
   if (
-    page.schema !== 'architecture.edition-static-responsibility-scene/v1' ||
+    page.schema !== "architecture.edition-static-responsibility-scene/v1" ||
     !same(page.visualForm, authored.form) ||
     !same(page.groups, authored.groups) ||
     !Array.isArray(map.groups) ||
@@ -189,7 +189,7 @@ function validateStaticResponsibility(meaning, view, index, page, map, nodeGraph
     const carrier = map.groups[at];
     const nodeIds = group.elements.map((member) => nodeGraphics.get(nodeKey(member)));
     if (
-      typeof carrier?.graphicId !== 'string' ||
+      typeof carrier?.graphicId !== "string" ||
       !carrier.graphicId ||
       graphicIds.has(carrier.graphicId) ||
       groupGraphics.has(carrier.graphicId) ||
@@ -208,11 +208,11 @@ function validateStaticResponsibility(meaning, view, index, page, map, nodeGraph
 /** Check the selected view-to-carrier join before building an unqualified Candidate. */
 export function validateVisibleSelection(meaning, medium, scene, carriers) {
   const views = meaning?.media?.[medium]?.views;
-  const figure = medium === 'static' && scene?.schema === 'architecture.edition-static-figure/v1';
-  const pages = medium === 'static' ? (figure ? scene.views : [scene]) : scene?.pages;
-  const maps = medium === 'static' ? (figure ? carriers : [carriers]) : carriers;
+  const figure = medium === "static" && scene?.schema === "architecture.edition-static-figure/v1";
+  const pages = medium === "static" ? (figure ? scene.views : [scene]) : scene?.pages;
+  const maps = medium === "static" ? (figure ? carriers : [carriers]) : carriers;
   if (
-    !['static', 'interactive'].includes(medium) ||
+    !["static", "interactive"].includes(medium) ||
     !Array.isArray(meaning?.assertions) ||
     !Array.isArray(views) ||
     !Array.isArray(pages) ||
@@ -262,11 +262,11 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       (page.claimCards !== undefined && !Array.isArray(page.claimCards)) ||
       (map.claims !== undefined && !Array.isArray(map.claims)) ||
       (page.claimCards === undefined) !== (map.claims === undefined) ||
-      view.assertionIds.some((id) => !['source', 'editorial'].includes(assertions.get(id)?.kind))
+      view.assertionIds.some((id) => !["source", "editorial"].includes(assertions.get(id)?.kind))
     )
       mismatch();
-    const sourceIds = view.assertionIds.filter((id) => assertions.get(id).kind === 'source');
-    const editorialIds = view.assertionIds.filter((id) => assertions.get(id).kind === 'editorial');
+    const sourceIds = view.assertionIds.filter((id) => assertions.get(id).kind === "source");
+    const editorialIds = view.assertionIds.filter((id) => assertions.get(id).kind === "editorial");
     const expected = {
       id: view.id,
       questionIds: view.questionIds,
@@ -275,7 +275,7 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       editorialIds,
     };
     const actual = {
-      id: medium === 'static' ? page.editorialViewId : page.id,
+      id: medium === "static" ? page.editorialViewId : page.id,
       questionIds: page.questionIds,
       limitsByQuestion: page.limitsByQuestion,
       sourceIds: page.sourceAssertionCarriers.map(({ assertionId }) => assertionId),
@@ -283,7 +283,7 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     };
     if (
       !same(actual, expected) ||
-      (medium === 'interactive' && map.id !== view.id) ||
+      (medium === "interactive" && map.id !== view.id) ||
       !same(
         map.assertions.map(({ assertionId }) => assertionId),
         sourceIds,
@@ -293,7 +293,7 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     const hasClaimModelRelations = sourceIds.some((id) => {
       const selected = selections.get(assertions.get(id).selection);
       return (
-        selected?.format === 'architecture.claim-model/v2' && selected.target.kind === 'relation'
+        selected?.format === "architecture.claim-model/v2" && selected.target.kind === "relation"
       );
     });
     if (hasClaimModelRelations && page.claimCards === undefined) mismatch();
@@ -333,11 +333,11 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     const graphicIds = new Set(graphics);
     if (
       graphicIds.size !== graphics.length ||
-      graphics.some((id) => typeof id !== 'string' || !id) ||
+      graphics.some((id) => typeof id !== "string" || !id) ||
       map.assertions.some((carrier) => {
-        const nodeIds = medium === 'static' ? carrier.nodeGraphicIds : carrier.nodeIds;
-        const relationIds = medium === 'static' ? carrier.relationGraphicIds : carrier.relationIds;
-        const claimIds = medium === 'static' ? carrier.claimGraphicIds : carrier.claimIds;
+        const nodeIds = medium === "static" ? carrier.nodeGraphicIds : carrier.nodeIds;
+        const relationIds = medium === "static" ? carrier.relationGraphicIds : carrier.relationIds;
+        const claimIds = medium === "static" ? carrier.claimGraphicIds : carrier.claimIds;
         return (
           !Array.isArray(nodeIds) ||
           !Array.isArray(relationIds) ||
@@ -357,7 +357,7 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     const claimGraphics = new Map(
       (map.claims ?? []).map(({ source, graphicId }) => [claimKey(source), graphicId]),
     );
-    if (medium === 'interactive')
+    if (medium === "interactive")
       validateInteractiveGroups(meaning, view, index, page, map, nodeGraphics, graphicIds);
     else validateStaticResponsibility(meaning, view, index, page, map, nodeGraphics, graphicIds);
     if (
@@ -379,10 +379,10 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
       mismatch();
     for (const [at, assertion] of page.sourceAssertionCarriers.entries()) {
       const projected = map.assertions[at];
-      const nodeIds = medium === 'static' ? projected.nodeGraphicIds : projected.nodeIds;
+      const nodeIds = medium === "static" ? projected.nodeGraphicIds : projected.nodeIds;
       const relationIds =
-        medium === 'static' ? projected.relationGraphicIds : projected.relationIds;
-      const claimIds = medium === 'static' ? projected.claimGraphicIds : projected.claimIds;
+        medium === "static" ? projected.relationGraphicIds : projected.relationIds;
+      const claimIds = medium === "static" ? projected.claimGraphicIds : projected.claimIds;
       if (
         !same(
           nodeIds,

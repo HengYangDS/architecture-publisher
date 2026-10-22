@@ -1,0 +1,28 @@
+{
+  "schema": "architecture.edition-provider/v1",
+  "provider": { "id": "example-system-edition", "revision": "release-1" },
+  "subject": { "id": "example:system", "revision": "release-1" },
+  "contracts": {
+    "sourceBundle": "architecture.source-bundle/v1",
+    "claimModel": "architecture.claim-model/v2",
+    "edition": "architecture.edition/v1",
+    "evolution": null
+  },
+  "delivery": {
+    "kind": "declarative",
+    "sourceManifest": "source/manifest.json",
+    "sourceManifestSha256": "726db625c57b644bd1fa848ed7e96e17760b7f37df389ba093f091f5328a6767",
+    "semanticMember": "semantic.json",
+    "edition": "edition.json",
+    "editionSha256": "68fa90b017ec6a7b7d62866c472fee36b24f54b59e696cfcbdbc5ee113da4efe",
+    "evolution": null,
+    "evolutionSha256": null
+  },
+  "expected": {
+    "sourceManifestSha256": "726db625c57b644bd1fa848ed7e96e17760b7f37df389ba093f091f5328a6767",
+    "claimModelDigest": "d52364f26bccb45a299d9364ef42c0a7b4859c2b87abf2a7fc99d9c1d6e35363",
+    "editionDigest": "5d2fa4e5af426412b433e4629675e6dbce008339a391da542af7a9458ab03385",
+    "evolutionSha256": null
+  },
+  "limits": { "inputs": 16, "inputBytes": 1048576, "replyBytes": 2097152, "timeoutMs": 10000 }
+}

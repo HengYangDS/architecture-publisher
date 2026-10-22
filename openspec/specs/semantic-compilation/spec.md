@@ -337,3 +337,230 @@ supply and selected source identities.
 - **WHEN** a selected parser file changes before the importer executes it
 - **THEN** execution uses the exact verified bytes or fails without an index
 - **AND** no changed installed file or ambient dependency is substituted
+
+### Requirement: Generic inputs are explicit and repository-independent
+
+The successor Build Request SHALL be a versioned, schema-validated JSON
+manifest selecting one Edition project, one or more source selectors or exact
+pins, requested media, and a qualified toolchain profile. The installed build
+SHALL not need ETHOS, Git, adjacent checkouts, network, product-specific
+branching, or an unselected source adapter. Existing Source Bundle v1, Claim
+Model v2, Edition v1, and Provider v1 inputs SHALL remain replayable under
+their original meanings.
+
+#### Scenario: Standard inputs are relocated
+
+- **WHEN** valid Source Bundle v1, Claim Model v2, Edition v1, and build request move
+  together with the same selected package to a machine without their source
+  repository or provider
+- **THEN** the installed core produces the same candidate bytes offline
+- **AND** a changed selected byte fails identity verification rather than being
+  rediscovered from the environment
+
+#### Scenario: Provider materialization precedes build
+
+- **WHEN** a build request selects an admitted Edition Provider manifest
+- **THEN** provider materialization emits only the selected version's admitted
+  inputs before the existing Edition build begins
+- **AND** the provider result makes no compilation, qualification, acceptance, or
+  publication claim
+
+### Requirement: Edition project root and derived identity
+
+An Edition project SHALL select an exact root without requiring a copy of
+every native source fact or authored pixel geometry. Publisher SHALL derive
+its lock and Candidate identities from the selected bytes; authors SHALL NOT
+maintain Publisher-generated source hashes or seals as editorial truth.
+
+#### Scenario: An editor works outside a source repository
+
+- **WHEN** one Edition project selects exact inputs from two source namespaces
+  while living in a separate directory
+- **THEN** its reader questions and choices belong to the named editor
+- **AND** each source retains its own claimant, revision, and native authority
+
+### Requirement: Edition and source selector protocol
+
+The Edition project SHALL use a versioned authoring manifest plus selected
+native files or assets, not a Publisher seal edited by hand. Each source
+selector SHALL identify namespace, native format and version, claimant,
+revision evidence, and a portable local locator or pin. Unknown protocol
+fields SHALL fail rather than silently acquire meaning.
+
+#### Scenario: An author supplies a native source
+
+- **WHEN** a Build Request selects a native LikeC4 file, an Edition authoring
+  manifest, and a supported toolchain
+- **THEN** Publisher derives exact materialized-input and Candidate identities
+  without requiring the author to copy the source into a Claim Model JSON file
+- **AND** the author does not hand-edit Publisher-generated hashes or seals
+
+#### Scenario: A mixed-source request is relocated
+
+- **WHEN** exact pinned native inputs and an Edition project are relocated with
+  an installed Publisher package
+- **THEN** the same supported Candidate can be compiled offline without the
+  original source repositories or Providers
+- **AND** changed selected bytes fail pin verification
+
+### Requirement: One materialized Edition selection
+
+Direct inputs and zero or more selected Providers SHALL converge on the same
+materialized input lock before the public Edition build. Direct Edition
+selection names an authoring filesystem root and manifest; Provider Edition
+selection names the sole authored Edition item supplied by one exact selected
+Provider. Both are one semantic Edition selection, not two competing roots or
+an implicit filesystem lookup.
+
+#### Scenario: Edition selection is ambiguous
+
+- **WHEN** two selected Providers or direct inputs each offer a conflicting
+  Edition project root without an exact Build Request choice
+- **THEN** preparation fails instead of merging scope, questions, or omissions
+
+### Requirement: Candidate destination is invocation evidence
+
+The successor Build Request SHALL NOT contain an output directory or release
+target. The single `archpub edition build` invocation SHALL require a fresh
+explicit Candidate output directory and reject missing or conflicting
+destinations before output effects. That directory SHALL be invocation
+evidence, not part of the source or Edition lock or Candidate semantic
+identity. Existing v1 build-plan output fields and meanings SHALL remain
+unchanged; no successor flag SHALL silently override them.
+
+#### Scenario: The same meaning is built in two locations
+
+- **WHEN** the same exact successor Build Request is compiled into two fresh
+  directories selected by separate invocations
+- **THEN** the materialized meaning and Candidate artifact identities remain
+  equal when all selected compiler inputs are equal
+- **AND** each output effect retains its own location evidence without
+  becoming acceptance or publication
+
+#### Scenario: A successor output destination is missing
+
+- **WHEN** an `archpub edition build` invocation selects a successor Build
+  Request but no explicit Candidate output directory
+- **THEN** the command fails without choosing a hidden repository-local path
+  or creating output
+
+### Requirement: Successor Candidate manifest binds selected supplies
+
+Candidate v2 SHALL bind input lock, Edition, semantic digest, selected checked
+semantic supplies, and each medium's independent Scene, artifacts and checked
+supplies. Supply records SHALL state identity, basis and method; checked file
+sets are not execution traces. Publisher semantic and media file sets remain
+distinct. Unselected implementations, package-only content and output paths
+stay outside Candidate identity. Reader obligations and limits remain visible.
+
+#### Scenario: One selected input produces two sibling media
+
+- **WHEN** a successor Build Request selects static and interactive media and
+  the same materialized inputs are built at two fresh output locations
+- **THEN** the two builds have identical Candidate and artifact identities
+- **AND** the static SVG/PNG and interactive HTML have distinct Scene hashes,
+  artifact hashes, and medium-specific supplies without shared coordinates or
+  DOM ownership
+
+### Requirement: Candidate structure is not source approval
+
+Structural validation of a Candidate manifest SHALL NOT grant source
+authority, visible coverage, qualification, or acceptance.
+
+#### Scenario: A self-consistent Candidate container borrows authority
+
+- **WHEN** a Candidate container has internally matching file hashes but its
+  Candidate value, Edition, or selected source differs from the exact Build
+  Request under review
+- **THEN** byte replay under the current installed Publisher package rejects
+  that Candidate before qualification records are admitted
+- **AND** a matching replay is reported only as current-runtime byte
+  equivalence, not original-builder attestation, independent semantic proof,
+  visual approval, acceptance, or publication
+
+### Requirement: Requested media form one complete Candidate
+
+A hard failure in any requested medium SHALL NOT emit a complete Candidate for
+the other medium.
+
+#### Scenario: A later medium fails
+
+- **WHEN** one requested medium has rendered but another requested medium fails
+- **THEN** no complete Candidate output directory is emitted
+- **AND** temporary owned render inputs are removed without deleting foreign
+  output state
+
+### Requirement: Installed package identity is separate execution evidence
+
+Successor build and replay SHALL report the current installed Publisher package's
+declared content-tree identity, method, and scope outside the lock and
+Candidate. Package drift detected before emission SHALL fail. Package-only
+changes may alter this evidence without changing Candidate bytes. The tree
+is not archive identity, original-builder attestation, or acceptance; the
+designated accepter's publication policy decides what else to require.
+
+#### Scenario: Package-only content changes
+
+- **WHEN** the same exact inputs and selected implementation file sets are
+  built from two packages differing only in nonselected content
+- **THEN** Candidate and artifact identities remain equal while the current
+  installed-package tree identities differ
+- **AND** a replay match does not claim which package built the original Candidate
+
+#### Scenario: Installed package changes during compilation
+
+- **WHEN** the installed package content differs between the build's opening
+  and pre-emission checks
+- **THEN** compilation fails before emitting a successful Candidate
+
+#### Scenario: Qualification report remains derivable
+
+- **WHEN** successor qualification selects a Policy and replays a Candidate
+- **THEN** its records-bound report remains derivable from the selected
+  Candidate, Qualification Set, and Policy without a package-tree field
+- **AND** the separate replay result retains current package evidence without
+  claiming the original builder or authenticating the installed package
+
+### Requirement: Compilation distinguishes mechanical and editorial judgment
+
+Publisher SHALL reject mechanically established identity, typed-meaning and
+declared-grouping contradictions. It SHALL NOT judge arbitrary editorial
+wording's semantic equivalence or contradiction with the source. Selected
+media SHALL attribute that wording to the editor and mark it unverified.
+Candidate build alone SHALL remain unqualified until applicable semantic and
+human acceptance. These checks do not authenticate the editor or confer source
+endorsement.
+
+#### Scenario: A valid build lacks an editorial acceptance decision
+
+- **WHEN** exact inputs pass identity, typed-meaning and declared-group checks
+  but the selected wording has no applicable semantic or human acceptance
+- **THEN** build remains unqualified and attributes the wording to its editor
+- **AND** mechanical success neither certifies that wording nor grants source
+  endorsement or publication authority
+
+### Requirement: Layout worker retains bounded reclamation lifetime
+
+A selected layout worker SHALL remain live after every reply until owner
+reclamation, within its validated finite lifetime. It SHALL flush enabled V8
+coverage before replying and reject malformed lifetime bounds before reading
+input. Root loss SHALL remain an unproved cleanup failure; a reply SHALL NOT
+authorize Candidate emission before cleanup.
+
+#### Scenario: Owner reclamation follows a success or error reply
+
+- **WHEN** the selected layout worker replies before its owner reclaims it
+- **THEN** the selected root remains live within its validated lifetime
+- **AND** enabled worker coverage is flushed before the reply
+- **AND** the existing supervisor still requires native reclamation before admission
+
+#### Scenario: The layout owner disappears after a reply
+
+- **WHEN** the replying layout worker is not reclaimed by its owner
+- **THEN** it expires at the selected lifetime bound
+- **AND** descendant reclamation and Candidate acceptance remain unproved
+
+#### Scenario: The layout lifetime is invalid
+
+- **WHEN** the lifetime is absent or outside its admitted bound
+- **THEN** the worker exits unsuccessfully before reading inputs or executing layout

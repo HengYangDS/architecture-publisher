@@ -1,7 +1,7 @@
 {
   "name": "@architecture-publisher/self-edition",
   "version": "0.3.0-alpha.15",
-  "description": "First-party Architecture Publisher flagship Edition",
+  "description": "First-party Architecture Publisher conformance Edition",
   "type": "module",
   "exports": {
     ".": "./src/edition/index.mjs",

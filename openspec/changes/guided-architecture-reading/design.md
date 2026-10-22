@@ -1,12 +1,14 @@
 # Design
 
-## Decision and intent
+## Context
 
-Keep one source-bound publication compiler. Reuse each selected renderer's
-existing reader rather than hiding it and rebuilding a parallel reader.
+Preserve the eight source-bound publication outcomes, not the incumbent compiler.
+Compare supported native authoring, rendering and delivery before retaining a
+Publisher responsibility. Native configuration that fulfills a responsibility
+does not become Publisher implementation merely because this project authors it.
+Reuse the selected product's model, views and reader without a parallel authority.
 Separate source meaning, per-medium composition, native exploration and
-appearance. A generic product must accommodate distinct systems and several
-qualified visual choices without weakening any shared acceptance predicate.
+appearance; retain only demonstrated gaps without weakening shared acceptance.
 
 The requester explicitly identifies Play Story as an example, not a required
 feature. The target is a better source-bound explanation with lower reader,
@@ -18,7 +20,46 @@ reproducing a button, animation, page count or layout.
 The single writer makes and verifies the implementation decisions under the
 requester's standing authorization. Self-review is not independent endorsement.
 
-## Complete delivery scope
+## Goals / Non-Goals
+
+The [product contract](../../../docs/product-contract.md) owns the positioning:
+source-bound editorial selection, intrinsic composition, contextual reading and
+qualified independent media. This Change implements those responsibilities,
+not a broader semantic platform, repository governor or new quality tier.
+
+Normal callers identify the source and editor, title, audience, each question's
+exact semantic scope and requested media. A selected native view may provide
+that scope; viewless entity/relation material must also work. Existing request,
+schema, validation and composition owners derive default medium views,
+mechanical links and type encodings. Defaults never answer an unbound question.
+Literal refinement stays optional. Current repeated JSON lists and catalogs are
+not the terminal contract. Locators capture snapshots; pins refuse byte changes.
+
+Compare retained responsibilities with direct mature-tool use on the same
+complete journey. Native behavior replaces redundant ownership; controls and
+export counts do not establish value. Geometry, routing, overflow and visual
+rhythm stay internal, not in ETHOS/AIGW preparation.
+
+Unrelated sources, explicit updates, dense aggregate figures and offline
+relocation falsify the design. The first overview must explain selected scope
+with readable primary labels; source focus cannot repair illegible fit. Manual
+generated-file edits, source mutation, lost meaning or parallel state falsify
+convergence. Tasks 2, 4, 5 and 10 retain implementation and acceptance; a design
+check establishes neither completed APIs nor accepted artifacts.
+
+### Source-product independence
+
+The requester's latest decision requires zero drawing-induced additions to
+ETHOS, AIGW and other selected source products. Optional or source-owned
+integration is not the terminal boundary. An independent publication owner
+maintains editorial input and source-specific adaptation; source repositories
+supply explicitly selected existing material read-only. Build inputs, scratch,
+artwork and qualification stay outside those repositories. Publisher retains
+generic composition, native Archify HTML and independent SVG/PNG; it does not
+own source-specific exporters. Preserve exact authored data and accepted works
+before retiring prior integrations and all active package and CI callers.
+
+### Complete delivery scope
 
 The current goal includes eight finite outcomes. The human withdrew PDF and
 PPTX support on 2026-10-05; independently composed PNG and desktop HTML remain
@@ -31,8 +72,8 @@ retain their original evidence scope.
 | ----------------------------- | --------------------------------------------- | ------------------------- |
 | Inputs, authority and DX      | Source/Provider intake and Edition authoring  | 4.1-4.2                   |
 | General publication and media | Composition, renderers and qualification      | 5.1-5.2                   |
-| AIGW adoption                 | Source-owned Client and Product Editions      | 6.1-6.2                   |
-| Minimal ETHOS flagship        | Source export/selection and Edition migration | 7.1                       |
+| AIGW publication              | Externally owned Client and Product works     | 6.1-6.2                   |
+| Complete ETHOS architecture   | Read-only source selection and external work  | 7.1                       |
 | ETHOS north-star feedback     | Existing source research and evolution owners | 7.2                       |
 | Broad research settlement     | Current ETHOS research owner                  | 8.1                       |
 | Artifact custody and recovery | Designated release and local delivery owners  | 9.1-9.2                   |
@@ -44,20 +85,116 @@ questions, selected scope and explanatory choices; the designated accepter and
 target policy own acceptance and publication respectively. Co-location, matching
 names, source bytes and passing builds do not transfer those authorities.
 
-The first active day maps all outcomes into this Change's design, specs and
-tasks. Estimated execution is three to five active working days. At
-2026-10-10 18:00 Asia/Shanghai, stop mutation and report exact remaining gaps.
+The requester removed the former goal and requested a terminal-success reset
+on 2026-10-08. Preserve the current source and accepted predecessor evidence;
+do not restart completed work or inherit evidence for changed inputs. At
+2026-10-31 23:59 Asia/Shanghai, stop mutation and report exact remaining gaps.
+The requester's month-end extension on 2026-10-13 supersedes the preceding
+three-day extension and its checkpoints; it does not reset the Change or Lane.
 That cutoff is not completion, deletion or a waiver of mandatory acceptance.
 Unavailable source approval or an unqualified installed ETHOS proof successor
 remains open unless the requester explicitly accepts its disposition.
 Advance independent tasks while preserving the dependent gap.
 
-## Outcome-first selection
+#### Uniform product and non-decreasing quality
 
-The hard constraints are exact selected meaning, complete declared reader
-questions, usable complete figures, and shared quality rules. Presentation
-mechanisms are replaceable means. Evaluate the same source and reader tasks
-before choosing any additional mechanism:
+There is one public product, not an ordinary/flagship quality split. Every
+current publication retains the stricter source, coverage, painted geometry,
+browser, accessibility, installed reproduction, recovery and faithful,
+intelligible, aesthetic review obligations. Scope, medium, visual style and
+automatic or complete literal composition are independent choices, not quality
+levels. A build emits an unqualified Candidate; successful generation does not
+claim visual acceptance or publication.
+
+The Claim-backed Edition contract becomes `architecture.edition/v2` without a
+`class` field. Its existing validator requires all three visual predicates for
+both selected media. The Provider envelope binds that explicit contract value;
+the current Project and Provider v2 authoring remain class-free. Do not add a
+new command, quality switch, old-class adapter or repository-specific exception.
+Current inputs migrate explicitly; the current executor refuses retired Edition
+v1 values rather than reinterpreting their semantics or acceptance identities.
+
+The existing selected-qualification policy owner requires the same visual
+predicates, attributed to human reviewers, for each selected PNG and standalone
+HTML artifact before it can report complete policy coverage. Technical probes
+without a complete policy remain useful, but cannot qualify the artwork. Exact
+artifact, review method, intended display, reviewer, limitations and verdict
+remain bound by the existing evidence contract. Maintainer review is valid when
+the designated acceptance policy permits it; it is never called independent.
+
+Move the complete existing strict quality requirements from
+`flagship-qualification` to `publication-qualification` through one native
+OpenSpec addition/removal transition. Preserve all non-tier requirements and
+verify the native merged successor has one owner. Historical signed artifacts,
+qualified predecessors and required recovery fixtures retain their exact bytes;
+their recovery uses their original versioned executor, not a live compatibility
+route in the current package. The installed regression verifies current inputs
+and historical custody separately without fabricating historical re-approval.
+
+Acceptance requires a predecessor RED/current GREEN for class-free input and
+mandatory review coverage; explicit refusal of retired classed input;
+non-decreasing review obligations under source and media evolution; current
+public-build qualification; and preserved exact predecessor media hashes where
+rendering is unaffected. Requalify changed artifacts instead of inheriting
+approval. All eight terminal outcomes and the cutoff remain unchanged.
+
+#### Terminal acceptance and execution
+
+Inspect uses one intrinsic desktop frame with shared control and content rows.
+Native CSS Grid and subgrid align both reading panes at the top and bottom;
+each pane owns its overflow rather than padding shorter content to match.
+Subject navigation is one regular list, with a distinct selected rail and no
+repeated card outlines. The labeled search explains its empty state. Meaning
+precedes separately available source identity; changing selection starts the
+exact detail at its beginning without changing declarations or graph authority.
+Text and note subjects use their existing selected declaration title in the
+index; their full source statement remains in the graphic and exact detail.
+Node names retain their graphic labels. Native max-content row sizing includes
+wrapped names and kind labels, preserving readable insets and pointer targets.
+Search derives from the stable occurrence identity, displayed name, declaration
+titles and complete selected field labels and values. Concise navigation cannot
+remove statement content from search or rewrite its exact reading projection.
+
+The product contract owns the non-compensating faithful, intelligible and
+aesthetic quality gates and the complete release boundary. This Change owns
+the finite migration and remaining acceptance; `tasks.md` alone owns progress.
+Terminal success means every declared outcome is accepted, with no unresolved
+material semantic, mechanism, reader-experience, quality or custody defect.
+It does not claim universal aesthetic optimality or require unlimited refinement.
+
+Demonstrate one public interface with read-only selected inputs from Publisher,
+ETHOS, AIGW and the existing unrelated topology example. Generic capability
+means reuse of that interface and internal typesetting, not automatic discovery
+of arbitrary repository architecture. Apply the same three non-compensating
+visual predicates to each source's selected mechanisms and reader questions;
+do not require unrelated products to invent Publisher lifecycle concepts.
+An opted-out source scope needs explicit
+source-owner disposition; visual conformance cannot supply that decision.
+
+Use the following checkpoints as planned acceptance boundaries, not forecasts
+or a second progress ledger. All dates use Asia/Shanghai.
+
+| Checkpoint       | Required evidence                                                                                                                                                  | Existing tasks                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- |
+| 2026-10-17 18:00 | Real selected inputs pass complete intrinsic composition, measured routing and Inspect through the public entry; no upstream coordinate repair                     | 2.5-2.6, 3.2                     |
+| 2026-10-23 18:00 | Qualified complete artwork, accepted source dispositions and frozen product inputs; current native checks and installed replay are executing against those inputs  | 3.1-3.2, 5.2, 6.1-8.1, 10.1-10.2 |
+| 2026-10-31 23:59 | All declared quality, source acceptance, recoverable delivery and native release/lifecycle closure are proved, or mutation stops with exact unresolved obligations | 9.1-10.3                         |
+
+Close one semantic acceptance slice before opening another. After approximately
+60 active minutes, compare changed behavior and completed acceptance against
+the requested outcome; change the hypothesis or approach when neither advances.
+Use one bounded observer per operation and advance independent obligations
+without repeating unchanged inventories. Freeze implementation inputs before
+expensive platform gates. Reuse immutable evidence only for unchanged inputs
+and predicates; no earlier approval qualifies a changed work automatically.
+Ask for consequential source decisions or real authorization only, not routine
+reversible design choices. Keep failure receipts and recovery bytes until their
+named consumer releases them; housekeeping is part of each operation's closure.
+
+## Decisions
+
+Evaluate replaceable presentation mechanisms against exact meaning, complete
+reader questions, usable figures and shared quality on the same source:
 
 | Outcome                 | Evidence                                                                                         | Decision boundary                                                     |
 | ----------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
@@ -66,34 +203,23 @@ before choosing any additional mechanism:
 | Restrained presentation | Actual page, label, connector, contrast and clearance inspection                                 | Animation cannot compensate for poor composition                      |
 | Product leverage        | Equivalent public inputs across unrelated sources; authoring and lifecycle cost                  | No source-product branch, forced repository edits or redundant reader |
 
-Test complete figures with existing page navigation first. Add source-bound
-manual focus only for a concrete question that benefits from it. Timed playback
-is optional and needs an additional demonstrated benefit over manual focus;
-the existence of the historical example is not that evidence. Runtime execution
-and editorial reading order remain different meanings. No total score can
-compensate for a failed semantic or reading constraint.
+Test complete figures and existing navigation first. Add manual focus only for
+a concrete question; timed playback additionally needs demonstrated benefit.
+Historical playback proves no benefit; reading order implies no execution.
+No score compensates for failed meaning or reading constraints.
 
-## Verified baseline
+### Historical baseline
 
-- Publisher alpha.14 is released. Its exact source is retained; this Change
-  does not rewrite that release or reopen its completed gates.
-- The accepted historical ETHOS standalone work retains thirteen pages and
-  chapter-based playback. Its exact SHA-256 is
-  `804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa`.
-  A background Chrome probe exercised progression, pause and final replay.
-- The selected Archify 3.0.1 supply deliberately removed guided/story views.
-  Its current template still has style, camera, focus and motion controls.
-  The generic adapter fixes `editorial`; its shell fixes `light` and hides the
-  native toolbar. Switching a dependency therefore cannot restore the story.
-- The current ETHOS successor rehearsal retains selected source references but
-  has no Play Story control. It is an unaccepted migration work, not a substitute.
+Preserve alpha.14 source/release evidence and the accepted thirteen-page ETHOS
+playback work bound to SHA-256
+`804971adf9be09d3389d7229441200a4116e5d336334e33fd9b328ba66282cfa`;
+its recorded Chrome progression, pause and replay do not qualify a successor.
+The [Archify 3.0.1 changelog](https://github.com/tt-a1i/archify/blob/v3.0.1/CHANGELOG.md),
+read on 2026-10-03, removes new guided/story generation but preserves old HTML.
+The old fixed appearance and hidden toolbar cannot restore playback by a supply
+switch. The ETHOS rehearsal remains unaccepted; preserve the accepted predecessor.
 
-Primary removal evidence is the upstream
-[3.0.1 changelog](https://github.com/tt-a1i/archify/blob/v3.0.1/CHANGELOG.md),
-read on 2026-10-03. Its 3.0.0 upgrade entry explicitly preserves already
-generated HTML but removes guided/story views from new generation.
-
-## Alternatives and selection
+### Alternatives and selection
 
 | Approach                                                            | Useful property                                                                | Cost or failure                                                                                                                | Decision                                    |
 | ------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
@@ -102,14 +228,12 @@ generated HTML but removes guided/story views from new generation.
 | Complete figures with existing navigation and optional manual focus | Smallest reader surface; architecture remains understandable without animation | Focus is justified only for a concrete reader question                                                                         | Preferred baseline                          |
 | Optional timed reading over existing camera/focus                   | May help explain a multi-stage mechanism; one sequence owner                   | Adds cadence, cancellation and accessibility obligations; can distract or imply execution                                      | Admit only after a task-based comparison    |
 
-Reveal.js 6.0.2 (MIT) was inspected through its official release and
-`js/controllers/autoanimate.js`. Its slide-matching transitions do not supply
-this product's source/graphic binding or automatically improve graph reading.
-No new dependency is selected merely to supply a timer. Equally, the existing
-renderer is not privileged: a mature replacement is admissible if it improves
-the whole explanation and ownership model, not just one animation effect.
+Reveal.js 6.0.2 (MIT), inspected through `js/controllers/autoanimate.js`, supplies
+slide transitions, not the required source/graphic binding. Do not add it for
+a timer. Current HTML uses native Archify; a future replacement needs a separately
+accepted whole-journey improvement, not another unsupported reader experiment.
 
-## Ownership and one-version rule
+### Ownership and one-version rule
 
 | Responsibility                                              | Owner                                 |
 | ----------------------------------------------------------- | ------------------------------------- |
@@ -125,7 +249,7 @@ permission. Providers remain optional input materializers. No source checkout
 is changed just to use the product. There is one active input grammar, not
 version-suffixed source modules or a parallel compatibility facade.
 
-## Input and compilation
+### Input and compilation
 
 Add optional `appearance` to `presentation.interactive` in the
 existing `architecture.edition-project/v1` grammar. Versioned meanings live
@@ -139,11 +263,13 @@ The bounded initial style set is `editorial`, `blueprint`, `classic`,
 The product owns the qualified catalogue; the editor selects its initial state.
 Reader changes are session-local and never rewrite input, approval or source.
 
-Do not add a chapter grammar or new playback controller. Archify already has
-source-bound focus, direct relationship inspection, directed Route Probe,
-manual route steps and bounded route journeys. Prefer those native mechanisms
-when they answer the actual selected question. A future narrative grammar
-requires a demonstrated reading task they cannot represent.
+Use original Archify for source-bound focus, relationship inspection, directed
+Route Probe and native journeys. Selected source reading uses the same reader's
+Finder, Passport, Route, Reach and type Lens over exact per-page declarations.
+Repeated or aggregated figures never alter source identity or traversal; the
+LikeC4 reader remains historical. Qualify each outcome through the public build,
+not API availability. Add no chapter grammar or playback controller without
+a demonstrated reading task native mechanisms cannot represent.
 
 Derive native interaction bindings at the existing checked composition owner.
 Node labels and kinds come from selected source members, not primitive IDs or
@@ -159,124 +285,26 @@ ownership hierarchy. Native selection, Lens and directed-path emphasis remain
 distinct reading states. This editorial choice does not recolor other Editions
 or the independently authored static sibling.
 
-Exact traversal is enabled only when source-to-graphic membership preserves
-logical endpoints. Aggregation or repeated occurrences cannot silently merge
-entities and create a path that does not exist in the source. Such a figure
-keeps complete artwork, camera and searchable precise Inspect. Native Finder,
-focus, Radar and Lens may index distinct graphic occurrences independently of
-relationship traversal. Homogeneous aggregates retain their source kind; mixed
-aggregates are explicitly figure aggregates, not a new source type.
-Unavailable queries therefore cannot report that source members are unreachable.
+Source-path claims require exact logical endpoints and declared relationship
+meaning, not visual connectivity. Aggregation and repeated occurrences cannot
+merge entities, create false paths or erase real source paths. Complete figures
+and precise Inspect remain required; an unsupported query outcome stays open
+without being reported as zero or unreachable. The historical custom-SVG
+coupling and model-first comparison are assessed in
+[Product review of PR 795](reader-design.md#product-review-of-pr-795).
+That review does not silently change accepted behavior, source inputs or quality.
 
-## Reader mechanism
+### Reader mechanism
 
-Complete figures and existing page navigation remain independently usable.
-Native Guide, Finder, Passport, camera, Radar, presentation and exports remain
-operable. Their supplied implementation owns layout stability and interaction
-state. Publisher owns page navigation, exact provenance Inspect and the small
-parent/member bridge; it does not install another camera, layout or search owner.
-Admit capabilities through the renderer's explicit artifact-bound contract,
-not by finding a JavaScript string in HTML.
+See [Reader mechanism](reader-design.md) for this reference.
 
-Use the existing native reader; do not add a chapter grammar, timer, camera or
-query controller. Native finite Route journeys remain native-owned when offered.
-Manual figures, page navigation and precise Inspect do not require playback.
-No load-time autoplay or ambient-motion promise is introduced.
-
-The checked composition derives source membership and query availability once.
-Paint identity describes geometry; checked Inspect identity describes a selected
-source or Edition occurrence; native node identity indexes that occurrence.
-The derived capability limit, not the existence of a focusable node, controls
-exact relationship queries. Decoration never gains coverage merely
-by carrying a paint ID. The composition keeps an exact equality between semantic
-carrier identities and their declared source/Edition bindings, not a subset test. The publication bridge normalizes existing
-native graphic carriers under equality checks; it does not reinterpret source
-meaning or keep another semantic table. Preserve paint attributes and children.
-
-### Node type encoding
-
-The selected official references at Archify commit
-`2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c` are the
-[authoring contract](https://github.com/tt-a1i/archify/blob/2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c/archify/references/authoring-contract.md),
-[shared schema](https://github.com/tt-a1i/archify/blob/2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c/archify/schemas/common.schema.json)
-and [viewer runtime](https://github.com/tt-a1i/archify/blob/2ab3cae7ac2c2a55d7386ca789d03c4fcd31816c/archify/references/viewer-runtime.md).
-The schemas define native kinds; icons are decorative, not another semantic
-authority. A generic source kind is not silently reclassified as a native kind.
-
-Archify's default corner icon follows native `type`; an explicit `icon` is
-decorative and does not change type, color or Legend grouping. Publisher's
-`visualRole` selects paint only. Do not let a paint role impersonate source
-meaning, and do not suppress icons merely because they are decorative.
-
-An ordinary authored node may declare `figureKind`. The Edition's single
-`visualPolicy.figureTypes` catalog owns its glyph, not each occurrence.
-`figureKind` describes that figure's architecture role for the reader; it does
-not replace any bound entity's source kind. Its default is the checked source
-kind for a homogeneous figure and `aggregate` for a mixed figure. Source kinds
-and exact membership remain separately available through Inspect. Thus a
-mixed Source figure can honestly group source entities of several kinds without
-showing `aggregate` repeatedly in the main diagram.
-
-Resolve effective kinds across all selected pages before any selected medium
-renders. Require a catalog for ordinary type-bearing figures, coverage of
-later-page kinds, and distinct resolved artwork for distinct kinds. A name
-alias is not a distinct glyph. Missing entries never become neutral defaults;
-source kinds are never collapsed to fit a small artwork vocabulary. Neutral
-composition preserves the same catalog independently of its geometry profile.
-Per-occurrence icon authoring is removed; checked scene icons are derived IR.
-Unused catalog entries remain valid as selected pages change. An external
-Edition Project can own this policy without modifying its source repository.
-
-Reuse pinned offline Lucide artwork rather than hand-drawing extra icons.
-`lucide-static@1.52.0` is a development-only supply input with no transitive
-packages or install scripts; the public package ships a compact finite SVG catalog and
-the full ISC/Feather MIT notice, not the 51 MB development package. Exact npm
-advisory lookup returned no advisory for this version on 2026-10-05. Normalize
-its 24-unit artwork into Archify's 16-unit icon rail, preserve measured footprint,
-and include supply hashes through the existing renderer receipts. No network
-icon loader, arbitrary editable SVG, parallel renderer or taxonomy is added.
-Authored primitives remain unchanged and require no automatic glyph catalog.
-
-Reuse native Legend resolution, footprint, collision checks and Lens bridge.
-Each entry places exactly one catalog glyph before its effective figure-kind
-label. The shared glyph resolver owns both node and Legend symbols; paint
-never determines kind grouping. Count badges are absent. Internal
-occurrence membership remains available to Lens, not displayed as architecture
-meaning. Native layout must diagnose insufficient space; neither hiding an
-unfit Legend nor shrinking meaningful text qualifies it. The native footprint
-reserves the actual icon rail; hit bounds map transformed glyphs into the entry's
-coordinate space. Pointer and keyboard activation reuse the native selection
-toggle; closing Lens preserves selection.
-The self-Edition's measured missing Legend bands are 17px for Overview, 16px
-for Adoption and 6px for Evolution. Its source-owned canvas heights reserve
-20px, 20px and 10px respectively; node placement and all meaning remain unchanged.
-The generic renderer retains strict authored-canvas bounds instead of hiding
-the Legend or resizing an adopter's supplied viewport.
-Reader wording belongs in the one copied native catalogue used by both template
-localization and runtime messages. Authored relationships are not runtime traffic.
-
-Export belongs to the selected query interaction, not an outside dismissal.
-The existing native menu exports the resolved Route or Reach; no parallel export
-mechanism is installed. Canonical output removes temporary reading state.
-
-A native reading link combines the independent publication URL, selected page
-and opaque native query hash. The bridge seeds that hash before native startup;
-Archify retains parsing and selection. Same-page addressed changes and browser
-history reload the frame when needed, without granting autoplay. No new query
-grammar, credential access, network service or same-origin permission is added.
-Prepare each successor iframe completely before attaching it. Its initial native
-address uses replacement, not a separate child history entry. Removing the old
-frame disposes its deferred work; page and opaque native hash form the only
-rebuild identity. Set the selected title synchronously without another lifecycle
-counter. Back, Forward, reload and cross-document return rehydrate the parent
-address through the native parser.
-Parent/member messages retain exact sender and page checks.
-
-## Styles and quality
+### Styles and quality
 
 The host bounds the member aperture; native camera-normalized stage and measured
 control reserve remain authoritative. The browser contract separately verifies
-unclipped chrome, artwork and the unchanged 14-percent overview whitespace limit.
+unclipped chrome and artwork. The existing self-Edition overview bottom-gap
+regression remains scoped to its declared fixture and viewport; it is neither
+a universal whitespace threshold nor proof of aesthetic quality.
 The renderer places its query-limit note inside native normal flow; the host does
 not move semantic notices or hide them during presentation.
 
@@ -288,7 +316,7 @@ button state inconsistent. Other supported forms retain the shared bounded
 palette without replacing the native palette.
 Runtime style changes are geometry-neutral: palette, surface and emphasis may
 change, but selected labels, fonts, stroke envelopes, coordinates and routes
-do not. Font/geometry changes remain authored composition requiring rebuilding
+do not. Font/geometry changes require recomposition, rebuilding
 and new qualification. Unsupported selected styles fail, not silently fall back.
 
 Every offered style and theme needs measured text and graphical contrast,
@@ -298,37 +326,7 @@ the work. Typed distinctions remain readable without relying on colour alone.
 The source may choose separate static art; an interactive appearance does not
 rewrite its sibling or borrow its approval.
 
-## Verification and superior replacement
-
-The initial matrix covers native LikeC4 topology, typed Claim Model/mixed
-content, supported responsibility form and authored geometry. One generic
-fixture and the ETHOS rehearsal exercise the same public Build Request; no
-ETHOS/AIGW branch is admitted. If a selected form cannot meet a target, improve
-the adapter or fail precisely rather than conceal the guide.
-
-Counterexamples include absent/omitted assertions, wrong view, duplicate IDs,
-ambiguous occurrences, unconnected groups, changed source bytes, invalid style,
-late completion after pause, immediate pause/resume, page replacement, hidden
-document, reduced motion and unrelated/stale iframe messages.
-
-Focused RED/GREEN, serialized classic-script checks, static/module gates and
-all four coverage dimensions at least 95 percent precede the complete native
-suite. Offline installed builds use explicit inputs, empty user configuration
-and no adjacent checkout. Real background Chrome observes native selection,
-exact Route/Reach, Lens, Radar, sharing, canonical export, every page,
-style/theme switching, addressed reading, Inspect, history and cleanup. Geometry audits and actual painted screenshots remain
-separate from human faithfulness, intelligibility and restraint judgments.
-
-A successor may change art direction or omit legacy interaction when exact
-source meaning and required reader outcomes remain intact or improve. Compare
-complete-figure navigation and native exploration on the same selected
-questions; only useful mechanisms enter the implementation and qualification
-matrix. A new button, matching ID inventory, library upgrade or lower line count
-is not sufficient evidence of superiority.
-Retirement needs source-owned acceptance and verified rollback; until then the
-historical reader remains intact and labelled with its original source time.
-
-## Delivery boundary
+### Delivery boundary
 
 Publish one coherent SemVer successor with Keep a Changelog and exact package,
 installed, native CI and remote-readback evidence. Hand its contract and limits
@@ -343,6 +341,25 @@ and tag pipelines retain their complete native gates and trust roles. Schedules
 and other branch-triggered pipelines are not silently removed. Existing running
 pipelines finish before the new selection is published. No custom condition
 interpreter, cancellation controller or second CI authority is introduced.
+
+The CUE owner at `.config/ci/pipeline.cue` defines the common execution graph,
+platforms and trust-role selection once. Existing npm scripts remain quality
+owners; CUE invokes them rather than restating their task graph. Only native
+events, permissions, runner bindings and asset transport belong to a peer.
+The configured GitLab and GitHub YAML are generated, not maintained separately. The native
+`check:ci` command compares canonical projection bytes without mutation, both
+inside `check:generated` and before each hosted complete gate. GitHub uses the
+same selected source SHA and Raster archive identity with its own read-only
+release transport and native ARM64 runners. Each peer is independently selected;
+neither provider's credential or availability is the other's prerequisite.
+Declared capability, hosted acceptance and recoverable custody remain distinct.
+
+The native ESLint and Markdownlint owners share the maximum in
+`.config/checks/file-budget/policy.toml`: code excludes blank and comment-only lines;
+Markdown counts nonempty physical lines. Both admit 512 and refuse 513 without
+writing. Existing generated, vendor and immutable-evidence exclusions retain
+their exact scope. Native lint failures remain failures until owned modules and
+documents are semantically reorganized; adding a gate is not repository closure.
 
 Converge movable quality policy under `.config/checks/`, not tool-default root
 filenames. Preserve native npm, Git, runtime, editor and Forge discovery where
@@ -378,222 +395,11 @@ their existing native generation, source-manifest and installed-use checks.
 Development tooling keeps its complete static and native execution contract.
 Unobserved applicability remains a gap rather than an inferred exemption.
 
-## Cross-platform execution boundary
+### Cross-platform execution boundary
 
-The supported execution targets are native macOS, Linux and Windows. The
-public build, qualification, installation and recovery contract is identical
-on those targets; passing through Git Bash or checking Shell/PowerShell syntax
-does not establish that contract. Keep npm, Cargo and wasm-bindgen responsible
-for their native operations. Do not translate a Shell controller into another
-language, add a second task authority, or require source repositories to carry
-platform-specific publication scripts.
+See [Cross-platform execution boundary](execution-design.md) for this reference.
 
-The complete npm quality graph checks frozen raster input/output integrity;
-native Rust/WASM source rebuilding is a separate acceptance obligation.
-Historical Git-shell refusal checks do not establish Windows rebuild support.
-Preserve the selected source archive and runtime output bytes.
-
-Use native archive extraction, Cargo and wasm-bindgen for the frozen rebuild.
-Cargo remains offline and frozen; binding uses the existing explicit flags.
-Pass the resolved absolute source root to Cargo's path remapping; mapping `.`
-is not equivalent. Keep the original Cargo manifest and lockfile unchanged.
-The tested wasm-pack wrapper produces the selected output bytes but rewrites
-the original lockfile during metadata discovery, so it does not qualify.
-
-The only authored build helper is `tools/raster/resvg/verify.mjs`. It checks
-the selected archive digest, extracted input bytes and output bytes; it starts
-no subprocess, installs nothing and writes no files. It is not a build input
-and cannot authorize its own integrity. Packaging retains one immutable
-canonical output pair from `source.json.outputs`, selecting the verified
-binding as `index.mjs` without rewriting its contents. The helper is an
-explicit development entry, not a public command or another orchestration plane.
-
-Frozen native rebuilding and canonical package integrity are separate
-guarantees. Current macOS and Linux builds produce identical binding bytes
-but different WASM bytes. Cargo's host-dependent recursive dependency metadata
-supports this diagnosis; removing custom sections did not restore identity.
-That evidence neither proves every difference has this cause nor authorizes
-changing canonical output hashes to the last build's result.
-
-The existing source manifest owns pre-admitted native witnesses. Each witness
-binds the full compiler host triple, exact Rust and Cargo releases and commits,
-the selected wasm-bindgen version and the expected native WASM digest/size.
-The JavaScript binding remains bound to the canonical digest. Witnesses are
-admitted only after two independent, clean extractions and builds agree, and
-an independent review accepts the resulting evidence. Unknown or altered
-tool identities fail closed; execution never learns a hash or chooses a fallback.
-
-`verify.mjs --outputs <output-root>` checks canonical output. Supplying an
-additional tool-identity JSON file selects the exact pre-admitted native
-witness. That file is a caller-owned observation, not execution proof: the
-native journey obtains Rust/Cargo verbose versions and wasm-bindgen's version
-from the actual selected executables. The helper only checks that observation
-against the manifest and verifies output bytes.
-
-The native journey independently extracts the verified archive twice into
-relocated roots containing spaces and Unicode, with separate empty Cargo
-targets. It checks the selected inputs before and after each offline/frozen
-build, verifies both outputs against the selected witness, and compares their
-digests. Rebuilt and canonical modules must also agree on imports/exports,
-exact representative PNG bytes, all selected packaged fonts, text measurement,
-declared errors and an actual authored static workload. These are finite
-behavioral witnesses, not universal equivalence or cross-host WASM byte identity.
-
-Native CI owns job deadlines and disposable build roots. Actual macOS, Linux
-and Windows evidence remains mandatory. Retire the historical POSIX controller
-and its active consumers together only after those native rebuilds and installed
-renderer acceptance pass. No Bash fallback or PowerShell controller qualifies
-as that replacement.
-
-Platform acceptance must cover actual native execution, relocated paths with
-spaces and Unicode, executable discovery, cold offline installation, bounded
-process-tree reclamation, publication/recovery effects and exact selected font
-rendering. OS-specific process and filesystem facilities remain small explicit
-capability boundaries, not emulated promises: Windows directory flushing is
-reported as unsupported, and optional CoreText measurement is macOS-only.
-The portable raster path must not depend on CoreText, Bash or PowerShell.
-Passing one platform, ARM64 runners, or a rejection fixture does not imply
-other architectures or a full cross-platform source rebuild.
-
-Test harness deadlines include cold native startup and teardown, independently
-of a product worker's execution deadline. Direct layout-worker probes retain
-their one-second self-expiry and use a finite ten-second parent observation
-budget; assert process errors before interpreting replies. The geometry-only
-reading test selects the existing 25-second layout ceiling. Installed Provider
-setup uses native offline, scripts-disabled npm with no saved manifest or
-lockfile and a finite 120-second installation budget. Product defaults,
-coverage scope and all assertions remain unchanged. Pipeline 9507 failures
-and the unchanged 25-case macOS guest replay establish the affected boundary,
-not a proved hardware, parser or filesystem root cause. A complete successor
-matrix must still pass before publication.
-
-### Native Linux orphan reaping
-
-Linux Docker verification selects the Runner's native
-`FF_USE_INIT_WITH_DOCKER_EXECUTOR` feature flag. The Docker executor then starts
-the build container with `--init`; its PID 1 reaps orphaned children after
-Publisher's existing invocation-scoped process-group termination. No additional
-process controller, host configuration change or assertion relaxation is needed.
-
-The same exact snapshot and twelve installed Provider and qualification tests
-fail without init and pass unchanged with init. The failing descendants are
-PID-1-owned zombies; the passing process table contains none. This isolates the
-container precondition without declaring hosted or full-release acceptance.
-The official Runner feature declaration and Docker executor wiring, fixed blobs
-`9bcb2c3b4dbc9bd4b6376f11cb3dfeb970042fc6` and
-`ba0b63e53ba7e5a087b32d18bf201559eb6cb4bf`, are preserved alongside the exact
-RED/GREEN logs under the current Lane's Linux prerequisite evidence. Native
-hosted execution still has to prove this setting on its actual Runner.
-
-### Native Windows tool discovery
-
-Locked Rust owns MSVC linker and SDK discovery for the actual target. Its
-upstream `get_linker` delegates to `find_msvc_tools::find_tool` and applies the
-selected tool environment. Windows CI therefore only binds the native platform
-and executor; it does not assume Visual Studio's installation path or launch
-a developer-shell controller. The unchanged Cargo journey must perform real
-host compilation and WASM rebuilding before quality checks. Missing tools
-remain a native compilation failure, not a bypassed prerequisite. This design
-changes no Guest isolation, execution policy, credentials or Rust target.
-
-### Required native CI execution
-
-Windows uses native GitLab fetch and cleaning, excluding only the job-local
-`build/runtime/tool-cache/`. Forced index checkout renews every tracked carrier
-before tools run, preserving exact LF and frozen supplier bytes after attribute
-changes without recursively deleting a mapped browser cache. All other prior
-job output is cleaned. Retained tools still undergo locked supply validation;
-this checkout policy does not claim process reclamation or hosted acceptance.
-The locked Rust declaration selects `cargo`, `rustc` and host `rust-std`
-explicitly. Mise passes these requirements to native rustup toolchain
-installation, which reconciles missing selected components in a retained
-cache. WASM target selection does not cover the host library used by build
-scripts. The minimal profile, target and version remain unchanged; no
-secondary installer or retry controller is introduced.
-The native bootstrap reconciles host `rust-std` with a single
-`mise exec -- rustup component add rust-std` command. The selected Mise
-toolchain still owns version and homes; rustup chooses its host without a
-copied platform table. This compensates for Mise's component predicate accepting
-any target-qualified library, including WASM, as an unqualified component.
-
-The native Linux job uses the pinned official Playwright filesystem with
-`pwuser` as the image's default user. The two-instruction Dockerfile changes
-only image configuration: `FROM` an immutable upstream digest, then `USER pwuser`.
-It copies no repository material, installs nothing and adds no process owner.
-Runner 19.4.1 checks the image default when deciding whether to repair checkout
-ownership; a job-level user override does not satisfy that prerequisite.
-CI must select a registry-verified immutable derivative digest and preserve
-the native ownership flag, rather than using root or manual checkout repair.
-Actual hosted preparation must prove both project and temporary-directory
-ownership before the existing product gate can establish platform acceptance.
-
-Mise selects official Pixi only for Linux ARM64; its native lock binds the
-binary. A separate native Pixi lock supplies conda-forge C compilation and xz.
-Copy the selected manifest, lock and configuration into ignored job-local
-`build/` state on the Runner's native filesystem. Pixi owns installation and
-generated shell activation; no handwritten installer, root package manager,
-registry-policy bypass or parallel quality controller is added. The activated
-compiler is the explicit Cargo native-target linker. Actual compilation and
-execution, frozen Raster rebuilding and the whole quality gate qualify this
-boundary; a zero installer exit alone is insufficient if diagnostics show an
-incomplete environment. Preserve prior failed receipts.
-
-The locked Playwright installer owns the CI browser supply under each job's
-`build/runtime/tool-cache/playwright/`. The existing npm test preload binds its
-native Chromium executable only when CI has not selected an explicit browser.
-CI requires an absolute, accessible executable and refuses missing supply before
-tests can silently skip. Explicit caller selections remain unchanged. Local
-focused tests may remain browser-optional; browser launch, sandbox and actual
-rendering are separate runtime acceptance, not inferred from a path check.
-
-Every native platform job must execute the selected browser journey with the
-Chromium sandbox enabled. Linux execution requires a qualified non-root job
-principal; installing a browser or changing a flag is not sandbox acceptance.
-The existing frozen Raster journey uses the manifest-selected Rust, WASM target,
-wasm-bindgen and source archive through native tool supply and execution. Keep
-job-owned caches separate from host installation owners. Missing prerequisites
-fail the required journey rather than waive it; retain platform-specific raw
-results and all four coverage floors. Retire the POSIX Raster controller only
-after its actual consumers migrate and the native target-platform journey passes.
-
-CI binds both Mise installation data and its download/package store beneath
-the job-owned tool-cache. The native npm backend links payload files from the
-Mise cache, so a system-principal store can leave an otherwise readable install
-tree with inaccessible hardlinked files. Rebuild a damaged selected tool through
-native locked installation using the job-owned cache; never widen system-store
-permissions. A management-principal repair is not Runner acceptance.
-
-Native npm and Publint subprocess resolution must retain the selected npm version,
-not fall back to Node's bundled npm when a subprocess prepends its executable
-directory. The private workspace declares the already selected npm as a locked
-development tool; native dependency bins, not a custom script or vendor patch,
-own that binding. The installed Core package gains no npm runtime dependency.
-
-Browser test ownership uses one outer native asynchronous lifetime with two
-disposal phases. Completed resources and deferred actions close in reverse
-acquisition order first. Pending acquisitions drain afterward; each late
-resource receives native disposal without being returned to an expired test.
-Register pending ownership before its factory executes, and transfer a
-completed resource synchronously before returning it. A parent's closure may
-reject or complete its pending dependant; cleanup must not await that dependant
-before closing the parent. Acquisition rejections retain their original error,
-and disposal failures cannot skip the pending drain. Both phases preserve
-exactly-once synchronous/asynchronous disposal and native empty resources.
-Deadline-bounded subprocess regressions cover rejected and resolved pending
-dependants, throwing parent disposal, normal dependant-first order and test
-expiry. They do not increase existing deadlines or weaken reader assertions.
-
-New generated output belongs under the repository's ignored `build/`, according
-to the projects-family contract. Existing records remain exact retained inputs
-until their named consumers release them; do not create another records root.
-Designated Forge records preserve required durable release evidence. Documents
-contains reader deliveries, not source or a second mutable Edition.
-Verify exact custody before disposing of owned temporary outputs. Historical
-signed releases, original reader bytes, foreign work and user windows remain
-unchanged. Source acceptance, research settlement and lifecycle closure are
-separate remaining obligations.
-
-## Editorial input and independent media
+### Editorial input and independent media
 
 The public input is selected system material plus an editorial brief: audience,
 questions, scope, limits and independent media choices. The existing
@@ -616,15 +422,15 @@ semantic preservation, offline operation, portability and total ownership cost.
 Reuse verified Archify controls rather than create a parallel reader. A library
 upgrade alone is not superiority evidence.
 
-### Medium purposes and editorial authority
+#### Medium purposes and editorial authority
 
 Each medium serves a distinct reader activity. Format conversion is an
 implementation detail, never the product definition or acceptance boundary.
 
-| Medium       | Reader activity                                            | Composition responsibility                                                                            |
-| ------------ | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| PNG          | Understand the architecture at a glance.                   | A deliberately composed overview or flagship poster with clear hierarchy and readable relationships.  |
-| Desktop HTML | Explore the overview and understand individual mechanisms. | Complete overview and mechanism diagrams, native navigation, focus, Inspect and qualified appearance. |
+| Medium       | Reader activity                                            | Composition responsibility                                                                               |
+| ------------ | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| PNG          | Understand the architecture at a glance.                   | A deliberately composed overview or architecture poster with clear hierarchy and readable relationships. |
+| Desktop HTML | Explore the overview and understand individual mechanisms. | Complete overview and mechanism diagrams, native navigation, focus, Inspect and qualified appearance.    |
 
 The existing Edition Project owns shared audiences, questions, selections,
 limits, attribution and editorial assertions. Its existing `presentation`
@@ -645,7 +451,7 @@ Every HTML page contains a complete, readable architecture or mechanism diagram;
 partial tables cannot replace an overview. Mobile and narrow-screen work remain
 excluded.
 
-### Integrated composition and measurable acceptance
+#### Integrated composition and measurable acceptance
 
 Keep the existing Build Request, selection, Candidate, qualification,
 publication and recovery owners. Dispatch the two supported media explicitly;
@@ -660,12 +466,21 @@ interaction and artwork quality establish different predicates. Exact font
 resources and actual consumer paint remain required; silent fallback or valid
 SVG syntax does not prove appearance.
 
+Automatic ranking includes complete fonts, Legend and frame clearance. Each exact field and occurrence contributes only its excess measured baseline span over the best feasible continuation to finite reading cost; typography cannot override arbitrarily worse geometry.
+Corresponding acyclic columns share the largest complete internal caption plus both selected-route clearances, floored by reading gap. Endpoint escape and compact/layered stages retain their owners; native paint audits, not this allocation or source coordinates, prove feasibility.
+
 Source meaning, editorial judgment, artwork acceptance, independent review and
 publication authorization remain distinct. Maintainer self-review is allowed
 when policy permits it, but cannot be reported as independent review. Artwork
 approval does not approve later byte changes or source-product publication.
 
-### Mature mechanism reuse
+#### Mature mechanism reuse
+
+Node text and peer capacity are allocated before native placement. One receiving geometry owner must preserve nodes, ports, labels, routes and the complete reading frame together. A layout result must not be invalidated by post-layout node sizing or an unrelated label planner. Measured text, selected paint and legal endpoint escape enter the native constraints before solving; unchanged audits determine acceptance.
+
+The unchanged libavoid-js 0.4.5 seam remains an unqualified build-time experiment, not the selected composition solution. The eight-page diagnostic passed routing audits, but real asynchronous regression consumers exposed detached endpoints, label collisions, incomplete fixed-boundary routing and a failed compact-frame requirement. Expanded rectangular obstacles can close legal endpoint corridors; nudging penalties do not declare all required geometry constraints. Do not promote this experiment, relax those gates, or infer overall composition quality from its diagnostic. Preserve its exact RED receipts and accepted predecessors. Any later admission still requires complete LGPL source custody, installed offline use and actual native-platform evidence.
+
+Reevaluate mature joint-layout capabilities before adding a private geometric controller. The existing LikeC4/ELK suppliers remain candidates; yFiles is a documented commercial alternative with integrated labeling, layer and sequence constraints, port candidates, grid/table layouts and node margins. Its routing distances are preferred minima, not a guarantee of our stricter paint predicates. A license or successful vendor demo is not product acceptance. Compare the same frozen overview and fork/join input through the public build: complete identities and text, equal semantic peers, ordered stages, actual glyph/arrow clearance, legal endpoints, balanced desktop framing, offline standalone HTML and independent PNG. Reject an engine or adapter that requires source-specific coordinates, vendor patches or weaker acceptance. Select only after the complete journey passes and reduces the existing geometry ownership burden.
 
 Use existing pinned suppliers and native executors before adding custom code.
 Admission checks actual selected paths, complete notices and resources,
@@ -680,19 +495,22 @@ DOM bounds alone cannot prove separation. Deliberate containment and exact
 semantic junctions are distinguished from accidental overlap. Offered styles
 must preserve readable Inspect selection, keyboard behavior and semantic
 distinctions. Aesthetic acceptance uses declared reader tasks and the approved
-flagship baseline, not fabricated universal whitespace percentages.
+quality baseline, not fabricated universal whitespace percentages.
 
-## Source settlement and recovery
+### Source settlement and recovery
 
-AIGW Client Projection already selects declarative Provider v2 at the observed
-source revision. Verify that exact interface and its installed execution;
-do not repeat a superseded v1 migration. Product Edition is a distinct source
-scope with its own source-owned meaning and acceptance. Neutral visual approval
-does not settle either source meaning or publication authority.
+AIGW Client Projection and Product are distinct publication scopes. Their
+external editor selects pinned existing source material and uses the same
+installed public build without an AIGW Provider, drawing file, dependency or
+CI obligation. Neutral visual approval does not settle source meaning or
+publication authority. Historical Provider selections remain exact evidence,
+not current source adoption requirements.
 
-The ETHOS adapter starts from its current authoritative export and selection.
-No second semantic exporter, repository-specific Publisher schema, compulsory
-runtime dependency or publication controller enters the source. The target
+ETHOS publication likewise starts from pinned existing native material. Selection,
+adaptation, Edition input and output stay outside ETHOS; neither a new nor a
+continued drawing exporter, configuration, test or CI obligation belongs there.
+Retire the existing source integration independently of artwork success after
+preserving exact input and accepted-work evidence. The target
 explanation includes greenfield and brownfield formation, intent and constraints,
 Skills boundaries, parallel cooperation, competitive zero-or-one selection,
 experimental/all-drop outcomes, per-ref serial CAS, assurance, effect recovery,
@@ -727,7 +545,7 @@ Freeze product inputs before the full matrix, reuse applicable immutable
 evidence and refresh exact-current governance separately. No deadline or
 unsuccessful reviewer substitutes for required proof or acceptance.
 
-## Canonical contract ownership
+### Canonical contract ownership
 
 The former `ethos-input` and `ethos-atlas` capabilities describe a source-specific
 Python importer and exact historical HTML reproduction. Neither has an active
@@ -742,8 +560,11 @@ or previously released artifacts are removed.
 | Exact portable source members and byte identity            | `source-intake`              |
 | Optional, explicitly selected source execution             | `edition-provider`           |
 | Editor-owned selection, attribution and complete Candidate | `edition-publication`        |
+| Portable input and Candidate compilation                   | `semantic-compilation`       |
 | Independent media and selected visual refinement           | `semantic-publication`       |
-| Predicate-specific source and media judgment               | `flagship-qualification`     |
+| Native graph reading, appearance and Inspect               | `archify-renderer`           |
+| Static composition and bounded Raster execution            | `static-publishing`          |
+| Predicate-specific source and media judgment               | `publication-qualification`  |
 | Authorized exact-target installation and recovery          | `file-publication`           |
 
 ETHOS and AIGW remain equal source owners under these generic interfaces.
@@ -753,3 +574,37 @@ coverage, browser, qualification or recovery requirements. A read-only native
 merge inspection and isolated official archive rehearsal must preserve these
 owners and remove only the two retired capabilities. The real Change remains
 open until its independently declared acceptance and lifecycle complete.
+
+## Risks / Trade-offs
+
+The initial matrix covers native LikeC4 topology, typed Claim Model/mixed
+content, supported responsibility form and authored geometry. One generic
+fixture and the ETHOS rehearsal exercise the same public Build Request; no
+ETHOS/AIGW branch is admitted. If a selected form cannot meet a target, improve
+the adapter or fail precisely rather than conceal the guide.
+
+Counterexamples include absent/omitted assertions, wrong view, duplicate IDs,
+ambiguous occurrences, unconnected groups, changed source bytes, invalid style,
+late completion after pause, immediate pause/resume, page replacement, hidden
+document, reduced motion and unrelated/stale iframe messages.
+
+Focused RED/GREEN, serialized classic-script checks, static/module gates and
+all four coverage dimensions at least 95 percent precede the complete native
+suite. Offline installed builds use explicit inputs, empty user configuration
+and no adjacent checkout. Real background Chrome observes native selection,
+exact directed paths, transitive reach, type grouping, sharing, canonical export,
+every page, style/theme switching, addressed reading, Inspect, history and cleanup.
+Archify Route/Reach, Lens and Radar are mechanism names only for members that
+actually offer them; their historical tests do not qualify the selected public
+compiler or its native-source successor. Geometry audits and actual painted
+screenshots remain separate from human faithfulness, intelligibility and
+aesthetic judgments.
+
+A successor may change art direction or omit legacy interaction when exact
+source meaning and required reader outcomes remain intact or improve. Compare
+complete-figure navigation and native exploration on the same selected
+questions; only useful mechanisms enter the implementation and qualification
+matrix. A new button, matching ID inventory, library upgrade or lower line count
+is not sufficient evidence of superiority.
+Retirement needs source-owned acceptance and verified rollback; until then the
+historical reader remains intact and labelled with its original source time.

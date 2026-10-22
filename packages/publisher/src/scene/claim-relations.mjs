@@ -1,12 +1,12 @@
-import { canonical, record } from '../semantics/document.mjs';
-import { claimDependsOnSelectedRelation } from '../semantics/native-claim-model.mjs';
-import { fail } from '../protocol/values.mjs';
+import { canonical, record } from "../semantics/document.mjs";
+import { claimDependsOnSelectedRelation } from "../semantics/native-claim-model.mjs";
+import { fail } from "../protocol/values.mjs";
 
 export const SOURCE_REPORTED_TOPOLOGY_NOTE =
-  'Source-reported topology; provenance unverified; typed claim status not selected.';
+  "Source-reported topology; provenance unverified; typed claim status not selected.";
 export const UNLINKED_RELATION_NOTE =
-  'Unlinked relations show source topology only; typed claim status is not selected, and provenance is unverified.';
-export const SOURCE_RELATION_QUALIFIER_CONTEXT = 'Source relation qualifiers (unverified)';
+  "Unlinked relations show source topology only; typed claim status is not selected, and provenance is unverified.";
+export const SOURCE_RELATION_QUALIFIER_CONTEXT = "Source relation qualifiers (unverified)";
 
 /** Derive relation and subject associations without inventing graph edges. */
 export function linkClaimModelSources(
@@ -19,25 +19,25 @@ export function linkClaimModelSources(
   if (!Array.isArray(view?.assertionIds)) fail(errorCode);
   const sources = view.assertionIds
     .map((id) => ({ assertionId: id, assertion: assertions.get(id) }))
-    .filter(({ assertion }) => assertion?.kind === 'source')
+    .filter(({ assertion }) => assertion?.kind === "source")
     .map(({ assertionId, assertion }) => ({
       assertionId,
       selection: selections.get(assertion.selection),
     }));
   if (
     sources.some(
-      ({ selection }) => !['entity', 'relation', 'claim'].includes(selection?.target.kind),
+      ({ selection }) => !["entity", "relation", "claim"].includes(selection?.target.kind),
     )
   )
     fail(errorCode);
-  const relations = sources.filter(({ selection }) => selection.target.kind === 'relation');
-  const claims = sources.filter(({ selection }) => selection.target.kind === 'claim');
+  const relations = sources.filter(({ selection }) => selection.target.kind === "relation");
+  const claims = sources.filter(({ selection }) => selection.target.kind === "claim");
   const links = [];
   const subjectLinks = [];
   for (const { assertionId, selection } of claims) {
     const claim = selection.members?.claims?.[0];
     if (
-      selection.predicate?.valueKind === 'opaque' &&
+      selection.predicate?.valueKind === "opaque" &&
       directStatementSelections.has(selection.selectionId)
     ) {
       if (
@@ -54,11 +54,11 @@ export function linkClaimModelSources(
         !subject ||
         selection.members?.claims?.length !== 1 ||
         !selection.predicate ||
-        selection.predicate.valueKind === 'entity' ||
+        selection.predicate.valueKind === "entity" ||
         subject.namespace !== selection.source?.namespace ||
         subject.sha256 !== selection.source?.sha256 ||
         !claim.dependsOn?.some(
-          (reference) => reference?.section === 'entities' && reference.id === claim.subject,
+          (reference) => reference?.section === "entities" && reference.id === claim.subject,
         )
       ) {
         fail(errorCode);
@@ -96,8 +96,8 @@ export function claimRelationLabel(relation, errorCode) {
   return qualifiers.length
     ? `${SOURCE_RELATION_QUALIFIER_CONTEXT}: ${qualifiers
         .map(
-          ({ name, value }) => `${name}: ${typeof value === 'string' ? value : canonical(value)}`,
+          ({ name, value }) => `${name}: ${typeof value === "string" ? value : canonical(value)}`,
         )
-        .join(' · ')}`
+        .join(" · ")}`
     : null;
 }

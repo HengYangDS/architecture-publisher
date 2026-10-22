@@ -1,3 +1,3 @@
 /** Generated from the pinned icon supply. Do not edit. */
 export const ICON_SUPPLY_SHA256 =
-  'b8dca7d0bcb0f5c764308615160bb1f7bccb41df148b9d113e4d4f7c1c395024';
+  "81b4c95950efeb0dfb5f71a80a03cbf6239b290933c8b1d1fdf8524e9db08e95";

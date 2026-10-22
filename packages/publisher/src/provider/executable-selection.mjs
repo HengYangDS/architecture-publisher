@@ -1,26 +1,26 @@
-import { createHash } from 'node:crypto';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import { noSymlinkAncestors, regularBytes } from '../file-input/read.mjs';
-import { fail, hasExactFields as exact } from '../protocol/values.mjs';
-import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
-import { normalizeSelectedContributions, readSelectedProviderManifest } from './manifest.mjs';
-import { editionProviderPackageDigest, selectProviderPackage } from './package.mjs';
-import { runProviderWorker } from './supervisor.mjs';
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { noSymlinkAncestors, regularBytes } from "../file-input/read.mjs";
+import { fail, hasExactFields as exact } from "../protocol/values.mjs";
+import { EDITION_PROVIDER_LIMITS } from "./limits.mjs";
+import { normalizeSelectedContributions, readSelectedProviderManifest } from "./manifest.mjs";
+import { editionProviderPackageDigest, selectProviderPackage } from "./package.mjs";
+import { runProviderWorker } from "./supervisor.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const replyFields = ['derived', 'schema'];
-const outputFields = ['contentBase64', 'id'];
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const replyFields = ["derived", "schema"];
+const outputFields = ["contentBase64", "id"];
 
 function selectedDerived(reply, expected) {
   if (
     !exact(reply, replyFields) ||
-    reply.schema !== 'architecture.edition-provider-reply/v2' ||
+    reply.schema !== "architecture.edition-provider-reply/v2" ||
     !Array.isArray(reply.derived) ||
     reply.derived.length !== expected.length
   )
-    fail('edition_provider_v2_reply_invalid');
+    fail("edition_provider_v2_reply_invalid");
   const expectedById = new Map(expected.map((item) => [item.id, item]));
   const contents = new Map();
   for (const item of reply.derived) {
@@ -28,16 +28,16 @@ function selectedDerived(reply, expected) {
       !exact(item, outputFields) ||
       !expectedById.has(item.id) ||
       contents.has(item.id) ||
-      typeof item.contentBase64 !== 'string' ||
+      typeof item.contentBase64 !== "string" ||
       /[^A-Za-z0-9+/=]/u.test(item.contentBase64)
     )
-      fail('edition_provider_v2_reply_invalid');
-    const content = Buffer.from(item.contentBase64, 'base64');
-    if (content.toString('base64') !== item.contentBase64)
-      fail('edition_provider_v2_reply_invalid');
+      fail("edition_provider_v2_reply_invalid");
+    const content = Buffer.from(item.contentBase64, "base64");
+    if (content.toString("base64") !== item.contentBase64)
+      fail("edition_provider_v2_reply_invalid");
     const selected = expectedById.get(item.id);
-    if (content.length !== selected.bytes) fail('edition_provider_v2_output_size_mismatch');
-    if (sha(content) !== selected.sha256) fail('edition_provider_v2_output_digest_mismatch');
+    if (content.length !== selected.bytes) fail("edition_provider_v2_output_size_mismatch");
+    if (sha(content) !== selected.sha256) fail("edition_provider_v2_output_digest_mismatch");
     contents.set(item.id, content);
   }
   return contents;
@@ -65,27 +65,27 @@ export async function prepareSelectedExecutableInputs(
   expectedSha256,
   packageRoot,
 ) {
-  if (manifest.delivery.kind !== 'executable') fail('edition_provider_v2_delivery_unsupported');
+  if (manifest.delivery.kind !== "executable") fail("edition_provider_v2_delivery_unsupported");
   const packageSelection = await selectProviderPackage(packageRoot, manifest.delivery.package);
   const inputContents = new Map();
   const requestInputs = [];
   for (const item of manifest.delivery.inputs) {
-    const selectedFile = path.resolve(root, ...item.path.split('/'));
+    const selectedFile = path.resolve(root, ...item.path.split("/"));
     await noSymlinkAncestors(selectedFile);
     const content = await regularBytes(selectedFile, EDITION_PROVIDER_LIMITS.inputBytes);
-    if (content.length !== item.bytes) fail('edition_provider_v2_input_size_mismatch');
-    if (sha(content) !== item.sha256) fail('edition_provider_v2_input_digest_mismatch');
+    if (content.length !== item.bytes) fail("edition_provider_v2_input_size_mismatch");
+    if (sha(content) !== item.sha256) fail("edition_provider_v2_input_digest_mismatch");
     inputContents.set(item.id, content);
     requestInputs.push({
       id: item.id,
       mediaType: item.mediaType,
       bytes: item.bytes,
       sha256: item.sha256,
-      contentBase64: content.toString('base64'),
+      contentBase64: content.toString("base64"),
     });
   }
   const request = {
-    schema: 'architecture.edition-provider-request/v2',
+    schema: "architecture.edition-provider-request/v2",
     provider: manifest.provider,
     inputs: requestInputs,
   };
@@ -112,10 +112,10 @@ export async function materializePreparedExecutableInputs(prepared) {
   );
   const started = performance.now();
   try {
-    for (const directory of ['config', 'cache', 'data', 'tmp'])
+    for (const directory of ["config", "cache", "data", "tmp"])
       await fs.mkdir(path.join(scratch, directory));
-    const requestPath = path.join(scratch, 'request.json');
-    await fs.writeFile(requestPath, JSON.stringify(request), { flag: 'wx', mode: 0o600 });
+    const requestPath = path.join(scratch, "request.json");
+    await fs.writeFile(requestPath, JSON.stringify(request), { flag: "wx", mode: 0o600 });
     const result = await runProviderWorker({
       entrypoint: packageSelection.entrypoint,
       requestPath,
@@ -130,23 +130,23 @@ export async function materializePreparedExecutableInputs(prepared) {
       (await editionProviderPackageDigest(packageSelection.packageIdentity.root)) !==
       manifest.delivery.package.contentSha256
     )
-      fail('edition_provider_package_content_mismatch');
+      fail("edition_provider_package_content_mismatch");
     for (const [id, content] of result.reply) selectedContents.set(`derived:${id}`, content);
     const selectedJson = JSON.stringify(normalizeSelectedContributions(manifest));
     const invocationJson = JSON.stringify({
       provider: manifest.provider,
-      delivery: 'executable',
+      delivery: "executable",
       manifestSha256: expectedSha256,
       packageContentSha256: manifest.delivery.package.contentSha256,
       requestSha256: sha(Buffer.from(JSON.stringify(request))),
       durationMs: Math.max(0, Math.round(performance.now() - started)),
     });
     return Object.freeze({
-      closure: 'selected-provider-inputs-and-outputs-only',
+      closure: "selected-provider-inputs-and-outputs-only",
       limits: Object.freeze([
-        'path-confinement-under-concurrent-mutation-unproved',
-        'provider-dependencies-unobserved',
-        'provider-execution-not-sandboxed',
+        "path-confinement-under-concurrent-mutation-unproved",
+        "provider-dependencies-unobserved",
+        "provider-execution-not-sandboxed",
         ...manifest.selected.derived.map((item) => `adapter-code-unverified:${item.id}`),
       ]),
       get selected() {
@@ -157,7 +157,7 @@ export async function materializePreparedExecutableInputs(prepared) {
       },
       read(kind, id) {
         const content = selectedContents.get(`${kind}:${id}`);
-        if (!content) fail('edition_provider_v2_item_unselected');
+        if (!content) fail("edition_provider_v2_item_unselected");
         return Buffer.from(content);
       },
     });

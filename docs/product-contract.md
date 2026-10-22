@@ -10,18 +10,21 @@ relations:
 
 ## Product
 
-Architecture Publisher turns explicit, source-bound system meaning into
-understandable, verifiable, recoverable Architecture Editions for people and
-Agents. It occupies the boundary between authoritative system knowledge and
-reader-facing representations: it preserves semantic identity while allowing
-static and interactive media to use different compositions.
+Architecture Publisher composes selected architecture knowledge into accurate,
+readable, aesthetically considered works that can be regenerated as the system
+changes. It is an architecture composition and publication product, not a truth
+engine, repository governor, drawing canvas or collection of export wrappers.
 
-The product does not discover truth by looking at code, screenshots, or tool
-output. Source owners provide claims and provenance. Editions decide what a
-particular audience must understand. Scenes express those decisions in a medium.
-Renderers produce bytes. Qualification makes bounded judgments. Publication
-performs explicit, recoverable effects. No downstream layer grants authority to
-an upstream one.
+The editor supplies what to explain, to whom and from which source material.
+Publisher owns how that selection becomes a complete, readable work: visual
+hierarchy, measured typesetting, routing, navigation and medium-specific form.
+Source owners retain their facts and acceptance. No layer gains authority merely
+because it can read, render or verify another layer's output.
+
+Its value is reduced reconstruction and reading burden without semantic loss.
+A useful output lets a reader understand the selected system before inspecting
+its evidence. Provenance supports that reading; it must not dominate the work.
+The same product-quality floor applies to every source and requested medium.
 
 ## Promise
 
@@ -34,13 +37,16 @@ A published Edition answers three questions without conflation:
 3. **What was actually delivered and checked?** — medium-specific artifacts,
    observations, qualifications, publication effects, and limits.
 
-The promise is not automatic architecture inference or automatic beauty. It is
-preserved meaning, explicit editorial judgment, independently composed media,
-and evidence that names exactly what it establishes.
+Publisher owns intrinsic composition; callers are not its unpaid layout engine.
+It must measure complete content, reject infeasible output and qualify actual
+reading and paint. It does not infer architecture from arbitrary repository
+contents or claim that a numeric score proves universal aesthetic perfection.
+Human judgment evaluates the work; it does not replace the product's quality duties.
 
 ## Semantic roots
 
-The seven product values are:
+These internal values separate responsibility; they are not seven required
+authoring files, stages or concepts a normal caller must manage:
 
 | Value           | Owns                                                                                                      | Does not own                        |
 | --------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------- |
@@ -63,8 +69,8 @@ layout choice, compatibility alias, or optimistic inference.
 
 ## Inputs
 
-The generic compiler consumes four explicit roles, not necessarily four
-separately authored files:
+The compiler distinguishes four input roles internally, not four mandatory
+documents or preparation stages for a caller:
 
 1. **Selected source evidence** — exact native files or a Source Bundle with
    provenance, source identity, and revision.
@@ -80,8 +86,13 @@ separately authored files:
    Candidate output directory separately; historical v1 plans retain their
    original output-field meaning.
 
-An Edition Provider is an optional transport boundary owned by its designated
-source or editor. Declarative delivery selects exact portable bytes; executable
+Source repositories are read-only inputs, not integration targets. Publication
+does not add drawing code, files, configuration, tests or CI obligations there.
+Source-specific preparation and artwork belong to the independent editor;
+Publisher owns only generic compilation, composition and qualification.
+
+An Edition Provider is an optional transport boundary owned by the external
+editor. Declarative delivery selects exact portable bytes; executable
 delivery prepares exact selected bytes through one independently installed,
 bounded child-process export. A Provider may supply an attributed derived
 projection, but cannot make it source-endorsed or validated merely by returning
@@ -122,12 +133,49 @@ fail validation rather than promising a Candidate that cannot be built.
 Editorial assertions preserve their proponent and basis without becoming
 source-approved transformations.
 
-A Git repository, SDD tool, documentation service, code graph, telemetry store,
-or project-specific schema is a possible upstream source, not a hidden compiler
-dependency. Its adapter emits an admitted source-bound interpretation or
-attributed projection with loss, uncertainty, and provenance explicit; it need
-not duplicate the source as a Claim Model. Manual authoring of admitted standard
-values is also valid.
+A Git repository, SDD tool, documentation service, code graph, telemetry store
+or project-specific schema may supply exact selected material. An adapter
+preserves its attributed meaning, uncertainty and limits without introducing a
+hidden compiler dependency or duplicate source authority. Manual authoring of
+supported native values is also valid.
+
+## Normal authoring and reading
+
+Normal authoring has two responsibilities: select source material and state the
+reading plan. The editor names audience, question, exact semantic scope and
+requested media; style and emphasis are optional. A supported native source view
+may define that scope, but viewless entity/relation material must also support
+automatic composition. Publisher derives mechanical question links, default
+medium views and visual encodings from those choices; it never guesses which
+facts answer an unbound question or what the source omitted.
+
+The existing Build Request and Edition Project carry these choices. Their
+schemas, validation and composition owners must absorb routine bookkeeping,
+not add another brief language or a wrapper workflow. Source locators select a
+new snapshot; explicit pins request exact-byte refusal. Publisher captures the
+checked lock in either case. Generated indexes, locks, scenes and evidence stay
+outputs, not files an editor must synchronize. Current explicit serialization
+and completion of the smaller workflow are distinguished in the owning Change.
+
+Default composition derives geometry from complete content and declared meaning.
+An editor may supply complete literal refinement when needed, but neither that
+choice nor a supported style changes the quality floor. A literal composition is
+authored data, never an edit to emitted SVG or HTML. Spatial proximity does not
+invent semantic membership. One publication-wide type encoding separates type
+identity from importance, status and selected emphasis.
+
+A reader first sees a complete architecture, then chooses a mechanism or exact
+subject. The untouched desktop overview exposes the selected explanatory
+structure, connections and primary labels at the declared reading floor.
+Detailed records and source-focused exploration may use disclosure, focus or
+scrolling; they cannot substitute for that overview. Infeasible content requires
+an actionable scope/composition decision, not illegible fit or silent omission.
+Contextual queries state their exact scope and answer distinct reader questions.
+
+On evolution, rebuild the same reading plan against an explicitly selected new
+snapshot; recovery instead uses its accepted exact lock. Absent or invalidated
+references need actionable diagnostics, not guessed replacement meaning.
+Semantic, visual and publication judgments remain separate from rebuilding.
 
 ## Processing
 
@@ -218,9 +266,10 @@ must reject that answer before Candidate emission.
 
 The product is **Architecture Publisher**. The package is
 `architecture-publisher`; the public command is `archpub`; the canonical
-repository is `architecture-publisher`. ETHOS, AIGW, and the product itself are
-Editions or adopters. `ETHOS Architecture` names the ETHOS publication, never
-the publishing product.
+repository is `architecture-publisher`. ETHOS, AIGW, and the product itself can be
+publication subjects. Their external Editions are consumers, not integrations
+added to those source products. `ETHOS Architecture` names the ETHOS publication,
+never the publishing product.
 
 Historical releases retain the identities under which they were published. The
 current runtime does not retain aliases or a second mutable product identity.
@@ -245,22 +294,21 @@ silently write feedback into a source authority.
 The Architecture Publisher repository is a development and conformance
 workspace. Its distributable product contains generic contracts, renderer
 capabilities, qualification, publication, and the `archpub` composition root.
-It also owns the source-owned live Edition for Architecture Publisher itself,
-because that Edition describes this source product.
+Its self-Edition is a separately packaged conformance consumer; it grants no
+source-repository integration requirement to other products.
 
 A live Edition belongs to its designated editor, not automatically to the
 repository whose architecture it describes. ETHOS and AIGW retain authority
-over their native meaning, any adapter they elect, authorization, acceptance,
-and release. Each may designate an internal or external Edition editor. An
-independent or cross-source editor may work from exact read-only source bytes
-without changing the source repository or acquiring authority over its
-assertions. Official endorsement of selected source scope requires an explicit
-source-owner decision; the designated accepter separately accepts the exact
-Candidate. Publisher does not require source-repository changes or an ordinary
-source-product CI gate for independent analysis. Neither first-party path
-requires a duplicate editable Claim Model when admitted native inputs suffice.
-Publisher may keep compact immutable fixtures and receipts, but not a second
-mutable implementation after an adopter accepts its canonical Edition.
+over their native meaning, authorization, acceptance and release. Publication
+preparation is external even when the source maintainer is also the editor.
+The editor reads pinned existing source material and owns adaptation, questions,
+artwork and build inputs outside the source repository. Official endorsement of
+selected scope requires an explicit source-owner decision; the designated
+accepter separately accepts the exact Candidate. No drawing file, package,
+configuration, test or CI obligation is added to a source product. Admitted
+native inputs do not require a duplicate editable Claim Model. Publisher may
+keep compact immutable conformance fixtures and receipts, not another source
+product's mutable publication implementation.
 
 A selected-input Edition's title and summary are the editor's words, not source
 assertions. Both media identify that editor and state that the diagram itself
@@ -275,9 +323,10 @@ Historical Provider v1 remains accepted for replay of exact prior inputs; it is
 not the new-authoring contract. Both versions enter through `archpub edition build`;
 there is no Provider command tree, registry, or ambient discovery. Ordinary
 execution has no adjacent checkout dependency, repository-name dispatch,
-local-user path, or implicit source discovery. The source repository's native
-lifecycle authorizes its own changes; Publisher qualification and release
-consume exact outputs without copying that lifecycle or its progress ledger.
+local-user path, or implicit source discovery. Source-specific execution belongs
+to the external editor, not to the source product. Publisher qualification and
+release consume exact selected material without adding source lifecycle tasks
+or copying the source product's progress ledger.
 
 Candidate and publication provenance keep `subject`, `producer`,
 `authorizationOwner`, and `custodian` distinct. Provider conformance does not
@@ -302,6 +351,12 @@ Abstractions must reduce the number of concepts a consumer needs to understand.
 No `core`, `common`, `shared`, `utils`, `legacy`, or compatibility owner is
 created without a demonstrated, independently testable responsibility.
 
+The normal public entry owns the source-to-work journey. Expert APIs expose
+only independently useful responsibilities; they must not require callers to
+orchestrate the internal pipeline. Use mature model, layout, font, renderer and
+reader mechanisms at their supported boundaries. Retain a custom seam only for
+a demonstrated generic gap; never duplicate their state or patch vendor behavior.
+
 ## Media
 
 Static and interactive publications are sibling projections. They share source
@@ -317,14 +372,16 @@ Neither medium is generated by capturing or serializing the other.
 
 ## Quality
 
-`faithful`, `intelligible`, and `restrained` are non-compensating gates.
+`faithful`, `intelligible`, and `aesthetic` are non-compensating gates.
 
 - **Faithful**: visible claims are source-bound; planes and uncertainty are not
   collapsed; required meaning is covered; limits are explicit.
 - **Intelligible**: purpose and causal spine are immediate; hierarchy, grouping,
   routes, and detail views answer named reader questions.
-- **Restrained**: proportion, typography, whitespace, rhythm, color, and motion
-  support meaning without decorative noise.
+- **Aesthetic**: proportion, typographic order, spacing, rhythm, flow, visual
+  character and taste form a coherent, carefully composed work. Restraint is
+  one technique, not a substitute for this judgment. Geometry and pixel checks
+  provide evidence but cannot certify aesthetic quality.
 
 Executed machine checks reject defects within their selected semantic,
 geometry, browser, accessibility, installation, and recovery scopes. A skipped
@@ -347,19 +404,22 @@ source delta
 ```
 
 Unknown dependencies broaden review. Changed artifact bytes invalidate their
-prior qualification. Generated artifacts are never authoring inputs. Persistent
+prior qualification. Emitted artifacts are not editable authoring inputs;
+authored literal refinement remains distinct. Persistent
 graph storage, incremental query runtimes, and general constraint solvers remain
 out until a named adopter proves an irreducible need and lower ownership cost.
 
-## Product modes
+## Uniform product quality
 
-- A **structural Edition** promises deterministic source binding, declared
-  coverage, and technical readability.
-- A **flagship Edition** additionally promises deliberate art direction,
-  reader-tested hierarchy, accessibility, and exact-artifact human acceptance.
+Every publication meets the same strict quality floor: faithful source meaning,
+complete selected reader questions, deliberate hierarchy and composition,
+painted geometry, accessibility, installed reproduction, recovery, and exact
+artifact review. There are no ordinary or flagship quality levels.
 
-The minimal structural examples remain useful protocol demonstrations. They are
-not the public self-portrait and must not be presented as flagship work.
+Scope, media, style, and composition method are independent choices. A small
+example can explain fewer mechanisms, but cannot receive a lower standard of
+faithfulness, intelligibility, or restraint. Generated Candidates remain
+unqualified until the applicable evidence and designated acceptance are complete.
 
 ## Completion
 
@@ -384,11 +444,11 @@ historical evidence, not a second active rule.
 | Editorial claims and Edition     | Edition editor                                     | Validate selection and compose reader works                 | Editorial judgment is not source endorsement.           |
 | Provider interchange             | Publisher                                          | Validate one versioned input protocol                       | The protocol does not choose a source package.          |
 | Provider selection               | Build Request author                               | Bind exact inputs; retain separate declared claimant/editor | Selection grants no source truth or effect.             |
-| Scene, rendering and Candidate   | Publisher                                          | Derive independently composed media                         | Structural output is not flagship approval.             |
+| Scene, rendering and Candidate   | Publisher                                          | Derive independently composed media                         | Generated output is not qualified artwork.              |
 | Predicate observations           | Predicate-specific verifier                        | Bind exact Qualification subjects and limits                | One PASS does not establish another predicate.          |
 | Candidate acceptance             | Designated accepter under product/editorial policy | Bind judgment to exact Candidate and policy                 | A green build is not approval.                          |
 | Release authorization            | Designated release owner                           | Record selected release subject and decision                | Accepted media do not publish themselves.               |
-| Repository and Git effects       | Repository policy; Git owns objects and refs       | None without a separate source-owned adapter                | Publisher owns no Work Lane, CAS or ref transition.     |
+| Repository and Git effects       | Repository policy; Git owns objects and refs       | Read selected immutable objects; no source mutation         | Publisher owns no Work Lane, CAS or ref transition.     |
 | Local file publication           | Target policy's designated authorization owner     | Plan, apply and recover exact filesystem effect             | Local install is not Forge release or target authority. |
 | Artifact custody and retention   | Selected custodian                                 | Record producer and effect receipts                         | Output need not enter source Git or off-host storage.   |
 | Feedback to source intent        | Each affected source owner                         | Propose an attributed, source-bound finding                 | No silent writeback.                                    |
@@ -418,12 +478,13 @@ earn its own acceptance rather than borrow another medium's claims.
 
 ## Minimum independent product
 
-An installed CLI accepts explicit file input, typed diagrams and authored SVG;
-it renders, verifies identities, packages selected files and installs/replays
-an authorized pair through public commands. Non-ETHOS use must survive removal
-of ETHOS edition/integration modules. Raw file publication establishes integrity
-and controlled filesystem effects only; a qualified Edition additionally
-requires its selected semantic and medium-specific evidence.
+The irreducible product is source-bound editorial selection, complete intrinsic
+composition and contextual reading, independently qualified media, and
+reproducible output. Each retained module must establish one of those outcomes.
+Non-ETHOS use must survive removal of ETHOS edition/integration modules.
+Raw file installation and recovery establish controlled effects, not architecture
+meaning; their existing transport boundary must remain separate from composition,
+source governance and credential ownership.
 
 Dependencies must be declared, pinned and independently obtainable. Paths in
 portable inputs are explicit and relative to their owning descriptor; installation
@@ -431,14 +492,20 @@ plans deliberately bind exact resolved targets. Never search sibling repositorie
 or borrow developer credentials. Source execution is opt-in and identity-bound.
 Font redistribution requires its license; unchanged backend licenses stay bundled.
 
-Demonstrate topology and conditional lifecycle examples, real membership/edge
-updates, both media, relocation, empty HOME/PATH, offline installed use and explicit
-temporary deployment/recovery. These bounded examples do not prove arbitrary
-domains, universal platform support, automatic composition or browser acceptance.
-The public paired installer retains two named slots and a shared-parent constraint;
-arbitrary target cardinality is not an implied capability.
+Demonstrate topology and conditional lifecycle examples, source updates, both
+media, relocation, empty HOME/PATH, offline installed use and temporary recovery.
+Use the same public interface for an unrelated example and a dense selected work.
+These journeys qualify their declared scope, not arbitrary source formats or
+universal platform support. The paired installer retains its explicit two-slot
+shared-parent contract; it is not a general disaster-recovery service.
 
-## Quality: faithful, intelligible, restrained
+Compare a retained responsibility with direct use of supported mature tools on
+the same complete journey. If those tools satisfy it without Publisher, remove
+the redundant owner. A wrapper, control count, format count or extra manifest
+is not independent product value. Replacement must preserve source meaning,
+reading outcomes and artifact quality, not merely offer a shorter implementation.
+
+## Composition and quality evidence
 
 Semantic fidelity, complete required mechanisms, readable typography, no unintended
 overlap/clipping, correct connected endpoints and truthful scope are hard gates.
@@ -466,7 +533,7 @@ Stable semantic identities survive harmless label changes; split/merge/rename
 mappings require explicit source evidence, never guessed identity substitution.
 
 1. Keep explicit candidate inputs separate from accepted-output locks in the same renderer.
-2. Demonstrate one real source-owned semantic update across source, views, both media,
+2. Demonstrate one real source revision update across external views, both media,
    qualification and candidate publication without changing generic code or
    editing generated SVG/HTML.
 3. Exercise label growth, entity/edge insertion/removal, changed condition and
@@ -497,7 +564,7 @@ scenes. Automatic aesthetic optimization is not established by this increment.
 The shared semantic compiler admits one v2 Claim Model: a finite typed
 vocabulary, complete JSON qualifiers, byte-bound provenance, explicit planes,
 conditions, scope, maturity and validity, plus opaque claims whose dependency
-coverage remains unknown. A source-owned adapter using this model preserves
+coverage remains unknown. An external editor's adapter using this model preserves
 source extensions and invokes this one comparison owner. It does not add a
 second diff engine, accept the retired v1 document at runtime, or infer
 semantic equivalence.

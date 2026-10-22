@@ -1,33 +1,29 @@
+# Generated from .config/ci/pipeline.cue. Do not edit.
+
 workflow:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_TAG || $CI_COMMIT_REF_PROTECTED == "true"'
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_TAG || $CI_COMMIT_REF_PROTECTED == "true"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH &&
+        $CI_OPEN_MERGE_REQUESTS
       when: never
-    - if: '$CI_COMMIT_BRANCH'
-
+    - if: $CI_COMMIT_BRANCH
 image:
-  name: hengyang2003/architecture-publisher-ci@sha256:aa3b5007ac1803793b3bd33829aa1c79f08a7437c146db963b2654ed8dd75e4e
-
+  name: hengyang2003/architecture-publisher-ci@sha256:d9a2c26c3e30a5966695a1acfd83cb9056747f3d89e739481b27b4819fa3a1c4
 variables:
-  GIT_DEPTH: '0'
+  GIT_DEPTH: "0"
   GIT_STRATEGY: fetch
-  GIT_CLEAN_FLAGS: '-ffdx -e build/runtime/tool-cache/'
+  GIT_CLEAN_FLAGS: -ffdx -e build/runtime/tool-cache/
   MISE_ENV: ci
-  MISE_LOCKED: '1'
-  MISE_HTTP_TIMEOUT: '180s'
-  MISE_DATA_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise'
-  MISE_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/mise/cache'
-  MISE_TRUSTED_CONFIG_PATHS: '$CI_PROJECT_DIR'
-  PLAYWRIGHT_BROWSERS_PATH: '$CI_PROJECT_DIR/build/runtime/tool-cache/playwright'
-
+  MISE_LOCKED: "1"
+  MISE_HTTP_TIMEOUT: 180s
+  MISE_DATA_DIR: $CI_PROJECT_DIR/build/runtime/tool-cache/mise
+  MISE_CACHE_DIR: $CI_PROJECT_DIR/build/runtime/tool-cache/mise/cache
+  MISE_TRUSTED_CONFIG_PATHS: $CI_PROJECT_DIR
+  PLAYWRIGHT_BROWSERS_PATH: $CI_PROJECT_DIR/build/runtime/tool-cache/playwright
 stages:
   - verify
-
 .verify-native:
-  stage: verify
-  interruptible: true
-  timeout: 60m
   artifacts:
     when: always
     expire_in: 7 days
@@ -41,120 +37,154 @@ stages:
     - mise exec -- npm --version
     - git --version
     - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-    - >-
-      mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-      --test-concurrency=1 --test-timeout=90000
-      --test-name-pattern='native CI honors the invoker-owned pinned browser root|self preparation selects one direct Project instead of a legacy Edition authority'
-      tests/quality-contract.test.mjs tests/self-edition.test.mjs
+    - mise run raster-supply
+    - mise exec -- npm run generate
+    - mise exec -- npm run check:ci
     - mise exec -- node node_modules/playwright-core/cli.js install chromium
-    - >-
-      mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-      --test-name-pattern='standalone reader policy blocks dynamic page connections'
-      tests/interactive-html.test.mjs
-    - mise exec -- node -e "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-    - mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt
-    - >-
-      curl --fail --silent --show-error --connect-timeout 15 --max-time 180
+    - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+      --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native CI
+      honors the invoker-owned pinned browser root|self preparation selects one
+      direct Project instead of a legacy Edition authority'
+      tests/quality-contract.test.mjs tests/self-edition.test.mjs
+    - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+      --test-name-pattern='standalone reader policy blocks dynamic page
+      connections' tests/interactive-html.test.mjs
+    - mise exec -- node -e
+      "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+    - mise exec -- node tools/raster/resvg/verify.mjs --registry-url >
+      build/runtime/tool-cache/raster/source-url.txt
+    - 'curl --fail --silent --show-error --connect-timeout 15 --max-time 180
       --variable source@build/runtime/tool-cache/raster/source-url.txt
-      --expand-url "{{source:trim}}" --variable %CI_JOB_TOKEN
-      --expand-header "JOB-TOKEN: {{CI_JOB_TOKEN}}"
-      --output build/runtime/tool-cache/raster/source.tar.xz
-    - mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz
+      --expand-url "{{source:trim}}" --variable %CI_JOB_TOKEN --expand-header
+      "JOB-TOKEN: {{CI_JOB_TOKEN}}" --output
+      build/runtime/tool-cache/raster/source.tar.xz'
+    - mise exec -- node tools/raster/resvg/verify.mjs --archive
+      build/runtime/tool-cache/raster/source.tar.xz
     - mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
     - mise exec -- npm run check
-
+  stage: verify
+  interruptible: true
+  timeout: 60m
 .verify-linux:
+  before_script:
+    - curl --fail --silent --show-error --location --proto '=https'
+      --proto-redir '=https' --connect-timeout 15 --max-time 180 --create-dirs
+      --output build/runtime/tool-cache/mise/bootstrap/mise.download
+      https://github.com/jdx/mise/releases/download/v2026.10.17/mise-v2026.10.17-linux-arm64
+    - sha256sum --strict --check .config/ci/linux/mise.sha256
+    - install --mode=0755 build/runtime/tool-cache/mise/bootstrap/mise.download
+      build/runtime/tool-cache/mise/bootstrap/mise
+  script:
+    - mise --version
+    - mise install
+    - mise exec -- rustup component add rust-std
+    - mise exec -- node --version
+    - mise exec -- npm --version
+    - git --version
+    - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
+    - mise run raster-supply
+    - mise exec -- npm run generate
+    - mise exec -- npm run check:ci
+    - mise exec -- node node_modules/playwright-core/cli.js install chromium
+    - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+      --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native CI
+      honors the invoker-owned pinned browser root|self preparation selects one
+      direct Project instead of a legacy Edition authority'
+      tests/quality-contract.test.mjs tests/self-edition.test.mjs
+    - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
+      --test-name-pattern='standalone reader policy blocks dynamic page
+      connections' tests/interactive-html.test.mjs
+    - mise exec -- node -e
+      "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
+    - mise exec -- node tools/raster/resvg/verify.mjs --registry-url >
+      build/runtime/tool-cache/raster/source-url.txt
+    - 'curl --fail --silent --show-error --connect-timeout 15 --max-time 180
+      --variable source@build/runtime/tool-cache/raster/source-url.txt
+      --expand-url "{{source:trim}}" --variable %CI_JOB_TOKEN --expand-header
+      "JOB-TOKEN: {{CI_JOB_TOKEN}}" --output
+      build/runtime/tool-cache/raster/source.tar.xz'
+    - mise exec -- pixi run --locked --config-file
+      .config/ci/linux/pixi-config.toml --manifest-path
+      .config/ci/linux/pixi.toml --executable xz --version
+    - mise exec -- pixi run --locked --config-file
+      .config/ci/linux/pixi-config.toml --manifest-path
+      .config/ci/linux/pixi.toml --executable aarch64-conda-linux-gnu-cc
+      --version
+    - mise exec -- pixi run --locked --config-file
+      .config/ci/linux/pixi-config.toml --manifest-path
+      .config/ci/linux/pixi.toml --executable node tools/raster/resvg/verify.mjs
+      --archive build/runtime/tool-cache/raster/source.tar.xz
+    - mise exec -- pixi run --locked --config-file
+      .config/ci/linux/pixi-config.toml --manifest-path
+      .config/ci/linux/pixi.toml --executable node --test
+      tests/conformance/journeys/raster/rebuild.test.mjs
+    - mise exec -- pixi run --locked --config-file
+      .config/ci/linux/pixi-config.toml --manifest-path
+      .config/ci/linux/pixi.toml --executable npm run check
   extends: .verify-native
   variables:
-    FF_USE_INIT_WITH_DOCKER_EXECUTOR: 'true'
-    FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: 'true'
+    PATH: $CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH
+    FF_USE_INIT_WITH_DOCKER_EXECUTOR: "true"
+    FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
+    PIXI_HOME: $CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home
+    PIXI_CACHE_DIR: $CI_PROJECT_DIR/build/runtime/tool-cache/pixi
     PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
-    PIXI_HOME: '$CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home'
-    PIXI_CACHE_DIR: '$CI_PROJECT_DIR/build/runtime/tool-cache/pixi'
+.verify-macos:
+  before_script: []
+  extends: .verify-native
+  variables: {}
+  image: null
+  resource_group: native-macos-verification
+.verify-windows:
   before_script:
-    - umask 022
-    - test "$(uname -sm)" = "Linux aarch64"
-    - test "$(id -u)" != "0"
-    - mkdir -p build/runtime/tool-cache/mise-bootstrap
-    - >-
-      curl --fail --silent --show-error --location --connect-timeout 15 --max-time 900
-      --output build/runtime/tool-cache/mise-bootstrap/mise.tar.gz
-      https://github.com/jdx/mise/releases/download/v2026.10.3/mise-v2026.10.3-linux-arm64.tar.gz
-    - echo 'e79866e32624b346f6854d93ca8a24294516cd7c0b48ce0e80af508fb7c3d8b8  build/runtime/tool-cache/mise-bootstrap/mise.tar.gz' | sha256sum --check
-    - tar -xzf build/runtime/tool-cache/mise-bootstrap/mise.tar.gz -C build/runtime/tool-cache/mise-bootstrap --strip-components=1
-    - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise-bootstrap/bin:$PATH"
-    - mkdir -p "$PIXI_HOME" build/runtime/work/native-linux-prerequisites
-    - cp .config/ci/linux/pixi.toml .config/ci/linux/pixi.lock build/runtime/work/native-linux-prerequisites/
-    - cp .config/ci/linux/pixi-config.toml "$PIXI_HOME/config.toml"
-    - mise exec -- pixi shell-hook --locked --shell bash --manifest-path build/runtime/work/native-linux-prerequisites/pixi.toml > build/runtime/work/native-linux-prerequisites/activation.bash
-    - . build/runtime/work/native-linux-prerequisites/activation.bash
-    - xz --version
-    - '"$CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER" --version'
-
+    - git checkout-index --all --force
+    - $env:PATH = (Join-Path $env:ProgramFiles "mise/bin") +
+      [IO.Path]::PathSeparator + $env:PATH
+  extends: .verify-native
+  variables:
+    GIT_CONFIG_COUNT: "1"
+    GIT_CONFIG_KEY_0: core.longPaths
+    GIT_CONFIG_VALUE_0: "true"
+  image: null
+  resource_group: native-windows-verification
+  interruptible: true
+  timeout: 60m
 verify:linux:review:
   extends: .verify-linux
   tags:
     - ci-linux-arm64-container
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
-
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH
 verify:linux:protected:
   extends: .verify-linux
   tags:
     - ci-linux-arm64-container-protected
   rules:
-    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
-
-.verify-macos:
-  extends: .verify-native
-  image: null
-  resource_group: native-macos-verification
-  before_script:
-    - umask 022
-    - test "$(uname -sm)" = "Darwin arm64"
-
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
 verify:macos:review:
   extends: .verify-macos
   tags:
     - ci-macos-arm64-review
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
-
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH
 verify:macos:protected:
   extends: .verify-macos
   tags:
     - ci-macos-arm64-shell
   rules:
-    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
-
-.verify-windows:
-  extends: .verify-native
-  image: null
-  resource_group: native-windows-verification
-  interruptible: true
-  timeout: 60m
-  variables:
-    GIT_CONFIG_COUNT: '1'
-    GIT_CONFIG_KEY_0: 'core.longPaths'
-    GIT_CONFIG_VALUE_0: 'true'
-  before_script:
-    - git checkout-index --all --force
-    - '$env:PATH = (Join-Path $env:ProgramFiles "mise/bin") + [IO.Path]::PathSeparator + $env:PATH'
-    - node -e "if (process.platform !== 'win32' || process.arch !== 'arm64') process.exit(1)"
-
+    - if: $CI_COMMIT_REF_PROTECTED == "true"
 verify:windows:review:
   extends: .verify-windows
   tags:
     - ci-windows-arm64-review
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH'
-
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH
 verify:windows:protected:
   extends: .verify-windows
   tags:
     - ci-windows-arm64-shell
   rules:
-    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+    - if: $CI_COMMIT_REF_PROTECTED == "true"

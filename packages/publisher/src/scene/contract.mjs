@@ -1,4 +1,4 @@
-import { validateEdition } from '../edition/contract.mjs';
+import { validateEdition } from "../edition/contract.mjs";
 
 export function semanticArchitectureProjections(document, edition) {
   validateEdition(document, edition);

@@ -1,31 +1,31 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import http from 'node:http';
-import { chromium } from 'playwright-core';
-import { createHash } from 'node:crypto';
-import { readSourceBundle } from '../../packages/publisher/src/source/bundle.mjs';
-import { validateHtmlObservation, validateStaticObservation } from './semantic-browser-checks.mjs';
+import fs from "node:fs/promises";
+import path from "node:path";
+import http from "node:http";
+import { chromium } from "playwright-core";
+import { createHash } from "node:crypto";
+import { readSourceBundle } from "../../packages/publisher/src/source/bundle.mjs";
+import { validateHtmlObservation, validateStaticObservation } from "./semantic-browser-checks.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const input = path.resolve(process.argv[2] ?? '');
-const config = JSON.parse(await fs.readFile(input, 'utf8'));
+const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const input = path.resolve(process.argv[2] ?? "");
+const config = JSON.parse(await fs.readFile(input, "utf8"));
 if (
-  !path.isAbsolute(config.manifest ?? '') ||
-  !path.isAbsolute(config.browserExecutable ?? '') ||
-  !path.isAbsolute(config.output ?? '')
+  !path.isAbsolute(config.manifest ?? "") ||
+  !path.isAbsolute(config.browserExecutable ?? "") ||
+  !path.isAbsolute(config.output ?? "")
 )
-  throw Error('Explicit manifest, browser executable and output required');
+  throw Error("Explicit manifest, browser executable and output required");
 const bundle = await readSourceBundle(config.manifest, config.manifestSha256),
   publication = JSON.parse(
-    bundle.members.find((item) => item.path === 'publication.json')?.content,
+    bundle.members.find((item) => item.path === "publication.json")?.content,
   ),
-  members = new Map(bundle.members.map((item) => ['/' + item.path, item.content])),
+  members = new Map(bundle.members.map((item) => ["/" + item.path, item.content])),
   reports = [];
 if (publication.semanticDigest !== config.semanticDigest)
-  throw Error('Selected semantic identity changed');
+  throw Error("Selected semantic identity changed");
 await fs.mkdir(config.output);
 const server = http.createServer((request, response) => {
-  const pathname = new URL(request.url, 'http://localhost').pathname,
+  const pathname = new URL(request.url, "http://localhost").pathname,
     selected = members.get(pathname);
   if (!selected) {
     response.writeHead(404);
@@ -33,14 +33,14 @@ const server = http.createServer((request, response) => {
     return;
   }
   response.writeHead(200, {
-    'Content-Type': pathname.endsWith('.svg')
-      ? 'image/svg+xml; charset=utf-8'
-      : 'text/html; charset=utf-8',
-    'Cache-Control': 'no-store',
+    "Content-Type": pathname.endsWith(".svg")
+      ? "image/svg+xml; charset=utf-8"
+      : "text/html; charset=utf-8",
+    "Cache-Control": "no-store",
   });
   response.end(selected);
 });
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const browser = await chromium.launch({
   executablePath: config.browserExecutable,
   headless: true,
@@ -51,23 +51,23 @@ try {
   for (const view of publication.views) {
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
-      serviceWorkers: 'block',
+      serviceWorkers: "block",
     });
     try {
       const page = await context.newPage(),
         errors = [];
-      page.on('pageerror', (error) => errors.push(error.message));
-      await context.route('**/*', (route) => {
+      page.on("pageerror", (error) => errors.push(error.message));
+      await context.route("**/*", (route) => {
         const url = new URL(route.request().url());
         if (url.origin === `http://127.0.0.1:${server.address().port}`) return route.continue();
-        errors.push('external-request:' + url.origin);
+        errors.push("external-request:" + url.origin);
         return route.abort();
       });
       const response = await page.goto(
         `http://127.0.0.1:${server.address().port}/views/${view.id}.html?theme=light`,
-        { waitUntil: 'load', timeout: 20000 },
+        { waitUntil: "load", timeout: 20000 },
       );
-      if (response.status() !== 200) throw Error('Browser artifact missing');
+      if (response.status() !== 200) throw Error("Browser artifact missing");
       await page.evaluate(async () => globalThis.document.fonts.ready);
       const observed = await page.evaluate(() => {
         const box = (element) => {
@@ -84,10 +84,10 @@ try {
         const overlaps = (left, right) =>
           Math.min(left.right, right.right) - Math.max(left.x, right.x) > 0.5 &&
           Math.min(left.bottom, right.bottom) - Math.max(left.y, right.y) > 0.5;
-        const svg = globalThis.document.querySelector('.diagram-container > svg'),
-          panel = globalThis.document.querySelector('.diagram-container'),
+        const svg = globalThis.document.querySelector(".diagram-container > svg"),
+          panel = globalThis.document.querySelector(".diagram-container"),
           panelBox = box(panel),
-          texts = [...svg.querySelectorAll('text')].map((element) => ({
+          texts = [...svg.querySelectorAll("text")].map((element) => ({
             text: element.textContent.trim(),
             box: box(element),
             font: Number.parseFloat(globalThis.getComputedStyle(element).fontSize),
@@ -98,20 +98,20 @@ try {
             if (overlaps(texts[left].box, texts[right].box))
               overlapsFound.push([texts[left].text, texts[right].text]);
         return {
-          nodeIds: [...svg.querySelectorAll('[data-node-id]')].map((node) =>
-            node.getAttribute('data-node-id'),
+          nodeIds: [...svg.querySelectorAll("[data-node-id]")].map((node) =>
+            node.getAttribute("data-node-id"),
           ),
-          edges: [...svg.querySelectorAll('path[data-edge-id]')].map((edge) => ({
-            id: edge.getAttribute('data-edge-id'),
-            from: edge.getAttribute('data-edge-from'),
-            to: edge.getAttribute('data-edge-to'),
-            path: edge.getAttribute('d'),
+          edges: [...svg.querySelectorAll("path[data-edge-id]")].map((edge) => ({
+            id: edge.getAttribute("data-edge-id"),
+            from: edge.getAttribute("data-edge-from"),
+            to: edge.getAttribute("data-edge-to"),
+            path: edge.getAttribute("d"),
             start: point(edge, 0),
             end: point(edge, edge.getTotalLength()),
             fromBox: box(
-              svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-from')}"]`),
+              svg.querySelector(`[data-node-id="${edge.getAttribute("data-edge-from")}"]`),
             ),
-            toBox: box(svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-to')}"]`)),
+            toBox: box(svg.querySelector(`[data-node-id="${edge.getAttribute("data-edge-to")}"]`)),
           })),
           overlap: overlapsFound,
           overflow: texts
@@ -127,9 +127,9 @@ try {
           scrollWidth: globalThis.document.documentElement.scrollWidth,
           viewportWidth: globalThis.innerWidth,
           surfaceBadges: [
-            globalThis.getComputedStyle(globalThis.document.querySelector('.header-row'), '::after')
+            globalThis.getComputedStyle(globalThis.document.querySelector(".header-row"), "::after")
               .content,
-            globalThis.getComputedStyle(panel, '::after').content,
+            globalThis.getComputedStyle(panel, "::after").content,
           ],
           title: globalThis.document.title,
         };
@@ -140,16 +140,16 @@ try {
         }
       });
       validateHtmlObservation(observed, view, errors);
-      await page.locator('#btn-theme').click();
-      if ((await page.locator('html').getAttribute('data-theme')) !== 'dark')
-        throw Error('Theme control did not change state');
+      await page.locator("#btn-theme").click();
+      if ((await page.locator("html").getAttribute("data-theme")) !== "dark")
+        throw Error("Theme control did not change state");
       const first = view.nodeIds[0];
       await page.locator(`.diagram-container > svg [data-node-id="${first}"]`).click();
       const focus = await page
-        .locator('.diagram-container > svg')
-        .getAttribute('data-focus-active');
-      if (focus !== first) throw Error('Focus interaction did not activate');
-      const screenshot = path.join(config.output, view.id + '.png');
+        .locator(".diagram-container > svg")
+        .getAttribute("data-focus-active");
+      if (focus !== first) throw Error("Focus interaction did not activate");
+      const screenshot = path.join(config.output, view.id + ".png");
       await page.screenshot({ path: screenshot });
       reports.push({
         id: view.id,
@@ -164,43 +164,43 @@ try {
 
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
-    serviceWorkers: 'block',
+    serviceWorkers: "block",
   });
   try {
     const page = await context.newPage(),
       errors = [];
-    page.on('pageerror', (error) => errors.push(error.message));
-    await context.route('**/*', (route) => {
+    page.on("pageerror", (error) => errors.push(error.message));
+    await context.route("**/*", (route) => {
       const url = new URL(route.request().url());
       if (url.origin === `http://127.0.0.1:${server.address().port}`) return route.continue();
-      errors.push('external-request:' + url.origin);
+      errors.push("external-request:" + url.origin);
       return route.abort();
     });
     const response = await page.goto(`http://127.0.0.1:${server.address().port}/overview.svg`, {
-      waitUntil: 'load',
+      waitUntil: "load",
       timeout: 20000,
     });
     if (
       response.status() !== 200 ||
-      !response.headers()['content-type']?.startsWith('image/svg+xml')
+      !response.headers()["content-type"]?.startsWith("image/svg+xml")
     )
-      throw Error('Static SVG artifact missing or incorrectly served');
+      throw Error("Static SVG artifact missing or incorrectly served");
     await page.evaluate(async () => globalThis.document.fonts.ready);
     const observed = await page.evaluate(() => {
       const svg = globalThis.document.documentElement,
         rect = svg.getBoundingClientRect(),
         viewBox = svg.viewBox.baseVal,
-        texts = [...svg.querySelectorAll('text')].map((element) => ({
+        texts = [...svg.querySelectorAll("text")].map((element) => ({
           text: element.textContent.trim(),
           box: box(element),
           font: Number.parseFloat(globalThis.getComputedStyle(element).fontSize),
         })),
-        nodes = [...svg.querySelectorAll('[data-node-id]')].map((node) => ({
-          id: node.getAttribute('data-node-id'),
+        nodes = [...svg.querySelectorAll("[data-node-id]")].map((node) => ({
+          id: node.getAttribute("data-node-id"),
           box: box(node),
         })),
-        labels = [...svg.querySelectorAll('[data-edge-label]')].map((label) => ({
-          id: label.getAttribute('data-edge-label'),
+        labels = [...svg.querySelectorAll("[data-edge-label]")].map((label) => ({
+          id: label.getAttribute("data-edge-label"),
           box: box(label),
         })),
         overlaps = (left, right) =>
@@ -222,12 +222,12 @@ try {
         point.x <= box.right + padding &&
         point.y >= box.y - padding &&
         point.y <= box.bottom + padding;
-      const painted = [...svg.querySelectorAll('path[data-edge-id], rect[stroke]')];
+      const painted = [...svg.querySelectorAll("path[data-edge-id], rect[stroke]")];
       for (const stroke of painted) {
         const id =
-          stroke.getAttribute('data-edge-id') ??
-          stroke.getAttribute('data-node-id') ??
-          'group-border';
+          stroke.getAttribute("data-edge-id") ??
+          stroke.getAttribute("data-node-id") ??
+          "group-border";
         const length = stroke.getTotalLength();
         const count = Math.ceil(length / 2);
         const points = Array.from({ length: count + 1 }, (_, index) =>
@@ -235,9 +235,9 @@ try {
         );
         for (const text of texts)
           if (points.some((p) => inside(p, text.box))) labelStrokeOverlap.push([text.text, id]);
-        if (stroke.hasAttribute('data-edge-id')) {
-          const from = stroke.getAttribute('data-edge-from');
-          const to = stroke.getAttribute('data-edge-to');
+        if (stroke.hasAttribute("data-edge-id")) {
+          const from = stroke.getAttribute("data-edge-from");
+          const to = stroke.getAttribute("data-edge-to");
           for (const node of nodes)
             if (node.id !== from && node.id !== to && points.some((p) => inside(p, node.box)))
               edgeNodeOverlap.push([id, node.id]);
@@ -253,21 +253,21 @@ try {
         width: rect.width,
         height: rect.height,
         viewBox: [viewBox.x, viewBox.y, viewBox.width, viewBox.height],
-        nodeIds: [...svg.querySelectorAll('[data-node-id]')].map((node) =>
-          node.getAttribute('data-node-id'),
+        nodeIds: [...svg.querySelectorAll("[data-node-id]")].map((node) =>
+          node.getAttribute("data-node-id"),
         ),
-        edges: [...svg.querySelectorAll('path[data-edge-id]')].map((edge) => ({
-          id: edge.getAttribute('data-edge-id'),
-          from: edge.getAttribute('data-edge-from'),
-          to: edge.getAttribute('data-edge-to'),
-          path: edge.getAttribute('d'),
+        edges: [...svg.querySelectorAll("path[data-edge-id]")].map((edge) => ({
+          id: edge.getAttribute("data-edge-id"),
+          from: edge.getAttribute("data-edge-from"),
+          to: edge.getAttribute("data-edge-to"),
+          path: edge.getAttribute("d"),
           stroke: globalThis.getComputedStyle(edge).stroke,
           start: point(edge, 0),
           end: point(edge, edge.getTotalLength()),
           fromBox: box(
-            svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-from')}"]`),
+            svg.querySelector(`[data-node-id="${edge.getAttribute("data-edge-from")}"]`),
           ),
-          toBox: box(svg.querySelector(`[data-node-id="${edge.getAttribute('data-edge-to')}"]`)),
+          toBox: box(svg.querySelector(`[data-node-id="${edge.getAttribute("data-edge-to")}"]`)),
         })),
         overlap,
         labelNodeOverlap,
@@ -303,13 +303,13 @@ try {
       }
     });
     const overview = publication.static;
-    if (!overview) throw Error('Static overview declaration missing');
+    if (!overview) throw Error("Static overview declaration missing");
     validateStaticObservation(observed, overview, errors);
-    const screenshot = path.join(config.output, 'overview-static.png');
+    const screenshot = path.join(config.output, "overview-static.png");
     await page.screenshot({ path: screenshot });
     reports.push({
-      id: 'overview-static',
-      medium: 'image/svg+xml',
+      id: "overview-static",
+      medium: "image/svg+xml",
       ...observed,
       screenshot: path.basename(screenshot),
       screenshotSha256: sha(await fs.readFile(screenshot)),
@@ -322,17 +322,17 @@ try {
   await new Promise((resolve) => server.close(resolve));
 }
 const report = {
-  schema: 'architecture.semantic-browser-observation/v1',
+  schema: "architecture.semantic-browser-observation/v1",
   sourceManifestSha256: bundle.manifestSha256,
   semanticDigest: publication.semanticDigest,
   browserVersion: browser.version(),
   reports,
-  status: 'PASS_BOUNDED',
-  scope: 'Selected pages at 1440x1000; not arbitrary browser or visual approval',
+  status: "PASS_BOUNDED",
+  scope: "Selected pages at 1440x1000; not arbitrary browser or visual approval",
 };
 await fs.writeFile(
-  path.join(config.output, 'report.json'),
-  JSON.stringify(report, null, 2) + '\n',
-  { flag: 'wx' },
+  path.join(config.output, "report.json"),
+  JSON.stringify(report, null, 2) + "\n",
+  { flag: "wx" },
 );
 console.log(JSON.stringify(report));

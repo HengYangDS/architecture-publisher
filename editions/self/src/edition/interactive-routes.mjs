@@ -1,0 +1,187 @@
+export const OVERVIEW_CLUSTERS = Object.freeze([
+  ["source", "Source truth", ["source-field", "intake"]],
+  ["meaning", "Claim Model", ["semantic-contract"]],
+  ["authorship", "Edition Project", ["authorship"]],
+  ["media", "Independent media", ["scenes", "rendering", "candidate"]],
+  ["assurance", "Trust gates", ["qualification", "authorization"]],
+  ["delivery", "Publication", ["effects"]],
+  ["adoption", "Native adoption", ["adoption", "return"]],
+  ["evolution", "Conservative evolution", ["evolution", "renewal"]],
+]);
+
+export const OVERVIEW_RELATIONS = Object.freeze([
+  ["source-meaning", "source", "meaning", "binds", ["bundle-binds-claims"]],
+  [
+    "meaning-authorship",
+    "meaning",
+    "authorship",
+    "informs · selects",
+    ["claims-inform-edition", "uncertainty-broadens-edition", "claims-select-build"],
+  ],
+  [
+    "authorship-media",
+    "authorship",
+    "media",
+    "authors · compiles",
+    [
+      "edition-authors-static",
+      "edition-authors-interactive",
+      "core-compiles-static",
+      "core-compiles-interactive",
+    ],
+  ],
+  ["media-assurance", "media", "assurance", "qualifies", ["candidate-enters-qualification"]],
+  [
+    "assurance-delivery",
+    "assurance",
+    "delivery",
+    "authorizes",
+    ["authorization-precedes-publication"],
+  ],
+  [
+    "delivery-adoption",
+    "delivery",
+    "adoption",
+    "serves · learns",
+    [
+      "publication-serves-self",
+      "publication-serves-ethos",
+      "publication-serves-aigw",
+      "publication-returns-feedback",
+    ],
+  ],
+  ["adoption-source", "adoption", "source", "returns", ["feedback-returns-to-adapter"]],
+  ["meaning-evolution", "meaning", "evolution", "compares", ["models-enter-evolution"]],
+  [
+    "authorship-evolution",
+    "authorship",
+    "evolution",
+    "Edition evolves",
+    ["edition-enters-evolution"],
+  ],
+  [
+    "evolution-media",
+    "evolution",
+    "media",
+    "requires rebuild",
+    ["rebuild-renews-static", "rebuild-renews-interactive"],
+  ],
+  [
+    "evolution-meaning",
+    "evolution",
+    "meaning",
+    "requires recheck",
+    ["semantic-verification-renews-claims"],
+  ],
+  [
+    "evolution-delivery",
+    "evolution",
+    "delivery",
+    "requires publication",
+    ["publication-obligation-renews-publication"],
+  ],
+  [
+    "evolution-renews",
+    "evolution",
+    "assurance",
+    "requires renewal",
+    [
+      "medium-verification-renews-qualification",
+      "human-review-obligation-renews-review",
+      "acceptance-obligation-renews-acceptance",
+    ],
+  ],
+]);
+
+export const EDITION_RELATIONS = Object.freeze([
+  [
+    "meaning-reader",
+    "meaning",
+    "reader",
+    "informs · broadens",
+    ["claims-inform-edition", "uncertainty-broadens-edition"],
+  ],
+  ["reader-static", "reader", "static-scene", "authors", ["edition-authors-static"]],
+  ["reader-interactive", "reader", "interactive-scene", "authors", ["edition-authors-interactive"]],
+  ["meaning-build", "meaning", "build", "selects", ["claims-select-build"]],
+  ["reader-build", "reader", "build", "selects", ["edition-selects-build"]],
+  ["build-compiler", "build", "compiler", "invokes", ["build-invokes-core"]],
+  ["compiler-static", "compiler", "static-scene", "compiles", ["core-compiles-static"]],
+  [
+    "compiler-interactive",
+    "compiler",
+    "interactive-scene",
+    "compiles",
+    ["core-compiles-interactive"],
+  ],
+]);
+
+export const ADOPTION_RELATIONS = Object.freeze([
+  ["publication-self", "publication", "self", "serves", ["publication-serves-self"]],
+  ["publication-ethos", "publication", "ethos", "serves", ["publication-serves-ethos"]],
+  ["publication-aigw", "publication", "aigw", "serves", ["publication-serves-aigw"]],
+  ["publication-feedback", "publication", "feedback", "returns", ["publication-returns-feedback"]],
+  ["feedback-source-owner", "feedback", "source-owner", "returns", ["feedback-returns-to-adapter"]],
+]);
+
+export const EVOLUTION_RELATIONS = Object.freeze([
+  ["inputs-delta", "inputs", "delta", "derives", ["evolution-produces-delta"]],
+  ["delta-impact", "delta", "impact", "propagates", ["delta-identifies-affected-views"]],
+  ["impact-rebuild", "impact", "rebuild", "rebuild", ["affected-views-require-rebuild"]],
+  [
+    "impact-verification",
+    "impact",
+    "verification",
+    "verify",
+    ["affected-views-require-semantic-verification", "affected-views-require-medium-verification"],
+  ],
+  [
+    "impact-review",
+    "impact",
+    "review",
+    "re-review",
+    ["affected-views-require-human-review", "affected-views-require-acceptance"],
+  ],
+  [
+    "impact-effect",
+    "impact",
+    "effect",
+    "requires publication",
+    ["affected-views-require-publication"],
+  ],
+  [
+    "rebuild-renewed",
+    "rebuild",
+    "renewed-values",
+    "requires rebuild",
+    ["rebuild-renews-static", "rebuild-renews-interactive"],
+  ],
+  [
+    "verification-renewed",
+    "verification",
+    "renewed-values",
+    "requires recheck",
+    ["medium-verification-renews-qualification"],
+  ],
+  [
+    "verification-inputs",
+    "verification",
+    "inputs",
+    "requires recheck",
+    ["semantic-verification-renews-claims"],
+  ],
+  [
+    "review-renewed",
+    "review",
+    "renewed-values",
+    "requires renewal",
+    ["human-review-obligation-renews-review", "acceptance-obligation-renews-acceptance"],
+  ],
+  [
+    "effect-renewed",
+    "effect",
+    "renewed-values",
+    "requires publication",
+    ["publication-obligation-renews-publication"],
+  ],
+]);

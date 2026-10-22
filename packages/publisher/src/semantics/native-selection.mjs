@@ -1,5 +1,5 @@
-import { fail } from '../protocol/values.mjs';
-import { deepFreeze, record, text } from './document.mjs';
+import { fail } from "../protocol/values.mjs";
+import { deepFreeze, record, text } from "./document.mjs";
 
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
 const key = ({ namespace, id }) => JSON.stringify([namespace, id]);
@@ -8,14 +8,14 @@ export const relationReference = ({ origin }) =>
 
 function elementMember(index, reference) {
   const selected = index.elements.find((item) => key(item) === key(reference));
-  if (!selected) fail('native_likec4_index_invalid');
+  if (!selected) fail("native_likec4_index_invalid");
   return {
     namespace: selected.namespace,
     id: selected.id,
     sha256: selected.origin.sha256,
     kind: selected.kind,
     label: selected.label,
-    ...(Object.hasOwn(selected, 'opaqueMetadata')
+    ...(Object.hasOwn(selected, "opaqueMetadata")
       ? { opaqueMetadata: structuredClone(selected.opaqueMetadata) }
       : {}),
     origin: structuredClone(selected.origin),
@@ -24,16 +24,16 @@ function elementMember(index, reference) {
 
 function relationMember(index, id) {
   const selected = index.relations.find((item) => item.id === id);
-  if (!selected) fail('native_likec4_index_invalid');
+  if (!selected) fail("native_likec4_index_invalid");
   return {
     id: relationReference(selected),
-    identityScope: 'source-location',
+    identityScope: "source-location",
     from: structuredClone(selected.from),
     to: structuredClone(selected.to),
     kind: selected.kind,
     direction: selected.direction,
     label: selected.label,
-    ...(Object.hasOwn(selected, 'opaqueMetadata')
+    ...(Object.hasOwn(selected, "opaqueMetadata")
       ? { opaqueMetadata: structuredClone(selected.opaqueMetadata) }
       : {}),
     origin: structuredClone(selected.origin),
@@ -43,21 +43,23 @@ function relationMember(index, id) {
 function membersFor(index, kind, target) {
   let elements;
   let relations;
-  if (kind === 'element') {
+  if (kind === "element") {
     elements = [{ namespace: target.namespace, id: target.id }];
     relations = [];
-  } else if (kind === 'relation') {
+  } else if (kind === "relation") {
     elements = [target.from, target.to];
     relations = [target.id];
   } else {
-    elements = target.elements;
-    relations = target.relations;
+    if (!Array.isArray(target.nodes) || !Array.isArray(target.edges))
+      fail("native_likec4_index_invalid");
+    elements = target.nodes.filter(({ element }) => element !== null).map(({ element }) => element);
+    relations = target.edges.flatMap((edge) => edge.relations);
     const visible = new Set(elements.map(key));
     for (const id of relations) {
       const relation = index.relations.find((item) => item.id === id);
-      if (!relation) fail('native_likec4_index_invalid');
+      if (!relation) fail("native_likec4_index_invalid");
       if (!visible.has(key(relation.from)) || !visible.has(key(relation.to)))
-        fail('native_likec4_view_membership_unrepresentable');
+        fail("native_likec4_view_membership_unrepresentable");
     }
   }
   const selectedElements = [
@@ -73,8 +75,8 @@ function membersFor(index, kind, target) {
 export function resolveLikeC4Selection(index, selection) {
   if (
     !record(index) ||
-    index.schema !== 'architecture.native-index/v1' ||
-    index.format !== 'likec4/dsl' ||
+    index.schema !== "architecture.native-index/v2" ||
+    index.format !== "likec4/dsl" ||
     !Array.isArray(index.sources) ||
     !Array.isArray(index.elements) ||
     !Array.isArray(index.relations) ||
@@ -82,34 +84,34 @@ export function resolveLikeC4Selection(index, selection) {
     !Array.isArray(index.opaqueViews) ||
     !Array.isArray(index.semanticLimits)
   )
-    fail('native_likec4_index_invalid');
+    fail("native_likec4_index_invalid");
   if (!record(selection) || !text(selection.id) || !text(selection.namespace))
-    fail('native_likec4_reference_invalid');
-  if (selection.kind === 'query') fail('native_likec4_query_unadmitted');
+    fail("native_likec4_reference_invalid");
+  if (selection.kind === "query") fail("native_likec4_query_unadmitted");
   const named =
-    selection.kind === 'reference' && typeof selection.reference === 'string'
+    selection.kind === "reference" && typeof selection.reference === "string"
       ? /^(element|view):([^\s].*)$/u.exec(selection.reference)
       : null;
   const located =
-    selection.kind === 'reference' && typeof selection.reference === 'string'
+    selection.kind === "reference" && typeof selection.reference === "string"
       ? /^relation:([1-9]\d*):([1-9]\d*)$/u.exec(selection.reference)
       : null;
-  if (!named && !located) fail('native_likec4_reference_invalid');
-  const kind = located ? 'relation' : named?.[1];
+  if (!named && !located) fail("native_likec4_reference_invalid");
+  const kind = located ? "relation" : named?.[1];
   const nativeId = named?.[2];
   const source = index.sources.find(({ namespace }) => namespace === selection.namespace);
-  if (!source) fail('native_likec4_reference_unselected');
+  if (!source) fail("native_likec4_reference_unselected");
   let item;
-  if (kind === 'element')
+  if (kind === "element")
     item = index.elements.find(
       ({ id, namespace }) => id === nativeId && namespace === selection.namespace,
     );
-  else if (kind === 'relation') {
-    if (!located) fail('native_likec4_reference_invalid');
+  else if (kind === "relation") {
+    if (!located) fail("native_likec4_reference_invalid");
     const lineNumber = Number(located[1]);
     const characterNumber = Number(located[2]);
     if (!Number.isSafeInteger(lineNumber) || !Number.isSafeInteger(characterNumber))
-      fail('native_likec4_reference_invalid');
+      fail("native_likec4_reference_invalid");
     const line = lineNumber - 1;
     const character = characterNumber - 1;
     const matches = index.relations.filter(
@@ -118,7 +120,7 @@ export function resolveLikeC4Selection(index, selection) {
         origin.range.start.line === line &&
         origin.range.start.character === character,
     );
-    if (matches.length > 1) fail('native_likec4_reference_ambiguous');
+    if (matches.length > 1) fail("native_likec4_reference_ambiguous");
     item = matches[0];
   } else {
     item = index.views.find(
@@ -130,18 +132,18 @@ export function resolveLikeC4Selection(index, selection) {
         ({ id, namespace }) => id === nativeId && namespace === selection.namespace,
       )
     )
-      fail('native_likec4_view_uninterpreted');
+      fail("native_likec4_view_uninterpreted");
   }
-  if (!item) fail('native_likec4_reference_unselected');
+  if (!item) fail("native_likec4_reference_unselected");
   const members = membersFor(index, kind, item);
   return deepFreeze({
-    format: 'likec4/dsl',
+    format: "likec4/dsl",
     selectionId: selection.id,
     source: structuredClone(source),
     target: {
       kind,
-      id: kind === 'relation' ? relationReference(item) : item.id,
-      ...(kind === 'relation' ? { identityScope: 'source-location' } : {}),
+      id: kind === "relation" ? relationReference(item) : item.id,
+      ...(kind === "relation" ? { identityScope: "source-location" } : {}),
       origin: structuredClone(item.origin),
     },
     members,

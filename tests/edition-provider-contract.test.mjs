@@ -1,6 +1,5 @@
-import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import test from 'node:test';
+import assert from "node:assert/strict";
+import test from "node:test";
 import {
   EDITION_PROVIDER_LIMITS,
   editionProviderDigest,
@@ -8,133 +7,18 @@ import {
   validateProviderMaterialization,
   validateProviderReply,
   validateProviderRequest,
-} from '../packages/publisher/src/provider/index.mjs';
+} from "../packages/publisher/src/provider/index.mjs";
+import {
+  A,
+  C,
+  manifest,
+  requestFixture,
+  replyFixture,
+  receiptFixture,
+} from "./fixtures/edition-provider-contract.mjs";
 
-const digest = (value) => createHash('sha256').update(value).digest('hex');
-const A = 'a'.repeat(64);
-const B = 'b'.repeat(64);
-const C = 'c'.repeat(64);
-const D = 'd'.repeat(64);
-
-function identity(id) {
-  return { id, revision: `${id}:revision` };
-}
-
-function manifest(kind = 'declarative') {
-  const delivery =
-    kind === 'declarative'
-      ? {
-          kind,
-          sourceManifest: 'source/manifest.json',
-          sourceManifestSha256: A,
-          semanticMember: 'semantic.json',
-          edition: 'edition.json',
-          editionSha256: B,
-          evolution: null,
-          evolutionSha256: null,
-        }
-      : {
-          kind,
-          package: {
-            name: '@example/architecture-provider',
-            version: '1.2.3',
-            packageJsonSha256: A,
-            contentSha256: B,
-            entrypoint: './provider',
-          },
-          inputs: [
-            {
-              id: 'repository-facts',
-              path: 'inputs/repository.json',
-              mediaType: 'application/json',
-              bytes: 3,
-              sha256: digest('{}\n'),
-            },
-          ],
-        };
-  return {
-    schema: 'architecture.edition-provider/v1',
-    provider: identity('example-provider'),
-    subject: identity('example-product'),
-    contracts: {
-      sourceBundle: 'architecture.source-bundle/v1',
-      claimModel: 'architecture.claim-model/v2',
-      edition: 'architecture.edition/v1',
-      evolution: null,
-    },
-    delivery,
-    expected: {
-      sourceManifestSha256: A,
-      claimModelDigest: C,
-      editionDigest: D,
-      evolutionSha256: null,
-    },
-    limits: {
-      inputs: 16,
-      inputBytes: 1024 * 1024,
-      replyBytes: 2 * 1024 * 1024,
-      timeoutMs: 10_000,
-    },
-  };
-}
-
-function requestFixture() {
-  const content = Buffer.from('{}\n');
-  return {
-    schema: 'architecture.edition-provider-request/v1',
-    provider: identity('example-provider'),
-    subject: identity('example-product'),
-    inputs: [
-      {
-        id: 'repository-facts',
-        mediaType: 'application/json',
-        bytes: content.length,
-        sha256: digest(content),
-        contentBase64: content.toString('base64'),
-      },
-    ],
-  };
-}
-
-function replyFixture() {
-  return {
-    schema: 'architecture.edition-provider-reply/v1',
-    source: {
-      id: 'example-product',
-      revision: 'example-product:revision',
-      members: [
-        {
-          path: 'semantic.json',
-          contentBase64: Buffer.from('{}\n').toString('base64'),
-        },
-      ],
-    },
-    semanticMember: 'semantic.json',
-    edition: { contentBase64: Buffer.from('{}\n').toString('base64') },
-    evolution: null,
-  };
-}
-
-function receiptFixture() {
-  return {
-    schema: 'architecture.edition-provider-materialization/v1',
-    provider: identity('example-provider'),
-    subject: identity('example-product'),
-    delivery: 'declarative',
-    inputs: [{ id: 'provider-manifest', bytes: 1024, sha256: A }],
-    materialized: {
-      sourceManifestSha256: A,
-      claimModelDigest: C,
-      editionDigest: D,
-      evolutionSha256: null,
-    },
-    producer: { name: 'architecture-publisher', version: '0.3.0-alpha.1' },
-    execution: { kind: 'declarative', durationMs: 0, deterministic: true },
-  };
-}
-
-test('provider manifest is an immutable exact tagged union', () => {
-  for (const kind of ['declarative', 'executable']) {
+test("provider manifest is an immutable exact tagged union", () => {
+  for (const kind of ["declarative", "executable"]) {
     const value = manifest(kind);
     const before = structuredClone(value);
     const selected = validateEditionProvider(value);
@@ -148,21 +32,21 @@ test('provider manifest is an immutable exact tagged union', () => {
   const extra = manifest();
   extra.executable = {};
   assert.throws(() => validateEditionProvider(extra), {
-    code: 'edition_provider_fields_invalid',
+    code: "edition_provider_fields_invalid",
   });
 
   const ambiguous = manifest();
   ambiguous.delivery = { ...ambiguous.delivery, package: {} };
   assert.throws(() => validateEditionProvider(ambiguous), {
-    code: 'edition_provider_delivery_fields_invalid',
+    code: "edition_provider_delivery_fields_invalid",
   });
 });
 
-test('provider manifest binds portable inputs and fixed resource ceilings', () => {
+test("provider manifest binds portable inputs and fixed resource ceilings", () => {
   for (const mutate of [
-    (value) => (value.delivery.sourceManifest = '../manifest.json'),
-    (value) => (value.delivery.edition = '/tmp/edition.json'),
-    (value) => (value.expected.editionDigest = 'not-a-digest'),
+    (value) => (value.delivery.sourceManifest = "../manifest.json"),
+    (value) => (value.delivery.edition = "/tmp/edition.json"),
+    (value) => (value.expected.editionDigest = "not-a-digest"),
     (value) => (value.limits.inputs = EDITION_PROVIDER_LIMITS.inputs + 1),
     (value) => (value.limits.inputBytes = EDITION_PROVIDER_LIMITS.inputBytes + 1),
     (value) => (value.limits.replyBytes = EDITION_PROVIDER_LIMITS.replyBytes + 1),
@@ -173,108 +57,108 @@ test('provider manifest binds portable inputs and fixed resource ceilings', () =
     assert.throws(() => validateEditionProvider(value), /edition_provider_/u);
   }
 
-  const duplicate = manifest('executable');
+  const duplicate = manifest("executable");
   duplicate.delivery.inputs.push(structuredClone(duplicate.delivery.inputs[0]));
   assert.throws(() => validateEditionProvider(duplicate), {
-    code: 'edition_provider_input_duplicate',
+    code: "edition_provider_input_duplicate",
   });
 
-  const duplicatePath = manifest('executable');
+  const duplicatePath = manifest("executable");
   duplicatePath.delivery.inputs.push({
     ...structuredClone(duplicatePath.delivery.inputs[0]),
-    id: 'second-input',
+    id: "second-input",
   });
   assert.throws(() => validateEditionProvider(duplicatePath), {
-    code: 'edition_provider_input_duplicate',
+    code: "edition_provider_input_duplicate",
   });
 
-  const excessiveTotal = manifest('executable');
+  const excessiveTotal = manifest("executable");
   excessiveTotal.limits.inputBytes = 5;
   excessiveTotal.delivery.inputs[0].bytes = 6;
   assert.throws(() => validateEditionProvider(excessiveTotal), {
-    code: 'edition_provider_input_size_invalid',
+    code: "edition_provider_input_size_invalid",
   });
 
-  const reserved = manifest('executable');
-  reserved.delivery.inputs[0].id = 'provider-package';
+  const reserved = manifest("executable");
+  reserved.delivery.inputs[0].id = "provider-package";
   assert.throws(() => validateEditionProvider(reserved), {
-    code: 'edition_provider_input_id_reserved',
+    code: "edition_provider_input_id_reserved",
   });
 });
 
-test('provider identity and selection reject ambiguous text, paths and limits', () => {
+test("provider identity and selection reject ambiguous text, paths and limits", () => {
   const cases = [
     [
-      'trimmed identity',
-      'declarative',
-      (v) => (v.provider.id = ' leading'),
-      'edition_provider_identity_invalid',
+      "trimmed identity",
+      "declarative",
+      (v) => (v.provider.id = " leading"),
+      "edition_provider_identity_invalid",
     ],
     [
-      'control in identity',
-      'declarative',
-      (v) => (v.subject.revision = 'bad\nrevision'),
-      'edition_provider_subject_invalid',
+      "control in identity",
+      "declarative",
+      (v) => (v.subject.revision = "bad\nrevision"),
+      "edition_provider_subject_invalid",
     ],
     [
-      'zero limit',
-      'declarative',
+      "zero limit",
+      "declarative",
       (v) => (v.limits.timeoutMs = 0),
-      'edition_provider_limits_invalid',
+      "edition_provider_limits_invalid",
     ],
     [
-      'malformed source path',
-      'declarative',
-      (v) => (v.delivery.sourceManifest = 'source//manifest.json'),
-      'edition_provider_delivery_path_invalid',
+      "malformed source path",
+      "declarative",
+      (v) => (v.delivery.sourceManifest = "source//manifest.json"),
+      "edition_provider_delivery_path_invalid",
     ],
     [
-      'one-sided evolution',
-      'declarative',
+      "one-sided evolution",
+      "declarative",
       (v) => (v.delivery.evolutionSha256 = A),
-      'edition_provider_evolution_selection_invalid',
+      "edition_provider_evolution_selection_invalid",
     ],
     [
-      'package version space',
-      'executable',
-      (v) => (v.delivery.package.version = '1.2.3 '),
-      'edition_provider_package_identity_invalid',
+      "package version space",
+      "executable",
+      (v) => (v.delivery.package.version = "1.2.3 "),
+      "edition_provider_package_identity_invalid",
     ],
     [
-      'package entry colon',
-      'executable',
-      (v) => (v.delivery.package.entrypoint = './provider:dev'),
-      'edition_provider_entrypoint_invalid',
+      "package entry colon",
+      "executable",
+      (v) => (v.delivery.package.entrypoint = "./provider:dev"),
+      "edition_provider_entrypoint_invalid",
     ],
     [
-      'package entry empty segment',
-      'executable',
-      (v) => (v.delivery.package.entrypoint = './owner//provider'),
-      'edition_provider_entrypoint_invalid',
+      "package entry empty segment",
+      "executable",
+      (v) => (v.delivery.package.entrypoint = "./owner//provider"),
+      "edition_provider_entrypoint_invalid",
     ],
     [
-      'package entry parent segment',
-      'executable',
-      (v) => (v.delivery.package.entrypoint = './owner/../provider'),
-      'edition_provider_entrypoint_invalid',
+      "package entry parent segment",
+      "executable",
+      (v) => (v.delivery.package.entrypoint = "./owner/../provider"),
+      "edition_provider_entrypoint_invalid",
     ],
     [
-      'missing selected inputs',
-      'executable',
+      "missing selected inputs",
+      "executable",
       (v) => (v.delivery.inputs = null),
-      'edition_provider_inputs_invalid',
+      "edition_provider_inputs_invalid",
     ],
     [
-      'overlarge input',
-      'executable',
+      "overlarge input",
+      "executable",
       (v) => (v.delivery.inputs[0].bytes = EDITION_PROVIDER_LIMITS.inputBytes + 1),
-      'edition_provider_input_size_invalid',
+      "edition_provider_input_size_invalid",
     ],
     [
-      'invalid input path',
-      'executable',
-      (v) => (v.delivery.inputs[0].path = 'inputs/../facts.json'),
-      'edition_provider_input_path_invalid',
+      "invalid input path",
+      "executable",
+      (v) => (v.delivery.inputs[0].path = "inputs/../facts.json"),
+      "edition_provider_input_path_invalid",
     ],
   ];
   for (const [name, kind, mutate, code] of cases) {
@@ -282,34 +166,34 @@ test('provider identity and selection reject ambiguous text, paths and limits', 
     mutate(selected);
     assert.throws(() => validateEditionProvider(selected), { code }, name);
   }
-  const selected = manifest('executable');
-  selected.contracts.evolution = 'architecture.edition-evolution-input/v1';
+  const selected = manifest("executable");
+  selected.contracts.evolution = "architecture.edition-evolution-input/v1";
   selected.expected.evolutionSha256 = A;
   assert.equal(validateEditionProvider(selected).contracts.evolution, selected.contracts.evolution);
 });
 
-test('Provider manifest refuses malformed root shapes and control-bearing identities', () => {
+test("Provider manifest refuses malformed root shapes and control-bearing identities", () => {
   assert.throws(() => validateEditionProvider(null), {
-    code: 'edition_provider_fields_invalid',
+    code: "edition_provider_fields_invalid",
   });
   assert.throws(() => validateEditionProvider([]), {
-    code: 'edition_provider_fields_invalid',
+    code: "edition_provider_fields_invalid",
   });
   const cases = [
     [
-      'schema',
-      (v) => (v.schema = 'architecture.edition-provider/v2'),
-      'edition_provider_schema_unsupported',
+      "schema",
+      (v) => (v.schema = "architecture.edition-provider/v2"),
+      "edition_provider_schema_unsupported",
     ],
     [
-      'source contract',
-      (v) => (v.contracts.sourceBundle = 'architecture.source-bundle/v2'),
-      'edition_provider_contract_unsupported',
+      "source contract",
+      (v) => (v.contracts.sourceBundle = "architecture.source-bundle/v2"),
+      "edition_provider_contract_unsupported",
     ],
     [
-      'control character',
-      (v) => (v.provider.id = 'bad\x7fidentity'),
-      'edition_provider_identity_invalid',
+      "control character",
+      (v) => (v.provider.id = "bad\x7fidentity"),
+      "edition_provider_identity_invalid",
     ],
   ];
   for (const [name, mutate, code] of cases) {
@@ -319,92 +203,92 @@ test('Provider manifest refuses malformed root shapes and control-bearing identi
   }
 });
 
-test('executable provider identity is exact and product-neutral', () => {
-  const value = manifest('executable');
+test("executable provider identity is exact and product-neutral", () => {
+  const value = manifest("executable");
   assert.doesNotThrow(() => validateEditionProvider(value));
   for (const mutate of [
-    (candidate) => (candidate.delivery.package.name = ''),
-    (candidate) => (candidate.delivery.package.version = ''),
-    (candidate) => (candidate.delivery.package.entrypoint = '../provider.mjs'),
-    (candidate) => (candidate.delivery.package.packageJsonSha256 = '0'),
-    (candidate) => (candidate.delivery.package.contentSha256 = '0'),
+    (candidate) => (candidate.delivery.package.name = ""),
+    (candidate) => (candidate.delivery.package.version = ""),
+    (candidate) => (candidate.delivery.package.entrypoint = "../provider.mjs"),
+    (candidate) => (candidate.delivery.package.packageJsonSha256 = "0"),
+    (candidate) => (candidate.delivery.package.contentSha256 = "0"),
     (candidate) => (candidate.delivery.inputs[0].bytes = -1),
-    (candidate) => (candidate.delivery.inputs[0].mediaType = ''),
+    (candidate) => (candidate.delivery.inputs[0].mediaType = ""),
   ]) {
-    const candidate = manifest('executable');
+    const candidate = manifest("executable");
     mutate(candidate);
     assert.throws(() => validateEditionProvider(candidate), /edition_provider_/u);
   }
 
-  const unsupportedContract = manifest('executable');
-  unsupportedContract.contracts.evolution = 'architecture.edition-evolution-input/v2';
+  const unsupportedContract = manifest("executable");
+  unsupportedContract.contracts.evolution = "architecture.edition-evolution-input/v2";
   assert.throws(() => validateEditionProvider(unsupportedContract), {
-    code: 'edition_provider_contract_unsupported',
+    code: "edition_provider_contract_unsupported",
   });
 
-  const unknown = manifest('executable');
-  unknown.delivery = { kind: 'remote' };
+  const unknown = manifest("executable");
+  unknown.delivery = { kind: "remote" };
   assert.throws(() => validateEditionProvider(unknown), {
-    code: 'edition_provider_delivery_kind_invalid',
+    code: "edition_provider_delivery_kind_invalid",
   });
 });
 
-test('declarative evolution selection and expected identity agree', () => {
+test("declarative evolution selection and expected identity agree", () => {
   const value = manifest();
-  value.contracts.evolution = 'architecture.edition-evolution-input/v1';
-  value.delivery.evolution = 'evolution.json';
+  value.contracts.evolution = "architecture.edition-evolution-input/v1";
+  value.delivery.evolution = "evolution.json";
   value.delivery.evolutionSha256 = C;
   value.expected.evolutionSha256 = C;
   assert.doesNotThrow(() => validateEditionProvider(value));
 
   value.expected.evolutionSha256 = null;
   assert.throws(() => validateEditionProvider(value), {
-    code: 'edition_provider_evolution_identity_invalid',
+    code: "edition_provider_evolution_identity_invalid",
   });
 });
 
-test('provider request validates exact selected bytes', () => {
+test("provider request validates exact selected bytes", () => {
   const request = requestFixture();
   assert.deepEqual(validateProviderRequest(request), request);
 
   const changed = requestFixture();
-  changed.inputs[0].contentBase64 = Buffer.from('[]\n').toString('base64');
+  changed.inputs[0].contentBase64 = Buffer.from("[]\n").toString("base64");
   assert.throws(() => validateProviderRequest(changed), {
-    code: 'edition_provider_input_digest_mismatch',
+    code: "edition_provider_input_digest_mismatch",
   });
 
   const malformed = requestFixture();
-  malformed.inputs[0].contentBase64 = '***';
+  malformed.inputs[0].contentBase64 = "***";
   assert.throws(() => validateProviderRequest(malformed), {
-    code: 'edition_provider_base64_invalid',
+    code: "edition_provider_base64_invalid",
   });
 
   const duplicate = requestFixture();
   duplicate.inputs.push(structuredClone(duplicate.inputs[0]));
   assert.throws(() => validateProviderRequest(duplicate), {
-    code: 'edition_provider_input_duplicate',
+    code: "edition_provider_input_duplicate",
   });
 });
 
-test('provider protocol refuses noncanonical encodings and incomplete identities', () => {
+test("provider protocol refuses noncanonical encodings and incomplete identities", () => {
   const requestCases = [
-    ['missing input list', (v) => (v.inputs = null), 'edition_provider_inputs_invalid'],
-    ['array identity', (v) => (v.provider = []), 'edition_provider_identity_invalid'],
+    ["missing input list", (v) => (v.inputs = null), "edition_provider_inputs_invalid"],
+    ["array identity", (v) => (v.provider = []), "edition_provider_identity_invalid"],
     [
-      'control in input id',
-      (v) => (v.inputs[0].id = 'bad\nid'),
-      'edition_provider_input_identity_invalid',
+      "control in input id",
+      (v) => (v.inputs[0].id = "bad\nid"),
+      "edition_provider_input_identity_invalid",
     ],
-    ['wrong byte count', (v) => (v.inputs[0].bytes += 1), 'edition_provider_input_size_mismatch'],
+    ["wrong byte count", (v) => (v.inputs[0].bytes += 1), "edition_provider_input_size_mismatch"],
     [
-      'noncanonical base64',
-      (v) => (v.inputs[0].contentBase64 = 'AA='),
-      'edition_provider_base64_invalid',
+      "noncanonical base64",
+      (v) => (v.inputs[0].contentBase64 = "AA="),
+      "edition_provider_base64_invalid",
     ],
     [
-      'invalid digest',
-      (v) => (v.inputs[0].sha256 = 'bad'),
-      'edition_provider_input_identity_invalid',
+      "invalid digest",
+      (v) => (v.inputs[0].sha256 = "bad"),
+      "edition_provider_input_identity_invalid",
     ],
   ];
   for (const [name, mutate, code] of requestCases) {
@@ -414,69 +298,69 @@ test('provider protocol refuses noncanonical encodings and incomplete identities
   }
 
   const source = replyFixture();
-  source.source.id = ' leading';
+  source.source.id = " leading";
   assert.throws(() => validateProviderReply(source), {
-    code: 'edition_provider_source_identity_invalid',
+    code: "edition_provider_source_identity_invalid",
   });
   const member = replyFixture();
-  member.source.members[0].contentBase64 = 'AA=';
+  member.source.members[0].contentBase64 = "AA=";
   assert.throws(() => validateProviderReply(member), {
-    code: 'edition_provider_base64_invalid',
+    code: "edition_provider_base64_invalid",
   });
   const receipt = receiptFixture();
-  receipt.inputs[0].sha256 = 'bad';
+  receipt.inputs[0].sha256 = "bad";
   assert.throws(() => validateProviderMaterialization(receipt), {
-    code: 'edition_provider_receipt_input_invalid',
+    code: "edition_provider_receipt_input_invalid",
   });
 });
 
-test('provider protocol rejects malformed envelopes with stable diagnostics', () => {
+test("provider protocol rejects malformed envelopes with stable diagnostics", () => {
   const unsupportedRequest = requestFixture();
-  unsupportedRequest.schema = 'architecture.edition-provider-request/v2';
+  unsupportedRequest.schema = "architecture.edition-provider-request/v2";
   assert.throws(() => validateProviderRequest(unsupportedRequest), {
-    code: 'edition_provider_request_schema_unsupported',
+    code: "edition_provider_request_schema_unsupported",
   });
 
   const unsupportedReply = replyFixture();
-  unsupportedReply.schema = 'architecture.edition-provider-reply/v2';
+  unsupportedReply.schema = "architecture.edition-provider-reply/v2";
   assert.throws(() => validateProviderReply(unsupportedReply), {
-    code: 'edition_provider_reply_schema_unsupported',
+    code: "edition_provider_reply_schema_unsupported",
   });
 
   const emptyReply = replyFixture();
   emptyReply.source.members = [];
   assert.throws(() => validateProviderReply(emptyReply), {
-    code: 'edition_provider_members_invalid',
+    code: "edition_provider_members_invalid",
   });
 
   const unsupportedReceipt = receiptFixture();
-  unsupportedReceipt.schema = 'architecture.edition-provider-materialization/v2';
+  unsupportedReceipt.schema = "architecture.edition-provider-materialization/v2";
   assert.throws(() => validateProviderMaterialization(unsupportedReceipt), {
-    code: 'edition_provider_materialization_schema_unsupported',
+    code: "edition_provider_materialization_schema_unsupported",
   });
 
   const unknownDelivery = receiptFixture();
-  unknownDelivery.delivery = 'remote';
+  unknownDelivery.delivery = "remote";
   assert.throws(() => validateProviderMaterialization(unknownDelivery), {
-    code: 'edition_provider_delivery_kind_invalid',
+    code: "edition_provider_delivery_kind_invalid",
   });
 
   const invalidInputs = receiptFixture();
   invalidInputs.inputs = {};
   assert.throws(() => validateProviderMaterialization(invalidInputs), {
-    code: 'edition_provider_receipt_inputs_invalid',
+    code: "edition_provider_receipt_inputs_invalid",
   });
 
   const invalidReceiptInput = receiptFixture();
   invalidReceiptInput.inputs[0].bytes = -1;
   assert.throws(() => validateProviderMaterialization(invalidReceiptInput), {
-    code: 'edition_provider_receipt_input_invalid',
+    code: "edition_provider_receipt_input_invalid",
   });
 
   const foreignProducer = receiptFixture();
-  foreignProducer.producer.name = 'example-publisher';
+  foreignProducer.producer.name = "example-publisher";
   assert.throws(() => validateProviderMaterialization(foreignProducer), {
-    code: 'edition_provider_producer_invalid',
+    code: "edition_provider_producer_invalid",
   });
 
   const invalidRequestInput = requestFixture();
@@ -484,84 +368,84 @@ test('provider protocol rejects malformed envelopes with stable diagnostics', ()
   assert.throws(
     () => validateProviderRequest(invalidRequestInput),
     (error) => {
-      assert.equal(error.code, 'edition_provider_input_size_invalid');
-      assert.equal(error.message, 'edition_provider_input_size_invalid:0');
+      assert.equal(error.code, "edition_provider_input_size_invalid");
+      assert.equal(error.message, "edition_provider_input_size_invalid:0");
       return true;
     },
   );
 });
 
-test('provider reply accepts only source and Edition values', () => {
+test("provider reply accepts only source and Edition values", () => {
   const reply = replyFixture();
   assert.deepEqual(validateProviderReply(reply), reply);
 
-  for (const field of ['candidate', 'qualification', 'acceptance', 'publication', 'transition']) {
+  for (const field of ["candidate", "qualification", "acceptance", "publication", "transition"]) {
     assert.throws(() => validateProviderReply({ ...replyFixture(), [field]: {} }), {
-      code: 'edition_provider_reply_fields_invalid',
+      code: "edition_provider_reply_fields_invalid",
     });
   }
 
   const duplicate = replyFixture();
   duplicate.source.members.push(structuredClone(duplicate.source.members[0]));
   assert.throws(() => validateProviderReply(duplicate), {
-    code: 'edition_provider_member_duplicate',
+    code: "edition_provider_member_duplicate",
   });
 
   const escape = replyFixture();
-  escape.source.members[0].path = '../semantic.json';
+  escape.source.members[0].path = "../semantic.json";
   assert.throws(() => validateProviderReply(escape), {
-    code: 'edition_provider_member_path_invalid',
+    code: "edition_provider_member_path_invalid",
   });
 
   const missing = replyFixture();
-  missing.semanticMember = 'missing.json';
+  missing.semanticMember = "missing.json";
   assert.throws(() => validateProviderReply(missing), {
-    code: 'edition_provider_semantic_member_missing',
+    code: "edition_provider_semantic_member_missing",
   });
 
   const invalidSemantic = replyFixture();
-  invalidSemantic.source.members[0].contentBase64 = Buffer.from('{').toString('base64');
+  invalidSemantic.source.members[0].contentBase64 = Buffer.from("{").toString("base64");
   assert.throws(() => validateProviderReply(invalidSemantic), {
-    code: 'edition_provider_semantic_json_invalid',
+    code: "edition_provider_semantic_json_invalid",
   });
 
   const invalidEdition = replyFixture();
-  invalidEdition.edition.contentBase64 = Buffer.from('{').toString('base64');
+  invalidEdition.edition.contentBase64 = Buffer.from("{").toString("base64");
   assert.throws(() => validateProviderReply(invalidEdition), {
-    code: 'edition_provider_edition_json_invalid',
+    code: "edition_provider_edition_json_invalid",
   });
 
   const invalidEvolution = replyFixture();
-  invalidEvolution.evolution = { contentBase64: Buffer.from('{').toString('base64') };
+  invalidEvolution.evolution = { contentBase64: Buffer.from("{").toString("base64") };
   assert.throws(() => validateProviderReply(invalidEvolution), {
-    code: 'edition_provider_evolution_json_invalid',
+    code: "edition_provider_evolution_json_invalid",
   });
 });
 
-test('materialization receipt is closed and binds execution to identities', () => {
+test("materialization receipt is closed and binds execution to identities", () => {
   const receipt = receiptFixture();
   assert.deepEqual(validateProviderMaterialization(receipt), receipt);
 
   const stale = receiptFixture();
-  stale.execution.kind = 'child-process';
+  stale.execution.kind = "child-process";
   assert.throws(() => validateProviderMaterialization(stale), {
-    code: 'edition_provider_execution_invalid',
+    code: "edition_provider_execution_invalid",
   });
 
   const extra = { ...receiptFixture(), accepted: true };
   assert.throws(() => validateProviderMaterialization(extra), {
-    code: 'edition_provider_materialization_fields_invalid',
+    code: "edition_provider_materialization_fields_invalid",
   });
 
   const executable = receiptFixture();
-  executable.delivery = 'executable';
-  executable.execution.kind = 'child-process';
+  executable.delivery = "executable";
+  executable.execution.kind = "child-process";
   executable.execution.durationMs = 17;
   assert.doesNotThrow(() => validateProviderMaterialization(executable));
 
   const duplicate = receiptFixture();
   duplicate.inputs.push(structuredClone(duplicate.inputs[0]));
   assert.throws(() => validateProviderMaterialization(duplicate), {
-    code: 'edition_provider_input_duplicate',
+    code: "edition_provider_input_duplicate",
   });
 });

@@ -1,11 +1,18 @@
 # Architecture Publisher
 
-Architecture Publisher turns **selected source material and an editor's reading
-plan** into a static architecture figure, a standalone interactive document, or
-both. The source project is responsible for its facts; the editor decides what
-to explain; Publisher builds and checks what was selected and shown. It does not
-discover a system's architecture by scanning a repository, judge whether its
-source is true, or approve publication on anyone's behalf.
+Architecture Publisher turns **selected architecture material and a reading
+plan** into a static figure, a standalone interactive document, or both.
+
+Publisher owns typesetting, layout, connections and contextual reading. The
+normal input names the material, audience, questions and source selections;
+it needs no hand-placed boxes, repeated medium scopes, icon catalog or agent.
+The active Change is qualifying the complete successor; the small example
+alone does not prove those outcomes finished.
+
+The source project retains its facts, the editor retains its choices, and the
+designated accepter reviews the result. Publisher checks what was selected and
+shown; it neither discovers architecture by scanning arbitrary repositories nor
+grants source endorsement or publication approval.
 
 ## One concrete build
 
@@ -13,8 +20,9 @@ The [small service-topology example](examples/selected-edition/) starts with two
 LikeC4 files, `model.c4` and `views.c4`. A maintainer wants to answer: “What
 connects the two components?”
 
-1. The editor gives that question the ID `flow`, selects the source view
-   `view:overview`, and asks for it in both the static and interactive works.
+1. The editor gives that question the ID `flow` and selects the source view
+   `view:overview` as its material. The default presentation uses this selection
+   in both requested media without a second list of questions or nodes.
    These choices live in [`edition/project.json`](examples/selected-edition/edition/project.json).
 2. [`build-request.json`](examples/selected-edition/build-request.json) names the
    selected source files, their SHA-256 hashes, that Edition Project, and the
@@ -23,6 +31,13 @@ connects the two components?”
 3. The Candidate contains a static SVG/PNG, an independent standalone HTML,
    and JSON records of the selected input and emitted files. It has **not**
    thereby been accepted or published.
+
+The default PNG is 6000 pixels wide. Publisher derives one global icon mapping
+and measures composition internally; an editor can optionally choose separate
+mechanism pages, visual roles or a pure-data refinement. These choices refine
+one product, not a second quality tier. The Edition, preparation code and output
+live outside the source repository. Building reads selected existing material;
+it adds no source files, dependencies, configuration, tests or CI obligations.
 
 The question's English text is **not an executable query**. Publisher checks
 that `flow` is linked to selected source content or an explicit limit, and that
@@ -69,14 +84,14 @@ compiler or approval path.
 
 ## Identity
 
-| Surface              | Identity                                                                      |
-| -------------------- | ----------------------------------------------------------------------------- |
-| Product              | Architecture Publisher                                                        |
-| Core package         | `architecture-publisher`                                                      |
-| Public CLI           | `archpub`                                                                     |
-| ETHOS integration    | Source-owned `@architecture-publisher/ethos`; immutable handoff retained here |
-| Canonical repository | `architecture-publisher`                                                      |
-| ETHOS publication    | `ETHOS Architecture` / `ETHOS · 问道`                                         |
+| Surface              | Identity                                                    |
+| -------------------- | ----------------------------------------------------------- |
+| Product              | Architecture Publisher                                      |
+| Core package         | `architecture-publisher`                                    |
+| Public CLI           | `archpub`                                                   |
+| Source relationship  | Read-only selected material; external editorial preparation |
+| Canonical repository | `architecture-publisher`                                    |
+| ETHOS publication    | `ETHOS Architecture` / `ETHOS · 问道`                       |
 
 The local checkout and GitLab project are the same history-preserving repository
 object under the canonical `architecture-publisher` identity. Signed alpha.7
@@ -100,6 +115,13 @@ node packages/publisher/src/cli/main.mjs --help
 `npm run check` already includes the test and coverage suite. Browser tests
 require `ARCHPUB_BROWSER_EXECUTABLE` set to an absolute path to an installed
 Chrome executable; without it they report skips rather than browser evidence.
+
+`VERSION` is the only manually maintained product version. After changing it,
+run `node tools/release/version.mjs --write` to update the workspace package
+versions, internal dependency pins and lockfile identities. The root workspace
+has no version. `npm run check` refuses stale projections; scripts-disabled
+packing consumes the checked package manifests without requiring this checkout
+or running installation hooks.
 
 The public CLI routes in this checkout are:
 
@@ -133,12 +155,12 @@ adjacent checkouts, personal credentials, and ambient repository discovery.
 
 ## Workspace boundaries
 
-The current checkout separates product ownership from adopter evidence:
+The current checkout separates product ownership from publication evidence:
 
 | Path                     | Responsibility                                                                  |
 | ------------------------ | ------------------------------------------------------------------------------- |
 | `packages/publisher/`    | Generic product, renderer adapters and verified supply                          |
-| `editions/self/`         | Separately packaged source-owned flagship self-Edition                          |
+| `editions/self/`         | Separately packaged source-owned self-Edition                                   |
 | `openspec/`              | Normative specs and the active Change's sole task ledger                        |
 | `.ethos/`                | Native repository governance bindings                                           |
 | `.config/`               | Native quality, locked CI tools and bounded supply configuration                |
@@ -150,7 +172,7 @@ The current checkout separates product ownership from adopter evidence:
 | `build/` and `coverage/` | Ignored, reproducible build and verification outputs                            |
 
 The root holds the workspace manifest, lockfile, reader entry documents and
-required native discovery entries. [Configuration ownership](.config/README.md)
+required native discovery entries. [Configuration ownership](docs/reference/configuration.md)
 explains each retained entry. Local tool state, evidence and recovery preimages
 live in the owning checkout's ignored `build/`; they are not runtime inputs or
 a second progress ledger. Required unique evidence moves to its selected durable
@@ -159,19 +181,20 @@ active output or custody owner.
 
 This repository keeps the generic package, renderer supply,
 its self-Edition, and compact conformance fixtures. ETHOS and AIGW retain
-authority over their own source assertions and acceptance. Edition placement
-follows the designated editor: the editor may work independently, or a source
-product may elect co-location. Neither choice transfers source authority or
-requires a source-product CI gate for independent, read-only analysis.
+authority over their own source assertions and acceptance. Their publication
+inputs, preparation and artwork belong to the independent editor outside those
+source repositories, even when the editor is also the source maintainer.
+Drawing adds no code, authored files, configuration, dependencies, tests or
+CI prerequisites to a source product.
 Conformance consumes portable standard values or an independently installed
 package; ordinary runtime has no adjacent checkout dependency.
 Its journeys, fixtures and immutable release receipts live together under
 `tests/conformance/`; recorded evidence retains its original bytes and source time.
 
 The root remains a private development and conformance workspace, not the
-published package. The core never imports a concrete Edition. A source-owned
-Edition depends inward only through exported core contracts and retains its
-source product's native authorization and release lifecycle.
+published package. The core never imports a concrete Edition. An external
+Edition depends inward only through exported core contracts; its acceptance
+and delivery are separate from the source product's native lifecycle.
 
 The active OpenSpec Change's task ledger, not this README, owns implementation
 and release status.

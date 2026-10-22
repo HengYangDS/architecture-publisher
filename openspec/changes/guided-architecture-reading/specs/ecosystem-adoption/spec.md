@@ -1,18 +1,18 @@
 ## ADDED Requirements
 
-### Requirement: Finite source adoption and north-star settlement
+### Requirement: Finite external publication and north-star settlement
 
-Cross-product delivery SHALL distinguish interface conformance, neutral artwork,
-source meaning, successor acceptance and publication authority. A handoff SHALL
-not close a required source acceptance. ETHOS feedback SHALL settle a finite
-decision packet and one falsifying journey with its existing owner, without
-requiring implementation of the entire future roadmap.
+Cross-product delivery SHALL consume sources read-only and keep preparation
+external. Interface conformance, artwork, source meaning, successor acceptance
+and publication authority SHALL remain distinct. Required ETHOS feedback SHALL
+settle a finite decision packet and one falsifying journey with its current owner.
 
-#### Scenario: AIGW has adopted the declared Provider version
+#### Scenario: AIGW is a read-only publication subject
 
-- **WHEN** current source evidence already selects Provider v2
-- **THEN** verification uses that exact source-owned selection rather than repeating a historical migration
-- **AND** Client Projection and Product Edition keep separate scope and acceptance
+- **WHEN** an external editor selects pinned existing AIGW material
+- **THEN** preparation and verification occur outside AIGW without a source-side Provider or drawing prerequisite
+- **AND** no drawing code, files, dependencies, configuration, tests or CI obligations are added to AIGW
+- **AND** Client Projection and Product Edition retain separate scope and acceptance
 
 #### Scenario: A source owner has not accepted a successor
 
@@ -25,6 +25,7 @@ requiring implementation of the entire future roadmap.
 - **WHEN** the current owner reviews the finite packet and its falsifying journey
 - **THEN** evidence records the owner's adopted, rejected or deferred disposition
 - **AND** Publisher does not create a parallel ETHOS progress or semantic authority
+- **AND** settlement does not require implementation of the entire future ETHOS roadmap
 
 ### Requirement: Implementation-grounded research has one current owner
 

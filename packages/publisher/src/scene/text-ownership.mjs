@@ -1,32 +1,39 @@
-import { fail } from '../protocol/values.mjs';
-import { authoredReference } from './statements.mjs';
+import { fail } from "../protocol/values.mjs";
+import { authoredReference } from "./statements.mjs";
 
 export const TEXT_OWNER_CLEARANCE = 8;
 
 /** Owner is an explicit graphic allocation, never an inferred semantic identity. */
-export function validateAuthoredTextOwners(texts, nodes) {
+export function validateAuthoredTextOwners(texts, nodes, edges = []) {
   const owners = new Map(nodes.map((node) => [node.id, node]));
+  const relations = new Map(edges.map((edge) => [edge.id, edge]));
   for (const text of texts) {
-    if (!Object.hasOwn(text, 'owner')) continue;
+    if (!Object.hasOwn(text, "owner")) continue;
     const owner = owners.get(text.owner);
+    const relation = relations.get(text.owner);
+    if (relation) {
+      if (text.semanticIds.some((reference) => !(relation.semanticIds ?? []).includes(reference)))
+        fail("authored_text_owner_binding_invalid");
+      continue;
+    }
     if (
       owners.size !== nodes.length ||
-      typeof text.owner !== 'string' ||
+      typeof text.owner !== "string" ||
       !/^[a-z][a-z0-9-]{0,79}$/u.test(text.owner) ||
       !owner ||
       owner.adornment ||
       !owner.semanticIds?.length
     )
-      fail('authored_text_owner_invalid');
+      fail("authored_text_owner_invalid");
     const members = new Set(owner.semanticIds);
     for (const reference of text.semanticIds) {
       const [, kind] = authoredReference(
         reference,
-        ['entity', 'relation', 'claim', 'editorial'],
-        'authored_text_owner_binding_invalid',
+        ["entity", "relation", "claim", "editorial"],
+        "authored_text_owner_binding_invalid",
       );
-      if (['entity', 'relation'].includes(kind) && !members.has(reference))
-        fail('authored_text_owner_binding_invalid');
+      if (["entity", "relation"].includes(kind) && !members.has(reference))
+        fail("authored_text_owner_binding_invalid");
     }
   }
 }
@@ -45,7 +52,7 @@ export function textOwnerInsets(text, owner) {
 export function textOwnerPaintCollides(box, primitives, clearance, segmentHits, owner) {
   for (const [index, primitive] of primitives.entries()) {
     const stroke = primitive.stroke !== null;
-    const fill = primitive.fill !== null && primitive.kind !== 'line';
+    const fill = primitive.fill !== null && primitive.kind !== "line";
     if (!stroke && !fill) continue;
     const padding = clearance + (stroke ? primitive.strokeWidth / 2 : 0);
     const glyphs = {
@@ -56,7 +63,7 @@ export function textOwnerPaintCollides(box, primitives, clearance, segmentHits, 
     };
     if (fill) {
       const points =
-        primitive.kind === 'rect'
+        primitive.kind === "rect"
           ? [
               primitive.box,
               {
@@ -64,7 +71,7 @@ export function textOwnerPaintCollides(box, primitives, clearance, segmentHits, 
                 y: primitive.box.y + primitive.box.height,
               },
             ]
-          : primitive.kind === 'circle'
+          : primitive.kind === "circle"
             ? [
                 {
                   x: primitive.center.x - primitive.radius,
@@ -95,7 +102,7 @@ export function textOwnerPaintCollides(box, primitives, clearance, segmentHits, 
       )
         return true;
     }
-    if (primitive.kind === 'circle') {
+    if (primitive.kind === "circle") {
       const { x, y } = primitive.center;
       const right = glyphs.x + glyphs.width;
       const bottom = glyphs.y + glyphs.height;
@@ -111,7 +118,7 @@ export function textOwnerPaintCollides(box, primitives, clearance, segmentHits, 
       continue;
     }
     let points;
-    if (primitive.kind === 'rect') {
+    if (primitive.kind === "rect") {
       const { x, y, width, height } = primitive.box;
       points = [
         { x, y },
@@ -120,7 +127,7 @@ export function textOwnerPaintCollides(box, primitives, clearance, segmentHits, 
         { x, y: y + height },
         { x, y },
       ];
-    } else if (primitive.kind === 'line') points = [primitive.start, primitive.end];
+    } else if (primitive.kind === "line") points = [primitive.start, primitive.end];
     else points = primitive.closed ? [...primitive.points, primitive.points[0]] : primitive.points;
     if (points.slice(1).some((point, index) => segmentHits(points[index], point, glyphs)))
       return true;

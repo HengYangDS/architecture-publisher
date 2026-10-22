@@ -1,17 +1,17 @@
-import { EDITION_AUTHORING_FILE_BYTES } from '../edition/authoring.mjs';
-import { deepFreeze, jsonValue } from '../semantics/document.mjs';
-import { fail, hasExactFields as exact, isDigest } from '../protocol/values.mjs';
-import { LIMITS, portableKey, portablePath } from '../file-input/contract.mjs';
-import { EDITION_PROVIDER_LIMITS } from './limits.mjs';
+import { EDITION_AUTHORING_FILE_BYTES } from "../edition/authoring.mjs";
+import { deepFreeze, jsonValue } from "../semantics/document.mjs";
+import { fail, hasExactFields as exact, isDigest } from "../protocol/values.mjs";
+import { LIMITS, portableKey, portablePath } from "../file-input/contract.mjs";
+import { EDITION_PROVIDER_LIMITS } from "./limits.mjs";
 
-const INVALID = 'edition_provider_v2_invalid';
+const INVALID = "edition_provider_v2_invalid";
 const idPattern = /^[a-z][a-z0-9-]{0,79}$/u;
 const valid = (condition) => {
   if (!condition) fail(INVALID);
 };
-const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+const record = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const text = (value) =>
-  typeof value === 'string' &&
+  typeof value === "string" &&
   value.length > 0 &&
   value === value.trim() &&
   Buffer.byteLength(value) <= 2048 &&
@@ -19,7 +19,7 @@ const text = (value) =>
     const point = character.codePointAt(0) ?? 0;
     return point <= 0x1f || point === 0x7f || (point >= 0xd800 && point <= 0xdfff);
   });
-const identifier = (value) => typeof value === 'string' && idPattern.test(value);
+const identifier = (value) => typeof value === "string" && idPattern.test(value);
 const size = (value, maximum) => Number.isSafeInteger(value) && value >= 0 && value <= maximum;
 const selectedPath = (value) => {
   try {
@@ -33,9 +33,9 @@ const noFileDirectoryOverlap = (paths) => {
   const files = new Set(paths.map(portableKey));
   const directories = new Map();
   for (const selected of paths) {
-    const segments = selected.split('/');
+    const segments = selected.split("/");
     for (let index = 1; index < segments.length; index++) {
-      const directory = segments.slice(0, index).join('/');
+      const directory = segments.slice(0, index).join("/");
       const key = portableKey(directory);
       valid(!files.has(key) && (!directories.has(key) || directories.get(key) === directory));
       directories.set(key, directory);
@@ -45,20 +45,20 @@ const noFileDirectoryOverlap = (paths) => {
 
 function revision(value) {
   if (!record(value)) fail(INVALID);
-  if (value.kind === 'content')
+  if (value.kind === "content")
     valid(
-      exact(value, ['kind', 'algorithm'], ['canonicalization']) &&
-        value.algorithm === 'sha256' &&
+      exact(value, ["kind", "algorithm"], ["canonicalization"]) &&
+        value.algorithm === "sha256" &&
         (value.canonicalization === undefined ||
-          ['raw-bytes/v1', 'publisher-json/v1'].includes(value.canonicalization)),
+          ["raw-bytes/v1", "publisher-json/v1"].includes(value.canonicalization)),
     );
-  else if (value.kind === 'vcs')
+  else if (value.kind === "vcs")
     valid(
-      exact(value, ['kind', 'repository', 'ref']) &&
-        (value.repository === '.' || selectedPath(value.repository)) &&
+      exact(value, ["kind", "repository", "ref"]) &&
+        (value.repository === "." || selectedPath(value.repository)) &&
         text(value.ref),
     );
-  else if (value.kind === 'opaque') valid(exact(value, ['kind', 'value']) && text(value.value));
+  else if (value.kind === "opaque") valid(exact(value, ["kind", "value"]) && text(value.value));
   else fail(INVALID);
 }
 
@@ -66,7 +66,7 @@ function sourceMetadata(value) {
   valid(
     identifier(value.id) &&
       text(value.claimant) &&
-      exact(value.format, ['id', 'version']) &&
+      exact(value.format, ["id", "version"]) &&
       text(value.format.id) &&
       text(value.format.version) &&
       size(value.bytes, LIMITS.memberBytes) &&
@@ -75,7 +75,7 @@ function sourceMetadata(value) {
 }
 
 function selectedContributions(selected) {
-  valid(exact(selected, ['native', 'derived', 'edition']));
+  valid(exact(selected, ["native", "derived", "edition"]));
   valid(Array.isArray(selected.native) && Array.isArray(selected.derived));
   valid(selected.native.length + selected.derived.length <= 256);
   const ids = new Set();
@@ -83,7 +83,7 @@ function selectedContributions(selected) {
   const namespaces = new Set();
   let total = 0;
   for (const item of selected.native) {
-    valid(exact(item, ['id', 'namespace', 'claimant', 'format', 'revision', 'bytes', 'sha256']));
+    valid(exact(item, ["id", "namespace", "claimant", "format", "revision", "bytes", "sha256"]));
     sourceMetadata(item);
     valid(text(item.namespace) && !namespaces.has(item.namespace) && !ids.has(item.id));
     revision(item.revision);
@@ -95,15 +95,15 @@ function selectedContributions(selected) {
   for (const item of selected.derived) {
     valid(
       exact(item, [
-        'id',
-        'namespace',
-        'claimant',
-        'format',
-        'derivedFrom',
-        'adapter',
-        'method',
-        'bytes',
-        'sha256',
+        "id",
+        "namespace",
+        "claimant",
+        "format",
+        "derivedFrom",
+        "adapter",
+        "method",
+        "bytes",
+        "sha256",
       ]),
     );
     sourceMetadata(item);
@@ -116,7 +116,7 @@ function selectedContributions(selected) {
         item.derivedFrom.every((id) => identifier(id) && nativeIds.has(id)),
     );
     valid(
-      exact(item.adapter, ['id', 'version', 'contentSha256']) &&
+      exact(item.adapter, ["id", "version", "contentSha256"]) &&
         text(item.adapter.id) &&
         text(item.adapter.version) &&
         isDigest(item.adapter.contentSha256) &&
@@ -127,7 +127,7 @@ function selectedContributions(selected) {
     total += item.bytes;
   }
   if (selected.edition !== null) {
-    valid(exact(selected.edition, ['id', 'editor', 'bytes', 'sha256', 'resources']));
+    valid(exact(selected.edition, ["id", "editor", "bytes", "sha256", "resources"]));
     valid(
       identifier(selected.edition.id) &&
         text(selected.edition.editor) &&
@@ -141,7 +141,7 @@ function selectedContributions(selected) {
     const resourcePaths = [];
     for (const resource of selected.edition.resources) {
       valid(
-        exact(resource, ['ref', 'bytes', 'sha256']) &&
+        exact(resource, ["ref", "bytes", "sha256"]) &&
           selectedPath(resource.ref) &&
           size(resource.bytes, EDITION_AUTHORING_FILE_BYTES) &&
           isDigest(resource.sha256),
@@ -168,13 +168,13 @@ function selectedContributions(selected) {
 }
 
 function declarativeDelivery(delivery, identities) {
-  valid(exact(delivery, ['kind', 'files']) && Array.isArray(delivery.files));
+  valid(exact(delivery, ["kind", "files"]) && Array.isArray(delivery.files));
   valid(delivery.files.length === identities.size);
   const seen = new Set();
   const paths = new Set();
   const fileNames = [];
   for (const file of delivery.files) {
-    valid(exact(file, ['kind', 'id', 'path']));
+    valid(exact(file, ["kind", "id", "path"]));
     const identity = `${file.kind}:${file.id}`;
     valid(identities.has(identity) && !seen.has(identity) && selectedPath(file.path));
     const key = portableKey(file.path);
@@ -189,23 +189,23 @@ function declarativeDelivery(delivery, identities) {
 function executableDelivery(delivery, selectedContributions) {
   valid(
     exact(delivery, [
-      'kind',
-      'package',
-      'inputs',
-      'nativeInputs',
-      'editionInput',
-      'editionResourceInputs',
+      "kind",
+      "package",
+      "inputs",
+      "nativeInputs",
+      "editionInput",
+      "editionResourceInputs",
     ]),
   );
   const selected = delivery.package;
   valid(
-    exact(selected, ['name', 'version', 'packageJsonSha256', 'contentSha256', 'entrypoint']) &&
+    exact(selected, ["name", "version", "packageJsonSha256", "contentSha256", "entrypoint"]) &&
       text(selected.name) &&
       text(selected.version) &&
       isDigest(selected.packageJsonSha256) &&
       isDigest(selected.contentSha256) &&
-      typeof selected.entrypoint === 'string' &&
-      selected.entrypoint.startsWith('./') &&
+      typeof selected.entrypoint === "string" &&
+      selected.entrypoint.startsWith("./") &&
       selectedPath(selected.entrypoint.slice(2)),
   );
   valid(Array.isArray(delivery.inputs) && delivery.inputs.length <= EDITION_PROVIDER_LIMITS.inputs);
@@ -215,10 +215,10 @@ function executableDelivery(delivery, selectedContributions) {
   const inputs = new Map();
   let total = 0;
   for (const input of delivery.inputs) {
-    valid(exact(input, ['id', 'path', 'mediaType', 'bytes', 'sha256']));
+    valid(exact(input, ["id", "path", "mediaType", "bytes", "sha256"]));
     valid(
       identifier(input.id) &&
-        !['provider-manifest', 'provider-package'].includes(input.id) &&
+        !["provider-manifest", "provider-package"].includes(input.id) &&
         !ids.has(input.id) &&
         selectedPath(input.path) &&
         !paths.has(portableKey(input.path)) &&
@@ -242,7 +242,7 @@ function executableDelivery(delivery, selectedContributions) {
   const mappedItems = new Set();
   const mappedInputs = new Set();
   for (const binding of delivery.nativeInputs) {
-    valid(exact(binding, ['item', 'input']));
+    valid(exact(binding, ["item", "input"]));
     const item = native.get(binding.item);
     const input = inputs.get(binding.input);
     valid(
@@ -274,7 +274,7 @@ function executableDelivery(delivery, selectedContributions) {
     valid(delivery.editionResourceInputs.length === resources.size);
     const mappedResources = new Set();
     for (const binding of delivery.editionResourceInputs) {
-      valid(exact(binding, ['ref', 'input']));
+      valid(exact(binding, ["ref", "input"]));
       const resource = resources.get(binding.ref);
       const input = inputs.get(binding.input);
       valid(
@@ -298,17 +298,17 @@ export function validateEditionProviderV2(value) {
   } catch {
     fail(INVALID);
   }
-  valid(exact(value, ['schema', 'provider', 'selected', 'delivery']));
-  valid(value.schema === 'architecture.edition-provider/v2');
+  valid(exact(value, ["schema", "provider", "selected", "delivery"]));
+  valid(value.schema === "architecture.edition-provider/v2");
   valid(
-    exact(value.provider, ['id', 'revision']) &&
+    exact(value.provider, ["id", "revision"]) &&
       identifier(value.provider.id) &&
       text(value.provider.revision),
   );
   const identities = selectedContributions(value.selected);
   valid(record(value.delivery));
-  if (value.delivery.kind === 'declarative') declarativeDelivery(value.delivery, identities);
-  else if (value.delivery.kind === 'executable') executableDelivery(value.delivery, value.selected);
+  if (value.delivery.kind === "declarative") declarativeDelivery(value.delivery, identities);
+  else if (value.delivery.kind === "executable") executableDelivery(value.delivery, value.selected);
   else fail(INVALID);
   return deepFreeze(structuredClone(value));
 }

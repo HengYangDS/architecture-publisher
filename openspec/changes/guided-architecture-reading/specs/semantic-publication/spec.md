@@ -1,78 +1,136 @@
 ## ADDED Requirements
 
-### Requirement: Independent qualified interactive appearance
+### Requirement: Normal use hides compilation mechanics
 
-The Edition MAY select interactive appearance independently of source meaning,
-composition and reading. Publisher SHALL provide several qualified styles
-through the same reader and SHALL reject unsupported selections. Runtime
-switches SHALL preserve content, fonts, geometry and semantic distinctions.
+The normal public build SHALL accept selected source material and editor-owned
+reading choices through existing input contracts. Publisher SHALL own intrinsic
+typesetting and coordinate its internal owners. Callers SHALL NOT need an Agent,
+source changes, duplicate semantic copies or synchronized generated scenes.
+Literal refinement SHALL remain optional under the same quality requirements.
 
-#### Scenario: An editor selects a different initial appearance
+#### Scenario: An editor wants a complete explanation
 
-- **WHEN** the same selected Edition chooses an admitted style and theme
-- **THEN** the reader applies that appearance to its shell and diagram
-- **AND** no source assertion, relation, coverage or static geometry changes
+- **WHEN** supported native material, audience, question, scope and media are selected
+- **THEN** the public build derives complete geometry and reading output without hand-placed boxes
+- **AND** internal indexes, locks and evidence records are outputs, not parallel editable authorities
 
-#### Scenario: A reader changes style while inspecting a page
+#### Scenario: An editor elects exact visual refinement
 
-- **WHEN** the reader chooses another qualified style or theme
-- **THEN** selected page and required content remain available without clipping
-- **AND** the session choice changes neither input nor acceptance records
+- **WHEN** an editor selects complete literal geometry or a supported style
+- **THEN** the existing refinement and composition boundaries preserve that choice
+- **AND** no quality tier or compulsory source integration is introduced
 
-#### Scenario: An unknown style or executable customization is requested
+### Requirement: Default authoring retains only editorial decisions
 
-- **WHEN** appearance contains an unsupported style or executable content
-- **THEN** preparation fails without substituting a different appearance
+The existing authoring owners SHALL derive mechanical links, default medium
+views and type encodings from declared source, editor, title, audience,
+question-bound scope and requested media. Native views SHALL be optional.
+Locators SHALL capture checked snapshots; pins SHALL refuse changed bytes.
+Neither choice SHALL transfer prior acceptance or imply inferred source meaning.
 
-### Requirement: Source-bound native exploration
+#### Scenario: Supported source material has no authored view
 
-Publisher SHALL retain useful selected-renderer exploration and bind it to
-checked visible source members. Physical segments, drawing junctions and
-editorial links SHALL NOT create source entities or relations. Complete figures
-SHALL remain usable without mandatory playback.
+- **WHEN** an editor selects exact entity/relation scope and reader questions
+- **THEN** the public build requires no coordinates, per-medium duplicate scope or type catalog
+- **AND** the generated lock preserves the exact selected bytes and declarations
 
-#### Scenario: An Edition selects complete figures
+#### Scenario: A reader question has no semantic scope
 
-- **WHEN** the editor selects complete figures without timed playback
-- **THEN** every declared view remains usable through ordinary navigation
-- **AND** no empty guide or mandatory playback is added
+- **WHEN** a question has neither selected meaning nor an explicit limit
+- **THEN** validation refuses it with an actionable input diagnostic
+- **AND** defaults never guess the answer or require a source-repository integration
 
-#### Scenario: Native exploration selects checked content
+### Requirement: Product value survives mature-tool comparison
 
-- **WHEN** a renderer offers focus and directed relationship exploration
-- **THEN** the same public build binds those actions to its checked logical members
-- **AND** the native reader owns camera, layout and interaction lifecycle
+Retained product responsibilities SHALL close demonstrated generic gaps in
+source-bound explanation, composition, reading or qualified output. A mature
+supported mechanism that satisfies the same complete journey SHALL replace
+redundant custom ownership. Replacement SHALL preserve exact meaning, required
+reading outcomes and artifact quality rather than justify a parallel authority.
 
-#### Scenario: A query selects absent or omitted content
+#### Scenario: A native mechanism satisfies the required journey
 
-- **WHEN** a query selects an unknown or omitted member
-- **THEN** the reader refuses it rather than inferring content from geometry
+- **WHEN** supported native operation meets the same source, media and acceptance contract
+- **THEN** that operation is reused without a copied graph, camera, history or vendor patch
+- **AND** a remaining custom seam names the actual generic gap it closes
 
-#### Scenario: Reading order has no source relation
+### Requirement: Overview and detailed reading have distinct duties
 
-- **WHEN** an editorial sequence places unrelated members next to one another
-- **THEN** the native query graph contains no invented connection between them
-- **AND** reading order is not described as execution or causality
+The untouched desktop overview SHALL show the complete selected explanatory
+structure, connections and primary labels at the declared reading floor.
+Detail disclosure, source focus and scrolling SHALL NOT compensate for an
+unreadable overview. Scoped relationship queries SHALL answer declared reader
+questions without inferring causality, execution or unselected source facts.
 
-#### Scenario: One meaning has several graphic occurrences
+#### Scenario: A dense explanation cannot fit legibly
 
-- **WHEN** aggregation or repeated occurrences do not preserve exact query endpoints
-- **THEN** the figure discloses the limit and exposes no members to exact queries
-- **AND** unavailable traversal is never described as an unreachable source relation
-- **AND** the complete figure and exact source Inspect remain usable
+- **WHEN** intrinsic composition cannot meet the declared overview reading floor
+- **THEN** the compiler reports the affected scope and composition obligation
+- **AND** it does not silently omit meaning or shrink text to obtain a fit
 
-#### Scenario: A figure contains unbound painted decoration
+### Requirement: Intrinsic architecture typesetting
 
-- **WHEN** geometry-only text or shapes carry paint identity but no checked Inspect binding
-- **THEN** they remain visible without source coverage, queries or Inspect actions
-- **AND** semantic Inspect carriers remain exactly equal to their declared binding set
-- **AND** extra or missing semantic carriers are rejected rather than ignored
+Publisher SHALL compose automatic architecture occurrences without upstream
+coordinates. It SHALL measure complete selected text and icon footprints,
+preserve identities and bindings, and derive geometry through existing renderer
+owners. Complete supplied geometry SHALL remain an explicit literal alternative.
+Source repositories SHALL not require modification for automatic layout quality.
 
-#### Scenario: Several source relations share physical segments
+#### Scenario: Automatic content has no calculated geometry
 
-- **WHEN** distinct checked relations use one shared drawn route
-- **THEN** native exploration retains each logical identity and its actual endpoints
-- **AND** shared strokes are not counted as extra logical hops or painted repeatedly
+- **WHEN** a scene supplies nodes, relationships and exact text without geometry
+- **THEN** the renderer computes readable dimensions, alignment, spacing, routes and viewport
+- **AND** complete label, detail and note strings remain unchanged
+- **AND** text or glyph clearance never relies on clipping or unreadable reduction
+
+#### Scenario: A relationship passes beside an unrelated node
+
+- **WHEN** a route passes a node that is not its connecting terminal
+- **THEN** intrinsic composition reserves half the shared reading gap plus complete selected strokes
+- **AND** native route search and physical admission enforce the same measured reserve
+- **AND** endpoint contacts remain exact without treating a frame edge as an available corridor
+
+#### Scenario: Repeated occurrences and conditional routes are composed
+
+- **WHEN** graphic occurrences repeat source members or carry editorial routes
+- **THEN** logical validation preserves their identities and ordered traversals before layout
+- **AND** physical validation checks complete contacts and paint clearance after layout
+- **AND** the exploration graph neither replaces nor deduplicates the graphic occurrences
+
+#### Scenario: Feasible layouts have different text continuation
+
+- **WHEN** structurally admissible layouts wrap the same exact fields differently
+- **THEN** each exact field's horizontal and vertical return travel contributes a finite relative reading cost
+- **AND** the root mean square of those relative excess distances prevents long fields from masking fragmented short fields
+- **AND** this relative reading cost scales the existing complete-frame assessment without adding fictitious height
+- **AND** neither smaller graph bounds nor fewer text rows alone establish a better composition
+
+#### Scenario: Directed stages require a complete desktop frame
+
+- **WHEN** automatic stages form an acyclic non-branching flow
+- **THEN** internal native packing considers the desktop aspect alongside the width-bounded alternative
+- **AND** the final physical reading order follows the directed stages rather than source storage or footprint size
+- **AND** complete fonts, route reserves and Legend remain in the assessed frame
+
+#### Scenario: Corresponding branch captions need different capacity
+
+- **WHEN** automatic acyclic branch columns contain unequal measured internal captions
+- **THEN** corresponding columns share the largest complete caption and selected-route clearance allocation
+- **AND** native paint audits still establish feasibility without upstream coordinates or font reduction
+
+#### Scenario: Literal composition is explicitly supplied
+
+- **WHEN** an editor supplies the complete literal geometry form
+- **THEN** composition preserves that geometry and validates its complete paint
+- **AND** partial automatic and literal mixtures are refused as ambiguous
+
+#### Scenario: A directed circuit has one cross-cutting hub
+
+- **WHEN** exact endpoints prove a directed circuit around one connected hub
+- **THEN** automatic composition may arrange that circuit around the hub using internally measured native regions
+- **AND** declaration permutation and opaque identifier changes do not change the content-bound reading structure
+- **AND** complete relationships, captions and source bindings remain intact without new semantic groups
+- **AND** an absent or ambiguous circuit does not acquire an invented hub arrangement
 
 ### Requirement: One generic reader and superior replacement
 
@@ -83,7 +141,7 @@ composition or omit legacy interaction after required explanation outcomes and
 exact meaning are verified. Historical feature presence SHALL NOT alone require
 that feature in a successor.
 
-#### Scenario: A source product provides ordinary portable inputs
+#### Scenario: A source product provides standard portable inputs
 
 - **WHEN** native or authored inputs are selected outside the Publisher checkout
 - **THEN** installed operation needs no product-name branch or source modification
@@ -100,20 +158,6 @@ that feature in a successor.
 - **THEN** the source migration remains incomplete and the predecessor is preserved
 - **AND** a format or library upgrade is not accepted as proof of superiority
 
-### Requirement: Native editorial input remains readable and non-invasive
-
-The public build SHALL admit selected native material and a declarative
-editorial brief through the existing authoring owner. Supported native sources
-SHALL NOT require a duplicated Claim Model. Optional Providers and external
-editorial roots SHALL converge before compilation; deterministic regeneration
-SHALL require neither an Agent nor source-repository modification.
-
-#### Scenario: An editor supplies reader questions
-
-- **WHEN** the brief names audience, questions, scope, omissions and media
-- **THEN** those choices are ordinary editable data, not executable queries
-- **AND** actionable diagnostics identify the affected choice without inventing source meaning
-
 ### Requirement: Native rebuilding and installed quality are distinct evidence
 
 The delivery SHALL separately qualify full quality execution, frozen Raster
@@ -128,22 +172,34 @@ SHALL NOT establish rebuilding or another target's support.
 - **THEN** source-rebuild acceptance remains unproved for those targets
 - **AND** unnecessary platform controllers remain pending verified consumer migration
 
-### Requirement: Canonical Raster bytes and native rebuilding have explicit guarantees
+### Requirement: CI peers share one declarative execution graph
 
-The packaged Raster output SHALL retain one canonical digest pair. Native
-rebuilding SHALL use a pre-admitted witness in the existing source manifest,
-bound to the exact Rust/Cargo identities, compiler host and wasm-bindgen version.
-Unknown identities SHALL fail closed; execution SHALL NOT learn expected hashes.
+The repository SHALL define shared CI execution and platform selection once in
+CUE. Configured Forge YAML SHALL be generated projections. Peer adapters SHALL
+contain only native events, permissions, runner selection and asset transport.
+They SHALL invoke the same repository quality owners for the same source.
 
-#### Scenario: A qualified host rebuilds frozen source
+#### Scenario: A configured projection is edited directly
 
-- **WHEN** two independently extracted, relocated offline/frozen builds finish
-- **THEN** original inputs remain unchanged and both outputs match the selected witness
-- **AND** canonical and rebuilt imports/exports, selected-font measurement, declared errors and representative authored PNG bytes agree
-- **AND** the evidence claims neither cross-host WASM byte identity nor universal equivalence
+- **WHEN** either the generation check or the peer quality gate observes drift
+- **THEN** the native check fails without writing source or projection bytes
+- **AND** regeneration restores the projection from the one CUE owner
 
-#### Scenario: A host has no admitted native witness
+#### Scenario: Only one Forge peer is configured
 
-- **WHEN** the observed compiler or binding-tool identity has no exact manifest match
-- **THEN** native rebuild verification fails without changing expected bytes
-- **AND** canonical package integrity remains a separate requirement
+- **WHEN** the repository has selected GitLab but not GitHub
+- **THEN** local generation and verification require neither another remote nor its credentials
+- **AND** another peer's absence does not bypass the selected peer's quality graph
+
+### Requirement: Maintained source has one file-size limit
+
+Existing native lint owners SHALL enforce code effective lines and Markdown
+nonempty physical lines at a maximum of 512. Blank and comment-only code lines
+SHALL not consume the code allowance. Existing generated, vendor and immutable
+evidence exclusions SHALL remain scoped to their owners.
+
+#### Scenario: A maintained file crosses the boundary
+
+- **WHEN** a code or Markdown file contains 512 counted lines
+- **THEN** its native size check passes
+- **AND** the same file with a 513th counted line fails without mutation

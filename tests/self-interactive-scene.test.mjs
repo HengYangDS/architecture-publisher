@@ -1,13 +1,17 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
-import { SELF_RELATIONS } from '../editions/self/src/edition/model.mjs';
-import { architecturePublisherInteractiveScenes } from '../editions/self/src/edition/interactive-scenes.mjs';
-import { composeArchitecturePublisherInteractiveScene } from '../editions/self/src/edition/interactive-scene.mjs';
+import assert from "node:assert/strict";
+import test from "node:test";
+import { SELF_RELATIONS } from "../editions/self/src/edition/relations.mjs";
+import { architecturePublisherInteractiveScenes } from "../editions/self/src/edition/interactive-scenes.mjs";
+import { composeArchitecturePublisherInteractiveScene } from "../editions/self/src/edition/interactive-scene.mjs";
+import { SELF_FIGURE_TYPES } from "../editions/self/src/edition/figure-types.mjs";
+import { resolveFigureTypes } from "../packages/publisher/src/scene/figure-types.mjs";
+import { composeIntrinsicArchitecture } from "../packages/publisher/renderers/archify/layout.mjs";
+import { intrinsicReadingWidth } from "../packages/publisher/renderers/archify/routing-contract.mjs";
 
 function semanticIds(view) {
   return [
-    ...view.composition.groups.flatMap(({ entities }) => entities.map((id) => 'entity:' + id)),
-    ...view.composition.relations.map(({ id }) => 'relation:' + id),
+    ...view.composition.groups.flatMap(({ entities }) => entities.map((id) => "entity:" + id)),
+    ...view.composition.relations.map(({ id }) => "relation:" + id),
   ].sort();
 }
 
@@ -19,20 +23,20 @@ function semanticModel(views) {
   );
   return {
     entities: Object.fromEntries(
-      [...entityIds].map((id) => [id, { type: 'semantic', label: id.replaceAll('-', ' ') }]),
+      [...entityIds].map((id) => [id, { type: "semantic", label: id.replaceAll("-", " ") }]),
     ),
     relations: structuredClone(SELF_RELATIONS),
   };
 }
 
-test('self interactive scenes bind complete semantics to authored visual carriers', () => {
+test("self interactive scenes bind complete semantics to internally measured visual carriers", async () => {
   const views = architecturePublisherInteractiveScenes();
   const model = semanticModel(views);
   for (const [id, view] of Object.entries(views)) {
     const scene = composeArchitecturePublisherInteractiveScene(
       model,
       {
-        title: 'Architecture Publisher',
+        title: "Architecture Publisher",
         visualGrammar: {
           entityTypes: {},
           relationTypes: {},
@@ -47,24 +51,45 @@ test('self interactive scenes bind complete semantics to authored visual carrier
     assert.deepEqual(represented, semanticIds(view), id);
     assert.equal(new Set(represented).size, represented.length, id);
     assert.equal(scene.groups.length, 0, id);
-    for (const node of scene.nodes) {
-      assert.equal(node.visualRole, 'external', `${id}:${node.id}: neutral ordinary-node paint`);
-      assert.equal(typeof node.figureKind, 'string', `${id}:${node.id}: figure kind`);
+    const [resolved] = resolveFigureTypes([scene], SELF_FIGURE_TYPES);
+    const measured = await composeIntrinsicArchitecture(scene);
+    for (const node of resolved.nodes) {
+      assert.equal(node.visualRole, "external", `${id}:${node.id}: neutral ordinary-node paint`);
+      assert.equal(typeof node.figureKind, "string", `${id}:${node.id}: figure kind`);
       assert(node.figureKind.trim().length > 0, `${id}:${node.id}: precise figure kind`);
-      assert.equal(typeof node.icon, 'string', `${id}:${node.id}: deliberate icon`);
+      assert.equal(typeof node.icon, "string", `${id}:${node.id}: deliberate icon`);
+      assert.equal(
+        node.icon,
+        SELF_FIGURE_TYPES[node.figureKind],
+        `${id}:${node.id}: global type icon`,
+      );
+      assert(measured.nodeText.layouts[node.id].valid, `${id}:${node.id}: complete measured text`);
+      if (["overview", "edition", "publication-recovery", "adoption"].includes(id))
+        assert.deepEqual(
+          measured.nodeText.layouts[node.id].rows
+            .filter((row) => row.field === "label")
+            .map(({ text }) => text),
+          [node.label],
+          `${id}:${node.id}: the short title remains complete in its desktop frame`,
+        );
     }
-    assert(scene.viewport.width <= 1240, id);
-    assert(scene.viewport.height <= 980, id);
+    assert.equal(Object.hasOwn(scene, "viewport"), false, `${id}: Publisher owns physical size`);
+    assert(measured.scene.viewport.width <= intrinsicReadingWidth, `${id}: desktop readability`);
+    assert(measured.scene.viewport.height > 0, `${id}: complete measured canvas`);
+    assert(
+      measured.scene.viewport.height <= 574,
+      `${id}: complete frame leaves room for desktop header and reader padding`,
+    );
   }
 });
 
-test('authored arrows bind only relations within their visible endpoint aggregates', () => {
+test("authored arrows bind only relations within their visible endpoint aggregates", () => {
   const views = architecturePublisherInteractiveScenes();
   const model = semanticModel(views);
   for (const [id, view] of Object.entries(views)) {
     const scene = composeArchitecturePublisherInteractiveScene(
       model,
-      { title: 'Architecture Publisher', visualGrammar: { entityTypes: {}, relationTypes: {} } },
+      { title: "Architecture Publisher", visualGrammar: { entityTypes: {}, relationTypes: {} } },
       { id, ...view.composition, label: view.label },
     );
     const nodes = new Map(
@@ -72,7 +97,7 @@ test('authored arrows bind only relations within their visible endpoint aggregat
         node.id,
         new Set(
           node.semanticIds
-            .filter((item) => item.startsWith('entity:'))
+            .filter((item) => item.startsWith("entity:"))
             .map((item) => item.slice(7)),
         ),
       ]),
@@ -83,7 +108,7 @@ test('authored arrows bind only relations within their visible endpoint aggregat
       assert(from && to, `${id}:${edge.id}: endpoints`);
       let crosses = false;
       for (const semantic of edge.semanticIds) {
-        assert(semantic.startsWith('relation:'), `${id}:${edge.id}: relation binding`);
+        assert(semantic.startsWith("relation:"), `${id}:${edge.id}: relation binding`);
         const relation = model.relations[semantic.slice(9)];
         assert(relation, `${id}:${edge.id}: selected relation`);
         assert(
@@ -98,85 +123,88 @@ test('authored arrows bind only relations within their visible endpoint aggregat
   }
 });
 
-test('self overview is a complete visual system map, not an atomic box dump', () => {
+test("self overview is a complete internally composed system map, not an atomic box dump", async () => {
   const view = architecturePublisherInteractiveScenes().overview;
   const model = semanticModel({ overview: view });
   const scene = composeArchitecturePublisherInteractiveScene(
     model,
     {
-      title: 'Architecture Publisher',
+      title: "Architecture Publisher",
       visualGrammar: {
         entityTypes: {},
         relationTypes: {},
       },
     },
-    { id: 'overview', ...view.composition, label: view.label },
+    { id: "overview", ...view.composition, label: view.label },
   );
   const atomicNodes = view.composition.groups.flatMap(({ entities }) => entities).length;
   assert(scene.nodes.length <= 8);
   assert(scene.nodes.length < atomicNodes);
-  assert(scene.viewport.width / scene.viewport.height >= 1.5);
-  assert(scene.nodes.every(({ size }) => size.width >= 220 && size.height >= 108));
-  const byId = new Map(scene.nodes.map((node) => [node.id, node])),
-    meaning = byId.get('meaning'),
-    evolution = byId.get('evolution'),
-    adoption = byId.get('adoption'),
-    delivery = byId.get('delivery'),
-    assurance = byId.get('assurance'),
-    meaningEvolution = scene.edges.find(({ id }) => id === 'meaning-evolution');
-  assert.equal(byId.get('authorship').detail, 'reader questions · Build Request');
-  assert(evolution.position.y > meaning.position.y);
-  assert(evolution.position.y < adoption.position.y);
-  assert(evolution.position.x > adoption.position.x);
-  assert(evolution.position.x < assurance.position.x);
-  assert(delivery.position.x < assurance.position.x);
-  assert(
-    meaningEvolution.waypoints.every(({ y }) => y >= 220 && y < adoption.position.y),
-    'evolution must be reached through the body, not an outer header detour',
+  const measured = await composeIntrinsicArchitecture(scene);
+  assert(measured.scene.viewport.width <= intrinsicReadingWidth);
+  assert(measured.scene.nodes.every(({ id }) => measured.nodeText.layouts[id].valid));
+  const byId = new Map(scene.nodes.map((node) => [node.id, node]));
+  assert.equal(byId.get("authorship").detail, "reader questions · Build Request");
+  assert.deepEqual(
+    measured.scene.edges.map(({ id, from, to, label, semanticIds }) => ({
+      id,
+      from,
+      to,
+      label,
+      semanticIds,
+    })),
+    scene.edges.map(({ id, from, to, label, semanticIds }) => ({
+      id,
+      from,
+      to,
+      label,
+      semanticIds,
+    })),
+    "Internal placement retains every source-bound directed relationship",
   );
 });
 
-test('mechanism pages expose their causal boundaries instead of collapsing them', () => {
+test("mechanism pages expose their causal boundaries instead of collapsing them", async () => {
   const views = architecturePublisherInteractiveScenes();
   const model = semanticModel(views);
   const expected = {
-    semantics: ['sources', 'adapter', 'bundle', 'claims', 'uncertainty', 'reader'],
-    edition: ['meaning', 'reader', 'build', 'compiler', 'static-scene', 'interactive-scene'],
+    semantics: ["sources", "adapter", "bundle", "claims", "uncertainty", "reader"],
+    edition: ["meaning", "reader", "build", "compiler", "static-scene", "interactive-scene"],
     composition: [
-      'authorship',
-      'static-scene',
-      'static-renderer',
-      'static-artifact',
-      'interactive-scene',
-      'interactive-renderer',
-      'interactive-artifact',
-      'candidate',
+      "authorship",
+      "static-scene",
+      "static-renderer",
+      "static-artifact",
+      "interactive-scene",
+      "interactive-renderer",
+      "interactive-artifact",
+      "candidate",
     ],
-    qualification: ['candidate', 'qualification', 'human-review', 'acceptance', 'authorization'],
-    'publication-recovery': [
-      'qualification',
-      'acceptance',
-      'authorization',
-      'publication',
-      'recovery',
-      'off-host-limit',
+    qualification: ["candidate", "qualification", "human-review", "acceptance", "authorization"],
+    "publication-recovery": [
+      "qualification",
+      "acceptance",
+      "authorization",
+      "publication",
+      "recovery",
+      "off-host-limit",
     ],
-    adoption: ['publication', 'self', 'ethos', 'aigw', 'feedback', 'source-owner'],
+    adoption: ["publication", "self", "ethos", "aigw", "feedback", "source-owner"],
   };
   for (const [id, nodeIds] of Object.entries(expected)) {
     const view = views[id];
     const scene = composeArchitecturePublisherInteractiveScene(
       model,
       {
-        title: 'Architecture Publisher',
+        title: "Architecture Publisher",
         visualGrammar: { entityTypes: {}, relationTypes: {} },
       },
       { id, ...view.composition, label: view.label },
     );
-    if (id === 'edition')
+    if (id === "edition")
       assert.equal(
-        scene.nodes.find(({ id: nodeId }) => nodeId === 'build').detail,
-        'model · Project · media',
+        scene.nodes.find(({ id: nodeId }) => nodeId === "build").detail,
+        "model · Project · media",
       );
     assert.deepEqual(
       scene.nodes.map(({ id: nodeId }) => nodeId),
@@ -188,6 +216,11 @@ test('mechanism pages expose their causal boundaries instead of collapsing them'
       id,
     );
     assert(scene.edges.length >= nodeIds.length - 1, id);
-    assert(scene.viewport.width / scene.viewport.height >= 1.45, id);
+    const measured = await composeIntrinsicArchitecture(scene);
+    assert(measured.scene.viewport.width <= intrinsicReadingWidth, `${id}: desktop readability`);
+    assert(
+      measured.scene.nodes.every(({ id }) => measured.nodeText.layouts[id].valid),
+      id,
+    );
   }
 });

@@ -1,0 +1,705 @@
+{
+  "bounds": {
+    "width": 1368,
+    "height": 1729.5
+  },
+  "nodes": [
+    {
+      "id": "work-a",
+      "x": 145.25,
+      "y": 689.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "proof-a",
+      "x": 245.25,
+      "y": 1018.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "prewrite-a",
+      "x": 45.25,
+      "y": 1018.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "work-b",
+      "x": 571.75,
+      "y": 689.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "prewrite-b",
+      "x": 471.75,
+      "y": 1018.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "selection",
+      "x": 128,
+      "y": 1285,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "object",
+      "x": 640,
+      "y": 1338.5,
+      "width": 176,
+      "height": 96,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "candidate",
+      "x": 1128,
+      "y": 1416,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "accepted",
+      "x": 384,
+      "y": 1417.5,
+      "width": 176,
+      "height": 120,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "box": {
+              "x": 424,
+              "y": 1429.3879999160768,
+              "width": 67.29119873046875,
+              "height": 13.104000091552734
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1450.4920000076295,
+              "width": 49.27679443359375,
+              "height": 10.656000137329102
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1473.7239999771118,
+              "width": 99.33600616455078,
+              "height": 11.039999961853027
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1492.7639999389648,
+              "width": 91.69200134277344,
+              "height": 9.444000244140625
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1510.2080001831055,
+              "width": 77.10000610351562,
+              "height": 11.484000205993652
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "claim",
+      "x": 384,
+      "y": 1553.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "box": {
+              "x": 424,
+              "y": 1565.243999862671,
+              "width": 66.75839233398438,
+              "height": 10.800000190734863
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1584.8279999160766,
+              "width": 49.27679443359375,
+              "height": 10.656000137329102
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1607.6159996414185,
+              "width": 77.06401062011719,
+              "height": 9.444000244140625
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1625.0599998855591,
+              "width": 98.79600524902344,
+              "height": 10.920000076293945
+            }
+          },
+          {
+            "box": {
+              "x": 424,
+              "y": 1643.979999961853,
+              "width": 69.81600952148438,
+              "height": 11.484000205993652
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "retained",
+      "x": 640,
+      "y": 1210.5,
+      "width": 176,
+      "height": 112,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": []
+      }
+    },
+    {
+      "id": "exit",
+      "x": 872,
+      "y": 1488,
+      "width": 176,
+      "height": 96,
+      "groupId": null,
+      "label": {
+        "lines": [""],
+        "width": 0,
+        "height": 0,
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "box": {
+              "x": 912,
+              "y": 1499.139200592041,
+              "width": 84.1823959350586,
+              "height": 11.404799461364746
+            }
+          },
+          {
+            "box": {
+              "x": 912,
+              "y": 1522.6759996414185,
+              "width": 77.13600158691406,
+              "height": 11.484000205993652
+            }
+          },
+          {
+            "box": {
+              "x": 912,
+              "y": 1542.159999847412,
+              "width": 55.48800277709961,
+              "height": 8.880000114440918
+            }
+          },
+          {
+            "box": {
+              "x": 912,
+              "y": 1559.039999961853,
+              "width": 77.62800598144531,
+              "height": 11.484000205993652
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "groups": [],
+  "relations": [
+    {
+      "id": "relation-30",
+      "source": "claim",
+      "target": "exit",
+      "direction": "forward",
+      "label": {
+        "x": 688,
+        "y": 1592.5,
+        "width": 80,
+        "height": 64,
+        "lines": ["result ", "and fresh ", "authority"],
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "text": "result ",
+            "x": 731.4079990386963,
+            "baseline": 1607.2600002288818,
+            "box": {
+              "x": 707.5519981384277,
+              "y": 1598.5,
+              "width": 40.89600372314453,
+              "height": 8.880000114440918
+            }
+          },
+          {
+            "text": "and fresh ",
+            "x": 731.7379970550537,
+            "baseline": 1625.2600002288818,
+            "box": {
+              "x": 696.5419979095459,
+              "y": 1616.5,
+              "width": 62.9160041809082,
+              "height": 8.880000114440918
+            }
+          },
+          {
+            "text": "authority",
+            "x": 727.9219989776611,
+            "baseline": 1643.2600002288818,
+            "box": {
+              "x": 696.3259983062744,
+              "y": 1633.9359998703003,
+              "width": 63.34800338745117,
+              "height": 11.484000205993652
+            }
+          }
+        ]
+      },
+      "points": [
+        {
+          "x": 560,
+          "y": 1609.5
+        },
+        {
+          "x": 576,
+          "y": 1609.5
+        },
+        {
+          "x": 576,
+          "y": 1583.5
+        },
+        {
+          "x": 832,
+          "y": 1583.5
+        },
+        {
+          "x": 832,
+          "y": 1552
+        },
+        {
+          "x": 872,
+          "y": 1552
+        }
+      ],
+      "variant": "default",
+      "nativeArrow": true
+    },
+    {
+      "id": "relation-26",
+      "source": "selection",
+      "target": "retained",
+      "direction": "forward",
+      "label": {
+        "x": 420,
+        "y": 1211.5,
+        "width": 104,
+        "height": 48,
+        "lines": ["findings, not ", "integration"],
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "text": "findings, not ",
+            "x": 475.7499885559082,
+            "baseline": 1226.8240003585815,
+            "box": {
+              "x": 426.00999450683594,
+              "y": 1217.5,
+              "width": 91.98001098632812,
+              "height": 11.484000205993652
+            }
+          },
+          {
+            "text": "integration",
+            "x": 472.0299949645996,
+            "baseline": 1244.8240003585815,
+            "box": {
+              "x": 433.4499969482422,
+              "y": 1235.5,
+              "width": 77.10000610351562,
+              "height": 11.484000205993652
+            }
+          }
+        ]
+      },
+      "points": [
+        {
+          "x": 304,
+          "y": 1322.3333333333333
+        },
+        {
+          "x": 320,
+          "y": 1322.3333333333333
+        },
+        {
+          "x": 320,
+          "y": 1202.5
+        },
+        {
+          "x": 576,
+          "y": 1202.5
+        },
+        {
+          "x": 576,
+          "y": 1266.5
+        },
+        {
+          "x": 640,
+          "y": 1266.5
+        }
+      ],
+      "variant": "default",
+      "nativeArrow": true
+    },
+    {
+      "id": "relation-7",
+      "source": "work-a",
+      "target": "selection",
+      "direction": "forward",
+      "label": {
+        "x": 30.25,
+        "y": 1191.3125,
+        "width": 104,
+        "height": 24,
+        "lines": ["offer results"],
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "text": "offer results",
+            "x": 82.2559928894043,
+            "baseline": 1206.0725002288818,
+            "box": {
+              "x": 36.46399688720703,
+              "y": 1197.3125,
+              "width": 91.57200622558594,
+              "height": 8.880000114440918
+            }
+          }
+        ]
+      },
+      "points": [
+        {
+          "x": 145.25,
+          "y": 759.5
+        },
+        {
+          "x": 24.25,
+          "y": 759.5
+        },
+        {
+          "x": 24.25,
+          "y": 1261
+        },
+        {
+          "x": 209,
+          "y": 1261
+        },
+        {
+          "x": 209,
+          "y": 1285
+        }
+      ],
+      "variant": "default",
+      "nativeArrow": true
+    },
+    {
+      "id": "relation-27",
+      "source": "candidate",
+      "target": "accepted",
+      "direction": "forward",
+      "label": {
+        "x": 792,
+        "y": 1670,
+        "width": 104,
+        "height": 48,
+        "lines": ["selected ", "relationship"],
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "text": "selected ",
+            "x": 847.6419982910156,
+            "baseline": 1684.7600002288818,
+            "box": {
+              "x": 816.2619972229004,
+              "y": 1676,
+              "width": 55.47600555419922,
+              "height": 8.880000114440918
+            }
+          },
+          {
+            "text": "relationship",
+            "x": 843.8499946594238,
+            "baseline": 1702.7600002288818,
+            "box": {
+              "x": 801.9939994812012,
+              "y": 1693.4359998703003,
+              "width": 84.01200103759766,
+              "height": 11.484000205993652
+            }
+          }
+        ]
+      },
+      "points": [
+        {
+          "x": 1304,
+          "y": 1453.3333333333333
+        },
+        {
+          "x": 1328,
+          "y": 1453.3333333333333
+        },
+        {
+          "x": 1328,
+          "y": 1726.75
+        },
+        {
+          "x": 360,
+          "y": 1726.75
+        },
+        {
+          "x": 360,
+          "y": 1477.5
+        },
+        {
+          "x": 384,
+          "y": 1477.5
+        }
+      ],
+      "variant": "default",
+      "nativeArrow": true
+    },
+    {
+      "id": "relation-28",
+      "source": "candidate",
+      "target": "claim",
+      "direction": "forward",
+      "label": {
+        "x": 640,
+        "y": 1137.75,
+        "width": 88,
+        "height": 40,
+        "lines": ["observe ", "and attest"],
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "text": "observe ",
+            "x": 687.6000003814697,
+            "baseline": 1152.5100002288818,
+            "box": {
+              "x": 659.8079986572266,
+              "y": 1143.75,
+              "width": 48.384002685546875,
+              "height": 8.880000114440918
+            }
+          },
+          {
+            "text": "and attest",
+            "x": 684.077995300293,
+            "baseline": 1170.5100002288818,
+            "box": {
+              "x": 648.8819961547852,
+              "y": 1161.75,
+              "width": 70.23600769042969,
+              "height": 8.880000114440918
+            }
+          }
+        ]
+      },
+      "points": [
+        {
+          "x": 1304,
+          "y": 1490.6666666666665
+        },
+        {
+          "x": 1365.25,
+          "y": 1490.6666666666665
+        },
+        {
+          "x": 1365.25,
+          "y": 1186.5
+        },
+        {
+          "x": 2.75,
+          "y": 1186.5
+        },
+        {
+          "x": 2.75,
+          "y": 1609.5
+        },
+        {
+          "x": 384,
+          "y": 1609.5
+        }
+      ],
+      "variant": "default",
+      "nativeArrow": true
+    },
+    {
+      "id": "relation-15",
+      "source": "work-b",
+      "target": "selection",
+      "direction": "forward",
+      "label": {
+        "x": 464.25,
+        "y": 1043.875,
+        "width": 104,
+        "height": 24,
+        "lines": ["offer results"],
+        "fontSize": 12,
+        "weight": "400",
+        "baselines": [
+          {
+            "text": "offer results",
+            "x": 516.2559928894043,
+            "baseline": 1058.6350002288818,
+            "box": {
+              "x": 470.46399688720703,
+              "y": 1049.875,
+              "width": 91.57200622558594,
+              "height": 8.880000114440918
+            }
+          }
+        ]
+      },
+      "points": [
+        {
+          "x": 645.75,
+          "y": 801.5
+        },
+        {
+          "x": 645.75,
+          "y": 850.75
+        },
+        {
+          "x": 455.5,
+          "y": 850.75
+        },
+        {
+          "x": 455.5,
+          "y": 1261
+        },
+        {
+          "x": 216,
+          "y": 1261
+        },
+        {
+          "x": 216,
+          "y": 1285
+        }
+      ],
+      "variant": "default",
+      "nativeArrow": true
+    }
+  ]
+}

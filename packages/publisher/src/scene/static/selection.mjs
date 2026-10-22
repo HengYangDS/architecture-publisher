@@ -1,6 +1,7 @@
-import { canonical, deepFreeze } from '../../semantics/document.mjs';
-import { fail } from '../../protocol/values.mjs';
-import { composeGroupedGeometry } from './architecture.mjs';
+import { canonical, deepFreeze } from "../../semantics/document.mjs";
+import { likeC4LayoutMembers } from "../../semantics/native-layout.mjs";
+import { fail } from "../../protocol/values.mjs";
+import { composeGroupedGeometry } from "./architecture.mjs";
 
 const address = ({ namespace, id }) => JSON.stringify([namespace, id]);
 const relationAddress = ({ id, origin }) => JSON.stringify([origin.namespace, id, origin.sha256]);
@@ -13,35 +14,28 @@ export function selectedStaticSourceSelections(meaning, view) {
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   return view.assertionIds.flatMap((id) => {
     const assertion = assertions.get(id);
-    if (!assertion) fail('static_scene_assertion_unbound');
-    if (assertion.kind === 'editorial') return [];
+    if (!assertion) fail("static_scene_assertion_unbound");
+    if (assertion.kind === "editorial") return [];
     const selected = selections.get(assertion.selection);
-    if (!selected) fail('static_scene_assertion_unbound');
+    if (!selected) fail("static_scene_assertion_unbound");
     return [selected];
   });
 }
 
-/** Resolve a sole context view or one static assertion among attributed sibling views. */
+/** Resolve native views only from this overview's exact assertion obligations. */
 export function selectedStaticNativeViews(meaning, view) {
-  const nativeViews = meaning.native.selections.filter(({ target }) => target.kind === 'view');
-  if (nativeViews.length <= 1) return nativeViews;
-  const sourceAssertions = meaning.assertions.filter(({ kind }) => kind === 'source');
-  const attributed = new Set(sourceAssertions.map(({ selection }) => selection));
-  const required = new Set(view.assertionIds);
   const selectedIds = new Set(
-    sourceAssertions.filter(({ id }) => required.has(id)).map(({ selection }) => selection),
+    selectedStaticSourceSelections(meaning, view).map(({ selectionId }) => selectionId),
   );
-  const selected = nativeViews.filter(({ selectionId }) => selectedIds.has(selectionId));
-  return selected.length === 1 &&
-    nativeViews.every(({ selectionId }) => attributed.has(selectionId))
-    ? selected
-    : nativeViews;
+  return meaning.native.selections.filter(
+    ({ target, selectionId }) => target.kind === "view" && selectedIds.has(selectionId),
+  );
 }
 
 function addBound(map, id, item) {
   const previous = map.get(id);
   if (previous && canonical(previous) !== canonical(item))
-    fail('grouped_selection_semantic_conflict');
+    fail("grouped_selection_semantic_conflict");
   map.set(id, item);
 }
 
@@ -56,36 +50,61 @@ function selectedStructure(meaning) {
     !Array.isArray(meaning?.assertions) ||
     !Array.isArray(meaning?.native?.selections)
   )
-    fail('grouped_selection_layout_unadmitted');
+    fail("grouped_selection_layout_unadmitted");
   const assertions = new Map(meaning.assertions.map((item) => [item.id, item]));
   const selections = new Map(meaning.native.selections.map((item) => [item.selectionId, item]));
   if (
     assertions.size !== meaning.assertions.length ||
     selections.size !== meaning.native.selections.length
   )
-    fail('grouped_selection_layout_unadmitted');
+    fail("grouped_selection_layout_unadmitted");
 
   const nodes = new Map();
   const relations = new Map();
   for (const id of view.assertionIds) {
     const assertion = assertions.get(id);
-    if (!assertion) fail('grouped_selection_layout_unadmitted');
-    if (assertion.kind === 'editorial') continue;
+    if (!assertion) fail("grouped_selection_layout_unadmitted");
+    if (assertion.kind === "editorial") continue;
     const selected = selections.get(assertion.selection);
     if (
       !selected ||
-      !['likec4/dsl', 'architecture.claim-model/v2'].includes(selected.format) ||
+      !["likec4/dsl", "architecture.claim-model/v2"].includes(selected.format) ||
       !Array.isArray(selected.members?.elements) ||
       !Array.isArray(selected.members?.relations)
     )
-      fail('grouped_selection_layout_unadmitted');
-    if (selected.target.kind === 'claim') continue;
+      fail("grouped_selection_layout_unadmitted");
+    if (selected.target.kind === "claim") continue;
     for (const item of selected.members.elements) addBound(nodes, address(item), item);
     for (const item of selected.members.relations) addBound(relations, relationAddress(item), item);
   }
   const nativeViews = selectedStaticNativeViews(meaning, view);
-  if (nativeViews.length > 1) fail('grouped_selection_layout_unadmitted');
-  return { view, authored, nodes, relations, selectedView: nativeViews[0] };
+  for (const selected of nativeViews) {
+    const index = meaning.native.sourceReading?.likec4;
+    const projection = index?.views.find(
+      ({ namespace, id }) => namespace === selected.source.namespace && id === selected.target.id,
+    );
+    if (!projection) fail("native_likec4_reference_unselected");
+    likeC4LayoutMembers(index, projection);
+    if (
+      (nativeViews.length !== 1 || authored.groups !== undefined) &&
+      projection.nodes.some((node) => node.parent !== null && node.parent !== undefined)
+    )
+      fail("native_likec4_layout_hierarchy_unrepresentable");
+  }
+  return {
+    view,
+    authored,
+    nodes,
+    relations,
+    selectedView: nativeViews.length === 1 ? nativeViews[0] : undefined,
+    closure:
+      authored.groups !== undefined
+        ? "grouped-layout-unqualified"
+        : nativeViews.length !== 1 ||
+            meaning.native.selections.some(({ format }) => format === "architecture.claim-model/v2")
+          ? "flat-layout-unqualified"
+          : "upstream-layout-unqualified",
+  };
 }
 
 function nativeView(selectedView) {
@@ -100,12 +119,13 @@ function nativeView(selectedView) {
 
 /** Bind exact selected structure to one replaceable geometry owner. */
 export function composeStaticSelectionLayout(meaning, geometryOwner = composeGroupedGeometry) {
-  const { authored, nodes, relations, selectedView } = selectedStructure(meaning);
+  const { authored, nodes, relations, selectedView, closure } = selectedStructure(meaning);
   const claimModelMode = meaning.native.selections.some(
-    ({ format }) => format === 'architecture.claim-model/v2',
+    ({ format }) => format === "architecture.claim-model/v2",
   );
   const authoredGroups = authored.groups ?? [];
-  if (!authoredGroups.length && !claimModelMode) fail('static_selection_flat_unadmitted');
+  if (!authoredGroups.length && !claimModelMode && selectedView)
+    fail("static_selection_flat_unadmitted");
   const placement = new Map();
   for (const [row, group] of authoredGroups.entries())
     for (const [column, member] of group.elements.entries())
@@ -123,9 +143,9 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
       const source = placement.get(from);
       const target = placement.get(to);
       if (!nodes.has(from) || !nodes.has(to) || (authoredGroups.length && (!source || !target)))
-        fail('grouped_selection_layout_unadmitted');
-      if (from === to) fail('grouped_selection_self_relation_unrepresentable');
-      const caption = claimModelMode ? item.kind.replaceAll('-', ' ') : '';
+        fail("grouped_selection_layout_unadmitted");
+      if (from === to) fail("grouped_selection_self_relation_unrepresentable");
+      const caption = claimModelMode ? item.kind.replaceAll("-", " ") : "";
       const lateral = authoredGroups.length && source.row === target.row;
       const forward =
         authoredGroups.length &&
@@ -134,12 +154,12 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
         id,
         from,
         to,
-        text: /^[\x20-\x7e]+$/u.test(caption) && [...caption].length <= 32 ? caption : '',
+        text: /^[\x20-\x7e]+$/u.test(caption) && [...caption].length <= 32 ? caption : "",
         ...(authoredGroups.length
           ? {
-              fromSide: lateral ? (forward ? 'right' : 'left') : forward ? 'bottom' : 'top',
-              toSide: lateral ? (forward ? 'left' : 'right') : forward ? 'top' : 'bottom',
-              route: lateral ? 'orthogonal-h' : 'orthogonal-v',
+              fromSide: lateral ? (forward ? "right" : "left") : forward ? "bottom" : "top",
+              toSide: lateral ? (forward ? "left" : "right") : forward ? "top" : "bottom",
+              route: lateral ? "orthogonal-h" : "orthogonal-v",
             }
           : {}),
       };
@@ -147,7 +167,7 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
   });
   const assemble = (selected) =>
     deepFreeze({
-      closure: authoredGroups.length ? 'grouped-layout-unqualified' : 'flat-layout-unqualified',
+      closure,
       view: nativeView(selectedView),
       ...(authoredGroups.length
         ? {
@@ -193,7 +213,7 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
           ...(route.label
             ? {
                 caption: {
-                  text: relation.kind.replaceAll('-', ' '),
+                  text: relation.kind.replaceAll("-", " "),
                   point: route.label,
                   box: route.labelBox,
                 },
@@ -207,7 +227,7 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
 
 /** Bind authored geometry to selected members without requiring neutral geometry to exist. */
 export function composeSelectedStaticRefinementLayout(meaning, refinement) {
-  const { view, authored, nodes, relations, selectedView } = selectedStructure(meaning);
+  const { view, authored, nodes, relations, selectedView, closure } = selectedStructure(meaning);
   const selected = refinement?.media?.static;
   if (
     selected?.view !== view.id ||
@@ -216,15 +236,15 @@ export function composeSelectedStaticRefinementLayout(meaning, refinement) {
     !Array.isArray(selected.groups) ||
     (!nodes.size && !relations.size)
   )
-    fail('scene_refinement_composition_unadmitted');
+    fail("scene_refinement_composition_unadmitted");
   const expectedGroups = authored.groups ?? [];
   if (selected.nodes.length !== nodes.size || selected.groups.length !== expectedGroups.length)
-    fail('scene_refinement_membership_mismatch');
+    fail("scene_refinement_membership_mismatch");
   const usedNodes = new Set();
   const refinedNodes = selected.nodes.map((geometry) => {
     const key = address(geometry);
     const node = nodes.get(key);
-    if (!node || usedNodes.has(key)) fail('scene_refinement_membership_mismatch');
+    if (!node || usedNodes.has(key)) fail("scene_refinement_membership_mismatch");
     usedNodes.add(key);
     return {
       namespace: node.namespace,
@@ -242,11 +262,11 @@ export function composeSelectedStaticRefinementLayout(meaning, refinement) {
       item,
     ]),
   );
-  if (selectedRelations.size !== relations.size) fail('scene_refinement_membership_mismatch');
+  if (selectedRelations.size !== relations.size) fail("scene_refinement_membership_mismatch");
   const usedRelations = new Set();
   const refinedEdges = selected.edges.map((edge) => {
     if (!Array.isArray(edge?.relations) || !Array.isArray(edge.points))
-      fail('scene_refinement_membership_mismatch');
+      fail("scene_refinement_membership_mismatch");
     return {
       from: edge.from,
       to: edge.to,
@@ -259,7 +279,7 @@ export function composeSelectedStaticRefinementLayout(meaning, refinement) {
           address(relation.from) !== address(edge.from) ||
           address(relation.to) !== address(edge.to)
         )
-          fail('scene_refinement_membership_mismatch');
+          fail("scene_refinement_membership_mismatch");
         usedRelations.add(key);
         return {
           namespace: relation.origin.namespace,
@@ -274,7 +294,7 @@ export function composeSelectedStaticRefinementLayout(meaning, refinement) {
   const usedGroups = new Set();
   const refinedGroups = selected.groups.map((geometry) => {
     const group = groups.get(geometry.id);
-    if (!group || usedGroups.has(group.id)) fail('scene_refinement_membership_mismatch');
+    if (!group || usedGroups.has(group.id)) fail("scene_refinement_membership_mismatch");
     usedGroups.add(group.id);
     return {
       id: group.id,
@@ -287,10 +307,9 @@ export function composeSelectedStaticRefinementLayout(meaning, refinement) {
     };
   });
   if (usedRelations.size !== relations.size || groups.size !== expectedGroups.length)
-    fail('scene_refinement_membership_mismatch');
+    fail("scene_refinement_membership_mismatch");
   return deepFreeze({
-    closure:
-      authored.groups === undefined ? 'upstream-layout-unqualified' : 'grouped-layout-unqualified',
+    closure,
     view: nativeView(selectedView),
     ...(authored.groups === undefined ? {} : { groups: refinedGroups }),
     nodes: refinedNodes,

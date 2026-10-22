@@ -1,44 +1,10 @@
-import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import test from 'node:test';
-import { loadBundledFonts } from '../packages/publisher/renderers/fonts/index.mjs';
-import { createBundledTextMeasurer } from '../packages/publisher/renderers/resvg/measurement.mjs';
-import { interactiveLabelRequests } from '../packages/publisher/renderers/elk/text.mjs';
-import { interactiveGraphMarks as marks } from '../packages/publisher/src/scene/marks.mjs';
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+import { page, measurePages, selected } from "./fixtures/elk-layout.mjs";
 
-const page = () => ({
-  nodes: ['Alpha', 'Beta', 'Gamma'].map((label, index) => ({ id: `n-${index}`, label })),
-  relations: [
-    ['n-0', 'n-1', 'selects'],
-    ['n-0', 'n-1', 'observes'],
-    ['n-1', 'n-2', 'controls'],
-    ['n-2', 'n-0', 'returns'],
-    ['n-2', 'n-2', 'retries'],
-  ].map(([source, target, graphLabel], index) => ({
-    id: `r-${index}`,
-    source,
-    target,
-    graphLabel,
-    direction: 'forward',
-  })),
-});
-
-async function measurePages(pages) {
-  return createBundledTextMeasurer(await loadBundledFonts(), interactiveLabelRequests(pages));
-}
-
-async function selected() {
-  const module = await import('../packages/publisher/renderers/elk/layout.mjs').catch(() => null);
-  assert.equal(
-    typeof module?.layoutInteractivePages,
-    'function',
-    'one exact interactive geometry owner must exist',
-  );
-  return { ...module, measure: await measurePages([page()]) };
-}
-
-test('exact geometry preserves complete parallel, cycle, and self-loop routes and source meaning', async () => {
+test("exact geometry preserves complete parallel, cycle, and self-loop routes and source meaning", async () => {
   const { layoutInteractivePages } = await selected();
   const input = page();
   const original = structuredClone(input);
@@ -65,19 +31,19 @@ test('exact geometry preserves complete parallel, cycle, and self-loop routes an
       if (next) assert(point.x === next.x || point.y === next.y);
     }
     assert.equal(
-      relation.label.lines.join(' '),
+      relation.label.lines.join(" "),
       input.relations.find(({ id }) => id === relation.id).graphLabel,
     );
   }
-  assert(!JSON.stringify(graph).includes('$H'));
+  assert(!JSON.stringify(graph).includes("$H"));
 });
 
-test('group-container offsets preserve cross-group, intra-group, and self-loop contacts', async () => {
+test("group-container offsets preserve cross-group, intra-group, and self-loop contacts", async () => {
   const { layoutInteractivePages } = await selected();
   const input = page();
   input.groups = [
-    { id: 'g-0', label: 'Source ownership', nodeIds: ['n-0'] },
-    { id: 'g-1', label: 'Execution', nodeIds: ['n-1', 'n-2'] },
+    { id: "g-0", label: "Source ownership", nodeIds: ["n-0"] },
+    { id: "g-1", label: "Execution", nodeIds: ["n-1", "n-2"] },
   ];
   const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
   assert.equal(graph.groups.length, 2);
@@ -112,24 +78,164 @@ test('group-container offsets preserve cross-group, intra-group, and self-loop c
   }
 });
 
-test('the geometry owner measures all text and rejects unsupported or infeasible glyphs', async () => {
+test("measured group headings occupy a top band without lateral title reservation", async () => {
+  const { layoutInteractivePages } = await selected();
+  const input = {
+    nodes: [
+      { id: "source", label: "Source" },
+      { id: "execution", label: "Execution" },
+    ],
+    relations: [{ id: "handoff", source: "source", target: "execution" }],
+    groups: [
+      { id: "source-owner", label: "Source responsibility", nodeIds: ["source"] },
+      { id: "runtime-owner", label: "Execution responsibility", nodeIds: ["execution"] },
+    ],
+  };
+  const original = structuredClone(input);
+  const label = (text, width) => ({
+    lines: [text],
+    width,
+    height: 32,
+    fontSize: 12,
+    weight: "600",
+    baselines: [{ text, x: 8, baseline: 20, box: { x: 8, y: 8, width: width - 16, height: 14 } }],
+  });
+  const graph = (
+    await layoutInteractivePages([input], null, {
+      nodeFootprints: [
+        {
+          source: { width: 96, height: 40, label: label("Source", 64) },
+          execution: { width: 96, height: 40, label: label("Execution", 80) },
+        },
+      ],
+      groupFootprints: [
+        {
+          "source-owner": label("Source responsibility", 192),
+          "runtime-owner": label("Execution responsibility", 208),
+        },
+      ],
+    })
+  ).layouts[0];
+  assert.deepEqual(input, original);
+  for (const [id, maximumWidth] of [
+    ["source-owner", 240],
+    ["runtime-owner", 256],
+  ]) {
+    const group = graph.groups.find((item) => item.id === id);
+    const node = graph.nodes.find((item) => item.groupId === id);
+    assert(
+      group.width <= maximumWidth,
+      `A measured heading and its 24px insets must not reserve a second lateral title: ${group.width}`,
+    );
+    assert.equal(node.x + node.width / 2, group.x + group.width / 2);
+    assert(group.label.x >= group.x + 24);
+    assert(group.label.x + group.label.width <= group.x + group.width - 24);
+    assert(group.label.y >= group.y + 24);
+    assert(node.y >= group.label.y + group.label.height + 24);
+  }
+  assert.deepEqual(
+    graph.relations.map(({ id, source, target }) => ({ id, source, target })),
+    input.relations,
+  );
+  const edge = graph.relations[0];
+  for (const [id, point] of [
+    [edge.source, edge.points[0]],
+    [edge.target, edge.points.at(-1)],
+  ]) {
+    const node = graph.nodes.find((item) => item.id === id);
+    assert(point.x >= node.x && point.x <= node.x + node.width);
+    assert(point.y >= node.y && point.y <= node.y + node.height);
+    assert(
+      point.x === node.x ||
+        point.x === node.x + node.width ||
+        point.y === node.y ||
+        point.y === node.y + node.height,
+    );
+  }
+});
+
+test("native branch handoff keeps complete route-caption pairs through the receiving geometry owner", async () => {
+  const { layoutInteractivePages } = await selected();
+  const { routePackedIntrinsicGeometry } =
+    await import("../packages/publisher/renderers/archify/intrinsic-routing.mjs");
+  const { auditIntrinsicGeometry } =
+    await import("../packages/publisher/renderers/archify/routing-contract.mjs");
+  const ids = ["entry", "a-0", "a-1", "a-2", "b-0", "b-1", "b-2", "exit"];
+  const input = {
+    nodes: ids.map((id) => ({ id, label: id })),
+    relations: ["a", "b"].flatMap((branch) => {
+      const chain = ["entry", `${branch}-0`, `${branch}-1`, `${branch}-2`, "exit"];
+      return chain.slice(1).map((target, index) => ({
+        id: `${branch}-${index}-handoff`,
+        source: chain[index],
+        target,
+        graphLabel: "Exact  selected relationship",
+      }));
+    }),
+  };
+  const label = {
+    lines: ["Exact  selected", "relationship"],
+    width: 112,
+    height: 64,
+    fontSize: 12,
+    weight: "400",
+    baselines: [
+      { text: "Exact  selected", x: 8, baseline: 24, box: { x: 8, y: 10, width: 96, height: 14 } },
+      { text: "relationship", x: 8, baseline: 48, box: { x: 8, y: 34, width: 88, height: 14 } },
+    ],
+  };
+  const empty = { lines: [""], width: 0, height: 0, fontSize: 12, weight: "400", baselines: [] };
+  const footprints = Object.fromEntries(
+    ids.map((id) => [id, { width: 96, height: 64, label: empty }]),
+  );
+  const before = structuredClone(input);
+  let nativePairs = 0;
+  const result = await layoutInteractivePages([input], null, {
+    nodeFootprints: [footprints],
+    relationFootprints: [Object.fromEntries(input.relations.map(({ id }) => [id, label]))],
+    composePackedCandidate: async (graph) => {
+      for (const relation of graph.relations.filter(({ points }) => points.length)) {
+        nativePairs++;
+        assert.deepEqual(relation.label.lines, ["Exact  selected", "relationship"]);
+        assert.equal(relation.label.width, 112);
+        assert.equal(relation.label.height, 64);
+        assert(relation.label.x > 0 || relation.label.y > 0, "A native caption is positioned");
+        for (const [index, line] of relation.label.baselines.entries()) {
+          assert.equal(line.box.x, relation.label.x + label.baselines[index].box.x);
+          assert.equal(line.box.y, relation.label.y + label.baselines[index].box.y);
+        }
+      }
+      await routePackedIntrinsicGeometry(graph);
+      assert.doesNotThrow(() => auditIntrinsicGeometry(graph));
+    },
+  });
+  assert(nativePairs > 0, "Native root routes and captions must reach the receiving owner");
+  assert.equal(result.layouts[0].relations.length, 8);
+  for (const relation of result.layouts[0].relations) {
+    assert.deepEqual(relation.label.lines, ["Exact  selected", "relationship"]);
+    assert.equal(relation.label.baselines.length, 2);
+  }
+  assert.deepEqual(input, before);
+});
+
+test("the geometry owner measures all text and rejects unsupported or infeasible glyphs", async () => {
   const { layoutInteractivePages } = await selected();
   await assert.rejects(layoutInteractivePages([page()]), {
-    code: 'render_interactive_text_measurement_required',
+    code: "render_interactive_text_measurement_required",
   });
   for (const mutate of [
     (value) => {
-      value.nodes[0].label = 'x'.repeat(200);
+      value.nodes[0].label = "x".repeat(200);
     },
     (value) => {
-      value.nodes[0].label = 'missing 🦄 glyph';
+      value.nodes[0].label = "missing 🦄 glyph";
     },
     (value) => {
-      value.relations[0].graphLabel = 'x'.repeat(200);
+      value.relations[0].graphLabel = "x".repeat(200);
     },
     (value) => {
       value.groups = [
-        { id: 'g-0', label: 'x'.repeat(200), nodeIds: value.nodes.map(({ id }) => id) },
+        { id: "g-0", label: "x".repeat(200), nodeIds: value.nodes.map(({ id }) => id) },
       ];
     },
   ]) {
@@ -138,35 +244,35 @@ test('the geometry owner measures all text and rejects unsupported or infeasible
     await assert.rejects(
       async () => layoutInteractivePages([input], await measurePages([input])),
       (error) =>
-        ['render_interactive_text_infeasible', 'authored_canvas_glyph_missing'].includes(
+        ["render_interactive_text_infeasible", "authored_canvas_glyph_missing"].includes(
           error.code,
         ),
     );
   }
   const input = page();
-  input.nodes[0].label = 'Exact selected configuration ownership';
+  input.nodes[0].label = "Exact selected configuration ownership";
   const original = structuredClone(input);
   const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
   assert.deepEqual(input, original);
-  assert.equal(graph.nodes[0].label.lines.join(' '), input.nodes[0].label);
+  assert.equal(graph.nodes[0].label.lines.join(" "), input.nodes[0].label);
   assert(graph.nodes[0].label.lines.length > 1);
 });
 
-test('invalid graph identities and incomplete group ownership fail before layout', async () => {
+test("invalid graph identities and incomplete group ownership fail before layout", async () => {
   const { layoutInteractivePages, measure } = await selected();
   for (const input of [null, [], {}, [null]])
     await assert.rejects(layoutInteractivePages(input, measure), {
-      code: 'render_interactive_layout_invalid',
+      code: "render_interactive_layout_invalid",
     });
   for (const mutate of [
     (value) => {
-      value.nodes[0].label = ' ';
+      value.nodes[0].label = " ";
     },
     (value) => {
       value.nodes[1].id = value.nodes[0].id;
     },
     (value) => {
-      value.relations[0].target = 'not-selected';
+      value.relations[0].target = "not-selected";
     },
     (value) => {
       value.relations.push({ ...value.relations[0] });
@@ -175,344 +281,50 @@ test('invalid graph identities and incomplete group ownership fail before layout
     const input = page();
     mutate(input);
     await assert.rejects(layoutInteractivePages([input], measure), {
-      code: 'render_interactive_layout_invalid',
+      code: "render_interactive_layout_invalid",
     });
   }
   const input = page();
-  input.groups = [{ id: 'g-0', label: 'Incomplete', nodeIds: ['n-0'] }];
+  input.groups = [{ id: "g-0", label: "Incomplete", nodeIds: ["n-0"] }];
   await assert.rejects(async () => layoutInteractivePages([input], await measurePages([input])), {
-    code: 'render_interactive_group_invalid',
+    code: "render_interactive_group_invalid",
   });
 });
 
-test('layout timeout and invalid worker output reclaim only the owned scratch and worker', async (t) => {
+test("layout timeout and invalid worker output reclaim only the owned scratch and worker", async (t) => {
   const { layoutInteractivePages, measure } = await selected();
-  const parent = path.resolve('build/test-work');
+  const parent = path.resolve("build/test-work");
   await fs.mkdir(parent, { recursive: true });
-  const work = await fs.mkdtemp(path.join(parent, 'elk-lifetime-'));
+  const work = await fs.mkdtemp(path.join(parent, "elk-lifetime-"));
   t.after(() => fs.rm(work, { recursive: true, force: true }));
   await assert.rejects(
     layoutInteractivePages([page()], measure, { temporaryDirectory: work, timeoutMs: 1 }),
-    { code: 'render_interactive_layout_execution_timeout' },
+    { code: "render_interactive_layout_execution_timeout" },
   );
   assert.deepEqual(await fs.readdir(work), []);
   await assert.rejects(
     layoutInteractivePages([page()], measure, { temporaryDirectory: work, maximumBytes: 1 }),
-    { code: 'render_interactive_layout_response_limit' },
+    { code: "render_interactive_layout_response_limit" },
   );
   assert.deepEqual(await fs.readdir(work), []);
 });
 
-test('the same geometry owner wraps a long causal chain into a complete balanced reading area', async () => {
-  const { layoutInteractivePages } = await selected();
-  const input = {
-    nodes: [
-      'Operator',
-      'Control',
-      'Projection',
-      'Native client',
-      'Selected endpoint',
-      'Observation',
-      'Recovery',
-    ].map((label, index) => ({ id: `n-${index}`, label })),
-    relations: Array.from({ length: 6 }, (_, index) => ({
-      id: `r-${index}`,
-      source: `n-${index}`,
-      target: `n-${index + 1}`,
-      graphLabel: 'selects',
-    })),
-  };
-  const original = structuredClone(input);
-  const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
-  assert(
-    graph.bounds.width / graph.bounds.height > 1.1,
-    'complete causal chains must not create a tall isolated side rail',
-  );
-  assert(graph.bounds.width < 1400 && graph.bounds.height < 760);
-  assert.equal(graph.nodes.length, input.nodes.length);
-  assert.equal(graph.relations.length, input.relations.length);
-  assert.deepEqual(input, original);
-});
-
-test('readable desktop branching does not become a tall strip to fit an artificial slide', async () => {
-  const { layoutInteractivePages } = await selected();
-  const input = {
-    nodes: [
-      'Admitted adapters',
-      'AIGW',
-      'Native client',
-      'AIGW executable copy',
-      'Native projection',
-      'Guarded transaction',
-    ].map((label, index) => ({ id: `n-${index}`, label })),
-    relations: [
-      ['n-1', 'n-0', 'dispatches'],
-      ['n-1', 'n-5', 'commits-through'],
-      ['n-4', 'n-2', 'configures'],
-      ['n-0', 'n-4', 'applies'],
-      ['n-5', 'n-3', 'guards'],
-      ['n-5', 'n-4', 'guards'],
-    ].map(([source, target, graphLabel], index) => ({
-      id: `r-${index}`,
-      source,
-      target,
-      graphLabel,
-    })),
-  };
-  const original = structuredClone(input);
-  const geometry = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
-  assert(
-    geometry.bounds.width > geometry.bounds.height * 2,
-    'a complete readable branching figure must use the available desktop width',
-  );
-  assert(geometry.bounds.height < 400, 'qualifiers must not inherit an unnecessary tall figure');
-  assert.equal(geometry.nodes.length, 6);
-  assert.equal(geometry.relations.length, 6);
-  assert.deepEqual(input, original);
-});
-
-test('a bidirectional topology is not silently classified as an acyclic wrapping candidate', async () => {
-  const { layoutInteractivePages } = await selected();
-  const input = {
-    nodes: Array.from({ length: 6 }, (_, index) => ({ id: `n-${index}`, label: `Node ${index}` })),
-    relations: Array.from({ length: 5 }, (_, index) => ({
-      id: `r-${index}`,
-      source: `n-${index}`,
-      target: `n-${index + 1}`,
-      direction: index === 0 ? 'bidirectional' : 'forward',
-      graphLabel: 'selects',
-    })),
-  };
-  const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
-  assert.equal(graph.relations[0].direction, 'bidirectional');
-  assert(
-    graph.bounds.height > graph.bounds.width,
-    'reverse topology prevents the DAG-only wrapping policy',
-  );
-});
-
-test('reading composition does not exchange a small height saving for a page-wide wrap detour', async () => {
-  const { layoutInteractivePages } = await selected();
-  const labels = [
-    'Adapter contract',
-    'Claude Code',
-    'Claude Desktop',
-    'CLI',
-    'Codex',
-    'Configuration',
-    'Credential store',
-    'Native discovery',
-    'Hermes',
-    'Client registry',
-    'Synchronizer',
-  ];
-  const input = {
-    nodes: labels.map((label, index) => ({ id: `n-${index}`, label })),
-    relations: [
-      ['n-3', 'n-10', 'delegates'],
-      ['n-5', 'n-10', 'configures'],
-      ['n-0', 'n-4', 'realized-by'],
-      ['n-0', 'n-8', 'realized-by'],
-      ['n-0', 'n-1', 'realized-by'],
-      ['n-0', 'n-2', 'realized-by'],
-      ['n-6', 'n-0', 'supplies-credentials'],
-      ['n-7', 'n-10', 'reports-to'],
-      ['n-9', 'n-0', 'dispatches'],
-      ['n-10', 'n-9', 'delegates'],
-    ].map(([source, target, graphLabel], index) => ({
-      id: `r-${index}`,
-      source,
-      target,
-      graphLabel,
-    })),
-  };
-  const before = structuredClone(input);
-  const graph = (
-    await layoutInteractivePages([input], await measurePages([input]), { timeoutMs: 25_000 })
-  ).layouts[0];
-  const detour = graph.relations.reduce((total, relation) => {
-    const length = relation.points.slice(1).reduce((sum, point, index) => {
-      const previous = relation.points[index];
-      return sum + Math.abs(point.x - previous.x) + Math.abs(point.y - previous.y);
-    }, 0);
-    const first = relation.points[0];
-    const last = relation.points.at(-1);
-    return total + length - Math.abs(last.x - first.x) - Math.abs(last.y - first.y);
-  }, 0);
-  assert(detour < 1, 'a selected complete route must not wrap across the page to save 89px height');
-  assert(graph.bounds.height <= 800);
-  assert.equal(graph.nodes.length, labels.length);
-  assert.equal(graph.relations.length, input.relations.length);
-  assert.deepEqual(input, before);
-});
-
-test('the same layout owner admits a wider native wrap without shortening selected words', async () => {
-  const { layoutInteractivePages } = await selected();
-  const input = {
-    nodes: [
-      'Admitted adapters',
-      'AIGW',
-      'Native client',
-      'Configuration',
-      'Selected endpoint',
-      'Operator',
-      'Native projection',
-    ].map((label, index) => ({ id: `n-${index}`, label })),
-    relations: [
-      ['n-1', 'n-0', 'dispatches'],
-      ['n-1', 'n-3', 'maintains'],
-      ['n-2', 'n-4', 'sends-requests-to'],
-      ['n-5', 'n-1', 'invokes'],
-      ['n-6', 'n-2', 'configures'],
-      ['n-0', 'n-6', 'applies'],
-    ].map(([source, target, graphLabel], index) => ({
-      id: `r-${index}`,
-      source,
-      target,
-      graphLabel,
-    })),
-  };
-  const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
-  assert(
-    graph.bounds.height < 400,
-    'one 3.2-aspect native wrap keeps the full short argument shallow',
-  );
-  const scale = Math.min(1, 1512 / (graph.bounds.width + 64));
-  for (const relation of graph.relations) {
-    assert.equal(
-      relation.label.lines.join(' '),
-      input.relations.find(({ id }) => id === relation.id).graphLabel,
-    );
-    assert(relation.label.fontSize * scale >= 12);
-  }
-});
-
-test('grouped branching preserves every member and readable labels when centered headings obstruct a route', async () => {
-  const { layoutInteractivePages } = await selected();
-  const input = {
-    nodes: [
-      'Adapter contract',
-      'Claude Code',
-      'Claude Desktop',
-      'CLI',
-      'Codex',
-      'Configuration',
-      'Credential store',
-      'Native discovery',
-      'Hermes',
-      'Client registry',
-      'Synchronizer',
-      'Guarded transaction',
-    ].map((label, index) => ({ id: `n-${index}`, label })),
-    groups: [
-      ['Operator intent and host state', [3, 5, 7]],
-      ['Desired-state coordination', [10]],
-      ['Credential and client admission', [6, 9]],
-      ['Adapter contract and transaction', [0, 11]],
-      ['Native client projections', [4, 1, 2, 8]],
-    ].map(([label, members], index) => ({
-      id: `g-${index}`,
-      label,
-      nodeIds: members.map((member) => `n-${member}`),
-    })),
-    relations: [
-      [3, 10, 'delegates'],
-      [5, 10, 'configures'],
-      [0, 1, 'realized-by'],
-      [0, 2, 'realized-by'],
-      [0, 4, 'realized-by'],
-      [0, 8, 'realized-by'],
-      [0, 11, 'guards'],
-      [6, 0, 'supplies-credentials'],
-      [7, 10, 'reports-to'],
-      [9, 0, 'dispatches'],
-      [10, 9, 'delegates'],
-    ].map(([source, target, graphLabel], index) => ({
-      id: `r-${index}`,
-      source: `n-${source}`,
-      target: `n-${target}`,
-      graphLabel,
-    })),
-  };
-  const before = structuredClone(input);
-  const graph = (await layoutInteractivePages([input], await measurePages([input]))).layouts[0];
-  const readingWidth =
-    Math.min(marks.desktopReadingWidth, marks.shellMaximumWidth) - marks.shellInset * 2;
-  const scale = Math.min(1, readingWidth / (graph.bounds.width + marks.graphInset * 2));
-  for (const item of [...graph.nodes, ...graph.groups, ...graph.relations]) {
-    assert(
-      item.label.fontSize * scale >= marks.minimumLabelSize,
-      `${item.id} must remain readable in the declared desktop reading width`,
-    );
-  }
-  for (const group of input.groups) {
-    assert.deepEqual(
-      graph.nodes
-        .filter((node) => node.groupId === group.id)
-        .map((node) => node.id)
-        .sort(),
-      [...group.nodeIds].sort(),
-    );
-    assert.equal(
-      graph.groups.find((item) => item.id === group.id).label.lines.join(' '),
-      group.label,
-    );
-  }
-  assert.equal(graph.relations.length, input.relations.length);
-  assert.deepEqual(input, before);
-});
-
-test('complete grouped content rejects unreadable candidates with source-bound guidance', async () => {
-  const { layoutInteractivePages } = await selected();
-  const input = {
-    id: 'complete-stages',
-    questions: [{ text: 'Which stage owns each boundary?' }],
-    nodes: [],
-    relations: [],
-    groups: [],
-  };
-  for (let stage = 0; stage < 8; stage++) {
-    const nodeIds = [];
-    for (let member = 0; member < 8; member++) {
-      const id = `n-${stage}-${member}`;
-      nodeIds.push(id);
-      input.nodes.push({ id, label: `Stage ${stage} responsibility ${member}` });
-      if (stage)
-        input.relations.push({
-          id: `r-${stage}-${member}`,
-          source: `n-${stage - 1}-${member}`,
-          target: id,
-          graphLabel: 'delegates',
-        });
-    }
-    input.groups.push({ id: `g-${stage}`, label: `Execution stage ${stage}`, nodeIds });
-  }
-  const before = structuredClone(input);
-  await assert.rejects(layoutInteractivePages([input], await measurePages([input])), (error) => {
-    assert.equal(error.code, 'render_interactive_layout_infeasible');
-    assert.deepEqual(error.diagnostics, [
-      {
-        view: input.id,
-        questions: ['Which stage owns each boundary?'],
-        need: 'source-bound-caption-or-regrouping',
-      },
-    ]);
-    return true;
-  });
-  assert.deepEqual(input, before);
-});
-
-test('resource, graph identity, group partition, and text bounds reject invalid requests', async () => {
+test("resource, graph identity, group partition, and text bounds reject invalid requests", async () => {
   const { layoutInteractivePages, measure } = await selected();
   for (const options of [
     { timeoutMs: 0 },
     { timeoutMs: 25001 },
     { maximumBytes: 0 },
     { maximumBytes: 33 * 1024 * 1024 },
-    { temporaryDirectory: 'relative' },
+    { temporaryDirectory: "relative" },
+    { readingViewport: null },
+    { readingViewport: { width: 0, height: 574 } },
+    { readingViewport: { width: Infinity, height: 574 } },
+    { readingViewport: { width: 1240, height: Infinity } },
+    { readingViewport: { width: 1240, height: 0 } },
   ])
     await assert.rejects(layoutInteractivePages([page()], measure, options), {
-      code: 'render_interactive_layout_execution_limit_invalid',
+      code: "render_interactive_layout_execution_limit_invalid",
     });
   for (const mutate of [
     (p) => {
@@ -525,16 +337,16 @@ test('resource, graph identity, group partition, and text bounds reject invalid 
       p.nodes = [];
     },
     (p) => {
-      p.nodes[0].id = 'root';
+      p.nodes[0].id = "root";
     },
     (p) => {
-      p.relations[0].id = '';
+      p.relations[0].id = "";
     },
     (p) => {
-      p.relations[0].direction = 'reverse';
+      p.relations[0].direction = "reverse";
     },
     (p) => {
-      p.nodes = Array.from({ length: 513 }, (_, i) => ({ id: String(i), label: 'Node' }));
+      p.nodes = Array.from({ length: 513 }, (_, i) => ({ id: String(i), label: "Node" }));
     },
     (p) => {
       p.relations = Array(2049).fill(p.relations[0]);
@@ -543,30 +355,30 @@ test('resource, graph identity, group partition, and text bounds reject invalid 
     const input = page();
     mutate(input);
     await assert.rejects(layoutInteractivePages([input], measure), {
-      code: 'render_interactive_layout_invalid',
+      code: "render_interactive_layout_invalid",
     });
   }
   const groupMeasure = await measurePages([
     {
       ...page(),
-      groups: [{ id: 'valid', label: 'Owner', nodeIds: ['n-0', 'n-1', 'n-2'] }],
+      groups: [{ id: "valid", label: "Owner", nodeIds: ["n-0", "n-1", "n-2"] }],
     },
   ]);
   for (const groups of [
     null,
     [],
-    [{ id: 'root', label: 'Owner', nodeIds: ['n-0', 'n-1', 'n-2'] }],
-    [{ id: 'g-0', label: 'Owner', nodeIds: ['n-0', 'n-0', 'n-1', 'n-2'] }],
-    [{ id: 'g-0', label: 'Owner', nodeIds: ['n-0', 'n-1', 'absent'] }],
+    [{ id: "root", label: "Owner", nodeIds: ["n-0", "n-1", "n-2"] }],
+    [{ id: "g-0", label: "Owner", nodeIds: ["n-0", "n-0", "n-1", "n-2"] }],
+    [{ id: "g-0", label: "Owner", nodeIds: ["n-0", "n-1", "absent"] }],
   ])
     await assert.rejects(layoutInteractivePages([{ ...page(), groups }], groupMeasure), {
-      code: 'render_interactive_group_invalid',
+      code: "render_interactive_group_invalid",
     });
-  for (const label of ['line\nbreak', 'x'.repeat(4097), Array(40).fill('selected').join(' ')]) {
+  for (const label of ["line\nbreak", "x".repeat(4097), Array(40).fill("selected").join(" ")]) {
     const input = page();
     input.relations[0].graphLabel = label;
     await assert.rejects(async () => layoutInteractivePages([input], await measurePages([input])), {
-      code: 'render_interactive_text_infeasible',
+      code: "render_interactive_text_infeasible",
     });
   }
 });

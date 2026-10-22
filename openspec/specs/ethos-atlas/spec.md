@@ -1,4 +1,4 @@
-# ethos-atlas Specification
+# `ethos-atlas` Specification
 
 ## Purpose
 

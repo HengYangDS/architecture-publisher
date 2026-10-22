@@ -1,7 +1,10 @@
 ---
 subject: architecture-publisher:primary-forge-release-custody
-role: dated-observation
+role: evidence
+state: active
 observed_at: 2026-09-24T08:06:27Z
+relations:
+  governed_by: ../product-contract.md
 ---
 
 # Primary-forge release custody readback

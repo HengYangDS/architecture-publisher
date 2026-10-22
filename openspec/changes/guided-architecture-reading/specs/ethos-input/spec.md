@@ -2,13 +2,14 @@
 
 ### Requirement: Explicit source replay
 
-**Reason**: ETHOS owns its exporter and source-specific execution contract.
-Publisher has no active ETHOS importer; its generic Provider contract owns
-explicit, bounded source execution without requiring a particular language.
+**Reason**: Source products are read-only material, not drawing integrations.
+Source-specific preparation belongs to an external editor, while Publisher
+accepts exact portable inputs through its generic intake contracts.
 
-**Migration**: Supply exact source files through `source-intake`, or explicitly
-select a source-owned Provider through `edition-provider`. Retain source and
-replay attribution without introducing a Publisher-owned ETHOS exporter.
+**Migration**: Supply pinned existing source files through `source-intake`, or
+explicitly select an external editor's Provider through `edition-provider`.
+Retain source and replay attribution outside ETHOS; add no drawing exporter,
+files, dependency, configuration, tests or CI obligations to that source product.
 
 ### Requirement: Offline byte-bound source consumption
 

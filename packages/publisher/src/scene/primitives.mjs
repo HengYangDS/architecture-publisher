@@ -1,12 +1,12 @@
-import { fail, hasExactFields as exact } from '../protocol/values.mjs';
-import { primitiveValid } from '../edition/generated/validators.mjs';
-import { expandBox } from './geometry.mjs';
+import { fail, hasExactFields as exact } from "../protocol/values.mjs";
+import { primitiveValid } from "../edition/generated/validators.mjs";
+import { expandBox } from "./geometry.mjs";
 
-const invalid = () => fail('authored_primitive_invalid');
+const invalid = () => fail("authored_primitive_invalid");
 const coordinate = (value) => Number.isFinite(value) && Math.abs(value) <= 12000;
-const point = (value) => exact(value, ['x', 'y']) && coordinate(value.x) && coordinate(value.y);
+const point = (value) => exact(value, ["x", "y"]) && coordinate(value.x) && coordinate(value.y);
 const box = (value) =>
-  exact(value, ['x', 'y', 'width', 'height']) &&
+  exact(value, ["x", "y", "width", "height"]) &&
   point({ x: value.x, y: value.y }) &&
   [value.width, value.height].every((n) => Number.isFinite(n) && n > 0 && n <= 12000);
 
@@ -44,7 +44,7 @@ export function assertPrimitiveContrast(nodes, tone, background) {
     const last = node.primitives.at(-1);
     // SVG paints fill, then stroke, in authored primitive order. A final
     // background operation cannot certify an earlier possibly covered witness.
-    if (tone(last.stroke ?? last.fill) === background) fail('authored_primitive_background_only');
+    if (tone(last.stroke ?? last.fill) === background) fail("authored_primitive_background_only");
   }
 }
 
@@ -73,7 +73,7 @@ export function resolvePrimitivePaint(node, origin) {
       invalid();
     let resolved;
     let extent;
-    if (primitive.kind === 'circle') {
+    if (primitive.kind === "circle") {
       const center = translate(primitive.center);
       resolved = { ...primitive, center };
       extent = {
@@ -82,22 +82,22 @@ export function resolvePrimitivePaint(node, origin) {
         width: primitive.radius * 2,
         height: primitive.radius * 2,
       };
-    } else if (primitive.kind === 'rect') {
+    } else if (primitive.kind === "rect") {
       const rectangle = { ...primitive.box, ...translate(primitive.box) };
       resolved = { ...primitive, box: rectangle };
       extent = rectangle;
     } else {
-      const local = primitive.kind === 'line' ? [primitive.start, primitive.end] : primitive.points;
+      const local = primitive.kind === "line" ? [primitive.start, primitive.end] : primitive.points;
       if (
         local.every((p) => p.x === local[0].x && p.y === local[0].y) ||
-        (primitive.kind === 'polyline' &&
+        (primitive.kind === "polyline" &&
           ((!primitive.closed && primitive.fill !== null) ||
             (primitive.closed && primitive.fill !== null && !nonzeroFill(local))))
       )
         invalid();
       const points = local.map(translate);
       resolved =
-        primitive.kind === 'line'
+        primitive.kind === "line"
           ? { ...primitive, start: points[0], end: points[1] }
           : { ...primitive, points };
       extent = bounds(points);
@@ -119,7 +119,7 @@ export function resolvePrimitivePaint(node, origin) {
     ]),
   );
   if (
-    Object.hasOwn(node, 'paintBox') &&
+    Object.hasOwn(node, "paintBox") &&
     (!box(node.paintBox) ||
       Object.keys(paintBox).some((key) => node.paintBox[key] !== paintBox[key]))
   )
@@ -132,24 +132,24 @@ export function resolvePrimitiveNodes(nodes, medium) {
   let primitiveCount = 0;
   let pointCount = 0;
   return nodes.map((node) => {
-    if (!Object.hasOwn(node, 'primitives')) {
-      if (Object.hasOwn(node, 'adornment')) invalid();
+    if (!Object.hasOwn(node, "primitives")) {
+      if (Object.hasOwn(node, "adornment")) invalid();
       return node;
     }
-    const staticNode = medium === 'static';
+    const staticNode = medium === "static";
     if (
       !exact(
         node,
-        ['id', 'semanticIds', 'primitives', ...(staticNode ? ['box'] : ['position', 'size'])],
-        ['paintBox', 'adornment'],
+        ["id", "semanticIds", "primitives", ...(staticNode ? ["box"] : ["position", "size"])],
+        ["paintBox", "adornment"],
       ) ||
-      typeof node.id !== 'string' ||
+      typeof node.id !== "string" ||
       !/^[a-z][a-z0-9-]{0,79}$/u.test(node.id) ||
       !Array.isArray(node.semanticIds) ||
       node.semanticIds.length > 4096 ||
       new Set(node.semanticIds).size !== node.semanticIds.length ||
-      node.semanticIds.some((id) => typeof id !== 'string' || !id.trim()) ||
-      (Object.hasOwn(node, 'adornment') && node.adornment !== true) ||
+      node.semanticIds.some((id) => typeof id !== "string" || !id.trim()) ||
+      (Object.hasOwn(node, "adornment") && node.adornment !== true) ||
       (node.adornment ? node.semanticIds.length !== 0 : node.semanticIds.length === 0) ||
       !(staticNode
         ? box(node.box)
@@ -164,14 +164,14 @@ export function resolvePrimitiveNodes(nodes, medium) {
     pointCount += node.primitives.reduce(
       (count, primitive) =>
         count +
-        (primitive.kind === 'polyline'
+        (primitive.kind === "polyline"
           ? primitive.points.length + (primitive.closed ? 1 : 0)
-          : primitive.kind === 'line'
+          : primitive.kind === "line"
             ? 2
             : 0),
       0,
     );
-    if (primitiveCount > 4096 || pointCount > 32768) fail('authored_primitive_budget_exceeded');
+    if (primitiveCount > 4096 || pointCount > 32768) fail("authored_primitive_budget_exceeded");
     return { ...node, primitives: structuredClone(node.primitives), paintBox: resolved.paintBox };
   });
 }

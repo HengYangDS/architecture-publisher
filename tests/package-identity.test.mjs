@@ -1,10 +1,10 @@
-import assert from 'node:assert/strict';
-import { gzipSync } from 'node:zlib';
-import test from 'node:test';
-import { npmPackageIdentity } from './fixtures/package-identity.mjs';
+import assert from "node:assert/strict";
+import { gzipSync } from "node:zlib";
+import test from "node:test";
+import { npmPackageIdentity } from "./fixtures/package-identity.mjs";
 
-test('npm package content identity survives different gzip encodings', () => {
-  const tarBytes = Buffer.from('portable package content\n'.repeat(4096));
+test("npm package content identity survives different gzip encodings", () => {
+  const tarBytes = Buffer.from("portable package content\n".repeat(4096));
   const fastArchive = gzipSync(tarBytes, { level: 1 });
   const compactArchive = gzipSync(tarBytes, { level: 9 });
 

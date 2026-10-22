@@ -1,93 +1,42 @@
-import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import fs from 'node:fs/promises';
-import test from 'node:test';
-import { fromSources } from '@likec4/language-services/node';
-import * as semantics from '../packages/publisher/src/semantics/index.mjs';
-import { importLikeC4NativeWithParser } from '../packages/publisher/src/semantics/native-likec4.mjs';
-import { sealMaterializedInputLock } from '../packages/publisher/src/source/materialize.mjs';
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import test from "node:test";
+import { fromSources } from "@likec4/language-services/node";
+import * as semantics from "../packages/publisher/src/semantics/index.mjs";
+import { importLikeC4NativeWithParser } from "../packages/publisher/src/semantics/native-likec4.mjs";
+import { validateNativeIndexReply } from "../packages/publisher/src/semantics/native-execution.mjs";
+import { resolveLikeC4Selection } from "../packages/publisher/src/semantics/native-selection.mjs";
+import { sealMaterializedInputLock } from "../packages/publisher/src/source/materialize.mjs";
+import { sha, model, views, selection, parserWith } from "./fixtures/native-import.mjs";
 
-const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
-const model = Buffer.from(
-  "specification { element component }\nmodel { left = component 'Left'\n right = component 'Right'\n left -> right }\n",
-);
-const views = Buffer.from('views { view overview { include * } }\n');
-
-test('selected LikeC4 parser supply includes its declared import peers', async () => {
+test("selected LikeC4 parser supply includes its declared import peers", async () => {
   const [{ bundleRequire }, { transform }] = await Promise.all([
-    import('bundle-require'),
-    import('esbuild'),
+    import("bundle-require"),
+    import("esbuild"),
   ]);
-  assert.equal(typeof bundleRequire, 'function');
-  assert.equal(typeof transform, 'function');
+  assert.equal(typeof bundleRequire, "function");
+  assert.equal(typeof transform, "function");
 });
 
-function selection(
-  contents = new Map([
-    ['example/model', model],
-    ['example/views', views],
-  ]),
-) {
-  return {
-    lock: {
-      schema: 'architecture.materialized-input-lock/v1',
-      sources: [...contents].map(([namespace, content]) => ({
-        namespace,
-        claimant: 'example-maintainer',
-        format: { id: 'likec4/dsl', version: 'unversioned' },
-        revision: { kind: 'content', algorithm: 'sha256', value: sha(content) },
-        sha256: sha(content),
-      })),
-    },
-    readSource(namespace) {
-      return Buffer.from(contents.get(namespace));
-    },
-  };
-}
-
-function parserWith({ locate, elements, relations, views }) {
-  return async (sources, options) => {
-    const upstream = await fromSources(sources, options);
-    const computed = upstream.syncComputedModel();
-    return {
-      documentPaths: () => upstream.documentPaths(),
-      languageServices: {
-        getErrors: () => upstream.languageServices.getErrors(),
-        locate: (query) => {
-          const original = upstream.languageServices.locate(query);
-          return locate ? locate(original, query) : original;
-        },
-      },
-      ensureSingleProject: () => upstream.ensureSingleProject(),
-      syncComputedModel: () => ({
-        elements: () => (elements ? elements([...computed.elements()]) : computed.elements()),
-        relationships: () =>
-          relations ? relations([...computed.relationships()]) : computed.relationships(),
-        views: () => (views ? views([...computed.views()]) : computed.views()),
-      }),
-    };
-  };
-}
-
-test('public native import selects the verified bundled parser and rejects overrides', async () => {
+test("public native import selects the verified bundled parser and rejects overrides", async () => {
   const index = await semantics.importLikeC4Native(selection());
   const manifest = await fs.readFile(
-    new URL('../packages/publisher/supplies/likec4/supply.json', import.meta.url),
+    new URL("../packages/publisher/supplies/likec4/supply.json", import.meta.url),
   );
-  assert.deepEqual(index.parserSupply, { id: 'likec4-parser', sha256: sha(manifest) });
+  assert.deepEqual(index.parserSupply, { id: "likec4-parser", sha256: sha(manifest) });
   await assert.rejects(semantics.importLikeC4Native(selection(), fromSources), {
-    code: 'native_likec4_parser_override_forbidden',
+    code: "native_likec4_parser_override_forbidden",
   });
   await assert.rejects(
     semantics.importLikeC4Layout(
-      { ...selection(), view: { namespace: 'example/views', id: 'overview' } },
+      { ...selection(), view: { namespace: "example/views", id: "overview" } },
       fromSources,
     ),
-    { code: 'native_likec4_parser_override_forbidden' },
+    { code: "native_likec4_parser_override_forbidden" },
   );
 });
 
-test('native importer explicitly requests upstream no-filesystem mode', async () => {
+test("native importer explicitly requests upstream no-filesystem mode", async () => {
   let selectedOptions;
   await importLikeC4NativeWithParser(selection(), async (files, options) => {
     selectedOptions = options;
@@ -96,159 +45,303 @@ test('native importer explicitly requests upstream no-filesystem mode', async ()
   assert.equal(selectedOptions.useFileSystem, false);
   assert.equal(selectedOptions.manualLayouts, false);
   assert.equal(selectedOptions.watch, false);
-  assert.equal(selectedOptions.graphviz, 'wasm');
+  assert.equal(selectedOptions.graphviz, "wasm");
 });
 
-test('native LikeC4 import binds model and view semantics to selected bytes', async () => {
-  assert.equal(typeof semantics.importLikeC4Native, 'function');
+test("native LikeC4 import binds model and view semantics to selected bytes", async () => {
+  assert.equal(typeof semantics.importLikeC4Native, "function");
   const index = await importLikeC4NativeWithParser(selection(), fromSources);
-  assert.equal(index.schema, 'architecture.native-index/v1');
-  assert.equal(index.format, 'likec4/dsl');
-  assert.equal(index.closure, 'parsed-document-set-only');
+  assert.equal(index.schema, "architecture.native-index/v2");
+  assert.equal(index.format, "likec4/dsl");
+  assert.equal(index.closure, "parsed-document-set-only");
   assert.equal(index.elements.length, 2);
   assert.equal(index.relations.length, 1);
   assert.equal(index.views.length, 1);
   assert.deepEqual(index.opaqueViews, []);
-  assert.deepEqual(index.generatedViews, ['index']);
-  assert.equal(Object.hasOwn(index, 'unlocatedViews'), false);
+  assert.deepEqual(index.generatedViews, ["index"]);
+  assert.equal(Object.hasOwn(index, "unlocatedViews"), false);
   assert.deepEqual(
     index.elements.map(({ id }) => id),
-    ['left', 'right'],
+    ["left", "right"],
   );
-  assert.deepEqual(index.relations[0].from, { namespace: 'example/model', id: 'left' });
-  assert.deepEqual(index.relations[0].to, { namespace: 'example/model', id: 'right' });
+  assert.deepEqual(index.relations[0].from, { namespace: "example/model", id: "left" });
+  assert.deepEqual(index.relations[0].to, { namespace: "example/model", id: "right" });
   assert.equal(index.relations[0].kind, null);
-  assert.equal(index.relations[0].direction, 'forward');
-  assert.equal(index.relations[0].identityScope, 'parser-run');
-  assert.equal(index.relations[0].origin.namespace, 'example/model');
+  assert.equal(index.relations[0].direction, "forward");
+  assert.equal(index.relations[0].identityScope, "parser-run");
+  assert.equal(index.relations[0].origin.namespace, "example/model");
   assert.equal(index.relations[0].origin.sha256, sha(model));
-  assert.equal(index.relations[0].origin.quality, 'point');
-  assert.equal(index.views[0].origin.namespace, 'example/views');
-  assert.deepEqual(index.views[0].elements, [
-    { namespace: 'example/model', id: 'left' },
-    { namespace: 'example/model', id: 'right' },
-  ]);
-  assert.deepEqual(index.views[0].relations, [index.relations[0].id]);
-  assert(index.semanticLimits.includes('view-membership-upstream-computed-unqualified'));
-  assert(index.semanticLimits.includes('domain-metadata-opaque'));
-  assert(!JSON.stringify(index).includes('/workspace/'));
+  assert.equal(index.relations[0].origin.quality, "point");
+  assert.equal(index.views[0].origin.namespace, "example/views");
+  assert.deepEqual(
+    index.elements.map(({ parent }) => parent),
+    [null, null],
+  );
+  assert.deepEqual(
+    index.views[0].nodes.map(({ element }) => element),
+    [
+      { namespace: "example/model", id: "left" },
+      { namespace: "example/model", id: "right" },
+    ],
+  );
+  assert.deepEqual(index.views[0].edges[0].relations, [index.relations[0].id]);
+  assert.equal(Object.hasOwn(index.views[0], "elements"), false);
+  assert.equal(Object.hasOwn(index.views[0], "relations"), false);
+  assert(index.semanticLimits.includes("view-membership-upstream-computed-unqualified"));
+  assert(index.semanticLimits.includes("domain-metadata-opaque"));
+  assert(!JSON.stringify(index).includes("/workspace/"));
 });
 
-test('the upstream include view contains exactly the selected model members', async () => {
+test("the upstream include view contains exactly the selected model members", async () => {
   const base = await importLikeC4NativeWithParser(selection(), fromSources);
   const extra = Buffer.from("model { third = component 'Third'\n right -> third }\n");
   const extended = await importLikeC4NativeWithParser(
     selection(
       new Map([
-        ['example/model', model],
-        ['example/views', views],
-        ['example/extra', extra],
+        ["example/model", model],
+        ["example/views", views],
+        ["example/extra", extra],
       ]),
     ),
     fromSources,
   );
-  assert.deepEqual(base.views[0].elements.map(({ id }) => id).sort(), ['left', 'right']);
-  assert.deepEqual(extended.views[0].elements.map(({ id }) => id).sort(), [
-    'left',
-    'right',
-    'third',
+  assert.deepEqual(base.views[0].nodes.map(({ element }) => element.id).sort(), ["left", "right"]);
+  assert.deepEqual(extended.views[0].nodes.map(({ element }) => element.id).sort(), [
+    "left",
+    "right",
+    "third",
   ]);
-  assert.equal(base.views[0].relations.length, 1);
-  assert.equal(extended.views[0].relations.length, 2);
+  assert.equal(base.views[0].edges.length, 1);
+  assert.equal(extended.views[0].edges.length, 2);
 });
 
-test('the upstream include view cannot resolve an unselected element', async () => {
-  const missing = Buffer.from('views { view overview { include missing } }\n');
+test("native projection retains collapsed contributors without inventing a source path", async () => {
+  const contents = new Map([
+    [
+      "example/model",
+      Buffer.from(
+        "specification { element component }\nmodel { a = component 'A'\n b = component 'B' { b1 = component 'B1'\n b2 = component 'B2' }\n c = component 'C'\n a -> b.b1\n b.b2 -> c }\n",
+      ),
+    ],
+    ["example/views", Buffer.from("views { view overview { include a,b,c } }\n")],
+  ]);
+  const index = await importLikeC4NativeWithParser(selection(contents), fromSources);
+  assert.doesNotThrow(() => validateNativeIndexReply(index, index.sources));
+  assert.deepEqual(index.elements.find(({ id }) => id === "b.b1").parent, {
+    namespace: "example/model",
+    id: "b",
+  });
+  const relations = new Map(index.relations.map((relation) => [relation.id, relation]));
+  assert.deepEqual(
+    index.views[0].edges.map((edge) => ({
+      from: edge.from,
+      to: edge.to,
+      contributors: edge.relations.map((id) => [
+        relations.get(id).from.id,
+        relations.get(id).to.id,
+      ]),
+    })),
+    [
+      { from: "a", to: "b", contributors: [["a", "b.b1"]] },
+      { from: "b", to: "c", contributors: [["b.b2", "c"]] },
+    ],
+  );
+  assert.throws(
+    () =>
+      resolveLikeC4Selection(index, {
+        id: "overview",
+        namespace: "example/views",
+        kind: "reference",
+        reference: "view:overview",
+      }),
+    { code: "native_likec4_view_membership_unrepresentable" },
+  );
+});
+
+test("native groups and view wording retain their separate source and occurrence meanings", async () => {
+  const contents = new Map([
+    [
+      "example/model",
+      Buffer.from(
+        "specification { element component }\nmodel { a = component 'Original A'\n b = component 'Original B'\n a -> b 'Original link' }\n",
+      ),
+    ],
+    [
+      "example/views",
+      Buffer.from(
+        "views { view overview { group 'Pair' { include a with { title 'Explained A' } include b } include a -> b with { title 'Explained link' } } }\n",
+      ),
+    ],
+  ]);
+  const index = await importLikeC4NativeWithParser(selection(contents), fromSources);
+  assert.doesNotThrow(() => validateNativeIndexReply(index, index.sources));
+  const view = index.views[0];
+  const group = view.nodes.find(({ element }) => element === null);
+  const occurrence = view.nodes.find(({ element }) => element?.id === "a");
+  assert.equal(group.label, "Pair");
+  assert.equal(occurrence.parent, group.id);
+  assert.equal(occurrence.label, "Explained A");
+  assert.equal(index.elements.find(({ id }) => id === "a").label, "Original A");
+  assert.equal(view.edges[0].label, "Explained link");
+  assert.equal(index.relations[0].label, "Original link");
+  assert.equal(index.elements.length, 2);
+});
+
+test("native occurrence identity and repeated carriers never duplicate source facts", async () => {
+  const index = await importLikeC4NativeWithParser(
+    selection(),
+    parserWith({
+      views: (items) =>
+        items.map((view) => {
+          if (view.id !== "overview") return view;
+          const original = [...view.nodes()];
+          const nodes = original.map((node) => ({
+            id: `figure-${node.id}`,
+            title: node.title,
+            parent: null,
+            element: node.element,
+            isGroup: () => false,
+          }));
+          nodes.push({ ...nodes[0], id: "repeated-left" });
+          const edge = [...view.edges()][0];
+          return {
+            id: view.id,
+            $view: view.$view,
+            nodes: () => nodes,
+            edges: () => [
+              {
+                id: "first-carrier",
+                source: nodes[0],
+                target: nodes[1],
+                label: edge.label,
+                relationships: () => edge.relationships(),
+              },
+              {
+                id: "second-carrier",
+                source: nodes[2],
+                target: nodes[1],
+                label: edge.label,
+                relationships: () => edge.relationships(),
+              },
+            ],
+          };
+        }),
+    }),
+  );
+  assert.doesNotThrow(() => validateNativeIndexReply(index, index.sources));
+  assert.equal(index.views[0].nodes.length, 3);
+  assert.equal(index.elements.length, 2);
+  assert.equal(index.relations.length, 1);
+  assert.deepEqual(index.views[0].nodes.find(({ id }) => id === "repeated-left").element, {
+    namespace: "example/model",
+    id: "left",
+  });
+  assert.deepEqual(
+    index.views[0].edges.map(({ relations }) => relations),
+    [[index.relations[0].id], [index.relations[0].id]],
+  );
+  const selected = resolveLikeC4Selection(index, {
+    id: "overview",
+    namespace: "example/views",
+    kind: "reference",
+    reference: "view:overview",
+  });
+  assert.equal(selected.members.elements.length, 2);
+  assert.equal(selected.members.relations.length, 1);
+});
+
+test("the upstream include view cannot resolve an unselected element", async () => {
+  const missing = Buffer.from("views { view overview { include missing } }\n");
   await assert.rejects(
     importLikeC4NativeWithParser(
       selection(
         new Map([
-          ['example/model', model],
-          ['example/views', missing],
+          ["example/model", model],
+          ["example/views", missing],
         ]),
       ),
       fromSources,
     ),
-    { code: 'native_likec4_parse_invalid' },
+    { code: "native_likec4_parse_invalid" },
   );
 });
 
-test('dynamic view flow stays opaque instead of becoming a structural view', async () => {
+test("dynamic view flow stays opaque instead of becoming a structural view", async () => {
   const mixedViews = Buffer.from(
-    'views { view overview { include * } dynamic view flow { left -> right } }\n',
+    "views { view overview { include * } dynamic view flow { left -> right } }\n",
   );
   const index = await importLikeC4NativeWithParser(
     selection(
       new Map([
-        ['example/model', model],
-        ['example/views', mixedViews],
+        ["example/model", model],
+        ["example/views", mixedViews],
       ]),
     ),
     fromSources,
   );
   assert.deepEqual(
     index.views.map(({ id }) => id),
-    ['overview'],
+    ["overview"],
   );
   assert.deepEqual(
     index.opaqueViews.map(({ id, kind, origin }) => ({ id, kind, namespace: origin.namespace })),
-    [{ id: 'flow', kind: 'dynamic', namespace: 'example/views' }],
+    [{ id: "flow", kind: "dynamic", namespace: "example/views" }],
   );
   assert.equal(index.opaqueViews[0].origin.sha256, sha(mixedViews));
-  assert(index.semanticLimits.includes('native-view-semantics-uninterpreted'));
+  assert(index.semanticLimits.includes("native-view-semantics-uninterpreted"));
 });
 
-test('native metadata is retained as opaque values, not inferred claims', async () => {
+test("native metadata is retained as opaque values, not inferred claims", async () => {
   const withMetadata = Buffer.from(
     "specification { element component }\nmodel { left = component 'Left' { metadata { owner 'team-a' } }\n right = component 'Right'\n left -> right { metadata { policy 'review' } } }\n",
   );
   const index = await importLikeC4NativeWithParser(
     selection(
       new Map([
-        ['example/model', withMetadata],
-        ['example/views', views],
+        ["example/model", withMetadata],
+        ["example/views", views],
       ]),
     ),
     fromSources,
   );
-  assert.deepEqual(index.elements.find(({ id }) => id === 'left').opaqueMetadata, {
-    owner: 'team-a',
+  assert.deepEqual(index.elements.find(({ id }) => id === "left").opaqueMetadata, {
+    owner: "team-a",
   });
   assert.equal(
     Object.hasOwn(
-      index.elements.find(({ id }) => id === 'right'),
-      'opaqueMetadata',
+      index.elements.find(({ id }) => id === "right"),
+      "opaqueMetadata",
     ),
     false,
   );
-  assert.deepEqual(index.relations[0].opaqueMetadata, { policy: 'review' });
+  assert.deepEqual(index.relations[0].opaqueMetadata, { policy: "review" });
   assert.equal(Object.isFrozen(index.relations[0].opaqueMetadata), true);
-  assert(index.semanticLimits.includes('domain-metadata-opaque'));
+  assert(index.semanticLimits.includes("domain-metadata-opaque"));
 });
 
-test('native metadata with hidden fields cannot be silently dropped', async () => {
+test("native metadata with hidden fields cannot be silently dropped", async () => {
   const parser = parserWith({
     elements: (items) =>
       items.map((element, index) =>
-        index === 0 ? { ...element, metadata: { [Symbol('hidden')]: 'unselected' } } : element,
+        index === 0 ? { ...element, metadata: { [Symbol("hidden")]: "unselected" } } : element,
       ),
   });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_metadata_invalid',
+    code: "native_likec4_metadata_invalid",
   });
 });
 
-test('native LikeC4 import consumes the actual sealed materialization interface', async () => {
+test("native LikeC4 import consumes the actual sealed materialization interface", async () => {
   const selected = selection();
   const sealed = sealMaterializedInputLock({
-    edition: { id: 'example', editor: 'example', content: Buffer.from('{}'), resources: [] },
+    edition: { id: "example", editor: "example", content: Buffer.from("{}"), resources: [] },
     sources: selected.lock.sources.map((source) => ({
       ...source,
       revisionEvidence: source.revision,
       content: selected.readSource(source.namespace),
     })),
-    media: ['static'],
-    toolchain: { profile: 'portable' },
+    media: ["static"],
+    toolchain: { profile: "portable" },
   });
   const index = await importLikeC4NativeWithParser(sealed, fromSources);
   assert.equal(index.elements.length, 2);
@@ -256,69 +349,69 @@ test('native LikeC4 import consumes the actual sealed materialization interface'
   assert.equal(index.sources[0].sha256, sealed.lock.sources[0].sha256);
 });
 
-test('native LikeC4 import keeps same-label sources and cross-source endpoints distinct', async () => {
+test("native LikeC4 import keeps same-label sources and cross-source endpoints distinct", async () => {
   const left = Buffer.from(
     "specification { element component }\nmodel { left = component 'authority' }\n",
   );
   const right = Buffer.from("model { right = component 'authority'\n left -> right }\n");
   const selected = selection(
     new Map([
-      ['example/left', left],
-      ['example/right', right],
-      ['example/views', views],
+      ["example/left", left],
+      ["example/right", right],
+      ["example/views", views],
     ]),
   );
   const index = await importLikeC4NativeWithParser(selected, fromSources);
   assert.deepEqual(
     index.elements.map(({ id, namespace, label }) => ({ id, namespace, label })),
     [
-      { id: 'left', namespace: 'example/left', label: 'authority' },
-      { id: 'right', namespace: 'example/right', label: 'authority' },
+      { id: "left", namespace: "example/left", label: "authority" },
+      { id: "right", namespace: "example/right", label: "authority" },
     ],
   );
-  assert.deepEqual(index.relations[0].from, { namespace: 'example/left', id: 'left' });
-  assert.deepEqual(index.relations[0].to, { namespace: 'example/right', id: 'right' });
-  assert.equal(index.relations[0].origin.namespace, 'example/right');
+  assert.deepEqual(index.relations[0].from, { namespace: "example/left", id: "left" });
+  assert.deepEqual(index.relations[0].to, { namespace: "example/right", id: "right" });
+  assert.equal(index.relations[0].origin.namespace, "example/right");
 });
 
-test('native LikeC4 import does not freeze or retain mutable caller metadata', async () => {
+test("native LikeC4 import does not freeze or retain mutable caller metadata", async () => {
   const selected = selection();
   const index = await importLikeC4NativeWithParser(selected, fromSources);
   assert.equal(Object.isFrozen(selected.lock.sources[0].format), false);
-  selected.lock.sources[0].format.version = 'edited';
-  assert.equal(index.sources[0].format.version, 'unversioned');
+  selected.lock.sources[0].format.version = "edited";
+  assert.equal(index.sources[0].format.version, "unversioned");
 });
 
-test('native LikeC4 import rejects bytes that disagree with the selected lock', async () => {
+test("native LikeC4 import rejects bytes that disagree with the selected lock", async () => {
   const locked = selection();
   locked.readSource = (namespace) =>
-    namespace === 'example/model' ? Buffer.from('changed') : Buffer.from(views);
+    namespace === "example/model" ? Buffer.from("changed") : Buffer.from(views);
   await assert.rejects(importLikeC4NativeWithParser(locked, fromSources), {
-    code: 'native_likec4_digest_mismatch',
+    code: "native_likec4_digest_mismatch",
   });
 });
 
-test('native LikeC4 import rejects duplicate selected source namespaces', async () => {
+test("native LikeC4 import rejects duplicate selected source namespaces", async () => {
   const locked = selection();
   locked.lock.sources.push({ ...locked.lock.sources[0] });
   await assert.rejects(importLikeC4NativeWithParser(locked, fromSources), {
-    code: 'native_likec4_selection_invalid',
+    code: "native_likec4_selection_invalid",
   });
 });
 
-test('native LikeC4 import rejects parser documents outside the selected set', async () => {
+test("native LikeC4 import rejects parser documents outside the selected set", async () => {
   const parser = async (sources) => ({
     documentPaths: () => [
       ...Object.keys(sources).map((name) => `/workspace/${name}`),
-      '/workspace/ambient.c4',
+      "/workspace/ambient.c4",
     ],
   });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_document_set_mismatch',
+    code: "native_likec4_document_set_mismatch",
   });
 });
 
-test('native LikeC4 import rejects an ambient document with a selected basename', async () => {
+test("native LikeC4 import rejects an ambient document with a selected basename", async () => {
   const parser = async (sources, options) => {
     const selected = await fromSources(sources, options);
     return {
@@ -326,7 +419,7 @@ test('native LikeC4 import rejects an ambient document with a selected basename'
         selected
           .documentPaths()
           .map((file, index) =>
-            index === 0 ? file.replaceAll('\\', '/').replace('/workspace/', '/ambient/') : file,
+            index === 0 ? file.replaceAll("\\", "/").replace("/workspace/", "/ambient/") : file,
           ),
       ensureSingleProject: () => selected.ensureSingleProject(),
       languageServices: selected.languageServices,
@@ -334,30 +427,30 @@ test('native LikeC4 import rejects an ambient document with a selected basename'
     };
   };
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_document_set_mismatch',
+    code: "native_likec4_document_set_mismatch",
   });
 });
 
-test('native LikeC4 import refuses a location outside selected virtual documents', async () => {
+test("native LikeC4 import refuses a location outside selected virtual documents", async () => {
   const parser = parserWith({
     locate: (location) =>
-      location && { ...location, uri: location.uri.replace('/workspace/', '/ambient/') },
+      location && { ...location, uri: location.uri.replace("/workspace/", "/ambient/") },
   });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_source_reference_unselected',
+    code: "native_likec4_source_reference_unselected",
   });
 });
 
-test('native LikeC4 import fails when an authored view loses its source location', async () => {
+test("native LikeC4 import fails when an authored view loses its source location", async () => {
   const parser = parserWith({
-    locate: (location, query) => (query.view === 'overview' ? null : location),
+    locate: (location, query) => (query.view === "overview" ? null : location),
   });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_source_reference_missing',
+    code: "native_likec4_source_reference_missing",
   });
 });
 
-test('native LikeC4 import rejects a source range outside its selected bytes', async () => {
+test("native LikeC4 import rejects a source range outside its selected bytes", async () => {
   const parser = parserWith({
     locate: (location) =>
       location && {
@@ -369,37 +462,37 @@ test('native LikeC4 import rejects a source range outside its selected bytes', a
       },
   });
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_source_reference_invalid',
+    code: "native_likec4_source_reference_invalid",
   });
 });
 
-test('native LikeC4 import refuses invalid selected DSL rather than inventing a model', async () => {
-  const invalid = selection(new Map([['example/model', Buffer.from('model { broken = }\n')]]));
+test("native LikeC4 import refuses invalid selected DSL rather than inventing a model", async () => {
+  const invalid = selection(new Map([["example/model", Buffer.from("model { broken = }\n")]]));
   await assert.rejects(importLikeC4NativeWithParser(invalid, fromSources), {
-    code: 'native_likec4_parse_invalid',
+    code: "native_likec4_parse_invalid",
   });
 });
 
-test('native LikeC4 import rejects ambiguous parser projects', async () => {
+test("native LikeC4 import rejects ambiguous parser projects", async () => {
   const parser = async (sources, options) => {
     const selected = await fromSources(sources, options);
     return {
       documentPaths: () => selected.documentPaths(),
       languageServices: selected.languageServices,
       ensureSingleProject: () => {
-        throw new Error('ambiguous project');
+        throw new Error("ambiguous project");
       },
       syncComputedModel: () => selected.syncComputedModel(),
     };
   };
   await assert.rejects(importLikeC4NativeWithParser(selection(), parser), {
-    code: 'native_likec4_model_invalid',
+    code: "native_likec4_model_invalid",
   });
 });
 
-test('native LikeC4 import indexes selected source lines once for many references', async () => {
-  const body = 'line one\nline two\n';
-  const selected = selection(new Map([['example/model', Buffer.from(body)]]));
+test("native LikeC4 import indexes selected source lines once for many references", async () => {
+  const body = "line one\nline two\n";
+  const selected = selection(new Map([["example/model", Buffer.from(body)]]));
   const original = String.prototype.split;
   let splits = 0;
   String.prototype.split = function (...args) {
@@ -426,7 +519,7 @@ test('native LikeC4 import indexes selected source lines once for many reference
           elements: () =>
             Array.from({ length: 20 }, (_, index) => ({
               id: `node-${index}`,
-              kind: 'component',
+              kind: "component",
               title: `Node ${index}`,
               metadata: {},
             })),
@@ -441,173 +534,4 @@ test('native LikeC4 import indexes selected source lines once for many reference
   } finally {
     String.prototype.split = original;
   }
-});
-
-test('native import rejects malformed selected sources before parser execution', async () => {
-  const invalidSelections = [
-    [null, 'native_likec4_selection_invalid'],
-    [{ ...selection(), lock: { schema: 'other', sources: [] } }, 'native_likec4_selection_invalid'],
-    [
-      { ...selection(), lock: { schema: 'architecture.materialized-input-lock/v1', sources: [] } },
-      'native_likec4_sources_missing',
-    ],
-  ];
-  for (const [selected, code] of invalidSelections)
-    await assert.rejects(importLikeC4NativeWithParser(selected, fromSources), { code });
-
-  const wrongVersion = selection();
-  wrongVersion.lock.sources[0].format.version = '1';
-  await assert.rejects(importLikeC4NativeWithParser(wrongVersion, fromSources), {
-    code: 'native_likec4_selection_invalid',
-  });
-  const wrongNamespace = selection();
-  wrongNamespace.lock.sources[0].namespace = '';
-  await assert.rejects(importLikeC4NativeWithParser(wrongNamespace, fromSources), {
-    code: 'native_likec4_selection_invalid',
-  });
-  const wrongDigest = selection();
-  wrongDigest.lock.sources[0].sha256 = 'invalid';
-  await assert.rejects(importLikeC4NativeWithParser(wrongDigest, fromSources), {
-    code: 'native_likec4_selection_invalid',
-  });
-  const wrongBytes = selection();
-  wrongBytes.readSource = () => 'not bytes';
-  await assert.rejects(importLikeC4NativeWithParser(wrongBytes, fromSources), {
-    code: 'native_likec4_digest_mismatch',
-  });
-  const invalidUtf8 = selection(new Map([['example/model', Buffer.from([0xff])]]));
-  await assert.rejects(importLikeC4NativeWithParser(invalidUtf8, fromSources), {
-    code: 'native_likec4_utf8_invalid',
-  });
-  await assert.rejects(importLikeC4NativeWithParser(selection(), null), {
-    code: 'native_likec4_parser_required',
-  });
-  await assert.rejects(
-    importLikeC4NativeWithParser(selection(), async () => {
-      throw Error('upstream failure');
-    }),
-    { code: 'native_likec4_parse_invalid' },
-  );
-});
-
-test('native import rejects malformed upstream source locations', async () => {
-  const invalidLocations = [
-    [(location) => ({ ...location, uri: '%not-a-url' }), 'native_likec4_source_reference_invalid'],
-    [
-      (location) => ({ ...location, uri: location.uri.replace('virtual:', 'file:') }),
-      'native_likec4_source_reference_invalid',
-    ],
-    [
-      (location) => ({ ...location, uri: 'virtual:/workspace/%XX.c4' }),
-      'native_likec4_source_reference_invalid',
-    ],
-    [
-      (location) => ({ ...location, uri: 'virtual:/workspace/missing.c4' }),
-      'native_likec4_source_reference_unselected',
-    ],
-    [(location) => ({ ...location, range: null }), 'native_likec4_source_reference_invalid'],
-    [
-      (location) => ({
-        ...location,
-        range: { start: { line: 0, character: 2 }, end: { line: 0, character: 1 } },
-      }),
-      'native_likec4_source_reference_invalid',
-    ],
-    [
-      (location) => ({
-        ...location,
-        range: { start: { line: 0, character: 0 }, end: { line: 0, character: 1000 } },
-      }),
-      'native_likec4_source_reference_invalid',
-    ],
-  ];
-  for (const [rewrite, code] of invalidLocations)
-    await assert.rejects(
-      importLikeC4NativeWithParser(selection(), parserWith({ locate: rewrite })),
-      {
-        code,
-      },
-    );
-});
-
-test('native import refuses upstream model and view inconsistencies', async () => {
-  const selectedView = (edit) => (items) =>
-    items.map((view) => (view.id === 'overview' ? edit(view) : view));
-  const viewWith = (
-    view,
-    definition,
-    members = () => view.elements(),
-    edges = () => view.edges(),
-  ) => ({
-    id: view.id,
-    $view: { ...view.$view, ...definition },
-    elements: members,
-    edges,
-  });
-  const invalidModels = [
-    [
-      {
-        elements: (items) =>
-          items.map((item, index) => (index ? item : { ...item, metadata: null })),
-      },
-      'native_likec4_metadata_invalid',
-    ],
-    [
-      { locate: (location, query) => (query.element === 'left' ? null : location) },
-      'native_likec4_source_reference_missing',
-    ],
-    [
-      { relations: (items) => items.map((item) => ({ ...item, source: { id: 'ghost' } })) },
-      'native_likec4_source_reference_missing',
-    ],
-    [
-      { views: selectedView((view) => viewWith(view, { _type: '' })) },
-      'native_likec4_view_type_invalid',
-    ],
-    [
-      {
-        locate: (location, query) =>
-          query.view === 'index'
-            ? {
-                uri: `virtual:/workspace/${sha('example/views')}.c4`,
-                range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } },
-              }
-            : location,
-      },
-      'native_likec4_source_reference_invalid',
-    ],
-    [
-      { views: selectedView((view) => viewWith(view, { sourcePath: 0 })) },
-      'native_likec4_source_reference_invalid',
-    ],
-    [
-      {
-        views: selectedView((view) => viewWith(view, { sourcePath: `${sha('example/model')}.c4` })),
-      },
-      'native_likec4_source_reference_invalid',
-    ],
-    [
-      {
-        views: selectedView((view) =>
-          viewWith(view, {}, () => [...view.elements(), { id: 'ghost' }]),
-        ),
-      },
-      'native_likec4_view_element_unselected',
-    ],
-    [
-      {
-        views: selectedView((view) =>
-          viewWith(
-            view,
-            {},
-            () => view.elements(),
-            () => [{ relationships: () => [{ id: 'ghost' }] }],
-          ),
-        ),
-      },
-      'native_likec4_view_relation_unselected',
-    ],
-  ];
-  for (const [rewrite, code] of invalidModels)
-    await assert.rejects(importLikeC4NativeWithParser(selection(), parserWith(rewrite)), { code });
 });
