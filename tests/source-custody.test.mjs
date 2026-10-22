@@ -7,6 +7,9 @@ import { parse } from "smol-toml";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const receivedMembers = [
+  ["renderers/avoid/supply/router.mjs", "libavoid-js", "dist/index-node.mjs"],
+  ["renderers/avoid/supply/libavoid.wasm", "libavoid-js", "dist/libavoid.wasm"],
+  ["renderers/avoid/supply/LICENSE", "libavoid-js", "LICENSE"],
   ["renderers/dagre/supply/dagre.min.js", "@dagrejs/dagre", "dist/dagre.min.js"],
   ["renderers/dagre/supply/LICENSE", "@dagrejs/dagre", "LICENSE"],
   ["renderers/elk/supply/elk.cjs", "elkjs", "lib/elk.bundled.js"],

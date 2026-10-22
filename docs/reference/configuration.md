@@ -57,10 +57,11 @@ that relationship.
 
 The profile's `source-integrity` gate uses the installed ETHOS provider to check
 the exact npm lock members before runtime generation and all dependent quality
-gates. Dagre, ELK, SVG pan/zoom, Sax, OpenType and the schema generator's license
+gates. Libavoid, Dagre, ELK, SVG pan/zoom, Sax, OpenType and the schema generator's license
 retain their authentic member paths. A declaration is an obligation, not proof:
 accepted-source verification must observe the committed profile, lock and member
-bytes together.
+bytes together. Libavoid's source custody does not qualify the retained routing
+experiment or select it as the composition solution.
 
 Archify's complete original release ZIP is retained under
 `tools/supply/archives/`. Its native received-archive contract is enabled only

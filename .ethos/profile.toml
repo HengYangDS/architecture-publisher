@@ -13,6 +13,7 @@ static-analysis = "node-static"
 [[proof.source_contracts]]
 kind = "upstream"
 input_refs = [
+  "package-lock.json#packages/node_modules/libavoid-js",
   "package-lock.json#packages/node_modules/@dagrejs/dagre",
   "package-lock.json#packages/node_modules/elkjs",
   "package-lock.json#packages/node_modules/svg-pan-zoom",
@@ -23,6 +24,18 @@ input_refs = [
 integrity_gate = "source-integrity"
 
 [proof.source_contracts.members]
+"packages/publisher/renderers/avoid/supply/router.mjs" = [
+  "package-lock.json#packages/node_modules/libavoid-js",
+  "package/dist/index-node.mjs",
+]
+"packages/publisher/renderers/avoid/supply/libavoid.wasm" = [
+  "package-lock.json#packages/node_modules/libavoid-js",
+  "package/dist/libavoid.wasm",
+]
+"packages/publisher/renderers/avoid/supply/LICENSE" = [
+  "package-lock.json#packages/node_modules/libavoid-js",
+  "package/LICENSE",
+]
 "packages/publisher/renderers/dagre/supply/dagre.min.js" = [
   "package-lock.json#packages/node_modules/@dagrejs/dagre",
   "package/dist/dagre.min.js",
