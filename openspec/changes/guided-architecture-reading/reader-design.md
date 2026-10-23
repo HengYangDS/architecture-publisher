@@ -11,6 +11,41 @@ duplicate camera, layout or search owners. Capabilities require the renderer's
 artifact-bound contract, not a JavaScript string in HTML. Unsupported outcomes
 remain open.
 
+### Task-led reading and disclosure
+
+The initial surface explains the complete figure and its necessary type key.
+Readers use the existing native Find action when they need to browse or search,
+then select an exact occurrence for Passport and Inspect. Finder's empty query
+already lists the current page's nodes; an expanded duplicate index is not a
+prerequisite for finding them.
+
+The outline's additional value is authored-context browsing and neighbor preview,
+not an explanation of the architecture. Retain those capabilities through native
+disclosure when they help. Explanatory notes remain independently readable; hiding
+the entire rail is not an index-only repair. Group context comes from exact
+declared membership, never inferred source hierarchy or proximity.
+
+| Approach                                                     | Decision and trade-off                                                                                                          |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Keep a full index and regularize its grid                    | Not the primary repair: it retains duplicate information and permanent reading cost.                                            |
+| Use native Find, with the bottom outline available on demand | Preferred bounded direction: retain browsing, search, grouping, preview and selection without duplicating their implementation. |
+| Move all grouped browsing into Finder                        | Consider only after upstream agreement; it changes more shared behavior than index disclosure.                                  |
+
+Archify 3.2.0 exposes the bottom outline automatically and has no index-only
+disclosure setting. The native scope request lives in
+[issue 664](https://github.com/tt-a1i/archify/issues/664#issuecomment-6354050507).
+Implementation awaits maintainer agreement; this document does not claim that
+the proposed default exists. Preserve original vendor bytes, existing right and
+overlay behavior, notes, query identities and canonical exports. Do not seed
+storage preferences, inject a hiding stylesheet or add another search controller.
+
+Acceptance must show the complete resting figure, on-demand browsing with an
+empty query, exact-context search, keyboard and pointer selection, return from
+Inspect and independently visible notes. Use uneven groups and complete long
+English and Chinese labels in both themes. Complete-frame geometry, routing and
+meaningful type encoding remain separate obligations; disclosure fixes none of
+them by itself.
+
 Native finite Route journeys remain native-owned when offered. Manual figures,
 navigation and Inspect require no playback. Add no chapter/query controller,
 timer, load-time autoplay or ambient-motion promise.

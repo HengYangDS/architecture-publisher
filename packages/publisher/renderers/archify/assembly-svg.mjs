@@ -233,6 +233,9 @@ export async function renderArchitectureSvg(
       }),
   );
   const byId = new Map(nodes.map((node) => [node.id, node]));
+  const groupContext = new Map(
+    scene.groups.flatMap(({ label, nodeIds }) => nodeIds.map((id) => [id, label])),
+  );
   const graph = architectureExploration(scene, exploration);
   const traversals = nativeRelationTraversals(graph.relations, graph.nodes);
   const bidirectional = new Set(
@@ -270,6 +273,7 @@ export async function renderArchitectureSvg(
         kind: member?.kind ?? node.figureKind ?? node.visualRole,
         sublabel: node.detail,
         tag: node.note,
+        context: groupContext.get(node.id),
       };
       return interactive
         ? `<g ${focusNodeAttrs(node.id, label, passport, "en")} data-inspect-id="${esc(node.id)}" data-inspect-label="${esc(label)}">${focusNodeTitle(label, passport)}${paint}</g>`

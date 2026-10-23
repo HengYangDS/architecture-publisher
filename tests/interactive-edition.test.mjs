@@ -112,6 +112,8 @@ test("a neutral standalone HTML keeps every page complete without source-byte di
   assert.match(firstPage, /data-note-card-id="reading-boundary"/u);
   assert.match(firstPage, /data-node-id="n-0"/u);
   assert.match(firstPage, /data-node-id="n-1"/u);
+  for (const [node] of firstPage.matchAll(/<g\b[^>]*data-node-id="[^"]+"[^>]*>/gu))
+    assert.doesNotMatch(node, /data-node-context=/u, "ungrouped nodes gain no invented context");
   assert.match(firstPage, /data-logical-relation="true"/u);
   assert.doesNotMatch(html, /Edge numbers match/u);
   assert.doesNotMatch(firstPage, /class="evidence-section evidence-questions"/u);
@@ -162,6 +164,9 @@ test("authored interactive groups become visible reading sections with bound gra
   ];
   const rendered = await renderInteractiveEditionHtml(scene);
   const html = interactivePage(rendered.bytes, "overview");
+  const nativeNode = (id) => html.match(new RegExp(`<g[^>]*data-node-id="${id}"[^>]*>`, "u"))?.[0];
+  assert.match(nativeNode("n-0"), /data-node-context="Input &lt;selected&gt;"/u);
+  assert.match(nativeNode("n-1"), /data-node-context="Effect"/u);
   const labels = svgTextRuns(html);
   assert(labels.includes("Input &lt;selected&gt;"));
   assert(labels.includes("Effect"));

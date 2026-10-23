@@ -1617,8 +1617,8 @@
       },
       {
         "path": "renderers/archify/assembly-svg.mjs",
-        "bytes": 22378,
-        "sha256": "c1236d0685cc1290a31229ef4e8d91d20d157786ac36f7b226fcee82dd6785c7"
+        "bytes": 22543,
+        "sha256": "c7d652c53b2183d3857ff06fdfd7676cc8542a4e80614cd8c881528f2d97de6b"
       },
       {
         "path": "renderers/archify/assembly.mjs",
@@ -2039,8 +2039,8 @@
       },
       {
         "path": "renderers/archify/assembly-svg.mjs",
-        "bytes": 22378,
-        "sha256": "c1236d0685cc1290a31229ef4e8d91d20d157786ac36f7b226fcee82dd6785c7"
+        "bytes": 22543,
+        "sha256": "c7d652c53b2183d3857ff06fdfd7676cc8542a4e80614cd8c881528f2d97de6b"
       },
       {
         "path": "renderers/archify/assembly.mjs",
