@@ -24,6 +24,23 @@ That accepted history contains the complete source removal. The former
 The selected ETHOS runtime also contains no active drawing commands; native
 installation retired its obsolete runtime and package. Source and remote
 acceptance are not finished-artwork acceptance.
+
+The 2026-10-23 local readback finds accepted `main`, `dev` and `candidate/dev`
+at `9185e2046fa3893b2c9c94a6fd5e68b0105c0f7a`. Removal
+`753bed4bd1cc74d192647613f02873bff603d9ca` is an ancestor; all eight removed
+paths remain absent and selected live implementation and configuration have no
+Publisher callers. The surviving architecture policy governs Go AST and module
+topology; it is not a drawing integration.
+
+The bound ETHOS runtime
+`afc110a444d7109f84be99ce14ca7779a2de8b608fa5a85d628aa76b17de8f3d`
+still carries an obsolete Publisher formatting declaration. Its installed
+format-selection consumer assigns that declaration to none of AIGW's 1,428
+tracked paths, so it is not an active drawing caller. The earlier blanket
+claim of no runtime drawing references does not apply to this generation.
+Any runtime replacement and stale declaration retirement belongs to the native
+source/runtime owner. This check does not qualify AIGW's full current proof
+or refresh its remote acceptance.
 Publisher implementation or release does not authorize AIGW migration;
 no AIGW source change is authorized by this handoff.
 
@@ -33,11 +50,25 @@ and its owned lane retired. Required failed and recovery evidence is retained.
 No remote is selected for that independent repository, so its remote custody
 is not claimed.
 
-The external model and original editorial input were preserved byte-for-byte
-from AIGW `e2eca41303f1aa7fd51ccc542bc15da40153ea5f`, in external signed
-commit `e30a26d5eb1b70355398b2fa5522785bf75a0eb8`. The selected scope remains
+The external model remains byte-identical to AIGW
+`e2eca41303f1aa7fd51ccc542bc15da40153ea5f`. External signed preservation
+commit `e30a26d5eb1b70355398b2fa5522785bf75a0eb8` retains the original
+editorial input. The current project differs only in
+`presentation.static.width`, from 2400 to 6000 pixels. That is output resolution,
+not a node coordinate or layout instruction. Its source manifest records both
+the original and selected hashes; the previous blanket byte-identity claim is
+incorrect for this edited project. The selected scope remains
 **AIGW Client Projection**, not the whole AIGW product. A whole-product work
 requires its own source selection and reader questions.
+
+Current evidence is under
+`build/evidence/guided-architecture-reading/stable-supply-20261021/full-native-quality-2115/source-claim-binding-20261022/continuation-20261022-0510/`:
+`source-independence-current-runtime-20261023.json`,
+`source-independence-aigw-runtime-consumer-20261023.json`,
+`source-independence-current-preservation-20261023.json` and
+`source-independence-preservation-20261023.log`. The four external input tests
+pass. AIGW delivery hashes were not refreshed in this readback; GitLab was not
+contacted.
 
 ## Mechanism and ownership
 

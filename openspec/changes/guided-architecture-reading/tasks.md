@@ -32,7 +32,7 @@
 
 ## 6. External source publication
 
-- [ ] 6.1 Retire source-owned drawing integrations; verify preserved originals, unchanged product obligations and no active drawing callers. Dependency: verify exact ETHOS removal `84dbbf755` and AIGW removal `753bed4b`, including current runtime consumers; directory absence alone is not closure.
+- [ ] 6.1 Retire source-owned drawing integrations; verify preserved originals, unchanged product obligations and no active drawing callers. Dependency: accepted source removals, external originals and ETHOS delivery hashes pass; AIGW runtime retains a no-match Publisher formatting declaration, and its delivery hashes remain to refresh. Evidence: `docs/migration/edition-provider-ethos.md` and `docs/migration/aigw-edition-provider.md`.
 - [ ] 6.1.1 Qualify pinned external input through the installed public build with zero source additions or effects; separate meaning and publication acceptance. AIGW installed relocation passes: `build/runtime/raster-feasibility-installed-locked-probe-20261014.json`; ETHOS successor remains.
 - [ ] 6.2 Resolve the distinct AIGW Product disposition with its source owner; qualify its selected media and exact acceptance without compulsory integration.
 
@@ -53,5 +53,5 @@
 ## 10. Native quality, release and closeout
 
 - [ ] 10.1 Pass frozen full macOS, Linux and Windows gates, raster rebuilding, installed offline recovery and exact-source qualification; every coverage dimension must be at least 95 percent.
-- [ ] 10.2 Converge semantic modules, imports, configuration, documentation, formatting, warnings and latest stable project supply; pass the full static graph and exact installed ETHOS proof. Dependency: close the ETHOS safe-mode Raster refusal, commit the recorder and bounded gate budget, then prove exact HEAD; hosted acceptance and recorded upstream audit risks remain. Evidence: `build/evidence/guided-architecture-reading/stable-supply-20261021/full-native-quality-2115/source-claim-binding-20261022/continuation-20261022-0510/native-recorder-budget-full-static-20261023.log`.
+- [ ] 10.2 Converge semantic modules, imports, configuration, documentation, formatting, warnings and latest stable project supply; pass the full static graph and exact installed ETHOS proof. Dependency: recorder and bounded gate budget are committed; close the ETHOS safe-mode Raster refusal before exact-HEAD proof. Hosted acceptance and recorded upstream audit risks remain. Evidence: `build/evidence/guided-architecture-reading/stable-supply-20261021/full-native-quality-2115/source-claim-binding-20261022/continuation-20261022-0510/native-recorder-budget-closure-static-20261023.log`.
 - [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog and exact source and media acceptance; verify remote and protected-ref convergence, native Change and Lane closure, evidence custody and housekeeping. Dependency: local proof and closeout do not wait on GitLab; its publication remains deferred until intranet access returns. Owner: this Lane's writer; review at the October 31 terminal checkpoint.
