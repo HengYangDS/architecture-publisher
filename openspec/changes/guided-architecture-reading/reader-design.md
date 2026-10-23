@@ -364,11 +364,15 @@ scene before ranking; neither supplier internals nor their pinned bytes change.
 Candidates retain every occurrence and assess the measured complete frame,
 including fonts and Legend, by the actual desktop aperture, proportional envelope and route detour.
 Placement and scoring share the aperture aspect; the legacy aspect applies only without an aperture.
-Continuous complete-frame expansion distinguishes overfull alternatives before reading cost.
+Overview admission applies both aperture axes to the declared text floor before ranking.
+An infeasible overview reports its affected view and internal composition obligation,
+without promoting source focus or scrolling as first-screen acceptance. Explicit source
+reading retains the same structural alternatives and exact text at native scale;
+it ranks width expansion before aperture expansion to preserve a bounded reading measure.
 Card padding is not content: subtracting it rewards inflation. Each exact field's ink travel includes
 horizontal and vertical line returns; relative excess is compared with its shortest feasible rendition.
 The maximum per-field penalty scales frame cost so descriptions cannot mask fractured short titles.
-No field weight, fictitious height or hard title minimum impedes complete large graphs.
+No field weight or fictitious height substitutes for complete-frame admission.
 
 Eligible acyclic flows try native multi-edge wrapping. Two packing slots compare
 native aspect and width-bounded frames. Ordered flows use aspect-driven selection
@@ -398,6 +402,11 @@ Reject envelopes exceeding the reading floor before routing; routes cannot
 narrow nodes. Grid search first uses readable segments, then selected-stroke
 resolution for exact escape corridors. Both passes preserve obstacles,
 endpoints, paint, rhythm and label gates without changing vendor bytes or input.
+All automatic endpoint alternatives for one relationship share its original
+grid-node budget instead of restarting that budget for every side pair. Native
+direct bridges remain available after grid exhaustion; failed candidates retain
+their exact constraints and all other structural alternatives remain eligible.
+The installed self-build deadline and complete paint audits stay unchanged.
 
 Automatic composition refuses only after internal layout has been attempted.
 It cannot clip, abbreviate, omit content, shrink below the readability floor,
@@ -418,7 +427,8 @@ Source-space font sizes remain separate from projected CSS-pixel reading targets
 the native primary target must not reuse an enlarged source-space font size.
 The shell honors that contract; one canonical `data-legend` group also carries native type exploration.
 Native chrome owns dock translation and reserve; the host budgets its toolbar without overriding lift.
-Tall declared scenes still require actual paint, Legend and dock-clearance acceptance.
+Tall declared scenes still require actual paint, Legend and dock-clearance acceptance;
+intrinsic source reading does not qualify an unreadable overview.
 Resting-position metrics alone do not prove clearance. The removed translation override is
 not a qualified adapter; another controller, hidden controls or a weaker floor cannot repair it.
 Literal geometry and semantic membership remain unchanged; insufficient room refuses rendering.

@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { assertParallelComposition, joinedWorkScene } from "./fixtures/intrinsic-composition.mjs";
+import {
+  assertParallelSourceComposition,
+  joinedWorkScene,
+} from "./fixtures/intrinsic-composition.mjs";
 
-test("complete feedback composition fits its routed desktop capacity without reversing stages", async () => {
+test("complete source feedback composition preserves its routed stages without overview acceptance", async () => {
   const nodes = [
     ["research", "Investigate", "", "", "aggregate"],
     [
@@ -227,7 +230,7 @@ test("complete feedback composition fits its routed desktop capacity without rev
     `actor-${suffix}`,
     `lane-${suffix}`,
   ]);
-  const result = await assertParallelComposition(scene, branches);
+  const result = await assertParallelSourceComposition(scene, branches);
   const selected = new Map(result.scene.nodes.map((node) => [node.id, node]));
   const branchTop = Math.min(...branches.flat().map((id) => selected.get(id).position.y));
   for (const id of ["research", "meaning", "recovery", "model", "plan"]) {
@@ -240,7 +243,7 @@ test("complete feedback composition fits its routed desktop capacity without rev
   assert.equal(result.compositionDisruption, 0);
 });
 
-test("feedback and sibling mechanisms preserve a complete bounded parallel composition", async () => {
+test("source feedback and sibling mechanisms preserve a complete bounded parallel composition", async () => {
   const { scene, paths } = joinedWorkScene();
   const figure = (id, label, detail = "") => ({
     id,
@@ -282,10 +285,10 @@ test("feedback and sibling mechanisms preserve a complete bounded parallel compo
     ["publication-source", "publication", "offer object"],
   ])
     scene.edges.push({ id: `feedback-${from}-${to}`, from, to, label, visualRole: "default" });
-  const result = await assertParallelComposition(scene, paths);
+  const result = await assertParallelSourceComposition(scene, paths);
   assert(
     result.scene.viewport.height <= 2200,
-    `The complete desktop composition must fit 2200px, not ${result.scene.viewport.height}px`,
+    `The complete source composition must fit 2200px, not ${result.scene.viewport.height}px`,
   );
   const nodes = new Map(result.scene.nodes.map((node) => [node.id, node]));
   assert(

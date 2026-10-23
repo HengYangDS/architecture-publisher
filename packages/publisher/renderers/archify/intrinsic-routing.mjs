@@ -135,7 +135,7 @@ function routeAutomaticGeometry(graph) {
   const { components, connections } = nativeRoutingInput(graph);
   const accepted = [];
   const resolved = new Map();
-  const tryPair = (relation, prior) => {
+  const tryPair = (relation, prior, searchBudget) => {
     if (prior.length) {
       const native = { ...relation, points: prior };
       const complete = [...accepted, native];
@@ -200,16 +200,17 @@ function routeAutomaticGeometry(graph) {
         return false;
       }
     };
-    routeFixedGeometry(tentative, accepted, qualify);
+    routeFixedGeometry(tentative, accepted, qualify, searchBudget);
     auditIntrinsicGeometry(tentative);
     return candidate;
   };
   // Existing accepted paths keep their reservation order; native tie-breaks stay private.
   for (const relation of graph.relations) {
     let candidate;
+    const searchBudget = { remainingGridNodes: 100_000 };
     const attempt = (points) => {
       try {
-        candidate = tryPair(relation, points);
+        candidate = tryPair(relation, points, searchBudget);
         return true;
       } catch (error) {
         if (error.code !== "render_interactive_layout_infeasible") throw error;
@@ -278,7 +279,7 @@ export async function routeIntrinsicGeometry(graph, { automatic = false } = {}) 
   Object.assign(graph, candidate);
 }
 
-function routeFixedGeometry(graph, accepted = [], qualify = undefined) {
+function routeFixedGeometry(graph, accepted = [], qualify = undefined, searchBudget = undefined) {
   auditGroupTitleMasks(graph);
   const nodes = new Map(graph.nodes.map((node) => [node.id, node]));
   const ink = [
@@ -427,9 +428,10 @@ function routeFixedGeometry(graph, accepted = [], qualify = undefined) {
         { x: -extent, y: graph.bounds.height - edgeInset, width: extent * 3, height: extent * 2 },
       ].map((box) => expandBox(box, -clearance));
       // Start at native readable-segment resolution; retain exact corridors as fallback.
-      let remainingGridNodes = 100_000;
+      // All endpoint alternatives solve one relationship within its original budget.
+      const budget = searchBudget ?? { remainingGridNodes: 100_000 };
       for (const minimumSegmentPx of [rhythm.interiorSegmentPx, marks.selectedRouteStroke]) {
-        while (remainingGridNodes > 0) {
+        while (budget.remainingGridNodes > 0) {
           const reservationCount = strokeReservations.segments.length;
           const metrics = {};
           const route = shortestOrthogonalGridRoute({
@@ -452,7 +454,7 @@ function routeFixedGeometry(graph, accepted = [], qualify = undefined) {
             toSide,
             clearance,
             maximumObstacleCount: graph.nodes.length + ink.length + borders.length,
-            maximumGridNodes: remainingGridNodes,
+            maximumGridNodes: budget.remainingGridNodes,
             endpointStubPx: Math.max(10, stub),
             minimumSegmentPx,
             bendPenaltyPx: rhythm.endpointStubPx * 2,
@@ -463,7 +465,7 @@ function routeFixedGeometry(graph, accepted = [], qualify = undefined) {
             accept,
             metrics,
           });
-          remainingGridNodes -= metrics.candidateNodeCount ?? 0;
+          budget.remainingGridNodes -= metrics.candidateNodeCount ?? 0;
           if (route) {
             points = route.points;
             break;

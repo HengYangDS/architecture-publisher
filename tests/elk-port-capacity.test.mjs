@@ -7,6 +7,11 @@ import { preparePage } from "../packages/publisher/renderers/elk/input.mjs";
 import { measurePages } from "./fixtures/elk-layout.mjs";
 import { measureArchitectureTypography } from "../packages/publisher/renderers/archify/text.mjs";
 import { loadBundledFonts } from "../packages/publisher/renderers/fonts/index.mjs";
+import {
+  architectureTextBudget,
+  measureArchitectureNodeText,
+} from "../packages/publisher/renderers/archify/node-text.mjs";
+import { createBundledTextMeasurer } from "../packages/publisher/renderers/resvg/measurement.mjs";
 
 const network = () => {
   const nodes = Array.from({ length: 12 }, (_, index) => ({
@@ -160,4 +165,41 @@ test("measured source reading retains its native focus floor while overview proj
     ),
     { code: "render_native_rejected" },
   );
+});
+
+test("measured overview text must keep its declared floor in the complete desktop aperture", async () => {
+  const fonts = await loadBundledFonts();
+  const input = {
+    nodes: [{ id: "subject", label: "Selected source", detail: "Complete exact declaration" }],
+    texts: [],
+    typography: { minimumTextPx: 12 },
+  };
+  const measured = await measureArchitectureNodeText(
+    input,
+    architectureTextBudget(12),
+    fonts,
+    createBundledTextMeasurer,
+  );
+  assert(measured.layouts.subject.valid);
+  const original = structuredClone(measured);
+  const fitted = await measureArchitectureTypography(
+    { ...input, viewport: { width: 1240, height: 574 } },
+    fonts,
+    measured,
+  );
+  assert.equal(fitted.budget.minimum, 12);
+  for (const viewport of [
+    { width: 1240, height: 1148 },
+    { width: 2480, height: 574 },
+  ]) {
+    const scene = { ...input, viewport };
+    await assert.rejects(measureArchitectureTypography(scene, fonts, measured), {
+      code: "render_native_rejected",
+    });
+    const source = await measureArchitectureTypography(scene, fonts, measured, "source");
+    assert.equal(source.budget.minimum, 12);
+    assert.equal(source.requestedMinimum, 12);
+    assert.deepEqual(structuredClone(source.layouts), original.layouts);
+  }
+  assert.deepEqual(structuredClone(measured), original);
 });

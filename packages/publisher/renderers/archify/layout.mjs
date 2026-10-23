@@ -194,6 +194,7 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     (edge) => edge.adornment && edge.from === edge.to && contacts.ports[edge.from],
   );
   const page = {
+    id: scene.id,
     nodes: scene.nodes.map((node) => ({ id: node.id, label: node.label ?? node.id })),
     ...(islands.length ? { allocations: islands } : {}),
     ...(scene.groups.length ? { groups: scene.groups } : {}),
@@ -501,6 +502,10 @@ export async function composeIntrinsicArchitecture(
       }),
     );
   // Evaluate the complete reading burden: aperture expansion cannot hide fractured phrases.
+  const widthExpansion = ({ candidate }) =>
+    readingContext === "source"
+      ? Math.max(1, candidate.scene.viewport.width / intrinsicReadingWidth)
+      : 1;
   const apertureExpansion = ({ candidate }) =>
     Math.max(
       1,
@@ -510,6 +515,7 @@ export async function composeIntrinsicArchitecture(
   measured.sort(
     (left, right) =>
       left.candidate.compositionDisruption - right.candidate.compositionDisruption ||
+      widthExpansion(left) - widthExpansion(right) ||
       apertureExpansion(left) - apertureExpansion(right) ||
       (!input.edges.length &&
         new Set(left.candidate.scene.nodes.map(({ position }) => position.y)).size -

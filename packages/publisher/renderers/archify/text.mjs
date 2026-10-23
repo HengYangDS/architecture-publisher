@@ -40,6 +40,14 @@ export async function measureArchitectureTypography(
     : requested
       ? Math.ceil((requested / readingScale) * 10) / 10
       : 10;
+  if (
+    measured &&
+    !sourceReading &&
+    minimum * readingScale < (requested ?? MIN_PROJECTED_NODE_TEXT_PX)
+  )
+    rejectTypography(
+      `The complete ${scene.viewport.width}x${scene.viewport.height} overview projects node text below its declared desktop floor; resolve the composition without shrinking or omitting selected text.`,
+    );
   if (!sourceReading && !requested && minimum < minimumReadableSourceTextPx(scene.viewport.width))
     rejectTypography("The undeclared desktop text budget cannot remain readable at native width.");
   if ((scene.texts ?? []).some((text) => text.visible && text.fontSize < minimum))

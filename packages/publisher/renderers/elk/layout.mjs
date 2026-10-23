@@ -265,7 +265,8 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
       };
     };
     const candidates = [candidate("RIGHT"), candidate("DOWN")];
-    if (!page.groups.length && options.nodeFootprints && !sourceReading) {
+    // Reading context changes admission, not the available structural layouts.
+    if (!page.groups.length && options.nodeFootprints) {
       const peerWidth = Math.max(...page.nodes.map(({ width }) => width));
       const layerBound = Math.max(
         1,
@@ -288,7 +289,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           ),
         );
     }
-    if (!sourceReading && wrappingEligible(page))
+    if (wrappingEligible(page))
       candidates.push(
         candidate("RIGHT", { wrapAspect: 1.8 }),
         candidate("RIGHT", { wrapAspect: 3.2 }),
@@ -419,6 +420,12 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
               1,
               readingWidth /
                 (footprint.width + (options.nodeFootprints ? 0 : marks.graphInset * 2)),
+              ...(readingViewport
+                ? [
+                    readingViewport.width / footprint.width,
+                    readingViewport.height / footprint.height,
+                  ]
+                : []),
             );
         const labels = [
           ...candidate.nodes,
@@ -443,6 +450,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           routeLength += length;
           detour += length - Math.abs(last.x - first.x) - Math.abs(last.y - first.y);
         }
+        const widthExpansion = sourceReading ? Math.max(1, footprint.width / readingWidth) : 1;
         const apertureExpansion = readingViewport
           ? Math.max(
               1,
@@ -467,18 +475,23 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           readingArea / readingWidth +
           detour / Math.max(1, candidate.relations.length);
         const rows = new Set(candidate.nodes.map(({ y }) => y)).size;
-        return { readable, apertureExpansion, readingCost, routeLength, rows };
+        return { readable, widthExpansion, apertureExpansion, readingCost, routeLength, rows };
       };
       const readable = candidates.filter((candidate) => assessment(candidate).readable);
       if (!readable.length) {
         const code = "render_interactive_layout_infeasible";
-        throw editorialFailure(Object.assign(new Error(code), { code }), pages[index]);
+        const constraint = readingViewport
+          ? `complete-desktop-frame-below-text-floor:${readingViewport.width}x${readingViewport.height}:${minimumLabelSize}px`
+          : code;
+        throw editorialFailure(Object.assign(new Error(constraint), { code }), pages[index]);
       }
       const selected = readable.reduce((best, candidate) => {
         if (candidate.compositionDisruption !== best.compositionDisruption)
           return candidate.compositionDisruption < best.compositionDisruption ? candidate : best;
         const prior = assessment(best);
         const next = assessment(candidate);
+        if (next.widthExpansion !== prior.widthExpansion)
+          return next.widthExpansion < prior.widthExpansion ? candidate : best;
         if (next.apertureExpansion !== prior.apertureExpansion)
           return next.apertureExpansion < prior.apertureExpansion ? candidate : best;
         if (!page.relations.length && next.rows !== prior.rows)

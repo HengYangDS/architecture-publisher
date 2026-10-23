@@ -117,7 +117,17 @@ test("the installed self Edition compiles both media after its author package is
       timeout: 120000,
     },
   );
-  assert.equal(built.status, 0, built.stdout + built.stderr);
+  assert.equal(
+    built.status,
+    0,
+    JSON.stringify({
+      error: built.error?.message,
+      code: built.error?.code,
+      signal: built.signal,
+      stdout: built.stdout,
+      stderr: built.stderr,
+    }),
+  );
   assert.deepEqual(JSON.parse(built.stdout).media.sort(), ["interactive", "static"]);
   const png = await fs.readFile(path.join(candidateRoot, "static/architecture.png"));
   assert.equal(png.readUInt32BE(16), 6000);

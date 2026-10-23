@@ -24,22 +24,25 @@ import { meaningFor } from "./fixtures/authored-routes.mjs";
 
 import { sha, selectedProject, fontInput } from "./fixtures/authored-fonts.mjs";
 
-test("intrinsic typography retains the official native reader aspect-ratio admission", async () => {
+test("infeasible overview refusal preserves official native source reader aspect-ratio admission", async () => {
   const file = new URL(
     "../packages/publisher/renderers/archify/supply/renderers/shared/desktop-readability.mjs",
     import.meta.url,
   );
   const original = await fs.readFile(file);
-  await measureArchitectureTypography(
-    {
-      viewport: { width: 600, height: 900 },
-      typography: { minimumTextPx: 16 },
-      nodes: [],
-      edges: [],
-    },
-    await loadBundledFonts(),
-    { layouts: {}, supplies: [] },
-  );
+  const scene = {
+    viewport: { width: 600, height: 900 },
+    typography: { minimumTextPx: 16 },
+    nodes: [],
+    edges: [],
+  };
+  const fonts = await loadBundledFonts();
+  const measured = { layouts: {}, supplies: [] };
+  await assert.rejects(measureArchitectureTypography(scene, fonts, measured), {
+    code: "render_native_rejected",
+  });
+  const source = await measureArchitectureTypography(scene, fonts, measured, "source");
+  assert.equal(source.budget.minimum, 16);
   assert.deepEqual(await fs.readFile(file), original);
   const native = await import(file.href);
   assert.equal(

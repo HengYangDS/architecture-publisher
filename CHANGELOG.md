@@ -36,6 +36,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Fixed
 
+- Automatic endpoint alternatives share one relationship search budget, avoiding repeated grid expansion for the
+  same connection. Installed compilation keeps its existing deadline, complete text, routes and paint checks.
+- Automatic overview admission checks the complete desktop frame before selecting a layout. An infeasible frame
+  reports its composition obligation instead of silently shrinking text. Explicit source reading retains every
+  structural layout alternative, parallel alignment and complete source text without borrowing overview acceptance.
 - Intrinsic node capacity reserves a complete font line independently of visible glyph ink. Same-line peers share
   height and baseline; line leading retains painted-text clearance without repeating the outer inset, while distinct
   fields keep their stronger separator. Fixed authored geometry remains unchanged.

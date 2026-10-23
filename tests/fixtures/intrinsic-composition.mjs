@@ -74,9 +74,9 @@ export function parallelWorkScene() {
   };
 }
 
-export async function assertParallelComposition(scene, branches) {
+export async function assertParallelSourceComposition(scene, branches) {
   const before = structuredClone(scene);
-  const result = await composeIntrinsicArchitecture(scene);
+  const result = await composeIntrinsicArchitecture(scene, null, undefined, "source");
   assert.deepEqual(scene, before);
   assert.deepEqual(
     result.scene.nodes.map((node) => {

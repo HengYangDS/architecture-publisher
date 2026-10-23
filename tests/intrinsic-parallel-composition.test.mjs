@@ -4,7 +4,7 @@ import { composeIntrinsicArchitecture } from "../packages/publisher/renderers/ar
 import { compositionDisruption } from "../packages/publisher/renderers/elk/placement.mjs";
 import {
   parallelWorkScene,
-  assertParallelComposition,
+  assertParallelSourceComposition,
   joinedWorkScene,
 } from "./fixtures/intrinsic-composition.mjs";
 
@@ -53,14 +53,15 @@ test("corresponding independent inputs prefer a shared top or left over a stagge
   assert.deepEqual(page, before);
 });
 
-test("intrinsic composition keeps exact parallel branches together on corresponding rows", async () => {
+test("source composition keeps exact parallel branches together on corresponding rows", async () => {
   const { scene, branches } = parallelWorkScene();
-  await assertParallelComposition(scene, branches);
+  const result = await assertParallelSourceComposition(scene, branches);
+  assert(result.scene.viewport.height > 574);
 });
 
 test("parallel tree inputs use a shared native layer when their measured footprints fit", async () => {
   const { scene, branches } = parallelWorkScene();
-  const result = await assertParallelComposition(scene, branches);
+  const result = await assertParallelSourceComposition(scene, branches);
   const nodes = new Map(result.scene.nodes.map((node) => [node.id, node]));
   for (const branch of branches) {
     const base = nodes.get(branch[2]);
@@ -88,10 +89,10 @@ test("parallel tree inputs use a shared native layer when their measured footpri
   assert(result.scene.viewport.height <= 1800);
 });
 
-test("parallel branch composition avoids a tall serial stack in the complete routed diagram", async () => {
+test("source branch composition avoids an unbounded serial stack in the complete routed diagram", async () => {
   const { scene } = parallelWorkScene();
   const before = structuredClone(scene);
-  const result = await composeIntrinsicArchitecture(scene);
+  const result = await composeIntrinsicArchitecture(scene, null, undefined, "source");
   assert.deepEqual(scene, before);
   assert(result.scene.viewport.width <= 1346);
   assert(
@@ -156,7 +157,7 @@ test("complete stage assessment rejects a reversed introduction despite aligned 
 
 test("parallel paths between common entry and result keep corresponding roles together", async () => {
   const { scene, paths } = joinedWorkScene();
-  const result = await assertParallelComposition(scene, paths);
+  const result = await assertParallelSourceComposition(scene, paths);
   const byId = new Map(result.scene.nodes.map((node) => [node.id, node]));
   const entry = byId.get("entry");
   const exit = byId.get("selection");
@@ -309,7 +310,7 @@ test("measured context and entry flow share an orderly introduction before paral
     ["recheck", "entry", "fresh facts"],
   ])
     scene.edges.push({ id: `introduction-${from}-${to}`, from, to, label, visualRole: "default" });
-  const result = await assertParallelComposition(scene, paths);
+  const result = await assertParallelSourceComposition(scene, paths);
   const nodes = new Map(result.scene.nodes.map((node) => [node.id, node]));
   const envelope = (ids) => {
     const members = ids.map((id) => nodes.get(id));
@@ -340,7 +341,7 @@ test("parallel rows allocate unequal exact text without changing another structu
   const { scene, branches } = parallelWorkScene();
   scene.nodes.find(({ id }) => id === branches[1][4]).note =
     "Refresh stale selected inputs and retain exact evidence before the next owned action";
-  const result = await assertParallelComposition(scene, branches);
+  const result = await assertParallelSourceComposition(scene, branches);
   const byId = new Map(result.scene.nodes.map((node) => [node.id, node]));
   assert(
     byId.get(branches[1][3]).size.height < byId.get(branches[1][4]).size.height,
@@ -350,7 +351,7 @@ test("parallel rows allocate unequal exact text without changing another structu
 
 test("parallel composition does not depend on input IDs or declaration order", async () => {
   const { scene, branches } = parallelWorkScene();
-  const reference = await assertParallelComposition(scene, branches);
+  const reference = await assertParallelSourceComposition(scene, branches);
   const renamed = new Map(scene.nodes.map((node, index) => [node.id, `subject-${index * 17 + 3}`]));
   const renamedEdges = new Map();
   scene.nodes = scene.nodes.reverse().map((node) => ({ ...node, id: renamed.get(node.id) }));
@@ -359,7 +360,7 @@ test("parallel composition does not depend on input IDs or declaration order", a
     renamedEdges.set(edge.id, id);
     return { ...edge, id, from: renamed.get(edge.from), to: renamed.get(edge.to) };
   });
-  const reordered = await assertParallelComposition(
+  const reordered = await assertParallelSourceComposition(
     scene,
     branches.map((branch) => branch.map((id) => renamed.get(id))),
   );

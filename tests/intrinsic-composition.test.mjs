@@ -10,7 +10,7 @@ import {
 } from "../packages/publisher/renderers/elk/placement.mjs";
 import { parallelWorkScene, joinedWorkScene } from "./fixtures/intrinsic-composition.mjs";
 
-test("connected layer peers share a top and measured capacity without semantic prominence", async () => {
+test("source layer peers share a top and measured capacity without semantic prominence", async () => {
   const scene = {
     schema: "architecture.interactive-scene/v1",
     id: "connected-peer-capacity",
@@ -63,7 +63,7 @@ test("connected layer peers share a top and measured capacity without semantic p
       });
   scene.groups[0].nodeIds.push(...entry, ...exit);
   const before = structuredClone(scene);
-  const result = await composeIntrinsicArchitecture(scene);
+  const result = await composeIntrinsicArchitecture(scene, null, undefined, "source");
   const nodes = new Map(result.scene.nodes.map((node) => [node.id, node]));
   const left = nodes.get("left");
   const right = nodes.get("right");
