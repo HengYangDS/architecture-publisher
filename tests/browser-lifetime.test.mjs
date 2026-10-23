@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
 import { browserLifetime } from "./fixtures/browser-lifetime.mjs";
 
@@ -8,13 +11,58 @@ const scenario = fileURLToPath(
   new URL("./fixtures/browser-lifetime-scenario.mjs", import.meta.url),
 );
 
+test("nested lifetime scenarios preserve the enclosing native test journal", async (t) => {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-lifetime-journal-"));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const journal = path.join(scratch, "journal.xml");
+  const preimage = "ENCLOSING_JOURNAL_PREIMAGE\n";
+  await fs.writeFile(journal, preimage);
+  const preload = path.join(scratch, "enclosing-reporter.mjs");
+  await fs.writeFile(
+    preload,
+    `process.env.NODE_OPTIONS = ${JSON.stringify(`--test-reporter=junit --test-reporter-destination=${JSON.stringify(journal)}`)};\n`,
+  );
+  const environment = { ...process.env, NODE_OPTIONS: "" };
+  delete environment.NODE_TEST_CONTEXT;
+  const output = execFileSync(
+    process.execPath,
+    [
+      "--import",
+      pathToFileURL(preload).href,
+      "--test",
+      "--test-isolation=none",
+      "--test-reporter=tap",
+      "--test-reporter-destination=stdout",
+      "--test-name-pattern=^browser lifetime",
+      import.meta.filename,
+    ],
+    {
+      env: environment,
+      encoding: "utf8",
+      timeout: 15_000,
+      killSignal: "SIGKILL",
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  assert.match(output, /^# pass 6$/mu);
+  assert.match(output, /^# fail 0$/mu);
+  assert.equal(await fs.readFile(journal, "utf8"), preimage);
+});
+
 for (const outcome of ["reject", "resolve", "parent-failure"])
   test(`browser lifetime closes a parent before draining its ${outcome} acquisition`, () => {
-    const environment = { ...process.env };
+    const environment = { ...process.env, NODE_OPTIONS: "" };
     delete environment.NODE_TEST_CONTEXT;
     const output = execFileSync(
       process.execPath,
-      ["--test", "--test-isolation=none", scenario, `--dependent-${outcome}`],
+      [
+        "--test",
+        "--test-isolation=none",
+        "--test-reporter=tap",
+        "--test-reporter-destination=stdout",
+        scenario,
+        `--dependent-${outcome}`,
+      ],
       {
         env: environment,
         encoding: "utf8",
@@ -30,9 +78,15 @@ for (const outcome of ["reject", "resolve", "parent-failure"])
 
 for (const failAfterConnection of [false, true])
   test(`browser lifetime drains active HTTP on ${failAfterConnection ? "failure" : "success"}`, () => {
-    const environment = { ...process.env };
+    const environment = { ...process.env, NODE_OPTIONS: "" };
     delete environment.NODE_TEST_CONTEXT;
-    const args = ["--test", "--test-isolation=none", scenario];
+    const args = [
+      "--test",
+      "--test-isolation=none",
+      "--test-reporter=tap",
+      "--test-reporter-destination=stdout",
+      scenario,
+    ];
     if (failAfterConnection) args.push("--fail");
     const options = {
       env: environment,
@@ -73,17 +127,28 @@ test("native lifetime releases dependants first and does not skip cleanup after 
 });
 
 test("browser lifetime drains a real resource acquired after the native test deadline", () => {
-  const environment = { ...process.env };
+  const environment = { ...process.env, NODE_OPTIONS: "" };
   delete environment.NODE_TEST_CONTEXT;
   assert.throws(
     () =>
-      execFileSync(process.execPath, ["--test", "--test-isolation=none", scenario, "--late"], {
-        env: environment,
-        encoding: "utf8",
-        timeout: 2_000,
-        killSignal: "SIGKILL",
-        stdio: ["ignore", "pipe", "pipe"],
-      }),
+      execFileSync(
+        process.execPath,
+        [
+          "--test",
+          "--test-isolation=none",
+          "--test-reporter=tap",
+          "--test-reporter-destination=stdout",
+          scenario,
+          "--late",
+        ],
+        {
+          env: environment,
+          encoding: "utf8",
+          timeout: 2_000,
+          killSignal: "SIGKILL",
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      ),
     (error) => {
       assert.equal(error.status, 1, "an expired test must terminate instead of leaking its server");
       assert.match(error.stdout, /LATE_SERVER_ACQUIRED/u);

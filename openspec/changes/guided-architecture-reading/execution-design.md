@@ -209,6 +209,21 @@ Deadline-bounded subprocess regressions cover rejected and resolved pending
 dependents, throwing parent disposal, normal dependent-first order and test
 expiry. They do not increase existing deadlines or weaken reader assertions.
 
+Nested lifetime scenarios select native TAP on stdout and do not inherit the
+enclosing runner's reporter options or journal destination. They retain inherited
+V8 coverage. The regression runs all six nested scenarios with an enclosing
+native reporter and requires its pre-existing journal to remain byte-identical;
+the installed ETHOS recorder must also retain a complete outer attempt.
+
+The existing `node-behavior` gate declares a finite 1,800-second budget for its
+test attempt and native coverage measurement. The preceding full local suite
+took 1,272.5 seconds; the provider's undeclared 600-second default cut off an
+active run. This budget changes neither test selection, child deadlines,
+coverage floors nor assertions. Budget expiry remains a failure. Mise safe-mode
+task refusal is a separate integration defect owned by ETHOS; the Publisher
+tests must not clear that policy, skip Raster custody or substitute direct
+commands for the declared native task.
+
 New generated output belongs under the repository's ignored `build/`, according
 to the projects-family contract. Existing records remain exact retained inputs
 until their named consumers release them; do not create another records root.

@@ -458,6 +458,7 @@ depends_on = ["source-integrity"]
 [[proof.gates]]
 id = "node-behavior"
 kind = "test"
+timeout_seconds = 1800
 providers = ["ethos.adapters.gates.code_quality:behavior_report"]
 dimensions = ["behavior", "test", "coverage"]
 execution_mode = "provider"
