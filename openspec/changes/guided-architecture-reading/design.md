@@ -98,13 +98,9 @@ Advance independent tasks while preserving the dependent gap.
 
 #### Uniform product and non-decreasing quality
 
-There is one public product, not an ordinary/flagship quality split. Every
-current publication retains the stricter source, coverage, painted geometry,
-browser, accessibility, installed reproduction, recovery and faithful,
-intelligible, aesthetic review obligations. Scope, medium, visual style and
-automatic or complete literal composition are independent choices, not quality
-levels. A build emits an unqualified Candidate; successful generation does not
-claim visual acceptance or publication.
+The [uniform product quality](../../../docs/product-contract.md#uniform-product-quality)
+contract applies regardless of scope, medium, style or composition method.
+Generation emits an unqualified Candidate, not accepted or published artwork.
 
 The Claim-backed Edition contract becomes `architecture.edition/v2` without a
 `class` field. Its existing validator requires all three visual predicates for
@@ -114,13 +110,10 @@ new command, quality switch, old-class adapter or repository-specific exception.
 Current inputs migrate explicitly; the current executor refuses retired Edition
 v1 values rather than reinterpreting their semantics or acceptance identities.
 
-The existing selected-qualification policy owner requires the same visual
-predicates, attributed to human reviewers, for each selected PNG and standalone
-HTML artifact before it can report complete policy coverage. Technical probes
-without a complete policy remain useful, but cannot qualify the artwork. Exact
-artifact, review method, intended display, reviewer, limitations and verdict
-remain bound by the existing evidence contract. Maintainer review is valid when
-the designated acceptance policy permits it; it is never called independent.
+The existing selected-qualification owner requires all three human-reviewed
+visual predicates for each exact PNG and HTML. Records bind artifact, method,
+display, reviewer, limits and verdict. Technical probes without complete policy
+coverage cannot qualify artwork. Permitted maintainer review is not independent.
 
 Move the complete existing strict quality requirements from
 `flagship-qualification` to `publication-qualification` through one native
@@ -477,6 +470,14 @@ approval does not approve later byte changes or source-product publication.
 #### Mature mechanism reuse
 
 Node text and peer capacity are allocated before native placement. One receiving geometry owner must preserve nodes, ports, labels, routes and the complete reading frame together. A layout result must not be invalidated by post-layout node sizing or an unrelated label planner. Measured text, selected paint and legal endpoint escape enter the native constraints before solving; unchanged audits determine acceptance.
+
+Declared groups also admit native rectangle packing of complete members and
+captions. Measured Legend and font clearance determine the available aspect.
+Group-local packing preserves membership and order; outer packing places whole
+groups. Existing routing resolves every selected relationship; unchanged paint
+audits qualify it. Literal contacts retain compound layout. This is a candidate
+within the existing geometry owner, not a new renderer or source-specific scene.
+Geometry success does not establish browser or artwork acceptance.
 
 The unchanged libavoid-js 0.4.5 seam remains an unqualified build-time experiment, not the selected composition solution. The eight-page diagnostic passed routing audits, but real asynchronous regression consumers exposed detached endpoints, label collisions, incomplete fixed-boundary routing and a failed compact-frame requirement. Expanded rectangular obstacles can close legal endpoint corridors; nudging penalties do not declare all required geometry constraints. Do not promote this experiment, relax those gates, or infer overall composition quality from its diagnostic. Preserve its exact RED receipts and accepted predecessors. Any later admission still requires complete LGPL source custody, installed offline use and actual native-platform evidence.
 

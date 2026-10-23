@@ -45,6 +45,20 @@ export function intrinsicArchitectureFrame(bounds, inset, measured) {
   };
 }
 
+/** Derive placement space and final frames from the same measured content reserve. */
+export function intrinsicArchitectureFraming(viewport, inset, measured) {
+  const resolve = (bounds) => intrinsicArchitectureFrame(bounds, inset, measured);
+  const referenceWidth = viewport.width - inset * 2;
+  const reference = resolve({ width: referenceWidth, height: 1 }).viewport;
+  return {
+    placementViewport: {
+      width: viewport.width - (reference.width - referenceWidth),
+      height: viewport.height - (reference.height - 1),
+    },
+    resolve,
+  };
+}
+
 /** One compact column grid owns both reserved space and final native placement. */
 export function alignedLegendFootprint(
   entries,

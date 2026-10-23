@@ -11,6 +11,7 @@ import { preparePage } from "./input.mjs";
 import { connectedComponents } from "./topology.mjs";
 import { decodeInteractiveLayoutReply, normalizeInteractiveGeometry } from "./normalize.mjs";
 import { auditInteractiveGeometry } from "./audit.mjs";
+import { groupedPlacement } from "./packing.mjs";
 import { maximumLayoutPages } from "./limits.mjs";
 import {
   allocateEndpointFootprints,
@@ -213,6 +214,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
     Math.min(marks.desktopReadingWidth, marks.shellMaximumWidth) - marks.shellInset * 2;
   const minimumLabelSize = options.minimumLabelSize ?? marks.minimumLabelSize;
   const readingViewport = options.readingViewport;
+  const placementViewport = options.placementViewport;
   const sourceReading = options.readingContext === "source";
   if (
     !Number.isSafeInteger(timeoutMs) ||
@@ -234,6 +236,12 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
         readingViewport.width <= 0 ||
         !Number.isFinite(readingViewport.height) ||
         readingViewport.height <= 0)) ||
+    (placementViewport !== undefined &&
+      (!placementViewport ||
+        !Number.isFinite(placementViewport.width) ||
+        placementViewport.width <= 0 ||
+        !Number.isFinite(placementViewport.height) ||
+        placementViewport.height <= 0)) ||
     (options.nodeFootprints !== undefined &&
       (!Array.isArray(options.nodeFootprints) || options.nodeFootprints.length !== pages.length))
   )
@@ -265,6 +273,13 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
       };
     };
     const candidates = [candidate("RIGHT"), candidate("DOWN")];
+    if (
+      page.groups.length &&
+      options.nodeFootprints &&
+      options.composePackedCandidate &&
+      page.nodes.every((node) => !node.ports)
+    )
+      candidates.push(groupedPlacement(page, readingWidth, placementViewport ?? readingViewport));
     // Reading context changes admission, not the available structural layouts.
     if (!page.groups.length && options.nodeFootprints) {
       const peerWidth = Math.max(...page.nodes.map(({ width }) => width));
@@ -333,6 +348,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           const identity = JSON.stringify(
             [
               entry.placementOnly,
+              entry.preserveGroups,
               entry.escape,
               entry.verticalEscape,
               entry.containers,
@@ -343,7 +359,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           if (evaluatedGeometry.has(identity)) continue;
           evaluatedGeometry.add(identity);
           const placement = entry.placementOnly
-            ? unpackGeometry(results[at], entry.containers, true)
+            ? unpackGeometry(results[at], entry.containers, !entry.preserveGroups)
             : null;
           const nativeIds = new Set((placement?.edges ?? []).map(({ id }) => id));
           const layout = entry.placementOnly
@@ -375,10 +391,11 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
               node.width -= entry.escape * 2;
               node.height -= (entry.verticalEscape ?? entry.escape) * 2;
             });
+            const bodies = [...layout.nodes, ...layout.groups];
             layout.bounds.width =
-              Math.max(...layout.nodes.map((node) => node.x + node.width)) + marks.graphInset;
+              Math.max(...bodies.map((node) => node.x + node.width)) + marks.graphInset;
             layout.bounds.height =
-              Math.max(...layout.nodes.map((node) => node.y + node.height)) + marks.graphInset;
+              Math.max(...bodies.map((node) => node.y + node.height)) + marks.graphInset;
             const nativeRelations = new Map(
               layout.relations.map((relation) => [relation.id, relation]),
             );

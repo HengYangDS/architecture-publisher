@@ -29,7 +29,7 @@ import {
   readingDistance,
 } from "./node-text.mjs";
 
-import { intrinsicArchitectureFrame, measureArchitectureLegend } from "./legend.mjs";
+import { intrinsicArchitectureFraming, measureArchitectureLegend } from "./legend.mjs";
 
 import { sharedContacts } from "./contacts.mjs";
 
@@ -116,7 +116,8 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     ),
   );
   const measuredLegend = await measureArchitectureLegend(scene, budget, fonts, exploration);
-  const frameFor = (layout) => intrinsicArchitectureFrame(layout.bounds, inset, measuredLegend);
+  const readingViewport = { width: marks.desktopFrameWidth, height: marks.desktopReadingHeight };
+  const framing = intrinsicArchitectureFraming(readingViewport, inset, measuredLegend);
   const sizes = allocateCorrespondingFootprints(
     {
       nodes: scene.nodes,
@@ -232,8 +233,9 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     readingWidth: intrinsicReadingWidth,
     readingContext,
     minimumLabelSize: budget.minimum,
-    readingViewport: { width: marks.desktopFrameWidth, height: marks.desktopReadingHeight },
-    candidateFootprint: (layout) => frameFor(layout).viewport,
+    readingViewport,
+    placementViewport: framing.placementViewport,
+    candidateFootprint: (layout) => framing.resolve(layout.bounds).viewport,
     composeCandidate: async (layout) => {
       await routeIntrinsicGeometry(nativePaint(layout), {
         automatic: !Object.keys(contacts.ports).length,
@@ -245,7 +247,7 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     validateCandidate: (layout) => auditIntrinsicGeometry(nativePaint(layout)),
   });
   const layout = laidOut.layouts[0];
-  const frame = frameFor(layout);
+  const frame = framing.resolve(layout.bounds);
   const byNode = new Map(layout.nodes.map((node) => [node.id, node]));
   const byEdge = new Map(layout.relations.map((edge) => [edge.id, edge]));
   const nodeAt = (id) => byNode.get(id);

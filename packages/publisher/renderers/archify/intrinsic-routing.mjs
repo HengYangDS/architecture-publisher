@@ -72,13 +72,13 @@ export async function routePackedIntrinsicGeometry(graph) {
     0,
     8 - Math.min(...points.map(([, y]) => y), ...graph.nodes.map(({ y }) => y)),
   );
-  for (const node of graph.nodes) {
-    node.x += dx;
-    node.y += dy;
-    node.label = {
-      ...placeMeasuredLabel(node.label, dx, dy),
-      x: (node.label.x ?? 0) + dx,
-      y: (node.label.y ?? 0) + dy,
+  for (const item of [...graph.groups, ...graph.nodes]) {
+    item.x += dx;
+    item.y += dy;
+    item.label = {
+      ...placeMeasuredLabel(item.label, dx, dy),
+      x: (item.label.x ?? 0) + dx,
+      y: (item.label.y ?? 0) + dy,
     };
   }
   for (const route of routes) route.points = route.points.map(([x, y]) => [x + dx, y + dy]);

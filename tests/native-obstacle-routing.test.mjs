@@ -7,6 +7,77 @@ import {
 import { auditIntrinsicGeometry } from "../packages/publisher/renderers/archify/routing-contract.mjs";
 import { graphFor, emptyLabel } from "./fixtures/intrinsic-routing.mjs";
 
+test("packed routing translates declared groups and their caption ink with member nodes", async () => {
+  const ink = { x: 32, y: 32, width: 100, height: 12 };
+  const graph = {
+    bounds: { width: 800, height: 480 },
+    groups: [
+      {
+        id: "declared",
+        x: 2,
+        y: 2,
+        width: 770,
+        height: 460,
+        label: {
+          ...emptyLabel(),
+          x: 26,
+          y: 26,
+          width: 128,
+          height: 24,
+          lines: ["Declared group"],
+          weight: "600",
+          baselines: [{ text: "Declared group", x: 32, baseline: 44, box: ink }],
+          paintBox: ink,
+        },
+      },
+    ],
+    nodes: [
+      { id: "source", x: 64, y: 100, width: 80, height: 60 },
+      { id: "target", x: 64, y: 300, width: 80, height: 60 },
+      { id: "barrier", x: 10, y: 190, width: 280, height: 48 },
+    ].map((node) => ({ ...node, groupId: "declared", label: emptyLabel() })),
+    relations: [
+      {
+        id: "connection",
+        source: "source",
+        target: "target",
+        direction: "forward",
+        points: [],
+        label: null,
+      },
+    ],
+  };
+  const before = structuredClone(graph);
+  await routePackedIntrinsicGeometry(graph);
+  const dx = graph.nodes[0].x - before.nodes[0].x;
+  const dy = graph.nodes[0].y - before.nodes[0].y;
+  assert(dx > 0 || dy > 0, "the obstructed route must exercise frame translation");
+  const group = graph.groups[0];
+  const prior = before.groups[0];
+  assert.deepEqual(
+    { x: group.x, y: group.y, width: group.width, height: group.height },
+    { x: prior.x + dx, y: prior.y + dy, width: prior.width, height: prior.height },
+  );
+  assert.equal(group.label.x, prior.label.x + dx);
+  assert.equal(group.label.y, prior.label.y + dy);
+  assert.deepEqual(group.label.lines, prior.label.lines);
+  assert.deepEqual(group.label.paintBox, { ...ink, x: ink.x + dx, y: ink.y + dy });
+  assert.deepEqual(group.label.baselines, [
+    {
+      text: "Declared group",
+      x: 32 + dx,
+      baseline: 44 + dy,
+      box: { ...ink, x: ink.x + dx, y: ink.y + dy },
+    },
+  ]);
+  for (const [index, node] of graph.nodes.entries()) {
+    assert.equal(node.groupId, before.nodes[index].groupId);
+    assert.equal(node.x - group.x, before.nodes[index].x - prior.x);
+    assert.equal(node.y - group.y, before.nodes[index].y - prior.y);
+  }
+  assert.doesNotThrow(() => auditIntrinsicGeometry(graph));
+});
+
 test("routing reports unchanged node ink collisions before trying to repair routes", async () => {
   for (const route of [
     routeIntrinsicGeometry,
