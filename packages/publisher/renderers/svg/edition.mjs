@@ -17,7 +17,7 @@ import {
 } from "./edition-contract.mjs";
 import { maximumExtent, boundsOf } from "./edition-geometry.mjs";
 import { number, textLines, namedSection } from "./edition-text.mjs";
-import { paintClaimStatements, staticBodyGeometry } from "./edition-claims.mjs";
+import { paintClaimContext, paintClaimStatements, staticBodyGeometry } from "./edition-claims.mjs";
 import { composeStaticEditionStructure } from "./edition-structure.mjs";
 
 /** Paint an unqualified, source-bound static Scene without acquiring meaning. */
@@ -155,16 +155,19 @@ export function composeStaticEditionSvg(scene, options = {}) {
   }
   const structureHeight = Math.max(300, (bounds?.height ?? 0) + 120);
   const notesHeight = y - graphTop + 32;
-  const paintClaims = (placement) => {
+  const paintClaims = (placement, receivingWidth) => {
     const claimSectionY =
-      graphTop +
-      (placement === "side" ? structureHeight : Math.max(structureHeight, notesHeight)) +
-      34;
+      receivingWidth === undefined
+        ? graphTop +
+          (placement === "side" ? structureHeight : Math.max(structureHeight, notesHeight)) +
+          34
+        : 0;
     const claimPlate = [];
     const claimCarriers = [];
-    const claimX = mixed ? 60 : 74;
-    const claimWidth = mixed && placement === "footer" ? width - 120 : graphWidth - 32;
-    let claimY = mixed ? claimSectionY : graphTop + 66;
+    const claimX = receivingWidth === undefined ? (mixed ? 60 : 74) : 0;
+    const claimWidth =
+      receivingWidth ?? (mixed && placement === "footer" ? width - 120 : graphWidth - 32);
+    let claimY = receivingWidth !== undefined || mixed ? claimSectionY : graphTop + 66;
     let denseSingleColumnCards = 0;
     if (mixed && !fragment)
       claimY =
@@ -183,19 +186,13 @@ export function composeStaticEditionSvg(scene, options = {}) {
           600,
           2,
         ) + 8;
-      for (const { label, value } of common)
-        claimY =
-          textLines(
-            claimPlate,
-            `${label}: ${value}`,
-            claimX,
-            claimY,
-            claimWidth,
-            14,
-            "#27352e",
-            400,
-            mixed ? 8 : Math.floor((maximumExtent - claimY - 48) / (14 * 1.4)),
-          ) + 5;
+      claimY = paintClaimContext(claimPlate, common, {
+        x: claimX,
+        y: claimY,
+        width: claimWidth,
+        columns:
+          receivingWidth === undefined ? 1 : Math.max(1, Math.floor((claimWidth + 24) / 504)),
+      });
       claimPlate.push(
         `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(claimX + claimWidth)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
       );
@@ -230,14 +227,12 @@ export function composeStaticEditionSvg(scene, options = {}) {
       const cardWidth = columns === 1 ? claimWidth : (claimWidth - (columns - 1) * 24) / columns;
       for (let row = 0; row < claimCards.length; row += columns) {
         let rowBottom = claimY;
+        const measuredCards = [];
         for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
           const claim = orderedClaims[row + column];
           const graphicId = `${idPrefix}c-${row + column}`;
           const relationPosition = positionFor(claim);
-          const x =
-            columns === 1 && placement === "footer"
-              ? (width - cardWidth) / 2
-              : claimX + column * (cardWidth + 24);
+          const x = claimX + column * (cardWidth + 24);
           const content = [];
           let cardY = claimY + 32;
           cardY =
@@ -283,18 +278,20 @@ export function composeStaticEditionSvg(scene, options = {}) {
           }
           cardY = Math.max(...columnY);
           const bottom = cardY + 16;
-          claimPlate.push(
-            `<g data-graphic-id="${graphicId}">`,
-            `<rect x="${number(x)}" y="${number(claimY)}" width="${number(cardWidth)}" height="${number(bottom - claimY)}" rx="12" fill="#fffefa" stroke="#c4ccc2" stroke-width="1"/>`,
-            ...content,
-            "</g>",
-          );
+          measuredCards.push({ graphicId, x, content });
           claimCarriers.push({
             graphicId,
             source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
           });
           rowBottom = Math.max(rowBottom, bottom);
         }
+        for (const { graphicId, x, content } of measuredCards)
+          claimPlate.push(
+            `<g data-graphic-id="${graphicId}">`,
+            `<rect x="${number(x)}" y="${number(claimY)}" width="${number(cardWidth)}" height="${number(rowBottom - claimY)}" rx="12" fill="#fffefa" stroke="#c4ccc2" stroke-width="1"/>`,
+            ...content,
+            "</g>",
+          );
         claimY = rowBottom + 24;
       }
     } else {
@@ -415,6 +412,18 @@ export function composeStaticEditionSvg(scene, options = {}) {
                 y: mixed ? chosen.claimSectionY : graphTop + 66,
                 width: chosen.claimWidth,
                 height: chosen.claimY - (mixed ? chosen.claimSectionY : graphTop + 66),
+                reflow: (receivingWidth) => {
+                  if (!Number.isFinite(receivingWidth) || receivingWidth < 320)
+                    fail("static_figure_claim_unrepresentable");
+                  const result = paintClaims("footer", receivingWidth);
+                  return {
+                    markup: result.claimPlate.join("\n"),
+                    x: result.claimX,
+                    y: result.claimSectionY,
+                    width: result.claimWidth,
+                    height: result.claimY - result.claimSectionY,
+                  };
+                },
               }
             : null,
       },

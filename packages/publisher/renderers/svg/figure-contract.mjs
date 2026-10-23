@@ -50,6 +50,7 @@ export function checkedViews(views) {
       !Array.isArray(parts.relations) ||
       (parts.claim !== null &&
         (typeof parts.claim?.markup !== "string" ||
+          (parts.claim.reflow !== undefined && typeof parts.claim.reflow !== "function") ||
           ![parts.claim.x, parts.claim.y, parts.claim.width, parts.claim.height].every(
             Number.isFinite,
           ))) ||

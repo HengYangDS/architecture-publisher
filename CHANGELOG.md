@@ -36,6 +36,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Fixed
 
+- Static receiving frames reflow complete claims at their available width, align shared claim context and size each
+  claim-card row uniformly. Type Legends use equally spaced icon-first columns. Uniform graph framing respects
+  both reading axes, and empty equal-height widening cannot bypass Raster admission; a genuinely reflowed
+  continuation remains eligible. These bounded repairs do not establish complete layout or artwork acceptance.
 - Automatic endpoint alternatives share one relationship search budget, avoiding repeated grid expansion for the
   same connection. Installed compilation keeps its existing deadline, complete text, routes and paint checks.
 - Automatic overview admission checks the complete desktop frame before selecting a layout. An infeasible frame

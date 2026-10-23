@@ -373,8 +373,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 1903,
-        "sha256": "40db1a29bb81a076499fa2dd42b433b2ec23038d9a2b79c58e93c35f21555e33"
+        "bytes": 2724,
+        "sha256": "f224619a43bf76214c96194832026b3b782250e935f106b31cd8ae37b28d48ac"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -398,13 +398,13 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 17064,
-        "sha256": "b12f000267df52bc9e1d5adbe3bedace9672086b993150be8fe1a00187a4a4c8"
+        "bytes": 17769,
+        "sha256": "04c330bac6644b871bea18eedf1d8cdfbf7ff3072aac48d5b9170feb07cb17e1"
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/text.mjs",
@@ -575,8 +575,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 1903,
-        "sha256": "40db1a29bb81a076499fa2dd42b433b2ec23038d9a2b79c58e93c35f21555e33"
+        "bytes": 2724,
+        "sha256": "f224619a43bf76214c96194832026b3b782250e935f106b31cd8ae37b28d48ac"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -600,13 +600,13 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 17064,
-        "sha256": "b12f000267df52bc9e1d5adbe3bedace9672086b993150be8fe1a00187a4a4c8"
+        "bytes": 17769,
+        "sha256": "04c330bac6644b871bea18eedf1d8cdfbf7ff3072aac48d5b9170feb07cb17e1"
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/text.mjs",
@@ -767,13 +767,13 @@
       },
       {
         "path": "renderers/svg/composition.mjs",
-        "bytes": 1346,
-        "sha256": "7ea5cb8e7d379892c63107592fbb7e260479ccb0efe2ac2df226b3f10eff5ce1"
+        "bytes": 1677,
+        "sha256": "06f3c166ddeef82b2f976047e78c00b04247957501330dd2bf54ebc757a3d67f"
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 1903,
-        "sha256": "40db1a29bb81a076499fa2dd42b433b2ec23038d9a2b79c58e93c35f21555e33"
+        "bytes": 2724,
+        "sha256": "f224619a43bf76214c96194832026b3b782250e935f106b31cd8ae37b28d48ac"
       },
       {
         "path": "renderers/svg/edition-geometry.mjs",
@@ -787,8 +787,8 @@
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/responsibility-claims.mjs",
@@ -969,8 +969,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 1903,
-        "sha256": "40db1a29bb81a076499fa2dd42b433b2ec23038d9a2b79c58e93c35f21555e33"
+        "bytes": 2724,
+        "sha256": "f224619a43bf76214c96194832026b3b782250e935f106b31cd8ae37b28d48ac"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -994,13 +994,13 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 17064,
-        "sha256": "b12f000267df52bc9e1d5adbe3bedace9672086b993150be8fe1a00187a4a4c8"
+        "bytes": 17769,
+        "sha256": "04c330bac6644b871bea18eedf1d8cdfbf7ff3072aac48d5b9170feb07cb17e1"
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/text.mjs",
@@ -1156,8 +1156,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 1903,
-        "sha256": "40db1a29bb81a076499fa2dd42b433b2ec23038d9a2b79c58e93c35f21555e33"
+        "bytes": 2724,
+        "sha256": "f224619a43bf76214c96194832026b3b782250e935f106b31cd8ae37b28d48ac"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -1181,13 +1181,13 @@
       },
       {
         "path": "renderers/svg/edition.mjs",
-        "bytes": 17064,
-        "sha256": "b12f000267df52bc9e1d5adbe3bedace9672086b993150be8fe1a00187a4a4c8"
+        "bytes": 17769,
+        "sha256": "04c330bac6644b871bea18eedf1d8cdfbf7ff3072aac48d5b9170feb07cb17e1"
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/text.mjs",
@@ -1509,6 +1509,16 @@
         "sha256": "3b2ed25b7e8801807bee83e0a85f87c6ddb294bcb394a6d9ea4ed55b66b7a774"
       },
       {
+        "path": "renderers/icons/identity.mjs",
+        "bytes": 163,
+        "sha256": "7fb8396fd493b05494072c68e3f972f55d4db3bd44d09532d4d6d60a201bfb98"
+      },
+      {
+        "path": "renderers/icons/index.mjs",
+        "bytes": 4269,
+        "sha256": "43b64b09eb4b08a72e00eca84adf0f51ab172d9713eb6278a59c2976e441211c"
+      },
+      {
         "path": "renderers/resvg/identity.mjs",
         "bytes": 169,
         "sha256": "c999587dc699ea5cf6edab297fffdf1111bacb240cc3a3bced7882ebdce1accd"
@@ -1550,18 +1560,23 @@
       },
       {
         "path": "renderers/svg/composition.mjs",
-        "bytes": 1346,
-        "sha256": "7ea5cb8e7d379892c63107592fbb7e260479ccb0efe2ac2df226b3f10eff5ce1"
+        "bytes": 1677,
+        "sha256": "06f3c166ddeef82b2f976047e78c00b04247957501330dd2bf54ebc757a3d67f"
       },
       {
         "path": "renderers/svg/figure-contract.mjs",
-        "bytes": 2050,
-        "sha256": "76cf54bd4d7a4987019621a492782f995a69235c11b4db1236d5e2ee61dc3df9"
+        "bytes": 2142,
+        "sha256": "2a03a39114ba5c8e086d9f160b23d5ad95b711fa4dbf91034d6ff3e750eb486c"
+      },
+      {
+        "path": "renderers/svg/figure-types.mjs",
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/figure.mjs",
-        "bytes": 19501,
-        "sha256": "34d73d3a66f4e3b2f75832ba60c8b00547c5a4fb9333a00cce1f3390b7dfe9a4"
+        "bytes": 20011,
+        "sha256": "2d63409d38ca7305999a654f19c78d6fa227edc24b89404fc0214500c5d77341"
       },
       {
         "path": "renderers/svg/text.mjs",
@@ -1572,6 +1587,16 @@
         "path": "src/compiler/media.mjs",
         "bytes": 1697,
         "sha256": "b08ff2885ef29123db3952f1b0131b2c7e68e49dcdda49d26a3f799d679b329f"
+      },
+      {
+        "path": "src/file-input/contract.mjs",
+        "bytes": 2600,
+        "sha256": "db69dbd920335fb6c42851cc3b599562a0eb4903aefc23193485aae77473bbb6"
+      },
+      {
+        "path": "src/file-input/read.mjs",
+        "bytes": 5642,
+        "sha256": "988d405b1d1033cfa6fe32fb6721bdc1ed4dc5fa1bc0edfce47abcc88a5744cb"
       },
       {
         "path": "src/protocol/json.mjs",
@@ -1837,8 +1862,8 @@
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/primitives.mjs",
@@ -2254,8 +2279,8 @@
       },
       {
         "path": "renderers/svg/figure-types.mjs",
-        "bytes": 2019,
-        "sha256": "9628264165001992e3e37b0cc7f09df42a6d262990b7a89d91fe9807fb98f8dd"
+        "bytes": 2926,
+        "sha256": "2a939986d088f4ce27f30ac93f6685a35ace696ad121196f5aa144dc1b74d867"
       },
       {
         "path": "renderers/svg/primitives.mjs",

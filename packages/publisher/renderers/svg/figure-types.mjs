@@ -19,29 +19,56 @@ export function composeFigureTypeLegend(nodes, icons, width) {
     ),
   ];
   if (!entries.length) return null;
+  return reflowFigureTypeLegend(
+    {
+      entries: entries.map(([kind, { icon, label }]) => ({
+        kind,
+        label,
+        glyph: renderFigureIcon(icon, icons, { y: 2, size: 14 }),
+      })),
+    },
+    width,
+  );
+}
+
+/** Reflow resolved artwork and exact labels without embedding an execution closure. */
+export function reflowFigureTypeLegend(legend, width) {
+  if (!legend.entries) return legend;
+  if (!Number.isFinite(width) || width < 96) fail("figure_legend_width_invalid");
+  const { entries } = legend;
+  const fontSize = 14;
+  const leading = 20;
+  const textX = 26;
+  const columnGap = 24;
+  const preferredWidth = Math.max(
+    ...entries.map(({ label }) => measureStaticText(label, fontSize) + textX + 4),
+  );
+  const columns = Math.min(
+    entries.length,
+    Math.max(1, Math.floor((width + columnGap) / (preferredWidth + columnGap))),
+  );
+  const columnWidth = (width - (columns - 1) * columnGap) / columns;
   const output = [];
-  let x = 0;
   let y = 0;
-  let rowHeight = 26;
-  for (const [kind, { icon, label }] of entries) {
-    const lines = wrapStaticText(label, width - 23, 11);
-    const textWidth = Math.max(...lines.map((line) => measureStaticText(line, 11)));
-    const itemWidth = textWidth + 23;
-    if (x && x + itemWidth > width) {
-      x = 0;
-      y += rowHeight;
-      rowHeight = 26;
+  for (let start = 0; start < entries.length; start += columns) {
+    let rowHeight = 0;
+    for (const [column, { kind, glyph, label }] of entries
+      .slice(start, start + columns)
+      .entries()) {
+      const lines = wrapStaticText(label, columnWidth - textX - 4, fontSize);
+      const x = Number((column * (columnWidth + columnGap)).toFixed(2));
+      output.push(
+        `<g data-legend-kind="${escape(kind)}" transform="translate(${x} ${y})" color="#526158">${glyph}${lines.map((line, index) => `<text x="${textX}" y="${fontSize + index * leading}" fill="#526158" font-size="${fontSize}">${escape(line)}</text>`).join("")}</g>`,
+      );
+      rowHeight = Math.max(rowHeight, lines.length * leading + 12);
     }
-    output.push(
-      `<g data-legend-kind="${escape(kind)}" transform="translate(${Number(x.toFixed(2))} ${y})" color="#526158">${renderFigureIcon(icon, icons, { y: 3, size: 11 })}${lines.map((line, index) => `<text x="19" y="${13 + index * 17}" fill="#526158" font-size="11">${escape(line)}</text>`).join("")}</g>`,
-    );
-    rowHeight = Math.max(rowHeight, lines.length * 17 + 9);
-    x += itemWidth + 24;
+    y += rowHeight;
   }
   return {
     markup: `<g aria-label="Figure types">${output.join("")}</g>`,
     width,
-    height: y + rowHeight,
+    height: y,
+    entries,
   };
 }
 

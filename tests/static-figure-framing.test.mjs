@@ -205,3 +205,29 @@ test("empty canvas expansion cannot turn an infeasible reading into an accepted 
     { code: "raster_dimensions_invalid" },
   );
 });
+
+test("padding-only feasibility is refused regardless of candidate order", () => {
+  const narrow = { width: 1450, height: 2630, rasterWidth: 6000 };
+  const padded = { width: 3500, height: 2630, rasterWidth: 6000 };
+  for (const candidates of [
+    [narrow, padded],
+    [padded, narrow],
+  ])
+    assert.throws(() => selectMeasuredComposition(candidates, (candidate) => candidate, []), {
+      code: "raster_dimensions_invalid",
+    });
+});
+
+test("a complete height reflow remains eligible after a padding-only candidate", () => {
+  const narrow = { width: 1450, height: 2630, rasterWidth: 6000 };
+  const padded = { width: 3500, height: 2630, rasterWidth: 6000 };
+  const reflowed = { width: 2400, height: 1800, rasterWidth: 6000 };
+  for (const candidates of [
+    [narrow, padded, reflowed],
+    [reflowed, padded, narrow],
+  ])
+    assert.equal(
+      selectMeasuredComposition(candidates, (candidate) => candidate, []),
+      reflowed,
+    );
+});

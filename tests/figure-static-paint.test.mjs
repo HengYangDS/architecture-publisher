@@ -174,3 +174,61 @@ test("the type Legend lays out complete icon-first entries without truncation or
   }
   assert.doesNotMatch(result.markup, /legend-count|>\d+<\/text>/u);
 });
+
+test("unequal type names occupy aligned, equally spaced Legend columns", async () => {
+  const icons = await loadFigureIconSupply();
+  const nodes = [
+    { figureKind: "service", icon: "lucide:box" },
+    { figureKind: "persistent data store", icon: "lucide:database" },
+    { figureKind: "external person", icon: "lucide:user" },
+  ];
+  const result = composeFigureTypeLegend(nodes, icons, 900);
+  const positions = [
+    ...result.markup.matchAll(
+      /data-legend-kind="([^"]+)" transform="translate\(([\d.]+) ([\d.]+)\)"/gu,
+    ),
+  ].map(([, kind, x, y]) => ({ kind, x: Number(x), y: Number(y) }));
+
+  assert.deepEqual(
+    positions.map(({ kind }) => kind),
+    nodes.map(({ figureKind }) => figureKind),
+  );
+  assert.equal(new Set(positions.map(({ y }) => y)).size, 1);
+  assert(Math.abs(positions[2].x - positions[1].x - (positions[1].x - positions[0].x)) < 0.02);
+  for (const node of nodes) assert(result.markup.includes(`>${node.figureKind}</text>`));
+});
+
+test("the whole figure fits its complete Legend to the receiving reading width", async () => {
+  const icons = await loadFigureIconSupply();
+  const scene = staticEditionScene();
+  scene.visualPolicy.figureTypes["external person"] = "lucide:user";
+  Object.assign(scene.nodes[1], {
+    kind: "external person",
+    figureKind: "external person",
+    icon: "lucide:user",
+  });
+  const rendered = composeStaticEditionSvg(scene, {
+    icons,
+    fragment: true,
+    idPrefix: "static-view-0-",
+  });
+  const figure = composeStaticFigureSvg({
+    title: scene.title,
+    summary: scene.summary,
+    rasterWidth: 1800,
+    views: [{ id: scene.editorialViewId, scene, rendered }],
+  });
+  const svg = figure.bytes.toString("utf8");
+  const second = svg.match(
+    /data-legend-kind="external person" transform="translate\(([\d.]+) ([\d.]+)\)"/u,
+  );
+
+  assert(second);
+  assert(Math.abs(Number(second[1]) - (figure.placements[0].width + 24) / 2) < 0.02);
+  assert.equal((svg.match(/data-legend-kind=/gu) ?? []).length, 2);
+  assert.equal((svg.match(/data-semantic-sigil="lucide:user"/gu) ?? []).length, 2);
+  assert.deepEqual(
+    scene.nodes.map(({ kind }) => kind),
+    ["component", "external person"],
+  );
+});

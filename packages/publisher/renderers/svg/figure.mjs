@@ -6,7 +6,8 @@ import {
 } from "../../src/scene/claim-relations.mjs";
 import { escapeStaticText as escape, wrapStaticText as wrap } from "./text.mjs";
 import { checkedViews } from "./figure-contract.mjs";
-import { selectMeasuredComposition } from "./composition.mjs";
+import { reflowFigureTypeLegend } from "./figure-types.mjs";
+import { selectMeasuredComposition, staticStructureScale } from "./composition.mjs";
 
 const margin = 54;
 const gutter = 42;
@@ -160,14 +161,16 @@ function panel(view, width, options = {}) {
       : options.graphAlign === "local-center"
         ? notesWidth
         : width;
-    const graphX = (graphAreaWidth - bounds.width) / 2;
+    const fillsArea = Boolean(parts.claim?.reflow);
+    const scale = fillsArea ? staticStructureScale(bounds, graphAreaWidth) : 1;
+    const graphX = number((graphAreaWidth - bounds.width * scale) / 2);
     if (graphX < 0) fail("static_figure_width_unrepresentable");
     output.push(
-      `<g transform="translate(${number(graphX - bounds.x)} ${number(y - bounds.y)})">`,
+      `<g data-static-structure="true" transform="translate(${number(graphX - bounds.x * scale)} ${number(y - bounds.y * scale)}) scale(${scale})">`,
       parts.graph,
       "</g>",
     );
-    y += bounds.height + 28;
+    y += bounds.height * scale + 28;
   }
   if (beside) {
     const claim = parts.claim;
@@ -179,9 +182,10 @@ function panel(view, width, options = {}) {
     y = Math.max(y, graphStart + 30 + claim.height + 20);
   }
   if (parts.figureTypes) {
-    if (parts.figureTypes.width > width) fail("static_figure_width_unrepresentable");
-    output.push(`<g transform="translate(0 ${number(y)})">${parts.figureTypes.markup}</g>`);
-    y += parts.figureTypes.height + 14;
+    const figureTypes = reflowFigureTypeLegend(parts.figureTypes, notesWidth);
+    if (figureTypes.width > notesWidth) fail("static_figure_width_unrepresentable");
+    output.push(`<g transform="translate(0 ${number(y)})">${figureTypes.markup}</g>`);
+    y += figureTypes.height + 14;
   }
   y = readingGroupKey(output, parts.groups, notesWidth, y);
   const notesStart = y;
@@ -220,14 +224,14 @@ function panel(view, width, options = {}) {
     y += columns.height + 10;
   }
   if (parts.claim && !beside) {
-    const claim = parts.claim;
+    const claim = parts.claim.reflow?.(width) ?? parts.claim;
     if (claim.width > width || claim.height <= 0) fail("static_figure_claim_unrepresentable");
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE CLAIMS</text>`,
     );
     y += 30;
     output.push(
-      `<g transform="translate(${number((width - claim.width) / 2 - claim.x)} ${number(y - claim.y)})">`,
+      `<g data-claim-placement="below-source" transform="translate(${number((width - claim.width) / 2 - claim.x)} ${number(y - claim.y)})">`,
       claim.markup,
       "</g>",
     );
@@ -256,6 +260,7 @@ function panel(view, width, options = {}) {
     options.claimPlacement === undefined &&
     parts.bounds &&
     parts.claim &&
+    !parts.claim.reflow &&
     parts.bounds.width + gutter + parts.claim.width <= width
   ) {
     const alternative = panel(view, width, { ...options, claimPlacement: "beside-source" });
@@ -411,7 +416,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     Math.max(
       620,
       Math.ceil(parts.bounds?.width ?? 0),
-      Math.ceil(parts.claim?.width ?? 0),
+      Math.ceil(parts.claim?.reflow ? 0 : (parts.claim?.width ?? 0)),
       Math.ceil(parts.figureTypes?.width ?? 0),
     ),
   );
@@ -457,7 +462,7 @@ export function composeStaticFigureSvg({ title, summary, rasterWidth, views }) {
     for (let width = minimumWidth + 32; width < maximumWidth; width += 32) canvasWidths.add(width);
     if (columns.length === 1)
       for (const { parts } of selected) {
-        if (!parts.bounds || !parts.claim) continue;
+        if (!parts.bounds || !parts.claim || parts.claim.reflow) continue;
         const width = Math.ceil(parts.bounds.width + gutter + parts.claim.width + 2 * margin);
         if (width >= minimumWidth && width <= maximumWidth) canvasWidths.add(width);
       }

@@ -47,6 +47,32 @@ export function paintClaimStatements(cards, commonLabels, { idPrefix, x, y, widt
   return { plate, carriers, y };
 }
 
+/** Exact common context occupies aligned rows at the receiving width. */
+export function paintClaimContext(output, facts, { x, y, width, columns = 1 }) {
+  columns = Math.min(columns, facts.length);
+  const columnWidth = (width - (columns - 1) * claimColumnGap) / columns;
+  for (let start = 0; start < facts.length; start += columns) {
+    let bottom = y;
+    for (const [column, { label, value }] of facts.slice(start, start + columns).entries())
+      bottom = Math.max(
+        bottom,
+        textLines(
+          output,
+          `${label}: ${value}`,
+          x + column * (columnWidth + claimColumnGap),
+          y,
+          columnWidth,
+          14,
+          "#27352e",
+          400,
+          Math.floor((maximumExtent - y - 48) / (14 * 1.4)),
+        ) + 5,
+      );
+    y = bottom;
+  }
+  return y;
+}
+
 export function staticBodyGeometry(bounds, cards) {
   const columns = bounds === null ? Math.min(2, cards.length) : 1;
   return {
