@@ -12,6 +12,64 @@ import { architectureTextBudget } from "../packages/publisher/renderers/archify/
 import { composeIntrinsicArchitecture } from "../packages/publisher/renderers/archify/layout.mjs";
 import { renderArchitectureSvg } from "../packages/publisher/renderers/archify/assembly-svg.mjs";
 import { loadFigureIconSupply } from "../packages/publisher/renderers/icons/index.mjs";
+import {
+  deriveFigureTypeCatalog,
+  resolveFigureTypes,
+} from "../packages/publisher/src/scene/figure-types.mjs";
+import { assembleArchitectureScene } from "../packages/publisher/renderers/archify/index.mjs";
+import { parallelWorkScene, joinedWorkScene } from "./fixtures/intrinsic-composition.mjs";
+
+test("parallel work retains meaningful roles and one shared icon per Legend type", async () => {
+  const { scene, branches } = parallelWorkScene();
+  const pages = [scene, joinedWorkScene().scene];
+  const before = structuredClone(pages);
+  const roles = {
+    actor: ["coordinator", ...branches.map((branch) => branch[1])],
+    authority: branches.flatMap((branch) => [branch[0], branch[3]]),
+    decision: ["mode", "selection", ...branches.map((branch) => branch[7])],
+    evidence: ["retained", ...branches.map((branch) => branch[6])],
+    input: ["inputs", ...branches.map((branch) => branch[2])],
+    operation: ["candidate", "exit", "learning", "entry"],
+    result: ["object", "accepted", "claim"],
+    workspace: branches.flatMap((branch) => [branch[4], branch[5]]),
+  };
+  const expected = new Map(
+    Object.entries(roles).flatMap(([kind, ids]) => ids.map((id) => [id, kind])),
+  );
+  const icons = await loadFigureIconSupply();
+  const catalog = deriveFigureTypeCatalog(pages, undefined, icons);
+  assert.deepEqual(Object.keys(catalog), Object.keys(roles));
+  const resolved = resolveFigureTypes(pages, catalog);
+  for (const page of resolved)
+    for (const node of page.nodes) {
+      assert.equal(node.figureKind, expected.get(node.id), node.id);
+      assert.equal(node.icon, catalog[node.figureKind]);
+    }
+  assert.equal(
+    new Set(Object.values(catalog).map((icon) => icons.icons[icon].sha256)).size,
+    Object.keys(roles).length,
+  );
+  const fonts = await loadBundledFonts();
+  const measured = await measureArchitectureLegend(resolved[0], architectureTextBudget(12), fonts);
+  const assembled = await assembleArchitectureScene(resolved[0], {
+    fontSupply: fonts,
+    readingContext: "source",
+  });
+  const html = assembled.bytes.toString("utf8");
+  const legend = [...html.matchAll(/<g\b[^>]*data-legend-kind="([^"]+)"[^>]*>(.*?)<\/g>/gsu)];
+  assert.deepEqual(
+    legend.map(([, kind]) => kind),
+    measured.entries.map(({ kind }) => kind),
+  );
+  for (const [, kind, body] of legend) {
+    assert(body.includes(`data-semantic-sigil="${catalog[kind]}"`));
+    assert.equal(
+      html.split(`data-semantic-sigil="${catalog[kind]}"`).length - 1,
+      resolved[0].nodes.filter((node) => node.figureKind === kind).length + 1,
+    );
+  }
+  assert.deepEqual(pages, before);
+});
 
 test("an absent Legend consumes no title font or phantom type", async () => {
   const fonts = await loadBundledFonts();

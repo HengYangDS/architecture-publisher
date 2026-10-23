@@ -2,41 +2,63 @@ import assert from "node:assert/strict";
 import { composeIntrinsicArchitecture } from "../../packages/publisher/renderers/archify/layout.mjs";
 
 export function parallelWorkScene() {
-  const figure = (id, label, detail = "", note = "") => ({
+  const figure = (id, label, figureKind, detail = "", note = "") => ({
     id,
     label,
     ...(detail ? { detail } : {}),
     ...(note ? { note } : {}),
-    figureKind: "carrier",
+    figureKind,
     visualRole: "external",
   });
   const roles = ["permit", "actor", "base", "lease", "work", "tree", "proof", "prewrite"];
   const branches = ["a", "b", "c"].map((suffix) => roles.map((role) => `${role}-${suffix}`));
   const contexts = [
-    figure("coordinator", "Shared coordinator", "Coordination grants no permission"),
-    figure("inputs", "Fresh selected inputs", "Every branch admits its own scope and result"),
-    figure("mode", "Choose contributions", "Compatible many; competitive zero or one"),
+    figure("coordinator", "Shared coordinator", "actor", "Coordination grants no permission"),
+    figure(
+      "inputs",
+      "Fresh selected inputs",
+      "input",
+      "Every branch admits its own scope and result",
+    ),
+    figure("mode", "Choose contributions", "decision", "Compatible many; competitive zero or one"),
   ];
   const nodes = [
     ...contexts,
     ...branches.flatMap(([permit, actor, base, lease, work, tree, proof, prewrite], index) => [
-      figure(permit, `Permit ${index}`, "Only its own qualified result admits execution"),
-      figure(actor, `Executor ${index}`, "Scoped execution"),
-      figure(base, `Revision ${index}`, "Exact candidate reference and revision"),
-      figure(lease, `Lease ${index}`),
-      figure(work, `Workspace ${index}`, "Own plan and current lease", "Refresh stale inputs"),
-      figure(tree, `Worktree ${index}`),
-      figure(proof, `Evidence ${index}`, "Executed against the exact revision"),
-      figure(prewrite, `Write check ${index}`, "Own workspace and lease", "Fresh before writes"),
+      figure(
+        permit,
+        `Permit ${index}`,
+        "authority",
+        "Only its own qualified result admits execution",
+      ),
+      figure(actor, `Executor ${index}`, "actor", "Scoped execution"),
+      figure(base, `Revision ${index}`, "input", "Exact candidate reference and revision"),
+      figure(lease, `Lease ${index}`, "authority"),
+      figure(
+        work,
+        `Workspace ${index}`,
+        "workspace",
+        "Own plan and current lease",
+        "Refresh stale inputs",
+      ),
+      figure(tree, `Worktree ${index}`, "workspace"),
+      figure(proof, `Evidence ${index}`, "evidence", "Executed against the exact revision"),
+      figure(
+        prewrite,
+        `Write check ${index}`,
+        "decision",
+        "Own workspace and lease",
+        "Fresh before writes",
+      ),
     ]),
-    figure("selection", "Select contributions", "Prove the selected combination"),
-    figure("object", "Selected object", "Exact qualified combination"),
-    figure("candidate", "Serial integration", "One local compare-and-swap attempt"),
-    figure("accepted", "Accepted result", "Separate local admission and integration"),
-    figure("claim", "Observed result", "Observation does not grant permission"),
-    figure("retained", "Retain findings", "All-drop preserves useful results"),
-    figure("exit", "Owned exit", "Quiesce and preserve unique work"),
-    figure("learning", "Challenge assumptions", "No silent authority change"),
+    figure("selection", "Select contributions", "decision", "Prove the selected combination"),
+    figure("object", "Selected object", "result", "Exact qualified combination"),
+    figure("candidate", "Serial integration", "operation", "One local compare-and-swap attempt"),
+    figure("accepted", "Accepted result", "result", "Separate local admission and integration"),
+    figure("claim", "Observed result", "result", "Observation does not grant permission"),
+    figure("retained", "Retain findings", "evidence", "All-drop preserves useful results"),
+    figure("exit", "Owned exit", "operation", "Quiesce and preserve unique work"),
+    figure("learning", "Challenge assumptions", "operation", "No silent authority change"),
   ];
   const edges = [];
   const connect = (from, to, label = "selected relationship") =>
@@ -148,7 +170,7 @@ export function joinedWorkScene() {
     id: "entry",
     label: "Dispatch selected work",
     detail: "Each independent path retains its own admission",
-    figureKind: "carrier",
+    figureKind: "operation",
     visualRole: "external",
   });
   scene.edges = scene.edges.filter(({ from, to }) => !branchIds.has(from) && !branchIds.has(to));
