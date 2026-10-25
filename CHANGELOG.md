@@ -38,7 +38,9 @@ remain pre-release contracts and may contain incompatible changes.
 ### Fixed
 
 - Static receiving frames reflow complete claims at their available width, align shared claim context and size each
-  claim-card row uniformly. Type Legends use equally spaced icon-first columns. Uniform graph framing respects
+  claim-card row uniformly. Homogeneous records may share measured field headers while retaining every value and
+  exact source anchor; narrow and heterogeneous records keep their complete labeled form. Type Legends use
+  equally spaced icon-first columns. Uniform graph framing respects
   both reading axes, and empty equal-height widening cannot bypass Raster admission; a genuinely reflowed
   continuation remains eligible. These bounded repairs do not establish complete layout or artwork acceptance.
 - Automatic endpoint alternatives share one relationship search budget, avoiding repeated grid expansion for the

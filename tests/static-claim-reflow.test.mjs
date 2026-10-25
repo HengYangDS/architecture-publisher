@@ -8,8 +8,107 @@ import {
 import { staticEditionScene } from "./fixtures/static-edition-scene.mjs";
 import { selectMeasuredComposition } from "../packages/publisher/renderers/svg/composition.mjs";
 import { rasterDimensions } from "../packages/publisher/renderers/resvg/public.mjs";
+import { paintClaimStatements } from "../packages/publisher/renderers/svg/edition-claims.mjs";
 
 const icons = await loadFigureIconSupply();
+
+test("homogeneous Claim records share field headers and aligned complete values at a wide receiving frame", () => {
+  const cards = Array.from({ length: 12 }, (_, index) => ({
+    namespace: "independent/source",
+    id: `claim-${index}`,
+    sha256: "a".repeat(64),
+    facts: [
+      { label: "Subject", value: `Service ${index}` },
+      { label: "Predicate", value: "delegates" },
+      { label: "Object", value: `Worker ${index}` },
+      { label: "Scope", value: `Selected region ${index}` },
+      { label: "Evidence", value: `Exact source ${index}: ${"bound evidence ".repeat(index + 1)}` },
+    ],
+  }));
+  const before = structuredClone(cards);
+  const result = paintClaimStatements(cards, new Set(), {
+    idPrefix: "reading-",
+    x: 20,
+    y: 40,
+    width: 2800,
+    headingFor: (claim) => `Relation ${claim.id.slice(6)}`,
+  });
+  const svg = result.plate.join("\n");
+  const headers = [
+    ...svg.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*>([^<]*)<\/text>/gu),
+  ].filter(([, , , text]) => cards[0].facts.some(({ label }) => label === text));
+  assert.equal(
+    headers.length,
+    cards[0].facts.length,
+    "shared headers must replace repeated field labels",
+  );
+  assert.equal(new Set(headers.map(([, , y]) => y)).size, 1);
+  const positions = new Map(headers.map(([, x, , text]) => [text, Number(x)]));
+  for (const [index, card] of cards.entries()) {
+    const markup = svg.match(
+      new RegExp(`<g data-graphic-id="reading-c-${index}">([\\s\\S]*?)</g>`, "u"),
+    )?.[1];
+    assert(markup, card.id);
+    const cells = [...markup.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*>([^<]*)<\/text>/gu)];
+    for (const { label, value } of card.facts)
+      assert.equal(
+        cells
+          .filter(([, x]) => Number(x) === positions.get(label))
+          .map(([, , , text]) => text)
+          .join(""),
+        value,
+      );
+    assert.equal(
+      new Set([...positions.values()].map((x) => cells.find((cell) => Number(cell[1]) === x)[2]))
+        .size,
+      1,
+      "the first line of every field shares its complete record's baseline",
+    );
+    assert.deepEqual(result.carriers[index].source, {
+      namespace: card.namespace,
+      reference: card.id,
+      sha256: card.sha256,
+    });
+  }
+  assert.deepEqual(cards, before);
+});
+
+test("single, narrow and heterogeneous Claim records retain their complete labeled form", () => {
+  const cards = Array.from({ length: 2 }, (_, index) => ({
+    namespace: "independent/source",
+    id: `claim-${index}`,
+    sha256: "b".repeat(64),
+    facts: [
+      { label: "Meaning", value: `Service ${index} delegates to its selected Worker` },
+      { label: "Scope", value: `Only the exact selected source region ${index}` },
+    ],
+  }));
+  const heterogeneous = structuredClone(cards);
+  heterogeneous[1].facts.pop();
+  for (const [records, width] of [
+    [cards.slice(0, 1), 1400],
+    [cards, 180],
+    [heterogeneous, 1400],
+  ]) {
+    const before = structuredClone(records);
+    const result = paintClaimStatements(records, new Set(), {
+      idPrefix: "fallback-",
+      x: 0,
+      y: 0,
+      width,
+    });
+    for (const [index, record] of records.entries()) {
+      const markup = result.plate
+        .join("\n")
+        .match(new RegExp(`<g data-graphic-id="fallback-c-${index}">([\\s\\S]*?)</g>`, "u"))?.[1];
+      assert(markup, record.id);
+      for (const { label, value } of record.facts)
+        assert(visibleText(markup).includes(`${label}: ${value}`), `${record.id}: ${label}`);
+    }
+    assert.equal(result.carriers.length, records.length);
+    assert.deepEqual(records, before);
+  }
+});
 
 function selectedClaims() {
   const scene = staticEditionScene();
@@ -219,12 +318,19 @@ test("mixed claim columns respond to complete wrapping burden, not receiving wid
       if (labels.includes(fact.label)) fact.value = `${fact.label} ${index}`;
   const reflow = () =>
     composeStaticEditionSvg(selected.scene, { icons, fragment: true }).parts.claim.reflow(1800);
-  const columns = (markup) =>
-    new Set(
+  const columns = (markup) => {
+    const fields = [
+      ...markup.matchAll(
+        /<text x="([\d.]+)"[^>]*>(Subject|Predicate|Object|Scope|Selected claimant|Declared evidence authority)<\/text>/gu,
+      ),
+    ];
+    if (fields.length) return new Set(fields.map(([, x]) => x)).size;
+    return new Set(
       [...markup.matchAll(/<text x="([\d.]+)"[^>]*>ON SOURCE RELATION 01<\/text>/gu)].map(
         ([, x]) => x,
       ),
     ).size;
+  };
   const concise = reflow();
 
   for (const [index, claim] of selected.scene.claimCards.entries())

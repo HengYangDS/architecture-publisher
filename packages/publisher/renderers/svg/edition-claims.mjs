@@ -1,8 +1,97 @@
 import { maximumExtent } from "./edition-geometry.mjs";
 import { number, textLines } from "./edition-text.mjs";
 import { selectMeasuredComposition } from "./composition.mjs";
+import { measureStaticText } from "./text.mjs";
 
 const claimColumnGap = 24;
+
+/** Shared headers are valid only for the same complete, ordered record shape. */
+function tableColumns(cards, commonLabels, options) {
+  if (cards.length < 2) return null;
+  const rows = cards.map((card) => card.facts.filter(({ label }) => !commonLabels.has(label)));
+  const labels = rows[0].map(({ label }) => label);
+  if (
+    !labels.length ||
+    rows.some((row) => JSON.stringify(row.map(({ label }) => label)) !== JSON.stringify(labels))
+  )
+    return null;
+  const fields = labels.map((label, index) => ({
+    label,
+    size: 14,
+    values: rows.map((row) => row[index].value),
+  }));
+  if (options.headingFor)
+    fields.unshift({ label: "Applies to", size: 11, values: cards.map(options.headingFor) });
+  const columns = fields.map((field) => {
+    const minimum =
+      Math.max(
+        measureStaticText(field.label, 11),
+        ...field.values.flatMap((value) =>
+          value.split(/\s+/u).map((word) => measureStaticText(word, field.size)),
+        ),
+      ) + 2;
+    return {
+      ...field,
+      width: minimum,
+      growth: Math.max(
+        0,
+        ...field.values.map((value) => measureStaticText(value, field.size) + 2 - minimum),
+      ),
+    };
+  });
+  const available = options.width - claimColumnGap * (columns.length - 1);
+  const minimum = columns.reduce((sum, column) => sum + column.width, 0);
+  if (minimum > available) return null;
+  const growth = columns.reduce((sum, column) => sum + column.growth, 0);
+  const extra = Math.min(available - minimum, growth);
+  for (const column of columns) column.width += growth ? (extra * column.growth) / growth : 0;
+  return columns;
+}
+
+function paintTable(cards, columns, { idPrefix, x, y, width }) {
+  const top = y;
+  const plate = [];
+  const carriers = [];
+  let readingSpan = 0;
+  let columnX = x;
+  for (const column of columns) {
+    column.x = columnX;
+    const bottom = textLines(plate, column.label, columnX, y, column.width, 11, "#66736b", 600, 1);
+    readingSpan += bottom - y;
+    columnX += column.width + claimColumnGap;
+  }
+  y += 11 * 1.4 + 16;
+  for (const [index, claim] of cards.entries()) {
+    const graphicId = `${idPrefix}c-${index}`;
+    plate.push(`<g data-graphic-id="${graphicId}">`);
+    let bottom = y;
+    for (const column of columns) {
+      const next = textLines(
+        plate,
+        column.values[index],
+        column.x,
+        y,
+        column.width,
+        column.size,
+        "#27352e",
+        400,
+        Math.floor((maximumExtent - y - 48) / (column.size * 1.4)),
+      );
+      readingSpan += next - y;
+      bottom = Math.max(bottom, next);
+    }
+    plate.push(
+      `<line x1="${number(x)}" y1="${number(bottom + 5)}" x2="${number(x + width)}" y2="${number(bottom + 5)}" stroke="#d3dbd1" stroke-width="1"/>`,
+      "</g>",
+    );
+    carriers.push({
+      graphicId,
+      source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
+    });
+    y = bottom + 27;
+  }
+  return { plate, carriers, y, width, height: y - top, readingSpan };
+}
 
 function paintStatements(cards, commonLabels, { idPrefix, x, y, width, columns, headingFor }) {
   const plate = [];
@@ -84,9 +173,13 @@ export function paintClaimStatements(cards, commonLabels, options) {
     cards.length,
     Math.max(1, Math.floor((options.width + claimColumnGap) / (480 + claimColumnGap))),
   );
+  const table = tableColumns(cards, commonLabels, options);
   return selectMeasuredComposition(
-    Array.from({ length: capacity }, (_, index) => index + 1),
-    (columns) => paintStatements(cards, commonLabels, { ...options, columns }),
+    [...Array.from({ length: capacity }, (_, index) => index + 1), ...(table ? [table] : [])],
+    (columns) =>
+      Array.isArray(columns)
+        ? paintTable(cards, columns, options)
+        : paintStatements(cards, commonLabels, { ...options, columns }),
     ["static_edition_text_unrepresentable", "static_edition_geometry_invalid"],
     { raster: false, extent: ({ height }) => height },
   );

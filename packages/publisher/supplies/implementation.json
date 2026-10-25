@@ -383,8 +383,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 4626,
-        "sha256": "13e860a266d9ce2b52532b60ba01874850704dfa77a14f0f9cb73169211e076a"
+        "bytes": 7859,
+        "sha256": "2c845681430109027977cb933b75b0098c1e727fa40b4d65abeed4451684fdc7"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -675,8 +675,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 4626,
-        "sha256": "13e860a266d9ce2b52532b60ba01874850704dfa77a14f0f9cb73169211e076a"
+        "bytes": 7859,
+        "sha256": "2c845681430109027977cb933b75b0098c1e727fa40b4d65abeed4451684fdc7"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -892,8 +892,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 4626,
-        "sha256": "13e860a266d9ce2b52532b60ba01874850704dfa77a14f0f9cb73169211e076a"
+        "bytes": 7859,
+        "sha256": "2c845681430109027977cb933b75b0098c1e727fa40b4d65abeed4451684fdc7"
       },
       {
         "path": "renderers/svg/edition-geometry.mjs",
@@ -1099,8 +1099,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 4626,
-        "sha256": "13e860a266d9ce2b52532b60ba01874850704dfa77a14f0f9cb73169211e076a"
+        "bytes": 7859,
+        "sha256": "2c845681430109027977cb933b75b0098c1e727fa40b4d65abeed4451684fdc7"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
@@ -1311,8 +1311,8 @@
       },
       {
         "path": "renderers/svg/edition-claims.mjs",
-        "bytes": 4626,
-        "sha256": "13e860a266d9ce2b52532b60ba01874850704dfa77a14f0f9cb73169211e076a"
+        "bytes": 7859,
+        "sha256": "2c845681430109027977cb933b75b0098c1e727fa40b4d65abeed4451684fdc7"
       },
       {
         "path": "renderers/svg/edition-contract.mjs",
