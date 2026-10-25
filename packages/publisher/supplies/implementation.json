@@ -555,8 +555,8 @@
       },
       {
         "path": "renderers/elk/layout.mjs",
-        "bytes": 18272,
-        "sha256": "73f7a392d75388b33f25a1632c748f918191b01ee30196bcc2010c91c31db18b"
+        "bytes": 18345,
+        "sha256": "4fbac72ec379cd457c24127fbb7ffa91f236464e29e5d88296798414425b182c"
       },
       {
         "path": "renderers/elk/limits.mjs",
@@ -575,8 +575,8 @@
       },
       {
         "path": "renderers/elk/placement.mjs",
-        "bytes": 20738,
-        "sha256": "aa0567af08bc3c9fdbf2db6afe9f713433618fc30bdce095b1850dccdd1a9c09"
+        "bytes": 21376,
+        "sha256": "7619cb79c795be32a5bd6981f9eb2b00a362102cc39ec3c4a2cf7f9131736aed"
       },
       {
         "path": "renderers/elk/supply.mjs",
@@ -720,8 +720,8 @@
       },
       {
         "path": "src/compiler/static-geometry.mjs",
-        "bytes": 7901,
-        "sha256": "1393bf4a758d84825cd8442aeccc7a47129ba9c06a054f5989a625d168ca31a3"
+        "bytes": 7953,
+        "sha256": "12d224231027006e298752dc1dcccd3ec2d2205883c02f83521ccf9c0bfa5e21"
       },
       {
         "path": "src/edition/appearance.mjs",
@@ -1882,8 +1882,8 @@
       },
       {
         "path": "renderers/elk/layout.mjs",
-        "bytes": 18272,
-        "sha256": "73f7a392d75388b33f25a1632c748f918191b01ee30196bcc2010c91c31db18b"
+        "bytes": 18345,
+        "sha256": "4fbac72ec379cd457c24127fbb7ffa91f236464e29e5d88296798414425b182c"
       },
       {
         "path": "renderers/elk/limits.mjs",
@@ -1902,8 +1902,8 @@
       },
       {
         "path": "renderers/elk/placement.mjs",
-        "bytes": 20738,
-        "sha256": "aa0567af08bc3c9fdbf2db6afe9f713433618fc30bdce095b1850dccdd1a9c09"
+        "bytes": 21376,
+        "sha256": "7619cb79c795be32a5bd6981f9eb2b00a362102cc39ec3c4a2cf7f9131736aed"
       },
       {
         "path": "renderers/elk/supply.mjs",
@@ -2319,8 +2319,8 @@
       },
       {
         "path": "renderers/elk/layout.mjs",
-        "bytes": 18272,
-        "sha256": "73f7a392d75388b33f25a1632c748f918191b01ee30196bcc2010c91c31db18b"
+        "bytes": 18345,
+        "sha256": "4fbac72ec379cd457c24127fbb7ffa91f236464e29e5d88296798414425b182c"
       },
       {
         "path": "renderers/elk/limits.mjs",
@@ -2339,8 +2339,8 @@
       },
       {
         "path": "renderers/elk/placement.mjs",
-        "bytes": 20738,
-        "sha256": "aa0567af08bc3c9fdbf2db6afe9f713433618fc30bdce095b1850dccdd1a9c09"
+        "bytes": 21376,
+        "sha256": "7619cb79c795be32a5bd6981f9eb2b00a362102cc39ec3c4a2cf7f9131736aed"
       },
       {
         "path": "renderers/elk/supply.mjs",

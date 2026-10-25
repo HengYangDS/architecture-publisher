@@ -86,9 +86,9 @@ function packedCandidate(page, direction, options, readingWidth) {
 }
 
 /** Native rectangle packing is placement, not an assertion that ELK routed the graph. */
-function wrappingEligible(page) {
+function wrappingEligible(page, groupTracks) {
   if (
-    page.groups.length ||
+    (page.groups.length && !groupTracks) ||
     page.nodes.length < 6 ||
     page.relations.some((relation) => relation.direction === "bidirectional")
   )
@@ -217,7 +217,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           ),
         );
     }
-    if (wrappingEligible(page))
+    if (wrappingEligible(page, options.groupTracks))
       candidates.push(
         candidate("RIGHT", { wrapAspect: 1.8 }),
         candidate("RIGHT", { wrapAspect: 3.2 }),
@@ -343,7 +343,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
             auditInteractiveGeometry(layout);
           }
           options.validateCandidate?.(layout);
-          layout.compositionDisruption = compositionDisruption(page, layout);
+          layout.compositionDisruption = compositionDisruption(page, layout, options.groupTracks);
           candidates.push(layout);
           if (sourceReading) {
             undisruptedExpansion = Math.min(

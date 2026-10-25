@@ -320,9 +320,25 @@ export function intrinsicPlacements(page, readingWidth, remainderGraph, readingV
   return candidates;
 }
 
-export function compositionDisruption(page, layout) {
+export function compositionDisruption(page, layout, groupTracks = false) {
   let defects = 0;
   const nodes = new Map(layout.nodes.map((node) => [node.id, node]));
+  // Native wrapping can stagger compound groups. Prefer shared tracks without
+  // moving any solved body, title, port or route after native placement.
+  if (groupTracks)
+    for (const [index, group] of layout.groups.entries())
+      for (const other of layout.groups.slice(index + 1)) {
+        for (const [axis, extent] of [
+          ["x", "width"],
+          ["y", "height"],
+        ])
+          if (
+            group[axis] < other[axis] + other[extent] &&
+            other[axis] < group[axis] + group[extent] &&
+            Math.abs(group[axis] - other[axis]) > 1
+          )
+            defects++;
+      }
   if (!page.relations.length) {
     const rows = new Map();
     for (const node of layout.nodes) {

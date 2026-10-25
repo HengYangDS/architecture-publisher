@@ -185,6 +185,7 @@ async function groupedGeometry(value, fonts = null) {
     readingContext: "source",
     groupTracks: true,
     readingWidth: 1800,
+    readingViewport: { width: 1800, height: 1350 },
     minimumLabelSize: 14,
   });
   const nodes = new Map(

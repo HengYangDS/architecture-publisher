@@ -3,6 +3,52 @@ import test from "node:test";
 import { composeStaticGeometry } from "../packages/publisher/src/compiler/static-geometry.mjs";
 import { checkedGroupHeading } from "../packages/publisher/renderers/svg/edition-geometry.mjs";
 
+test("compound static composition wraps a long causal chain on aligned native group tracks", async () => {
+  const ids = Array.from({ length: 8 }, (_, index) => `component-${index}`);
+  const input = {
+    nodes: ids.map((id) => ({ id, label: id, kind: "service" })),
+    groups: ids.map((id, index) => ({
+      id: `stage-${index}`,
+      label: `Declared stage ${index}`,
+      members: [id],
+    })),
+    relations: ids.slice(1).map((to, index) => ({
+      id: `relation-${index}`,
+      from: ids[index],
+      to,
+      text: "delegates",
+    })),
+  };
+  const result = await composeStaticGeometry(input);
+  const groups = result.layout.groups;
+  assert(
+    new Set(groups.map(({ y }) => y)).size > 1,
+    "A long chain must not be forced into one strip",
+  );
+  assert(
+    groups.some((group, index) => groups.slice(index + 1).some((other) => other.y === group.y)),
+    "Wrapping must not replace a horizontal strip with a vertical strip",
+  );
+  for (const [index, group] of groups.entries()) {
+    assert.equal(group.label, input.groups[index].label);
+    assert.deepEqual(group.members, input.groups[index].members);
+    for (const other of groups.slice(index + 1)) {
+      const sharedBand = group.y < other.y + other.h && other.y < group.y + group.h;
+      if (sharedBand)
+        assert.equal(group.y, other.y, "Peer group headings must share a track, not stagger");
+    }
+  }
+  assert.deepEqual([...result.layout.nodes.keys()], ids);
+  assert.deepEqual(
+    result.routes.map(({ id, from, to, text }) => ({ id, from, to, text })),
+    input.relations,
+  );
+  assert(result.routes.every(({ label, labelBox }) => label && labelBox));
+  const replay = await composeStaticGeometry(input);
+  assert.deepEqual(replay.layout, result.layout);
+  assert.deepEqual(replay.routes, result.routes);
+});
+
 test("compound static layout isolates declared groups across a fork and join", async () => {
   const ids = [
     "intent-a",
