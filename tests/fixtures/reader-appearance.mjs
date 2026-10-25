@@ -226,12 +226,28 @@ export async function contrast(frame, selector, property, backgroundSelector) {
     const original = await target.getAttribute("style");
     let png;
     try {
-      await target.evaluate((element) => element.style.setProperty("opacity", "0", "important"));
+      await target.evaluate(async (element) => {
+        element.style.setProperty("transition", "none", "important");
+        element.style.setProperty("opacity", "0", "important");
+        await new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+        );
+      });
       png = await page.screenshot();
     } finally {
-      await target.evaluate((element, original) => {
+      await target.evaluate(async (element, original) => {
         if (original === null) element.removeAttribute("style");
         else element.setAttribute("style", original);
+        element.style.setProperty("transition", "none", "important");
+        // Settle the restored opacity before reinstating its native transition.
+        globalThis.getComputedStyle(element).opacity;
+        // Synchronize SVG's pending CSSOM attribute before exact restoration.
+        element.getAttribute("style");
+        if (original === null) element.removeAttribute("style");
+        else element.setAttribute("style", original);
+        await new Promise((resolve) =>
+          globalThis.requestAnimationFrame(() => globalThis.requestAnimationFrame(resolve)),
+        );
       }, original);
     }
     observed.surfaces = await page.evaluate(

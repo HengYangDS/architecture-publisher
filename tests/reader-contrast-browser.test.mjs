@@ -28,6 +28,8 @@ test(
     <svg width="800" height="100" style="background:white">
       <path id="visible" d="M 40 50 L 760 50" stroke="black" stroke-width="4"/>
       <path id="logical" d="M 40 70 L 760 70" stroke="none"/>
+      <text id="transitioned" x="40" y="90" fill="black" font-size="32"
+        style="transition:opacity 10s linear">Transitioned ink</text>
     </svg>
   </body></html>`);
     const before = await page.locator("body").innerHTML();
@@ -38,6 +40,19 @@ test(
     const translucent = await contrast(page, "#translucent", "color");
     assert(translucent > 3.8 && translucent < 4.1, `actual alpha compositing: ${translucent}`);
     assert.equal(await contrast(page, "#visible", "stroke"), 21);
+    const transitioned = await contrast(page, "#transitioned", "fill");
+    assert.equal(
+      transitioned,
+      21,
+      "A measurement transition must not paint the foreground as its own background",
+    );
+    assert.equal(
+      await page
+        .locator("#transitioned")
+        .evaluate((element) => globalThis.getComputedStyle(element).opacity),
+      "1",
+      "The observer restores paint immediately, without starting another opacity transition",
+    );
     await assert.rejects(contrast(page, "#logical", "stroke"), /not a painted color/u);
     assert.equal(await page.locator("body").innerHTML(), before);
   },
