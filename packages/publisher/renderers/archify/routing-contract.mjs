@@ -102,6 +102,44 @@ export function reserveRouteStrokes(segments) {
   };
 }
 
+/** Every native grid path contains these fixed stubs, irrespective of its detour. */
+export function gridEndpointCorridorsClear({
+  start,
+  end,
+  fromSide,
+  toSide,
+  endpointStubPx,
+  bounds,
+  obstacles,
+  segments,
+}) {
+  const inset = marks.selectedRouteStroke / 2;
+  return [
+    [start, fromSide],
+    [end, toSide],
+  ].every(([point, side]) => {
+    const a = { x: point[0], y: point[1] };
+    const b = {
+      x: a.x + vectors[side][0] * endpointStubPx,
+      y: a.y + vectors[side][1] * endpointStubPx,
+    };
+    return (
+      [a, b].every(
+        ({ x, y }) =>
+          x >= inset && y >= inset && x <= bounds.width - inset && y <= bounds.height - inset,
+      ) &&
+      !obstacles.some((box) => segmentHitsBox(a, b, box)) &&
+      !segments.some(({ start, end }) =>
+        parallelStrokesOverlap(
+          { start: a, end: b },
+          { start: { x: start[0], y: start[1] }, end: { x: end[0], y: end[1] } },
+          marks.selectedRouteStroke,
+        ),
+      )
+    );
+  });
+}
+
 /** A facing endpoint opens its contact corridor, never the rest of its perimeter. */
 export function routeNodeMask(node, relation, endpoints) {
   const box = expandBox(node, nodeRouteClearance);

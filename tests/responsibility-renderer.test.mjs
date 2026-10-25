@@ -6,15 +6,20 @@ import { loadFigureIconSupply } from "../packages/publisher/renderers/icons/inde
 
 const figureIcons = await loadFigureIconSupply();
 
-const editorial = (statement) => ({ kind: "editorial", statement, proponent: "editor" });
+const editorial = (statement, graphicId) => ({
+  kind: "editorial",
+  graphicId,
+  statement,
+  proponent: "editor",
+});
 
 function pageFixture() {
   return {
     navigationLabel: "Responsibilities",
     form: {
       roles: [
-        { groupId: "g-0", basis: editorial("First role.") },
-        { groupId: "g-1", basis: editorial("Second role.") },
+        { groupId: "g-0", basis: editorial("First role.", "editorial-0") },
+        { groupId: "g-1", basis: editorial("Second role.", "editorial-1") },
       ],
       handoffs: [],
     },
@@ -64,7 +69,7 @@ function pageFixture() {
 test("one primary map carries roles, nodes, relations, and the editorial handoff", () => {
   const page = pageFixture();
   page.form.handoffs = [
-    { fromGroup: "g-0", toGroup: "g-1", basis: editorial("Selected handoff.") },
+    { fromGroup: "g-0", toGroup: "g-1", basis: editorial("Selected handoff.", "editorial-2") },
   ];
   const html = responsibilityPageHtml(page, 0, [], figureIcons);
   const figure = html.match(/<figure class="form-map"[\s\S]*?<\/figure>/u)?.[0];
@@ -78,7 +83,7 @@ test("one primary map carries roles, nodes, relations, and the editorial handoff
 test("separate form pages keep SVG labels and arrow markers page-local", () => {
   const page = pageFixture();
   page.form.handoffs = [
-    { fromGroup: "g-0", toGroup: "g-1", basis: editorial("Selected handoff.") },
+    { fromGroup: "g-0", toGroup: "g-1", basis: editorial("Selected handoff.", "editorial-2") },
   ];
   const html =
     responsibilityPageHtml(page, 0, [], figureIcons) +
@@ -138,7 +143,9 @@ test("source-Claim role and reverse relationships retain their direction and lim
     kind: "source-claim",
     conditions: [{ label: "Scope", value: "selected client only" }],
   };
-  page.form.handoffs = [{ fromGroup: "g-1", toGroup: "g-0", basis: editorial("Reverse handoff.") }];
+  page.form.handoffs = [
+    { fromGroup: "g-1", toGroup: "g-0", basis: editorial("Reverse handoff.", "editorial-2") },
+  ];
   page.relations[0].direction = "bidirectional";
   page.relations[1].source = "n-2";
   page.relations[1].target = "n-1";
@@ -159,6 +166,7 @@ test("complete source record, unlinked Claim and method limits remain inspectabl
     facts: [{ label: "Condition", value: "only when selected" }],
   });
   page.editorialAssertions.push({
+    graphicId: "editorial-2",
     statement: "Another bounded interpretation.",
     proponent: "editor",
   });
@@ -169,6 +177,24 @@ test("complete source record, unlinked Claim and method limits remain inspectabl
   assert.match(html, /Parser is not a sandbox/u);
   assert.match(html, /<dt>Condition<\/dt><dd>only when selected<\/dd>/u);
   assert.match(html, /id="page-1"/u);
+});
+
+test("source inspection elides only editorial identities already represented by a role or handoff", () => {
+  const page = pageFixture();
+  const handoff = editorial("Selected handoff.", "editorial-2");
+  page.form.handoffs = [{ fromGroup: "g-0", toGroup: "g-1", basis: handoff }];
+  page.editorialAssertions = [
+    page.form.roles[0].basis,
+    handoff,
+    editorial(page.form.roles[0].basis.statement, "editorial-3"),
+  ];
+  const html = responsibilityPageHtml(page, 0, [], figureIcons);
+  const inspection = html.match(/<details class="form-inspect">[\s\S]*?<\/details>/u)?.[0];
+  assert.ok(inspection);
+  assert.match(inspection, /Additional editorial assertions/u);
+  assert.equal(inspection.match(/First role\./gu)?.length, 1);
+  assert.doesNotMatch(inspection, /Selected handoff\./u);
+  assert.equal(html.match(/First role\./gu)?.length, 2);
 });
 
 test("a relation-free role page does not fabricate handoff or relation sections", () => {
@@ -256,22 +282,26 @@ test("the renderer refuses malformed responsibility structures instead of guessi
         page.form.handoffs.push({
           fromGroup: "g-0",
           toGroup: "missing",
-          basis: editorial("Unknown."),
+          basis: editorial("Unknown.", "editorial-2"),
         }),
       "render_responsibility_page_invalid",
     ],
     [
       "same-group handoff",
       (page) =>
-        page.form.handoffs.push({ fromGroup: "g-0", toGroup: "g-0", basis: editorial("Invalid.") }),
+        page.form.handoffs.push({
+          fromGroup: "g-0",
+          toGroup: "g-0",
+          basis: editorial("Invalid.", "editorial-2"),
+        }),
       "render_responsibility_lane_invalid",
     ],
     [
       "duplicate handoff",
       (page) =>
         page.form.handoffs.push(
-          { fromGroup: "g-0", toGroup: "g-1", basis: editorial("One.") },
-          { fromGroup: "g-0", toGroup: "g-1", basis: editorial("Two.") },
+          { fromGroup: "g-0", toGroup: "g-1", basis: editorial("One.", "editorial-2") },
+          { fromGroup: "g-0", toGroup: "g-1", basis: editorial("Two.", "editorial-3") },
         ),
       "render_responsibility_page_invalid",
     ],

@@ -131,7 +131,12 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
     for (const [column, member] of group.elements.entries())
       placement.set(address(member), { row, column });
   const geometry = geometryOwner({
-    nodes: [...nodes].map(([id, item]) => ({ id, label: item.label })),
+    nodes: [...nodes].map(([id, item]) => ({
+      id,
+      label: item.label,
+      kind: item.kind,
+      ...(item.qualifiers ? { qualifiers: item.qualifiers } : {}),
+    })),
     groups: authoredGroups.map((group) => ({
       id: group.id,
       label: group.label,
@@ -179,6 +184,7 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
               y: group.y,
               width: group.w,
               height: group.h,
+              ...(group.heading ? { heading: group.heading } : {}),
             })),
           }
         : {}),
@@ -195,6 +201,7 @@ export function composeStaticSelectionLayout(meaning, geometryOwner = composeGro
           y: box.y,
           width: box.w,
           height: box.h,
+          ...(box.textLayout ? { textLayout: box.textLayout } : {}),
         };
       }),
       edges: selected.routes.map((route) => {

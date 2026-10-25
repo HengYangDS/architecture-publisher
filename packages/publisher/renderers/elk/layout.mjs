@@ -9,9 +9,19 @@ import { loadElkSupply } from "./supply.mjs";
 import { placeMeasuredLabel } from "./text.mjs";
 import { preparePage } from "./input.mjs";
 import { connectedComponents } from "./topology.mjs";
-import { decodeInteractiveLayoutReply, normalizeInteractiveGeometry } from "./normalize.mjs";
-import { auditInteractiveGeometry } from "./audit.mjs";
+import {
+  collapseCompoundGeometry,
+  decodeInteractiveLayoutReply,
+  normalizeInteractiveGeometry,
+} from "./normalize.mjs";
+import {
+  admitNodeEnvelope,
+  auditInteractiveGeometry,
+  qualifiedSourceExpansion,
+  readingApertureExpansion,
+} from "./audit.mjs";
 import { groupedPlacement } from "./packing.mjs";
+import { elkGraph, separateGroupTracks } from "./graph.mjs";
 import { maximumLayoutPages } from "./limits.mjs";
 import {
   allocateEndpointFootprints,
@@ -42,99 +52,6 @@ function editorialFailure(error, page) {
       },
     ],
   });
-}
-
-function elkGraph(
-  prepared,
-  direction,
-  { wrapAspect = null, layerBound = null, placement = null } = {},
-) {
-  const label = (id, plan) => ({
-    id: `${id}-label`,
-    text: plan.lines.join("\n"),
-    width: plan.width,
-    height: plan.height,
-  });
-  const leaf = (node) => ({
-    id: node.id,
-    width: node.width,
-    height: node.height,
-    labels: [label(node.id, node.label)],
-    ...(node.ports ? { ports: node.ports } : {}),
-    layoutOptions: {
-      "elk.nodeLabels.placement": "[INSIDE,H_CENTER,V_CENTER]",
-      "elk.alignment": direction === "DOWN" ? "TOP" : "LEFT",
-      ...(node.ports ? { "elk.portConstraints": "FIXED_POS" } : {}),
-    },
-  });
-  const byId = new Map(prepared.nodes.map((node) => [node.id, node]));
-  const children = [
-    ...prepared.groups.map((group) => {
-      const inset = marks.readingGap;
-      const memberWidth = Math.max(...group.nodeIds.map((id) => byId.get(id).width));
-      const side = inset + Math.max(0, group.label.width - memberWidth) / 2;
-      const leading = direction === "DOWN";
-      const top = leading ? inset : inset + group.label.height + inset;
-      // Top ingress needs ELK's native title reservation; a fixed label is not
-      // a routing obstacle. Lateral ingress retains the compact measured band.
-      return {
-        id: group.id,
-        labels: [
-          leading
-            ? label(group.id, group.label)
-            : { ...label(group.id, group.label), x: inset, y: inset },
-        ],
-        children: group.nodeIds.map((id) => leaf(byId.get(id))),
-        layoutOptions: {
-          "elk.nodeLabels.placement": leading ? "[INSIDE,H_LEFT,V_TOP]" : "[]",
-          "elk.padding": `[top=${top},left=${side},bottom=${inset},right=${side}]`,
-        },
-      };
-    }),
-    ...prepared.nodes.filter(({ groupId }) => !groupId).map(leaf),
-  ];
-  return {
-    id: "root",
-    layoutOptions: {
-      "elk.algorithm": "layered",
-      "elk.direction": direction,
-      "elk.edgeRouting": "ORTHOGONAL",
-      "elk.hierarchyHandling": "INCLUDE_CHILDREN",
-      "elk.randomSeed": "1",
-      "elk.spacing.nodeNode": placement === "SIMPLE" ? "16" : "24",
-      "elk.spacing.edgeNode": placement === "SIMPLE" ? "16" : "20",
-      "elk.spacing.edgeEdge": placement === "SIMPLE" ? "12" : "16",
-      "elk.spacing.labelNode": "16",
-      "elk.spacing.edgeLabel": "8",
-      "elk.spacing.portPort": String(marks.routeInteriorSegment),
-      "elk.layered.mergeEdges": "false",
-      "elk.layered.mergeHierarchyEdges": "false",
-      "elk.layered.spacing.edgeNodeBetweenLayers": placement === "SIMPLE" ? "16" : "24",
-      "elk.layered.spacing.edgeEdgeBetweenLayers": placement === "SIMPLE" ? "12" : "16",
-      "elk.layered.spacing.nodeNodeBetweenLayers": String(marks.routeEndpointStub),
-      "elk.layered.nodePlacement.favorStraightEdges": "false",
-      ...(placement ? { "elk.layered.nodePlacement.strategy": placement } : {}),
-      ...(wrapAspect !== null
-        ? { "elk.layered.wrapping.strategy": "MULTI_EDGE", "elk.aspectRatio": String(wrapAspect) }
-        : {}),
-      ...(layerBound !== null
-        ? {
-            "elk.layered.layering.strategy": "COFFMAN_GRAHAM",
-            "elk.layered.layering.coffmanGraham.layerBound": String(layerBound),
-          }
-        : {}),
-      "elk.edgeLabels.inline": "false",
-      "elk.layered.edgeLabels.sideSelection": "ALWAYS_DOWN",
-      "elk.padding": "[top=24,left=24,bottom=24,right=24]",
-    },
-    children,
-    edges: prepared.relations.map((relation) => ({
-      id: relation.id,
-      sources: [relation.sourcePort ?? relation.source],
-      targets: [relation.targetPort ?? relation.target],
-      ...(relation.label ? { labels: [label(relation.id, relation.label)] } : {}),
-    })),
-  };
 }
 
 /** Connectivity is used only for physical packing, never to invent source groups. */
@@ -193,14 +110,6 @@ function wrappingEligible(page) {
     }
   }
   return visited === page.nodes.length;
-}
-
-function admitNodeEnvelope(layout, readingWidth) {
-  // Routing cannot narrow the measured node envelope without shrinking its text.
-  const left = Math.min(...layout.nodes.map(({ x }) => x));
-  const right = Math.max(...layout.nodes.map(({ x, width }) => x + width));
-  if (right - left > readingWidth)
-    fail("render_interactive_layout_infeasible", "intrinsic-node-envelope-exceeds-reading-width");
 }
 
 /** One deep geometry seam; neither source selection nor browser routing occurs here. */
@@ -266,13 +175,17 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
     const candidate = (direction, settings = {}) => {
       const prepared = allocateEndpointFootprints(page, direction);
       return {
-        ...(options.nodeFootprints
-          ? packedCandidate(prepared, direction, settings, readingWidth)
-          : { graph: elkGraph(prepared, direction, settings), containers: [] }),
+        ...(options.groupTracks && page.groups.length
+          ? separateGroupTracks(elkGraph(prepared, direction, settings), direction)
+          : options.nodeFootprints
+            ? packedCandidate(prepared, direction, settings, readingWidth)
+            : { graph: elkGraph(prepared, direction, settings), containers: [] }),
         prepared,
       };
     };
-    const candidates = [candidate("RIGHT"), candidate("DOWN")];
+    const candidates = options.groupTracks
+      ? [candidate("RIGHT")]
+      : [candidate("RIGHT"), candidate("DOWN")];
     if (
       page.groups.length &&
       options.nodeFootprints &&
@@ -339,6 +252,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
     for (const [index, page] of prepared.entries()) {
       const candidates = [];
       const evaluatedGeometry = new Set();
+      let undisruptedExpansion = Infinity;
       let lastFailure;
       const end = offset + indexes[index];
       for (let at = offset; at < end; at++) {
@@ -379,7 +293,9 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
                 entry.expandTracks === true,
               )
             : normalizeInteractiveGeometry(
-                unpackGeometry(results[at], entry.containers),
+                entry.bindings
+                  ? collapseCompoundGeometry(results[at], entry.bindings)
+                  : unpackGeometry(results[at], entry.containers),
                 entry.prepared,
                 undefined,
                 Boolean(options.composeCandidate),
@@ -414,7 +330,14 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
             ? options.composePackedCandidate
             : options.composeCandidate;
           if (compose && options.nodeFootprints && !sourceReading)
-            admitNodeEnvelope(layout, readingWidth);
+            admitNodeEnvelope(layout, readingWidth, readingViewport, minimumLabelSize);
+          // Fixed node extents can prove a loss, never qualification. Equal bounds
+          // still need full routing, paint admission and the remaining tie-breaks.
+          if (
+            sourceReading &&
+            options.candidateLowerBound?.(layout).apertureExpansion > undisruptedExpansion
+          )
+            continue;
           if (compose) {
             await compose(layout);
             auditInteractiveGeometry(layout);
@@ -422,6 +345,12 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           options.validateCandidate?.(layout);
           layout.compositionDisruption = compositionDisruption(page, layout);
           candidates.push(layout);
+          if (sourceReading) {
+            undisruptedExpansion = Math.min(
+              undisruptedExpansion,
+              qualifiedSourceExpansion(layout, options, minimumLabelSize),
+            );
+          }
         } catch (error) {
           if (error.code !== "render_interactive_layout_infeasible") throw error;
           lastFailure = error;
@@ -467,14 +396,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           routeLength += length;
           detour += length - Math.abs(last.x - first.x) - Math.abs(last.y - first.y);
         }
-        const widthExpansion = sourceReading ? Math.max(1, footprint.width / readingWidth) : 1;
-        const apertureExpansion = readingViewport
-          ? Math.max(
-              1,
-              footprint.width / readingViewport.width,
-              footprint.height / readingViewport.height,
-            )
-          : 1;
+        const apertureExpansion = readingApertureExpansion(footprint, readingViewport);
         const proportional =
           page.relations.length &&
           (options.candidateFootprint || (options.nodeFootprints && !page.orderedFlow));
@@ -492,7 +414,7 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           readingArea / readingWidth +
           detour / Math.max(1, candidate.relations.length);
         const rows = new Set(candidate.nodes.map(({ y }) => y)).size;
-        return { readable, widthExpansion, apertureExpansion, readingCost, routeLength, rows };
+        return { readable, apertureExpansion, readingCost, routeLength, rows };
       };
       const readable = candidates.filter((candidate) => assessment(candidate).readable);
       if (!readable.length) {
@@ -507,8 +429,6 @@ export async function layoutInteractivePages(pages, measure = null, options = {}
           return candidate.compositionDisruption < best.compositionDisruption ? candidate : best;
         const prior = assessment(best);
         const next = assessment(candidate);
-        if (next.widthExpansion !== prior.widthExpansion)
-          return next.widthExpansion < prior.widthExpansion ? candidate : best;
         if (next.apertureExpansion !== prior.apertureExpansion)
           return next.apertureExpansion < prior.apertureExpansion ? candidate : best;
         if (!page.relations.length && next.rows !== prior.rows)

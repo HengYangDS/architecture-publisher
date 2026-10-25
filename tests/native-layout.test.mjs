@@ -70,6 +70,77 @@ test("a supervised layout is separate geometry with exact visible source binding
   assert.equal(native.parserSupply.sha256, layout.parserSupply.sha256);
 });
 
+test("measured peer capacity reaches the native solver before placement and routing", async () => {
+  const selected = selection();
+  selected.nodeSize = { width: 128, height: 72 };
+  const before = await semantics.importLikeC4Layout(selection());
+  const layout = await semantics.importLikeC4Layout(selected);
+
+  assert.deepEqual(
+    layout.nodes.map(({ width, height }) => ({ width, height })),
+    [selected.nodeSize, selected.nodeSize],
+  );
+  assert.deepEqual(layout.view, before.view);
+  assert.deepEqual(layout.edges[0].relations, before.edges[0].relations);
+  assert.notDeepEqual(layout.edges[0].points, before.edges[0].points);
+  const from = layout.nodes.find(({ id }) => id === "a");
+  const to = layout.nodes.find(({ id }) => id === "b");
+  assert.equal(layout.edges[0].points[0][0], from.x + from.width / 2);
+  assert.equal(layout.edges[0].points[0][1], from.y + from.height);
+  assert(to.y >= from.y + from.height + 48);
+});
+
+test("native peer capacity is finite, exact and snapshotted before async supply access", async () => {
+  for (const nodeSize of [
+    { width: 0, height: 72 },
+    { width: 128, height: Number.NaN },
+    { width: 128, height: 72, x: 0 },
+    { width: 10_000_001, height: 72 },
+  ])
+    await assert.rejects(semantics.importLikeC4Layout({ ...selection(), nodeSize }), {
+      code: "native_likec4_capacity_invalid",
+    });
+  const nodeSize = { width: 128, height: 72 };
+  const pending = semantics.importLikeC4Layout({ ...selection(), nodeSize });
+  nodeSize.width = 0;
+  assert.equal((await pending).nodes[0].width, 128);
+});
+
+test("measured capacity preserves source direction and lets native parents contain their children", async () => {
+  const contents = new Map(files);
+  contents.set(
+    "example/views",
+    Buffer.from("views { view overview { include * autoLayout LeftRight } }\n"),
+  );
+  const horizontal = await semantics.importLikeC4Layout({
+    ...selection(contents),
+    nodeSize: { width: 128, height: 80 },
+  });
+  assert(horizontal.nodes[1].x > horizontal.nodes[0].x);
+  assert.equal(horizontal.nodes[1].y, horizontal.nodes[0].y);
+  contents.set(
+    "example/model",
+    Buffer.from(
+      "specification { element component }\nmodel { a = component 'A' { child = component 'Child' } b = component 'B' a.child -> b }\n",
+    ),
+  );
+  contents.set(
+    "example/views",
+    Buffer.from("views { view overview { include * include a.child } }\n"),
+  );
+  const nested = await semantics.importLikeC4Layout({
+    ...selection(contents),
+    nodeSize: { width: 128, height: 80 },
+  });
+  const parent = nested.nodes.find(({ id }) => id === "a");
+  const child = nested.nodes.find(({ id }) => id === "a.child");
+  assert.equal(child.width, 128);
+  assert.equal(child.height, 80);
+  assert(parent.x < child.x && parent.y < child.y);
+  assert(parent.x + parent.width > child.x + child.width);
+  assert(parent.y + parent.height > child.y + child.height);
+});
+
 test("an unknown authored view cannot request geometry from a generated or ambient view", async () => {
   await assert.rejects(
     semantics.importLikeC4Layout(selection(files, { namespace: "example/views", id: "missing" })),
@@ -108,6 +179,10 @@ test("layout reply validation rejects lost, forged, or geometry-only semantic ca
   assert(parserSupply);
   const index = await semantics.importLikeC4Native(selected);
   assert.doesNotThrow(() => validateLikeC4LayoutReply(reply, index, selected.view));
+  assert.throws(
+    () => validateLikeC4LayoutReply(reply, index, selected.view, { width: 128, height: 72 }),
+    { code: "native_likec4_response_invalid" },
+  );
   assert.throws(
     () => validateLikeC4LayoutReply(reply, index, { namespace: "example/views", id: "missing" }),
     { code: "native_likec4_reference_unselected" },
@@ -192,15 +267,34 @@ test("the native layout projector maps pinned upstream geometry without parser I
     return parsed;
   });
   try {
-    const layout = await buildLikeC4Layout(index, parsed, selection().view);
-    assert.deepEqual(
-      layout.nodes.map(({ id }) => id),
-      ["a", "b"],
-    );
-    assert.equal(layout.edges.length, 1);
-    assert.match(layout.edges[0].relations[0].reference, /^relation:[1-9]\d*:[1-9]\d*$/u);
-    assert.equal(JSON.stringify(layout).includes(index.relations[0].id), false);
-    assert.doesNotThrow(() => validateLikeC4LayoutReply(layout, index, selection().view));
+    for (const capacity of [undefined, { width: 128, height: 72 }]) {
+      const layout = await buildLikeC4Layout(index, parsed, selection().view, capacity);
+      assert.deepEqual(
+        layout.nodes.map(({ id }) => id),
+        ["a", "b"],
+      );
+      assert.equal(layout.edges.length, 1);
+      assert.deepEqual(layout.edges[0].from, { namespace: "example/model", id: "a" });
+      assert.deepEqual(layout.edges[0].to, { namespace: "example/model", id: "b" });
+      assert.match(layout.edges[0].relations[0].reference, /^relation:[1-9]\d*:[1-9]\d*$/u);
+      assert.equal(JSON.stringify(layout).includes(index.relations[0].id), false);
+      if (capacity) {
+        assert.deepEqual(
+          layout.nodes.map(({ width, height }) => ({ width, height })),
+          [
+            { width: 128, height: 72 },
+            { width: 128, height: 72 },
+          ],
+        );
+        const [from, to] = layout.nodes;
+        assert.equal(layout.edges[0].points[0][0], from.x + 64);
+        assert.equal(layout.edges[0].points[0][1], from.y + 72);
+        assert(to.y >= from.y + 72 + 48);
+      }
+      assert.doesNotThrow(() =>
+        validateLikeC4LayoutReply(layout, index, selection().view, capacity),
+      );
+    }
   } finally {
     await parsed.dispose();
   }

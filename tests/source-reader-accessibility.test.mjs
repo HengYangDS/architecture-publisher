@@ -13,7 +13,7 @@ import { sourceReadingFixture, sourceReference, sha } from "./fixtures/source-re
 
 const require = createRequire(import.meta.url);
 
-async function accessibleSource(t) {
+async function accessibleSource(t, reducedMotion = "reduce") {
   const { root } = await sourceReadingFixture(t);
   const request = path.join(root, "build-request.json");
   const candidate = path.join(root, "candidate");
@@ -21,7 +21,7 @@ async function accessibleSource(t) {
   const browser = await browserLifetime(t).acquire(() => chromium.launch(browserOptions));
   const page = await browser.newPage({
     viewport: { width: 1440, height: 900 },
-    reducedMotion: "reduce",
+    reducedMotion,
   });
   const errors = [],
     requests = [];
@@ -67,20 +67,62 @@ async function violations(frame) {
 }
 
 async function assertReadableSelection(native, id) {
-  await native.waitForFunction(
-    (id) => {
-      const title = globalThis.document.querySelector(
-        `svg g[data-node-id="${id}"] text[data-node-label]`,
-      );
-      return (
-        globalThis.Archify.focus.active() === id &&
-        Number(title?.getAttribute("font-size")) * (title?.getScreenCTM()?.a ?? 0) >= 14
-      );
-    },
-    id,
-    { timeout: 8_000 },
-  );
+  try {
+    await native.waitForFunction(
+      (id) => {
+        const title = globalThis.document.querySelector(
+          `svg g[data-node-id="${id}"] text[data-node-label]`,
+        );
+        return (
+          globalThis.Archify.focus.active() === id &&
+          Number(title?.getAttribute("font-size")) * (title?.getScreenCTM()?.a ?? 0) >= 14
+        );
+      },
+      id,
+      { timeout: 8_000 },
+    );
+  } catch (error) {
+    const observed = await native.evaluate((id) => {
+      const svg = globalThis.document.querySelector(".diagram-container > svg");
+      const title = svg.querySelector(`g[data-node-id="${id}"] text[data-node-label]`);
+      const matrix = title?.getScreenCTM();
+      return {
+        expected: id,
+        active: globalThis.Archify.focus.active(),
+        view: globalThis.Archify.view.state(),
+        viewport: { width: globalThis.innerWidth, height: globalThis.innerHeight },
+        minimum: svg.getAttribute("data-reader-primary-text"),
+        fontSize: title?.getAttribute("font-size"),
+        screenMatrix: matrix ? { a: matrix.a, d: matrix.d, e: matrix.e, f: matrix.f } : null,
+        bounds: title?.getBoundingClientRect().toJSON(),
+      };
+    }, id);
+    throw new Error(`Native reading state: ${JSON.stringify(observed)}`, { cause: error });
+  }
 }
+
+test(
+  "native source focus remains readable after animated Finder selection without taking manual camera control",
+  { ...runBrowser, timeout: 60_000 },
+  async (t) => {
+    const { native, errors, requests } = await accessibleSource(t, "no-preference");
+    await native.getByRole("button", { name: /Find a node/u }).click();
+    await native.locator("#node-finder-input").fill("Alpha B");
+    const result = native.locator("#node-finder-results button[data-node-id]");
+    const id = await result.getAttribute("data-node-id");
+    await result.click();
+    await assertReadableSelection(native, id);
+    await native.locator(".diagram-container.is-camera-moving").waitFor({ state: "hidden" });
+    await assertReadableSelection(native, id);
+    const before = await native.evaluate(() => globalThis.Archify.view.state());
+    await native.getByRole("button", { name: "Zoom out", exact: true }).click();
+    const after = await native.evaluate(() => globalThis.Archify.view.state());
+    assert.equal(after.mode, "manual");
+    assert.ok(after.scale < before.scale, "the reader retains native manual zoom control");
+    assert.deepEqual(errors, []);
+    assert.deepEqual(requests, []);
+  },
+);
 
 test(
   "the public native source diagram preserves readable context and named keyboard controls in both themes",

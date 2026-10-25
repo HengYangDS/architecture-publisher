@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { loadBundledFonts } from "../packages/publisher/renderers/fonts/index.mjs";
-import { validateSvg } from "../packages/publisher/renderers/resvg/public.mjs";
+import { validateSvg, rasterDimensions } from "../packages/publisher/renderers/resvg/public.mjs";
 import { rasterizeBundle as rasterize } from "../packages/publisher/src/rendering/raster.mjs";
 import * as svg from "../packages/publisher/renderers/svg/index.mjs";
 import { staticEditionScene } from "./fixtures/static-edition-scene.mjs";
@@ -26,12 +26,23 @@ test("an editorial-only scene remains truthful and does not manufacture structur
     },
   ];
   const result = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString("utf8");
-  assert.match(result, /No source graph was selected/u);
-  assert.match(result, /fixture-editor/u);
-  assert.match(result, /unverified/u);
-  assert.match(result, /SOURCE STRUCTURE/u);
+  const painted = [...result.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map(([, row]) => row)
+    .join("");
+  assert(painted.includes(input.editorialAssertions[0].statement));
+  assert(painted.includes("Editorial judgment · fixture-editor · unverified"));
+  assert.doesNotMatch(result, /SOURCE STRUCTURE/u);
   assert.doesNotMatch(result, /SOURCE CLAIMS/u);
   assert.doesNotMatch(result, /data-graphic-id/u);
+  const questionX = /<text x="([\d.]+)"[^>]*>READER QUESTIONS<\/text>/u.exec(result);
+  const titleX = /<text x="([\d.]+)"[^>]*font-size="34"/u.exec(result);
+  assert(questionX);
+  assert(titleX);
+  assert.equal(
+    questionX[1],
+    titleX[1],
+    "the reading starts at the title margin, not an empty column",
+  );
   for (const field of ["proponent", "semanticStatus"]) {
     const invalid = structuredClone(input);
     delete invalid.editorialAssertions[0][field];
@@ -204,13 +215,16 @@ test("mixed neutral composition flows graph and claims beside longer reader note
   const notes = at("READER QUESTIONS");
   const transform = /<g transform="translate\(([\d.-]+) ([\d.-]+)\)">/u.exec(output);
   assert(transform);
-  const card = /<g data-graphic-id="c-0">\s*<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)"/u.exec(
-    output,
-  );
-  assert(card);
+  const claim = /<g data-graphic-id="c-0">([\s\S]*?)<\/g>/u.exec(output);
+  assert(claim);
+  const separator = /<line x1="([\d.]+)"[^>]*x2="([\d.]+)"/u.exec(claim[1]);
+  assert(separator);
   assert(claims.y > Number(transform[2]) + input.bounds.height + 40);
   assert(claims.y < lastNote.y);
-  assert(Number(card[1]) + Number(card[3]) < notes.x - 20);
+  assert.equal(Number(separator[1]), claims.x);
+  assert(Number(separator[2]) < notes.x - 20);
+  for (const [, x] of claim[1].matchAll(/<text x="([\d.]+)"/gu))
+    assert.equal(Number(x), claims.x, "claim headings and facts share the receiving-column start");
 });
 
 test("an infeasible side candidate cannot discard a readable full-width claim", () => {
@@ -225,6 +239,21 @@ test("an infeasible side candidate cannot discard a readable full-width claim", 
   assert.match(output, /Description:/u);
   const pieces = [...output.matchAll(/<text[^>]*>(x+)<\/text>/gu)].map((match) => match[1]);
   assert.equal(pieces.join(""), "x".repeat(700));
+});
+
+test("vector composition retains the requested width without granting raster admission", () => {
+  const input = linkedMixedScene();
+  input.requestedWidth = 9000;
+  const rendered = svg.composeStaticEditionSvg(input, { icons: figureIcons });
+
+  assert.equal(rendered.rasterWidth, 9000);
+  assert.equal(rendered.carriers.claims.length, 1);
+  assert.throws(() => rasterDimensions(rendered.width, rendered.height, rendered.rasterWidth), {
+    code: "raster_dimensions_invalid",
+  });
+  assert.throws(() => svg.composeStaticEditionSvg(input, { icons: figureIcons, raster: true }), {
+    code: "raster_dimensions_invalid",
+  });
 });
 
 test("the static Edition SVG is admitted by the pinned raster profile", async () => {

@@ -329,6 +329,7 @@ export function composeStaticEditionScene(meaning, layout) {
         kind: semantic.kind,
         label: semantic.label,
         origin: semantic.origin,
+        ...(node.textLayout && semantic.qualifiers ? { qualifiers: semantic.qualifiers } : {}),
       };
     });
   const [{ nodes }] = resolveFigureTypes(
@@ -399,7 +400,18 @@ export function composeStaticEditionScene(meaning, layout) {
           ...(claimSources?.subjectLinks.length
             ? { claimSubjectLinks: claimSources.subjectLinks }
             : {}),
-          claimCards: [...cards.values()].sort(compareClaims),
+          claimCards: [...cards.values()]
+            .map((card) => {
+              const selected = [...selections.values()].find(
+                (item) =>
+                  item.target.kind === "claim" &&
+                  item.target.id === card.id &&
+                  item.source.namespace === card.namespace &&
+                  item.source.sha256 === card.sha256,
+              );
+              return claimCard(selected, nodes);
+            })
+            .sort(compareClaims),
         }
       : {}),
     editorialAssertions,

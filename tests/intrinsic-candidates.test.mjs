@@ -1,10 +1,88 @@
 import assert from "node:assert/strict";
 
 import test from "node:test";
+import { spawnSync } from "node:child_process";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 import { interactiveGraphMarks as marks } from "../packages/publisher/src/scene/marks.mjs";
 
 import { selected } from "./fixtures/elk-layout.mjs";
+
+test("equivalent measured typography does not repeat the native layout workload", async (t) => {
+  const coverage = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-layout-observation-"));
+  t.after(async () => {
+    await fs.rm(coverage, { recursive: true, force: true });
+    await assert.rejects(fs.access(coverage), { code: "ENOENT" });
+  });
+  const script = String.raw`
+    // Loader-rewritten bytes are a workload observer, not original-source coverage.
+    // Native worker children still contribute their unchanged code independently.
+    process.env.NODE_V8_COVERAGE = ${JSON.stringify(coverage)};
+    import { registerHooks } from "node:module";
+    registerHooks({ load(url, context, nextLoad) {
+      const result = nextLoad(url, context);
+      if (!url.endsWith("/renderers/elk/layout.mjs")) return result;
+      const source = String(result.source);
+      const marker = "export async function layoutInteractivePages(";
+      if (!source.includes(marker)) throw new Error("layout_observation_missing");
+      return { ...result, source: source.replace(marker, "async function observedLayout(") +
+        '\nexport async function layoutInteractivePages(pages, measure, options) {\n' +
+        'process.stderr.write(JSON.stringify({event:"layout-request",pages,options}) + "\\n");\n' +
+        'return observedLayout(pages, measure, options);\n}\n' };
+    }});
+    const { composeIntrinsicArchitecture } = await import(${JSON.stringify(
+      new URL("../packages/publisher/renderers/archify/layout.mjs", import.meta.url).href,
+    )});
+    const scene = {
+      schema: "architecture.interactive-scene/v1", id: "measured-reuse",
+      title: "Selected source", subtitle: "Complete directed relationship",
+      nodes: ["source", "target"].map(id => ({id,label:id,visualRole:"backend"})),
+      groups: [], edges: [{id:"feeds",from:"source",to:"target",label:"feeds",visualRole:"default"}]
+    };
+    const before = structuredClone(scene);
+    const result = await composeIntrinsicArchitecture(scene);
+    process.stdout.write(JSON.stringify({scene:result.scene,unchanged:JSON.stringify(scene)===JSON.stringify(before)}));
+  `;
+  const environment = { ...process.env };
+  delete environment.NODE_V8_COVERAGE;
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", script], {
+    env: environment,
+    encoding: "utf8",
+    timeout: 60_000,
+  });
+  assert.equal(run.status, 0, run.stderr);
+  const requests = run.stderr
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  assert.equal(requests.length, 1, "Identical measured input must be solved only once");
+  const result = JSON.parse(run.stdout);
+  assert(result.unchanged);
+  assert.deepEqual(
+    result.scene.nodes.map(({ id, label }) => ({ id, label })),
+    [
+      { id: "source", label: "source" },
+      { id: "target", label: "target" },
+    ],
+  );
+  assert.deepEqual(
+    result.scene.edges.map(({ id, from, to, label }) => ({ id, from, to, label })),
+    [{ id: "feeds", from: "source", to: "target", label: "feeds" }],
+  );
+  const records = await Promise.all(
+    (await fs.readdir(coverage))
+      .filter((name) => name.endsWith(".json"))
+      .map(async (name) => JSON.parse(await fs.readFile(path.join(coverage, name), "utf8"))),
+  );
+  assert(records.length > 0, "the native coverage consumer must actually execute");
+  const sourceUrl = new URL("../packages/publisher/renderers/elk/layout.mjs", import.meta.url).href;
+  assert(
+    !records.some(({ result }) => result.some(({ url }) => url === sourceUrl)),
+    "The rewritten workload observer cannot claim coverage of unchanged production bytes",
+  );
+});
 
 test("compact composition uses its measured width limit rather than repeating the wide candidate", async () => {
   const { composeIntrinsicArchitecture } =
@@ -321,4 +399,52 @@ test("bounded native layering preserves complete peer footprints at the desktop 
     graph.relations.map(({ id, source, target }) => ({ id, source, target })),
     input.relations,
   );
+});
+
+test("fixed node ink must fit the reading aperture before route composition", async () => {
+  const { layoutInteractivePages } = await selected();
+  const input = {
+    nodes: ["source", "target"].map((id) => ({ id, label: id })),
+    relations: [{ id: "route", source: "source", target: "target" }],
+  };
+  const before = structuredClone(input);
+  for (const [fontSize, readingContext] of [
+    [12, "overview"],
+    [24, "overview"],
+    [12, "source"],
+  ]) {
+    const footprint = {
+      width: 176,
+      height: 64,
+      label: { lines: [""], width: 0, height: 0, fontSize, weight: "400", baselines: [] },
+    };
+    const composedHeights = [];
+    const result = await layoutInteractivePages([input], null, {
+      nodeFootprints: [{ source: footprint, target: footprint }],
+      relationFootprints: [{}],
+      readingWidth: 900,
+      readingViewport: { width: 900, height: 120 },
+      minimumLabelSize: 12,
+      readingContext,
+      composeCandidate: ({ nodes }) => {
+        const height =
+          Math.max(...nodes.map(({ y, height }) => y + height)) -
+          Math.min(...nodes.map(({ y }) => y));
+        composedHeights.push(height);
+        if (readingContext === "overview")
+          assert(
+            fontSize * Math.min(1, 120 / height) >= 12,
+            "Routing cannot rescue a fixed node envelope below its text floor",
+          );
+      },
+    });
+    assert(result.layouts.length === 1);
+    assert(composedHeights.length > 0);
+    if (fontSize === 24 || readingContext === "source")
+      assert(
+        composedHeights.some((height) => height > 120),
+        "Larger text and source-focused reading retain their legal layouts",
+      );
+  }
+  assert.deepEqual(input, before);
 });

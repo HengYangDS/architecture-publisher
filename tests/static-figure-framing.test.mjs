@@ -5,6 +5,7 @@ import { RASTER_LIMITS } from "../packages/publisher/renderers/resvg/public.mjs"
 import { selectMeasuredComposition } from "../packages/publisher/renderers/svg/composition.mjs";
 import { loadFigureIconSupply } from "../packages/publisher/renderers/icons/index.mjs";
 import { staticFigureView } from "./fixtures/static-edition-scene.mjs";
+import { paintClaimStatements } from "../packages/publisher/renderers/svg/edition-claims.mjs";
 
 const view = staticFigureView.bind(null, await loadFigureIconSupply());
 
@@ -74,6 +75,66 @@ test("framing does not widen empty canvas when complete fixed content cannot ref
   const result = composeStaticFigureSvg({ title: "Title", rasterWidth: 1800, views: [selected] });
   assert.equal(result.width, 728);
   assert.ok(result.bytes.toString("utf8").includes(selected.rendered.parts.graph));
+});
+
+test("whole-figure ranking uses real text reflow inside an unchanged receiving block", () => {
+  const statement = "Exact selected source meaning remains visible to the reader. ".repeat(16);
+  const reflow = (width) => {
+    const content = paintClaimStatements(
+      [
+        {
+          id: "claim",
+          namespace: "source",
+          sha256: "a".repeat(64),
+          facts: [{ label: "Scope", value: statement }],
+        },
+      ],
+      new Set(),
+      { x: 0, y: 0, width, idPrefix: "" },
+    );
+    return {
+      markup: content.plate.join("\n"),
+      x: 0,
+      y: 0,
+      width,
+      height: Math.max(900, content.height),
+      readingSpan: content.readingSpan,
+    };
+  };
+  const selected = {
+    id: "overview",
+    scene: {
+      editorialViewId: "overview",
+      edition: { editor: "editor" },
+      questions: [{ text: "Question" }],
+      nodes: [],
+      edges: [],
+      limitsByQuestion: {},
+      editorialAssertions: [],
+    },
+    rendered: {
+      rasterWidth: 1800,
+      parts: {
+        graph: "",
+        bounds: null,
+        groups: [],
+        relations: [],
+        claim: { ...reflow(620), reflow },
+      },
+    },
+  };
+  const input = { title: "Title", rasterWidth: 1800, views: [selected] };
+  const result = composeStaticFigureSvg(input);
+  const receiving = reflow(result.placements[0].width);
+
+  assert(
+    receiving.readingSpan < reflow(620).readingSpan,
+    "padding is not confused with actual text reflow",
+  );
+  assert.equal(receiving.height, reflow(620).height, "the enclosing block is unchanged");
+  assert(result.width < 1800, "unchanged reflow does not justify further empty expansion");
+  assert(result.bytes.toString("utf8").includes(receiving.markup));
+  assert.deepEqual(composeStaticFigureSvg(input), result);
 });
 
 test("a fixed claim plate and tall source graph are arranged without changing either unit", () => {
@@ -177,6 +238,20 @@ test("complete tall views reflow into a raster-feasible figure without dropping 
     assert.ok(svg.includes(`data-static-view="${id}"`));
     assert.ok(svg.includes(scene.questions[0].text));
   }
+  for (const [index, placement] of result.placements.entries()) {
+    assert.equal(
+      placement.x,
+      54 + result.placements.slice(0, index).reduce((x, peer) => x + peer.width + 42, 0),
+      "each complete view occupies its own measured column, not the second column's origin",
+    );
+    assert.ok(
+      svg.includes(
+        `data-static-view="${placement.id}" transform="translate(${placement.x} ${placement.y})"`,
+      ),
+      "the painted view and its placement record use the same column track",
+    );
+  }
+  assert.equal(result.placements.at(-1).x + result.placements.at(-1).width + 54, result.width);
   assert.deepEqual(composeStaticFigureSvg(input), result);
 });
 
@@ -229,5 +304,60 @@ test("a complete height reflow remains eligible after a padding-only candidate",
     assert.equal(
       selectMeasuredComposition(candidates, (candidate) => candidate, []),
       reflowed,
+    );
+});
+
+test("complete block reflow remains eligible when a fixed graph determines page height", () => {
+  const narrow = { width: 1450, height: 2630, rasterWidth: 6000, reflowHeights: [2630, 900] };
+  const reflowed = { width: 3000, height: 2630, rasterWidth: 6000, reflowHeights: [2630, 600] };
+  const padded = { width: 3500, height: 2630, rasterWidth: 6000, reflowHeights: [2630, 600] };
+  for (const candidates of [
+    [narrow, reflowed, padded],
+    [padded, reflowed, narrow],
+  ])
+    assert.equal(
+      selectMeasuredComposition(candidates, (candidate) => candidate, []),
+      reflowed,
+    );
+});
+
+test("complete reading span cannot dominate arbitrarily worse canvas geometry", () => {
+  const compact = { width: 640, height: 700, rasterWidth: 1800, readingSpan: 96 };
+  const sprawling = { width: 1500, height: 760, rasterWidth: 1800, readingSpan: 64 };
+  for (const candidates of [
+    [compact, sprawling],
+    [sprawling, compact],
+  ])
+    assert.equal(
+      selectMeasuredComposition(candidates, (candidate) => candidate, [], {
+        extent: ({ width, height }) => width * height,
+      }),
+      compact,
+    );
+});
+
+test("finite reading cost can prefer fewer baselines within a comparable frame", () => {
+  const wrapped = { width: 900, height: 600, rasterWidth: 1800, readingSpan: 112 };
+  const fluent = { width: 900, height: 620, rasterWidth: 1800, readingSpan: 64 };
+  for (const candidates of [
+    [wrapped, fluent],
+    [fluent, wrapped],
+  ])
+    assert.equal(
+      selectMeasuredComposition(candidates, (candidate) => candidate, []),
+      fluent,
+    );
+});
+
+test("heading reflow is not discarded when fixed body geometry keeps page height unchanged", () => {
+  const wrapped = { width: 640, height: 700, rasterWidth: 1800, readingSpan: 112 };
+  const fluent = { width: 670, height: 700, rasterWidth: 1800, readingSpan: 64 };
+  for (const candidates of [
+    [wrapped, fluent],
+    [fluent, wrapped],
+  ])
+    assert.equal(
+      selectMeasuredComposition(candidates, (candidate) => candidate, []),
+      fluent,
     );
 });

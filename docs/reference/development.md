@@ -54,26 +54,33 @@ Missing browser or Raster supply fails required execution. Linux uses a non-root
 job principal and retains Chromium's sandbox; actual native job results, not
 installation or YAML inspection, qualify each platform.
 
-The 2026-10-22 npm audit reports eight affected development-package entries:
-five high and three low, with no moderate or critical findings. These are package
-entries, not independent advisories. Markdownlint's glob and math dependencies
-retain nested-pattern stack exhaustion and a KaTeX trust bypass requiring existing
-prototype pollution. The proposed Markdownlint CLI2 0.0.4 downgrade is not an
-accepted repair; do not add vendor overrides.
+The 2026-10-25 proposed lock audit reports six affected development-package entries:
+one high, one moderate and four low, representing four distinct advisories and
+no critical findings. Zod 4.6.7 removes the previous high-severity collection
+validation finding. No package entries or new overrides were added.
 
-Removing the unused LikeC4 graphical reader and React/style closure removed
-215 lock entries and the Panda findings without changing retained versions.
-Native LikeC4 parsing remains; other vulnerabilities are not fixed. Exact audit:
+Npm 12.2.1 still bundles `ip-address` 10.7.2 (moderate,
+`GHSA-rxp7-6hxx-x8q5`) and `undici` 6.29.0 (high,
+`GHSA-xjj6-f33q-929c`; moderate, `GHSA-4qv8-2p9j-2685`).
+Markdownlint CLI2 0.24.0 retains KaTeX 0.16.47 (low,
+`GHSA-238p-pmpm-9mq7`), whose trust bypass requires existing prototype pollution.
+Affected package entries include indirect dependants; they are not independent
+advisories. The exact audit and accepted manifest/lock digests are retained in
+`build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/supply-latest-readonly-20261025/`.
+
+The human accepted these exact remaining findings for trusted development input,
+isolated execution and disabled installation scripts. That decision authorizes
+neither vendor changes, additional overrides, publication nor new advisories.
+Untrusted repository, glob, Markdown, TOML and network input remains outside
+that acceptance. The audit covers the resolved npm tree; it does not establish
+which affected code ships or every security property of generated artifacts.
+Reassess changed upstream or consumer scope at the 2026-10-31 terminal review.
+Earlier approved findings retain their original dated evidence.
+
+Removing the unused LikeC4 graphical reader and React/style closure previously
+removed 215 lock entries and the Panda findings without changing retained
+versions. Native LikeC4 parsing remains. That historical audit is retained in
 `build/evidence/guided-architecture-reading/stable-supply-20261021/full-native-quality-2115/source-claim-binding-20261022/continuation-20261022-0510/retired-reader-npm-audit.json`.
-
-Existing approval covers trusted local input, pinned supply, isolated jobs,
-disabled installer scripts and bounded execution only. It does not approve new
-findings, release or untrusted repository, glob, Markdown, TOML or network input.
-This audit neither proves affected code ships nor excludes it from generated
-artifacts. The supply owner must obtain an official compatible fix or exact
-successor disposition before promotion. Reassess changed upstream or consumer
-scope and at the 2026-10-31 terminal review. Earlier approved findings remain in
-`build/evidence/guided-architecture-reading/stable-supply-20261006/` receipts.
 
 The development workspace selects OpenSpec through its npm manifest and lockfile.
 Its official apply instructions

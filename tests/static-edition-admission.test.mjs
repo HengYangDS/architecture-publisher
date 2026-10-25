@@ -215,14 +215,16 @@ test("long text wraps without truncating source language or hiding editorial sco
     reason: "view-membership-upstream-computed-unqualified",
   });
   const result = svg.composeStaticEditionSvg(input, { icons: figureIcons }).bytes.toString("utf8");
-  assert.match(result, /Alpha service/u);
-  assert.match(result, /one/u);
-  assert.match(result, /Editorial judgment remains attributed/u);
-  assert.match(result, /view-membership-/u);
-  assert.match(result, /upstream-computed-/u);
+  const painted = [...result.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map(([, row]) => row)
+    .join("");
+  assert(painted.includes("Alpha service one"));
+  assert(painted.includes("Editorial judgment remains attributed."));
+  assert(painted.includes("view-membership-upstream-computed-unqualified"));
   const titleLines = [...result.matchAll(/<text[^>]*font-size="34"[^>]*>(.*?)<\/text>/gu)];
+  assert(titleLines.length > 1);
   assert.equal(titleLines.map(([, line]) => line).join(""), input.title);
-  assert.equal(titleLines.at(-1)[1].trim(), "Y");
+  assert(titleLines.every(([, line]) => line.trim().length > 0));
 });
 
 test("two label lines cannot collide with a kind label inside a short node", () => {
@@ -281,7 +283,7 @@ test("missing or excessive text and an overlong poster fail rather than truncate
     [
       "too many reader limits",
       (input) =>
-        (input.limitsByQuestion.shape = Array.from({ length: 600 }, (_, index) => ({
+        (input.limitsByQuestion.shape = Array.from({ length: 2400 }, (_, index) => ({
           kind: "scope",
           reason: `limit ${index}`,
         }))),

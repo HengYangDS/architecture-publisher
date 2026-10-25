@@ -11,8 +11,8 @@ if (process.argv.length !== 3 || process.argv[2] !== "--check")
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const lock = JSON.parse(await fs.readFile(path.join(root, "package-lock.json"), "utf8"));
 for (const [name, version] of [
-  ["@dagrejs/dagre", "3.1.1"],
-  ["@dagrejs/graphlib", "4.0.5"],
+  ["@dagrejs/dagre", "3.1.3"],
+  ["@dagrejs/graphlib", "4.0.6"],
 ]) {
   const selected = lock.packages?.[`node_modules/${name}`];
   if (selected?.version !== version || selected.license !== "MIT" || !selected.integrity)

@@ -20,7 +20,7 @@ export function architectureTextBudget(minimum) {
 }
 
 /** Exact ink travel and the measured return between consecutive text lines. */
-export function readingDistance(rows) {
+function readingDistance(rows) {
   return rows.slice(1).reduce(
     (distance, row, index) => {
       const prior = rows[index];
@@ -32,6 +32,28 @@ export function readingDistance(rows) {
     },
     rows.reduce((distance, { box }) => distance + box.width, 0),
   );
+}
+
+/** Group complete painted rows by their original reading identity before comparison. */
+export function architectureReadingDistances(scene, candidate) {
+  const rows = new Map();
+  const add = (identity, measuredRows) => {
+    const key = JSON.stringify(identity);
+    rows.set(key, [...(rows.get(key) ?? []), ...measuredRows]);
+  };
+  for (const [id, layout] of Object.entries(candidate.nodeText.layouts))
+    for (const row of layout.rows)
+      if (row.painted)
+        add(["node", id, row.field, row.occurrence ?? null], [{ ...row, baseline: row.y }]);
+  for (const [id, edge] of Object.entries(candidate.physical.edges))
+    if (edge.label) add(["edge", id], edge.label.baselines);
+  for (const group of candidate.physical.groups) add(["group", group.id], group.label.baselines);
+  for (const text of scene.texts ?? [])
+    if (!scene.nodes.some(({ id }) => id === text.owner)) {
+      const plan = candidate.physical.texts[text.id];
+      add(["text", text.id], plan.baselines);
+    }
+  return new Map([...rows].map(([key, measuredRows]) => [key, readingDistance(measuredRows)]));
 }
 
 function nodeFields(node, scene, budget, intrinsic) {

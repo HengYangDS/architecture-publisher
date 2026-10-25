@@ -9,7 +9,7 @@ const nodeKey = ({ namespace, id }) => canonical([namespace, id]);
 const relationKey = ({ namespace, reference, sha256 }) => canonical([namespace, reference, sha256]);
 const claimKey = relationKey;
 
-function validateClaimCarriers(page, selections, assertions) {
+function validateClaimCarriers(page, selections, assertions, visibleEntities) {
   const cards = new Map(
     page.claimCards.map((card) => [
       claimKey({ namespace: card.namespace, reference: card.id, sha256: card.sha256 }),
@@ -27,7 +27,7 @@ function validateClaimCarriers(page, selections, assertions) {
     if (!Array.isArray(carrier.claimRefs) || carrier.claimRefs.length !== 1) mismatch();
     let expectedCard;
     try {
-      expectedCard = claimCard(selection);
+      expectedCard = claimCard(selection, visibleEntities);
     } catch {
       mismatch();
     }
@@ -298,7 +298,12 @@ export function validateVisibleSelection(meaning, medium, scene, carriers) {
     });
     if (hasClaimModelRelations && page.claimCards === undefined) mismatch();
     if (page.claimCards !== undefined) {
-      const required = validateClaimCarriers(page, selections, assertions);
+      const required = validateClaimCarriers(
+        page,
+        selections,
+        assertions,
+        medium === "static" ? page.nodes : [],
+      );
       if (hasClaimModelRelations) validateClaimLinks(view, page, selections, assertions, required);
     }
     if (

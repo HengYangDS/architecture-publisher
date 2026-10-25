@@ -23,16 +23,25 @@ export function textLines(output, content, x, y, width, size, color, weight = 40
 export function namedSection(output, name, items, x, y, width) {
   if (!items.length) return y;
   y = textLines(output, name, x, y, width, 11, "#66736b", 600, 1) + 12;
-  for (const item of items) {
-    const attribute = item.graphicId ? ` data-graphic-id="${item.graphicId}"` : "";
-    const rows = wrap(item.text, width, 15);
-    for (const row of rows) {
-      output.push(
-        `<text${attribute} x="${number(x)}" y="${number(y)}" fill="#27352e" font-size="15">${escape(row)}</text>`,
-      );
-      y += noteLineLeading;
+  const columns = Math.max(
+    1,
+    Math.min(3, Math.floor(items.length / 2), Math.floor((width + 24) / (192 + 24))),
+  );
+  const columnWidth = (width - (columns - 1) * 24) / columns;
+  for (let start = 0; start < items.length; start += columns) {
+    let bottom = y;
+    for (const [column, item] of items.slice(start, start + columns).entries()) {
+      const attribute = item.graphicId ? ` data-graphic-id="${item.graphicId}"` : "";
+      const rows = wrap(item.text, columnWidth, 15);
+      const columnX = x + column * (columnWidth + 24);
+      for (const [index, row] of rows.entries())
+        output.push(
+          `<text${attribute} x="${number(columnX)}" y="${number(y + index * noteLineLeading)}" fill="#27352e" font-size="15">${escape(row)}</text>`,
+        );
+      bottom = Math.max(bottom, y + rows.length * noteLineLeading);
     }
-    y += noteItemGap;
+    y = bottom + noteItemGap;
   }
-  return y + 17;
+  // Block separation replaces the last item gap; it does not add another empty row.
+  return y - noteItemGap + 12;
 }

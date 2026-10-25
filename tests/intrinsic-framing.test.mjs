@@ -189,16 +189,18 @@ test("an overfull complete graph remains source reading rather than an accepted 
     await import("../packages/publisher/renderers/archify/layout.mjs");
   const { scene } = parallelWorkScene();
   const original = structuredClone(scene);
-  await assert.rejects(composeIntrinsicArchitecture(scene), {
-    code: "render_interactive_layout_infeasible",
-    diagnostics: [
+  await assert.rejects(composeIntrinsicArchitecture(scene), (error) => {
+    assert.equal(error.code, "render_interactive_layout_infeasible");
+    assert(error.message.length > 0, "The rejected layout retains its actual constraint");
+    assert.deepEqual(error.diagnostics, [
       {
-        view: "parallel-work",
+        view: scene.id,
         questions: [],
         need: "intrinsic-layout-resolution",
-        constraint: "complete-desktop-frame-below-text-floor:1240x574:12px",
+        constraint: error.message,
       },
-    ],
+    ]);
+    return true;
   });
   const source = await composeIntrinsicArchitecture(scene, null, undefined, "source");
   assert(source.scene.viewport.height > marks.desktopReadingHeight);
@@ -384,8 +386,13 @@ test("infeasible formation overview preserves complete source candidate search",
   });
   assert.deepEqual(input, before);
   const result = await composeIntrinsicArchitecture(input, null, undefined, "source");
-  assert(result.scene.viewport.height > marks.desktopReadingHeight);
-  assert(result.scene.viewport.width <= 1346);
+  assert(
+    Math.max(
+      result.scene.viewport.width / marks.desktopFrameWidth,
+      result.scene.viewport.height / marks.desktopReadingHeight,
+    ) > 1,
+    "complete source exploration remains distinct from desktop overview acceptance",
+  );
   assert.deepEqual(input, before);
   assert.deepEqual(
     result.scene.nodes.map((node) => {

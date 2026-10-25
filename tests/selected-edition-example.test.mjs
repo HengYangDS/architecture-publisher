@@ -11,7 +11,7 @@ import { materializeBuildRequestInput } from "../packages/publisher/src/compiler
 import { compileEditionMeaning } from "../packages/publisher/src/compiler/meaning.mjs";
 import { composeStaticSelectionLayout } from "../packages/publisher/src/scene/static/selection.mjs";
 import { composeStaticEditionScene } from "../packages/publisher/src/scene/static/edition.mjs";
-import { composeDagreStaticGeometry } from "../packages/publisher/renderers/dagre/static.mjs";
+import { composeStaticGeometry } from "../packages/publisher/src/compiler/static-geometry.mjs";
 
 const source = fileURLToPath(new URL("../examples/selected-edition/", import.meta.url));
 const cli = fileURLToPath(new URL("../packages/publisher/src/cli/main.mjs", import.meta.url));
@@ -103,7 +103,7 @@ test("one default overview composes distinct native scopes without losing shared
   assert.deepEqual(meaning.media.static.views[0].questionIds, ["entry", "exit"]);
   assert.equal(meaning.media.static.views.length, 1);
   assert.equal(meaning.media.interactive.views.length, 1);
-  const layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+  const layout = await composeStaticSelectionLayout(meaning, composeStaticGeometry);
   const scene = composeStaticEditionScene(meaning, layout);
   assert.deepEqual(scene.nodes.map(({ id }) => id).sort(), ["alpha", "beta", "gamma"]);
   assert.equal(scene.edges.length, 2);

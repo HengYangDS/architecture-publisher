@@ -24,6 +24,27 @@ the current runtime.
 - **THEN** the current contract rejects it without mutation or output
 - **AND** historical source, Candidate and qualification bytes remain unchanged
 
+### Requirement: Candidate acceptance is explicit
+
+An acceptance policy and named accepter SHALL decide whether submitted
+qualification evidence admits the Candidate; Publisher SHALL not infer
+approval from a green build, same-person signature, or file location.
+
+#### Scenario: A maintainer reviews their own Candidate
+
+- **WHEN** the selected acceptance policy permits author and reviewer to be
+  the same person
+- **THEN** a decision by that person may be recorded against exact Candidate
+  bytes
+- **AND** it is not described as an independent implementation verifier
+
+#### Scenario: A Candidate passes automated geometry checks
+
+- **WHEN** geometry and browser checks pass but visual faithfulness or domain
+  truth has not been assessed
+- **THEN** only those automated predicates pass
+- **AND** the Candidate receives no inferred domain or visual acceptance
+
 ## ADDED Requirements
 
 ### Requirement: Current Edition requires complete visual review duties

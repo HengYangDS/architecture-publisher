@@ -211,3 +211,34 @@ test("intrinsic admission enforces the literal arrow terminal before scene conve
   relation.points[2].y = end.y - 14;
   assert.doesNotThrow(() => auditIntrinsicGeometry(graph));
 });
+
+test("native grid search requires clear mandatory endpoint corridors before allocating its graph", async () => {
+  const { gridEndpointCorridorsClear } =
+    await import("../packages/publisher/renderers/archify/routing-contract.mjs");
+  const input = {
+    start: [100, 100],
+    end: [300, 100],
+    fromSide: "right",
+    toSide: "left",
+    endpointStubPx: 24,
+    bounds: { width: 400, height: 200 },
+    obstacles: [],
+    segments: [],
+  };
+  assert.equal(typeof gridEndpointCorridorsClear, "function");
+  for (const [changes, expected] of [
+    [{}, true],
+    [{ obstacles: [{ x: 108, y: 96, width: 8, height: 8 }] }, false],
+    [{ obstacles: [{ x: 280, y: 96, width: 8, height: 8 }] }, false],
+    [{ obstacles: [{ x: 150, y: 96, width: 8, height: 8 }] }, true],
+    [{ segments: [{ start: [108, 101], end: [120, 101] }] }, false],
+    [{ segments: [{ start: [110, 80], end: [110, 120] }] }, true],
+    [{ fromSide: "left", start: [12, 100] }, false],
+    [{ toSide: "right", end: [388, 100] }, false],
+  ]) {
+    const selected = { ...input, ...changes };
+    const before = structuredClone(selected);
+    assert.equal(gridEndpointCorridorsClear(selected), expected);
+    assert.deepEqual(selected, before);
+  }
+});

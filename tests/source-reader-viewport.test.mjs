@@ -134,6 +134,15 @@ test(
       assert.ok(handle, "native source reading has one isolated document");
       let native;
       try {
+        const exposed = await handle.evaluate((element) => {
+          const frame = element.getBoundingClientRect();
+          const pane = element.closest(".inspect-reading-scroll").getBoundingClientRect();
+          return (
+            frame.top >= Math.max(0, pane.top) &&
+            frame.bottom <= Math.min(globalThis.innerHeight, pane.bottom)
+          );
+        });
+        assert.ok(exposed, `${pageId} exposes the selected source reading aperture`);
         native = await handle.contentFrame();
       } finally {
         await handle.dispose();
@@ -148,11 +157,17 @@ test(
       };
     };
     const read = async (native, id, options = {}) => {
-      const handle = await native.waitForFunction(
-        sourceViewportState,
-        { id, ...options },
-        { timeout: 5_000 },
-      );
+      let handle;
+      try {
+        handle = await native.waitForFunction(
+          sourceViewportState,
+          { id, ...options },
+          { timeout: 5_000 },
+        );
+      } catch (cause) {
+        const observed = await native.evaluate(sourceViewportState, { id });
+        throw new Error(`Native source viewport: ${JSON.stringify(observed)}`, { cause });
+      }
       try {
         return await handle.jsonValue();
       } finally {

@@ -231,7 +231,9 @@ export function interactiveReader(
     };
     const nodeLabels = new Map();
     bindGraphics(parsed, selected, bindInspect);
-    for (const node of parsed.querySelectorAll("[data-node-id],g[data-inspect-id]")) {
+    for (const node of parsed.querySelectorAll(
+      "[data-node-id],g[data-inspect-id],[data-graphic-id][data-inspect-id]",
+    )) {
       const id = node.getAttribute("data-node-id") || node.getAttribute("data-inspect-id");
       const label = node.getAttribute("data-inspect-label") || node.getAttribute("data-node-label");
       if (id) bindInspect(node, id, label);

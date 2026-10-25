@@ -86,7 +86,7 @@ test("a neutral static scene carries declared source assertions without authored
   assert.equal(Object.isFrozen(scene.nodes), true);
 });
 
-test("a selected grouped view builds visible static groups through the shared geometry owner", async (t) => {
+test("a selected grouped view paints each native group once without a duplicate group index", async (t) => {
   const selected = await selectedNativeEdition(t, { media: ["static"], width: 1800 });
   selected.project.presentation.static.views[0].groups = [
     {
@@ -108,9 +108,9 @@ test("a selected grouped view builds visible static groups through the shared ge
   const built = await compileEditionCandidateInput(selected.file, selected.digest, output);
   assert.equal(built.status, "built");
   const svg = await fs.readFile(path.join(output, "static/architecture.svg"), "utf8");
-  assert(svg.includes("READING GROUPS"));
-  assert(svg.includes("Entry boundary"));
-  assert(svg.includes("Service boundary"));
+  assert(!svg.includes("READING GROUPS"));
+  for (const label of ["Entry boundary", "Service boundary"])
+    assert.equal(svg.split(label).length - 1, 1, "each declared group has one visible heading");
   assert(!svg.includes("fixture/model"));
 });
 

@@ -35,8 +35,8 @@ ARCHPUB_RESVG_BINDGEN = { value = "{% if tools['github:wasm-bindgen/wasm-bindgen
 [tools]
 cue = "0.17.1"
 "npm:npm" = "12.2.1"
-node = "26.12.0"
-pixi = { version = "0.82.0", os = ["linux/arm64"] }
+node = "26.12.1"
+pixi = { version = "0.83.0", os = ["linux/arm64"] }
 rust = { version = "1.99.1", profile = "minimal", components = [
   "cargo",
   "rust-std",

@@ -8,11 +8,11 @@ function checkedInput(input) {
     !input.nodes.length ||
     input.nodes.length > 512 ||
     !Array.isArray(input.groups) ||
-    input.groups.length > 128 ||
+    input.groups.length !== 0 ||
     !Array.isArray(input.relations) ||
     input.relations.length > 2048
   )
-    fail("static_dagre_input_invalid");
+    fail("static_structural_input_invalid");
   const nodes = new Map();
   for (const node of input.nodes) {
     if (
@@ -23,31 +23,9 @@ function checkedInput(input) {
       [...node.label].length > 256 ||
       nodes.has(node.id)
     )
-      fail("static_dagre_input_invalid");
+      fail("static_structural_input_invalid");
     nodes.set(node.id, node);
   }
-  const members = new Set();
-  const groups = new Set();
-  for (const group of input.groups) {
-    if (
-      typeof group?.id !== "string" ||
-      !group.id ||
-      groups.has(group.id) ||
-      typeof group.label !== "string" ||
-      !group.label.trim() ||
-      [...group.label].length > 256 ||
-      !Array.isArray(group.members) ||
-      !group.members.length ||
-      group.members.length > 32
-    )
-      fail("static_dagre_input_invalid");
-    groups.add(group.id);
-    for (const id of group.members) {
-      if (!nodes.has(id) || members.has(id)) fail("static_dagre_input_invalid");
-      members.add(id);
-    }
-  }
-  if (input.groups.length && members.size !== nodes.size) fail("static_dagre_input_invalid");
   const relations = new Set();
   for (const relation of input.relations) {
     if (
@@ -60,7 +38,7 @@ function checkedInput(input) {
       typeof relation.text !== "string" ||
       [...relation.text].length > 256
     )
-      fail("static_dagre_input_invalid");
+      fail("static_structural_input_invalid");
     relations.add(relation.id);
   }
   return input;
@@ -151,19 +129,21 @@ function placeRelationLabels(routes, nodes) {
   });
 }
 
-async function composeWithAlignment(input, opaque, alignment) {
+async function composeWithAlignment(input, opaque, alignment, measured = null) {
   const grid = 32;
   const nodeWidth =
+    measured?.nodeSize.width ??
     grid *
-    Math.ceil(
-      Math.max(8 * grid, ...input.nodes.map(({ label }) => [...label].length * 9.76 + grid)) / grid,
-    );
+      Math.ceil(
+        Math.max(8 * grid, ...input.nodes.map(({ label }) => [...label].length * 9.76 + grid)) /
+          grid,
+      );
   const selected = await layoutStaticGraph(
     {
       nodes: input.nodes.map((node, index) => ({
         id: `n${index}`,
         width: nodeWidth,
-        height: 3 * grid,
+        height: measured?.nodeSize.height ?? 3 * grid,
       })),
       relations: input.relations.map((relation, index) => ({
         id: `e${index}`,
@@ -187,6 +167,9 @@ async function composeWithAlignment(input, opaque, alignment) {
           y: placed.y - placed.height / 2 + 190,
           w: placed.width,
           h: placed.height,
+          ...(measured?.nodeText.has(node.id)
+            ? { textLayout: measured.nodeText.get(node.id) }
+            : {}),
         },
       ];
     }),
@@ -205,19 +188,8 @@ async function composeWithAlignment(input, opaque, alignment) {
   });
   if (nodes.size !== input.nodes.length || placedEdges.size !== input.relations.length)
     fail("static_dagre_geometry_invalid");
-  const memberGroups = input.groups.map((group) => {
-    const members = group.members.map((id) => nodes.get(id));
-    const left = Math.min(...members.map(({ x }) => x)) - 16;
-    const top = Math.min(...members.map(({ y }) => y)) - 16;
-    const right = Math.max(...members.map(({ x, w }) => x + w)) + 16;
-    const bottom = Math.max(...members.map(({ y, h }) => y + h)) + 16;
-    return { ...group, x: left, y: top, w: right - left, h: bottom - top };
-  });
   const layout = { width: selected.width + 160, height: selected.height + 290 };
   const labeledRoutes = placeRelationLabels(routes, nodes);
-  const groups = memberGroups;
-  layout.width = Math.max(layout.width, ...groups.map(({ x, w }) => x + w + 40));
-  layout.height = Math.max(layout.height, ...groups.map(({ y, h }) => y + h + 30));
   layout.width = Math.max(
     layout.width,
     ...labeledRoutes.flatMap(({ labelBox }) => (labelBox ? [labelBox.x + labelBox.w + 40] : [])),
@@ -229,23 +201,23 @@ async function composeWithAlignment(input, opaque, alignment) {
   return {
     layout: {
       ...layout,
-      groups,
+      groups: [],
       nodes,
-      ...(groups.length ? { groupPresentation: "key" } : {}),
     },
     routes: labeledRoutes,
     supplySha256: selected.supplySha256,
+    ...(measured ? { textMeasurer: measured.textMeasurer } : {}),
   };
 }
 
 /** The pinned Dagre supply proposes replaceable coordinates, never source meaning. */
-export async function composeDagreStaticGeometry(value) {
+export async function composeDagreStaticGeometry(value, measured = null) {
   const input = checkedInput(value);
   const opaque = new Map(input.nodes.map(({ id }, index) => [id, `n${index}`]));
   try {
-    return await composeWithAlignment(input, opaque, "regular");
+    return await composeWithAlignment(input, opaque, "regular", measured);
   } catch (error) {
     if (error?.code !== "static_dagre_relation_caption_infeasible") throw error;
   }
-  return composeWithAlignment(input, opaque, "balanced");
+  return composeWithAlignment(input, opaque, "balanced", measured);
 }

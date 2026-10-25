@@ -50,6 +50,93 @@ function labelAt(raw, plan, offset) {
   );
 }
 
+/** Translate native segments and join only exact seams; never reroute their points. */
+export function collapseCompoundGeometry(raw, bindings) {
+  if (!raw || !Array.isArray(raw.children)) invalid();
+  const offsets = new Map([["root", { x: 0, y: 0 }]]);
+  const edges = new Map();
+  const visit = (node, offset) => {
+    if (node.edges !== undefined && !Array.isArray(node.edges)) invalid();
+    for (const edge of node.edges ?? []) {
+      if (!edge || edges.has(edge.id)) invalid();
+      edges.set(edge.id, edge);
+    }
+    for (const child of node.children ?? []) {
+      const position = { x: offset.x + child.x, y: offset.y + child.y };
+      offsets.set(child.id, position);
+      visit(child, position);
+    }
+  };
+  visit(raw, { x: 0, y: 0 });
+  if (edges.size !== bindings.reduce((count, { parts }) => count + parts.length, 0)) invalid();
+  const joined = bindings.map(({ edge: original, parts }) => {
+    const points = [];
+    let labels = [];
+    for (const part of parts) {
+      const edge = edges.get(part.id);
+      const offset = offsets.get(part.container);
+      const section = edge?.sections?.[0];
+      if (
+        !offset ||
+        !edge ||
+        edge.container !== part.container ||
+        edge.sources?.length !== 1 ||
+        edge.sources[0] !== part.sources[0] ||
+        edge.targets?.length !== 1 ||
+        edge.targets[0] !== part.targets[0] ||
+        !Array.isArray(edge.sections) ||
+        edge.sections.length !== 1 ||
+        section?.incomingShape !== part.sources[0] ||
+        section.outgoingShape !== part.targets[0] ||
+        section.incomingSections !== undefined ||
+        section.outgoingSections !== undefined ||
+        (section.bendPoints !== undefined && !Array.isArray(section.bendPoints)) ||
+        (edge.labels?.length ?? 0) !== (part.labels?.length ?? 0)
+      )
+        invalid();
+      const segment = [section.startPoint, ...(section.bendPoints ?? []), section.endPoint].map(
+        (point) => {
+          if (!point || !coordinate(point.x) || !coordinate(point.y)) invalid();
+          return {
+            x: canonicalCoordinate(point.x + offset.x),
+            y: canonicalCoordinate(point.y + offset.y),
+          };
+        },
+      );
+      if (points.length) {
+        if (points.at(-1).x !== segment[0].x || points.at(-1).y !== segment[0].y) invalid();
+        segment.shift();
+      }
+      points.push(...segment);
+      if (part.labels?.length)
+        labels = edge.labels.map((label) => ({
+          ...label,
+          x: canonicalCoordinate(label.x + offset.x),
+          y: canonicalCoordinate(label.y + offset.y),
+        }));
+    }
+    return {
+      ...original,
+      container: "root",
+      labels,
+      sections: [
+        {
+          incomingShape: original.sources[0],
+          outgoingShape: original.targets[0],
+          startPoint: points[0],
+          bendPoints: points.slice(1, -1),
+          endPoint: points.at(-1),
+        },
+      ],
+    };
+  });
+  return {
+    ...raw,
+    children: raw.children.map((child) => ({ ...child, edges: [] })),
+    edges: joined,
+  };
+}
+
 /** Container-relative layout output becomes one closed geometry value. */
 export function normalizeInteractiveGeometry(
   raw,

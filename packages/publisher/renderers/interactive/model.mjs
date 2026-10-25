@@ -83,7 +83,13 @@ function linkedClaimAnchors(page, relations, claims) {
   return { ordinals, subjects };
 }
 
-function publicResponsibilityForm(page, privateGroups, claimGraphics, publicClaims) {
+function publicResponsibilityForm(
+  page,
+  privateGroups,
+  claimGraphics,
+  publicClaims,
+  publicEditorial,
+) {
   const form = page.visualForm;
   if (form === undefined) return null;
   if (
@@ -97,12 +103,13 @@ function publicResponsibilityForm(page, privateGroups, claimGraphics, publicClai
   )
     fail("render_responsibility_form_invalid");
   const groups = new Map(privateGroups.map((group) => [group.editorialId, group]));
-  const editorial = new Map(page.editorialAssertions.map((item) => [item.id, item]));
+  const editorial = new Map(page.editorialAssertions.map((item, index) => [item.id, index]));
   const source = new Map(page.sourceAssertionCarriers.map((item) => [item.assertionId, item]));
   const claimFacts = new Map(publicClaims.map((item) => [item.graphicId, item.facts]));
   const basis = (id) => {
-    const authored = editorial.get(id);
-    if (authored) {
+    const editorialIndex = editorial.get(id);
+    if (editorialIndex !== undefined) {
+      const authored = page.editorialAssertions[editorialIndex];
       if (
         authored.kind !== "editorial" ||
         authored.semanticStatus !== "editor-attributed-unverified" ||
@@ -112,6 +119,7 @@ function publicResponsibilityForm(page, privateGroups, claimGraphics, publicClai
         fail("render_responsibility_form_invalid");
       return {
         kind: "editorial",
+        graphicId: publicEditorial[editorialIndex].graphicId,
         statement: authored.statement,
         proponent: authored.proponent,
       };
@@ -404,7 +412,7 @@ export function projectInteractivePage(page, index) {
   )
     fail("render_interactive_carrier_unclaimed");
 
-  const form = publicResponsibilityForm(page, privateGroups, claims, publicClaims);
+  const form = publicResponsibilityForm(page, privateGroups, claims, publicClaims, publicEditorial);
 
   return {
     publicPage: {

@@ -9,7 +9,7 @@ import {
   selectedStaticNativeViews,
 } from "../packages/publisher/src/scene/static/selection.mjs";
 import { composeStaticEditionSvg } from "../packages/publisher/renderers/svg/index.mjs";
-import { composeDagreStaticGeometry } from "../packages/publisher/renderers/dagre/static.mjs";
+import { composeStaticGeometry } from "../packages/publisher/src/compiler/static-geometry.mjs";
 import { renderInteractiveEditionHtml } from "../packages/publisher/renderers/interactive/index.mjs";
 import {
   figureIcons,
@@ -114,7 +114,7 @@ test("multi-view recomposition refuses authored meaning that its structural proj
   });
   overview.assertions.push({ ...overview.assertions[0], id: "detail", selection: "detail" });
   overview.media.static.views[0].assertionIds.push("detail");
-  const shared = await composeStaticSelectionLayout(overview, composeDagreStaticGeometry);
+  const shared = await composeStaticSelectionLayout(overview, composeStaticGeometry);
   assert.equal(shared.nodes.length, 2);
   assert.equal(shared.edges.length, 1);
   for (const [code, mutate] of [
@@ -138,12 +138,9 @@ test("multi-view recomposition refuses authored meaning that its structural proj
   ]) {
     const invalid = structuredClone(overview);
     mutate(invalid.native.sourceReading.likec4.views[1]);
-    await assert.rejects(
-      async () => composeStaticSelectionLayout(invalid, composeDagreStaticGeometry),
-      {
-        code,
-      },
-    );
+    await assert.rejects(async () => composeStaticSelectionLayout(invalid, composeStaticGeometry), {
+      code,
+    });
   }
 });
 
@@ -159,7 +156,7 @@ test("viewless element refinement uses the same flat closure as its scene", asyn
     },
   ];
   const meaning = await compileEditionMeaning(materialized(project));
-  const automatic = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+  const automatic = await composeStaticSelectionLayout(meaning, composeStaticGeometry);
   const refinement = {
     media: {
       static: {
@@ -284,7 +281,7 @@ test("a source element assertion does not smuggle unrelated view members into th
   delete authored.scope.selections[1].questions;
   authored.presentation.static.width = 6000;
   const { meaning } = await selectedInputs(authored);
-  const layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+  const layout = await composeStaticSelectionLayout(meaning, composeStaticGeometry);
   const scene = scenes.composeStaticEditionScene(meaning, layout);
   assert.equal(scene.requestedWidth, 6000);
   assert.deepEqual(
@@ -320,7 +317,7 @@ test("a relation assertion keeps its exact source locator and both visible endpo
   });
   delete authored.scope.selections[1].questions;
   const { meaning } = await selectedInputs(authored);
-  const layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+  const layout = await composeStaticSelectionLayout(meaning, composeStaticGeometry);
   const scene = scenes.composeStaticEditionScene(meaning, layout);
   assert.deepEqual(
     scene.nodes.map(({ id }) => id),
@@ -385,11 +382,18 @@ test("editorial prose stays attributed and does not become a source node or edge
   const interactiveHtml = (await renderInteractiveEditionHtml(interactiveScene)).bytes.toString(
     "utf8",
   );
-  for (const medium of [staticSvg, interactiveHtml]) {
-    assert.match(medium, /The overview is deliberately scoped\./u);
-    assert.match(medium, /portrait-editor/u);
-    assert.match(medium, /unverified/u);
-  }
+  const staticPaint = [...staticSvg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map(([, row]) => row)
+    .join("");
+  assert(
+    staticPaint.includes(
+      "The overview is deliberately scoped. · Editorial judgment · portrait-editor · unverified",
+    ),
+    "painted editorial text remains complete and attributed across line breaks",
+  );
+  assert.match(interactiveHtml, /The overview is deliberately scoped\./u);
+  assert.match(interactiveHtml, /portrait-editor/u);
+  assert.match(interactiveHtml, /unverified/u);
 });
 
 test("ambiguous views and unsupported visual policies fail rather than choosing a template", async () => {

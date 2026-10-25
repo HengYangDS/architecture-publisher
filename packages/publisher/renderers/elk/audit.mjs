@@ -20,6 +20,70 @@ const bad = (kind, id) =>
     `render_interactive_layout_infeasible:${kind}:${id}`,
   );
 
+export function readingApertureExpansion(footprint, viewport) {
+  return viewport
+    ? Math.max(1, footprint.width / viewport.width, footprint.height / viewport.height)
+    : 1;
+}
+
+/** Group interiors remain usable; only their painted perimeter obstructs captions. */
+export function groupFrameInk(groups) {
+  const stroke = marks.selectedNodeStroke;
+  return groups.flatMap(({ x, y, width, height }) => [
+    { x: x - stroke / 2, y: y - stroke / 2, width: width + stroke, height: stroke },
+    { x: x - stroke / 2, y: y + height - stroke / 2, width: width + stroke, height: stroke },
+    { x: x - stroke / 2, y: y - stroke / 2, width: stroke, height: height + stroke },
+    { x: x + width - stroke / 2, y: y - stroke / 2, width: stroke, height: height + stroke },
+  ]);
+}
+
+/** Immutable node capacity bounds every complete frame, including translated packing. */
+export function nodeEnvelopeExpansion(layout, viewport) {
+  return Math.max(
+    1,
+    (Math.max(...layout.nodes.map(({ x, width }) => x + width)) -
+      Math.min(...layout.nodes.map(({ x }) => x))) /
+      viewport.width,
+    (Math.max(...layout.nodes.map(({ y, height }) => y + height)) -
+      Math.min(...layout.nodes.map(({ y }) => y))) /
+      viewport.height,
+  );
+}
+
+/** Only complete readable geometry with optimal structural order can dominate another. */
+export function qualifiedSourceExpansion(layout, options, minimumLabelSize) {
+  const viewport = options.readingViewport;
+  if (
+    !viewport ||
+    layout.compositionDisruption !== 0 ||
+    [...layout.nodes, ...layout.groups, ...layout.relations.filter(({ label }) => label)].some(
+      ({ label }) => label.fontSize < minimumLabelSize,
+    )
+  )
+    return Infinity;
+  const footprint = options.candidateFootprint?.(layout) ?? layout.bounds;
+  return readingApertureExpansion(footprint, viewport);
+}
+
+/** Route planning cannot shrink fixed node capacity to rescue unreadable text. */
+export function admitNodeEnvelope(layout, readingWidth, readingViewport, minimumLabelSize) {
+  const left = Math.min(...layout.nodes.map(({ x }) => x));
+  const right = Math.max(...layout.nodes.map(({ x, width }) => x + width));
+  if (right - left > readingWidth)
+    fail("render_interactive_layout_infeasible", "intrinsic-node-envelope-exceeds-reading-width");
+  if (readingViewport) {
+    const top = Math.min(...layout.nodes.map(({ y }) => y));
+    const bottom = Math.max(...layout.nodes.map(({ y, height }) => y + height));
+    const scale = Math.min(
+      1,
+      readingViewport.width / (right - left),
+      readingViewport.height / (bottom - top),
+    );
+    if (layout.nodes.some(({ label }) => label.fontSize * scale < minimumLabelSize))
+      fail("render_interactive_layout_infeasible", "intrinsic-node-envelope-below-text-floor");
+  }
+}
+
 /** Reject paint collisions before emitting exact coordinates; this never repairs a layout. */
 export function auditInteractiveGeometry(graph) {
   const canvas = graph.bounds;
@@ -74,6 +138,10 @@ export function auditInteractiveGeometry(graph) {
         bad("label-node-collision", text.owner);
   }
   const routeSegments = [];
+  const groupFrames = groupFrameInk(graph.groups);
+  for (const text of texts)
+    if (groupFrames.some((frame) => boxesOverlap(expandBox(text, marks.textClearance), frame)))
+      bad("text-group-frame-collision", text.owner);
   for (const relation of graph.relations) {
     const minimumTerminal = relation.arrowGeometry
       ? Math.max(literalArrowMinimumTerminal, relation.arrowGeometry.length)

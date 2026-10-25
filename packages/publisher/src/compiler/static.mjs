@@ -12,11 +12,15 @@ import { auditEmittedEdges } from "../scene/emitted-path.mjs";
 import { importLikeC4Layout } from "../semantics/native-likec4.mjs";
 import { canonical } from "../semantics/document.mjs";
 import { fail } from "../protocol/values.mjs";
-import { composeDagreStaticGeometry } from "../../renderers/dagre/static.mjs";
+import { composeStaticGeometry } from "./static-geometry.mjs";
 import { loadBundledFonts } from "../../renderers/fonts/index.mjs";
 import { resolveAuthoredFontSupply } from "../../renderers/resvg/font.mjs";
-import { verifyAuthoredCanvasTextBoxes } from "../../renderers/resvg/measurement.mjs";
+import {
+  createBundledTextMeasurer,
+  verifyAuthoredCanvasTextBoxes,
+} from "../../renderers/resvg/measurement.mjs";
 import { authoredCanvasFramingRequest } from "../../renderers/svg/canvas.mjs";
+import { measureStaticPeerCapacity } from "../../renderers/svg/edition-structure.mjs";
 import {
   composeStaticEditionSvg,
   composeStaticFigureSvg,
@@ -63,13 +67,19 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
   );
   let implementationProfile = "static-claim";
   let layout = null;
+  let textMeasurer;
+  const staticGeometry = async (input) => {
+    const selected = await composeStaticGeometry(input, fontSupply);
+    textMeasurer = selected.textMeasurer;
+    return selected;
+  };
   if (authoredCanvas) implementationProfile = "static-authored";
   else if (staticRefinement && staticRefinement.kind !== "neutral") {
     implementationProfile = "static-refinement";
     layout = composeSelectedStaticRefinementLayout(meaning, meaning.refinement);
   } else if (meaning.editorial.presentation.static.views[0].groups !== undefined) {
     implementationProfile = "static-structural";
-    layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+    layout = await composeStaticSelectionLayout(meaning, staticGeometry);
   } else if (
     (claimMode || selectedStaticNativeViews(meaning, meaning.media.static.views[0]).length !== 1) &&
     selectedStaticSourceSelections(meaning, meaning.media.static.views[0]).some(
@@ -77,16 +87,23 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
     )
   ) {
     implementationProfile = "static-structural";
-    layout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+    layout = await composeStaticSelectionLayout(meaning, staticGeometry);
   } else if (!claimMode) {
     implementationProfile = "static-likec4";
     const views = selectedStaticNativeViews(meaning, meaning.media.static.views[0]);
     if (views.length !== 1) fail("static_scene_composition_ambiguous");
     const view = { namespace: views[0].source.namespace, id: views[0].target.id };
+    const measured = await measureStaticPeerCapacity(
+      views[0].members.elements,
+      fontSupply,
+      createBundledTextMeasurer,
+    );
+    textMeasurer = measured.textMeasurer;
     layout = await importLikeC4Layout({
       lock: selected.lock,
       readSource: selected.readSource,
       view,
+      nodeSize: measured.nodeSize,
     });
   }
   let scene;
@@ -121,7 +138,11 @@ async function staticView(selected, meaning, fontSupply, options = {}) {
     limits = authored.limits;
   } else {
     scene = composeStaticEditionScene(meaning, layout);
-    rendered = composeStaticEditionSvg(scene, options);
+    rendered = composeStaticEditionSvg(scene, {
+      ...options,
+      raster: true,
+      ...(textMeasurer ? { textMeasurer } : {}),
+    });
   }
   return { scene, rendered, limits, implementationProfile, authoredFonts };
 }

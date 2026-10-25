@@ -18,7 +18,8 @@ export function sourceReadingController(data, scriptJson) {
       if (!(size > 0) || !(minimum > 0) || size >= minimum) return;
       native.view.reveal([active], {
         includeNeighbors: false,
-        maxScale: (minimum / size) * native.view.state().scale + 0.01,
+        // Give native fitting an outward-rounded budget, not a near-baseline target.
+        maxScale: Math.ceil((minimum / size) * native.view.state().scale),
         instant: true,
         reason: "source-reading-aperture",
       });
@@ -160,6 +161,7 @@ export function sourceReadingController(data, scriptJson) {
       frame.setAttribute("sandbox", "allow-scripts allow-downloads");
       frame.srcdoc = "<!DOCTYPE html>\n" + parsed.documentElement.outerHTML;
       root.appendChild(frame);
+      root.scrollIntoView({ block: "nearest", inline: "nearest" });
       selected = {
         pageId: page.id,
         reference: entry.reference,

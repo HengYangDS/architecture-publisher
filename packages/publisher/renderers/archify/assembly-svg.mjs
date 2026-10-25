@@ -373,7 +373,7 @@ export async function renderArchitectureSvg(
   const frames = groups
     .map(
       (group, index) =>
-        `<rect data-graphic-id="${esc(scene.groups[index].id)}" data-group-id="${esc(scene.groups[index].id)}" data-graph-role="structural-frame" data-composition-frame-id="${index}" data-composition-frame-kind="region" x="${group.x}" y="${group.y}" width="${group.width}" height="${group.height}" rx="${group.radius}" class="c-cloud" fill-opacity=".12" stroke-width="1"/>`,
+        `<rect data-graphic-id="${esc(scene.groups[index].id)}" data-inspect-label="${esc(scene.groups[index].label)}" data-group-id="${esc(scene.groups[index].id)}" data-graph-role="structural-frame" data-composition-frame-id="${index}" data-composition-frame-kind="region" x="${group.x}" y="${group.y}" width="${group.width}" height="${group.height}" rx="${group.radius}" class="c-cloud" fill-opacity=".12" stroke-width="1"/>`,
     )
     .join("\n");
   const frameTitles = groups

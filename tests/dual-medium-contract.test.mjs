@@ -10,6 +10,80 @@ import { selectedNativeEdition, sha } from "./fixtures/selected-native-edition.m
 
 const cli = fileURLToPath(new URL("../packages/publisher/src/cli/main.mjs", import.meta.url));
 
+test("the public build places complete parallel source views on distinct measured tracks", async (t) => {
+  const fixture = await selectedNativeEdition(t, { media: ["static"] });
+  const peers = Array.from({ length: 12 }, (_, index) => `branch${index}`);
+  const model = Buffer.from(
+    "specification { element component }\nmodel { start = component 'Entry'\n end = component 'Join'\n" +
+      peers.map((id, index) => `${id} = component 'Branch ${index + 1}'`).join("\n") +
+      "\n" +
+      peers.map((id) => `start -> ${id}\n ${id} -> end`).join("\n") +
+      "\n}\n",
+  );
+  const ids = Array.from({ length: 4 }, (_, index) => `reading-${index}`);
+  const views = Buffer.from(
+    `views {\n${ids.map((id) => `view ${id.replaceAll("-", "_")} { include *\n autoLayout TopBottom }`).join("\n")}\n}\n`,
+  );
+  fixture.project.scope.selections = ids.map((id) => ({
+    ...fixture.project.scope.selections[0],
+    id,
+    reference: `view:${id.replaceAll("-", "_")}`,
+  }));
+  for (const medium of ["static", "interactive"])
+    fixture.project.presentation[medium].views = ids.map((id) => ({ id, questions: ["shape"] }));
+  await fs.writeFile(
+    path.join(fixture.root, "edition/project.json"),
+    JSON.stringify(fixture.project),
+  );
+  for (const [id, bytes] of [
+    ["model", model],
+    ["views", views],
+  ]) {
+    const source = fixture.request.sources.find((item) => item.id === id);
+    source.input.sha256 = sha(bytes);
+    await fs.writeFile(path.join(fixture.root, source.input.path), bytes);
+  }
+  const request = Buffer.from(JSON.stringify(fixture.request));
+  await fs.writeFile(fixture.file, request);
+  const output = path.join(fixture.root, "parallel-candidate");
+  await compileEditionCandidateInput(fixture.file, sha(request), output);
+  const svg = await fs.readFile(path.join(output, "static/architecture.svg"), "utf8");
+  const placements = [
+    ...svg.matchAll(/data-static-view="([^"]+)" transform="translate\(([-\d.]+) ([-\d.]+)\)"/gu),
+  ].map(([, id, x, y]) => ({ id, x: Number(x), y: Number(y) }));
+  assert.deepEqual(
+    placements.map(({ id }) => id),
+    ids,
+  );
+  assert.equal(new Set(placements.map(({ x }) => x)).size, ids.length);
+  assert.equal(new Set(placements.map(({ y }) => y)).size, 1);
+  assert.equal((svg.match(/data-graphic-id="static-view-\d+-n-\d+"/gu) ?? []).length, 56);
+  assert.equal(
+    (await fs.readFile(path.join(output, "static/architecture.png"))).readUInt32BE(16),
+    6000,
+  );
+});
+
+test("the public static build measures complete peer content rather than upstream default boxes", async (t) => {
+  const fixture = await selectedNativeEdition(t, { media: ["static"] });
+  const output = path.join(fixture.root, "measured-candidate");
+  await compileEditionCandidateInput(fixture.file, fixture.digest, output);
+  const markup = await fs.readFile(path.join(output, "static/architecture.svg"), "utf8");
+  const nodes = [
+    ...markup.matchAll(
+      /<g data-graphic-id="n-\d+"[^>]*>\s*<rect[^>]*width="([\d.]+)" height="([\d.]+)"/gu,
+    ),
+  ].map(([, width, height]) => ({ width: Number(width), height: Number(height) }));
+
+  assert.equal(nodes.length, 2);
+  assert.deepEqual(nodes[0], nodes[1]);
+  assert(nodes[0].width < 160, "short complete content must not inherit the 320px default");
+  assert(nodes[0].height < 96, "the type label and primary label must not reserve 180px");
+  assert.match(markup, />Alpha<\/text>/u);
+  assert.match(markup, />Beta<\/text>/u);
+  assert.match(markup, />component<\/text>/u);
+});
+
 test("one exact Build Request yields location-independent sibling media and a complete Candidate", async (t) => {
   const fixture = await selectedNativeEdition(t);
   const first = path.join(fixture.root, "candidate-one");

@@ -167,16 +167,20 @@ test("two claims on one selected relation keep distinct visible carriers", async
   assert(svg.includes("Claim plane: intended"));
   assert(svg.includes("Claim plane: implemented"));
   const rectangles = [
-    ...svg.matchAll(
-      /<g data-graphic-id="static-view-0-c-([01])">\s*<rect x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"/gu,
-    ),
-  ].map((match) => ({
-    id: match[1],
-    x: Number(match[2]),
-    y: Number(match[3]),
-    width: Number(match[4]),
-    height: Number(match[5]),
-  }));
+    ...svg.matchAll(/<g data-graphic-id="static-view-0-c-([01])">([\s\S]*?)<\/g>/gu),
+  ].map(([, id, markup]) => {
+    const heading = /<text x="([\d.]+)" y="([\d.]+)"/u.exec(markup);
+    const separator = /<line x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)"/u.exec(markup);
+    assert(heading && separator);
+    const y = Number(heading[2]) - 14;
+    return {
+      id,
+      x: Number(separator[1]),
+      y,
+      width: Number(separator[3]) - Number(separator[1]),
+      height: Number(separator[2]) - y,
+    };
+  });
   assert.deepEqual(rectangles.map(({ id }) => id).sort(), ["0", "1"]);
   for (const { x, y, width, height } of rectangles) {
     assert([x, y, width, height].every(Number.isFinite));
@@ -188,7 +192,7 @@ test("two claims on one selected relation keep distinct visible carriers", async
       second.x + second.width <= first.x ||
       first.y + first.height <= second.y ||
       second.y + second.height <= first.y,
-    "complete Claim rectangles must not overlap in their common coordinate frame",
+    "complete Claim reading regions must not overlap in their common coordinate frame",
   );
 });
 

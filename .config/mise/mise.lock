@@ -97,21 +97,21 @@ url_api = "https://api.github.com/repos/wasm-bindgen/wasm-bindgen/releases/asset
 provenance = "github-attestations"
 
 [[tools.node]]
-version = "26.12.0"
+version = "26.12.1"
 backend = "core:node"
-specifiers = ["26.12.0"]
+specifiers = ["26.12.1"]
 
 [tools.node."platforms.linux-arm64"]
-checksum = "sha256:ec53c915c3fdd8786c5685abd25ae3fe9fba0692307f9811d7caaadea1bcaf03"
-url = "https://nodejs.org/dist/v26.12.0/node-v26.12.0-linux-arm64.tar.gz"
+checksum = "sha256:a6c01af459dd8972ab3fb08ee5da81244d26ba8c4944a62d5bbba8c597ae154f"
+url = "https://nodejs.org/dist/v26.12.1/node-v26.12.1-linux-arm64.tar.gz"
 
 [tools.node."platforms.macos-arm64"]
-checksum = "sha256:2a154d4a5458930e0a2d6a1ecf64eddf5a2b3e1c13636b609c2ecb042e8c4553"
-url = "https://nodejs.org/dist/v26.12.0/node-v26.12.0-darwin-arm64.tar.gz"
+checksum = "sha256:1901d539912c02afa10d1cc126943a8855a7eedebe830119463470db5e6c59e8"
+url = "https://nodejs.org/dist/v26.12.1/node-v26.12.1-darwin-arm64.tar.gz"
 
 [tools.node."platforms.windows-arm64"]
-checksum = "sha256:cc773b9829623e3d4fd13aef394f05010e0459273f27fb3255150f38a2577abf"
-url = "https://nodejs.org/dist/v26.12.0/node-v26.12.0-win-arm64.zip"
+checksum = "sha256:34567581ee63967b37afb6b7a0cc63a2d550a43d5d838adb75982d7e356f2e2c"
+url = "https://nodejs.org/dist/v26.12.1/node-v26.12.1-win-arm64.zip"
 
 [[tools."npm:npm"]]
 version = "12.2.1"
@@ -120,26 +120,26 @@ backend = "npm:npm"
 specifiers = ["12.2.1"]
 
 [[tools.pixi]]
-version = "0.82.0"
+version = "0.83.0"
 backend = "github:prefix-dev/pixi"
-specifiers = ["0.82.0"]
+specifiers = ["0.83.0"]
 
 [tools.pixi."platforms.linux-arm64"]
-checksum = "sha256:b18dadba196c0c77781533184ec3e7757422c0ae9bed0047ff7ca1c688c0f62b"
-url = "https://github.com/prefix-dev/pixi/releases/download/v0.82.0/pixi-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/640218859"
+checksum = "sha256:d08403d8f048626ec93ba7b7c56e3b747a5f3a95c4e6e0c815ceb264f5f0b9ce"
+url = "https://github.com/prefix-dev/pixi/releases/download/v0.83.0/pixi-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/666387811"
 provenance = "github-attestations"
 
 [tools.pixi."platforms.macos-arm64"]
-checksum = "sha256:3b48bd27de4db31381dc1d5b3d069c98852c0e923aefa30dae0452a088c0810e"
-url = "https://github.com/prefix-dev/pixi/releases/download/v0.82.0/pixi-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/640218702"
+checksum = "sha256:b46066fbaf931284a3f4a61d68e0eb352295f4b3ce4330315a3de3dc5da5736c"
+url = "https://github.com/prefix-dev/pixi/releases/download/v0.83.0/pixi-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/666387691"
 provenance = "github-attestations"
 
 [tools.pixi."platforms.windows-arm64"]
-checksum = "sha256:904a738e10775d2ccba4545347e70192f10a9238f3b8e12c79a0d8cb559db42c"
-url = "https://github.com/prefix-dev/pixi/releases/download/v0.82.0/pixi-aarch64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/640218764"
+checksum = "sha256:9ed3a4f7c1fdd2a36936e6d44b1492bfd47d84a57bfbd9be3ae4f338bd3cc92c"
+url = "https://github.com/prefix-dev/pixi/releases/download/v0.83.0/pixi-aarch64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/666387762"
 provenance = "github-attestations"
 
 [[tools.rust]]

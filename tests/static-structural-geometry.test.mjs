@@ -1,7 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { layoutStaticGraph } from "../packages/publisher/renderers/dagre/layout.mjs";
-import { composeDagreStaticGeometry } from "../packages/publisher/renderers/dagre/static.mjs";
+import { composeStaticGeometry } from "../packages/publisher/src/compiler/static-geometry.mjs";
+
+test("complete entity detail is measured before native grouped or flat geometry", async () => {
+  for (const grouped of [true, false]) {
+    const input = chain();
+    if (!grouped) input.groups = [];
+    input.nodes[2].qualifiers = {
+      operations: ["discover", "converge", "plan", "apply", "inspect", "verify", "withdraw"],
+    };
+    const result = await composeStaticGeometry(input);
+    const peers = [...result.layout.nodes.values()];
+    assert.equal(new Set(peers.map(({ w, h }) => `${w}:${h}`)).size, 1);
+    const detail = result.layout.nodes.get(input.nodes[2].id).textLayout;
+    assert(detail, "complete source detail must enter solver footprints");
+    assert.equal(
+      detail.body.join(""),
+      'operations: ["discover","converge","plan","apply","inspect","verify","withdraw"]',
+    );
+    assert(detail.body.length > 1);
+    for (const operation of input.nodes[2].qualifiers.operations)
+      assert(
+        detail.body.some((line) => line.includes(`"${operation}"`)),
+        "available punctuation breaks must keep complete array tokens",
+      );
+    for (const node of peers)
+      for (const { box } of node.textLayout.baselines) {
+        assert(box.x >= 16 && box.x + box.width <= node.w - 16);
+        assert(box.y >= 12 && box.y + box.height <= node.h - 16);
+      }
+  }
+});
 
 function chain() {
   const ids = ["intent", "coordinate", "admit", "guard", "client"];
@@ -19,7 +49,7 @@ function chain() {
 
 test("source groups follow a compact causal reading path without losing members or relations", async () => {
   const input = chain();
-  const result = await composeDagreStaticGeometry(input);
+  const result = await composeStaticGeometry(input);
 
   assert(result.layout.height < result.layout.width);
   assert.deepEqual(
@@ -31,12 +61,15 @@ test("source groups follow a compact causal reading path without losing members 
     input.relations.map(({ id }) => id),
   );
   assert.equal(result.layout.nodes.size, input.nodes.length);
-  assert.deepEqual(await composeDagreStaticGeometry(input), result);
+  const replay = await composeStaticGeometry(input);
+  assert.deepEqual(replay.layout, result.layout);
+  assert.deepEqual(replay.routes, result.routes);
+  assert.equal(replay.supplySha256, result.supplySha256);
 });
 
 test("flat structural geometry preserves selected members without inventing a group", async () => {
   const input = { ...chain(), groups: [] };
-  const result = await composeDagreStaticGeometry(input);
+  const result = await composeStaticGeometry(input);
 
   assert.equal(result.layout.nodes.size, input.nodes.length);
   assert.deepEqual(result.layout.groups, []);
@@ -63,7 +96,7 @@ test("peer node boxes use one measured size and align on their shared rank", asy
       text: "",
     })),
   };
-  const result = await composeDagreStaticGeometry(input);
+  const result = await composeStaticGeometry(input);
   const boxes = [...result.layout.nodes.values()];
   assert.equal(new Set(boxes.map(({ w }) => w)).size, 1);
   assert.equal(new Set(boxes.map(({ h }) => h)).size, 1);
@@ -73,7 +106,7 @@ test("peer node boxes use one measured size and align on their shared rank", asy
   assert.equal(result.layout.nodes.get("cli").x, result.layout.nodes.get("discovery").x);
 
   const longLabel = "Native discovery across distributed hosts";
-  const widened = await composeDagreStaticGeometry({
+  const widened = await composeStaticGeometry({
     ...input,
     nodes: input.nodes.map((node) =>
       node.id === "discovery" ? { ...node, label: longLabel } : node,
@@ -85,7 +118,7 @@ test("peer node boxes use one measured size and align on their shared rank", asy
   assert(widenedWidths[0] >= [...longLabel].length * 9.76 + 32);
 });
 
-test("branching structural geometry follows a shared row grid instead of half rows", async () => {
+test("branching structural geometry aligns parallel inputs and the causal spine", async () => {
   const ids = [
     "input-a",
     "input-b",
@@ -110,7 +143,7 @@ test("branching structural geometry follows a shared row grid instead of half ro
     ["contract", "guard"],
     ...["sink-a", "sink-b", "sink-c", "sink-d"].map((sink) => ["contract", sink]),
   ];
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: ids.map((id) => ({ id, label: id })),
     groups: [],
     relations: links.map(([from, to], index) => ({
@@ -130,14 +163,14 @@ test("branching structural geometry follows a shared row grid instead of half ro
 test("source labels remain data and cannot create extra graphic members", async () => {
   const input = chain();
   input.nodes[0].label = 'Intent"; forged -> client; //';
-  const result = await composeDagreStaticGeometry(input);
+  const result = await composeStaticGeometry(input);
 
   assert.equal(result.layout.nodes.size, input.nodes.length);
   assert.equal(result.routes.length, input.relations.length);
 });
 
 test("a long editorial group label does not widen its member geometry", async () => {
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: [{ id: "core", label: "Core" }],
     groups: [{ id: "coordination", label: "Desired-state coordination", members: ["core"] }],
     relations: [],
@@ -145,10 +178,21 @@ test("a long editorial group label does not widen its member geometry", async ()
   const group = result.layout.groups[0];
   const node = result.layout.nodes.get("core");
 
-  assert.equal(result.layout.groupPresentation, "key");
+  assert.equal(result.layout.groupPresentation, undefined);
   assert.equal(group.label, "Desired-state coordination");
   assert.equal(group.caption, undefined);
-  assert(group.w <= node.w + 40);
+  const heading = group.heading.baselines[0].box;
+  assert(heading.x >= group.x && heading.x + heading.width <= group.x + group.w);
+  assert.equal(
+    node.w,
+    (
+      await composeStaticGeometry({
+        nodes: [{ id: "core", label: "Core" }],
+        groups: [{ id: "core-group", label: "Core", members: ["core"] }],
+        relations: [],
+      })
+    ).layout.nodes.get("core").w,
+  );
 });
 
 test("a fan-out stays compact when source groups cross graph ranks", async () => {
@@ -180,7 +224,7 @@ test("a fan-out stays compact when source groups cross graph ranks", async () =>
     ["contract", "guard"],
     ...ids.slice(7).map((id) => ["contract", id]),
   ];
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: ids.map((id) => ({ id, label: id })),
     groups,
     relations: links.map(([from, to], index) => ({ id: `r${index}`, from, to, text: "" })),
@@ -201,7 +245,7 @@ test("a fan-out stays compact when source groups cross graph ranks", async () =>
 });
 
 test("a converging relation caption never sits on either visible route", async () => {
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: ["object", "asset", "forge"].map((id) => ({ id, label: id })),
     groups: [
       { id: "distribution", label: "Distribution", members: ["object", "asset"] },
@@ -254,7 +298,7 @@ test("a delivery fork keeps every caption clear of the converging asset route", 
     ["asset-installation", "release-asset", "installed-product", "installs as"],
     ["installation-recovery", "installed-product", "recovery", "recovers via"],
   ];
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: ids.map((id, index) => ({ id, label: labels[index] })),
     groups: [
       { id: "distribution", label: "Distribution", members: ids.slice(0, 3) },
@@ -295,7 +339,7 @@ test("a delivery fork keeps every caption clear of the converging asset route", 
   }
 });
 
-test("a wide fan-out keeps exact editorial memberships even when geometry interleaves them", async () => {
+test("a wide fan-out isolates exact editorial memberships during native solving", async () => {
   const ids = [
     "cli",
     "configuration",
@@ -334,7 +378,7 @@ test("a wide fan-out keeps exact editorial memberships even when geometry interl
     ["contract", "transaction", "guards"],
     ...ids.slice(8).map((id) => ["contract", id, "realized by"]),
   ];
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: ids.map((id, index) => ({ id, label: labels[index] })),
     groups: [
       { id: "intent", label: "Operator intent and host state", members: ids.slice(0, 3) },
@@ -349,13 +393,25 @@ test("a wide fan-out keeps exact editorial memberships even when geometry interl
     ],
     relations: links.map(([from, to, text], index) => ({ id: `r${index}`, from, to, text })),
   });
-  assert.equal(result.layout.groupPresentation, "key");
+  assert.equal(result.layout.groupPresentation, undefined);
   assert.deepEqual(result.layout.groups.find(({ id }) => id === "safety").members, [
     "contract",
     "transaction",
   ]);
   assert.deepEqual(result.layout.groups.find(({ id }) => id === "clients").members, ids.slice(8));
   assert(result.layout.groups.every((group) => group.caption === undefined));
+  for (const group of result.layout.groups) {
+    for (const [id, node] of result.layout.nodes) {
+      if (group.members.includes(id)) continue;
+      assert(
+        node.x >= group.x + group.w ||
+          node.x + node.w <= group.x ||
+          node.y >= group.y + group.h ||
+          node.y + node.h <= group.y,
+        `${group.id} visually contains nonmember ${id}`,
+      );
+    }
+  }
 });
 
 test("grouped geometry rejects malformed source membership before requesting coordinates", async () => {
@@ -372,21 +428,23 @@ test("grouped geometry rejects malformed source membership before requesting coo
     { ...input, relations: [{ ...input.relations[0], to: "missing" }] },
   ];
   for (const item of invalid)
-    await assert.rejects(composeDagreStaticGeometry(item), {
-      code: "static_dagre_input_invalid",
+    await assert.rejects(composeStaticGeometry(item), {
+      code: "static_structural_input_invalid",
     });
 });
 
-test("a long editorial group label remains data for a separately measured key", async () => {
+test("a long editorial group label retains complete ink inside its native container", async () => {
   const label = "Heading ".repeat(8).trim();
-  const result = await composeDagreStaticGeometry({
+  const result = await composeStaticGeometry({
     nodes: [{ id: "core", label: "Core" }],
     groups: [{ id: "core-group", label, members: ["core"] }],
     relations: [],
   });
 
   assert.equal(result.layout.groups[0].label, label);
-  assert(result.layout.groups[0].w < [...label].length * 14 * 0.61);
+  const group = result.layout.groups[0];
+  assert.equal(group.heading.lines.join(""), label);
+  assert(group.heading.baselines.every(({ box }) => box.x + box.width <= group.x + group.w));
 });
 
 test("the selected Dagre adapter refuses invalid flat nodes and relations", async () => {
@@ -464,12 +522,15 @@ test("diagonal relation captions clear their own and adjacent strokes", async ()
       },
     ],
   };
-  const result = await composeDagreStaticGeometry(input);
+  const result = await composeStaticGeometry(input);
   assert.equal(result.layout.nodes.size, input.nodes.length);
   assert.deepEqual(
     result.routes.map(({ id, from, to, text }) => ({ id, from, to, text })),
     input.relations,
   );
   assert(result.routes.every(({ label, labelBox }) => label && labelBox));
-  assert.deepEqual(await composeDagreStaticGeometry(input), result);
+  const replay = await composeStaticGeometry(input);
+  assert.deepEqual(replay.layout, result.layout);
+  assert.deepEqual(replay.routes, result.routes);
+  assert.equal(replay.supplySha256, result.supplySha256);
 });

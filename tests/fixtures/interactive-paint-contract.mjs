@@ -82,9 +82,9 @@ export async function assertGraphicPaint(browser, layers, expected) {
         "missing painted glyph",
       );
     }
-    await mask(
-      'text,.legend,[data-semantic-sigil],pattern,[data-graph-role="automatic-crossover-underlay"],[data-intrinsic-label-ink],.c-mask,[data-logical-relation],[data-relationship-hit-overlay]{visibility:hidden!important}svg>rect:not([data-group-id]){visibility:hidden!important}rect{fill:none!important}',
-    );
+    const markMask =
+      'text,.legend,[data-semantic-sigil],pattern,[data-graph-role="automatic-crossover-underlay"],[data-intrinsic-label-ink],.c-mask,[data-logical-relation],[data-relationship-hit-overlay]{visibility:hidden!important}svg>rect:not([data-group-id]){visibility:hidden!important}rect{fill:none!important}';
+    await mask(markMask);
     const markLayer = await layers.screenshot({ omitBackground: true });
     const pointBox = (id, x, y) => ({ id, x: x - 0.5, y: y - 0.5, width: 1, height: 1 });
     for (const frame of [...expected.nodes, ...expected.groups]) {
@@ -97,6 +97,12 @@ export async function assertGraphicPaint(browser, layers, expected) {
         "missing painted frame",
       );
     }
+    // A marker can cover a short segment's midpoint. Isolate strokes so that
+    // visible arrow paint neither conceals nor substitutes for a route witness.
+    await mask(
+      `${markMask}path[data-composition-points]{marker-start:none!important;marker-end:none!important}`,
+    );
+    const strokeLayer = await layers.screenshot({ omitBackground: true });
     for (const relation of expected.relations) {
       const segments = relation.points
         .slice(1)
@@ -108,13 +114,16 @@ export async function assertGraphicPaint(browser, layers, expected) {
       const { start, end, length } = segments[0];
       assert(length > 0);
       await witness(
-        markLayer,
+        strokeLayer,
         relation.selector,
         "stroke",
         "none",
         [pointBox(relation.id, (start.x + end.x) / 2, (start.y + end.y) / 2)],
         "missing painted route",
       );
+    }
+    await mask(markMask);
+    for (const relation of expected.relations) {
       for (const marker of relation.markers) {
         const tip =
           marker.property === "marker-start" ? relation.points[0] : relation.points.at(-1);

@@ -22,6 +22,7 @@ async function inputWithRefinement(t, change = (value) => value, media = ["stati
     lock: selected.lock,
     readSource: selected.readSource,
     view: { namespace: "fixture/views", id: "overview" },
+    nodeSize: { width: 160, height: 80 },
   });
   const refinement = change({
     schema: "architecture.scene-refinement/v1",

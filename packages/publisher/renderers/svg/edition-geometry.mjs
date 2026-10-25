@@ -84,6 +84,59 @@ function headingOverlapsCaption(heading, caption) {
   );
 }
 
+/** Native heading positions are consumed, never replanned after compound layout. */
+export function checkedGroupHeading(group, nodes, edges, measure) {
+  const heading = group.heading;
+  if (
+    !heading ||
+    heading.fontSize !== 14 ||
+    heading.weight !== "600" ||
+    heading.lines?.join("") !== group.label ||
+    !Array.isArray(heading.baselines) ||
+    heading.baselines.length !== heading.lines.length
+  )
+    fail("static_edition_group_heading_collision");
+  for (const [index, line] of heading.baselines.entries()) {
+    if (line.text !== heading.lines[index] || ![line.x, line.baseline].every(Number.isFinite))
+      fail("static_edition_group_heading_collision");
+    const box = measure
+      ? measure.box({
+          text: line.text,
+          fontSize: 14,
+          weight: "600",
+          anchor: "start",
+          x: line.x,
+          baseline: line.baseline,
+        })
+      : line.box;
+    if (
+      !box ||
+      ![box.x, box.y, box.width, box.height].every(Number.isFinite) ||
+      box.x < group.x + 8 ||
+      box.y < group.y + 8 ||
+      box.x + box.width > group.x + group.width - 8 ||
+      box.y + box.height > group.y + group.height - 8 ||
+      nodes.some((node) =>
+        headingOverlapsCaption(box, { x: node.x, y: node.y, w: node.width, h: node.height }),
+      ) ||
+      edges.some(
+        ({ points, caption }) =>
+          points.slice(1).some((point, at) =>
+            segmentHitsBox(points[at], point, {
+              x: box.x - 5,
+              y: box.y - 5,
+              width: box.width + 10,
+              height: box.height + 10,
+            }),
+          ) ||
+          (caption && headingOverlapsCaption(box, caption.box)),
+      )
+    )
+      fail("static_edition_group_heading_collision");
+  }
+  return heading.baselines;
+}
+
 export function groupHeadingX(group, lines, edges) {
   const textWidth = Math.max(...lines.map((line) => advance(line, 14))) + 12;
   const left = group.x + 26;

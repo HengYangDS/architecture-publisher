@@ -139,7 +139,7 @@ import { compileEditionMeaning } from 'architecture-publisher/compiler';
 import { importLikeC4Layout } from 'architecture-publisher/semantics';
 import { composeInteractiveEditionScene, composeStaticEditionScene } from 'architecture-publisher/scene';
 import { composeStaticSelectionLayout } from './node_modules/architecture-publisher/src/scene/static/selection.mjs';
-import { composeDagreStaticGeometry } from './node_modules/architecture-publisher/renderers/dagre/static.mjs';
+import { composeStaticGeometry } from './node_modules/architecture-publisher/src/compiler/static-geometry.mjs';
 import { composeStaticEditionSvg, loadFigureIconSupply } from 'architecture-publisher/renderers/svg';
 const file = fileURLToPath(new URL('./inputs/build-request.json', import.meta.url));
 try {
@@ -152,7 +152,7 @@ try {
     readSource: selected.readSource,
     view: { namespace: 'example/views', id: 'overview' },
   });
-  const selectedLayout = await composeStaticSelectionLayout(meaning, composeDagreStaticGeometry);
+  const selectedLayout = await composeStaticSelectionLayout(meaning, composeStaticGeometry);
   const staticScene = composeStaticEditionScene(meaning, selectedLayout);
   let unrelatedLayoutRefusal = null;
   try {
@@ -237,7 +237,7 @@ try {
   assert.deepEqual(first.scene.relations, []);
   assert(first.scene.bounds.height > 0);
   assert.equal(first.svg.rasterWidth, 6000);
-  assert(first.svg.width >= 880);
+  assert(first.svg.width > first.scene.bounds.width, "the complete frame retains the source width");
   assert(first.svg.height > 0);
   assert.match(first.svg.sha256, /^[0-9a-f]{64}$/u);
   assert.equal(first.interactiveScene.completeness, "unqualified-scene");

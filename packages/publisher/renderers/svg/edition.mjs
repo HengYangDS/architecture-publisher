@@ -19,16 +19,19 @@ import { maximumExtent, boundsOf } from "./edition-geometry.mjs";
 import { number, textLines, namedSection } from "./edition-text.mjs";
 import { paintClaimContext, paintClaimStatements, staticBodyGeometry } from "./edition-claims.mjs";
 import { composeStaticEditionStructure } from "./edition-structure.mjs";
+import { selectMeasuredComposition } from "./composition.mjs";
 
-/** Paint an unqualified, source-bound static Scene without acquiring meaning. */
-export function composeStaticEditionSvg(scene, options = {}) {
+function paintStaticEditionSvg(scene, options, notesWidth) {
   const idPrefix = options.idPrefix ?? "";
   const fragment = options.fragment === true;
   if (
-    Object.keys(options).some((key) => !["idPrefix", "fragment", "icons"].includes(key)) ||
+    Object.keys(options).some(
+      (key) => !["idPrefix", "fragment", "icons", "textMeasurer", "raster"].includes(key),
+    ) ||
     typeof idPrefix !== "string" ||
     !/^[a-z0-9-]*$/u.test(idPrefix) ||
-    (options.fragment !== undefined && typeof options.fragment !== "boolean")
+    (options.fragment !== undefined && typeof options.fragment !== "boolean") ||
+    (options.raster !== undefined && typeof options.raster !== "boolean")
   )
     fail("static_edition_render_options_invalid");
   const mixed = validateStaticScene(scene);
@@ -44,21 +47,23 @@ export function composeStaticEditionSvg(scene, options = {}) {
     scene.groupPresentation === "key" ? boundsOf({ ...scene, groups: [] }) : sourceBounds;
   const claimCards = scene.claimCards ?? [];
   const { common, commonLabels } = factorClaimFacts(claimCards);
-  const { columns: claimColumns, width: graphWidth } = staticBodyGeometry(bounds, claimCards);
-  const notesWidth = 400;
+  const { width: graphWidth } = staticBodyGeometry(bounds, claimCards);
   const figureTypes = composeFigureTypeLegend(scene.nodes, options.icons, notesWidth);
   const iconLicense = figureIconLicenseMetadata(figureTypes && options.icons);
   const gap = 54;
-  const notesX = 60 + graphWidth + gap;
-  const width = notesX + notesWidth + 60;
+  const margin = 32;
+  const hasSourceBody = bounds !== null || claimCards.length > 0;
+  const notesX = hasSourceBody ? margin + graphWidth + gap : margin;
+  const width = notesX + notesWidth + margin;
   if (width > maximumExtent) fail("static_edition_geometry_invalid");
   const header = [];
   const framing = editorialFraming(scene.edition.editor);
-  let y = 76;
-  y = textLines(header, scene.title, 60, y, width - 120, 34, "#21332a", 600, 3) + 8;
+  let y = margin + 34;
+  y = textLines(header, scene.title, margin, y, width - 2 * margin, 34, "#21332a", 600, 3);
   if (scene.summary !== undefined)
-    y = textLines(header, scene.summary, 60, y, width - 120, 15, "#53645a", 400, 6) + 9;
-  y = textLines(header, framing, 60, y, width - 120, 12, "#66736b", 400, 6) + 25;
+    y = textLines(header, scene.summary, margin, y, width - 2 * margin, 15, "#53645a", 400, 6) + 9;
+  const primaryReadingSpan = y;
+  y = textLines(header, framing, margin, y, width - 2 * margin, 12, "#66736b", 400, 6) + 25;
   const graphTop = y;
   const { graph, labels, nodeCarriers, relationCarriers } = composeStaticEditionStructure(
     scene,
@@ -153,7 +158,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
       .map(({ reason }) => ({ text: reason }));
     y = namedSection(notes, "DECLARED LIMITS", scopeLimits, notesX, y, notesWidth);
   }
-  const structureHeight = Math.max(300, (bounds?.height ?? 0) + 120);
+  const structureHeight = (bounds?.height ?? 0) + 74;
   const notesHeight = y - graphTop + 32;
   const paintClaims = (placement, receivingWidth) => {
     const claimSectionY =
@@ -164,16 +169,20 @@ export function composeStaticEditionSvg(scene, options = {}) {
         : 0;
     const claimPlate = [];
     const claimCarriers = [];
-    const claimX = receivingWidth === undefined ? (mixed ? 60 : 74) : 0;
+    const claimX = receivingWidth === undefined ? margin + (mixed ? 0 : 14) : 0;
     const claimWidth =
-      receivingWidth ?? (mixed && placement === "footer" ? width - 120 : graphWidth - 32);
+      receivingWidth ?? (mixed && placement === "footer" ? width - 2 * margin : graphWidth - 32);
     let claimY = receivingWidth !== undefined || mixed ? claimSectionY : graphTop + 66;
-    let denseSingleColumnCards = 0;
-    if (mixed && !fragment)
+    let readingSpan = 0;
+    if (mixed && !fragment) {
+      const start = claimY;
       claimY =
         textLines(claimPlate, "SOURCE CLAIMS", claimX, claimY, claimWidth, 11, "#66736b", 600, 1) +
         18;
+      readingSpan += claimY - start - 18;
+    }
     if (common.length) {
+      const start = claimY;
       claimY =
         textLines(
           claimPlate,
@@ -186,18 +195,23 @@ export function composeStaticEditionSvg(scene, options = {}) {
           600,
           2,
         ) + 8;
-      claimY = paintClaimContext(claimPlate, common, {
+      readingSpan += claimY - start - 8;
+      const context = paintClaimContext(claimPlate, common, {
         x: claimX,
         y: claimY,
         width: claimWidth,
         columns:
           receivingWidth === undefined ? 1 : Math.max(1, Math.floor((claimWidth + 24) / 504)),
       });
+      claimY = context.y;
+      readingSpan += context.readingSpan;
       claimPlate.push(
         `<line x1="${claimX}" y1="${number(claimY + 5)}" x2="${number(claimX + claimWidth)}" y2="${number(claimY + 5)}" stroke="#aebbb0" stroke-width="1"/>`,
       );
       claimY += 27;
     }
+    let orderedClaims = claimCards;
+    let headingFor;
     if (mixed) {
       const relationPositions = new Map(
         scene.edges
@@ -217,95 +231,29 @@ export function composeStaticEditionSvg(scene, options = {}) {
         if (position === undefined) fail("static_edition_claim_relation_invalid");
         return position;
       };
-      const orderedClaims = [...claimCards].sort(
-        (left, right) => positionFor(left) - positionFor(right),
-      );
-      const columns = Math.min(
-        claimCards.length,
-        Math.max(1, Math.floor((claimWidth + 24) / (480 + 24))),
-      );
-      const cardWidth = columns === 1 ? claimWidth : (claimWidth - (columns - 1) * 24) / columns;
-      for (let row = 0; row < claimCards.length; row += columns) {
-        let rowBottom = claimY;
-        const measuredCards = [];
-        for (let column = 0; column < columns && row + column < claimCards.length; column += 1) {
-          const claim = orderedClaims[row + column];
-          const graphicId = `${idPrefix}c-${row + column}`;
-          const relationPosition = positionFor(claim);
-          const x = claimX + column * (cardWidth + 24);
-          const content = [];
-          let cardY = claimY + 32;
-          cardY =
-            textLines(
-              content,
-              claimLinks.subjects.has(
-                sourceReferenceKey({
-                  namespace: claim.namespace,
-                  reference: claim.id,
-                  sha256: claim.sha256,
-                }),
-              )
-                ? "ON SOURCE ENTITY"
-                : `ON SOURCE RELATION ${String(relationPosition + 1).padStart(2, "0")}`,
-              x + 16,
-              cardY,
-              cardWidth - 32,
-              11,
-              "#66736b",
-              600,
-              2,
-            ) + 13;
-          const facts = claim.facts.filter(({ label }) => !commonLabels.has(label));
-          const twoColumn = cardWidth >= 900 && facts.length >= 6;
-          if (facts.length >= 6 && !twoColumn) denseSingleColumnCards += 1;
-          const columnWidth = twoColumn ? (cardWidth - 60) / 2 : cardWidth - 32;
-          const columnY = [cardY, cardY];
-          const split = Math.ceil(facts.length / 2);
-          for (const [index, fact] of facts.entries()) {
-            const column = twoColumn && index >= split ? 1 : 0;
-            columnY[column] =
-              textLines(
-                content,
-                `${fact.label}: ${fact.value}`,
-                x + 16 + column * (columnWidth + 28),
-                columnY[column],
-                columnWidth,
-                14,
-                "#27352e",
-                400,
-                8,
-              ) + 5;
-          }
-          cardY = Math.max(...columnY);
-          const bottom = cardY + 16;
-          measuredCards.push({ graphicId, x, content });
-          claimCarriers.push({
-            graphicId,
-            source: { namespace: claim.namespace, reference: claim.id, sha256: claim.sha256 },
-          });
-          rowBottom = Math.max(rowBottom, bottom);
-        }
-        for (const { graphicId, x, content } of measuredCards)
-          claimPlate.push(
-            `<g data-graphic-id="${graphicId}">`,
-            `<rect x="${number(x)}" y="${number(claimY)}" width="${number(cardWidth)}" height="${number(rowBottom - claimY)}" rx="12" fill="#fffefa" stroke="#c4ccc2" stroke-width="1"/>`,
-            ...content,
-            "</g>",
-          );
-        claimY = rowBottom + 24;
-      }
-    } else {
-      const statements = paintClaimStatements(claimCards, commonLabels, {
-        idPrefix,
-        x: claimX,
-        y: claimY,
-        width: claimWidth,
-        columns: claimColumns,
-      });
-      claimPlate.push(...statements.plate);
-      claimCarriers.push(...statements.carriers);
-      claimY = statements.y;
+      orderedClaims = [...claimCards].sort((left, right) => positionFor(left) - positionFor(right));
+      headingFor = (claim) =>
+        claimLinks.subjects.has(
+          sourceReferenceKey({
+            namespace: claim.namespace,
+            reference: claim.id,
+            sha256: claim.sha256,
+          }),
+        )
+          ? "ON SOURCE ENTITY"
+          : `ON SOURCE RELATION ${String(positionFor(claim) + 1).padStart(2, "0")}`;
     }
+    const statements = paintClaimStatements(orderedClaims, commonLabels, {
+      idPrefix,
+      x: claimX,
+      y: claimY,
+      width: claimWidth,
+      headingFor,
+    });
+    claimPlate.push(...statements.plate);
+    claimCarriers.push(...statements.carriers);
+    claimY = statements.y;
+    readingSpan += statements.readingSpan;
     return {
       claimSectionY,
       claimPlate,
@@ -313,7 +261,8 @@ export function composeStaticEditionSvg(scene, options = {}) {
       claimY,
       claimX,
       claimWidth,
-      denseSingleColumnCards,
+      readingSpan,
+      placement,
     };
   };
   const heightFor = ({ claimCarriers, claimY }) =>
@@ -327,25 +276,24 @@ export function composeStaticEditionSvg(scene, options = {}) {
     }
   };
   const footer = attemptClaims("footer");
-  const side = mixed ? attemptClaims("side") : null;
+  const side = mixed && !fragment ? attemptClaims("side") : null;
   if (!footer && !side) fail("static_edition_text_unrepresentable");
-  const useSide =
-    !fragment &&
-    side &&
-    (!footer ||
-      (side.denseSingleColumnCards <= footer.denseSingleColumnCards &&
-        heightFor(side) < heightFor(footer)));
-  const chosen = useSide ? side : footer;
-  if (!chosen) fail("static_edition_text_unrepresentable");
+  const chosen = selectMeasuredComposition(
+    [footer, side].filter(Boolean),
+    (candidate) => ({ ...candidate, width, height: heightFor(candidate) }),
+    ["static_edition_text_unrepresentable"],
+    { raster: false, extent: ({ height }) => height },
+  );
+  const useSide = chosen.placement === "side";
   const { claimSectionY, claimPlate, claimCarriers } = chosen;
   const contentHeight = heightFor(chosen);
-  const translateX = bounds ? 60 + (graphWidth - bounds.width) / 2 - bounds.x : 0;
+  const translateX = bounds ? margin + (graphWidth - bounds.width) / 2 - bounds.x : 0;
   const translateY = bounds
     ? mixed
       ? graphTop + 42 - bounds.y
       : graphTop + 42 + (contentHeight - 42 - bounds.height) / 2 - bounds.y
     : 0;
-  const height = Math.ceil(graphTop + contentHeight + 48);
+  const height = Math.ceil(graphTop + contentHeight + margin);
   if (height > maximumExtent) fail("static_edition_geometry_invalid");
   const nodeGraphicIds = new Map(
     nodeCarriers.map(({ source, graphicId }) => [key(source), graphicId]),
@@ -358,16 +306,24 @@ export function composeStaticEditionSvg(scene, options = {}) {
   );
   const bodyPrelude = [
     `<defs><marker id="${idPrefix}source-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto-start-reverse"><path d="M 0 0 L 10 4 L 0 8 Z" fill="#60786a"/></marker></defs>`,
-    `<line x1="60" y1="${number(graphTop - 18)}" x2="${width - 60}" y2="${number(graphTop - 18)}" stroke="#c4ccc2" stroke-width="1"/>`,
-    `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(mixed && !useSide ? graphTop + Math.max(structureHeight, notesHeight) - 18 : height - 48)}" stroke="#d3dbd1" stroke-width="1"/>`,
+    `<line x1="${margin}" y1="${number(graphTop - 18)}" x2="${width - margin}" y2="${number(graphTop - 18)}" stroke="#c4ccc2" stroke-width="1"/>`,
+    ...(hasSourceBody
+      ? [
+          `<line x1="${number(notesX - gap / 2)}" y1="${number(graphTop)}" x2="${number(notesX - gap / 2)}" y2="${number(mixed && !useSide ? graphTop + Math.max(structureHeight, notesHeight) - 18 : height - margin)}" stroke="#d3dbd1" stroke-width="1"/>`,
+        ]
+      : []),
     ...(mixed
       ? [
-          `<line x1="60" y1="${number(claimSectionY - 24)}" x2="${number(useSide ? 60 + graphWidth - 32 : width - 60)}" y2="${number(claimSectionY - 24)}" stroke="#c4ccc2" stroke-width="1"/>`,
+          `<line x1="${margin}" y1="${number(claimSectionY - 24)}" x2="${number(useSide ? margin + graphWidth - 32 : width - margin)}" y2="${number(claimSectionY - 24)}" stroke="#c4ccc2" stroke-width="1"/>`,
         ]
       : []),
   ];
   const bodyContent = [
-    `<text x="60" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">${claimCarriers.length && !mixed ? "SOURCE CLAIMS" : "SOURCE STRUCTURE"}</text>`,
+    ...(hasSourceBody
+      ? [
+          `<text x="${margin}" y="${number(graphTop + 28)}" fill="#66736b" font-size="11" font-weight="600">${claimCarriers.length && !mixed ? "SOURCE CLAIMS" : "SOURCE STRUCTURE"}</text>`,
+        ]
+      : []),
     `<g transform="translate(${number(translateX)} ${number(translateY)})">`,
     ...graph,
     "</g>",
@@ -412,6 +368,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
                 y: mixed ? chosen.claimSectionY : graphTop + 66,
                 width: chosen.claimWidth,
                 height: chosen.claimY - (mixed ? chosen.claimSectionY : graphTop + 66),
+                readingSpan: chosen.readingSpan,
                 reflow: (receivingWidth) => {
                   if (!Number.isFinite(receivingWidth) || receivingWidth < 320)
                     fail("static_figure_claim_unrepresentable");
@@ -422,6 +379,7 @@ export function composeStaticEditionSvg(scene, options = {}) {
                     y: result.claimSectionY,
                     width: result.claimWidth,
                     height: result.claimY - result.claimSectionY,
+                    readingSpan: result.readingSpan,
                   };
                 },
               }
@@ -449,5 +407,36 @@ export function composeStaticEditionSvg(scene, options = {}) {
     height,
     rasterWidth,
     carriers,
+    readingSpan: primaryReadingSpan + chosen.readingSpan,
+    reflowHeights: [notesHeight, chosen.claimY - chosen.claimSectionY],
+  };
+}
+
+/** Allocate the complete reading at its receiving width without altering source geometry. */
+export function composeStaticEditionSvg(scene, options = {}) {
+  if (options.fragment === true) return paintStaticEditionSvg(scene, options, 400);
+  const refusalCodes = ["static_edition_text_unrepresentable", "static_edition_geometry_invalid"];
+  const candidates = [];
+  let refusal;
+  for (let width = 192; width <= 576; width += 16) {
+    try {
+      candidates.push(paintStaticEditionSvg(scene, options, width));
+    } catch (cause) {
+      if (!refusalCodes.includes(cause?.code)) throw cause;
+      refusal ??= cause;
+    }
+  }
+  if (!candidates.length) throw refusal;
+  const result = selectMeasuredComposition(candidates, (candidate) => candidate, refusalCodes, {
+    raster: options.raster === true,
+    // A source-owned direction has no imposed desktop aspect to fill with padding.
+    extent: ({ width, height }) => width * height,
+  });
+  return {
+    bytes: result.bytes,
+    width: result.width,
+    height: result.height,
+    rasterWidth: result.rasterWidth,
+    carriers: result.carriers,
   };
 }

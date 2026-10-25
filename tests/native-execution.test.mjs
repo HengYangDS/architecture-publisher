@@ -13,6 +13,7 @@ import {
   validateNativeIndexReply,
 } from "../packages/publisher/src/semantics/native-execution.mjs";
 import { readLikeC4ParserSupply } from "../packages/publisher/src/semantics/supply.mjs";
+import { LIMITS } from "../packages/publisher/src/file-input/contract.mjs";
 
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const sourceBytes = [
@@ -111,6 +112,29 @@ test("native Worker withholds an index on timeout, output overflow, or unproved 
   );
 });
 
+test("native execution withholds a reply contaminated by parser startup output", async () => {
+  const supply = await readLikeC4ParserSupply();
+  for (const [startup, code] of [
+    ["process.stdout.write('not JSON\\n')", "native_likec4_response_invalid"],
+    ["process.stdout.write('{}\\n')", "native_likec4_response_invalid"],
+    [
+      'process.stdout.write(\'{"status":"error","code":"foreign"}\\n\')',
+      "native_likec4_response_invalid",
+    ],
+    ["process.stderr.write('unexpected diagnostic\\n')", "native_likec4_stderr_invalid"],
+    ["process.exit(0)", "native_likec4_response_invalid"],
+  ]) {
+    const parserBytes = Buffer.from(
+      `${startup}; export async function fromSources() { return null; }`,
+    );
+    await assert.rejects(
+      executeLikeC4Native(selected(), { ...supply, parserBytes, parserSha256: sha(parserBytes) }),
+      { code },
+      startup,
+    );
+  }
+});
+
 test("native parent rejects a reply with changed selected identity or malformed index", () => {
   const selectedSources = selected().map(({ source }) => source);
   assert.throws(
@@ -177,24 +201,9 @@ test("native projection reply rejects dangling, cyclic and misbound mappings", a
   delete valid.parserSupply;
   assert.equal(valid.schema, "architecture.native-index/v2");
   const cases = [
-    [
-      "legacy shape",
-      (value) => {
-        value.schema = "architecture.native-index/v1";
-      },
-    ],
-    [
-      "unselected binding",
-      (value) => {
-        value.views[0].nodes[0].element.id = "missing";
-      },
-    ],
-    [
-      "dangling parent",
-      (value) => {
-        value.views[0].nodes[0].parent = "missing";
-      },
-    ],
+    ["legacy shape", (value) => (value.schema = "architecture.native-index/v1")],
+    ["unselected binding", (value) => (value.views[0].nodes[0].element.id = "missing")],
+    ["dangling parent", (value) => (value.views[0].nodes[0].parent = "missing")],
     [
       "occurrence cycle",
       (value) => {
@@ -217,46 +226,18 @@ test("native projection reply rejects dangling, cyclic and misbound mappings", a
     ],
     [
       "unselected source parent",
-      (value) => {
-        value.elements[0].parent = { namespace: value.elements[0].namespace, id: "missing" };
-      },
+      (value) =>
+        (value.elements[0].parent = { namespace: value.elements[0].namespace, id: "missing" }),
     ],
-    [
-      "dangling endpoint",
-      (value) => {
-        value.views[0].edges[0].from = "missing";
-      },
-    ],
-    [
-      "empty contributor list",
-      (value) => {
-        value.views[0].edges[0].relations = [];
-      },
-    ],
+    ["dangling endpoint", (value) => (value.views[0].edges[0].from = "missing")],
+    ["empty contributor list", (value) => (value.views[0].edges[0].relations = [])],
     [
       "duplicate contributor",
-      (value) => {
-        value.views[0].edges[0].relations.push(value.views[0].edges[0].relations[0]);
-      },
+      (value) => value.views[0].edges[0].relations.push(value.views[0].edges[0].relations[0]),
     ],
-    [
-      "unselected contributor",
-      (value) => {
-        value.views[0].edges[0].relations[0] = "missing";
-      },
-    ],
-    [
-      "misbound direction",
-      (value) => {
-        value.views[0].edges[0].from = value.views[0].edges[0].to;
-      },
-    ],
-    [
-      "invalid view wording",
-      (value) => {
-        value.views[0].edges[0].label = 1;
-      },
-    ],
+    ["unselected contributor", (value) => (value.views[0].edges[0].relations[0] = "missing")],
+    ["misbound direction", (value) => (value.views[0].edges[0].from = value.views[0].edges[0].to)],
+    ["invalid view wording", (value) => (value.views[0].edges[0].label = 1)],
   ];
   for (const [name, mutate] of cases) {
     const changed = structuredClone(valid);
@@ -358,6 +339,50 @@ test("native execution refuses malformed supply, selection, limits, and layout i
   });
 });
 
+test("native execution refuses oversized selected bytes before invoking the parser", async () => {
+  const supply = await readLikeC4ParserSupply();
+  const input = selected()[0];
+  const content = Buffer.alloc(LIMITS.memberBytes + 1, 32);
+  const oversized = { source: { ...input.source, sha256: sha(content) }, content };
+  await assert.rejects(executeLikeC4Native([oversized], supply), {
+    code: "native_likec4_size_exceeded",
+  });
+  assert.equal(content.length, LIMITS.memberBytes + 1);
+  assert.equal(content[0], 32);
+});
+
+test("native execution refuses nonpositive and excessive execution limits", async () => {
+  const supply = await readLikeC4ParserSupply();
+  const sources = selected();
+  const before = sources.map(({ source, content }) => ({
+    source: structuredClone(source),
+    content: Buffer.from(content),
+  }));
+  for (const options of [
+    { timeoutMs: 0 },
+    { timeoutMs: 60_001 },
+    { timeoutMs: 0.5 },
+    { replyBytes: 0 },
+    { replyBytes: 0.5 },
+  ])
+    await assert.rejects(executeLikeC4Native(sources, supply, options), {
+      code: "native_likec4_execution_limit_invalid",
+    });
+  assert.deepEqual(sources, before);
+});
+
+test("native layout bounds selected reference bytes without truncating their identity", async () => {
+  const supply = await readLikeC4ParserSupply();
+  const sources = selected();
+  for (const view of [
+    { namespace: "界".repeat(683), id: "overview" },
+    { namespace: "example/views", id: "界".repeat(683) },
+  ])
+    await assert.rejects(executeLikeC4Layout(sources, supply, view), {
+      code: "native_likec4_reference_invalid",
+    });
+});
+
 test("native Worker expires after replying when its supervisor is absent", async (t) => {
   const scratch = await fs.mkdtemp(
     path.join(await fs.realpath(os.tmpdir()), "archpub-native-orphan-"),
@@ -374,26 +399,42 @@ test("native Worker expires after replying when its supervisor is absent", async
     ...(process.env.NODE_V8_COVERAGE ? { NODE_V8_COVERAGE: process.env.NODE_V8_COVERAGE } : {}),
     ...(process.env.SystemRoot ? { SystemRoot: process.env.SystemRoot } : {}),
   };
-  const child = spawnSync(process.execPath, [worker, "3000"], {
-    cwd: scratch,
-    env: environment,
-    input: JSON.stringify({
-      schema: "architecture.native-parser-request/v1",
-      selected: selected().map(({ source, content }) => ({
-        source,
-        contentBase64: content.toString("base64"),
-      })),
-    }),
-    encoding: "utf8",
-    timeout: 10_000,
-    maxBuffer: 1024 * 1024,
-  });
-  assert.equal(child.status, 1, child.stderr);
-  assert.equal(child.signal, null);
-  assert.equal(child.stderr, "");
-  const reply = JSON.parse(child.stdout.trim());
-  assert.equal(reply.status, "ok");
-  assert.equal(reply.index.elements.length, 2);
+  for (const view of [null, { namespace: "example/views", id: "overview" }]) {
+    const child = spawnSync(process.execPath, [worker, "3000"], {
+      cwd: scratch,
+      env: environment,
+      input: JSON.stringify({
+        schema: view
+          ? "architecture.native-layout-request/v1"
+          : "architecture.native-parser-request/v1",
+        selected: selected().map(({ source, content }) => ({
+          source,
+          contentBase64: content.toString("base64"),
+        })),
+        ...(view ? { view, nodeSize: { width: 128, height: 72 } } : {}),
+      }),
+      encoding: "utf8",
+      timeout: 10_000,
+      maxBuffer: 1024 * 1024,
+    });
+    assert.equal(child.status, 1, child.stderr);
+    assert.equal(child.signal, null);
+    assert.equal(child.stderr, "");
+    const reply = JSON.parse(child.stdout.trim());
+    assert.equal(reply.status, "ok");
+    assert.equal(reply.index.elements.length, 2);
+    if (view) {
+      assert.equal(reply.layout.closure, "upstream-layout-unqualified");
+      assert.deepEqual(
+        reply.layout.nodes.map(({ width, height }) => ({ width, height })),
+        [
+          { width: 128, height: 72 },
+          { width: 128, height: 72 },
+        ],
+      );
+      assert.equal(reply.layout.edges.length, 1);
+    } else assert.equal(Object.hasOwn(reply, "layout"), false);
+  }
 });
 
 test("native Worker rejects malformed input and never falls back to an installed parser", async (t) => {
@@ -412,10 +453,28 @@ test("native Worker rejects malformed input and never falls back to an installed
   };
   const cases = [
     [{}, "native_likec4_selection_invalid"],
+    ...[{ selected: null }, { selected: [], ambient: true }].map((fields) => [
+      { schema: "architecture.native-parser-request/v1", ...fields },
+      "native_likec4_selection_invalid",
+    ]),
+    ...[null, [], { namespace: "model", id: 1 }, { namespace: 1, id: "view" }].map((view) => [
+      { schema: "architecture.native-layout-request/v1", selected: [], view },
+      "native_likec4_selection_invalid",
+    ]),
+    ...["%", "YQ"].map((contentBase64) => [
+      {
+        schema: "architecture.native-parser-request/v1",
+        selected: [{ source: { namespace: "model" }, contentBase64 }],
+      },
+      "native_likec4_selection_invalid",
+    ]),
     [
       {
         schema: "architecture.native-parser-request/v1",
-        selected: [{ source: { namespace: "model" }, contentBase64: "%" }],
+        selected: ["YQ==", "Yg=="].map((contentBase64) => ({
+          source: { namespace: "model" },
+          contentBase64,
+        })),
       },
       "native_likec4_selection_invalid",
     ],
@@ -442,5 +501,26 @@ test("native Worker rejects malformed input and never falls back to an installed
     assert.equal(child.status, 1, child.stderr);
     assert.equal(child.stderr, "");
     assert.deepEqual(JSON.parse(child.stdout.trim()), { status: "error", code });
+  }
+});
+
+test("the native Worker refuses invalid deadlines before reading its request", () => {
+  const worker = fileURLToPath(
+    new URL("../packages/publisher/src/semantics/native-worker.mjs", import.meta.url),
+  );
+  for (const deadline of ["0", "66001", "0.5", "NaN"]) {
+    const child = spawnSync(process.execPath, [worker, deadline], {
+      input: "This is intentionally not a JSON request",
+      encoding: "utf8",
+      timeout: 3_000,
+      maxBuffer: 1024 * 1024,
+    });
+    assert.equal(child.status, 1, child.stderr);
+    assert.equal(child.signal, null);
+    assert.equal(child.stderr, "");
+    assert.deepEqual(JSON.parse(child.stdout.trim()), {
+      status: "error",
+      code: "native_likec4_execution_limit_invalid",
+    });
   }
 });

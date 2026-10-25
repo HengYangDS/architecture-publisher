@@ -13,6 +13,7 @@ import { loadBundledFonts } from "../fonts/index.mjs";
 import { createBundledTextMeasurer } from "../resvg/measurement.mjs";
 
 import { layoutInteractivePages } from "../elk/layout.mjs";
+import { nodeEnvelopeExpansion, readingApertureExpansion } from "../elk/audit.mjs";
 
 import { allocateCorrespondingFootprints } from "../elk/placement.mjs";
 
@@ -24,12 +25,17 @@ import { auditIntrinsicGeometry, intrinsicReadingWidth } from "./routing-contrac
 
 import {
   architectureTextBudget,
+  architectureReadingDistances,
   measureArchitectureLabels,
   measureArchitectureNodeText,
-  readingDistance,
 } from "./node-text.mjs";
 
-import { intrinsicArchitectureFraming, measureArchitectureLegend } from "./legend.mjs";
+import {
+  architectureExploration,
+  intrinsicArchitectureFraming,
+  measureArchitectureLegend,
+} from "./legend.mjs";
+import { nativeRelationTraversals } from "./semantics.mjs";
 
 import { sharedContacts } from "./contacts.mjs";
 
@@ -37,9 +43,10 @@ import { emptyLabel, allocateLabelOccurrences } from "./allocation.mjs";
 import { architecturePaintRequest } from "./text-lines.mjs";
 
 const literalArrowGeometry = Object.freeze({ length: 10, halfWidth: 3.2, strokeWidth: 1.4 });
+const readingViewport = { width: marks.desktopFrameWidth, height: marks.desktopReadingHeight };
 
 /** Derive ordinary physical composition; supplied literal scenes never enter this path. */
-async function composeArchitectureCandidate(scene, fonts, exploration = undefined, sizing = {}) {
+async function composeArchitectureCandidate(scene, fonts, exploration, sizing, measuredLayouts) {
   const readingContext = sizing.readingContext ?? "overview";
   const minimum = scene.typography?.minimumTextPx ?? 12;
   const budget = architectureTextBudget(minimum);
@@ -116,7 +123,6 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     ),
   );
   const measuredLegend = await measureArchitectureLegend(scene, budget, fonts, exploration);
-  const readingViewport = { width: marks.desktopFrameWidth, height: marks.desktopReadingHeight };
   const framing = intrinsicArchitectureFraming(readingViewport, inset, measuredLegend);
   const sizes = allocateCorrespondingFootprints(
     {
@@ -194,6 +200,12 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
   const bridges = scene.edges.filter(
     (edge) => edge.adornment && edge.from === edge.to && contacts.ports[edge.from],
   );
+  const graph = architectureExploration(scene, exploration);
+  const directions = new Map(
+    nativeRelationTraversals(graph.relations, graph.nodes)
+      .filter(({ edgeId }) => edgeId)
+      .map(({ edgeId, direction }) => [edgeId, direction]),
+  );
   const page = {
     id: scene.id,
     nodes: scene.nodes.map((node) => ({ id: node.id, label: node.label ?? node.id })),
@@ -205,6 +217,7 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
         id: edge.id,
         source: edge.from,
         target: edge.to,
+        direction: directions.get(edge.id) ?? "forward",
         ...(contacts.endpoints.has(`${edge.id}:from`)
           ? { sourcePort: contacts.endpoints.get(`${edge.id}:from`) }
           : {}),
@@ -224,7 +237,7 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     }
     return layout;
   };
-  const laidOut = await layoutInteractivePages([page], null, {
+  const layoutOptions = {
     nodeFootprints: [nodeFootprints],
     relationFootprints: [relationFootprints],
     groupFootprints: [
@@ -236,16 +249,21 @@ async function composeArchitectureCandidate(scene, fonts, exploration = undefine
     readingViewport,
     placementViewport: framing.placementViewport,
     candidateFootprint: (layout) => framing.resolve(layout.bounds).viewport,
-    composeCandidate: async (layout) => {
-      await routeIntrinsicGeometry(nativePaint(layout), {
+    candidateLowerBound: (layout) => ({
+      apertureExpansion: nodeEnvelopeExpansion(layout, readingViewport),
+    }),
+    composeCandidate: (layout) =>
+      routeIntrinsicGeometry(nativePaint(layout), {
         automatic: !Object.keys(contacts.ports).length,
-      });
-    },
-    composePackedCandidate: async (layout) => {
-      await routePackedIntrinsicGeometry(nativePaint(layout));
-    },
+      }),
+    composePackedCandidate: (layout) => routePackedIntrinsicGeometry(nativePaint(layout)),
     validateCandidate: (layout) => auditIntrinsicGeometry(nativePaint(layout)),
-  });
+  };
+  const layoutIdentity = JSON.stringify([page, layoutOptions, inset, measuredLegend]);
+  // Reuse identical measured inputs only in this composition; distinct footprints solve afresh.
+  if (!measuredLayouts.has(layoutIdentity))
+    measuredLayouts.set(layoutIdentity, layoutInteractivePages([page], null, layoutOptions));
+  const laidOut = structuredClone(await measuredLayouts.get(layoutIdentity));
   const layout = laidOut.layouts[0];
   const frame = framing.resolve(layout.bounds);
   const byNode = new Map(layout.nodes.map((node) => [node.id, node]));
@@ -440,6 +458,7 @@ export async function composeIntrinsicArchitecture(
   const fonts = selectedFonts ?? (await loadBundledFonts());
   let lastFailure;
   const candidates = [];
+  const measuredLayouts = new Map();
   for (const sizing of [
     { nodeWidth: intrinsicReadingWidth - marks.graphInset * 2, labelWidth: 240 },
     { nodeWidth: 280, labelWidth: 240 },
@@ -448,10 +467,13 @@ export async function composeIntrinsicArchitecture(
   ]) {
     try {
       candidates.push(
-        await composeArchitectureCandidate(input, fonts, exploration, {
-          ...sizing,
-          readingContext,
-        }),
+        await composeArchitectureCandidate(
+          input,
+          fonts,
+          exploration,
+          { ...sizing, readingContext },
+          measuredLayouts,
+        ),
       );
     } catch (error) {
       if (
@@ -466,31 +488,10 @@ export async function composeIntrinsicArchitecture(
       lastFailure = error;
     }
   }
-  const measured = candidates.map((candidate) => {
-    const rows = new Map();
-    const add = (identity, measuredRows) => {
-      const key = JSON.stringify(identity);
-      rows.set(key, [...(rows.get(key) ?? []), ...measuredRows]);
-    };
-    for (const [id, layout] of Object.entries(candidate.nodeText.layouts))
-      for (const row of layout.rows)
-        if (row.painted)
-          add(["node", id, row.field, row.occurrence ?? null], [{ ...row, baseline: row.y }]);
-    for (const [id, edge] of Object.entries(candidate.physical.edges))
-      if (edge.label) add(["edge", id], edge.label.baselines);
-    for (const group of candidate.physical.groups) add(["group", group.id], group.label.baselines);
-    for (const text of input.texts ?? [])
-      if (!input.nodes.some(({ id }) => id === text.owner)) {
-        const plan = candidate.physical.texts[text.id];
-        add(["text", text.id], plan.baselines);
-      }
-    return {
-      candidate,
-      readingDistances: new Map(
-        [...rows].map(([key, measuredRows]) => [key, readingDistance(measuredRows)]),
-      ),
-    };
-  });
+  const measured = candidates.map((candidate) => ({
+    candidate,
+    readingDistances: architectureReadingDistances(input, candidate),
+  }));
   const minimumDistances = new Map();
   for (const { readingDistances } of measured)
     for (const [key, extent] of readingDistances)
@@ -504,20 +505,11 @@ export async function composeIntrinsicArchitecture(
       }),
     );
   // Evaluate the complete reading burden: aperture expansion cannot hide fractured phrases.
-  const widthExpansion = ({ candidate }) =>
-    readingContext === "source"
-      ? Math.max(1, candidate.scene.viewport.width / intrinsicReadingWidth)
-      : 1;
   const apertureExpansion = ({ candidate }) =>
-    Math.max(
-      1,
-      candidate.scene.viewport.width / marks.desktopFrameWidth,
-      candidate.scene.viewport.height / marks.desktopReadingHeight,
-    );
+    readingApertureExpansion(candidate.scene.viewport, readingViewport);
   measured.sort(
     (left, right) =>
       left.candidate.compositionDisruption - right.candidate.compositionDisruption ||
-      widthExpansion(left) - widthExpansion(right) ||
       apertureExpansion(left) - apertureExpansion(right) ||
       (!input.edges.length &&
         new Set(left.candidate.scene.nodes.map(({ position }) => position.y)).size -

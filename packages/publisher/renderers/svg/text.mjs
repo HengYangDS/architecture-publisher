@@ -19,7 +19,11 @@ export function wrapStaticText(value, width, size, limit = 12) {
       continue;
     }
     if (!current) fail("static_edition_text_unrepresentable");
-    const breakAt = Math.max(current.lastIndexOf(" ") + 1, current.lastIndexOf("-") + 1);
+    const breakAt = Math.max(
+      current.lastIndexOf(" ") + 1,
+      current.lastIndexOf("-") + 1,
+      current.lastIndexOf(",") + 1,
+    );
     if (breakAt > 0 && breakAt < current.length) {
       lines.push(current.slice(0, breakAt));
       current = current.slice(breakAt) + character;

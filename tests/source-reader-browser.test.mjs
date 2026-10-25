@@ -54,13 +54,29 @@ test(
       await member.locator("body").textContent(),
       /The first component hands control to the second\./u,
     );
-    for (const id of ["n-0", "r-0", "g-0", "h-0"]) {
+    const titles = new Map([
+      ["g-0", "First responsibility"],
+      ["n-0", "Alpha"],
+      ["g-1", "Second responsibility"],
+      ["n-1", "Beta"],
+    ]);
+    for (const id of ["n-0", "n-1", "r-0", "g-0", "g-1", "h-0"]) {
       const figure = member.locator(`[data-inspect-id="${id}"][tabindex]`).first();
       assert.equal(await figure.count(), 1, `${id} has a keyboard-readable native carrier`);
       await figure.focus();
       await figure.press("i");
       await page.locator("#interactive-inspector").waitFor({ state: "visible" });
-      if (id === "h-0" || id === "g-0")
+      if (titles.has(id)) {
+        const label = titles.get(id);
+        assert.equal(await page.locator("#interactive-inspect-title").innerText(), label);
+        assert.equal(
+          await page
+            .locator(`#interactive-inspect-index [data-graphic-id="${id}"] strong`)
+            .innerText(),
+          label,
+        );
+      }
+      if (id === "h-0" || id.startsWith("g-"))
         assert.match(
           await page.locator("#interactive-inspect-content").textContent(),
           /editor-attributed-unverified/u,
@@ -238,14 +254,20 @@ test(
     await native.locator('svg[data-diagram-type="architecture"]').waitFor({ timeout: 8_000 });
     const frameBounds = await disclosure.evaluate((element) => {
       const diagram = element.querySelector("[data-source-reader-root]").getBoundingClientRect();
+      const viewport = element.querySelector("iframe").getBoundingClientRect();
+      const reading = element.closest(".inspect-reading-scroll").getBoundingClientRect();
       return {
         width: diagram.width,
-        readingWidth: element.closest(".inspect-reading-scroll").getBoundingClientRect().width,
+        readingWidth: reading.width,
         scrollWidth: element.scrollWidth,
+        inside:
+          viewport.top >= Math.max(0, reading.top) &&
+          viewport.bottom <= Math.min(globalThis.innerHeight, reading.bottom),
       };
     });
     assert.ok(frameBounds.width > frameBounds.readingWidth * 0.9);
     assert.ok(frameBounds.scrollWidth <= frameBounds.width + 1);
+    assert.ok(frameBounds.inside, "opening source reading exposes its complete aperture");
     const selected = data.sourceReading.pages.connections.bindings;
     const expectedNodes = Object.values(selected)
       .filter(({ kind }) => kind === "entity")

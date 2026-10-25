@@ -2,6 +2,7 @@ import { fail } from "../../src/protocol/values.mjs";
 import { expandBox, segmentHitsBox } from "../../src/scene/geometry.mjs";
 import { interactiveGraphMarks as marks } from "../../src/scene/marks.mjs";
 import { placeMeasuredLabel } from "../elk/text.mjs";
+import { groupFrameInk } from "../elk/audit.mjs";
 import { createRouter } from "./supply/renderers/architecture/routing.mjs";
 import {
   placeAutomaticLabels,
@@ -23,6 +24,7 @@ import {
   auditIntrinsicGeometry,
   clearance,
   endpointSide,
+  gridEndpointCorridorsClear,
   nativeRoutingInput,
   routeNodeMask,
   reserveRouteStrokes,
@@ -182,6 +184,7 @@ function routeAutomaticGeometry(graph) {
         ],
         components: [
           ...graph.nodes.map((node) => expandBox(node, marks.selectedNodeStroke / 2)),
+          ...groupFrameInk(graph.groups),
           ...accepted.flatMap(({ label }) => label?.baselines.map(({ box }) => box) ?? []),
         ],
         titles: graph.groups.map(({ label }) => label),
@@ -416,7 +419,24 @@ function routeFixedGeometry(graph, accepted = [], qualify = undefined, searchBud
       ...rhythm,
       accept,
     });
-    if (!points) {
+    if (
+      !points &&
+      gridEndpointCorridorsClear({
+        start,
+        end,
+        fromSide,
+        toSide,
+        endpointStubPx: Math.max(10, stub),
+        bounds: graph.bounds,
+        obstacles: [
+          ...ink.map((box) => expandBox(box, clearance)),
+          ...graph.nodes
+            .filter((node) => ![relation.source, relation.target].includes(node.id))
+            .map((node) => routeNodeMask(node, relation, nodes)),
+        ],
+        segments: avoidedSegments,
+      })
+    ) {
       const edgeInset = marks.selectedRouteStroke / 2;
       // The native search may cross relationship strokes, never the canvas.
       // Closed one-pixel obstacles keep its accepted path inside the full paint box.

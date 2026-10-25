@@ -176,9 +176,15 @@ test("member-flow quantifiers keep source and editorial authority distinct", asy
   }
   const editorialStart = svg.indexOf("EDITORIAL ASSERTIONS");
   assert(editorialStart >= 0);
-  const editorialSvg = svg.slice(editorialStart);
-  for (const text of ["All members approve.", "Editorial judgment", "fixture-editor", "unverified"])
-    assert(editorialSvg.includes(text), `static editorial attribution omits ${text}`);
+  const editorialPaint = [...svg.slice(editorialStart).matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+    .map(([, row]) => row)
+    .join("");
+  assert(
+    editorialPaint.includes(
+      "All members approve. · Editorial judgment · fixture-editor · unverified",
+    ),
+    "the complete painted statement retains its editorial attribution across line breaks",
+  );
   assert.match(
     html,
     /data-note-item-id="editorial-attribution-0"[^>]*>Editorial judgment · fixture-editor · unverified<\/li>/u,

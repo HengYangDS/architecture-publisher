@@ -155,7 +155,18 @@ export async function assertParallelSourceComposition(scene, branches) {
       offsets.map(() => offsets[0]),
     );
   }
-  assert(result.scene.viewport.width <= 1346);
+  const { width, height } = result.scene.viewport;
+  assert(Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0);
+  assert(
+    result.scene.nodes.every(
+      ({ position, size }) =>
+        position.x >= 0 &&
+        position.y >= 0 &&
+        position.x + size.width <= width &&
+        position.y + size.height <= height,
+    ),
+    "The complete source frame must contain every measured node on either reading axis",
+  );
   assert(Object.values(result.nodeText.layouts).every(({ valid }) => valid));
   return result;
 }

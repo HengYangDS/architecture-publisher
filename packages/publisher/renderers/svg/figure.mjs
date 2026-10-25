@@ -15,24 +15,29 @@ const maximum = 12_000;
 const bodyLeading = 26;
 const number = (value) => Number(value.toFixed(2));
 
-function wrapped(output, value, x, y, width, size, color, weight = 400, limit = 12) {
-  const lines = wrap(value, width, size, limit);
-  const leading = Math.ceil(size * 1.7);
-  for (const [index, line] of lines.entries())
-    output.push(
-      `<text x="${number(x)}" y="${number(y + index * leading)}" fill="${color}" font-size="${size}" font-weight="${weight}">${escape(line)}</text>`,
-    );
-  return y + lines.length * leading;
+function textWriter(output, measurement) {
+  return (value, x, y, width, size, color, weight = 400, limit = 12) => {
+    const lines = wrap(value, width, size, limit);
+    const leading = Math.ceil(size * 1.7);
+    measurement.readingSpan += lines.length * leading;
+    for (const [index, line] of lines.entries())
+      output.push(
+        `<text x="${number(x)}" y="${number(y + index * leading)}" fill="${color}" font-size="${size}" font-weight="${weight}">${escape(line)}</text>`,
+      );
+    return y + lines.length * leading;
+  };
 }
 
-function section(output, heading, items, width, y) {
+function section(output, heading, items, width, y, measurement) {
   if (!items.length) return y;
+  measurement.readingSpan += Math.ceil(11 * 1.7);
   output.push(
     `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">${escape(heading)}</text>`,
   );
   y += 38;
   for (const item of items) {
     const lines = wrap(item.text, width, 14, 5);
+    measurement.readingSpan += lines.length * bodyLeading;
     output.push("<g>");
     for (const line of lines) {
       output.push(
@@ -46,8 +51,9 @@ function section(output, heading, items, width, y) {
   return y + 10;
 }
 
-function readingGroupKey(output, groups, width, y) {
+function readingGroupKey(output, groups, width, y, measurement) {
   if (!groups.length) return y;
+  measurement.readingSpan += Math.ceil(11 * 1.7);
   output.push(
     `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">READING GROUPS</text>`,
   );
@@ -60,6 +66,7 @@ function readingGroupKey(output, groups, width, y) {
       .slice(start, start + columns)
       .map(({ label, members }) => wrap(`${label}: ${members.join(" · ")}`, columnWidth, 14, 4));
     for (const [column, lines] of row.entries()) {
+      measurement.readingSpan += lines.length * bodyLeading;
       const x = column * (columnWidth + columnGap);
       for (const [index, line] of lines.entries())
         output.push(
@@ -103,6 +110,7 @@ function relationColumns(items, width) {
         entries,
         columns,
         columnWidth,
+        readingSpan: measured.reduce((sum, item) => sum + item.lines.length * bodyLeading, 0),
         height:
           columns === 1 ? prefix.at(-1) : Math.max(prefix[split], prefix.at(-1) - prefix[split]),
       });
@@ -138,9 +146,10 @@ function sharedNotes(views, width) {
       text: ids.size === views.length ? text : `${[...ids].join(", ")}: ${text}`,
     }));
   const output = [];
+  const measurement = { readingSpan: 0 };
   let y = 0;
-  y = section(output, "SOURCE STATUS", attributed(status), width, y);
-  return { markup: output.join("\n"), height: y };
+  y = section(output, "SOURCE STATUS", attributed(status), width, y, measurement);
+  return { markup: output.join("\n"), height: y, ...measurement };
 }
 
 function panel(view, width, options = {}) {
@@ -149,9 +158,11 @@ function panel(view, width, options = {}) {
   if (notesWidth < 320 || notesWidth > width) fail("static_figure_width_unrepresentable");
   const beside = options.claimPlacement === "beside-source";
   const output = [];
+  const measurement = { readingSpan: 0, reflowHeights: [] };
+  const write = textWriter(output, measurement);
   let y = 0;
   for (const question of scene.questions)
-    y = wrapped(output, question.text, 0, y + 19, width, 18, "#21332a", 600, 4) + 8;
+    y = write(question.text, 0, y + 19, width, 18, "#21332a", 600, 4) + 8;
   y += 22;
   const graphStart = y;
   if (parts.bounds) {
@@ -179,15 +190,19 @@ function panel(view, width, options = {}) {
       `<text x="${number(x)}" y="${number(graphStart + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE CLAIMS</text>`,
       `<g data-claim-placement="beside-source" transform="translate(${number(x - claim.x)} ${number(graphStart + 30 - claim.y)})">${claim.markup}</g>`,
     );
+    measurement.readingSpan += Math.ceil(11 * 1.7) + (claim.readingSpan ?? 0);
+    measurement.reflowHeights.push(claim.height);
     y = Math.max(y, graphStart + 30 + claim.height + 20);
   }
   if (parts.figureTypes) {
     const figureTypes = reflowFigureTypeLegend(parts.figureTypes, notesWidth);
     if (figureTypes.width > notesWidth) fail("static_figure_width_unrepresentable");
     output.push(`<g transform="translate(0 ${number(y)})">${figureTypes.markup}</g>`);
+    measurement.readingSpan += figureTypes.readingSpan ?? 0;
+    measurement.reflowHeights.push(figureTypes.height);
     y += figureTypes.height + 14;
   }
-  y = readingGroupKey(output, parts.groups, notesWidth, y);
+  y = readingGroupKey(output, parts.groups, notesWidth, y, measurement);
   const notesStart = y;
   if (parts.relations.length) {
     const context = parts.relations[0].context;
@@ -198,8 +213,9 @@ function panel(view, width, options = {}) {
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE RELATIONS</text>`,
     );
+    measurement.readingSpan += Math.ceil(11 * 1.7);
     y += 38;
-    if (sharedContext) y = wrapped(output, context, 0, y, notesWidth, 12, "#66736b") + 8;
+    if (sharedContext) y = write(context, 0, y, notesWidth, 12, "#66736b") + 8;
     const items = sharedContext
       ? parts.relations.map((item) => {
           const marker = ` · ${context}: `;
@@ -212,6 +228,8 @@ function panel(view, width, options = {}) {
         })
       : parts.relations;
     const columns = relationColumns(items, notesWidth);
+    measurement.readingSpan += columns.readingSpan;
+    measurement.reflowHeights.push(columns.height);
     for (const item of columns.entries) {
       const x = item.column * (columns.columnWidth + 28);
       output.push(`<g data-graphic-id="${escape(item.graphicId)}">`);
@@ -229,6 +247,8 @@ function panel(view, width, options = {}) {
     output.push(
       `<text x="0" y="${number(y + 11)}" fill="#66736b" font-size="11" font-weight="600">SOURCE CLAIMS</text>`,
     );
+    measurement.readingSpan += Math.ceil(11 * 1.7) + (claim.readingSpan ?? 0);
+    measurement.reflowHeights.push(claim.height);
     y += 30;
     output.push(
       `<g data-claim-placement="below-source" transform="translate(${number((width - claim.width) / 2 - claim.x)} ${number(y - claim.y)})">`,
@@ -245,6 +265,7 @@ function panel(view, width, options = {}) {
       .map(({ reason }) => ({ text: reason })),
     notesWidth,
     y,
+    measurement,
   );
   y = section(
     output,
@@ -254,8 +275,15 @@ function panel(view, width, options = {}) {
     })),
     notesWidth,
     y,
+    measurement,
   );
-  const result = { markup: output.join("\n"), height: Math.ceil(y), graphStart, notesStart };
+  const result = {
+    markup: output.join("\n"),
+    height: Math.ceil(y),
+    graphStart,
+    notesStart,
+    ...measurement,
+  };
   if (
     options.claimPlacement === undefined &&
     parts.bounds &&
@@ -310,13 +338,17 @@ function paintFigure(selected, widths, { title, summary, rasterWidth, framing })
   }
 
   const content = [];
+  const measurement = { readingSpan: 0 };
+  const write = textWriter(content, measurement);
   let headerY = margin + 31;
-  headerY = wrapped(content, title, margin, headerY, width - 2 * margin, 32, "#21332a", 600, 2) + 4;
-  if (summary !== undefined)
-    headerY =
-      wrapped(content, summary, margin, headerY, width - 2 * margin, 15, "#53645a", 400, 5) + 4;
-  headerY =
-    wrapped(content, framing, margin, headerY, width - 2 * margin, 12, "#66736b", 400, 5) + 16;
+  const headerWidth = width - 2 * margin;
+  for (const [value, size, color, weight, limit, gap] of [
+    [title, 32, "#21332a", 600, 2, 4],
+    ...(summary === undefined ? [] : [[summary, 15, "#53645a", 400, 5, 4]]),
+    [framing, 12, "#66736b", 400, 5, 16],
+  ]) {
+    headerY = write(value, margin, headerY, headerWidth, size, color, weight, limit) + gap;
+  }
   content.push(
     `<line x1="${margin}" y1="${number(headerY)}" x2="${number(width - margin)}" y2="${number(headerY)}" stroke="#c4ccc2" stroke-width="1"/>`,
   );
@@ -328,7 +360,7 @@ function paintFigure(selected, widths, { title, summary, rasterWidth, framing })
     const rowHeight = Math.max(...row.map(({ height }) => height));
     for (const [column, item] of row.entries()) {
       const index = start + column;
-      const x = margin + (column ? widths[0] + gutter : 0);
+      const x = margin + widths.slice(0, column).reduce((sum, value) => sum + value + gutter, 0);
       content.push(
         `<g data-static-view="${escape(selected[index].id)}" transform="translate(${number(x)} ${number(rowY)})">`,
         item.markup,
@@ -394,7 +426,19 @@ function paintFigure(selected, widths, { title, summary, rasterWidth, framing })
     "</svg>",
     "",
   ];
-  return { bytes: Buffer.from(svg.join("\n")), width, height, rasterWidth, placements };
+  const shared = sharedSidecar?.aside ?? common;
+  return {
+    bytes: Buffer.from(svg.join("\n")),
+    width,
+    height,
+    rasterWidth,
+    placements,
+    readingSpan:
+      measurement.readingSpan +
+      shared.readingSpan +
+      painted.reduce((sum, item) => sum + item.readingSpan, 0),
+    reflowHeights: [...painted.flatMap((item) => item.reflowHeights), shared.height],
+  };
 }
 
 /** Fit the complete reading, not just the graph's minimum width, to a desktop canvas. */

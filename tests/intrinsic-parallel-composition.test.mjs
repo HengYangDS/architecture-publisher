@@ -162,14 +162,17 @@ test("parallel paths between common entry and result keep corresponding roles to
   const entry = byId.get("entry");
   const exit = byId.get("selection");
   const pathNodes = paths.flatMap((members) => members.map((id) => byId.get(id)));
+  const left = Math.min(...pathNodes.map(({ position }) => position.x));
+  const right = Math.max(...pathNodes.map(({ position, size }) => position.x + size.width));
+  const top = Math.min(...pathNodes.map(({ position }) => position.y));
+  const bottom = Math.max(...pathNodes.map(({ position, size }) => position.y + size.height));
+  const horizontal = entry.position.x + entry.size.width < left && exit.position.x > right;
+  const vertical = entry.position.y + entry.size.height < top && exit.position.y > bottom;
   assert(
-    entry.position.y + entry.size.height <= Math.min(...pathNodes.map((node) => node.position.y)),
-    "A common entry must precede the complete parallel region",
+    horizontal || vertical,
+    "The common entry and result must bracket every complete path on one reading axis",
   );
-  assert(
-    exit.position.y >= Math.max(...pathNodes.map((node) => node.position.y + node.size.height)),
-    "A common result must follow the complete parallel region",
-  );
+  assert.equal(result.compositionDisruption, 0);
 });
 
 test("shared fork and join placement is assessed against the complete parallel envelope", () => {

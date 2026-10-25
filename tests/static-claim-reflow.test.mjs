@@ -177,6 +177,77 @@ test("shared claim context uses the available width without a tall left-only blo
     assert.equal((visibleText(markup).match(new RegExp(`${label}:`, "gu")) ?? []).length, 1);
 });
 
+test("complete Claim reading measurements survive fragment reflow into the receiving figure", () => {
+  const selected = selectedClaims();
+  const claim = selected.rendered.parts.claim;
+  const measuredSpan = (markup) =>
+    [...markup.matchAll(/<text\b[^>]*font-size="([\d.]+)"/gu)].reduce(
+      (sum, [, size]) => sum + Number(size) * 1.4,
+      0,
+    );
+
+  for (const reading of [claim, claim.reflow(900), claim.reflow(1800)])
+    assert(
+      Math.abs(reading.readingSpan - measuredSpan(reading.markup)) < 0.01,
+      "all complete context, source-anchor headings and facts contribute measured leading",
+    );
+
+  const result = figure(selected, 1800);
+  const receiving = claim.reflow(result.placements[0].width);
+  assert(
+    result.readingSpan > receiving.readingSpan,
+    "the complete frame also includes its headings",
+  );
+  assert(
+    result.reflowHeights.includes(receiving.height),
+    "the selected Claim block retains its height",
+  );
+});
+
+test("mixed claim columns respond to complete wrapping burden, not receiving width alone", () => {
+  const selected = selectedClaims();
+  const labels = [
+    "Subject",
+    "Predicate",
+    "Object",
+    "Scope",
+    "Selected claimant",
+    "Declared evidence authority",
+  ];
+  for (const [index, claim] of selected.scene.claimCards.entries())
+    for (const fact of claim.facts)
+      if (labels.includes(fact.label)) fact.value = `${fact.label} ${index}`;
+  const reflow = () =>
+    composeStaticEditionSvg(selected.scene, { icons, fragment: true }).parts.claim.reflow(1800);
+  const columns = (markup) =>
+    new Set(
+      [...markup.matchAll(/<text x="([\d.]+)"[^>]*>ON SOURCE RELATION 01<\/text>/gu)].map(
+        ([, x]) => x,
+      ),
+    ).size;
+  const concise = reflow();
+
+  for (const [index, claim] of selected.scene.claimCards.entries())
+    for (const fact of claim.facts)
+      if (labels.includes(fact.label))
+        fact.value = `${fact.label} ${index}: ${"The selected caller and destination retain their exact source scope and qualification. ".repeat(2)}`;
+  const before = structuredClone(selected.scene);
+  const dense = reflow();
+
+  assert(columns(concise.markup) > 1, "short records can share the reading width");
+  assert(
+    columns(dense.markup) < columns(concise.markup),
+    "long records need fewer, wider reading columns",
+  );
+  assert.equal(dense.width, concise.width);
+  assert.deepEqual(selected.scene, before);
+  const text = visibleText(dense.markup);
+  for (const claim of selected.scene.claimCards)
+    for (const { label, value } of claim.facts)
+      assert(text.includes(`${label}: ${value}`), `${claim.id}: ${label}`);
+  assert.equal((dense.markup.match(/data-graphic-id="c-\d+"/gu) ?? []).length, 11);
+});
+
 test("claim records share a measured row height despite different fact lengths", () => {
   const selected = selectedClaims();
   selected.scene.claimCards[0].facts.find(({ label }) => label === "Scope").value =
@@ -191,13 +262,70 @@ test("claim records share a measured row height despite different fact lengths",
   const records = [
     ...selected.rendered.parts.claim
       .reflow(1800)
-      .markup.matchAll(/<rect x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/gu),
-  ].map(([, x, y, width, height]) => ({ x: Number(x), y, width, height }));
+      .markup.matchAll(/<g data-graphic-id="static-view-0-c-\d+">([\s\S]*?)<\/g>/gu),
+  ].map(([, markup]) => {
+    const heading = /<text x="([\d.]+)" y="([\d.]+)"[^>]*>ON SOURCE RELATION/u.exec(markup);
+    const line = /<line x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/u.exec(markup);
+    assert(heading);
+    assert(line);
+    assert.equal(line[2], line[4]);
+    assert.equal(heading[1], line[1]);
+    return {
+      x: Number(heading[1]),
+      y: Number(heading[2]),
+      width: Number(line[3]) - Number(line[1]),
+      height: Number(line[2]) - Number(heading[2]),
+    };
+  });
 
   assert.equal(records.length, 11);
+  assert(
+    records.some(({ x }) => x > 0),
+    "the fixture exercises aligned peer columns",
+  );
   for (const y of new Set(records.map((record) => record.y))) {
     const row = records.filter((record) => record.y === y);
     assert.equal(new Set(row.map((record) => record.height)).size, 1);
     assert.equal(new Set(row.map((record) => record.width)).size, 1);
   }
+});
+
+test("corresponding claim fields share baselines after unequal complete wrapping", () => {
+  const selected = selectedClaims();
+  for (const [index, label] of ["Subject", "Object"].entries())
+    selected.scene.claimCards[index].facts.find((fact) => fact.label === label).value =
+      "The selected source retains its exact identity and all declared qualifiers. ".repeat(3);
+  const before = structuredClone(selected.scene);
+  const rendered = composeStaticEditionSvg(selected.scene, { icons, fragment: true });
+  const reading = rendered.parts.claim.reflow(1800);
+  const records = [...reading.markup.matchAll(/<g data-graphic-id="c-\d+">([\s\S]*?)<\/g>/gu)].map(
+    ([, markup]) => {
+      const fields = [...markup.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*>([^<]*)<\/text>/gu)];
+      return {
+        x: Number(fields[0][1]),
+        y: Number(fields[0][2]),
+        baselines: new Map(
+          fields
+            .filter(([, , , text]) => text.includes(": "))
+            .map(([, , y, text]) => [text.slice(0, text.indexOf(": ")), Number(y)]),
+        ),
+      };
+    },
+  );
+
+  assert(
+    records.some(({ x }) => x > 0),
+    "the selected reading retains peer columns",
+  );
+  for (const y of new Set(records.map((record) => record.y)))
+    for (const label of ["Subject", "Predicate", "Object", "Scope", "Declared evidence authority"])
+      assert.equal(
+        new Set(
+          records.filter((record) => record.y === y).map(({ baselines }) => baselines.get(label)),
+        ).size,
+        1,
+        `${label} must align across its complete peer row`,
+      );
+  assert.equal(records.length, selected.scene.claimCards.length);
+  assert.deepEqual(selected.scene, before);
 });

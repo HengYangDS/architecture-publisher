@@ -495,22 +495,22 @@
     {
       "lockPath": "node_modules/zod",
       "name": "zod",
-      "version": "4.6.5",
+      "version": "4.6.7",
       "license": "MIT",
-      "integrity": "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==",
+      "integrity": "sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==",
       "noticeSha256": "f61cacc2acb8b71aa79a128b3e732bf25e02aab40747bbbd5bf00c97c9cda28d"
     }
   ],
   "files": [
     {
       "path": "parser.mjs",
-      "bytes": 5239905,
-      "sha256": "ff66c04cc293bd8071d3aceef885b22487bafd7dc5848cdc49f9d706768bf87d"
+      "bytes": 5241651,
+      "sha256": "304d163c24cfce8c70b808931a00c77c9ddf4589999af1617662255e8846578e"
     },
     {
       "path": "THIRD-PARTY-NOTICES.txt",
       "bytes": 136235,
-      "sha256": "e37f7c8b9fbd78327cb6a4cfab13eb5bce3dfca019c2881c40c2e8d86e8ac4cb"
+      "sha256": "ba21804c0d90b776330bf7d73fb53d884abe7abff05c1cdea621e27167a3670f"
     }
   ]
 }

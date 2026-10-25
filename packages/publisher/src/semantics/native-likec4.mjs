@@ -4,6 +4,7 @@ import { executeLikeC4Layout, executeLikeC4Native } from "./native-execution.mjs
 import { readLikeC4ParserSupply } from "./supply.mjs";
 import { fail, hasExactFields, isDigest } from "../protocol/values.mjs";
 import { LIMITS } from "../file-input/contract.mjs";
+import { validateLikeC4NodeSize } from "./native-layout.mjs";
 
 const sha = (value) => createHash("sha256").update(value).digest("hex");
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
@@ -328,11 +329,13 @@ export async function importLikeC4Layout(selection) {
   )
     fail("native_likec4_reference_invalid");
   const selectedView = { namespace: view.namespace, id: view.id };
+  const nodeSize = validateLikeC4NodeSize(selection.nodeSize);
   const { sources, contents } = selectedSources(selection);
   const supply = await readLikeC4ParserSupply();
   return executeLikeC4Layout(
     sources.map((source) => ({ source, content: contents.get(source.namespace) })),
     supply,
     selectedView,
+    nodeSize ? { nodeSize } : {},
   );
 }

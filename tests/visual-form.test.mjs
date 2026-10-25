@@ -13,6 +13,7 @@ import { composeInteractiveEditionScene } from "../packages/publisher/src/scene/
 import { composeStaticResponsibilityScene } from "../packages/publisher/src/scene/static/responsibility.mjs";
 import { projectInteractivePage } from "../packages/publisher/renderers/interactive/model.mjs";
 import { renderInteractiveEditionHtml } from "../packages/publisher/renderers/interactive/index.mjs";
+import { responsibilityPageHtml } from "../packages/publisher/renderers/interactive/responsibility.mjs";
 import { loadFigureIconSupply } from "../packages/publisher/renderers/icons/index.mjs";
 import { composeStaticResponsibilitySvg } from "../packages/publisher/renderers/svg/responsibility.mjs";
 import { withOwnedProcessScope } from "../packages/publisher/src/runtime/process-tree.mjs";
@@ -165,6 +166,44 @@ test("a selected responsibility form builds an independent interactive role work
   const candidate = JSON.parse(await fs.readFile(path.join(output, "candidate.json"), "utf8"));
   assert.equal(candidate.qualification, "unqualified");
   assert.deepEqual(Object.keys(candidate.media), ["interactive"]);
+});
+
+test("responsibility notes avoid duplicate generic cards without merging same-text identities", async (t) => {
+  const { selected, writeProject } = await responsibilityFixture(t);
+  selected.project.editorialAssertions.push({
+    ...selected.project.editorialAssertions[0],
+    id: "distinct-basis",
+  });
+  await writeProject();
+  const meaning = await compileEditionMeaning(
+    await materializeBuildRequestInput(selected.file, selected.digest),
+  );
+  const scene = composeInteractiveEditionScene(meaning);
+  const projected = projectInteractivePage(scene.pages[0]).publicPage;
+  assert.equal(projected.form.roles[0].basis.graphicId, projected.editorialAssertions[0].graphicId);
+  const disclosure = responsibilityPageHtml(projected, 0, [], await loadFigureIconSupply());
+  assert.match(disclosure, /Additional editorial assertions/u);
+  const rendered = await renderInteractiveEditionHtml(scene);
+  const html = interactivePage(rendered.bytes);
+  for (const index of [0, 1, 2])
+    assert(!html.includes(`data-note-card-id="editorial-card-${index}"`));
+  assert.match(html, /data-note-card-id="editorial-card-3"/u);
+  for (const id of ["role-0", "role-1", "handoff-0"])
+    assert(html.includes(`data-note-card-id="${id}"`));
+  const facts = interactiveDocument(rendered.bytes).pages.overview.facts;
+  const references = facts
+    .filter(({ reference }) => JSON.parse(reference)[1] === "editorial")
+    .map(({ reference }) => JSON.parse(reference)[2]);
+  assert.deepEqual(references.sort(), [
+    "distinct-basis",
+    "first-basis",
+    "handoff-basis",
+    "second-basis",
+  ]);
+  const first = facts.find(({ reference }) => JSON.parse(reference)[2] === "first-basis");
+  const distinct = facts.find(({ reference }) => JSON.parse(reference)[2] === "distinct-basis");
+  assert.notEqual(first.reference, distinct.reference);
+  assert.deepEqual(first.facts, distinct.facts);
 });
 
 test(

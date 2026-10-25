@@ -29,9 +29,8 @@ const profiles = {
     ...baseStatic,
     "packages/publisher/src/scene/static/edition.mjs",
     "packages/publisher/src/scene/static/selection.mjs",
-    "packages/publisher/renderers/dagre/static.mjs",
-    "packages/publisher/renderers/dagre/layout.mjs",
-    "packages/publisher/renderers/dagre/supply.mjs",
+    "packages/publisher/src/compiler/static-geometry.mjs",
+    "packages/publisher/renderers/elk/worker.mjs",
     "packages/publisher/renderers/svg/edition.mjs",
   ],
   "static-responsibility": [
@@ -47,6 +46,7 @@ const profiles = {
   ],
   "static-likec4": [
     ...baseStatic,
+    "packages/publisher/renderers/resvg/measurement.mjs",
     "packages/publisher/src/scene/static/edition.mjs",
     "packages/publisher/src/semantics/native-likec4.mjs",
     "packages/publisher/src/semantics/native-worker.mjs",

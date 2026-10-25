@@ -23,9 +23,10 @@ remain pre-release contracts and may contain incompatible changes.
   it; qualification rejects stale projections without changing package or lock bytes.
 - Admit the observed Linux ARM64 Raster witness for Rust 1.99.0 and `wasm-bindgen` 0.2.129 after two relocated frozen
   builds and canonical behavior comparison. Packaged renderer bytes remain unchanged.
-- Refresh the selected stable development, LikeC4 and Raster supply, including OpenSpec 1.14.1, Rust 1.99.0,
-  `wasm-bindgen` 0.2.129 and Mise 2026.10.3. Remaining upstream development-tool advisories retain the approved
-  trusted-local-input restriction; they are not reported as repaired or as shipped-reader findings.
+- Refresh the locked development and CI supply: Node 26.12.1, npm 12.2.1, OpenSpec 1.15.0, Knip 6.43.0,
+  Dagre 3.1.3 with Graphlib 4.0.6, Pixi 0.83.0 and Mise 2026.10.19. Zod 4.6.7 removes one high-severity finding;
+  the four remaining advisories retain explicit trusted-input, isolated-execution and disabled-install-script
+  acceptance. Official supplied bytes remain unmodified. This does not establish artwork or release acceptance.
 - Locked CI Rust installation reconciles required `cargo` and `rustc` components in retained tool caches instead of
   failing at compiler discovery.
 - Self-use interactive diagrams use neutral ordinary-node paint. Their distinct type icons retain the Edition-wide

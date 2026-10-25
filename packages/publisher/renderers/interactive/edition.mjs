@@ -93,16 +93,16 @@ function nativePage(page, title, editor, summary) {
   const usedEditorial = new Set(
     [...(page.form?.roles ?? []), ...(page.form?.handoffs ?? [])]
       .filter(({ basis }) => basis.kind === "editorial")
-      .map(({ basis }) => `${basis.proponent}\0${basis.statement}`),
+      .map(({ basis }) => basis.graphicId),
   );
   for (const [index, assertion] of page.editorialAssertions.entries()) {
+    if (usedEditorial.has(assertion.graphicId)) continue;
     if (plain) statement(assertion.graphicId, assertion.statement);
-    const linked = usedEditorial.has(`${assertion.proponent}\0${assertion.statement}`);
     add(`editorial-card-${index}`, "Editorial judgment", [
       item(
-        !plain && !linked ? assertion.graphicId : `editorial-statement-${index}`,
+        !plain ? assertion.graphicId : `editorial-statement-${index}`,
         assertion.statement,
-        !plain && !linked ? [assertion.graphicId] : [],
+        !plain ? [assertion.graphicId] : [],
       ),
       item(
         `editorial-attribution-${index}`,

@@ -4,22 +4,22 @@ import { readFileEnvelope } from "../../src/file-input/read.mjs";
 import { fail, hasExactFields } from "../../src/protocol/values.mjs";
 
 const root = fileURLToPath(new URL("./supply/", import.meta.url));
-const manifestSha256 = "28a1a53ac46f760ccdf04ad98dfdf4d01af081ba49d9611fc1793bb9902714a2";
+const manifestSha256 = "390a3a0f156b78f284aca8aea242252a9db1eb4068da62b43c68559d54f50c1e";
 const error = "render_dagre_supply_invalid";
 const packages = [
   {
     name: "@dagrejs/dagre",
-    version: "3.1.1",
+    version: "3.1.3",
     license: "MIT",
     integrity:
-      "sha512-zroZB1dFOFiGgv4Xcrn1DckB1o4aOikPqD2NDQPV0WM//CXGcS6xiD0rNkqHmw6FEg4tabt4nxPLwgCWT+Vb2A==",
+      "sha512-X4aUTwOReZvthaZWOVHqlJ52/ZdhZFEM4+Lh/uR4XooUSLE6p71bcy7MPGzYnNUcNh+nj+i/qJQpCMIdQnSmrg==",
   },
   {
     name: "@dagrejs/graphlib",
-    version: "4.0.5",
+    version: "4.0.6",
     license: "MIT",
     integrity:
-      "sha512-7xrBTqIts3o+PMUZX97wSc+7TUbW+/rULzGNCTP6yooNVDXbzw4Wutg/H/xOutTB/c/k0YqOAavgPh4/Zk9PFA==",
+      "sha512-Hjv7hbfmSBMP4nVXMFt4gusqWWHghQF0qNT4V5KHo4Jatvd+2L5VHKFnnIjXVuDnaHIRz7ZuHSnlf0RuZkOwWA==",
   },
 ];
 
@@ -54,7 +54,7 @@ export async function verifyDagreSupply(directory) {
       true,
     );
     return {
-      version: "3.1.1",
+      version: "3.1.3",
       manifestSha256: selected.manifestSha256,
       script: Buffer.from(selected.members[0].content),
       license: Buffer.from(selected.members[1].content),

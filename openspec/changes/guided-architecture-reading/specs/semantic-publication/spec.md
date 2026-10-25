@@ -203,3 +203,66 @@ evidence exclusions SHALL remain scoped to their owners.
 - **WHEN** a code or Markdown file contains 512 counted lines
 - **THEN** its native size check passes
 - **AND** the same file with a 513th counted line fails without mutation
+
+## MODIFIED Requirements
+
+### Requirement: Domain-visible presentation ownership
+
+Visible diagram assertions and titles SHALL derive from source claims,
+editorial selections, or required legal notices. Required typography, palette,
+spacing, hierarchy, and visual grammar SHALL derive from the Edition or its
+selected qualified neutral profile. Backend branding, template plate labels,
+debug counters, version badges, placeholders, and generated slogans SHALL not
+enter any Edition's diagram surfaces.
+
+#### Scenario: A renderer template has its own surface badge
+
+- **WHEN** an Edition uses that backend
+- **THEN** the delivered diagram omits the badge carrier while preserving useful
+  reader controls outside the diagram surface
+
+### Requirement: Portable Candidate identity and qualification
+
+A portable Candidate manifest SHALL bind input lock, Edition, exact scene
+memberships, renderer and supplies, per-medium dimensions, and artifact
+identities. Later qualification and publication records SHALL bind that
+Candidate separately.
+
+#### Scenario: A complete Candidate fails post-build qualification
+
+- **WHEN** a complete Candidate exists but its geometry, raster,
+  accessibility, or required visual observation fails
+- **THEN** qualification or publication is withheld against that exact
+  Candidate without erasing it or changing prior accepted output
+
+### Requirement: Edition-selected raster dimensions
+
+The Edition or explicit neutral profile SHALL select bounded raster
+dimensions; the historical v1 6000-pixel requirement SHALL not be silently
+replaced by a new implementation default.
+
+#### Scenario: Different Editions select different widths
+
+- **WHEN** an Edition selects 6000 pixels and another Edition selects a
+  different supported bounded width
+- **THEN** each PNG has its own selected exact width and identity
+- **AND** the generic compiler does not infer width from the adopter name
+
+### Requirement: Selected visual refinement
+
+An Edition MAY select a versioned visual-refinement resource for a medium.
+Publisher SHALL bind its exact bytes and qualify the resulting medium through
+the same public build path; pre-rendered media SHALL not prove source meaning.
+
+#### Scenario: An editor selects a flagship scene refinement
+
+- **WHEN** an Edition selects a versioned visual-refinement resource for a medium
+- **THEN** the same public build path binds its exact bytes and independently
+  checks source-qualified visible coverage, aggregation limits, dimensions, and
+  selected renderer supplies before producing that medium
+- **AND** an unselected source member, missing claim, forged graphic binding,
+  unsupported visual policy, or unavailable selected resource fails closed
+  rather than producing a neutral-looking substitute or accepting pre-rendered
+  media as semantic proof
+- **AND** historical quality labels neither create a current Edition class nor
+  reduce its review obligations

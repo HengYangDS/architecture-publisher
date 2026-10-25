@@ -32,15 +32,16 @@ paths remain absent and selected live implementation and configuration have no
 Publisher callers. The surviving architecture policy governs Go AST and module
 topology; it is not a drawing integration.
 
-The bound ETHOS runtime
-`afc110a444d7109f84be99ce14ca7779a2de8b608fa5a85d628aa76b17de8f3d`
-still carries an obsolete Publisher formatting declaration. Its installed
-format-selection consumer assigns that declaration to none of AIGW's 1,428
-tracked paths, so it is not an active drawing caller. The earlier blanket
-claim of no runtime drawing references does not apply to this generation.
-Any runtime replacement and stale declaration retirement belongs to the native
-source/runtime owner. This check does not qualify AIGW's full current proof
-or refresh its remote acceptance.
+The 2026-10-25 local readback finds accepted `main`, `dev` and `candidate/dev`
+at `0438dd9b219c081673fce381c15b6f1d472186ef`. AIGW now binds the official
+ETHOS alpha.13 runtime
+`1a0839c7c711dfbfb32bd1923ddf74cd1291786596efff4532b9ce8ce00dce98`.
+Its selected 1,146 installed Python and configuration files contain no Publisher
+drawing references, and its format-selection policy no longer contains the
+obsolete Publisher declaration. The earlier `afc110a4` no-match declaration
+was a fact about that preceding generation, not this runtime. This readback
+resolves that residual declaration only; it does not qualify AIGW's full current
+proof, renew delivery hashes or refresh remote acceptance.
 Publisher implementation or release does not authorize AIGW migration;
 no AIGW source change is authorized by this handoff.
 
@@ -61,7 +62,7 @@ incorrect for this edited project. The selected scope remains
 **AIGW Client Projection**, not the whole AIGW product. A whole-product work
 requires its own source selection and reader questions.
 
-Current evidence is under
+The preceding preservation evidence is under
 `build/evidence/guided-architecture-reading/stable-supply-20261021/full-native-quality-2115/source-claim-binding-20261022/continuation-20261022-0510/`:
 `source-independence-current-runtime-20261023.json`,
 `source-independence-aigw-runtime-consumer-20261023.json`,
@@ -69,6 +70,18 @@ Current evidence is under
 `source-independence-preservation-20261023.log`. The four external input tests
 pass. AIGW delivery hashes were not refreshed in this readback; GitLab was not
 contacted.
+
+The current installed input and runtime readback is under
+`build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/external-input-installed-20261025/`.
+The packed public CLI builds the external pinned input into PNG6000 and native
+Archify HTML. Its 12 entity records, 11 directed relations, 11 complete normalized
+Claim records and four question-linked pages preserve the declared types,
+meaning and attribution. The source products' Git HEADs, indexes, statuses and
+root listings, and the external inputs' bytes, modes and directory listings,
+remain unchanged. The current Candidate remains unqualified; this is installed
+input acceptance, not source endorsement, artwork or publication acceptance.
+`aigw-input-verification.json` and `aigw-runtime-readback.json` record the exact
+subjects and limits. GitLab was not contacted.
 
 ## Mechanism and ownership
 

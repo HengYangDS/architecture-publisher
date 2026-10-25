@@ -50,12 +50,14 @@ export function reflowFigureTypeLegend(legend, width) {
   const columnWidth = (width - (columns - 1) * columnGap) / columns;
   const output = [];
   let y = 0;
+  let readingSpan = 0;
   for (let start = 0; start < entries.length; start += columns) {
     let rowHeight = 0;
     for (const [column, { kind, glyph, label }] of entries
       .slice(start, start + columns)
       .entries()) {
       const lines = wrapStaticText(label, columnWidth - textX - 4, fontSize);
+      readingSpan += lines.length * leading;
       const x = Number((column * (columnWidth + columnGap)).toFixed(2));
       output.push(
         `<g data-legend-kind="${escape(kind)}" transform="translate(${x} ${y})" color="#526158">${glyph}${lines.map((line, index) => `<text x="${textX}" y="${fontSize + index * leading}" fill="#526158" font-size="${fontSize}">${escape(line)}</text>`).join("")}</g>`,
@@ -68,6 +70,7 @@ export function reflowFigureTypeLegend(legend, width) {
     markup: `<g aria-label="Figure types">${output.join("")}</g>`,
     width,
     height: y,
+    readingSpan,
     entries,
   };
 }

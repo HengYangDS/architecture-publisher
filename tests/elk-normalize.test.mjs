@@ -1,10 +1,78 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { normalizeInteractiveGeometry } from "../packages/publisher/renderers/elk/normalize.mjs";
+import {
+  collapseCompoundGeometry,
+  normalizeInteractiveGeometry,
+} from "../packages/publisher/renderers/elk/normalize.mjs";
 import { measuredLabel, wrappedLabelRequests } from "../packages/publisher/renderers/elk/text.mjs";
 import { createBundledTextMeasurer } from "../packages/publisher/renderers/resvg/measurement.mjs";
 import { loadBundledFonts } from "../packages/publisher/renderers/fonts/index.mjs";
 import { auditInteractiveGeometry } from "../packages/publisher/renderers/elk/audit.mjs";
+
+test("native boundary segments preserve one exact relation and refuse detached or missing seams", () => {
+  const part = (id, container, from, to, startPoint, endPoint, labels = []) => ({
+    id,
+    container,
+    sources: [from],
+    targets: [to],
+    labels,
+    sections: [{ incomingShape: from, outgoingShape: to, startPoint, endPoint }],
+  });
+  const source = part("r:source", "g-a", "a", "out", { x: 80, y: 40 }, { x: 100, y: 40 });
+  const label = { text: "delegates", x: 140, y: 20, width: 30, height: 20 };
+  const middle = part("r", "root", "out", "in", { x: 120, y: 60 }, { x: 180, y: 60 }, [label]);
+  const target = part("r:target", "g-b", "in", "b", { x: 0, y: 40 }, { x: 20, y: 40 });
+  const raw = {
+    id: "root",
+    width: 300,
+    height: 140,
+    edges: [middle],
+    children: [
+      { id: "g-a", x: 20, y: 20, edges: [source] },
+      { id: "g-b", x: 180, y: 20, edges: [target] },
+    ],
+  };
+  const bindings = [
+    {
+      edge: { id: "r", sources: ["a"], targets: ["b"], labels: [label] },
+      parts: [source, middle, target],
+    },
+  ];
+  const before = structuredClone(raw);
+  const result = collapseCompoundGeometry(raw, bindings);
+  assert.equal(result.edges.length, 1);
+  assert.deepEqual(result.edges[0].sources, ["a"]);
+  assert.deepEqual(result.edges[0].targets, ["b"]);
+  assert.deepEqual(result.edges[0].labels, [label]);
+  assert.deepEqual(result.edges[0].sections[0], {
+    incomingShape: "a",
+    outgoingShape: "b",
+    startPoint: { x: 100, y: 60 },
+    bendPoints: [
+      { x: 120, y: 60 },
+      { x: 180, y: 60 },
+    ],
+    endPoint: { x: 200, y: 60 },
+  });
+  assert.deepEqual(raw, before);
+  for (const mutate of [
+    (value) => {
+      value.edges[0].sections[0].startPoint.x += 1;
+    },
+    (value) => {
+      delete value.edges[0].sections;
+    },
+    (value) => {
+      value.children[0].edges = [];
+    },
+  ]) {
+    const value = structuredClone(raw);
+    mutate(value);
+    assert.throws(() => collapseCompoundGeometry(value, bindings), {
+      code: "render_interactive_layout_response_invalid",
+    });
+  }
+});
 
 async function groupFixture() {
   const measure = await createBundledTextMeasurer(await loadBundledFonts(), [

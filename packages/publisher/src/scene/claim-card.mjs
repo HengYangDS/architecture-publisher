@@ -7,7 +7,7 @@ const token = (value) =>
   !["true", "false", "null"].includes(value)
     ? value
     : canonical(value);
-const dimensions = (value) =>
+export const claimQualifierText = (value) =>
   Object.keys(value)
     .sort()
     .map((name) => `${token(name)}: ${token(value[name])}`)
@@ -16,7 +16,7 @@ const entity = (value) =>
   [
     value.label,
     value.kind,
-    Object.keys(value.qualifiers).length ? dimensions(value.qualifiers) : null,
+    Object.keys(value.qualifiers).length ? claimQualifierText(value.qualifiers) : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -52,9 +52,10 @@ export function factorCommonClaimContext(cards) {
 }
 
 /** Project one selected typed claim into public-safe reading facts, not graph geometry. */
-export function claimCard(selection) {
+export function claimCard(selection, visibleEntities = []) {
   const claim = selection?.members?.claims?.[0];
   if (
+    !Array.isArray(visibleEntities) ||
     selection?.format !== "architecture.claim-model/v2" ||
     selection.target?.kind !== "claim" ||
     !Array.isArray(selection.members?.claims) ||
@@ -98,23 +99,42 @@ export function claimCard(selection) {
   const authorities = claim.provenance.map((id) => selection.provenanceSources[id]?.authority);
   if (!authorities.length || authorities.some((authority) => !text(authority)))
     fail("edition_claim_card_invalid");
+  const endpoint = (value) => {
+    const visible = visibleEntities.find(
+      (node) =>
+        node.namespace === selection.source.namespace &&
+        node.id === value.id &&
+        node.sha256 === selection.source.sha256 &&
+        node.textLayout &&
+        record(node.qualifiers) &&
+        node.label === value.label &&
+        node.kind === value.kind &&
+        canonical(node.qualifiers) === canonical(value.qualifiers),
+    );
+    return visible
+      ? {
+          value: `${value.label} · ${value.kind}`,
+          entity: { namespace: visible.namespace, id: visible.id, sha256: visible.sha256 },
+        }
+      : { value: entity(value) };
+  };
   return deepFreeze({
     namespace: selection.source.namespace,
     id: claim.id,
     sha256: selection.source.sha256,
     facts: [
       { label: "Claim plane", value: claim.plane },
-      { label: "Subject", value: entity(subject) },
+      { label: "Subject", ...endpoint(subject) },
       {
         label: "Predicate",
         value: `${claim.predicate} · ${selection.predicate.valueKind} · ${selection.predicate.cardinality}`,
       },
       {
         label: object === null ? "Value" : "Object",
-        value: object ? entity(object) : token(claim.value),
+        ...(object ? endpoint(object) : { value: token(claim.value) }),
       },
-      { label: "Condition", value: dimensions(claim.condition) },
-      { label: "Scope", value: dimensions(claim.scope) },
+      { label: "Condition", value: claimQualifierText(claim.condition) },
+      { label: "Scope", value: claimQualifierText(claim.scope) },
       { label: "Claimed maturity", value: claim.maturity },
       { label: "Claimant-declared validity", value: claim.validity },
       { label: "Declared dependency coverage", value: claim.coverage },

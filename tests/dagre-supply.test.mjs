@@ -14,11 +14,11 @@ test("one exact offline Dagre geometry supply retains both MIT package identitie
   const module = await import("../packages/publisher/renderers/dagre/supply.mjs").catch(() => null);
   assert(module, "the selected geometry supply must exist");
   const supply = await module.loadDagreSupply();
-  assert.equal(supply.version, "3.1.1");
-  assert.equal(supply.script.length, 48956);
+  assert.equal(supply.version, "3.1.3");
+  assert.equal(supply.script.length, 49326);
   assert.equal(
     sha(supply.script),
-    "3152d214941a5df3a3d4c079dfa338c3cd7a6c0d4c1b4c3a2fdb6bba6f6facf9",
+    "54a503e346f93ca0bb10abe7999587e037262935687aca45eb4e4b0f64bbb578",
   );
   assert.match(supply.license.toString("utf8"), /Copyright \(c\) 2012-2014 Chris Pettitt/u);
   assert.match(supply.license.toString("utf8"), /Permission is hereby granted/u);

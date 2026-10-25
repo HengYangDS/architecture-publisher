@@ -41,6 +41,8 @@ source-repository invasion or repeated manual reconstruction.
 - `ecosystem-adoption`: finite source feedback and research settlement.
 - `edition-publication`: explicit class-free Edition successor and retirement
   of live classed input without changing immutable historical artifacts.
+- `publication-contract`: preserve the separate raw-file integrity route while
+  requiring complete visual qualification for every published Edition.
 - Retire `flagship-qualification` into `publication-qualification`, preserving
   all strict gates under one owner without a historical quality bypass.
 - Retire `ethos-input` and `ethos-atlas`: source-specific replay and historical

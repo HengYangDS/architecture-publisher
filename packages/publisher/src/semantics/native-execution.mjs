@@ -7,7 +7,7 @@ import { PROCESS_CLEANUP_MS, runOwnedProcess } from "../runtime/process-tree.mjs
 import { fail, isDigest } from "../protocol/values.mjs";
 import { LIMITS } from "../file-input/contract.mjs";
 import { deepFreeze, exact, jsonValue, record, text } from "./document.mjs";
-import { validateLikeC4LayoutReply } from "./native-layout.mjs";
+import { validateLikeC4LayoutReply, validateLikeC4NodeSize } from "./native-layout.mjs";
 
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const worker = fileURLToPath(new URL("./native-worker.mjs", import.meta.url));
@@ -281,7 +281,7 @@ export function validateNativeIndexReply(index, sources) {
   return index;
 }
 
-function decodeReply(raw, state, reason, closedBeforeCleanup, sources, view) {
+function decodeReply(raw, state, reason, closedBeforeCleanup, sources, view, nodeSize) {
   if (reason === "timeout") fail("native_likec4_timeout");
   if (reason === "overflow") fail("native_likec4_reply_size_invalid");
   if (state.stderrBytes) fail("native_likec4_stderr_invalid");
@@ -304,11 +304,12 @@ function decodeReply(raw, state, reason, closedBeforeCleanup, sources, view) {
   )
     fail("native_likec4_response_invalid");
   const index = validateNativeIndexReply(envelope.index, sources);
-  return view === null ? index : validateLikeC4LayoutReply(envelope.layout, index, view);
+  return view === null ? index : validateLikeC4LayoutReply(envelope.layout, index, view, nodeSize);
 }
 
 /** Execute only verified LikeC4 bytes in a bounded child; not a sandbox claim. */
 async function executeLikeC4Operation(selected, supply, options, view) {
+  const nodeSize = view === null ? null : validateLikeC4NodeSize(options.nodeSize);
   if (!nativePermissionSupported()) fail("native_likec4_capability_unavailable");
   const parserBytes = Buffer.isBuffer(supply?.parserBytes) ? Buffer.from(supply.parserBytes) : null;
   if (
@@ -369,7 +370,12 @@ async function executeLikeC4Operation(selected, supply, options, view) {
     const request =
       view === null
         ? { schema: "architecture.native-parser-request/v1", selected: requestSources }
-        : { schema: "architecture.native-layout-request/v1", selected: requestSources, view };
+        : {
+            schema: "architecture.native-layout-request/v1",
+            selected: requestSources,
+            view,
+            ...(nodeSize ? { nodeSize } : {}),
+          };
     await fs.writeFile(requestPath, JSON.stringify(request), { flag: "wx", mode: 0o600 });
     const index = await runOwnedProcess({
       worker,
@@ -382,7 +388,7 @@ async function executeLikeC4Operation(selected, supply, options, view) {
       failurePrefix: "native_likec4",
       terminateTree: options.terminateTree,
       decode: (raw, state, reason, closedBeforeCleanup) =>
-        decodeReply(raw, state, reason, closedBeforeCleanup, sources, view),
+        decodeReply(raw, state, reason, closedBeforeCleanup, sources, view, nodeSize ?? undefined),
     });
     return deepFreeze({
       ...index,

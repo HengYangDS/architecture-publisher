@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { hasExactFields } from "../protocol/values.mjs";
-import { buildLikeC4Layout } from "./native-layout.mjs";
+import { buildLikeC4Layout, validateLikeC4NodeSize } from "./native-layout.mjs";
 import { importLikeC4NativeWithParser } from "./native-likec4.mjs";
 
 const deadlineMs = Number(process.argv[2]);
@@ -28,6 +28,7 @@ if (!deadlineValid) {
       !hasExactFields(
         request,
         layoutRequest ? ["schema", "selected", "view"] : ["schema", "selected"],
+        layoutRequest ? ["nodeSize"] : [],
       ) ||
       (layoutRequest &&
         (!request.view ||
@@ -81,7 +82,8 @@ if (!deadlineValid) {
     );
     try {
       if (layoutRequest) {
-        const layout = await buildLikeC4Layout(index, parsed, request.view);
+        const capacity = validateLikeC4NodeSize(request.nodeSize);
+        const layout = await buildLikeC4Layout(index, parsed, request.view, capacity ?? undefined);
         emit({ status: "ok", index, layout });
       } else emit({ status: "ok", index });
     } finally {

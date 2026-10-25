@@ -9,6 +9,14 @@ const geometry = (value) =>
   typeof value === "number" && Number.isFinite(value) && Math.abs(value) <= 10_000_000;
 const positive = (value) => geometry(value) && value > 0;
 
+/** Snapshot renderer-supplied capacity without deriving typography or coordinates. */
+export function validateLikeC4NodeSize(value) {
+  if (value === undefined) return null;
+  if (!exact(value, ["width", "height"]) || !positive(value.width) || !positive(value.height))
+    fail("native_likec4_capacity_invalid");
+  return { width: value.width, height: value.height };
+}
+
 /** This geometry protocol cannot carry groups, repeated entities or separate view labels. */
 export function likeC4LayoutMembers(index, view) {
   const elements = new Map(index.elements.map((element) => [key(element), element]));
@@ -43,7 +51,8 @@ export function likeC4LayoutMembers(index, view) {
 }
 
 /** Project one authored structural view's geometry without promoting it to source meaning. */
-export async function buildLikeC4Layout(index, parsed, view) {
+export async function buildLikeC4Layout(index, parsed, view, capacity) {
+  const nodeSize = validateLikeC4NodeSize(capacity);
   const selected = resolveLikeC4Selection(index, {
     id: "layout",
     namespace: view?.namespace,
@@ -56,7 +65,30 @@ export async function buildLikeC4Layout(index, parsed, view) {
   const expected = likeC4LayoutMembers(index, projection);
   let raw;
   try {
-    raw = (await parsed.layoutedModel()).view(view.id).$layouted;
+    if (nodeSize) {
+      const model = await parsed.computedModel();
+      const source = model.view(view.id).$view;
+      const original = model.$styles;
+      const styles = original.constructor.from({
+        theme: {
+          ...original.theme,
+          sizes: Object.fromEntries(
+            Object.keys(original.theme.sizes).map((key) => [key, nodeSize]),
+          ),
+        },
+        defaults: original.defaults,
+      });
+      const receivingView = {
+        ...source,
+        autoLayout: {
+          ...source.autoLayout,
+          nodeSep: source.autoLayout.nodeSep ?? 64,
+          rankSep: source.autoLayout.rankSep ?? 64,
+        },
+        nodes: source.nodes.map((node) => ({ ...node, style: { ...node.style, sizing: "fixed" } })),
+      };
+      raw = (await parsed.viewsService.layouter.layout({ view: receivingView, styles })).diagram;
+    } else raw = (await parsed.layoutedModel()).view(view.id).$layouted;
   } catch {
     fail("native_likec4_layout_unrepresentable");
   }
@@ -133,7 +165,8 @@ export async function buildLikeC4Layout(index, parsed, view) {
 }
 
 /** Check the child reply against selected view membership, not visual adequacy. */
-export function validateLikeC4LayoutReply(layout, index, selectedView) {
+export function validateLikeC4LayoutReply(layout, index, selectedView, capacity) {
+  const nodeSize = validateLikeC4NodeSize(capacity);
   if (
     !exact(layout, ["schema", "format", "closure", "view", "bounds", "nodes", "edges"]) ||
     layout.schema !== "architecture.native-layout/v1" ||
@@ -156,6 +189,10 @@ export function validateLikeC4LayoutReply(layout, index, selectedView) {
   );
   if (!view) fail("native_likec4_reference_unselected");
   const expected = likeC4LayoutMembers(index, view);
+  const parents = new Set(view.nodes.map((node) => node.parent).filter((id) => id !== null));
+  const leafMembers = new Set(
+    [...expected.nodes].filter(([id]) => !parents.has(id)).map(([, member]) => key(member)),
+  );
   if (
     !exact(layout.view, ["namespace", "id", "sha256"]) ||
     layout.view.namespace !== view.namespace ||
@@ -187,6 +224,9 @@ export function validateLikeC4LayoutReply(layout, index, selectedView) {
       !geometry(node.y) ||
       !positive(node.width) ||
       !positive(node.height) ||
+      (nodeSize &&
+        leafMembers.has(key(node)) &&
+        (node.width !== nodeSize.width || node.height !== nodeSize.height)) ||
       nodes.has(key(node))
     )
       fail("native_likec4_response_invalid");

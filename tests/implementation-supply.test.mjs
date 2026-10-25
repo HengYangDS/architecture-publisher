@@ -59,8 +59,9 @@ test("generated implementation profiles select owned code without package or sib
   assert(Array.isArray(manifest.profiles["static-structural"]));
   const structural = manifest.profiles["static-structural"].map(({ path: file }) => file);
   const refinement = manifest.profiles["static-refinement"].map(({ path: file }) => file);
-  assert(structural.includes("renderers/dagre/static.mjs"));
-  assert(!refinement.some((file) => file.startsWith("renderers/dagre/")));
+  assert(structural.includes("src/compiler/static-geometry.mjs"));
+  assert(structural.includes("renderers/elk/worker.mjs"));
+  assert(!refinement.some((file) => file.startsWith("renderers/elk/")));
   assert(
     manifest.profiles["semantic-likec4"].some(
       ({ path: file }) => file === "src/semantics/native-worker.mjs",

@@ -24,12 +24,10 @@ function inspect(page, methodLimits) {
   const selectedBasis = new Set(
     [...page.form.roles, ...page.form.handoffs]
       .filter(({ basis }) => basis.kind === "editorial")
-      .map(({ basis }) => JSON.stringify([basis.statement, basis.proponent])),
+      .map(({ basis }) => basis.graphicId),
   );
   const additionalEditorial = page.editorialAssertions
-    .filter(
-      ({ statement, proponent }) => !selectedBasis.has(JSON.stringify([statement, proponent])),
-    )
+    .filter(({ graphicId }) => !selectedBasis.has(graphicId))
     .map(
       ({ statement, proponent }) =>
         `<li>${escape(statement)}<small>Editorial judgment · ${escape(proponent)} · unverified</small></li>`,

@@ -4,6 +4,60 @@ import * as svg from "../packages/publisher/renderers/svg/index.mjs";
 import { wrapStaticText } from "../packages/publisher/renderers/svg/text.mjs";
 import { staticEditionScene } from "./fixtures/static-edition-scene.mjs";
 import { figureIcons } from "./fixtures/static-edition-svg.mjs";
+import { rasterDimensions } from "../packages/publisher/renderers/resvg/public.mjs";
+import { loadBundledFonts } from "../packages/publisher/renderers/fonts/index.mjs";
+import { createBundledTextMeasurer } from "../packages/publisher/renderers/resvg/measurement.mjs";
+import { measureStaticPeerCapacity } from "../packages/publisher/renderers/svg/edition-structure.mjs";
+
+test("native ink capacity preserves long labels, long types and absent types in equal peers", async () => {
+  const scene = staticEditionScene();
+  scene.nodes[0].label = "Background worker retains the complete selected architecture statement";
+  scene.nodes[0].kind = "Externally attributed processing component with a complete type label";
+  scene.nodes[1].kind = null;
+  const before = structuredClone(scene.nodes);
+  const measured = await measureStaticPeerCapacity(
+    scene.nodes,
+    await loadBundledFonts(),
+    createBundledTextMeasurer,
+  );
+  assert.deepEqual(scene.nodes, before);
+  for (const [index, node] of scene.nodes.entries())
+    Object.assign(node, measured.nodeSize, { x: index * (measured.nodeSize.width + 100) });
+  scene.edges[0].points = [
+    [scene.nodes[0].width, scene.nodes[0].height / 2],
+    [scene.nodes[1].x, scene.nodes[1].height / 2],
+  ];
+  scene.bounds = {
+    x: 0,
+    y: 0,
+    width: scene.nodes[1].x + scene.nodes[1].width,
+    height: measured.nodeSize.height,
+  };
+  const options = { icons: figureIcons, textMeasurer: measured.textMeasurer };
+  const rendered = svg.composeStaticEditionSvg(scene, options);
+  const markup = rendered.bytes.toString("utf8");
+  assert(markup.includes(`>${scene.nodes[0].label}</text>`));
+  assert(markup.includes(`>${scene.nodes[0].kind}</text>`));
+  assert(markup.includes(`>${scene.nodes[1].label}</text>`));
+  assert.deepEqual(
+    rendered.carriers.nodes.map(({ source }) => source.id),
+    ["a", "b"],
+  );
+  for (const dimension of ["width", "height"]) {
+    const tooSmall = structuredClone(scene);
+    if (dimension === "width") {
+      tooSmall.nodes[0].width = 96;
+      tooSmall.edges[0].points[0][0] = 96;
+    } else {
+      for (const node of tooSmall.nodes) node.height = 64;
+      for (const point of tooSmall.edges[0].points) point[1] = 32;
+      tooSmall.bounds.height = 64;
+    }
+    assert.throws(() => svg.composeStaticEditionSvg(tooSmall, options), {
+      code: "static_edition_node_unrepresentable",
+    });
+  }
+});
 
 test("a neutral static SVG shows the selected structure and authored limits", () => {
   assert.equal(typeof svg.composeStaticEditionSvg, "function");
@@ -81,6 +135,53 @@ test("small source structure and reading notes occupy distinct landscape regions
   assert(rendered.height / rendered.width < 0.65);
 });
 
+test("standalone framing follows complete source bounds instead of an empty graph-width floor", () => {
+  const scene = staticEditionScene();
+  const first = svg.composeStaticEditionSvg(scene, { icons: figureIcons });
+  scene.nodes[1].x -= 40;
+  scene.edges[0].points[1][0] -= 40;
+  scene.bounds.width -= 40;
+  const second = svg.composeStaticEditionSvg(scene, { icons: figureIcons });
+
+  assert.equal(first.width - second.width, 40);
+  const graphTranslation = /<g transform="translate\(([\d.]+) ([\d.]+)\)">\s*<path/u.exec(
+    second.bytes.toString("utf8"),
+  );
+  assert(graphTranslation);
+  assert(Number(graphTranslation[1]) <= 80);
+  assert.deepEqual(first.carriers, second.carriers);
+});
+
+test("a short native reading uses less sidecar space without changing source geometry", () => {
+  const scene = staticEditionScene();
+  scene.nodes[0].label = "Alpha";
+  scene.nodes[0].width = 108;
+  scene.nodes[0].height = 84;
+  Object.assign(scene.nodes[1], { x: 0, y: 148, width: 108, height: 84 });
+  scene.edges[0].points = [
+    [54, 84],
+    [54, 148],
+  ];
+  scene.edges[0].relations[0].label = null;
+  scene.bounds = { x: 0, y: 0, width: 108, height: 232 };
+  scene.summary = "One selected structural view.";
+  scene.limitsByQuestion.shape = [];
+  scene.requestedWidth = 1800;
+  const before = structuredClone(scene);
+  const short = svg.composeStaticEditionSvg(scene, { icons: figureIcons });
+  scene.questions[0].text =
+    "Which source-selected components are connected, which direction does the relationship follow, and what source evidence supports that selected interpretation?";
+  const long = svg.composeStaticEditionSvg(scene, { icons: figureIcons });
+
+  assert(short.width * short.height < long.width * long.height);
+  assert(short.width < 600, "secondary framing cannot double the short reading column");
+  assert.equal(short.bytes.toString("utf8").includes("What is connected?"), true);
+  assert.equal(short.bytes.toString("utf8").includes("Alpha → Beta"), true);
+  assert.deepEqual(short.carriers, long.carriers);
+  assert.deepEqual(scene.nodes, before.nodes);
+  assert.deepEqual(scene.edges, before.edges);
+});
+
 test("wrapped source relations have readable line and item separation", () => {
   const scene = staticEditionScene();
   const first = scene.edges[0].relations[0];
@@ -112,6 +213,30 @@ test("wrapped source relations have readable line and item separation", () => {
     for (let index = 1; index < lines.length; index += 1)
       assert(lines[index] - lines[index - 1] >= 26);
   assert(secondLines[0] - firstLines.at(-1) >= 35);
+});
+
+test("long standalone reading reflows complete limit items into aligned columns", () => {
+  const scene = staticEditionScene();
+  scene.limitsByQuestion.shape = Array.from({ length: 15 }, (_, index) => ({
+    kind: "scope",
+    reason: `reader-${index}`,
+  }));
+  const before = structuredClone(scene);
+  const rendered = svg.composeStaticEditionSvg(scene, { icons: figureIcons });
+  const markup = rendered.bytes.toString("utf8");
+  const items = [...markup.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*>reader-(\d+)<\/text>/gu)];
+
+  assert.equal(items.length, 15);
+  assert.deepEqual(
+    items.map(([, , , index]) => Number(index)),
+    Array.from({ length: 15 }, (_, i) => i),
+  );
+  assert(new Set(items.map(([, x]) => x)).size > 1);
+  assert.equal(items[0][2], items[1][2], "adjacent items share an aligned row");
+  assert.doesNotThrow(() =>
+    rasterDimensions(rendered.width, rendered.height, rendered.rasterWidth),
+  );
+  assert.deepEqual(scene, before);
 });
 
 test("fractional native geometry is not rejected by serialization rounding", () => {
@@ -185,7 +310,7 @@ test("a nontext source relation label fails rather than becoming a caption", () 
 
 test("a static fragment is bounded by emitted content, not its unpainted page notes", () => {
   const input = staticEditionScene();
-  input.limitsByQuestion.shape = Array.from({ length: 600 }, () => ({
+  input.limitsByQuestion.shape = Array.from({ length: 2400 }, () => ({
     kind: "scope",
     reason: "Runtime was not observed.",
   }));

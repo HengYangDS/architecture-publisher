@@ -459,7 +459,7 @@ interaction and artwork quality establish different predicates. Exact font
 resources and actual consumer paint remain required; silent fallback or valid
 SVG syntax does not prove appearance.
 
-Automatic ranking includes complete fonts, Legend and frame clearance. Each exact field and occurrence contributes only its excess measured baseline span over the best feasible continuation to finite reading cost; typography cannot override arbitrarily worse geometry.
+Automatic ranking includes complete fonts, Legend and frame clearance. After hard feasibility and padding-only rejection, additional primary reading span contributes finite cost relative to the best feasible continuation. The geometric extent is multiplied by one plus that excess span divided by the candidate's complete height. A shorter heading therefore cannot override arbitrarily worse geometry; comparable frames may favor fewer baselines. Overview admission requires a complete desktop frame at the declared text floor. Source exploration preserves measured capacity and may extend on either axis through native focus and camera controls; it does not borrow overview acceptance. Complete source candidates retain geometry audits and compare both-axis aperture balance, not a hard desktop-width filter that forces a vertical strip. Neither ranking nor geometry establishes intelligibility or aesthetic acceptance.
 Corresponding acyclic columns share the largest complete internal caption plus both selected-route clearances, floored by reading gap. Endpoint escape and compact/layered stages retain their owners; native paint audits, not this allocation or source coordinates, prove feasibility.
 
 Source meaning, editorial judgment, artwork acceptance, independent review and
@@ -471,13 +471,13 @@ approval does not approve later byte changes or source-product publication.
 
 Node text and peer capacity are allocated before native placement. One receiving geometry owner must preserve nodes, ports, labels, routes and the complete reading frame together. A layout result must not be invalidated by post-layout node sizing or an unrelated label planner. Measured text, selected paint and legal endpoint escape enter the native constraints before solving; unchanged audits determine acceptance.
 
-Declared groups also admit native rectangle packing of complete members and
-captions. Measured Legend and font clearance determine the available aspect.
-Group-local packing preserves membership and order; outer packing places whole
-groups. Existing routing resolves every selected relationship; unchanged paint
-audits qualify it. Literal contacts retain compound layout. This is a candidate
-within the existing geometry owner, not a new renderer or source-specific scene.
-Geometry success does not establish browser or artwork acceptance.
+The selected native-view path measures complete label and type ink with the bundled font, then supplies equal leaf capacity through the native layout service's size and fixed-sizing controls. It preserves source direction and membership; parent containers may grow. This single-line node allocation does not establish complete-page typography or visual balance. Named reading blocks retain complete item order; each Claim field track receives all peer ink before advancing, without inventing missing values or merging source anchors. Candidate deduplication keeps distinct block heights even when a fixed graph determines equal page heights. Fragment composition remains separate from complete-page raster admission; vector-only use does not acquire a raster acceptance claim.
+
+Interactive packing preserves whole declared groups and member order; literal contacts remain compound.
+Measured fonts and Legend constrain aspect; unchanged routing and paint audits
+qualify geometry only, not browser or artwork acceptance.
+
+Static structure uses native compound ELK for declared groups and Dagre for flat topology. Complete ink, equal peers, shared text tracks, ports, captions and headings enter solving together; no post-layout sizing or heading planner alters the result. Intrinsic nodes carry complete entity qualifiers once; Claims abbreviate only endpoints bound to that exact visible entity and revision. Conditions, scope, evidence and Claim anchors remain per-Claim. Unallocated, literal-refinement and Inspect records stay complete; missing detail refuses painting. No index or text deduplication is added. The compiler—not source names or HTML geometry—owns composition.
 
 The unchanged libavoid-js 0.4.5 seam remains an unqualified build-time experiment, not the selected composition solution. The eight-page diagnostic passed routing audits, but real asynchronous regression consumers exposed detached endpoints, label collisions, incomplete fixed-boundary routing and a failed compact-frame requirement. Expanded rectangular obstacles can close legal endpoint corridors; nudging penalties do not declare all required geometry constraints. Do not promote this experiment, relax those gates, or infer overall composition quality from its diagnostic. Preserve its exact RED receipts and accepted predecessors. Any later admission still requires complete LGPL source custody, installed offline use and actual native-platform evidence.
 

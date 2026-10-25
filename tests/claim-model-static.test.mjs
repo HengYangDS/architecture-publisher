@@ -26,6 +26,7 @@ import { claimModel } from "./fixtures/claim-model.mjs";
 import { composeStaticSelectionLayout } from "../packages/publisher/src/scene/static/selection.mjs";
 
 import { claimCard } from "../packages/publisher/src/scene/claim-card.mjs";
+import { composeStaticGeometry } from "../packages/publisher/src/compiler/static-geometry.mjs";
 
 import {
   figureIcons,
@@ -45,6 +46,96 @@ test("typed claim dimensions use stable code-point order instead of host collati
     ({ label }) => label === "Condition",
   );
   assert.equal(condition.value, 'z: tail · "ä": accent');
+});
+
+test("static entity meaning is allocated once to its measured node, not repeated in each claim", async (t) => {
+  const model = twoRelationClaimModel();
+  model.entities.server.qualifiers = { operations: ["discover", "inspect", "apply", "verify"] };
+  const selected = await groupedMixedFixture(t, { model });
+  selected.project.scope.selections.push(
+    {
+      id: "second-relation",
+      namespace: modelNamespace,
+      kind: "reference",
+      reference: "relation:second",
+      questions: ["condition"],
+    },
+    {
+      id: "second-claim",
+      namespace: modelNamespace,
+      kind: "reference",
+      reference: "claim:aaa",
+      questions: ["condition"],
+    },
+  );
+  for (const medium of ["static", "interactive"])
+    selected.project.presentation[medium].views[0].groups?.push({
+      id: "other-group",
+      label: "Other",
+      elements: [{ namespace: modelNamespace, id: "other" }],
+    });
+  await fs.writeFile(
+    path.join(selected.root, "edition/project.json"),
+    JSON.stringify(selected.project) + "\n",
+  );
+  const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
+  const meaning = await compileEditionMeaning(input);
+  for (const grouped of [true, false]) {
+    const scoped = structuredClone(meaning);
+    if (!grouped) delete scoped.editorial.presentation.static.views[0].groups;
+    let textMeasurer;
+    const layout = await composeStaticSelectionLayout(scoped, async (geometry) => {
+      const result = await composeStaticGeometry(geometry);
+      textMeasurer = result.textMeasurer;
+      return result;
+    });
+    const scene = composeStaticEditionScene(scoped, layout);
+    const rendered = composeStaticEditionSvg(scene, { icons: figureIcons, textMeasurer });
+    const content = rendered.bytes.toString("utf8");
+    const node = scene.nodes.find(({ id }) => id === "server");
+    assert.deepEqual(node.qualifiers, model.entities.server.qualifiers);
+    const description = 'operations: ["discover","inspect","apply","verify"]';
+    const painted = [...content.matchAll(/<text\b[^>]*>([^<]*)<\/text>/gu)]
+      .map(([, text]) => text.replaceAll("&quot;", '"'))
+      .join("");
+    assert.equal(
+      painted.split(description).length - 1,
+      1,
+      "one exact entity carrier owns its complete qualifiers",
+    );
+    for (const claim of scene.claimCards) {
+      assert(!claim.facts.some(({ value }) => value.includes(description)));
+      assert.equal(claim.facts.find(({ label }) => label === "Scope").value, "environment: local");
+    }
+    assert.equal(rendered.carriers.nodes.length, 3);
+    assert.equal(rendered.carriers.claims.length, 2);
+    assert.doesNotThrow(() => validateVisibleSelection(scoped, "static", scene, rendered.carriers));
+    const lost = structuredClone(scene);
+    delete lost.nodes.find(({ id }) => id === "server").qualifiers;
+    assert.throws(() => composeStaticEditionSvg(lost, { icons: figureIcons, textMeasurer }), {
+      code: "static_edition_node_unrepresentable",
+    });
+    assert.throws(() => validateVisibleSelection(scoped, "static", lost, rendered.carriers), {
+      code: "edition_visible_coverage_mismatch",
+    });
+    const clipped = structuredClone(scene);
+    clipped.nodes.find(({ id }) => id === "server").textLayout.body.pop();
+    assert.throws(() => composeStaticEditionSvg(clipped, { icons: figureIcons, textMeasurer }), {
+      code: "static_edition_node_unrepresentable",
+    });
+    const overflow = structuredClone(scene);
+    overflow.nodes.find(({ id }) => id === "server").textLayout.baselines.at(-1).baseline += 10000;
+    assert.throws(() => composeStaticEditionSvg(overflow, { icons: figureIcons, textMeasurer }), {
+      code: "static_edition_node_unrepresentable",
+    });
+    const complete = claimCard(
+      meaning.native.selections.find(({ target }) => target.id === "intended"),
+    );
+    assert(
+      complete.facts.some(({ value }) => value.includes(description)),
+      "unallocated and Inspect records stay complete",
+    );
+  }
 });
 
 test("typed claim dimensions cannot collide across scalar types or display separators", async (t) => {
@@ -199,7 +290,7 @@ test("two static views become one figure without merging their source assertions
   assert(!svg.includes(modelNamespace), "private source identity leaked into static SVG");
 });
 
-test("one mixed static claim uses the available plate in two reading columns", async (t) => {
+test("one mixed static claim keeps complete facts in one ordered receiving column", async (t) => {
   const selected = await groupedMixedFixture(t, { media: ["static"] });
   const input = await materializeBuildRequestInput(selected.requestPath, selected.requestSha256);
   const meaning = await compileEditionMeaning(input);
@@ -208,13 +299,23 @@ test("one mixed static claim uses the available plate in two reading columns", a
   const svg = rendered.bytes.toString("utf8");
   const claim = /<g data-graphic-id="c-0">([\s\S]*?)<\/g>/u.exec(svg)?.[1];
   assert(claim);
-  const rect = /<rect x="([\d.]+)" y="[\d.]+" width="([\d.]+)"/u.exec(claim);
-  assert(rect);
-  assert(Number(rect[2]) >= rendered.width - 121);
-  const subject = /<text x="([\d.]+)"[^>]*>Subject:/u.exec(claim);
-  const claimant = /<text x="([\d.]+)"[^>]*>Selected claimant:/u.exec(claim);
+  const separator = /<line x1="([\d.]+)"[^>]*x2="([\d.]+)"/u.exec(claim);
+  assert(separator);
+  assert(Number(separator[2]) - Number(separator[1]) >= rendered.width - 121);
+  const subject = /<text x="([\d.]+)" y="([\d.]+)"[^>]*>Subject:/u.exec(claim);
+  const claimant = /<text x="([\d.]+)" y="([\d.]+)"[^>]*>Selected claimant:/u.exec(claim);
   assert(subject && claimant);
-  assert(Number(claimant[1]) > Number(subject[1]) + 150);
+  assert.equal(claimant[1], subject[1]);
+  assert(Number(claimant[2]) > Number(subject[2]));
+  const text = [...claim.matchAll(/<text x="([\d.]+)" y="([\d.]+)"[^>]*>([^<]*)<\/text>/gu)];
+  for (const row of text) assert.equal(row[1], separator[1]);
+  for (let index = 1; index < text.length; index++)
+    assert(Number(text[index][2]) > Number(text[index - 1][2]));
+  const visible = text
+    .map(([, , , value]) => value.replaceAll("&amp;", "&").replaceAll("&quot;", '"'))
+    .join("");
+  for (const { label, value } of scene.claimCards[0].facts)
+    assert(visible.includes(`${label}: ${value}`), label);
   assert.equal(rendered.carriers.claims.length, 1);
 });
 
@@ -293,7 +394,7 @@ test("mixed static media rejects a forged graphic link or source dependency", as
   );
 
   const svg = rendered.bytes.toString("utf8");
-  const cardY = Number(/<g data-graphic-id="c-0">\s*<rect[^>]* y="([^"]+)"/u.exec(svg)?.[1]);
+  const cardY = Number(/<g data-graphic-id="c-0">\s*<text[^>]* y="([^"]+)"/u.exec(svg)?.[1]);
   const translatedY = Number(/<g transform="translate\([^ ]+ ([^)]+)\)"/u.exec(svg)?.[1]);
   assert(Number.isFinite(cardY) && Number.isFinite(translatedY));
   assert(cardY > translatedY + scene.bounds.y + scene.bounds.height + 60);

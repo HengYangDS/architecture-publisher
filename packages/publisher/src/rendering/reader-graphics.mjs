@@ -10,7 +10,10 @@ export function bindInspectableGraphics(parsed, selected, bindInspect) {
     const id = raw.startsWith("text:") ? raw.slice(5) : raw;
     if (!Object.hasOwn(selected.subjectSources, id)) continue;
     if (graphic.hasAttribute("data-logical-relation")) continue;
-    const title = selected.facts.find((fact) => fact.graphicId === id)?.title ?? id;
+    const title =
+      graphic.getAttribute("data-inspect-label") ||
+      selected.facts.find((fact) => fact.graphicId === id)?.title ||
+      id;
     bindInspect(graphic, id, title);
     const heading = graphic.querySelector("h1,h2,h3,h4,h5,h6,strong");
     const hasHeading =
