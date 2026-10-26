@@ -545,8 +545,8 @@
       },
       {
         "path": "renderers/elk/graph.mjs",
-        "bytes": 6670,
-        "sha256": "c15e11280906490737bacf4defaf80ee7133725d4a5a4ef0da7cb1e3e8f791aa"
+        "bytes": 6708,
+        "sha256": "827b3b51c7f3803bc2365cfd1cc325b9d22a3cc186032056e53a90f7b36433a5"
       },
       {
         "path": "renderers/elk/input.mjs",
@@ -1872,8 +1872,8 @@
       },
       {
         "path": "renderers/elk/graph.mjs",
-        "bytes": 6670,
-        "sha256": "c15e11280906490737bacf4defaf80ee7133725d4a5a4ef0da7cb1e3e8f791aa"
+        "bytes": 6708,
+        "sha256": "827b3b51c7f3803bc2365cfd1cc325b9d22a3cc186032056e53a90f7b36433a5"
       },
       {
         "path": "renderers/elk/input.mjs",
@@ -2309,8 +2309,8 @@
       },
       {
         "path": "renderers/elk/graph.mjs",
-        "bytes": 6670,
-        "sha256": "c15e11280906490737bacf4defaf80ee7133725d4a5a4ef0da7cb1e3e8f791aa"
+        "bytes": 6708,
+        "sha256": "827b3b51c7f3803bc2365cfd1cc325b9d22a3cc186032056e53a90f7b36433a5"
       },
       {
         "path": "renderers/elk/input.mjs",

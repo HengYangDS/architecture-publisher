@@ -4,6 +4,7 @@ import { interactiveGraphMarks as marks } from "../packages/publisher/src/scene/
 import { layoutInteractivePages } from "../packages/publisher/renderers/elk/layout.mjs";
 import * as placement from "../packages/publisher/renderers/elk/placement.mjs";
 import { preparePage } from "../packages/publisher/renderers/elk/input.mjs";
+import { elkGraph, separateGroupTracks } from "../packages/publisher/renderers/elk/graph.mjs";
 import { measurePages } from "./fixtures/elk-layout.mjs";
 import { measureArchitectureTypography } from "../packages/publisher/renderers/archify/text.mjs";
 import { loadBundledFonts } from "../packages/publisher/renderers/fonts/index.mjs";
@@ -122,6 +123,44 @@ test("explicit shared contacts and occupied identifiers remain exact", async () 
   assert.equal(new Set(ids).size, ids.length);
   const isolated = { ...prepared, relations: [] };
   assert.deepEqual(placement.allocateEndpointFootprints(isolated, "RIGHT"), isolated);
+});
+
+test("compound parents retain the direction of their fixed endpoints and native seams", async () => {
+  const input = {
+    nodes: ["origin", "guard", "receiver"].map((id) => ({ id, label: id })),
+    groups: [
+      { id: "declaration", label: "Declaration", nodeIds: ["origin", "guard"] },
+      { id: "receiving", label: "Receiving", nodeIds: ["receiver"] },
+    ],
+    relations: [
+      { id: "internal", source: "origin", target: "guard", graphLabel: "guards" },
+      { id: "external", source: "origin", target: "receiver", graphLabel: "delegates" },
+    ],
+  };
+  const prepared = preparePage(input, await measurePages([input]));
+  const original = structuredClone(prepared);
+  for (const direction of ["DOWN", "RIGHT"]) {
+    const allocated = placement.allocateEndpointFootprints(prepared, direction);
+    const { graph, bindings } = separateGroupTracks(elkGraph(allocated, direction), direction);
+    for (const group of graph.children) {
+      assert.equal(group.layoutOptions["elk.direction"], direction);
+      for (const port of group.ports)
+        assert(
+          (direction === "DOWN" ? ["NORTH", "SOUTH"] : ["WEST", "EAST"]).includes(
+            port.layoutOptions["elk.port.side"],
+          ),
+        );
+    }
+    assert.deepEqual(
+      bindings.map(({ edge }) => edge.id),
+      input.relations.map(({ id }) => id),
+    );
+    assert.deepEqual(
+      bindings.map(({ parts }) => parts.length),
+      [1, 3],
+    );
+    assert.deepEqual(prepared, original);
+  }
 });
 
 test("focused source reading keeps the complete native graph without borrowing overview acceptance", async () => {

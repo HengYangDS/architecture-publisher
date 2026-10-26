@@ -42,6 +42,7 @@ export function elkGraph(
         ],
         children: group.nodeIds.map((id) => leaf(byId.get(id))),
         layoutOptions: {
+          "elk.direction": direction,
           "elk.nodeLabels.placement": leading ? "[INSIDE,H_LEFT,V_TOP]" : "[]",
           "elk.padding": `[top=${top},left=${side},bottom=${inset},right=${side}]`,
         },

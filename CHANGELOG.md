@@ -37,6 +37,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Fixed
 
+- Compound layout declares the selected direction for each native child graph, keeping placement consistent with its
+  fixed endpoints and group-boundary contacts. This repairs a reproduced vertical route collision without changing
+  supplied code, source meaning or the complete artwork's qualification.
 - Static receiving frames reflow complete claims at their available width, align shared claim context and size each
   claim-card row uniformly. Homogeneous records may share measured field headers while retaining every value and
   exact source anchor; narrow and heterogeneous records keep their complete labeled form. Type Legends use
