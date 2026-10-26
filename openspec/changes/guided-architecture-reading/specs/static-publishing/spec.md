@@ -1,21 +1,99 @@
-## ADDED Requirements
+## REMOVED Requirements
 
-### Requirement: Canonical Raster bytes and native rebuilding have explicit guarantees
+### Requirement: Explicit offline raster inputs
 
-The packaged Raster output SHALL retain one canonical digest pair. Native
-rebuilding SHALL use a pre-admitted witness in the existing source manifest,
-bound to the exact Rust/Cargo identities, compiler host and `wasm-bindgen` version.
-Unknown identities SHALL fail closed; execution SHALL NOT learn expected hashes.
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
 
-#### Scenario: A qualified host rebuilds frozen source
+**Migration**: Use `poster-composition`.
 
-- **WHEN** two independently extracted, relocated offline/frozen builds finish
-- **THEN** original inputs remain unchanged and both outputs match the selected witness
-- **AND** canonical and rebuilt imports/exports, selected-font measurement, declared errors and representative authored PNG bytes agree
-- **AND** the evidence claims neither cross-host Wasm byte identity nor universal equivalence
+### Requirement: Bounded non-overwriting rendering
 
-#### Scenario: A host has no admitted native witness
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
 
-- **WHEN** the observed compiler or binding-tool identity has no exact manifest match
-- **THEN** native rebuild verification fails without changing expected bytes
-- **AND** canonical package integrity remains a separate requirement
+**Migration**: Use `poster-composition`.
+
+### Requirement: Source-bound static edition preservation
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Source-bound candidate poster
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Non-cooperative renderer termination
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Source-bound static carrier edits
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Completed raster input
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: CoreText stage reclamation precedes scratch cleanup
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: CoreText failures preserve primary and cleanup causes
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: CoreText worker retains bounded reclamation lifetime
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Raster process failure remains distinct from malformed replies
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: CoreText execution has one stage deadline owner
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Raster source notices bind the selected closure
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.
+
+### Requirement: Static views compose one faithful figure
+
+**Reason**: Static composition and its raster interface are replaced by the
+graph-first poster with portable outputs.
+
+**Migration**: Use `poster-composition`.

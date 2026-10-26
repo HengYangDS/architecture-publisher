@@ -1,42 +1,81 @@
-## ADDED Requirements
+## REMOVED Requirements
 
-### Requirement: Finite external publication and north-star settlement
+### Requirement: Three independent first-party consumers
 
-Cross-product delivery SHALL consume sources read-only and keep preparation
-external. Interface conformance, artwork, source meaning, successor acceptance
-and publication authority SHALL remain distinct. Required ETHOS feedback SHALL
-settle a finite decision packet and one falsifying journey with its current owner.
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
 
-#### Scenario: AIGW is a read-only publication subject
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
 
-- **WHEN** an external editor selects pinned existing AIGW material
-- **THEN** preparation and verification occur outside AIGW without a source-side Provider or drawing prerequisite
-- **AND** no drawing code, files, dependencies, configuration, tests or CI obligations are added to AIGW
-- **AND** Client Projection and Product Edition retain separate scope and acceptance
+### Requirement: ETHOS remains the repository-governance authority
 
-#### Scenario: A source owner has not accepted a successor
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
 
-- **WHEN** Publisher delivers a passing candidate but required source disposition is unavailable
-- **THEN** the dependent acceptance remains open and its required predecessor is preserved
-- **AND** independent delivery tasks may proceed without inventing source endorsement
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
 
-#### Scenario: ETHOS receives an evolution recommendation
+### Requirement: Cross-repository conformance is portable
 
-- **WHEN** the current owner reviews the finite packet and its falsifying journey
-- **THEN** evidence records the owner's adopted, rejected or deferred disposition
-- **AND** Publisher does not create a parallel ETHOS progress or semantic authority
-- **AND** settlement does not require implementation of the entire future ETHOS roadmap
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
 
-### Requirement: Implementation-grounded research has one current owner
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
 
-SDD, coordination and semantic/formal findings SHALL settle with the current
-ETHOS research owner. Each compared mechanism SHALL bind a fixed implementation,
-separate source/test/generated/vendor size, guarantees and maintenance cost,
-then record its disposition, rationale, evidence and revisit trigger.
-Historical receipt or promotional wording SHALL NOT prove current settlement.
+### Requirement: AIGW remains a distinct adopter
 
-#### Scenario: Historical findings are absent from the current source owner
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
 
-- **WHEN** a retained research receipt exists but its comparison is absent from the active source scope
-- **THEN** the current owning task reconciles that finding before settlement is claimed
-- **AND** Publisher retains only research consumed by its publication responsibilities
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
+
+### Requirement: Skills and renderers are replaceable capabilities
+
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
+
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
+
+### Requirement: Cross-product evidence preserves authority and time
+
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
+
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
+
+### Requirement: Adopter placement follows named authority
+
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
+
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
+
+### Requirement: Independent Editions do not require source adoption
+
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
+
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
+
+### Requirement: First-party placement and retirement follow adopter policy
+
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
+
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.
+
+### Requirement: Native Windows qualification retains the common repository gate
+
+**Reason**: Adoption feedback, north-star decisions and research settlement
+belong to their owners, not to the publishing product.
+
+**Migration**: Track the deferred ETHOS work in this Change's tasks; no
+Publisher capability replaces it.

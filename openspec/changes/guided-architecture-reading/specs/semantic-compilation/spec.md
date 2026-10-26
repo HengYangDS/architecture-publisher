@@ -1,68 +1,183 @@
-## ADDED Requirements
+## REMOVED Requirements
 
-### Requirement: Native editorial input remains readable and non-invasive
+### Requirement: Explicit portable semantic contract
 
-The public build SHALL admit selected native material and declarative editorial
-choices through one authoring owner, without requiring a duplicate Claim Model.
-Editorial preparation and optional Providers SHALL remain outside source
-products; publication SHALL add no files, code, dependencies, configuration,
-tests or CI obligations there. Deterministic rebuilds SHALL require no Agent.
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
 
-#### Scenario: An editor supplies reader questions
+**Migration**: Use `architecture-model` and `reading-plan`.
 
-- **WHEN** the brief names audience, questions, scope, omissions and media
-- **THEN** those choices are ordinary editable data, not executable queries
-- **AND** actionable diagnostics identify the affected choice without inventing source meaning
+### Requirement: Deterministic change with declared correspondence
 
-#### Scenario: A source product has no publication integration
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
 
-- **WHEN** an external editor selects existing source material read-only
-- **THEN** preparation, compilation and output stay outside the source product
-- **AND** source files, dependencies and quality obligations remain unchanged
+**Migration**: Use `architecture-model` and `reading-plan`.
 
-### Requirement: Native source facts and view occurrences remain distinct
+### Requirement: Conservative impact and separate obligations
 
-The disposable native index SHALL preserve source entities, explicit source
-parentage and directed relationships independently from each authored view's
-nodes and edges. Source identity SHALL come from the native model binding, not
-the occurrence ID or its wording. View wording SHALL NOT replace source wording.
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
 
-#### Scenario: A collapsed view resembles a path that the source does not contain
+**Migration**: Use `architecture-model` and `reading-plan`.
 
-- **WHEN** a view draws `a -> b -> c` for source relations `a -> b.b1` and `b.b2 -> c`
-- **THEN** the index retains both exact source relationships and their individual view-edge bindings
-- **AND** source ancestry comes from native parent references, never inferred name prefixes
-- **AND** the view does not establish source reachability from `a` to `c`
+### Requirement: Installed comparison and existing edition consumption
 
-#### Scenario: A view repeats or groups source elements
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
 
-- **WHEN** native occurrences have different IDs, share a source binding or belong to a view-only group
-- **THEN** the index preserves each occurrence, its parent and its native label
-- **AND** a view-only group has no source entity binding
-- **AND** several view edges may refer to the same source relationship without duplicating the source fact
+**Migration**: Use `architecture-model` and `reading-plan`.
 
-### Requirement: Native projection boundaries are checked before consumption
+### Requirement: Native adapter meaning and unknowns
 
-The parent SHALL admit only `architecture.native-index/v2`, with complete
-source and occurrence references, unique IDs and acyclic explicit parentage.
-Each view edge SHALL retain nonempty, unique contributing source references.
-Membership summaries SHALL be derived from the projection, not stored twice.
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
 
-#### Scenario: An index reply is malformed or misbound
+**Migration**: Use `architecture-model` and `reading-plan`.
 
-- **WHEN** a reply contains a dangling reference, parent cycle, duplicate occurrence or unrelated edge contributor
-- **THEN** the parent rejects it before compilation
-- **AND** a legacy index is not silently adapted
+### Requirement: LikeC4 source locator identity
 
-#### Scenario: A consumer cannot faithfully express the native projection
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
 
-- **WHEN** the current structural selection or layout cannot express hidden endpoints, groups, repeated occurrences or view wording
-- **THEN** that consumer explicitly refuses the unsupported projection without altering it
-- **AND** it does not add hidden entities to the visible membership or clear known source relationships
-- **AND** supported parallel relations with exact endpoints retain their existing layout behavior
+**Migration**: Use `architecture-model` and `reading-plan`.
 
-#### Scenario: Only view wording changes
+### Requirement: LikeC4 structural view membership
 
-- **WHEN** selected native view bytes change a node or edge label without changing source wording
-- **THEN** the index retains both meanings separately and existing input identity binds the new bytes
-- **AND** disposable occurrence IDs are not added to the semantic selection digest
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Unadmitted LikeC4 views and queries
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Correspondence is not semantic approval
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Disagreement differs from invalid transformation
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Claim Model v2 selector identity
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Failed native parser produces no index
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Native parser containment claims remain limited
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Claim Model import preserves typed claims
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Bounded admitted native parser execution
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Generic inputs are explicit and repository-independent
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Edition project root and derived identity
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Edition and source selector protocol
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: One materialized Edition selection
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Candidate destination is invocation evidence
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Successor Candidate manifest binds selected supplies
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Candidate structure is not source approval
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Requested media form one complete Candidate
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Installed package identity is separate execution evidence
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Compilation distinguishes mechanical and editorial judgment
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Layout worker retains bounded reclamation lifetime
+
+**Reason**: The Claim Model, selections, locks and Candidate compilation are
+replaced by the Architecture Model and the Reading Plan.
+
+**Migration**: Use `architecture-model` and `reading-plan`.

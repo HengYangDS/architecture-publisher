@@ -1,77 +1,204 @@
-## MODIFIED Requirements
-
-### Requirement: Historical Edition and Provider contracts remain truthful
-
-Historical signed artifacts and exact recovery fixtures SHALL retain their
-original bytes, meaning and acceptance identities. The current Claim-backed
-Edition executor SHALL accept only class-free `architecture.edition/v2`.
-Current Providers SHALL bind that contract, and current consumers SHALL migrate
-without a v1 compatibility or quality-tier adapter. Historical recovery SHALL
-select the original versioned executor, not reinterpret old documents through
-the current runtime.
-
-#### Scenario: A v1 Edition is replayed
-
-- **WHEN** unchanged historical v1 inputs are selected for recovery
-- **THEN** their original versioned executor retains their semantic choices and
-  identity-only authoring interpretation
-- **AND** the current executor neither accepts the retired contract nor claims
-  fresh output or historical approval from a custody-only check
-
-#### Scenario: Retired classed input reaches the current executor
-
-- **WHEN** an Edition v1 value or a class field is supplied
-- **THEN** the current contract rejects it without mutation or output
-- **AND** historical source, Candidate and qualification bytes remain unchanged
-
-### Requirement: Candidate acceptance is explicit
-
-An acceptance policy and named accepter SHALL decide whether submitted
-qualification evidence admits the Candidate; Publisher SHALL not infer
-approval from a green build, same-person signature, or file location.
-
-#### Scenario: A maintainer reviews their own Candidate
-
-- **WHEN** the selected acceptance policy permits author and reviewer to be
-  the same person
-- **THEN** a decision by that person may be recorded against exact Candidate
-  bytes
-- **AND** it is not described as an independent implementation verifier
-
-#### Scenario: A Candidate passes automated geometry checks
-
-- **WHEN** geometry and browser checks pass but visual faithfulness or domain
-  truth has not been assessed
-- **THEN** only those automated predicates pass
-- **AND** the Candidate receives no inferred domain or visual acceptance
-
-## ADDED Requirements
-
-### Requirement: Current Edition requires complete visual review duties
-
-Every current Claim-backed Edition SHALL declare faithful, intelligible and
-aesthetic visual review for both its static physical output and interactive
-viewport. Current Project authoring SHALL remain class-free. The selected
-qualification policy SHALL cover those three human predicates for every
-selected PNG and standalone HTML artifact before complete policy coverage can
-be reported. Candidate generation SHALL not claim acceptance or publication.
-
-#### Scenario: Technical probes omit visual review
-
-- **WHEN** a submitted policy has complete machine evidence but omits an output's
-  human faithful, intelligible or aesthetic requirement
-- **THEN** it cannot qualify as complete publication policy
-- **AND** no-policy diagnostic observations remain non-authorizing
-
 ## REMOVED Requirements
+
+### Requirement: Edition is a complete authored contract
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Free editorial framing is visibly attributed
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Concrete Edition authority follows declared roles
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Candidate, qualification, and publication are distinct values
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
 
 ### Requirement: Edition classes expose different promises
 
-**Reason**: Distinct class promises contradict the approved uniform quality
-contract and class-free current Edition. Technical completeness alone does not
-establish aesthetic acceptance for any selected output.
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
 
-**Migration**: Apply `Current Edition requires complete visual review duties`
-to every current Edition and the sole `publication-qualification` owner to
-every selected artifact. Historical signed outputs and their original
-executors remain immutable; they do not define current quality classes.
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Evolution is conservative and approval preserving
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Accepter and custodian retain distinct roles
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Candidate acceptance is explicit
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Layout evolution does not transfer approval
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Edition reading order has one owner
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Executable Provider replay requires invoker selection
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Qualification replay has one bounded supervisor
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Qualification records bind exact scopes
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Record scopes derive from replayed authority
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: PASS attribution is not authentication
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Policy fit is not authorization
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Omission targets are closed
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: View obligations derive before layout
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Historical input reinterpretation requires migration
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Edition scope distinguishes native and derived inputs
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Source assertion authorship has one owner
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Authoring controls have an implemented consumer
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Successor qualification records are policy-bound claims
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Invoker-selected qualification policy remains attributed
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Edition views and omission targets are closed
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Historical Edition and Provider contracts remain truthful
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Authored rendering dependencies are truthfully bound
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Edition-selected visual policy governs generic media
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.
+
+### Requirement: Standalone pages declare no external assets
+
+**Reason**: Edition projects, classes, successors and selections are replaced by
+one model with optional views.
+
+**Migration**: Use `architecture-model` and `reading-plan`.

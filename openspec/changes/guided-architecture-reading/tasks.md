@@ -1,57 +1,49 @@
-## 1. Contract and counterexamples
+## 1. Input and source binding
 
-- [x] 1.1 Trace native authoring, geometry, reading and export against reader questions; select justified mature mechanisms.
-- [x] 1.2 Capture focused regression failures and one representative native journey; preserve historical works.
+- [ ] 1.1 Implement the Architecture Model schema, loader and validator; every invalid fixture is refused with each problem and its JSON path, and every valid fixture loads unchanged.
+- [ ] 1.2 Implement read-only source binding at a pinned revision; matching, mismatched, missing and unverified sources produce the specified records or refusals without changing the repository.
+- [ ] 1.3 Rebase the LikeC4 importer onto the model; an imported workspace builds, and unsupported constructs are reported with their locations.
 
-## 2. Unified implementation
+## 2. Reading plan and layout
 
-- [x] 2.1 Admit bounded appearance through the existing schema and native reader controls, without redundant chapter grammar.
-- [x] 2.2 Bind exact native and authored members, directed relations and shared routes; refuse unsafe aggregate traversal.
-- [ ] 2.3 Qualify latest stable official Archify reading through both public rendering APIs and one installed public build, preserving exact supply, occurrences, queries and media. Dependency: stable 3.2.0 still lacks the merged light-contrast fix; independent index disclosure has no maintainer disposition. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/upstream-boundaries-20261026.json` and `current-self-installed-bounded.log`.
-- [ ] 2.4 Qualify all offered styles and themes, type icons, Legend, captions, relation styles and reading controls without changing literal geometry or the static sibling. Dependency: responsibility body paints pass all eight appearances and redundant editorial cards are removed with exact facts preserved; native light contrast and the complete artwork matrix remain unqualified. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/reader-contrast-20261025T1250/verification-summary.json` and `source-context-reader-native-matrix.json`.
-- [ ] 2.5 Co-allocate complete group/title tracks, text, ports and routing through the existing geometry owner; qualify actual-ink clearance and complete desktop composition without upstream coordinates. Dependency: explicit child direction repairs vertical native route collisions and passes 42 sibling tests; complete AIGW composition remains unqualified. Wrapped groups stagger, and the repaired vertical diagnostic fails complete raster-frame admission. Qualify the complete receiving frame before promoting an axis change. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/joint-receiving-contract-20261026/native-group-wrapping/group-border-port-review-20261026/direction-cause-comparison.json` and `direction-public-probe.log`.
-- [ ] 2.6 Qualify task-led native browsing, declared group context and exact Inspect records. Dependency: exact Inspect group/entity titles, records, visible source disclosure and return pass five focused browser journeys; complete native browsing and independent index disclosure remain open. Issue 664 is closed only for grouped wrapping. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/reader-contrast-20261025T1250/group-context/source-aperture-final-green.log`.
+- [ ] 2.1 Implement explicit and automatic views with tiers, flow, collapsed overviews, group views and the five-view limit; each plan fixture yields its specified views or refusal.
+- [ ] 2.2 Implement the fixed-configuration ELK layout for both media with label sizing, fan-out sharing and the eight-kind limit; repeated runs return identical geometry.
 
-## 3. Qualification and source handoff
+## 3. Media
 
-- [ ] 3.1 Freeze repaired coherent inputs and pass the full macOS quality graph with statements, lines, branches and functions each at least 95 percent; retain failed receipts. Dependency: the last full behavior run has 2,188 of 2,200 passes, nine contrast failures, three skips and 94.92 percent branch coverage. Contrast sampling now waits for member paint and restores exact styles; the controlled regression and three responsibility replays pass their text thresholds, but native outline contrast still fails. Pass the full graph without weakening checks, budgets or coverage floors. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/joint-receiving-contract-20261026/native-group-wrapping/field-table-whole-behavior.log` and `contrast-observation-summary.json`.
-- [ ] 3.2 Pass background Chrome on every selected page, appearance, Inspect, navigation, addressing and history; include the unrelated example and complete successor matrix. Dependency: the aggregate reporting rewrite was withdrawn after repeated timeout; retain the original 45-second budget and all checks. Reconcile installed replay with independent complete-medium verification before another rewrite. Native index fit, light contrast and artwork acceptance remain open. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/independent-reader-predicates-20261026/withdrawal.json` and `source-context-reader-native-matrix.json`.
-- [ ] 3.3 Pass offline relocated installed public builds, deterministic sibling bytes and historical preservation for the frozen successor package. Dependency: current self compilation passes, and the shared-header source/installed/relocated journey preserves six identical Candidate members with unchanged HTML; native index contrast, frozen successor, complete browser matrix and historical custody remain. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/joint-receiving-contract-20261026/native-group-wrapping/field-table-public-byte-comparison.json` and `installed-self-current-20261025/verification-summary.json`; emitted artwork remains unqualified.
-- [x] 3.4 Deliver the qualified contract and evidence to the existing ETHOS migration owner without blocking source safety or altering AIGW selection.
+- [ ] 3.1 Implement poster composition with design tokens, bundled fonts, outlined text, legend, footnote, defect checks and frame admission; render PNG at 1800 and 6000 px.
+- [ ] 3.2 Implement the native Archify map with regions, connections, color families, guided views and evidence cards; showcase delivery passes and Chromium measures primary labels of at least 14 CSS px.
 
-## 4. Inputs, authority and authoring
+## 4. Delivery and commands
 
-- [x] 4.1 Reconcile the unchanged eight outcomes, uniform quality, boundaries and terminal checkpoints; obtain builder review and strict specification validation.
-- [x] 4.2 Qualify external source/editor input and the optional declarative Provider journey through one installed public build; preserve pins, links and types with no drawing additions or writes in source products. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/external-input-installed-20261025/verification-summary.json`.
-- [x] 4.3 Qualify the class-free Edition successor and strict review coverage through source and installed migration, exact historical custody and native canonical-transition rehearsal. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/class-free-edition-20261025/verification-summary.json`; actual archival remains gated by closeout under 10.3.
+- [ ] 4.1 Implement staged deterministic build output and the manifest with `archpub build` and `archpub check`; a rebuild reproduces every byte.
+- [ ] 4.2 Implement `archpub accept` and immutable `archpub publish`; changed artifacts and conflicting versions are refused.
 
-## 5. Independent PNG and desktop HTML
+## 5. Retirement
 
-- [x] 5.1 Converge independent PNG and desktop HTML, explicit dispatch, Candidate and qualification through mature mechanisms without duplicate facts or command planes.
-- [ ] 5.2 Qualify complete selected PNG6000 and HTML for geometry, contrast, reading and exact artwork acceptance; keep source, editor, artwork and publication authority distinct. Dependency: shared field headers align the complete Claim records and reduce the selected PNG height from 4430 to 4034 at width 6000, with source anchors retained and HTML unchanged. Uneven whitespace, congested routes, provenance-heavy reading, contrast and complete artwork acceptance remain open. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/joint-receiving-contract-20261026/native-group-wrapping/field-table-frame.json` and `field-table-public-byte-comparison.json`.
+- [ ] 5.1 Remove superseded modules, supplies, tools, tests and documentation; dead-code, import-boundary and package checks pass with no reference to the removed mechanisms.
 
-## 6. External source publication
+## 6. Editions
 
-- [ ] 6.1 Retire source-owned drawing integrations; verify preserved originals, unchanged product obligations and no active drawing callers. Dependency: accepted source removals, external originals and ETHOS delivery hashes pass; the current AIGW runtime has no residual Publisher formatting declaration, but its delivery hashes remain to refresh. Evidence: `docs/migration/edition-provider-ethos.md` and `docs/migration/aigw-edition-provider.md`.
-  - [x] 6.1.1 Qualify pinned external input through the installed public build with zero source additions or effects; separate meaning and publication acceptance. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/external-input-installed-20261025/aigw-input-verification.json`; artwork and the external ETHOS successor remain unqualified.
-- [ ] 6.2 Resolve the distinct AIGW Product disposition with its source owner; qualify its selected media and exact acceptance without compulsory integration.
+- [ ] 6.1 Convert the AIGW model with identities, relations, details, sources, limits and attribution intact; its sources verify at `aigw-cli` revision `68876f0`, and its poster and map build.
+- [ ] 6.2 Rewrite the self model for the new architecture as an overview and mechanism views; every view is admitted and its sources verify.
+- [ ] 6.3 Author the ETHOS model and views in `architecture-publications` at a pinned ETHOS revision; every view is admitted and its sources verify.
+- [ ] 6.4 Build models of two unrelated repositories authored outside them; every view is admitted or refused with its specified diagnostic.
 
-## 7. ETHOS publication and feedback
+## 7. Documentation and quality
 
-- [ ] 7.1 Qualify pinned existing ETHOS material and complete external target diagrams covering formation, intent, Skills, cooperation, competition/all-drop, per-ref CAS, assurance, recovery and feedback; obtain designated successor acceptance without a source exporter or drawing obligation.
-- [ ] 7.2 Deliver the finite north-star decision packet to the ETHOS owner; record disposition and demonstrate one falsifying adoption journey, not merely handoff.
+- [ ] 7.1 Rewrite the README, product contract and references for the model-to-media product; Markdown and link checks pass.
+- [ ] 7.2 Pass the full static graph, the test suite with at least 95 percent coverage in every dimension, and the installed package journey on macOS.
+- [ ] 7.3 Pass the Linux and Windows quality jobs on an available Forge. Dependency: intranet GitLab is unreachable until its owner announces recovery.
 
-## 8. Implementation-grounded research
+## 8. Acceptance and release
 
-- [ ] 8.1 Converge SDD, OpenSpec, coordination, symbolic and graph semantics, formal methods and DR research at the ETHOS owner; bind actual implementations, quality and cost, adoption decisions, evidence and revisit triggers.
+- [ ] 8.1 Record the user's acceptance of the AIGW, self and ETHOS posters and maps with `archpub accept`.
+- [ ] 8.2 Publish the accepted deliveries to Documents with `archpub publish` and verify every copied digest.
+- [ ] 8.3 Publish a signed breaking SemVer release with a Keep a Changelog entry; verify the tag, assets and remote convergence on every reachable Forge.
 
-## 9. Artifact custody and recovery
+## 9. Deferred work
 
-- [ ] 9.1 Deliver selected Publisher, ETHOS and AIGW PNG6000 and standalone HTML to Documents and HTTP GitLab release custody; verify links, manifests, downloaded hashes and preserved predecessors. Dependency: GitLab custody is deferred while the user is off the intranet; proceed with local and already authorized GitHub custody.
-- [ ] 9.2 Prove source and asset recovery from simulated local loss via GitLab; disclose Git, asset, Forge and credential limits and retire only consumer-released residue. Dependency: GitLab recovery is deferred, not passed; qualify independent local and authorized peer recovery without contacting GitLab.
-
-## 10. Native quality, release and closeout
-
-- [ ] 10.1 Pass frozen full macOS, Linux and Windows gates, raster rebuilding, installed offline recovery and exact-source qualification; every coverage dimension must be at least 95 percent.
-- [ ] 10.2 Converge semantic modules, imports, configuration, documentation, formatting, warnings and latest stable project supply; pass the full static graph and exact installed ETHOS proof. Dependency: alpha.14 is bound; all six committed-source readiness providers pass with the owned npm archive cache, and native bootstrap plus the macOS Raster rebuild pass. Full native quality and installed proof remain open. Preserve the four accepted advisory limits, native rollback supply and failed witnesses. Evidence: `build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/joint-receiving-contract-20261026/ethos-alpha14-binding.json` and `ethos-alpha14-native-raster.json`.
-- [ ] 10.3 Publish a signed SemVer successor with Keep a Changelog and exact source and media acceptance; verify remote and protected-ref convergence, native Change and Lane closure, evidence custody and housekeeping. Dependency: qualified artwork, native source corrections and full proof precede landing and retirement; preserve unaccepted work. Owner: this Lane's writer; recheck these dependencies on October 26 and retain the October 31 terminal checkpoint. GitLab publication remains deferred; local and authorized GitHub closeout proceed when qualified. Evidence: canonical `build/evidence/guided-architecture-reading/records-owner-convergence-20261024/readback.json` and `candidate-role-relocation-20261024/native-readback.json`.
+- [ ] 9.1 Deliver the finite north-star decision packet to the ETHOS owner and record its disposition. Deferred past 2026-10-31 by the user; formerly 7.2.
+- [ ] 9.2 Converge implementation-grounded research at the ETHOS owner with bound implementations, evidence and revisit triggers. Deferred past 2026-10-31 by the user; formerly 8.1.
+- [ ] 9.3 Prove source and asset recovery from simulated local loss through GitLab. Deferred past 2026-10-31 by the user; formerly 9.2.

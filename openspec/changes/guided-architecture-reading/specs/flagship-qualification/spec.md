@@ -2,216 +2,216 @@
 
 ### Requirement: Flagship acceptance is conjunctive
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Faithful, intelligible, and restrained review
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Visible geometry is measured from painted output
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Human acceptance is bounded evidence
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Authored static description is separate from the visible subtitle
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Graphic occurrences do not create semantic identities
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Static Claims retain visible and structural carriers
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Aggregate connectors preserve each relation's role
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Inspection preserves one fact across repeated graphic sites
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Authored statements retain their own source identity
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Statement obligations derive from required assertions
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Editorial explanations and adornments remain distinct
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Authored primitives have derived paint footprints
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Primitive point budgets count actual paths
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Source marks cannot use background-only painting
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Adornments cannot define source grouping
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Relation routes bind exact ordered traversals
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Route contacts and painted direction agree
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Route expansion has finite existing bounds
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Editorial routes retain Edition ownership
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Selected fonts have one measured paint identity
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Native measurement is a bounded prepared operation
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Measured text is preserved within its supported profile
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Media derive independent occurrence evidence
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Authored interior text declares a scene-local owner
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Interior text preserves containment and non-owner clearance
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
 
 ### Requirement: Static directional checks follow arrow presence
 
-**Reason**: A tier-named quality owner conflicts with the uniform product.
+**Reason**: Qualification records bound hand-written decisions and ran no checks
+of their own.
 
-**Migration**: Preserve this complete requirement under
-`publication-qualification`; only tier terminology changes. Historical
-artifacts remain immutable, and no current executor retains a tier escape.
+**Migration**: Use frame admission in `reading-plan`, showcase delivery in
+`interactive-map` and the acceptance record in `edition-delivery`.
