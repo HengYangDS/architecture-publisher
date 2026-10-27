@@ -35,7 +35,7 @@ export function posterMetrics(model, typefaces) {
       },
     },
     cardText,
-    label: (relation, maxWidth = W.maximumLabel) => {
+    label: (relation, maxWidth = /** @type {number} */ (W.maximumLabel)) => {
       const width = Math.min(maxWidth, W.maximumLabel);
       const lines = [
         ...typefaces.wrap(relation.label, width, T.edge).map((text) => ({ text, role: "label" })),
@@ -145,7 +145,7 @@ function footnotes(model, provenance) {
  * @param {{ index: number, count: number }} position
  * @param {any} typefaces
  * @param {any} icons
- * @param {{ state: "none" | "unverified" | "verified", records: any[] }} provenance
+ * @param {{ state: string, records: any[] }} provenance
  */
 export function composePoster(model, view, position, typefaces, icons, provenance) {
   const metrics = posterMetrics(model, typefaces);
@@ -159,6 +159,7 @@ export function composePoster(model, view, position, typefaces, icons, provenanc
   const page = [];
 
   // Header.
+  /** @type {number} */
   let y = POSTER.margin.top;
   const meta = [
     model.repository
@@ -301,7 +302,7 @@ export function composePoster(model, view, position, typefaces, icons, provenanc
   );
   const components = new Map(view.components.map((component) => [component.id, component]));
   for (const [id, card] of layout.cards) {
-    const component = components.get(id);
+    const component = /** @type {any} */ (components.get(id));
     const style = presentation(model, component);
     const muted = style.outside || component.context;
     const hue = POSTER.hue[/** @type {keyof typeof POSTER.hue} */ (style.category)];

@@ -1,8 +1,0 @@
-{
-  "name": "@example/architecture-edition-provider",
-  "version": "1.0.0",
-  "type": "module",
-  "exports": {
-    "./provider": "./provider.mjs"
-  }
-}

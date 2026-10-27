@@ -9,7 +9,6 @@ ignores:
   - .git/**
   - openspec/changes/archive/**
   - tests/fixtures/**
-  - tests/conformance/fixtures/**
   - "**/supply/**"
   - packages/publisher/supplies/**
 customRules:

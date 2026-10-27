@@ -5,11 +5,20 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build, version as esbuildVersion } from "esbuild";
 import { includedPackages } from "./notices.mjs";
-import { noSymlinkAncestors } from "../../packages/publisher/src/file-input/read.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const sha = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const compare = (left, right) => (left < right ? -1 : left > right ? 1 : 0);
+
+/** Refuse a path any of whose existing components is a symbolic link. */
+async function noSymlinkAncestors(file) {
+  const absolute = path.resolve(file);
+  let current = path.parse(absolute).root;
+  for (const part of absolute.slice(current.length).split(path.sep)) {
+    current = path.join(current, part);
+    if ((await fs.lstat(current)).isSymbolicLink()) throw Error("likec4_supply_symlink_forbidden");
+  }
+}
 const requireBanner = [
   "import { createRequire as __archpubCreateRequire, builtinModules as __archpubBuiltinModules } from 'node:module';",
   "const __archpubNodeRequire = __archpubCreateRequire(import.meta.url);",
@@ -104,11 +113,6 @@ async function main() {
     throw Error("usage: likec4.mjs --write|--check");
   const files = await supplyFiles();
   const destination = path.join(root, "packages/publisher/supplies/likec4");
-  const identityPath = path.join(root, "packages/publisher/src/semantics/supply-identity.mjs");
-  const identity = Buffer.from(
-    "/** Generated from the admitted LikeC4 parser supply. Do not edit. */\n" +
-      `export const LIKEC4_SUPPLY_SHA256 =\n  ${JSON.stringify(sha(files.get("supply.json")))};\n`,
-  );
   if (mode === "--write") {
     await fs.mkdir(destination, { recursive: true });
     await noSymlinkAncestors(destination);
@@ -118,19 +122,8 @@ async function main() {
     )
       throw Error("likec4_supply_unknown_content");
     for (const [name, bytes] of files) await fs.writeFile(path.join(destination, name), bytes);
-    await noSymlinkAncestors(path.dirname(identityPath));
-    try {
-      const entry = await fs.lstat(identityPath);
-      if (!entry.isFile() || entry.isSymbolicLink()) throw Error("likec4_supply_identity_invalid");
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
-    await fs.writeFile(identityPath, identity);
   }
   await verifyDirectory(destination, files);
-  await noSymlinkAncestors(identityPath);
-  if (!(await fs.readFile(identityPath)).equals(identity))
-    throw Error("likec4_supply_identity_drift");
   process.stdout.write(`LikeC4 supply ${mode === "--write" ? "written" : "verified"}\n`);
 }
 

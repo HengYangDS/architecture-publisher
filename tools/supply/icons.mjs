@@ -64,15 +64,8 @@ const manifest = Buffer.from(
     2,
   ) + "\n",
 );
-const identity = Buffer.from(
-  `/** Generated from the pinned icon supply. Do not edit. */\nexport const ICON_SUPPLY_SHA256 =\n  ${JSON.stringify(sha(manifest))};\n`,
-);
-const target = path.join(root, "packages/publisher/renderers/icons");
-for (const [name, bytes] of [
-  ...files.map(([name, bytes]) => [`supply/${name}`, bytes]),
-  ["supply/supply.json", manifest],
-  ["identity.mjs", identity],
-]) {
+const target = path.join(root, "packages/publisher/renderers/icons/supply");
+for (const [name, bytes] of [...files, ["supply.json", manifest]]) {
   if (mode === "--write") {
     await fs.mkdir(path.dirname(path.join(target, name)), { recursive: true });
     await fs.writeFile(path.join(target, name), bytes);

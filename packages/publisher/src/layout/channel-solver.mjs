@@ -229,6 +229,7 @@ function assignTracks(spans, crossers) {
       : [[...spans.keys()].sort((a, b) => spans[a].low - spans[b].low || a - b)];
   const conflict = (a, b) =>
     spans[a].tops.some((x) => spans[b].bottoms.some((y) => Math.abs(x - y) < 1));
+  /** @type {any} */
   let best = null;
   for (const sequence of orders) {
     const track = new Array(count).fill(-1);
@@ -268,6 +269,29 @@ function assignTracks(spans, crossers) {
   return best;
 }
 
+/** Where a vertical turns, from the channel top down: upper band, label rows, lower band, through. */
+const ZONE = Object.freeze({ upper: 0, row: 1, lower: 2, through: 3 });
+
+/**
+ * Whether two wires' verticals at one x would share a segment. A vertical from
+ * the top must turn above one from the bottom; within one band the track
+ * assignment orders them, so only turns in different zones or rows are decided here.
+ */
+function coincident(choice, other) {
+  for (const a of choice.verticals)
+    for (const b of other.verticals) {
+      if (Math.abs(a.x - b.x) >= 1) continue;
+      if (a.turn === "through" || b.turn === "through" || a.from === b.from) return true;
+      const [top, topOption, bottom, bottomOption] =
+        a.from === "top" ? [a, choice, b, other] : [b, other, a, choice];
+      const [above, below] = [ZONE[top.turn], ZONE[bottom.turn]];
+      if (above > below) return true;
+      if (above === ZONE.row && below === ZONE.row && topOption.row >= bottomOption.row)
+        return true;
+    }
+  return false;
+}
+
 /** Whether `choice` for wire `index` fits the choices already made on its label rows. */
 function compatible(channel, chosen, index, choice, rows, spacing) {
   const wires = channel.wires;
@@ -277,6 +301,7 @@ function compatible(channel, chosen, index, choice, rows, spacing) {
     return { low: option.label - width / 2, high: option.label + width / 2 };
   };
   for (const [j, other] of chosen) {
+    if (coincident(choice, other)) return false;
     for (let row = 0; row < rows; row += 1) {
       const mineBox =
         choice.label !== undefined && choice.row === row ? boxOf(index, choice) : null;
@@ -324,10 +349,18 @@ function rowCrossings(chosen, rows) {
  * Solve one channel exactly within a search budget: the clean assignment with
  * the fewest label rows, tracks and crossings. Returns null when none exists.
  */
-export function solveChannel(channel, spacing) {
+export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS) {
   const wires = channel.wires;
   const choices = wires.map((made) => options(channel, made, spacing));
-  for (let rows = 1; rows <= MAXIMUM_LABEL_ROWS; rows += 1) {
+  // Many assignments differ only in label positions, so band tracks are solved once per band content.
+  const solved = new Map();
+  const tracksFor = (spans, crossers) => {
+    const key = JSON.stringify([spans, crossers]);
+    if (!solved.has(key)) solved.set(key, assignTracks(spans, crossers));
+    return solved.get(key);
+  };
+  for (let rows = 1; rows <= maximumRows; rows += 1) {
+    /** @type {any} */
     let best = null;
     let visited = 0;
     const chosen = [];
@@ -347,8 +380,8 @@ export function solveChannel(channel, spacing) {
               .filter((vertical) => crossesBand(vertical, band))
               .map((vertical) => ({ x: vertical.x, wire: i })),
           );
-        const up = assignTracks(upper, crossers("upper"));
-        const low = assignTracks(lower, crossers("lower"));
+        const up = tracksFor(upper, crossers("upper"));
+        const low = tracksFor(lower, crossers("lower"));
         if (!up || !low) return;
         const score =
           preference +

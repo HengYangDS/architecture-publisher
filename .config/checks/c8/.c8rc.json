@@ -1,15 +1,7 @@
 {
   "all": true,
   "merge-async": true,
-  "include": [
-    "packages/publisher/src/**/*.mjs",
-    "packages/publisher/renderers/**/*.mjs",
-    "editions/self/src/**/*.mjs"
-  ],
-  "exclude": [
-    "packages/publisher/src/edition/generated/**",
-    "packages/publisher/renderers/**/supply/**"
-  ],
+  "include": ["packages/publisher/src/**/*.mjs"],
   "check-coverage": true,
   "statements": 95,
   "lines": 95,

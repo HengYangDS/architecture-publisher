@@ -1,29 +1,12 @@
 {
   "name": "architecture-publisher",
-  "version": "0.3.0-alpha.15",
-  "description": "Source-bound semantic architecture editions with independent static and interactive publication",
+  "version": "0.4.0-alpha.0",
+  "description": "Publish a repository's architecture model as a poster and an interactive map",
   "type": "module",
   "bin": {
     "archpub": "src/cli/main.mjs"
   },
   "exports": {
-    ".": "./src/index.mjs",
-    "./file-input": "./src/file-input/index.mjs",
-    "./source": "./src/source/index.mjs",
-    "./semantics": "./src/semantics/index.mjs",
-    "./edition": "./src/edition/index.mjs",
-    "./provider": "./src/provider/index.mjs",
-    "./scene": "./src/scene/index.mjs",
-    "./compiler": "./src/compiler/index.mjs",
-    "./rendering": "./src/rendering/index.mjs",
-    "./qualification": "./src/qualification/index.mjs",
-    "./publication": "./src/publication/index.mjs",
-    "./runtime": "./src/runtime.mjs",
-    "./renderers/archify": "./renderers/archify/public.mjs",
-    "./renderers/interactive": "./renderers/interactive/index.mjs",
-    "./renderers/fonts": "./renderers/fonts/index.mjs",
-    "./renderers/resvg": "./renderers/resvg/public.mjs",
-    "./renderers/svg": "./renderers/svg/index.mjs",
     "./package.json": "./package.json"
   },
   "files": [
@@ -34,6 +17,6 @@
   ],
   "license": "UNLICENSED",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   }
 }

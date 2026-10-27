@@ -13,53 +13,12 @@ static-analysis = "node-static"
 [[proof.source_contracts]]
 kind = "upstream"
 input_refs = [
-  "package-lock.json#packages/node_modules/libavoid-js",
-  "package-lock.json#packages/node_modules/@dagrejs/dagre",
-  "package-lock.json#packages/node_modules/elkjs",
-  "package-lock.json#packages/node_modules/svg-pan-zoom",
   "package-lock.json#packages/node_modules/sax",
   "package-lock.json#packages/node_modules/opentype.js",
-  "package-lock.json#packages/node_modules/@exodus/schemasafe",
 ]
 integrity_gate = "source-integrity"
 
 [proof.source_contracts.members]
-"packages/publisher/renderers/avoid/supply/router.mjs" = [
-  "package-lock.json#packages/node_modules/libavoid-js",
-  "package/dist/index-node.mjs",
-]
-"packages/publisher/renderers/avoid/supply/libavoid.wasm" = [
-  "package-lock.json#packages/node_modules/libavoid-js",
-  "package/dist/libavoid.wasm",
-]
-"packages/publisher/renderers/avoid/supply/LICENSE" = [
-  "package-lock.json#packages/node_modules/libavoid-js",
-  "package/LICENSE",
-]
-"packages/publisher/renderers/dagre/supply/dagre.min.js" = [
-  "package-lock.json#packages/node_modules/@dagrejs/dagre",
-  "package/dist/dagre.min.js",
-]
-"packages/publisher/renderers/dagre/supply/LICENSE" = [
-  "package-lock.json#packages/node_modules/@dagrejs/dagre",
-  "package/LICENSE",
-]
-"packages/publisher/renderers/elk/supply/elk.cjs" = [
-  "package-lock.json#packages/node_modules/elkjs",
-  "package/lib/elk.bundled.js",
-]
-"packages/publisher/renderers/elk/supply/LICENSE" = [
-  "package-lock.json#packages/node_modules/elkjs",
-  "package/LICENSE.md",
-]
-"packages/publisher/renderers/interactive/supply/svg-pan-zoom.min.js" = [
-  "package-lock.json#packages/node_modules/svg-pan-zoom",
-  "package/dist/svg-pan-zoom.min.js",
-]
-"packages/publisher/renderers/interactive/supply/LICENSE" = [
-  "package-lock.json#packages/node_modules/svg-pan-zoom",
-  "package/LICENSE",
-]
 "packages/publisher/renderers/resvg/supply/sax/sax.cjs" = [
   "package-lock.json#packages/node_modules/sax",
   "package/lib/sax.js",
@@ -83,10 +42,6 @@ integrity_gate = "source-integrity"
 "packages/publisher/renderers/resvg/supply/opentype/package.json" = [
   "package-lock.json#packages/node_modules/opentype.js",
   "package/package.json",
-]
-"packages/publisher/src/edition/generated/LICENSE.schemasafe" = [
-  "package-lock.json#packages/node_modules/@exodus/schemasafe",
-  "package/LICENSE",
 ]
 
 [[proof.source_contracts]]

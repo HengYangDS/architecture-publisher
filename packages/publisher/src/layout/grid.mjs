@@ -102,8 +102,11 @@ export function layoutView(view, metrics, options = {}) {
     spacing,
     label: metrics.label,
   });
+  // A one-row view's U wires run in a trailing channel below the row, inside the boundary.
+  const trailing = wiring.channels.length === rows.length;
   for (const channel of wiring.channels)
-    channel.edges = frame && channel.index >= first && channel.index < last ? frame : [];
+    channel.edges =
+      frame && ((channel.index >= first && channel.index < last) || trailing) ? frame : [];
   spreadPorts(wiring.sides, box, cardWidth, spacing, spacing.portSpacing);
   straighten(wiring.wires, wiring.sides, box, cardWidth, spacing);
   const solutions = wiring.channels.map((channel) =>
@@ -124,9 +127,11 @@ export function layoutView(view, metrics, options = {}) {
       cursor += cardHeight + above + solutions[index].height + below;
     }
   }
+  const below = trailing ? solutions[rows.length - 1].height : 0;
   const height =
     rowTop[rows.length - 1] +
     cardHeight +
+    below +
     spacing.rowPad +
     (bounded && last === rows.length - 1 ? spacing.boundaryBottom : 0);
   const cards = new Map(
@@ -147,12 +152,13 @@ export function layoutView(view, metrics, options = {}) {
   const channels = [];
   wiring.channels.forEach((channel, index) => {
     const top = rowTop[index] + cardHeight;
+    const bottom = rowTop[index + 1] ?? top + solutions[index].height;
     const geometry = channelGeometry(
       channel,
       solutions[index],
       top,
-      rowTop[index + 1],
-      offsets[index],
+      bottom,
+      offsets[index] ?? 0,
       spacing,
     );
     paths.push(...geometry.paths);
@@ -161,7 +167,7 @@ export function layoutView(view, metrics, options = {}) {
     channels.push({
       index,
       top,
-      bottom: rowTop[index + 1],
+      bottom,
       labelRows: geometry.labelRows,
       crossings: solutions[index].crossings,
     });
@@ -212,6 +218,7 @@ export function layoutView(view, metrics, options = {}) {
       row,
     });
   }
+  /** @type {{ x: number, y: number, width: number, height: number, name: string | null } | null} */
   let boundary = null;
   if (frame) {
     const y = rowTop[first] - head;
@@ -219,7 +226,7 @@ export function layoutView(view, metrics, options = {}) {
       x: frame[0],
       y,
       width: frame[1] - frame[0],
-      height: rowTop[last] + cardHeight + spacing.boundaryBottom - y,
+      height: rowTop[last] + cardHeight + below + spacing.boundaryBottom - y,
       name: options.boundaryName ?? null,
     };
   }
@@ -260,14 +267,16 @@ function routeChannel(channel, wiring, box, cardWidth, spacing) {
       ]),
     ),
   ];
+  /** @type {{ rank: number, gap: number | null, rows: number } | null} */
   let best = null;
   for (const gap of [...PORT_GAPS, cardWidth]) {
     spreadPorts(wiring.sides, box, cardWidth, spacing, gap ?? spacing.portSpacing, keys);
     straighten(channel.wires, wiring.sides, box, cardWidth, spacing);
-    const solution = solveChannel(channel, spacing);
+    // A wider spacing is worth searching only for routings with no more label rows than the best.
+    const solution = solveChannel(channel, spacing, best?.rows);
     if (!solution) continue;
     const rank = solution.height * 10 + solution.score + (gap ?? 0) / 100;
-    if (!best || rank < best.rank) best = { rank, gap };
+    if (!best || rank < best.rank) best = { rank, gap, rows: solution.labelHeights.length };
   }
   if (!best)
     refuse(

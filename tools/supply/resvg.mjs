@@ -8,10 +8,8 @@ const mode = process.argv[2];
 if (process.argv.length !== 3 || !["--check", "--write"].includes(mode))
   throw Error("raster_supply_mode_required");
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const target = path.join(root, "packages/publisher/renderers/resvg");
-const supply = path.join(target, "supply");
+const supply = path.join(root, "packages/publisher/renderers/resvg/supply");
 const manifestPath = path.join(supply, "supply.json");
-const identityPath = path.join(target, "identity.mjs");
 const source = JSON.parse(await fs.readFile(path.join(supply, "resvg/source.json"), "utf8"));
 const noticesPath = path.join(supply, "resvg/THIRD-PARTY-NOTICES.txt");
 const noticesText = await fs.readFile(noticesPath, "utf8");
@@ -84,14 +82,8 @@ const result = spawnSync(
 if (result.error) throw result.error;
 if (result.status !== 0) throw Error(result.stderr.trim() || "raster_supply_source_invalid");
 const content = Buffer.from(JSON.stringify({ ...manifest, files }, null, 2) + "\n");
-const identity = Buffer.from(
-  "/** Generated from the admitted Raster supply. Do not edit. */\n" +
-    `export const RASTER_SUPPLY_SHA256 =\n  ${JSON.stringify(sha(content))};\n`,
-);
 if (mode === "--write") {
   if (!Buffer.from(noticesText).equals(notices)) await fs.writeFile(noticesPath, notices);
   await fs.writeFile(manifestPath, content);
-  await fs.writeFile(identityPath, identity);
-} else if (!manifestBytes.equals(content) || !(await fs.readFile(identityPath)).equals(identity))
-  throw Error("raster_supply_drift");
+} else if (!manifestBytes.equals(content)) throw Error("raster_supply_drift");
 process.stdout.write(`Raster supply ${mode === "--write" ? "generated" : "verified"}\n`);

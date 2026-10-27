@@ -1,7 +1,7 @@
 "$schema" = "https://unpkg.com/knip@6/schema.json"
 treatConfigHintsAsErrors = true
 ignoreBinaries = ["cue", "mise", "taplo"]
-ignoreDependencies = ["@types/punycode", "sax", "opentype.js"]
+ignoreDependencies = ["sax", "opentype.js"]
 
 [typescript]
 config = ".config/checks/typescript/tsconfig.json"
@@ -11,27 +11,14 @@ config = ".config/checks/markdownlint-cli2/.markdownlint-cli2.yaml"
 
 [workspaces."."]
 entry = [
-  "tests/conformance/journeys/provider/run.mjs",
-  "tests/conformance/journeys/self-host/build.mjs",
   "tests/conformance/journeys/raster/rebuild.test.mjs",
-  "tools/migration/semantic-document-to-claim-model.mjs",
-  "tools/qualification/semantic-browser.mjs",
   "tools/raster/resvg/verify.mjs",
   "tests/*.test.mjs",
 ]
-project = [
-  "tests/conformance/journeys/provider/**/*.mjs",
-  "tests/conformance/journeys/self-host/**/*.mjs",
-  "tools/**/*.mjs",
-  "tests/**/*.mjs",
-]
+project = ["tools/**/*.mjs", "tests/**/*.mjs"]
 includeEntryExports = true
 
 [workspaces."packages/publisher"]
-project = ["src/**/*.mjs", "renderers/**/*.mjs"]
-ignore = ["renderers/*/supply/**"]
-includeEntryExports = false
-
-[workspaces."editions/self"]
+entry = ["src/importers/likec4-worker.mjs"]
 project = ["src/**/*.mjs"]
 includeEntryExports = false

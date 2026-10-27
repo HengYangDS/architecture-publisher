@@ -16,8 +16,9 @@ async function resvg() {
       await fs.readFile(path.join(supply.root, "resvg", "index_bg.wasm")),
     );
     const instance = new WebAssembly.Instance(wasm, { "./index_bg.js": glue });
-    glue.__wbg_set_wasm(instance.exports);
-    instance.exports.__wbindgen_start();
+    const exports = /** @type {any} */ (instance.exports);
+    glue.__wbg_set_wasm(exports);
+    exports.__wbindgen_start();
     renderer = new glue.Renderer();
   }
   return renderer;

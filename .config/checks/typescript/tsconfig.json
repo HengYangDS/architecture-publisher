@@ -11,30 +11,11 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2024",
-    "types": ["node", "punycode"]
+    "types": ["node"]
   },
   "typeAcquisition": {
     "enable": false
   },
-  "include": [
-    "../../../packages/publisher/src/source/**/*.mjs",
-    "../../../packages/publisher/src/runtime/**/*.mjs",
-    "../../../packages/publisher/src/semantics/**/*.mjs",
-    "../../../packages/publisher/src/edition/**/*.mjs",
-    "../../../packages/publisher/src/provider/**/*.mjs",
-    "../../../packages/publisher/src/scene/**/*.mjs",
-    "../../../packages/publisher/src/compiler/candidate.mjs",
-    "../../../packages/publisher/src/qualification/contract.mjs",
-    "../../../packages/publisher/src/publication/contract.mjs"
-  ],
-  "exclude": [
-    "../../../build/**",
-    "../../../node_modules/**",
-    "../../../packages/publisher/renderers/archify/supply/**",
-    "../../../packages/publisher/renderers/interactive/supply/**",
-    "../../../packages/publisher/renderers/dagre/supply/**",
-    "../../../packages/publisher/renderers/elk/supply/**",
-    "../../../packages/publisher/renderers/fonts/supply/**",
-    "../../../packages/publisher/renderers/resvg/supply/**"
-  ]
+  "include": ["../../../packages/publisher/src/**/*.mjs"],
+  "exclude": ["../../../build/**", "../../../node_modules/**"]
 }

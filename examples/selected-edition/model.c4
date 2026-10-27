@@ -1,4 +1,0 @@
-specification { element component }
-model { alpha = component 'Alpha'
- beta = component 'Beta'
- alpha -> beta }

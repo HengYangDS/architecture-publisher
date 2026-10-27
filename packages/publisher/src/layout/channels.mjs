@@ -22,6 +22,7 @@
  */
 export function buildWires(input) {
   const { order, classes, box, spacing } = input;
+  const at = (id) => /** @type {{ x: number, cx: number }} */ (box.get(id));
   const rowCount = order.length;
   const channels = Array.from(
     { length: Math.max(0, rowCount - 1) },
@@ -34,12 +35,14 @@ export function buildWires(input) {
   let sequence = 0;
   const wire = (channel, spec) => {
     const made = /** @type {Wire} */ ({ order: sequence++, channel, top: [], bottom: [], ...spec });
+    // A view of one row routes its U wires through a trailing channel below the row.
+    if (channel === channels.length) channels.push({ index: channel, wires: [] });
     channels[channel].wires.push(made);
     wires.push(made);
     return made;
   };
   const end = (made, where, id, toward, arrow = false) => {
-    const point = { id, x: id ? box.get(id).cx : toward, arrow, wire: made, toward };
+    const point = { id, x: id ? at(id).cx : toward, arrow, wire: made, toward };
     made[where].push(point);
     if (id) {
       const key = `${id}:${where === "top" ? "bottom" : "top"}`;
@@ -54,8 +57,8 @@ export function buildWires(input) {
       relations: [relation],
       label: input.label(relation),
     });
-    end(made, "top", top, box.get(bottom).cx, !down);
-    end(made, "bottom", bottom, box.get(top).cx, down);
+    end(made, "top", top, at(bottom).cx, !down);
+    end(made, "bottom", bottom, at(top).cx, down);
   }
   for (const bus of classes.buses) {
     const hubRow = classes.rowOf.get(bus.hub);
@@ -66,34 +69,33 @@ export function buildWires(input) {
       relations: bus.relations,
       label: input.label(bus.relations[0]),
     });
-    const middle = bus.leaves.reduce((sum, id) => sum + box.get(id).cx, 0) / bus.leaves.length;
+    const middle = bus.leaves.reduce((sum, id) => sum + at(id).cx, 0) / bus.leaves.length;
     end(made, hubWhere, bus.hub, middle, bus.type === "in");
     for (const leaf of bus.leaves)
-      end(
-        made,
-        hubWhere === "top" ? "bottom" : "top",
-        leaf,
-        box.get(bus.hub).cx,
-        bus.type === "out",
-      );
+      end(made, hubWhere === "top" ? "bottom" : "top", leaf, at(bus.hub).cx, bus.type === "out");
   }
+  // One straight arrow per gap; further relations between the same neighbors take U wires.
+  const gaps = new Set();
   for (const relation of classes.sameRow) {
     const row = classes.rowOf.get(relation.from);
-    const [a, b] = [box.get(relation.from), box.get(relation.to)];
+    const [a, b] = [at(relation.from), at(relation.to)];
     const [left, right] = a.x < b.x ? [a, b] : [b, a];
     const neighbors =
       Math.abs(order[row].indexOf(relation.from) - order[row].indexOf(relation.to)) === 1;
     const gap = right.x - (left.x + input.cardWidth);
     const label = input.label(relation, Math.max(80, gap - 2 * spacing.clear));
+    const key = `${row}:${left.x}`;
     if (
       neighbors &&
+      !gaps.has(key) &&
       gap >= label.width + 2 * spacing.clear &&
       label.height <= input.cardHeight - 16
     ) {
+      gaps.add(key);
       straights.push({ relation, left, right, label, fromLeft: a === left, row });
       continue;
     }
-    const below = row < rowCount - 1;
+    const below = row < rowCount - 1 || rowCount === 1;
     const made = wire(below ? row : row - 1, {
       type: below ? "u-down" : "u-up",
       relations: [relation],
@@ -107,7 +109,7 @@ export function buildWires(input) {
     const down = classes.rowOf.get(relation.from) < classes.rowOf.get(relation.to);
     const [top, bottom] = down ? [relation.from, relation.to] : [relation.to, relation.from];
     const [first, last] = [classes.rowOf.get(top), classes.rowOf.get(bottom)];
-    const x = corridor(input, first, last, box.get(top).cx, box.get(bottom).cx, taken);
+    const x = corridor(input, first, last, at(top).cx, at(bottom).cx, taken);
     const head = wire(first, {
       type: "single",
       relations: [relation],
@@ -181,6 +183,32 @@ export function spreadPorts(sides, box, cardWidth, spacing, gap, keys = [...side
     ends.forEach((point, index) => {
       point.x = ends.length === 1 ? center : center - span / 2 + (span * index) / (ends.length - 1);
     });
+  }
+  // A card's top ports facing the same channel's bottom ports at equal x would make two wires
+  // share a vertical, so that side moves by half a gap, staying within its port margins.
+  for (const key of keys) {
+    const ends = sides.get(key);
+    if (!ends || !key.endsWith(":top")) continue;
+    const card = box.get(key.slice(0, key.lastIndexOf(":")));
+    const facing = [...sides]
+      .filter(([other]) => other.endsWith(":bottom"))
+      .flatMap(([, points]) => points)
+      .filter((point) => point.wire.channel === ends[0].wire.channel);
+    const clash = (shift) =>
+      ends.some((point) =>
+        facing.some(
+          (other) => other.wire !== point.wire && Math.abs(other.x - point.x - shift) < 1,
+        ),
+      );
+    if (!clash(0)) continue;
+    const fits = (shift) =>
+      ends.every(
+        (point) =>
+          point.x + shift >= card.x + spacing.portMargin - 0.01 &&
+          point.x + shift <= card.x + cardWidth - spacing.portMargin + 0.01,
+      );
+    const shift = [gap / 2, -gap / 2].find((candidate) => fits(candidate) && !clash(candidate));
+    if (shift !== undefined) for (const point of ends) point.x += shift;
   }
 }
 

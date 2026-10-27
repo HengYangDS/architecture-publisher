@@ -148,6 +148,7 @@ export function placeRows(input) {
     );
   const relations = classifyRelations(rows, input.relations);
   const minimum = Math.max(1, ...rows.map((members) => members.length));
+  /** @type {any} */
   let best = null;
   for (let columns = minimum; columns <= minimum + MAXIMUM_SPARE_COLUMNS; columns += 1) {
     const result = placeOnLattice(input, relations, columns, columns > minimum);
@@ -197,6 +198,7 @@ function placeOnLattice(input, relations, columns, optional) {
   const bounded =
     internalRows.length > 0 && input.rows.some((members) => members.some(input.external));
   const intervals = bounded ? boundaryIntervals(input, internalRows, slots) : [null];
+  /** @type {any} */
   let best = null;
   for (const interval of intervals) {
     const allowed = states.map((list, row) =>
@@ -208,6 +210,7 @@ function placeOnLattice(input, relations, columns, optional) {
           inside(input, state, interval),
       ),
     );
+    /** @type {any} */
     let result = viterbi(states, unary, pairs, allowed, () => 0);
     if (!result) continue;
     if (relations.long.length) {

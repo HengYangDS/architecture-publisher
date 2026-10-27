@@ -85,7 +85,7 @@ export function mapView(model) {
     title: model.title,
     question: model.question,
     summary: model.summary,
-    origin: "map",
+    origin: /** @type {const} */ ("complete"),
     tiers,
     components: model.components,
     relations: model.relations,
@@ -99,7 +99,7 @@ function mapMetrics(model, bounded) {
     label: (relation) => ({
       width: Math.max(30, textUnits(relation.label) * 4.8 + 10) + 8,
       height: 18,
-      lines: [{ text: relation.label, role: "label" }],
+      lines: [{ text: relation.label, role: /** @type {const} */ ("label") }],
     }),
     external: (component) => bounded && presentation(model, component).outside,
     spacing: {
@@ -235,7 +235,9 @@ export function mapDocument(model, views, binding) {
   const labelled = new Set();
   const connections = model.relations.map((relation) => {
     const [a, b] = [rowOf.get(relation.from), rowOf.get(relation.to)];
-    const [from, to] = [layout.cards.get(relation.from), layout.cards.get(relation.to)];
+    const [from, to] = [relation.from, relation.to].map(
+      (id) => /** @type {{ x: number }} */ (layout.cards.get(id)),
+    );
     const sides =
       a < b
         ? ["bottom", "top"]
