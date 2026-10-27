@@ -9,9 +9,8 @@ medium's own metrics.
 ### Requirement: Equal cards on one lattice
 
 Every card of a view SHALL have the same width and height. The width SHALL be
-the largest that lets the view's widest row fit the medium's frame, within the
-medium's bounds, and the height SHALL fit the tallest card content at that
-width. Card positions SHALL be whole or half columns of one pitch, and every
+the one the composition chose within the medium's bounds, and the height SHALL
+fit the tallest card content at that width. Card positions SHALL be whole or half columns of one pitch, and every
 card of a row SHALL share one top edge.
 
 #### Scenario: Cards with different amounts of text
@@ -109,7 +108,7 @@ through a column gap or an empty cell.
 Each laid-out view SHALL be measured for non-orthogonal segments, segments
 shared by different relations, wires through cards, label boxes intersecting
 cards, other labels or other relations' wires, text below the medium's floor
-and content outside the frame. Any of these SHALL refuse the view with the
+and content outside the frame. Any of these SHALL refuse the layout with the
 offending relation, card or label. Crossings SHALL be minimized, reported and
 drawn only as perpendicular crossings away from bends, ports and labels.
 
@@ -125,6 +124,18 @@ drawn only as perpendicular crossings away from bends, ports and labels.
   the next row
 - **THEN** the view is laid out with nine crossings, the minimum for two rows
 - **AND** the measurements report that number without refusing
+
+### Requirement: Route limits
+
+A relation SHALL have at most two bends, or four when it skips rows, and no
+segment shorter than 16 px; these are Archify's suggested limits, so both
+media are judged alike. A layout outside them SHALL be refused with the
+relation and its measure.
+
+#### Scenario: A relation between adjacent rows
+
+- **WHEN** a relation connects two adjacent rows
+- **THEN** its wire has at most two bends
 
 ### Requirement: Layout bounds
 

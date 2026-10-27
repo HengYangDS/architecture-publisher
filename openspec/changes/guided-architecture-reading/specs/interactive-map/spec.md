@@ -1,172 +1,110 @@
 ## Purpose
 
-Deliver each model as a native Archify exploration document with guided views
-and complete evidence.
+Deliver each model as one native Archify explainer page that answers the
+model's question view by view, with native architecture diagrams that open
+the full interactive viewer.
 
 ## ADDED Requirements
 
-### Requirement: Native Archify document
+### Requirement: Native Archify explainer
 
-The map SHALL be one standalone HTML document produced by the vendored,
-unmodified Archify `deliver` command from an architecture document written by
-the publisher with the showcase quality profile. The publisher SHALL NOT patch
-Archify, replace its fonts or routing, or post-process its output.
+The interactive delivery SHALL be one standalone HTML page produced by the
+vendored, unmodified Archify from an explainer draft and one architecture
+document per view, written by the publisher. The publisher SHALL NOT patch
+Archify, replace its fonts, routing or reader, or post-process its output.
 
 #### Scenario: An unmodified renderer
 
-- **WHEN** a map is delivered
+- **WHEN** a page is delivered
 - **THEN** the Archify supply's digest matches its recorded release archive
 
-### Requirement: Map quality gate
+### Requirement: Question-led page
 
-The delivery SHALL be gated at Archify's showcase quality. When that gate fails,
-it SHALL be gated at standard quality and accepted only when Archify's sole
-findings are route crossings and routes sharing a corridor, whose counts the
-manifest records. Any other Archify error or warning SHALL refuse the build.
+The page SHALL be titled with the model's question and open with its summary
+as the conclusion and its scope, limits and attribution as the page scope.
+Each view SHALL be one panel, in the plan's order, titled with the view's
+question and holding that view's native architecture diagram. The page SHALL
+NOT print digests, verification records or complete source lists; they stay
+in the manifest.
 
-#### Scenario: A map is delivered
+#### Scenario: Four views
 
-- **WHEN** a valid model is built
-- **THEN** `index.html` is the document Archify delivered at showcase quality
-- **AND** the manifest records Archify's supply digest, the profile and zero
-  crossings and corridors
+- **WHEN** a model declares four views
+- **THEN** the page has four panels in that order, each with its question as
+  its title and its diagram
+- **AND** no panel lists a SHA-256 digest
 
-#### Scenario: Routes that must meet
+### Requirement: View diagrams
 
-- **WHEN** three components each call the same three components in the next row
-- **THEN** the map is delivered at standard quality
-- **AND** the manifest records its crossings and corridors
-
-#### Scenario: Archify refuses
-
-- **WHEN** Archify reports any other failed check
-- **THEN** the build refuses with Archify's diagnostic and writes no delivery
-
-### Requirement: Independent composition
-
-The publisher SHALL compute map positions, sizes and connection sides with the
-grid layout and Archify's text metrics, and SHALL leave routing, port spreading
-and label placement to Archify. Map geometry SHALL NOT be derived from poster
-coordinates, poster images or screenshots.
-
-#### Scenario: Different metrics, same structure
-
-- **WHEN** a view is laid out for both media
-- **THEN** each medium's positions come from its own layout run with its own
-  metrics
-
-#### Scenario: Native routes
-
-- **WHEN** a relation connects a component to one in the next row
-- **THEN** the Archify connection leaves the bottom side, enters the top side
-  and carries no waypoints
-
-#### Scenario: A relation that skips rows
-
-- **WHEN** a relation connects components in rows that are not adjacent
-- **THEN** its Archify connection names no sides and no waypoints, so Archify
-  plans a route around the cards between
-
-#### Scenario: A relation that passes cards in its row
-
-- **WHEN** a relation connects two components of one row with another card
-  between them
-- **THEN** its Archify connection names no sides and no waypoints, so Archify
-  plans a route around the cards between
-
-#### Scenario: A relation within a row without room for its label
-
-- **WHEN** the grid draws a relation between neighbors of one row below that
-  row because its label does not fit between them
-- **THEN** its Archify connection leaves and enters the bottom sides
-
-### Requirement: Exploration content
-
-The map SHALL contain every component of the model with its label, its kind as
-tag and a short first detail as sublabel; the system boundary as a region when
-every label still fits at 14 px and the outside components can stay outside it;
-every relation as a labeled
-connection, dashed when planned or retired; and the seven native component
-types as color families mapped from
-the kind categories, with `person` drawn as `external`, whose legend labels
-name the model kinds.
+Each view's diagram SHALL contain the view's components with their label,
+kind as tag and a first detail as sublabel, and its relations as labeled
+connections, dashed when planned or retired. Kinds SHALL map to Archify's
+seven native types as color families, with `person` drawn as `external`, and
+the legend SHALL name the model's kinds. Positions and sizes SHALL come from
+the grid layout with Archify's text metrics.
 
 #### Scenario: Kinds become color families
 
-- **WHEN** a model declares a `database` kind and a `person` kind
+- **WHEN** a view shows a `database` kind and a `person` kind
 - **THEN** their components use Archify's database and external types
 - **AND** the legend names the model's kind labels
 
-### Requirement: Map rows
+### Requirement: Candidate diagrams
 
-The map's rows SHALL be the groups, wrapped at five cards, when the groups cover
-every component, and otherwise rows from relations with at most five cards.
+For each view the publisher SHALL lay out a finite set of candidate diagrams,
+each a row wrapping and a content width, and obtain every candidate's routes
+from Archify's own layout.
 
-#### Scenario: A wide group
+#### Scenario: Routes from Archify
 
-- **WHEN** every component is in a group and one group has six members
-- **THEN** that group fills two rows of three cards
+- **WHEN** a view's candidates are compared
+- **THEN** each comparison uses the routes Archify computed for that candidate
 
-### Requirement: Map layout refusal
+### Requirement: Chosen diagram
 
-The map SHALL draw every component and relation of the model. When the grid
-cannot wire the map's rows without an overlap, with or without the system
-boundary, the build SHALL refuse with `map_layout_refused`, list the relations
-concerned and write no delivery; the map SHALL NOT omit a component or relation
-to fit.
+The publisher SHALL choose the candidate with the fewest route crossings, then
+the fewest routes over two bends, then the smallest stretch above 1.35, then
+the shape closest to the landscape band. The chosen diagram SHALL pass
+Archify's showcase checks; a view with no passing candidate SHALL be refused
+with Archify's findings. The manifest SHALL record the choice and its metrics.
 
-#### Scenario: Relations the map cannot wire
+#### Scenario: A clean view diagram
 
-- **WHEN** three components each call the same three components with nine
-  distinct labels
-- **THEN** the map is refused with `map_layout_refused`
-- **AND** its problems name the nine relations
+- **WHEN** the AIGW overview is delivered
+- **THEN** its diagram has no route crossing and no route over two bends
 
-### Requirement: Guided views and evidence cards
+### Requirement: Diagram shape
 
-The map SHALL offer one guided view per model view and cards for the question
-and summary, the scope, limits and attribution, and the complete evidence of
-every component and relation.
+Each view diagram SHALL be between 1.0 and 1.8 times as wide as high when a
+candidate allows it, and never wider than 1.8 or narrower than 0.7 times its
+height. A view whose every candidate is outside that range SHALL be refused
+with its measured shapes.
 
-#### Scenario: Evidence is inspectable
+#### Scenario: A three-card view
 
-- **WHEN** a reader opens the evidence card
-- **THEN** it lists each component and relation with its details, status,
-  source paths, digests and verification state
+- **WHEN** a view of three cards in two rows is delivered
+- **THEN** its diagram is between 1.0 and 1.8 times as wide as high
 
-#### Scenario: Guided views
+### Requirement: Steps and sources
 
-- **WHEN** a model declares three views
-- **THEN** the map offers three guided views that focus their members
+A panel SHALL list the view's components as steps that light their node in
+the diagram, each with its first detail. When the model declares a repository,
+each component's first source SHALL be a numbered page source pinned to the
+revision.
+
+#### Scenario: Stepping through a view
+
+- **WHEN** a reader steps through a panel
+- **THEN** each step lights its component in that panel's diagram
 
 ### Requirement: Desktop reading floor
 
-In Chromium with a 1440 × 900 viewport, primary component labels in the map
-SHALL render at no less than 14 CSS px; relation labels keep Archify's native
-size.
+In Chromium with a 1440 × 900 viewport, primary component labels SHALL render
+at no less than 13.75 CSS px in the page's diagram previews and no less than
+14 CSS px in each diagram's full interactive view; relation labels keep
+Archify's native size.
 
 #### Scenario: Measured label size
 
-- **WHEN** the delivered map is opened at 1440 × 900 in Chromium
-- **THEN** every primary component label's computed size is at least 14 px
-
-### Requirement: Native source references
-
-When the supplied repository's `origin` remote equals the model's repository
-URL, components SHALL carry up to three native source references that Archify
-verifies at the revision. Otherwise the map SHALL carry none, and the
-evidence card SHALL remain the source of evidence. The publisher SHALL NOT
-create or change a remote to enable them.
-
-#### Scenario: A repository without a matching origin
-
-- **WHEN** the repository has no `origin` remote
-- **THEN** the map has no native source references
-- **AND** its evidence card lists every source
-
-#### Scenario: A repository whose origin is the model's
-
-- **WHEN** the supplied checkout's `origin` equals the model's repository URL
-- **THEN** Archify verifies the components' source references in that
-  checkout at the revision
-- **AND** the delivered map links them
+- **WHEN** the delivered page is opened at 1440 × 900 in Chromium
+- **THEN** every primary component label in its previews is at least 13.75 px

@@ -35,16 +35,23 @@
 
 - [x] 7.1 Rewrite the README, product contract and references for the model-to-media product; Markdown and link checks pass.
 - [x] 7.2 Pass the full static graph, the test suite with at least 95 percent coverage in every dimension, and the installed package journey on macOS. `npm run check` passed at `f541f69` with all 94 tests run, coverage of 99.2, 95.7, 99.6 and 99.2 percent, and the packed package installed and building on macOS.
-- [ ] 7.3 Pass the Linux and Windows quality jobs on an available Forge. Dependency: intranet GitLab is unreachable until its owner announces recovery.
+- [x] 7.3 Pass the Linux and Windows quality jobs on an available Forge. GitHub Actions run `40552006899` passed the Linux, macOS and Windows review jobs at `d4db5ec`.
 
-## 8. Acceptance and release
+## 8. Composition
 
-- [ ] 8.1 Record the user's acceptance of the AIGW, self and ETHOS posters and maps with `archpub accept`.
-- [ ] 8.2 Publish the accepted deliveries to Documents with `archpub publish` and verify every copied digest.
-- [ ] 8.3 Publish a signed breaking SemVer release with a Keep a Changelog entry; verify the tag, assets and remote convergence on every reachable Forge.
+- [ ] 8.1 Measure composition: largest empty rectangle, ninths, centroid, type sizes, measure, bends, segments and stretch from geometry and from a rendered raster; the twelve 01538e9 posters fail it and a balanced fixture passes it.
+- [ ] 8.2 Compose posters in the fixed 2400 × 1350 format on the token page grid with the masthead and sidebar archetypes, wrapping, type steps and justification; every gate passes for the AIGW, self and ETHOS views, and an unbalanceable view is refused with its measures.
+- [ ] 8.3 Deliver the Archify explainer page with one panel and diagram per view, steps and pinned sources; candidates are chosen on Archify's own routes, the page passes Archify's checks, and Chromium measures preview labels of at least 13.75 px.
+- [ ] 8.4 Move the evidence cards to the manifest and record each view's composition and Archify metrics; two builds are byte-identical.
 
-## 9. Deferred work
+## 9. Acceptance and release
 
-- [ ] 9.1 Deliver the finite north-star decision packet to the ETHOS owner and record its disposition. Deferred past 2026-10-31 by the user; formerly 7.2.
-- [ ] 9.2 Converge implementation-grounded research at the ETHOS owner with bound implementations, evidence and revisit triggers. Deferred past 2026-10-31 by the user; formerly 8.1.
-- [ ] 9.3 Prove source and asset recovery from simulated local loss through GitLab. Deferred past 2026-10-31 by the user; formerly 9.2.
+- [ ] 9.1 Record the user's acceptance of the AIGW, self and ETHOS posters and pages with `archpub accept`.
+- [ ] 9.2 Publish the accepted deliveries to Documents with `archpub publish` and verify every copied digest.
+- [ ] 9.3 Publish a signed breaking SemVer release with a Keep a Changelog entry; verify the tag, assets and remote convergence on every reachable Forge.
+
+## 10. Deferred work
+
+- [ ] 10.1 Deliver the finite north-star decision packet to the ETHOS owner and record its disposition. Deferred past 2026-10-31 by the user; formerly 7.2.
+- [ ] 10.2 Converge implementation-grounded research at the ETHOS owner with bound implementations, evidence and revisit triggers. Deferred past 2026-10-31 by the user; formerly 8.1.
+- [ ] 10.3 Prove source and asset recovery from simulated local loss through GitLab. Deferred past 2026-10-31 by the user; formerly 9.2.

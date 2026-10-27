@@ -10,7 +10,7 @@ only posters that fit their frame at the reading floor.
 A model SHALL declare at most five views. Each view SHALL name either ordered
 tiers, which are group ids or inline groups drawn as rows in that order, or
 members, which are component ids whose rows follow their relations. Each view
-SHALL produce one poster and one guided view in the map. Groups SHALL be drawn
+SHALL produce one poster and one panel of the explainer page. Groups SHALL be drawn
 as rows only when a view names them as tiers.
 
 #### Scenario: A tiered view
@@ -25,8 +25,7 @@ as rows only when a view names them as tiers.
 
 ### Requirement: Rows from relations
 
-For a view that names members, and for the map when groups do not cover every
-component, the publisher SHALL reverse the relations that close cycles, draw
+For a view that names members, the publisher SHALL reverse the relations that close cycles, draw
 every relation downward or within one row, and choose deterministically the
 rows of least cost.
 
@@ -60,7 +59,7 @@ then each further row.
 #### Scenario: A free column for an outside component
 
 - **WHEN** a component calls four inside components and one outside component
-  in a map whose rows hold five cards
+  in a view whose rows hold five cards
 - **THEN** the five callees share one row, leaving the outside component a
   column beside the boundary
 
@@ -102,30 +101,27 @@ problems when the full view cannot be laid out, and the remedy.
 - **THEN** the build refuses, reports the measured poster size and asks for
   groups or views
 
-### Requirement: Poster frame admission
+### Requirement: Poster admission
 
-Every poster SHALL be exactly 1800 px wide and at most 1350 px high, and no
-text SHALL be smaller than 14 px. Admission SHALL compose each view once with
-the grid layout. A view that does not fit SHALL be refused with its id, the
-measured width and height of its drawing, and component and relation counts.
-The publisher SHALL NOT scale text down, retry other layout parameters or crop.
+A view SHALL be admitted when its poster has a composition that passes every
+composition gate in the 2400 × 1350 px format with no text smaller than
+14 px. Admission SHALL try the poster's finite candidate compositions and no
+other parameters. A view without a passing composition SHALL be refused with
+its id, its component and relation counts and every failing gate's measured
+value and limit. The publisher SHALL NOT shrink text, crop or change the
+format.
 
 #### Scenario: An oversized view
 
-- **WHEN** a declared view measures 1800 × 1565 px
-- **THEN** the build refuses and reports that view id, 1800 × 1565 and its
-  counts
-- **AND** no other layout is attempted
-
-#### Scenario: A drawing wider than the frame
-
-- **WHEN** a declared view's drawing is wider than its poster stage
-- **THEN** the build refuses and reports a measured width above 1800 px
+- **WHEN** a declared view's cards cannot fit the figure field at 14 px in any
+  candidate composition
+- **THEN** the build refuses with that view id, its counts and the measured
+  size against the field
 
 #### Scenario: A deterministic plan
 
 - **WHEN** the same model is checked twice with the same publisher version
-- **THEN** both results report identical views and measured sizes
+- **THEN** both results report identical views and compositions
 
 ### Requirement: Named view refusals
 

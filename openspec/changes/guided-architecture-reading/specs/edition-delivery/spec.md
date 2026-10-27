@@ -8,8 +8,8 @@ publish accepted deliveries as immutable versions.
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: an SVG and PNGs at 1800 and 6000 px for each view, `index.html` and
-`manifest.json`. It SHALL stage the delivery and move it into place only after
+exist: an SVG and PNGs at 2400 and 6000 px for each view, the explainer page
+`index.html` and `manifest.json`. It SHALL stage the delivery and move it into place only after
 every artifact succeeds, so a refused or failed build leaves no output.
 
 #### Scenario: An existing output directory
@@ -19,7 +19,7 @@ every artifact succeeds, so a refused or failed build leaves no output.
 
 #### Scenario: A failure during rendering
 
-- **WHEN** the map fails after the posters were written to the staging area
+- **WHEN** the page fails after the posters were written to the staging area
 - **THEN** the build refuses and neither the output directory nor the staging
   area remains
 
@@ -27,8 +27,9 @@ every artifact succeeds, so a refused or failed build leaves no output.
 
 The manifest SHALL record the model digest, the publisher version, the digests
 of the bundled fonts and the layout, raster and Archify supplies, the plan,
-the map's quality profile with its counts of route crossings and corridors,
-the digest of every artifact and every source record. It SHALL contain no
+each poster's composition and gate measurements, each view diagram's Archify
+metrics, the digest of every artifact and every source record with its
+verification state. It SHALL contain no
 timestamps, host paths or user names, so the same model built with the same
 version yields the same manifest.
 

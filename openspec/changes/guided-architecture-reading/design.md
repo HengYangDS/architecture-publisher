@@ -12,12 +12,14 @@ starts from what a reader needs and what the user decided:
 
 - Rewrite the rendering layer and delete code without a consumer, keeping the
   LikeC4 import.
-- Posters are graph-first; evidence moves to the interactive map and the
+- Posters are graph-first; evidence moves to the interactive page and the
   manifest.
-- Every poster fits 1800 × 1350 px with 14 px text; large systems use an
-  overview plus mechanism views.
-- Interactive primary labels are 14 px; relation labels keep Archify's native
-  size.
+- Every poster is one 2400 × 1350 px (16:9) page with 14 px text, composed
+  so that its figure fills the page; large systems use an overview plus
+  mechanism views.
+- The interactive medium is an Archify explainer page; primary labels read at
+  13.75 px in its previews and 14 px or more in the full viewer, and relation
+  labels keep Archify's native size.
 - Boxes of one view share one size and align on one grid; the user rejected
   the ELK composition because its boxes differed in size and height.
 - Deliver AIGW, self and ETHOS media, the Documents delivery and a signed
@@ -31,7 +33,7 @@ starts from what a reader needs and what the user decided:
 - One explicit Architecture Model is the only input; an agent, a person or the
   LikeC4 importer can produce it for any repository.
 - Three media with distinct jobs: the poster explains one question at a
-  glance, the map supports exploration and inspection, and the manifest binds
+  glance, the page answers the model's question view by view, and the manifest binds
   both to exact content.
 - Neatness is measured, not judged: equal cards on one grid, orthogonal wires,
   no overlapping lines or labels, and text never below 14 px.
@@ -39,7 +41,7 @@ starts from what a reader needs and what the user decided:
   one published cost, with no candidates, retries or randomness.
 - Each poster fits its frame at its type scale, or the build refuses with the
   view, its measured size and the remedy.
-- The map is produced by unmodified native Archify.
+- The page is produced by unmodified native Archify.
 - Trust is minimal and real: content digests at a pinned revision, one
   acceptance record and immutable versioned publication.
 
@@ -120,8 +122,8 @@ differ from the revision. Archify's native repository evidence requires an
 
 ### 5. Reading Plan and rows
 
-A view is a poster and a guided view of the map. A model declares at most
-five views, matching Archify's native guided-view limit. Each view has an
+A view is a poster and a panel of the page. A model declares at most five
+views. Each view has an
 `id`, an optional `title`, `question` and `summary`, and either:
 
 - `tiers`: ordered group ids, or inline groups, drawn as rows in that order,
@@ -211,34 +213,74 @@ the measurements. The build refuses a view with any of:
 - two wires of different relations sharing a segment;
 - a wire through a card;
 - a label box intersecting a card, another label or another relation's wire;
+- more than two bends on a relation, or four when it skips rows, a segment
+  shorter than 16 px, or a route longer than 1.35 times its shortest
+  orthogonal route;
 - text below 14 px, or content outside the frame.
+
+These limits are Archify's own suggested limits, so the poster and the page
+are judged by the same rules.
 
 Crossings are minimized by placement and channel routing and reported, not
 refused: some relation sets, such as three components each calling the same
 three others, cannot be drawn without one. A remaining crossing is
 perpendicular and never at a bend, a port or a label.
 
-### 8. Graph-first poster
+### 8. Format-first poster composition
 
-The poster has a fixed width of 1800 px and a height of at most 1350 px:
+The user rejected the first grid posters on 2026-10-28: large blank areas, a
+centre of mass off the page, text set apart from the figure and page shapes
+that followed the content. Measured on all twelve posters, the largest empty
+rectangle covered 9 to 31 percent of the live area, blank bands reached
+330 px, the ink centroid sat up to 14 percent left of centre and the emptiest
+ninth of a figure held 0.6 percent of its ink. The cause was the order of
+operations: the figure was laid out without knowing the page, then scaled by
+at most 1.4 and centred between a header and a footer that were stacked
+blocks with their own spacing. Nothing measured the result.
 
-- a header with the title (38 px bold), the view question (20 px), a summary
-  of at most three lines (16 px) and the repository, revision and view number;
-- the stage: tinted row bands with numbered row labels when the view has
-  tiers; cards with a category color bar, the kind icon, the label (18 px
-  bold) and the details (14 px); the boundary rectangle; wires with arrowheads;
-  relation labels (14 px) on their own wire;
-- a one-line legend of the kinds, the boundary and the statuses present;
-- a footnote with scope, limits, attribution, the repository revision and the
-  source verification state.
+The poster is now composed format first:
 
-`planned` is dashed and `retired` is dotted and muted. A view smaller than its
-stage is enlarged up to 1.4 times and centered; a view is never reduced. No
-text is smaller than 14 px. Claim records, digest lists, status tables and
-reading indexes are not printed. Colors, spacing and type sizes are design
-tokens in one module. The poster is written as SVG with text converted to
-glyph outlines, so it renders identically without fonts, and as PNG at 1800
-and 6000 px through the vendored resvg.
+- **Format.** One page, 2400 × 1350 px (16:9), the shape of a projected slide,
+  chosen by the user. Content never changes it; a view that cannot be composed
+  in it is refused.
+- **Grid.** Design tokens own an 8 px unit, twelve columns between fixed
+  margins, a baseline and a type scale (14, 16, 20, 24, 32 and 48 px). Every
+  block starts on a column line and a baseline; text keeps a measure of at
+  most 80 characters. Two archetypes share the grid: a masthead (header band,
+  legend at its right, figure across twelve columns) and a sidebar (title,
+  question, summary, legend and notes in the left columns, figure over the
+  full height of the rest).
+- **Solver.** For each view the publisher enumerates archetype, a row wrapping
+  that splits a wide tier into consecutive rows of one band, and a figure type
+  step (1.0, 1.15, 1.25 or 1.4, each size rounded to the scale). It lays out
+  every candidate with the grid engine, then justifies it to the field: the
+  remaining width widens column gaps and the remaining height deepens row
+  channels, each within a token bound, instead of scaling the figure. Among
+  candidates that pass the gates it takes the one with the lowest cost, which
+  is the empty-rectangle share, then the centroid offset, then the step away
+  from 1.0. The candidate set is finite and ordered, so the choice is
+  deterministic.
+- **Gates.** The same measures decide and verify: balance (largest empty
+  rectangle at most 12 percent of the live area, ink in every ninth of the
+  figure field, centroid within 6 percent of the field centre), type (scale
+  sizes only, 14 px floor, measure, no broken label) and line (two bends, or
+  four for a relation that skips rows; 16 px segments; no wire across a card
+  or label). Balance is checked again on the rendered 2400 px raster. A view
+  with no passing candidate is refused with every failing measure and its
+  limit.
+
+The figure keeps decision 6's equal cards and channels; the poster draws
+card labels at 24 px and details, relation labels, legend and notes at 16 px
+before the type step. Relation labels use a lighter ink than card labels, and
+tier bands span their members rather than the page. `planned` is dashed and
+`retired` is dotted and muted. Claim records, digest lists, status tables and
+reading indexes are not printed. The poster is written as SVG with text
+converted to glyph outlines and as PNG at 2400 and 6000 px through the
+vendored resvg.
+
+Scaling a laid-out figure into a fixed stage was rejected because it
+equalizes nothing: a two-row view stays a strip in the middle of the page.
+Free-form ratios were rejected by the user.
 
 ### 9. Bundled fonts and icons
 
@@ -246,54 +288,53 @@ Noto Sans CJK SC 2.004 Regular and Bold (SIL Open Font License 1.1) are
 bundled unmodified with their license and SHA-256 digests. They cover Latin
 and CJK labels with one family. Host fonts are never discovered. The
 JetBrains Mono supply and the interactive font substitution are removed; the
-map keeps Archify's native typography.
+page keeps Archify's native typography.
 
 The existing icon supply, the complete Lucide 1.61.0 artwork (ISC) with its
 license and digests, is retained unmodified. Each category has a default icon,
 and a kind may name any Lucide icon; an unknown name is a validation problem.
 
-### 10. Native Archify map
+### 10. Native Archify explainer page
 
-The interactive medium is one standalone HTML document produced by the
-vendored, unmodified Archify through `archify deliver architecture
---quality showcase`. archpub writes the Archify document:
+The interactive medium is one Archify explainer page, chosen by the user on
+2026-10-28, produced by the vendored, unmodified Archify 3.2.0 through
+`archify deliver explainer` from a draft and one architecture document per
+view that archpub writes. It replaces the single full-model map.
 
-- every component of the model at the position and size the grid layout
-  computed with Archify's text metrics, with its label, kind as tag and its
-  first detail, shortened to fit, as sublabel; groups that cover every
-  component are the rows, wrapped at five cards, otherwise rows follow the
-  relations at the map's five-card limit;
-- the system boundary as a region when the cards it needs still hold every
-  label at 14 px and the rows leave the outside components a free column,
-  otherwise Archify's external type alone marks outside elements;
-- relations as labeled connections whose `fromSide` and `toSide` follow the
-  grid rows between adjacent rows; a relation that skips rows names no sides,
-  so Archify plans a route around the cards between instead of through them.
-  Archify routes every relation, spreads their ports and places their labels
-  natively, and dashes planned or retired relations. Channels are at least
-  72 px high, room for Archify's 14 px label boxes on both sides of a turn;
-- the seven native component types as color families mapped from the kind
-  categories (`person` maps to `external`), with legend labels naming the
-  model kinds;
-- one guided view per model view, focusing its members;
-- cards for the question and summary, scope, limits and attribution, and the
-  complete evidence of every component and relation: details, status and
-  source paths with digests and verification state.
+Archify was measured before this choice. Its schema accepts `meta.views`, but
+3.2.0 renders nothing from them, so the map's promised guided views never
+reached a reader. Its reader fits a map with a fixed viewBox at about 1346 px
+wide and scrolls the page, which made the 20-component ETHOS map a strip
+10,277 px tall; an automatic canvas fits the first screen only by dropping
+labels below 14 px, to 10.4 px for a five-by-four grid. Archify's own check
+reported ten crossovers and routes of up to eight bends on that map.
 
-When `--repo` has an `origin` remote equal to the declared repository URL,
-components also carry up to three native source references that Archify
-verifies against the revision. The delivery is gated at showcase quality. A
-map whose routes must cross or share corridors, as dense many-to-many relations
-between two rows do in Archify's router, is gated at standard quality instead
-and accepted only when those are the sole findings; the manifest records the
-profile and both counts. Authored waypoints were rejected because Archify
-anchors them at side midpoints, so several relations leaving one side would
-merge. Any other Archify finding refuses the build. The map is 1000 units wide and never wider than 1.54 times
-its height, below Archify's wide-canvas ratio, so the reader renders primary
-labels at 14.8 CSS px in a 1440 × 900 desktop viewport; Chromium measures this
-in the test suite. The custom
-renderer, routing, Inspect records, private-module coupling and font
-replacement are removed.
+The explainer page answers the model's question:
+
+- the page title is the model's question, its conclusion the model's summary
+  and its scope the model's scope, limits and attribution;
+- each view is a panel titled with the view's question, in the plan's order,
+  with the view's native architecture diagram, which opens Archify's full
+  interactive viewer, and steps that light each component with its first
+  detail;
+- when the model declares a repository, each component's first source is a
+  numbered page source pinned to its revision; digests and verification
+  states stay in the manifest.
+
+Each view diagram is laid out by the grid engine with Archify's text metrics
+for a finite set of candidates, each a row wrapping and a content width.
+Archify computes every candidate's routes (`validate --layout-json`), and
+archpub takes the candidate with the fewest crossings, then the fewest routes
+over two bends, then the least stretch above 1.35, then the shape closest to
+1.0 to 1.8 times as wide as high. The chosen diagram passes Archify's showcase
+checks, or the view is refused with Archify's findings. In-page previews are
+enlarged at most 1.25 times by Archify, so primary labels read at 13.75 px
+there and at 14 px or more in the full viewer.
+
+A single full-model map was rejected because a large model cannot be both
+complete and readable in one diagram, and because its reading order was lost.
+Patching Archify to render guided views was rejected by the official-source
+rule.
 
 ### 11. Deterministic delivery and minimal trust
 
@@ -359,8 +400,9 @@ End-to-end journeys build the converted AIGW model; the C4 Big Bank example
 with tiers and without them; models with a cycle, a relation skipping rows, a
 six-way bus, three components each calling the same three others, and CJK
 labels; and models that must be refused for a seven-card row and an oversized
-view. One model is rebuilt to compare bytes. Chromium measures the map's
-label floor. The repository's existing format, lint, type, import, dead-code,
+view. One model is rebuilt to compare bytes. The composition gates are
+tested against posters that must pass and posters that must fail them, and
+Chromium measures the page's label floor. The repository's existing format, lint, type, import, dead-code,
 Markdown, OpenSpec, coverage (at least 95 percent per dimension) and package
 gates stay in force. The user accepts the artwork; tests do not.
 
@@ -379,12 +421,14 @@ gates stay in force. The user accepts the artwork; tests do not.
   over symmetry; row centering only breaks ties of equal straightness.
 - [The bundled fonts add about 32 MB] → One family covers Latin and CJK
   without host fonts; a subset would be a modified font to maintain.
-- [Archify limits guided views to five and source references to three per
-  component, requires an `origin` remote for native links and merges routes
-  in dense channels] → Models have at most five views; complete evidence is
-  always in cards and the manifest; a map whose only findings are crossings
-  and shared corridors is delivered at standard quality with their counts,
-  and any other finding refuses the build with Archify's diagnostic.
+- [Archify 3.2.0 renders no guided views, enlarges page previews at most
+  1.25 times and routes every connection itself] → Each view is its own panel
+  and diagram; previews read at 13.75 px and the full viewer at 14 px or
+  more; candidates are compared on Archify's own routes, and a view without a
+  candidate that passes its showcase checks is refused with its findings.
+- [A view whose every composition leaves the page unbalanced] → The build
+  refuses it with the measured values and limits, and the author splits or
+  regroups the view; the format and the type floor never change.
 - [Previous inputs stop working] → The three real inputs are converted or
   rewritten; earlier releases and delivered artifacts are unchanged.
 
