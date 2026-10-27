@@ -183,12 +183,13 @@ test("automatic rows follow relations, reverse cycles and ignore self relations"
     ]),
   );
   assert.deepEqual(rowsOf(chain), [["c1"], ["c2"], ["c3"], ["c4"]]);
+  // The relation that closes the cycle runs back up, so the three draw as a triangle.
   const cycle = graphModel(3, [
     [1, 2],
     [2, 3],
     [3, 1],
   ]);
-  assert.deepEqual(rowsOf(cycle), [["c1"], ["c2"], ["c3"]]);
+  assert.deepEqual(rowsOf(cycle), [["c1"], ["c2", "c3"]]);
   const looped = graphModel(2, [[1, 2]]);
   looped.relations.push({ id: "self", from: "c1", to: "c1", label: "loops" });
   assert.deepEqual(rowsOf(looped), [["c1"], ["c2"]]);
@@ -204,7 +205,7 @@ test("automatic rows follow relations, reverse cycles and ignore self relations"
   );
 });
 
-test("siblings that call each other share a row when that reduces depth", () => {
+test("siblings that call each other share a row rather than lengthen their caller's relation", () => {
   const model = graphModel(4, [
     [1, 2],
     [1, 3],
@@ -212,25 +213,6 @@ test("siblings that call each other share a row when that reduces depth", () => 
     [3, 4],
   ]);
   assert.deepEqual(rowsOf(model), [["c1"], ["c2", "c3"], ["c4"]]);
-});
-
-test("sibling merges that would contradict an order or overfill a row are rejected", () => {
-  // c2 and c4 share caller c1 but c2 reaches c4 through c3, so one row cannot hold both.
-  const contradicted = graphModel(4, [
-    [1, 2],
-    [1, 4],
-    [2, 3],
-    [3, 4],
-  ]);
-  assert.deepEqual(rowsOf(contradicted), [["c1"], ["c2"], ["c3"], ["c4"]]);
-  // Pulling c3 up beside its sibling c2 would put eight cards in one row.
-  const edges = [
-    [1, 2],
-    ...Array.from({ length: ROW_LIMIT + 1 }, (_, index) => [1, index + 3]),
-    [2, 3],
-  ];
-  const crowded = graphModel(ROW_LIMIT + 3, edges);
-  assert.deepEqual(rowsOf(crowded), [["c1"], ["c2", "c4", "c5", "c6", "c7", "c8", "c9"], ["c3"]]);
 });
 
 test("sources move down beside their nearest consumer", () => {
@@ -242,9 +224,15 @@ test("sources move down beside their nearest consumer", () => {
   assert.deepEqual(rowsOf(model), [["c1"], ["c2", "c4"], ["c3"]]);
 });
 
-test("a sibling merge that cannot converge or reduce depth leaves the rows unchanged", () => {
-  // c2 and c3 share caller c1 and c2 calls c3, but c2 also reaches c3 through c4, so only
-  // the later siblings c4 and c3 (both called by c2) can share a row.
+test("a relation within a row is preferred to one that skips rows", () => {
+  // c1 reaches c4 directly and through c2 and c3; one row of three keeps every relation short.
+  const shortcut = graphModel(4, [
+    [1, 2],
+    [1, 4],
+    [2, 3],
+    [3, 4],
+  ]);
+  assert.deepEqual(rowsOf(shortcut), [["c1", "c2", "c3"], ["c4"]]);
   const looping = graphModel(4, [
     [1, 2],
     [1, 3],
@@ -252,8 +240,10 @@ test("a sibling merge that cannot converge or reduce depth leaves the rows uncha
     [2, 4],
     [4, 3],
   ]);
-  assert.deepEqual(rowsOf(looping), [["c1"], ["c2"], ["c3", "c4"]]);
-  // Merging c2 with c3 raises c2 to the depth of c3 without making the view shallower.
+  assert.deepEqual(rowsOf(looping), [
+    ["c1", "c2"],
+    ["c3", "c4"],
+  ]);
   const deep = graphModel(5, [
     [1, 2],
     [1, 3],
@@ -262,5 +252,44 @@ test("a sibling merge that cannot converge or reduce depth leaves the rows uncha
     [4, 5],
     [5, 3],
   ]);
-  assert.deepEqual(rowsOf(deep), [["c1"], ["c4"], ["c2", "c5"], ["c3"]]);
+  assert.deepEqual(rowsOf(deep), [
+    ["c1", "c4"],
+    ["c2", "c3", "c5"],
+  ]);
+});
+
+test("rows stay within their limit and keep a column beside the boundary for outside components", () => {
+  const fan = (count) =>
+    graphModel(
+      count + 1,
+      Array.from({ length: count }, (_, index) => [1, index + 2]),
+    );
+  const rowsAt = (model, limit, outside) =>
+    viewRows(
+      { tiers: null, components: model.components, relations: model.relations },
+      limit,
+      outside,
+    ).map(({ members }) => members);
+  // One of seven callees joins its caller's row instead of overfilling the next.
+  assert.deepEqual(rowsOf(fan(ROW_LIMIT + 1)), [
+    ["c1", "c2"],
+    ["c3", "c4", "c5", "c6", "c7", "c8"],
+  ]);
+  // c3 joins c1 and c2 so that c2's callee c3 and the other callees share the next row.
+  const crowded = graphModel(ROW_LIMIT + 3, [
+    [1, 2],
+    ...Array.from({ length: ROW_LIMIT + 1 }, (_, index) => [1, index + 3]),
+    [2, 3],
+  ]);
+  assert.deepEqual(rowsOf(crowded), [
+    ["c1", "c2", "c4"],
+    ["c3", "c5", "c6", "c7", "c8", "c9"],
+  ]);
+  // Four inside callees leave the fifth column of a five-card row to an outside one.
+  const outsideLast = (count) => (id) => id === `c${count + 1}`;
+  assert.deepEqual(rowsAt(fan(5), 5, outsideLast(5)), [["c1"], ["c2", "c3", "c4", "c5", "c6"]]);
+  assert.deepEqual(rowsAt(fan(6), 5, outsideLast(6)), [
+    ["c1", "c2"],
+    ["c3", "c4", "c5", "c6", "c7"],
+  ]);
 });

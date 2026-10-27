@@ -157,7 +157,7 @@ test("upward relations, two-hub buses and long labels lay out tidily", () => {
   assertTidy(long);
 });
 
-test("a row of seven cards is refused with the row and its members", () => {
+test("a tier of seven cards is refused with the row and its members", () => {
   assert.throws(
     () =>
       layout(
@@ -165,6 +165,7 @@ test("a row of seven cards is refused with the row and its members", () => {
           8,
           ids(7, 2).map((id) => [1, Number(id.slice(1))]),
         ),
+        [["c1"], ids(7, 2)],
       ),
     (error) =>
       error.code === "layout_row_too_wide" &&

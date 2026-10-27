@@ -32,11 +32,11 @@ const PORT_GAPS = [null, 64, 96, 140];
  */
 export function layoutView(view, metrics, options = {}) {
   const { spacing } = metrics;
-  const rows = viewRows(view);
-  const labelled = rows.some(({ label }) => label);
-  const contentWidth = metrics.contentWidth(labelled);
   const components = new Map(view.components.map((component) => [component.id, component]));
   const external = (id) => metrics.external(components.get(id));
+  const rows = viewRows(view, ROW_LIMIT, external);
+  const labelled = rows.some(({ label }) => label);
+  const contentWidth = metrics.contentWidth(labelled);
   const placement = placeRows({
     rows: rows.map(({ members }) => members),
     relations: view.relations.filter(({ from, to }) => from !== to),

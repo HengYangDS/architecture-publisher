@@ -78,7 +78,8 @@ function sublabel(component, width) {
 
 /**
  * The whole model as one view: groups become rows when they cover every
- * component, and rows wider than the map wrap onto further rows.
+ * component, and group rows wider than the map wrap onto further rows.
+ * Otherwise rows derive from the relations at the map's own row limit.
  */
 function mapView(model) {
   const grouped = new Set(model.groups.flatMap(({ members }) => members));
@@ -95,7 +96,12 @@ function mapView(model) {
     components: model.components,
     relations: model.relations,
   };
-  const rows = wrapRows(viewRows(view), MAP_ROW_LIMIT);
+  const outside = (id) =>
+    presentation(
+      model,
+      /** @type {any} */ (model.components.find((component) => component.id === id)),
+    ).outside;
+  const rows = wrapRows(viewRows(view, MAP_ROW_LIMIT, outside), MAP_ROW_LIMIT);
   // Map rows carry no labels: the reader shows groups through guided views instead.
   return { ...view, tiers: rows.map(({ id, members }) => ({ id, label: "", members })) };
 }
@@ -123,7 +129,8 @@ function mapMetrics(model, bounded) {
       portMargin: 20,
       minJog: 40,
       clear: 10,
-      minChannel: 56,
+      // Archify sets a 14 px label box on either side of a channel's turn, with its clearance.
+      minChannel: 72,
       rowPad: 12,
       boundaryPad: 30,
       boundaryBottom: 50,

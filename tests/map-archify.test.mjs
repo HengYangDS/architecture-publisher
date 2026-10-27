@@ -84,45 +84,64 @@ test("inside components share one region unless their labels need the full card 
   assert.equal(bank.components.find(({ id }) => id === "mainframe").type, "external");
 });
 
-test("map rows wider than five wrap, and a boundary the rows cannot keep clear is omitted", () => {
-  const fan = mapDocument(
+test("map rows hold at most five, group rows wrap, and an unkept boundary is omitted", () => {
+  const fan = (extra = {}) =>
+    mapDocument(
+      validateModel(
+        graphModel(
+          7,
+          [2, 3, 4, 5, 6, 7].map((to) => [1, to, "notifies"]),
+          extra,
+        ),
+      ),
+      [],
+      none,
+    );
+  const rowSizes = (document) =>
+    [...Map.groupBy(document.components, ({ pos }) => pos[1]).values()].map((row) => row.length);
+  assert.deepEqual(rowSizes(fan()), [2, 5]);
+  const groups = [
+    { id: "hub", label: "Hub", members: ["c1"] },
+    { id: "leaves", label: "Leaves", members: ["c2", "c3", "c4", "c5", "c6", "c7"] },
+  ];
+  assert.deepEqual(rowSizes(fan({ groups })), [1, 3, 3]);
+  const ids = (count) => Array.from({ length: count }, (_, index) => `c${index + 1}`);
+  const outside = (extra = {}) =>
     validateModel(
       graphModel(
-        7,
-        [2, 3, 4, 5, 6, 7].map((to) => [1, to, "notifies"]),
+        8,
+        [
+          [1, 5],
+          [2, 6],
+          [3, 7],
+          [4, 8],
+        ],
+        {
+          kinds: { person: { label: "person", category: "person" }, service: { label: "service" } },
+          components: ids(8).map((id, index) => ({
+            id,
+            label: `Component ${index + 1}`,
+            kind: index < 3 ? "person" : "service",
+          })),
+          ...extra,
+        },
       ),
-    ),
+    );
+  // Derived rows keep a column clear beside the boundary for the three people.
+  assert.deepEqual(mapDocument(outside(), [], none).boundaries?.[0].wraps, ids(8).slice(3));
+  // Groups that put three people beside one service leave no such column, so the map omits it.
+  const grouped = mapDocument(
+    outside({
+      groups: [
+        { id: "top", label: "Top", members: ids(4) },
+        { id: "bottom", label: "Bottom", members: ids(8).slice(4) },
+      ],
+    }),
     [],
     none,
   );
-  const rows = Map.groupBy(fan.components, ({ pos }) => pos[1]);
-  assert.deepEqual(
-    [...rows.values()].map((row) => row.length),
-    [1, 3, 3],
-  );
-  const ids = (count) => Array.from({ length: count }, (_, index) => `c${index + 1}`);
-  const outside = validateModel(
-    graphModel(
-      8,
-      [
-        [1, 5],
-        [2, 6],
-        [3, 7],
-        [4, 8],
-      ],
-      {
-        kinds: { person: { label: "person", category: "person" }, service: { label: "service" } },
-        components: ids(8).map((id, index) => ({
-          id,
-          label: `Component ${index + 1}`,
-          kind: index < 3 ? "person" : "service",
-        })),
-      },
-    ),
-  );
-  const document = mapDocument(outside, [], none);
-  assert.equal(document.boundaries, undefined);
-  assert.equal(document.components.filter(({ type }) => type === "external").length, 3);
+  assert.equal(grouped.boundaries, undefined);
+  assert.equal(grouped.components.filter(({ type }) => type === "external").length, 3);
 });
 
 test("ids become valid and unique, relation labels are shared and sublabels are shortened", () => {
@@ -236,13 +255,20 @@ test("native Archify delivers the map deterministically and removes its working 
 });
 
 test("a relation that skips rows leaves its sides to Archify, which routes around the cards between", async (t) => {
+  // Groups fix the rows, so the audit cannot move beside the chain.
   const model = validateModel(
-    graphModel(4, [
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [1, 4, "audits"],
-    ]),
+    graphModel(
+      4,
+      [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [1, 4, "audits"],
+      ],
+      {
+        groups: ["c1", "c2", "c3", "c4"].map((id) => ({ id: `g-${id}`, label: id, members: [id] })),
+      },
+    ),
   );
   const document = mapDocument(model, [], none);
   assert.deepEqual(

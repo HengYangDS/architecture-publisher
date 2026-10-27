@@ -1,7 +1,7 @@
 /**
  * Rows of a view. Tiers keep their declared order; otherwise rows follow the
- * relations: longest-path layers after reversing the relations that close
- * cycles, with siblings that call each other pulled into one row.
+ * relations, which are drawn downward or within one row after the relations
+ * that close cycles are reversed.
  * @typedef {{ id: string, label: string | null, members: string[] }} Row
  */
 
@@ -9,11 +9,30 @@
 export const ROW_LIMIT = 6;
 
 /**
+ * What derived rows cost, in order of weight: a row over its limit, or an
+ * outside component with no free column beside the boundary; each row a
+ * relation passes; a card with more than two neighbours in its row, or
+ * relations closing a ring within one row, which no row order keeps adjacent;
+ * a relation within one row, cheaper between peers that share a caller; and
+ * each further row.
+ */
+const COST = Object.freeze({
+  overflow: 1000,
+  skip: 10,
+  crowded: 10,
+  flat: 6,
+  peers: 4,
+  row: 1,
+});
+
+/**
  * @param {{ tiers: Array<{ id: string, label: string, members: string[] }> | null,
  *   components: Array<{ id: string }>, relations: Array<{ from: string, to: string }> }} view
+ * @param {number} [limit] the most components one derived row holds
+ * @param {(id: string) => boolean} [outside] components drawn outside the system boundary
  * @returns {Row[]}
  */
-export function viewRows(view) {
+export function viewRows(view, limit = ROW_LIMIT, outside = () => false) {
   const shown = new Set(view.components.map(({ id }) => id));
   if (view.tiers)
     return view.tiers.map(({ id, label, members }) => ({
@@ -22,7 +41,7 @@ export function viewRows(view) {
       members: members.filter((m) => shown.has(m)),
     }));
   const members = view.components.map(({ id }) => id);
-  const level = layers(members, view.relations);
+  const level = layers(members, view.relations, limit, outside);
   const depth = Math.max(...level.values()) + 1;
   return Array.from({ length: depth }, (_, index) => ({
     id: `row-${index + 1}`,
@@ -71,81 +90,121 @@ function backRelations(members, relations) {
 }
 
 /**
- * Longest-path levels in which members of one sibling group share a level.
- * Returns null when the group constraints cannot be met.
+ * Levels with the least cost found by steepest descent from longest-path
+ * levels, over the moves `moves` lists. Ties keep the first move in member
+ * order, so the result is deterministic.
+ * @returns {Map<string, number>}
  */
-function levels(members, forward, groupOf) {
-  const level = new Map(members.map((id) => [id, 0]));
-  for (let pass = 0; pass <= members.length; pass += 1) {
-    let changed = false;
-    for (const { from, to } of forward) {
-      const same = groupOf(from) === groupOf(to);
-      const need = level.get(from) + (same ? 0 : 1);
-      if (level.get(to) < need) {
-        level.set(to, need);
-        changed = true;
-      }
-      if (same && level.get(from) < level.get(to)) {
-        level.set(from, level.get(to));
-        changed = true;
-      }
-    }
-    if (!changed) return level;
-  }
-  return null;
-}
-
-function widest(level) {
-  const counts = new Map();
-  for (const value of level.values()) counts.set(value, (counts.get(value) ?? 0) + 1);
-  return Math.max(...counts.values());
-}
-
-function layers(members, relations) {
+function layers(members, relations, limit, outside) {
   const local = relations.filter(({ from, to }) => from !== to);
   const back = backRelations(members, local);
-  const forward = local.filter((relation) => !back.has(relation));
-  const callers = new Map(members.map((id) => [id, new Set()]));
-  for (const { from, to } of forward) callers.get(to).add(from);
-  const parent = new Map(members.map((id) => [id, id]));
-  const find = (id) => (parent.get(id) === id ? id : find(parent.get(id)));
-  let level = /** @type {Map<string, number>} */ (levels(members, forward, find));
-  for (const { from, to } of forward) {
-    const siblings = [...callers.get(from)].some((caller) => callers.get(to).has(caller));
-    if (!siblings || find(from) === find(to)) continue;
-    const saved = new Map(parent);
-    parent.set(find(to), find(from));
-    const next = levels(members, forward, find);
-    if (
-      next &&
-      widest(next) <= ROW_LIMIT &&
-      Math.max(...next.values()) < Math.max(...level.values())
-    )
-      level = next;
-    else for (const [id, value] of saved) parent.set(id, value);
+  // Each relation as an edge from the component drawn above to the one below or beside it.
+  const edges = local.map((relation) =>
+    back.has(relation)
+      ? { from: relation.to, to: relation.from }
+      : { from: relation.from, to: relation.to },
+  );
+  const above = new Map(members.map((id) => [id, /** @type {string[]} */ ([])]));
+  const below = new Map(members.map((id) => [id, /** @type {string[]} */ ([])]));
+  const up = (id) => /** @type {string[]} */ (above.get(id));
+  const down = (id) => /** @type {string[]} */ (below.get(id));
+  for (const { from, to } of edges) {
+    down(from).push(to);
+    up(to).push(from);
   }
-  return pullDown(members, forward, level, find);
+  const at = (level, id) => /** @type {number} */ (level.get(id));
+  const peers = (a, b) => up(a).some((id) => up(b).includes(id));
+  /** A component and every component below it through its relations. */
+  const reach = (id, seen = new Set()) => {
+    if (seen.has(id)) return seen;
+    seen.add(id);
+    for (const next of down(id)) reach(next, seen);
+    return seen;
+  };
+  const longest = new Map();
+  const depthOf = (id) => {
+    if (!longest.has(id)) longest.set(id, Math.max(-1, ...up(id).map(depthOf)) + 1);
+    return longest.get(id);
+  };
+  let level = new Map(members.map((id) => [id, depthOf(id)]));
+  let score = cost(level);
+  for (;;) {
+    /** @type {{ level: Map<string, number>, value: number } | null} */
+    let best = null;
+    for (const candidate of moves(level)) {
+      const value = cost(candidate);
+      if (value < (best?.value ?? score)) best = { level: candidate, value };
+    }
+    if (!best) return level;
+    ({ level, value: score } = best);
+  }
+
+  /**
+   * Every level change that keeps each relation downward or within one row,
+   * with empty levels removed: one component to another allowed level, one
+   * component pushed down with the components it would otherwise rise above,
+   * and one component moved a level up or down with everything below it.
+   */
+  function* moves(level) {
+    const depth = Math.max(...level.values()) + 1;
+    for (const id of members) {
+      const from = Math.max(0, ...up(id).map((other) => at(level, other)));
+      const to = Math.min(depth, ...down(id).map((other) => at(level, other)));
+      for (let target = from; target <= to; target += 1)
+        if (target !== at(level, id)) yield compact(new Map(level).set(id, target));
+      const pushed = new Map(level);
+      const push = (current) => {
+        pushed.set(current, at(level, current) + 1);
+        for (const next of down(current)) if (at(pushed, next) < at(pushed, current)) push(next);
+      };
+      push(id);
+      yield compact(pushed);
+      const group = reach(id);
+      for (const step of [-1, 1]) {
+        const shifted = new Map(level);
+        for (const member of group) shifted.set(member, at(level, member) + step);
+        const valid = [...group].every(
+          (member) =>
+            at(shifted, member) >= 0 &&
+            up(member).every((other) => at(shifted, other) <= at(shifted, member)),
+        );
+        if (valid) yield compact(shifted);
+      }
+    }
+  }
+
+  function cost(level) {
+    const depth = Math.max(...level.values()) + 1;
+    const rows = Array.from({ length: depth }, () => ({ inside: 0, outside: 0 }));
+    for (const id of members) rows[at(level, id)][outside(id) ? "outside" : "inside"] += 1;
+    const widest = Math.max(...rows.map(({ inside }) => inside));
+    let total = (depth - 1) * COST.row;
+    for (const row of rows) {
+      total += Math.max(0, row.inside + row.outside - limit) * COST.overflow;
+      if (row.inside && row.outside)
+        total += Math.max(0, row.outside - (limit - widest)) * COST.overflow;
+    }
+    const neighbours = new Map();
+    const ring = new Map(members.map((id) => [id, id]));
+    const find = (id) => (ring.get(id) === id ? id : find(ring.get(id)));
+    for (const { from, to } of edges) {
+      const span = at(level, to) - at(level, from);
+      if (span > 1) total += (span - 1) * COST.skip;
+      if (span !== 0) continue;
+      total += peers(from, to) ? COST.peers : COST.flat;
+      for (const id of [from, to]) neighbours.set(id, (neighbours.get(id) ?? 0) + 1);
+      if (find(from) === find(to)) total += COST.crowded;
+      else ring.set(find(from), find(to));
+    }
+    for (const count of neighbours.values()) total += Math.max(0, count - 2) * COST.crowded;
+    return total;
+  }
 }
 
-/**
- * Move each component that is not in a sibling group down to just above its
- * nearest consumer, so sources sit beside the components they feed instead of
- * at the top with long relations.
- */
-function pullDown(members, forward, level, find) {
-  const grouped = new Set(
-    members.filter((id) => members.some((other) => other !== id && find(other) === find(id))),
-  );
-  const consumers = new Map(members.map((id) => [id, []]));
-  for (const { from, to } of forward) consumers.get(from).push(to);
-  const count = (value) => [...level.values()].filter((item) => item === value).length;
-  const order = [...members].sort(
-    (a, b) => level.get(b) - level.get(a) || members.indexOf(a) - members.indexOf(b),
-  );
-  for (const id of order) {
-    if (grouped.has(id) || !consumers.get(id).length) continue;
-    const target = Math.min(...consumers.get(id).map((next) => level.get(next))) - 1;
-    if (target > level.get(id) && count(target) < ROW_LIMIT) level.set(id, target);
-  }
-  return level;
+/** Renumber levels so that none is empty, keeping their order. */
+function compact(level) {
+  const used = [...new Set(level.values())].sort((a, b) => a - b);
+  if (used.length === used.at(-1) + 1) return level;
+  const index = new Map(used.map((value, position) => [value, position]));
+  return new Map([...level].map(([id, value]) => [id, /** @type {number} */ (index.get(value))]));
 }
