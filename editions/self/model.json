@@ -13,7 +13,7 @@
   "repository": {
     "name": "architecture-publisher",
     "url": "https://github.com/HengYangDS/architecture-publisher",
-    "revision": "32347bbba631af429bc2330ee7d72f7e7584764f"
+    "revision": "3acddd338659bfb2377a3775129142f64a39ccf5"
   },
   "kinds": {
     "person": {
@@ -69,7 +69,7 @@
     },
     "build": {
       "path": "packages/publisher/src/build.mjs",
-      "sha256": "c82a72ce0e8be628c8d2d3928a516d4f03a546ba25ef239e9c7633a6f433e334"
+      "sha256": "c8c1eb4a4a64aef48df1da8ad332adb8232ab652b064410d38c197911cb8e4e0"
     },
     "delivery": {
       "path": "packages/publisher/src/delivery.mjs",
@@ -97,19 +97,19 @@
     },
     "plan": {
       "path": "packages/publisher/src/plan/views.mjs",
-      "sha256": "b7b4045a083135313f4cf533c6a296854b29d6d144bdbe4567bada57d41f17fa"
+      "sha256": "026f228ccf76edd8a8272ca41143c245cd771ead0176e3f2c506eae115e3b4d3"
     },
     "grid": {
       "path": "packages/publisher/src/layout/grid.mjs",
-      "sha256": "f38d4adcde499d3f2eef665f9d099e00478248a03d6cbc3e2e8df2664f7e4be8"
+      "sha256": "b115a9faa7a4096c2ee40ce40009cc4d15aaee73b5b1d465f126c2d4ff5a670e"
     },
     "rows": {
       "path": "packages/publisher/src/layout/rows.mjs",
-      "sha256": "d53878e9568723de9913aed249f427fa30c3c9c11aa2455933b2c9b4804de921"
+      "sha256": "90418293dc8ba0832a86feba5c4852207b63e373663267f7d77f0e033ce9238e"
     },
     "placement": {
       "path": "packages/publisher/src/layout/placement.mjs",
-      "sha256": "1cc8ee8270451abbe8af4a6b227c03632237f33f77075ec2efdd641d4fa27cd9"
+      "sha256": "fa3052f4a816a3060fbd17814528e525bfc862f9c303bf01b6caeb345e20b93c"
     },
     "channels": {
       "path": "packages/publisher/src/layout/channels.mjs",
@@ -125,7 +125,7 @@
     },
     "poster": {
       "path": "packages/publisher/src/poster/compose.mjs",
-      "sha256": "676da8379e5c5ca1e9f60acbd837d32b835c8d00a9e9727f7d502499d5de5f05"
+      "sha256": "4331a62b1a5386c7e4047593cfab1f324732226b1570b494bf00379ac7e5cd55"
     },
     "tokens": {
       "path": "packages/publisher/src/poster/tokens.mjs",
@@ -141,7 +141,7 @@
     },
     "map": {
       "path": "packages/publisher/src/map/archify.mjs",
-      "sha256": "1926953b9899af06957dec4196f11f3b35ef8e68d60371a6dd803f3bf283fab2"
+      "sha256": "5e847a3e1eb3833979c7f3672341cb1f3dae6fc827c4055d13fa38caf8135e15"
     },
     "kinds": {
       "path": "packages/publisher/src/kinds.mjs",
