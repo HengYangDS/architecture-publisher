@@ -8,8 +8,10 @@ relations:
 
 # Research and evidence
 
-These pages record comparisons and bounded observations. Follow their sources
-and stated limits; old measurements are not current qualification or approval.
+These pages record the comparisons and observations behind releases up to
+0.3. They describe the earlier Claim Model, Edition and Candidate design, which
+the [product contract](../product-contract.md) replaces; they are history, not
+current behavior. Follow their sources and stated limits.
 
 - [Mechanism evaluation](mechanism-evaluation.md): comparisons, ownership and revisit triggers.
 - [Source inputs](source-inputs.md): source selection and interpretation mechanisms.

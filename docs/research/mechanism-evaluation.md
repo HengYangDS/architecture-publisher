@@ -125,7 +125,7 @@ checkout modification or historical-button compatibility is admitted.
 General SDD and source-governance research belongs to ETHOS. Its source owner
 recorded reviewed COMET, OpenSpec, SpecD, Spec Kit, BMAD, GSD and adjacent
 mechanisms in five topics at signed commit `e108fb1408cd122e25d37895fccd6cfc4abf129a`.
-The [intake receipt](../../tests/conformance/evidence/research-owner-intake.json)
+The intake receipt `tests/conformance/evidence/research-owner-intake.json` (removed in 0.4.0; last present at commit 919360a)
 binds the dated source revisions, packet identities, topic hashes and limits.
 Readback on 2026-10-06 verified all five topic blobs are identical in the signed
 baseline, the current source-owner Lane at `3253e7e1b99a3058ff8f1c7876842a7acad400f0`,

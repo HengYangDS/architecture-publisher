@@ -1,36 +1,29 @@
 # Architecture Publisher
 
-`architecture-publisher` is the domain-neutral compiler and recoverable
-publication engine for source-bound Architecture Editions. Its sole public CLI
-is `archpub`.
-
-New authoring selects a Build Request with direct native inputs, an authored
-Edition Project, and optional Edition Providers. Historical Source Bundle,
-Claim Model, and Edition inputs retain their original contract. The package
-also accepts explicit Qualification Set and publication inputs. It does not
-discover repositories, import project-specific schemas, execute source-product
-governance, or install a concrete Edition implicitly.
-
-Public package boundaries are `source`, `semantics`, `edition`, `scene`,
-`compiler`, `rendering`, `qualification`, `publication`, `runtime`, and the
-explicit renderer adapters. Use `archpub --help` for the matching command
-surface.
-
-## Input and output
-
-1. Select native source files, such as LikeC4 DSL, or an attributed Claim Model.
-2. Write an Edition Project: audience, reader questions, exact source references,
-   omissions, and separate static and interactive view choices.
-3. Name those inputs and their hashes in a Build Request. A Provider is optional;
-   it is not required for a direct file build.
-4. Build into a new directory:
+`archpub` draws the architecture of any repository from an explicit
+Architecture Model: a poster for each view, one interactive map of the whole
+model and a manifest that binds every artifact to its inputs.
 
 ```sh
-archpub edition build request.json --sha256 <request-digest> --output <new-directory>
+archpub check model.json [--repo <checkout>]
+archpub build model.json --out <new-directory> [--repo <checkout>]
+archpub import likec4 <workspace> --out model.json --id <id>
+archpub accept <delivery> --reviewer <name>
+archpub publish <delivery> --to <root>
 ```
 
-The Candidate contains the requested SVG/PNG or standalone HTML, an input lock,
-and a manifest. A person, script, or agent can author the inputs; running the
-compiler requires no agent. The question text is a prompt for the reader, not an
-executable query. Visible-content checks do not prove source truth, answer
-adequacy, acceptance, or publication authority.
+A model is one JSON file with `format: "architecture-publisher.model"`,
+`version: 1`, an `id`, a `title`, a `question`, `components` and `relations`,
+and optionally kinds, details, sources pinned to a repository revision, groups
+and up to five views. `--repo` verifies every source at that revision through
+Git without changing the checkout.
+
+Posters are SVG and PNG at 1800 and 6000 px: 1800 × at most 1350 px with no text
+below 14 px. The map is a standalone document delivered by the bundled,
+unmodified Archify. A view that cannot be drawn without overlaps is refused with
+the relations concerned. Every command accepts `--json` and exits with 0 on
+success, 1 on a refused input and 2 on a usage error.
+
+The package needs Node.js 22.13 or later and has no runtime npm dependencies;
+fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
+with their licenses and digests.

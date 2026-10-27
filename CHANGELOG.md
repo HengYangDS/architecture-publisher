@@ -7,91 +7,49 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
-### Added
-
-- One Edition-wide figure-kind catalog supplies pinned, distinct icons across every selected page and medium. Nodes,
-  type Legends and canonical exports use the same artwork; Legends show icon then label without occurrence counts.
-  Missing type mappings, occurrence overrides, reused artwork and inadequate painted clearance reject the candidate
-  before output. The editor may supply the catalog outside the source repository without changing source semantics.
-
 ### Changed
 
-- Remove the unused LikeC4 graphical reader, Worker and private query implementation. Official Archify keeps native
-  source reading; the LikeC4 input parser and independently composed static media remain. Offline lock reconciliation
-  removes 215 unused entries without changing retained versions. Remaining development-tool advisories stay open.
+- **Breaking:** Architecture Publisher is now a general model-to-media publisher. One Architecture Model, a JSON file
+  written by a person or an agent or imported from LikeC4, becomes a poster per view, one interactive map and a
+  manifest through `archpub check`, `build`, `import likec4`, `accept` and `publish`. The Source Bundle, Claim
+  Model, Edition, Candidate, Provider, Qualification and publication-plan inputs and commands are removed; earlier
+  releases keep them.
+- **Breaking:** A grid-first layout replaces the ELK composition. Cards of one size sit on shared row lines of one
+  column lattice; placement is exact, relations run as buses, corridors and straight arrows through the channels
+  between rows, and a view is refused rather than drawn with a diagonal, a shared segment, a wire through a card or a
+  touching label. Rows that a view does not declare minimize the rows their relations skip.
+- **Breaking:** Posters are 1800 px wide and at most 1350 px high with no text below 14 px. They carry the title,
+  question, summary, figure, a one-line legend and a scope footnote; per-relation evidence moves to the map. Small
+  views scale up by at most 1.4.
+- **Breaking:** The map is the vendored, unmodified Archify 3.2.0 document of the whole model at the grid layout's
+  positions, with Archify's own routes and labels, guided views and evidence cards. It is delivered at showcase
+  quality, or at standard quality when routes must cross or share corridors and those are the only findings.
+- Deliveries are staged and byte-reproducible. `archpub accept` records a reviewer against the manifest digest, and
+  `archpub publish` copies only an accepted delivery and never replaces a different published one.
 - `VERSION` is the only maintained product version. Required package versions and internal pins are generated from
   it; qualification rejects stale projections without changing package or lock bytes.
+- Refresh the locked development and CI supply: Node 26.12.1, npm 12.2.1, OpenSpec 1.15.0, Knip 6.43.0, Pixi 0.83.0
+  and Mise 2026.10.19. The remaining development-tool advisories keep their explicit trusted-input,
+  isolated-execution and disabled-install-script acceptance.
 - Admit the observed Linux ARM64 Raster witness for Rust 1.99.0 and `wasm-bindgen` 0.2.129 after two relocated frozen
   builds and canonical behavior comparison. Packaged renderer bytes remain unchanged.
-- Refresh the locked development and CI supply: Node 26.12.1, npm 12.2.1, OpenSpec 1.15.0, Knip 6.43.0,
-  Dagre 3.1.3 with Graphlib 4.0.6, Pixi 0.83.0 and Mise 2026.10.19. Zod 4.6.7 removes one high-severity finding;
-  the four remaining advisories retain explicit trusted-input, isolated-execution and disabled-install-script
-  acceptance. Official supplied bytes remain unmodified. This does not establish artwork or release acceptance.
-- Locked CI Rust installation reconciles required `cargo` and `rustc` components in retained tool caches instead of
-  failing at compiler discovery.
-- Self-use interactive diagrams use neutral ordinary-node paint. Their distinct type icons retain the Edition-wide
-  catalogue; selected reading states and relationships retain native emphasis without an undocumented color taxonomy.
-- Raster source verification uses a platform-native, read-only Node entry and the selected manifest's native output
-  names. Native Cargo and `wasm-bindgen` own compilation instead of an authored replacement build controller; frozen
-  renderer bytes and historical release artifacts remain unchanged.
+
+### Removed
+
+- The ELK, Dagre, libavoid and SVG pan-and-zoom supplies, the custom interactive renderer, JetBrains Mono, the
+  generated validators and the research-only composition tooling.
 
 ### Fixed
 
-- Compound layout declares the selected direction for each native child graph, keeping placement consistent with its
-  fixed endpoints and group-boundary contacts. This repairs a reproduced vertical route collision without changing
-  supplied code, source meaning or the complete artwork's qualification.
-- Static receiving frames reflow complete claims at their available width, align shared claim context and size each
-  claim-card row uniformly. Homogeneous records may share measured field headers while retaining every value and
-  exact source anchor; narrow and heterogeneous records keep their complete labeled form. Type Legends use
-  equally spaced icon-first columns. Uniform graph framing respects
-  both reading axes, and empty equal-height widening cannot bypass Raster admission; a genuinely reflowed
-  continuation remains eligible. These bounded repairs do not establish complete layout or artwork acceptance.
-- Automatic endpoint alternatives share one relationship search budget, avoiding repeated grid expansion for the
-  same connection. Installed compilation keeps its existing deadline, complete text, routes and paint checks.
-- Automatic overview admission checks the complete desktop frame before selecting a layout. An infeasible frame
-  reports its composition obligation instead of silently shrinking text. Explicit source reading retains every
-  structural layout alternative, parallel alignment and complete source text without borrowing overview acceptance.
-- Intrinsic node capacity reserves a complete font line independently of visible glyph ink. Same-line peers share
-  height and baseline; line leading retains painted-text clearance without repeating the outer inset, while distinct
-  fields keep their stronger separator. Fixed authored geometry remains unchanged.
-- Native standalone architecture assembly retains the verified Archify MIT notice alongside its font and icon
-  licenses, without changing the official executable runtime or the diagram.
-- Native CI retains only each job's verified tool cache across checkout. Linux selects the locked browser already
-  present in its pinned image; Mise preserves an explicit invoker-owned browser root instead of replacing that
-  selection.
-- Native Windows source retrieval and cleanup enable Git long-path support through job-scoped configuration before
-  checkout; no persistent host setting or cleanup bypass is required.
-- Native prerequisite checks compare default filesystem paths canonically while preserving explicit browser selections
-  exactly; they run before expensive Raster and coverage acceptance, without a separate diagnostic job.
-- Native supply installation has explicit HTTP budgets under the existing CI deadline. Windows Raster rebuilds select
-  the independently observed Rust 1.99.0 witness; canonical packaged Wasm bytes are unchanged.
-- LikeC4 regeneration derives and checks the installer's immutable supply identity together with the bundled parser,
-  eliminating stale digest wiring.
-- Reader accessible names include native control labels, current camera state and literal spacing between visible label
-  parts without changing scene geometry.
-- CI executes the existing sandboxed browser journey immediately after browser installation, before expensive Raster and
-  coverage work. Legend hit-target observation waits for native joint layout readiness instead of sampling a moving
-  surface; its geometry and click assertions remain unchanged.
-- Native CI selects Rust's host standard library as well as both build tools, so retained caches reconcile the
-  components required by Cargo build scripts. Native rustup resolves the exact selected host; a Wasm library cannot
-  substitute for the host library during bootstrap.
-- CI confines Mise's package store to the job-owned cache so native npm hardlinks do not inherit permissions from an
-  inaccessible system store.
-- Windows verification refreshes every tracked file through native Git checkout while retaining only verified tool-cache
-  bytes, so a mapped browser DLL no longer requires recursive workspace replacement. Previous coverage and other
-  generated job output remain disposable; locked supply checks are unchanged.
-- Linux CI selects a registry-verified Playwright image with a non-root default user so Runner repairs checkout
-  ownership before executing the job. Its filesystem is unchanged from the pinned official image; no source,
-  credentials, manual ownership repair or relaxed browser sandbox is added.
-- Raster witness amendments regenerate their parent inventory and immutable identity through one checked supply entry.
-  The early generated gate validates that dependency before the implementation closure; changed canonical binaries or
-  frozen source inputs cannot be learned as new expected bytes.
-- Native CI admits locked rootless Linux compiler/xz prerequisites through Pixi and discovers Windows Visual Studio
-  development tools before frozen Raster rebuilding; neither path relaxes browser isolation or quality requirements.
-- Explicit native reader themes survive system appearance events when an opaque publication member cannot use browser
-  storage. Sandbox and source geometry remain unchanged.
-- First-party code passes native recommended static analysis without ambient browser-global or ignored-binding
-  exceptions. Exact field projection and portable-path validation preserve the existing input and reader contracts.
+- Locked CI Rust installation reconciles the required `cargo`, `rustc` and host standard library components in
+  retained tool caches.
+- Native CI retains only each job's verified tool cache across checkout, confines Mise's package store to the job,
+  enables Git long paths on Windows through job-scoped configuration and selects a registry-verified non-root
+  Playwright image on Linux.
+- Native CI admits locked rootless Linux compiler and xz prerequisites through Pixi and discovers the Windows Visual
+  Studio tools before frozen Raster rebuilding.
+- Raster source verification uses a platform-native, read-only Node entry; native Cargo and `wasm-bindgen` own
+  compilation, and frozen renderer bytes and historical release artifacts remain unchanged.
 
 ## [0.3.0-alpha.15] - 2026-10-04
 

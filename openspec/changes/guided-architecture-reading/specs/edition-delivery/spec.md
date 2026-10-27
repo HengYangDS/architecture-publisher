@@ -27,6 +27,7 @@ every artifact succeeds, so a refused or failed build leaves no output.
 
 The manifest SHALL record the model digest, the publisher version, the digests
 of the bundled fonts and the layout, raster and Archify supplies, the plan,
+the map's quality profile with its counts of route crossings and corridors,
 the digest of every artifact and every source record. It SHALL contain no
 timestamps, host paths or user names, so the same model built with the same
 version yields the same manifest.

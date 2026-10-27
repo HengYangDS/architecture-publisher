@@ -25,15 +25,15 @@ as rows only when a view names them as tiers.
 
 ### Requirement: Rows from relations
 
-For a view that names members, the publisher SHALL assign rows by
-longest-path layering after reversing the relations that close cycles, and
-SHALL then place siblings that share a caller and call each other in one row
-when that removes a row without exceeding the row limit.
+For a view that names members, and for the map when groups do not cover every
+component, the publisher SHALL reverse the relations that close cycles, draw
+every relation downward or within one row, and choose deterministically the
+rows of least cost.
 
 #### Scenario: A cycle
 
 - **WHEN** members form the cycle a → b → c → a
-- **THEN** the rows are a, b and c from top to bottom and the relation c → a
+- **THEN** a is above b and c, which share one row, and the relation c → a
   points upward
 
 #### Scenario: Siblings that call each other
@@ -41,6 +41,28 @@ when that removes a row without exceeding the row limit.
 - **WHEN** a customer uses a web application and a single-page application and
   the web application delivers the single-page application
 - **THEN** both applications share one row below the customer
+
+### Requirement: Row cost
+
+The cost of rows SHALL be ordered as follows: a row over its limit, or an
+outside component left without a free column beside the system boundary,
+outweighs every other cost; then each row a relation skips; then a card with
+more than two neighbours in its row or relations closing a ring within one row;
+then each relation within one row, cheaper between peers that share a caller;
+then each further row.
+
+#### Scenario: A row limit
+
+- **WHEN** one component calls seven others in a view whose rows hold six cards
+- **THEN** one callee shares its caller's row and the other six share the next
+  row
+
+#### Scenario: A free column for an outside component
+
+- **WHEN** a component calls four inside components and one outside component
+  in a map whose rows hold five cards
+- **THEN** the five callees share one row, leaving the outside component a
+  column beside the boundary
 
 ### Requirement: Automatic single view
 

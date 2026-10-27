@@ -13,7 +13,7 @@ relations:
 A direct LikeC4 probe used AIGW `3318c81978917a0d16d6d16073d313ca78ee2736`'s
 selected `architecture/edition-provider/_source/semantic.json` (SHA-256
 `fc12aeef70916801b5bb25615b7b9db698471abc29bf4998f22b6482cf7b6672`).
-The [frozen probe](../../tests/conformance/fixtures/research/aigw-likec4-direct.c4)
+The frozen probe `tests/conformance/fixtures/research/aigw-likec4-direct.c4` (removed in 0.4.0; last present at commit 919360a)
 maps its 12 entities and 11 directed relations to one overview. It retains
 selected IDs and status fields as LikeC4 metadata but intentionally omits parts
 of the source Claim Model. It is a visual baseline, **not** an equivalent
@@ -524,7 +524,7 @@ archive with SHA-256
 was packed from the generic package and installed offline outside all source
 repositories. The consumer received only the six pinned request, Edition, and
 LikeC4 files listed in
-[`tests/conformance/evidence/di-effect-installed-probe.json`](../../tests/conformance/evidence/di-effect-installed-probe.json).
+`tests/conformance/evidence/di-effect-installed-probe.json` (removed in 0.4.0; last present at commit 919360a).
 The npm invocation used fresh user and global configuration files and a fresh
 HOME; installed `edition build` ran with empty `PATH`, `NODE_PATH`, and
 `NODE_OPTIONS`. The installed consumer was copied to a second location, its
@@ -554,7 +554,7 @@ the di-effect probe built Candidate
 `e40ab445e8b734fe5de371ebb09abc957e3a30fb73e253a23246adf8d640cb9a`.
 Its Candidate, manifest, static SVG/PNG, and interactive HTML were byte-
 identical across copied direct, offline-installed, and relocated builds. The
-[installed probe receipt](../../tests/conformance/evidence/aigw-client-installed-probe.json)
+installed probe receipt `tests/conformance/evidence/aigw-client-installed-probe.json` (removed in 0.4.0; last present at commit 919360a)
 binds the package, four inputs, five output files, and browser observations.
 This is **Client Projection only**, not the whole AIGW product or AIGW approval.
 

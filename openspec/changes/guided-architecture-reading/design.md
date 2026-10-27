@@ -128,11 +128,19 @@ five views, matching Archify's native guided-view limit. Each view has an
   used when groups are architectural layers; or
 - `members`: component ids whose rows follow their relations.
 
-Members are assigned rows by longest-path layering after reversing the edges
-that close cycles, so relations point downward where the graph allows.
-Siblings that share a caller and call each other then share a row when that
-removes a row without widening it beyond the row limit. Groups are rows only
-when a view names them as tiers.
+Members are assigned rows after reversing the edges that close cycles, so
+every relation points downward or stays within one row. One explicit cost
+chooses the rows: a row over its limit, or an outside component left without a
+free column beside the system boundary, outweighs everything; then each row a
+relation skips; then a card with more than two neighbours in its row or a ring
+of relations within one row, which no order keeps adjacent; then each relation
+within one row, cheaper between peers that share a caller; then each further
+row. A deterministic steepest descent from longest-path levels minimizes it,
+moving one component to any level its relations allow, pushing one component
+down with what would rise above it, or moving one component with everything
+below it. A heuristic of sibling merges and pulled-down sources was replaced
+because it ignored the row limit and left long relations, which both media draw
+poorly. Groups are rows only when a view names them as tiers.
 
 Without declared views, the plan is derived deterministically:
 
@@ -253,13 +261,17 @@ vendored, unmodified Archify through `archify deliver architecture
 - every component of the model at the position and size the grid layout
   computed with Archify's text metrics, with its label, kind as tag and its
   first detail, shortened to fit, as sublabel; groups that cover every
-  component are the rows, otherwise rows follow the relations;
+  component are the rows, wrapped at five cards, otherwise rows follow the
+  relations at the map's five-card limit;
 - the system boundary as a region when the cards it needs still hold every
-  label at 14 px, otherwise Archify's external type alone marks outside
-  elements;
+  label at 14 px and the rows leave the outside components a free column,
+  otherwise Archify's external type alone marks outside elements;
 - relations as labeled connections whose `fromSide` and `toSide` follow the
-  grid rows; Archify routes them, spreads their ports and places their labels
-  natively, and dashes planned or retired relations;
+  grid rows between adjacent rows; a relation that skips rows names no sides,
+  so Archify plans a route around the cards between instead of through them.
+  Archify routes every relation, spreads their ports and places their labels
+  natively, and dashes planned or retired relations. Channels are at least
+  72 px high, room for Archify's 14 px label boxes on both sides of a turn;
 - the seven native component types as color families mapped from the kind
   categories (`person` maps to `external`), with legend labels naming the
   model kinds;
@@ -270,8 +282,13 @@ vendored, unmodified Archify through `archify deliver architecture
 
 When `--repo` has an `origin` remote equal to the declared repository URL,
 components also carry up to three native source references that Archify
-verifies against the revision. Archify warnings or failed showcase checks
-refuse the build. The map is 1000 units wide and never wider than 1.54 times
+verifies against the revision. The delivery is gated at showcase quality. A
+map whose routes must cross or share corridors, as dense many-to-many relations
+between two rows do in Archify's router, is gated at standard quality instead
+and accepted only when those are the sole findings; the manifest records the
+profile and both counts. Authored waypoints were rejected because Archify
+anchors them at side midpoints, so several relations leaving one side would
+merge. Any other Archify finding refuses the build. The map is 1000 units wide and never wider than 1.54 times
 its height, below Archify's wide-canvas ratio, so the reader renders primary
 labels at 14.8 CSS px in a 1440 × 900 desktop viewport; Chromium measures this
 in the test suite. The custom
@@ -363,10 +380,11 @@ gates stay in force. The user accepts the artwork; tests do not.
 - [The bundled fonts add about 32 MB] → One family covers Latin and CJK
   without host fonts; a subset would be a modified font to maintain.
 - [Archify limits guided views to five and source references to three per
-  component, requires an `origin` remote for native links and applies its own
-  showcase checks to authored routes] → Models have at most five views;
-  complete evidence is always in cards and the manifest; a failed showcase
-  check refuses the build with Archify's diagnostic.
+  component, requires an `origin` remote for native links and merges routes
+  in dense channels] → Models have at most five views; complete evidence is
+  always in cards and the manifest; a map whose only findings are crossings
+  and shared corridors is delivered at standard quality with their counts,
+  and any other finding refuses the build with Archify's diagnostic.
 - [Previous inputs stop working] → The three real inputs are converted or
   rewritten; earlier releases and delivered artifacts are unchanged.
 

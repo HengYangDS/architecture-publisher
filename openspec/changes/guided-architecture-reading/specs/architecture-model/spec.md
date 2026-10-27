@@ -127,6 +127,11 @@ location and SHALL NOT drop one silently.
 - **THEN** the model validates and the build produces that view's poster and
   map
 
+#### Scenario: A view that shows a parent
+
+- **WHEN** a LikeC4 view includes a parent element
+- **THEN** the imported view shows the components inside that parent
+
 #### Scenario: An unsupported construct
 
 - **WHEN** the workspace contains a construct the model cannot represent

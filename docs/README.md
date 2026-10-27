@@ -8,12 +8,10 @@ relations:
 
 # Architecture Publisher documentation
 
-Start with the product boundary, then choose the reference for the task.
-Research and dated observations explain their own limits; they do not certify
-current implementation, artwork or publication.
+Start with the product contract, then choose the reference for the task.
 
-- [Product contract](product-contract.md): purpose, source independence, media and acceptance boundaries.
-- [Edition contract](edition-contract.md): selected meaning, reading choices and qualification.
-- [Development and reference](reference/README.md): public APIs, configuration and native verification.
-- [Source independence](migration/README.md): external publication ownership for ETHOS and AIGW.
-- [Research and evidence](research/README.md): mechanism comparisons and scoped observations.
+- [Product contract](product-contract.md): what the product does, its inputs, outputs and quality floor.
+- [Model reference](reference/model.md): every field of an Architecture Model.
+- [Operations reference](reference/operations.md): commands, layout, the delivery and refusals.
+- [Development and reference](reference/README.md): toolchain, configuration and verification.
+- [Research and evidence](research/README.md): how earlier releases were designed; historical.

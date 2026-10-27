@@ -145,7 +145,7 @@ then authenticated remote `GET` plus SHA-256 readback of every restored file and
 all twelve Release links. If original byte identity cannot be proved, retain
 the historical record and state the availability gap explicitly. Independent
 off-host disaster recovery remains governed by the separate
-[decision contract](../reference/disaster-recovery-decision-contract.md) and
+decision contract `docs/reference/disaster-recovery-decision-contract.md` (removed in 0.4.0; last present at commit 919360a) and
 is still unproved.
 
 ## Targeted repeat readback (2026-09-24 10:31 UTC)

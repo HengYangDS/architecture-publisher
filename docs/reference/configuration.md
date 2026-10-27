@@ -12,19 +12,19 @@ Native tools own policy and parsing. Configuration lives in `.config`; the
 root npm scripts select the exact native carriers. ETHOS selects governance
 roles, not a duplicate quality or formatting implementation.
 
-| Owner                                                        | Native consumer                                                                     |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| `.config/checks/eslint/eslint.config.mjs`                    | `npm run check:lint`                                                                |
-| `.config/checks/typescript/tsconfig.json`                    | `npm run check:types`; Knip's native TypeScript project                             |
-| `.config/checks/c8/.c8rc.json`                               | `npm run test:coverage`                                                             |
-| `.config/checks/knip/knip.toml`                              | `npm run check:dead-code`                                                           |
-| `.config/checks/markdownlint-cli2/.markdownlint-cli2.yaml`   | `npm run check:docs`                                                                |
-| `.config/checks/prettier/prettier.toml` and `prettierignore` | `npm run format` and `npm run check:format`                                         |
-| `.config/checks/taplo/taplo.toml`                            | Native TOML formatting in the same fix and check commands                           |
-| `.config/checks/file-budget/policy.toml`                     | Native lint and the owned Markdown budget rule                                      |
-| `.config/checks/format-selection/policy.toml`                | Native ETHOS carrier selection; `npm run test:coverage` verifies captured SVG bytes |
-| `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                                               |
-| `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                                     |
+| Owner                                                        | Native consumer                                                      |
+| ------------------------------------------------------------ | -------------------------------------------------------------------- |
+| `.config/checks/eslint/eslint.config.mjs`                    | `npm run check:lint`                                                 |
+| `.config/checks/typescript/tsconfig.json`                    | `npm run check:types`; Knip's native TypeScript project              |
+| `.config/checks/c8/.c8rc.json`                               | `npm run test:coverage`                                              |
+| `.config/checks/knip/knip.toml`                              | `npm run check:dead-code`                                            |
+| `.config/checks/markdownlint-cli2/.markdownlint-cli2.yaml`   | `npm run check:docs`                                                 |
+| `.config/checks/prettier/prettier.toml` and `prettierignore` | `npm run format` and `npm run check:format`                          |
+| `.config/checks/taplo/taplo.toml`                            | Native TOML formatting in the same fix and check commands            |
+| `.config/checks/file-budget/policy.toml`                     | Native lint and the owned Markdown budget rule                       |
+| `.config/checks/format-selection/policy.toml`                | Native ETHOS carrier selection for three immutable research captures |
+| `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                                |
+| `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                      |
 
 The file budget is 512 counted lines. ESLint excludes blank and comment-only
 lines; the existing Markdown budget rule counts nonempty physical lines.
@@ -36,11 +36,9 @@ relative to its configuration file. Prettier ignore paths are relative to its
 ignore carrier, so relocation updates them without widening input selection.
 No forwarding file, private parser or host-specific path is needed.
 
-The format-selection increment preserves seven exact SVG inputs: dated research
-captures and the original/updated standalone examples. They are byte-bound
-inputs, not unformatted drafts. The native behavior gate verifies their recorded
-hashes; Raster and installed example journeys consume them unchanged. No wildcard
-excludes future figures or replaces upstream-source provenance.
+The format-selection policy declares three dated research SVG captures under
+`docs/research/evidence/` as immutable carriers that no formatter rewrites. They
+are history, not product fixtures. No wildcard excludes future figures.
 
 Knip's native Markdownlint plugin selects the same relocated configuration and
 resolves its custom rule. Its default analysis covers development tools; strict
@@ -57,11 +55,9 @@ that relationship.
 
 The profile's `source-integrity` gate uses the installed ETHOS provider to check
 the exact npm lock members before runtime generation and all dependent quality
-gates. Libavoid, Dagre, ELK, SVG pan/zoom, Sax, OpenType and the schema generator's license
-retain their authentic member paths. A declaration is an obligation, not proof:
+gates. Sax and OpenType retain their authentic member paths. A declaration is an obligation, not proof:
 accepted-source verification must observe the committed profile, lock and member
-bytes together. Libavoid's source custody does not qualify the retained routing
-experiment or select it as the composition solution.
+bytes together.
 
 Archify's complete original release ZIP is retained under
 `tools/supply/archives/`. Its native received-archive contract is enabled only
@@ -73,8 +69,8 @@ members to fit an older verifier.
 `mise run bootstrap` prepares generated runtime before verification. Its native
 `raster-supply` task restores the canonical prebuilt pair from one immutable Git
 revision without changing the index or contacting a Forge; `npm run generate`
-verifies that pair and reproduces the parser and validators from locked inputs.
-Exact ignore rules separate those four outputs from authored source. Npm's
+verifies that pair and reproduces the LikeC4 parser from locked inputs.
+Exact ignore rules separate those three outputs from authored source. Npm's
 package `files` declaration still includes them when present at pack time.
 Git untracking and committed-source proof remain a separate migration step;
 ignore rules alone do not remove a file from the index.

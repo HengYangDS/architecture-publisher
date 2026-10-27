@@ -58,6 +58,19 @@ named after the repository.
 - **THEN** one rectangle encloses the three internal rows
 - **AND** no external card lies inside it
 
+### Requirement: Unplaceable boundary
+
+When no column interval can keep every outside component outside the
+boundary, the view SHALL be refused with the rows that mix inside and outside
+components and the remedy of giving outside components their own tier.
+
+#### Scenario: No column beside the boundary
+
+- **WHEN** a tier holds three people and one service above a tier of four
+  services
+- **THEN** the view is refused with `layout_boundary_unplaced` and the first
+  tier's members
+
 ### Requirement: Channel routing
 
 Wires and relation labels SHALL lie in the channels between rows, except
@@ -110,7 +123,7 @@ drawn only as perpendicular crossings away from bends, ports and labels.
 
 - **WHEN** three components in one row each call the same three components in
   the next row
-- **THEN** the view is laid out with the minimum number of crossings
+- **THEN** the view is laid out with nine crossings, the minimum for two rows
 - **AND** the measurements report that number without refusing
 
 ### Requirement: Layout bounds
@@ -121,5 +134,5 @@ the row or channel, its relations and a remedy naming more tiers or views.
 
 #### Scenario: A row that is too wide
 
-- **WHEN** a view places seven components in one row
+- **WHEN** a view declares a tier of seven components
 - **THEN** the view is refused with that row's members and the six-card limit

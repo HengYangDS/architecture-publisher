@@ -16,95 +16,49 @@ mise run check
 ```
 
 `npm run check` is the repository's fail-closed quality entry. It composes
-Prettier, zero-warning ESLint, checked JavaScript contracts, module-direction
-and dead-code analysis, Markdown and strict OpenSpec validation, measured test
-coverage, and packed-package validation. Vendored Archify, font, and raster
-supply remain outside first-party rewrite and dead-code ownership; their pinned
-bytes are verified through supply-chain and behavior tests.
+generated-input checks, Prettier and Taplo, zero-warning ESLint, checked
+JavaScript types, module boundaries, dead-code analysis, Markdown and strict
+OpenSpec validation, the test suite with at least 95 percent coverage in every
+dimension, and packed-package validation. Vendored Archify, font, icon, raster
+and LikeC4 supply stay outside first-party rewrite and coverage; their pinned
+bytes are verified by the supply checks and behavior tests.
 
 ## Toolchain and supply
 
-Development and CI
-use the exact Node.js and independently selected npm versions owned by
-`.config/mise/config.toml` and its lockfile, not Node's bundled npm. Runtime
-compatibility is checked against the installed package; it is not an ETHOS
-integration prerequisite or permission to run development tools with another
-Node version. Native `devEngines`
-admission rejects a different development Node/npm before installation or
-scripts. Every native CI job uses the locked `.config/mise/config.toml` tool selection
-in its own ignored tool cache, including the independently selected npm. Mise
-owns installation and execution; shell Runners retain their existing Mise
-installation owner. This does not raise the installed Core runtime floor.
-Knip excludes the external `mise` bootstrap binary from npm dependency lookup;
-the native CI environment regression executes that installed owner directly.
-Linux uses native download, checksum verification and installation of the pinned
-official executable before any Mise command. This job-local bootstrap changes
-neither the non-root image contract nor the host's installation owner.
-The private workspace also locks that same npm as a development tool. Native
-packaging subprocesses prepend workspace bins and the Node directory, so an
-external PATH selection alone can fall back to Node's bundled npm. The local
-dependency closes that real execution gap without a wrapper or runtime dependency.
+Development and CI use the exact Node.js and independently selected npm versions
+owned by `.config/mise/config.toml` and its lockfile, not Node's bundled npm.
+Native `devEngines` admission rejects another development Node or npm before
+installation or scripts. Every CI job uses the same locked selection in its own
+ignored tool cache. The installed package itself needs only Node.js 22.13 or
+later.
 
-The common CI job installs the locked Chromium through Playwright, downloads the
-manifest-selected Raster source archive through the caller's `CI_API_V4_URL`,
-verifies its hash and executes the frozen native Raster journey before
-`npm run check`. Curl imports the native job token from its environment; it is
-not embedded in a command argument or copied into repository configuration.
-Missing browser or Raster supply fails required execution. Linux uses a non-root
-job principal and retains Chromium's sandbox; actual native job results, not
-installation or YAML inspection, qualify each platform.
-
-The 2026-10-25 proposed lock audit reports six affected development-package entries:
-one high, one moderate and four low, representing four distinct advisories and
-no critical findings. Zod 4.6.7 removes the previous high-severity collection
-validation finding. No package entries or new overrides were added.
-
-Npm 12.2.1 still bundles `ip-address` 10.7.2 (moderate,
-`GHSA-rxp7-6hxx-x8q5`) and `undici` 6.29.0 (high,
-`GHSA-xjj6-f33q-929c`; moderate, `GHSA-4qv8-2p9j-2685`).
-Markdownlint CLI2 0.24.0 retains KaTeX 0.16.47 (low,
-`GHSA-238p-pmpm-9mq7`), whose trust bypass requires existing prototype pollution.
-Affected package entries include indirect dependants; they are not independent
-advisories. The exact audit and accepted manifest/lock digests are retained in
-`build/evidence/guided-architecture-reading/reading-composition-repair-20261024/phase-profile/supply-latest-readonly-20261025/`.
-
-The human accepted these exact remaining findings for trusted development input,
-isolated execution and disabled installation scripts. That decision authorizes
-neither vendor changes, additional overrides, publication nor new advisories.
-Untrusted repository, glob, Markdown, TOML and network input remains outside
-that acceptance. The audit covers the resolved npm tree; it does not establish
-which affected code ships or every security property of generated artifacts.
-Reassess changed upstream or consumer scope at the 2026-10-31 terminal review.
-Earlier approved findings retain their original dated evidence.
-
-Removing the unused LikeC4 graphical reader and React/style closure previously
-removed 215 lock entries and the Panda findings without changing retained
-versions. Native LikeC4 parsing remains. That historical audit is retained in
-`build/evidence/guided-architecture-reading/stable-supply-20261021/full-native-quality-2115/source-claim-binding-20261022/continuation-20261022-0510/retired-reader-npm-audit.json`.
-
-The development workspace selects OpenSpec through its npm manifest and lockfile.
-Its official apply instructions
-return each task's concrete `sourcePath` and one-based `line`; the repository
-checks those against a relocated, isolated task fixture. This is task-location
-evidence, not implementation completion or permission to mark a checkbox.
-Strict native validation and archive rehearsal remain separate checks.
+The supply checks bind each bundled supply to its recorded identity:
+`node tools/supply/likec4.mjs --check`, `node tools/supply/icons.mjs --check`
+and `node tools/supply/resvg.mjs --check`. Archify's complete release archive
+is retained under `tools/supply/archives/`, and the fonts and icons carry their
+licenses and digests in their `supply.json`.
 
 The LikeC4 parser supply is rebuilt from the npm lockfile. Chevrotain 11.0.3
-declares the older `lodash-es` version exactly, so the workspace uses one npm
+declares an older `lodash-es` exactly, so the workspace uses one npm
 `overrides` entry to select patched `lodash-es` 4.18.1 until upstream removes
-that constraint. `tools/supply/likec4.mjs --check` and the installed parser
-checks bind the selected bytes; an npm audit result covers the resolved npm
-tree, not every possible security property of generated code.
+that constraint.
+
+On 2026-10-25 the lock audit reported six affected development-package entries,
+one high, one moderate and four low, from four distinct advisories in npm's
+bundled `ip-address` and `undici` and in Markdownlint's KaTeX. The human
+accepted those findings for trusted development input, isolated execution and
+disabled installation scripts. The 0.4 retirement has since removed packages
+from the lock; rerun `npm audit` before a release and reassess any change.
 
 ## Native raster source rebuild
 
 Development bootstrap is `mise run bootstrap`. It installs the locked npm
 inputs with lifecycle scripts disabled, restores the exact canonical prebuilt
 Raster pair through the native `raster-supply` task, then runs `npm run generate`.
-Validators and the LikeC4 parser are reproduced offline from locked inputs;
-the Raster pair is checked against `source.json` before preparation. The four runtime
-outputs have exact ignore rules and remain included by the package's native `files` selection.
-Generation is explicit: there is no `pretest` or `posttest` hook.
+The LikeC4 parser is reproduced offline from locked inputs, and the Raster pair
+is checked against `source.json` before preparation. The three runtime outputs
+have exact ignore rules and remain included by the package's native `files`
+selection. Generation is explicit: there is no `pretest` or `posttest` hook.
 
 `ARCHPUB_RESVG_PREBUILT` may select a caller-owned directory containing the exact
 `index.mjs` and `index_bg.wasm` pair. Both must pass their recorded size and digest
@@ -167,146 +121,47 @@ the source manifest remains their sole owner, not a runtime hash-acceptance list
 The evaluated `wasm-pack` wrapper is not selected: its metadata discovery rewrites
 the original lockfile before applying its later offline/frozen build options.
 
+## Formatting and lint
+
 Prettier is the sole Markdown spacing owner. `npm run format` fixes maintained
 files; `npm run check:format` verifies the same inputs without changing them.
-Wrapped prose, compound list items and quote structure retain their meaning.
-Markdownlint owns structural and semantic lint, not a second spacing grammar.
-Captured fixtures, vendor supply, generated examples and archived specifications
-retain their recorded bytes.
+Markdownlint owns structural lint, not a second spacing grammar. Captured
+research figures, vendor supply and archived specifications keep their recorded
+bytes. Native tool policy lives under `.config/checks/<tool>/`; each npm script
+passes its exact carrier. See [configuration ownership](configuration.md).
 
-Native tool policy lives under `.config/checks/<tool>/`. Each npm script passes
-its exact carrier; there is no ambient configuration reference in the root
-manifest. See [configuration ownership](configuration.md) for tools, lockfiles
-and ignored outputs.
+## Tests and coverage
 
-Hosted CI runs this same command on Linux ARM64 and native macOS ARM64. GitLab's
-protected-ref flag selects the protected macOS Runner; merge requests and
-unprotected branches select the separate review Runner. Both inherit one
-project-local GitLab resource group, so Publisher's macOS verification jobs do
-not compete with each other for native compiler resources. Their Runner and
-trust identities stay separate; Linux and other projects are not serialized.
-This scheduling constraint is not a sandbox or a proof that every historical
-compiler stall had the same cause. Native macOS executes the CoreText Swift
-paths that skip on other platforms. Browser and external input tests still
-require their explicit selectors.
+The coverage gate selects every `.mjs` module under `packages/publisher/src/`
+and requires 95 percent of statements, lines, branches and functions. The suite
+covers the model, source binding, reading plan, layout, posters, the map and its
+delivery through the vendored Archify, deliveries, acceptance, publication, the
+LikeC4 importer, the command line, the packed and installed package, module
+boundaries, the version projection, the CI projection and the file budgets.
 
-Linux Docker jobs set GitLab Runner's native
-`FF_USE_INIT_WITH_DOCKER_EXECUTOR=true`. Its `--init` process reaps orphaned
-children after the existing supervisor kills an invocation's process group.
-Without an init, a terminated orphan may retain a zombie PID and fail the
-unchanged installed Provider and qualification lifetime assertions. This is a
-Runner precondition, not a Publisher process scanner, sandbox exception or
-direct-child-only fallback. Local container acceptance uses the same `--init`
-boundary; hosted execution must independently qualify its actual Runner.
+Two tests need explicit selections and otherwise skip; a skip is not evidence:
 
-The standalone Raster rebuild initializes its own repository-local test workspace
-before allocating a unique execution directory. It does not depend on the npm
-suite having run first or on retained output from a previous checkout. Native
-test cleanup removes only that execution directory; the owning parent remains.
+- `tests/map-browser.test.mjs` measures the delivered map's component labels in
+  Chromium at 1440 × 900. It uses `ARCHPUB_BROWSER_EXECUTABLE` when set, or
+  Playwright's own headless browser; CI requires it.
+- `tests/conformance/journeys/raster/rebuild.test.mjs` rebuilds the raster
+  renderer from `ARCHPUB_RESVG_SOURCE_ARCHIVE` with `ARCHPUB_RESVG_BINDGEN`.
 
-The npm test environment sets `umask 022` within its own POSIX process and owned
-children before package reproduction, without changing the Runner service or
-the user's session. Native Runner selection owns operating system, architecture
-and trust identity; duplicate inline assertions are not a second admission rule.
-The Linux job downloads the official release's Linux ARM64 executable into its
-private tool cache, verifies the pinned SHA-256, then uses native `install` to
-make it executable. Each operation is a separate fail-closed CI command; no
-custom installer or new container release is required. The CUE source owns
-version selection; `.config/ci/linux/mise.sha256` owns asset identity. Actual
-non-root Linux execution and damaged-byte refusal qualify this bootstrap,
-not the complete hosted pipeline.
-Historical `contentTarSha256` identifies the complete uncompressed TAR stream,
-including member modes; it is independent of gzip encoding, not of TAR metadata.
-The job-local mask reproduces those recorded package modes inside the Runner's
-private home on POSIX. Native Windows filesystem metadata does not reproduce
-historical POSIX TAR headers: its historical repack tests instead verify the
-complete selected file set and every byte against the immutable Git tree. This
-is source-byte replay, not equality with the historical archive. Recorded TAR
-digests and signed release bytes remain unchanged. Runner service permissions
-and historical digests remain separate from that artifact-build setting.
+## Continuous integration
 
-Repository-authored text checks out as LF through `.gitattributes`. Generated
-validators and third-party supply use `-text` to preserve recorded bytes,
-including mixed-line-ending notices and binary fonts. Native CI uses GitLab's
-fetch strategy and default cleaning, excluding only
-`build/runtime/tool-cache/`. A completed browser can retain a mapped DLL that
-prevents recursive workspace replacement on Windows; on Linux and macOS, deleting
-the same verified cache also needlessly repeats large upstream downloads.
-Windows additionally runs `git checkout-index --all --force` to refresh every
-tracked carrier before tool execution, including attribute-only changes and
-stat-clean CRLF files. Previous coverage and other generated output are cleaned;
-required evidence belongs outside that disposable job state. Retained tools
-remain subject to their locked supply checks. Each Runner and trust role retains
-only its own workspace cache; no shared GitLab cache or cross-role store is used.
-Linux selects `/ms-playwright` from its pinned official Playwright image instead
-of downloading a second browser copy into the workspace. The image and locked
-Playwright package must select the same native browser revision. Mise preserves
-the explicit invoker-owned browser root; without one, it uses the existing
-project-local cache. Native browser launch and the complete quality graph still
-qualify the selected bytes, not just their presence in the image.
-Native checkout logs and byte checks must confirm the effective strategy. This
-does not modify global Git configuration or prove that a previous process was
-reclaimed.
-The two Publisher Linux Docker Runner owners select the verified official
-Playwright seccomp profile, which permits user-namespace creation without
-privileged execution or disabling Chromium's sandbox. Only their Docker
-`security_opt` fields change; credentials, other Runner blocks, ownership and
-VM sharing remain unchanged. Original configuration bytes stay with their
-native owners until the corresponding full native job releases rollback
-custody. A successful sandboxed browser probe does not qualify the full CI
-matrix. Evidence: `build/evidence/guided-architecture-reading/stable-supply-20261006/linux-runner-seccomp-readback.log`
-and `linux-native-sandboxed-browser.log`. The protected image download remains
-unqualified after its bounded timeout; the protected job must verify its own
-selected image and browser.
-Mise's locked Rust declaration includes `cargo`, `rustc` and the host `rust-std`.
-Its native installation repairs missing selected components in the retained
-tool-cache; a minimal profile alone does not reconcile an already installed
-toolchain. The separate Wasm target does not replace the host standard library
-needed to compile build scripts.
-The native bootstrap invokes `mise exec -- rustup component add rust-std`
-after locked installation. Rustup resolves the host from the selected toolchain;
-this is idempotent component reconciliation, not a second version declaration
-or installer. Mise's generic component predicate can otherwise count a Wasm
-standard library as satisfying the unqualified host component.
+`.config/ci/pipeline.cue` owns one shared execution graph for Linux ARM64, macOS
+ARM64 and Windows ARM64, and `node tools/ci/projection.mjs --write` generates the
+GitLab and GitHub configuration from it. GitLab and GitHub are equal optional
+peers; `npm run check:ci` verifies the projections without contacting either.
+Each job installs Chromium through Playwright, verifies the Raster source
+closure and runs `npm run check`.
 
-CI selects both `MISE_DATA_DIR` and `MISE_CACHE_DIR` within the job-owned
-tool-cache. The native npm backend hardlinks package files from the latter.
-Reinstall only a damaged locked tool using that same cache rather than granting
-a Runner access to a system-principal store. Verify the resulting files and
-version under the actual Runner identity; a management-principal probe alone
-does not establish hosted acceptance.
-
-The JavaScript coverage gate selects all tracked runtime `.mjs` under
-`packages/publisher/src/`, first-party
-`packages/publisher/renderers/`, and `editions/self/src/`, including
-`index.mjs` entrypoints. The selected module inventory is derived by the
-coverage command and policed by `tests/quality-contract.test.mjs`; this prose
-does not duplicate a revision-specific count. The only exclusions are the
-third-party/generated renderer supply and generated authoring validators. The
-validator module is reproduced from the versioned JSON Schemas by
-`tools/generate-authoring-validators.mjs --check` and carries the generator's
-MIT notice; the schemas and handwritten cross-reference validation remain
-covered. The installed product has no
-runtime npm dependencies. `tests/quality-contract.test.mjs` rejects a tracked
-first-party package module moved outside the selected roots. This is a
-JavaScript coverage claim, not coverage of the separately compiled CoreText
-Swift helper or a substitute for native platform acceptance.
-
-The `npm run check` coverage step executes ordinary offline source, semantic,
-Edition, scene, rendering, package, installed-use, publication, replacement,
-and recovery behavior. Cases requiring an external source root, historical
-delivery, or browser executable skip when not explicitly selected. A skip is
-not qualification evidence.
-
-Set `ARCHPUB_BROWSER_EXECUTABLE` to an absolute installed Chrome executable
-before `npm run check` to execute its browser tests. The external AIGW
-conformance test separately requires absolute `AIGW_EDITION_ROOT` and
-`AIGW_SOURCE_ROOT` selections: editorial preparation and read-only source
-material remain separate. These are Publisher test inputs, not AIGW configuration
-or CI requirements. The historical paired-file migration rehearsal
-requires both absolute `PAIR_PRIOR_NATIVE` and `PAIR_PRIOR_ATLAS` paths; it
-copies those deliveries into temporary test state before effects. None of
-these selectors grants source acceptance or a release decision.
-
-Never edit immutable release plans or substitute a similarly named newer
-generation. Evidence is applicable only to its exact bytes and declared scope.
+Linux Docker jobs set `FF_USE_INIT_WITH_DOCKER_EXECUTOR=true` so an init process
+reaps orphaned children, use a registry-verified Playwright image with a non-root
+default user and keep Chromium's sandbox. The npm test environment sets
+`umask 022` within its own POSIX process. Repository text checks out as LF
+through `.gitattributes`; third-party supply keeps its bytes. Windows refreshes
+every tracked file with `git checkout-index --all --force` before tools run.
+Mise's Rust declaration includes `cargo`, `rustc` and the host `rust-std`, and
+CI keeps `MISE_DATA_DIR` and `MISE_CACHE_DIR` inside the job-owned tool cache.
+Actual hosted job results, not configuration, qualify each platform.

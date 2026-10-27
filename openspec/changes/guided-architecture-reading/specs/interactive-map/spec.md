@@ -8,20 +8,38 @@ and complete evidence.
 ### Requirement: Native Archify document
 
 The map SHALL be one standalone HTML document produced by the vendored,
-unmodified Archify `deliver` command at the showcase quality profile from an
-architecture document written by the publisher. The publisher SHALL NOT patch
-Archify, replace its fonts or routing, or post-process its output. An Archify
-error, warning or failed showcase check SHALL refuse the build.
+unmodified Archify `deliver` command from an architecture document written by
+the publisher with the showcase quality profile. The publisher SHALL NOT patch
+Archify, replace its fonts or routing, or post-process its output.
+
+#### Scenario: An unmodified renderer
+
+- **WHEN** a map is delivered
+- **THEN** the Archify supply's digest matches its recorded release archive
+
+### Requirement: Map quality gate
+
+The delivery SHALL be gated at Archify's showcase quality. When that gate fails,
+it SHALL be gated at standard quality and accepted only when Archify's sole
+findings are route crossings and routes sharing a corridor, whose counts the
+manifest records. Any other Archify error or warning SHALL refuse the build.
 
 #### Scenario: A map is delivered
 
 - **WHEN** a valid model is built
 - **THEN** `index.html` is the document Archify delivered at showcase quality
-- **AND** the manifest records Archify's supply digest and delivery result
+- **AND** the manifest records Archify's supply digest, the profile and zero
+  crossings and corridors
+
+#### Scenario: Routes that must meet
+
+- **WHEN** three components each call the same three components in the next row
+- **THEN** the map is delivered at standard quality
+- **AND** the manifest records its crossings and corridors
 
 #### Scenario: Archify refuses
 
-- **WHEN** Archify reports a failed showcase check
+- **WHEN** Archify reports any other failed check
 - **THEN** the build refuses with Archify's diagnostic and writes no delivery
 
 ### Requirement: Independent composition
@@ -43,11 +61,18 @@ coordinates, poster images or screenshots.
 - **THEN** the Archify connection leaves the bottom side, enters the top side
   and carries no waypoints
 
+#### Scenario: A relation that skips rows
+
+- **WHEN** a relation connects components in rows that are not adjacent
+- **THEN** its Archify connection names no sides and no waypoints, so Archify
+  plans a route around the cards between
+
 ### Requirement: Exploration content
 
 The map SHALL contain every component of the model with its label, its kind as
-tag and a short first detail as sublabel; tiers and the system boundary as
-regions when every label still fits at 14 px; every relation as a labeled
+tag and a short first detail as sublabel; the system boundary as a region when
+every label still fits at 14 px and the outside components can stay outside it;
+every relation as a labeled
 connection, dashed when planned or retired; and the seven native component
 types as color families mapped from
 the kind categories, with `person` drawn as `external`, whose legend labels
@@ -58,6 +83,16 @@ name the model kinds.
 - **WHEN** a model declares a `database` kind and a `person` kind
 - **THEN** their components use Archify's database and external types
 - **AND** the legend names the model's kind labels
+
+### Requirement: Map rows
+
+The map's rows SHALL be the groups, wrapped at five cards, when the groups cover
+every component, and otherwise rows from relations with at most five cards.
+
+#### Scenario: A wide group
+
+- **WHEN** every component is in a group and one group has six members
+- **THEN** that group fills two rows of three cards
 
 ### Requirement: Guided views and evidence cards
 
