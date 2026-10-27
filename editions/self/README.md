@@ -3,7 +3,8 @@
 [`model.json`](model.json) describes Architecture Publisher itself: the
 command line, the stages, the build steps, the grid layout and the two media.
 It pins one repository revision and records the SHA-256 digest of every source
-file it cites. Its three views are the overview, the grid layout and the media.
+file it cites. Its four views are the overview, the grid layout, the media, and
+acceptance and publication.
 
 Build it from the repository root; `--repo` verifies each source at the pinned
 revision:

@@ -539,7 +539,7 @@
         {
           "id": "stages",
           "label": "Stages",
-          "members": ["importer", "builder", "acceptance"]
+          "members": ["importer", "builder"]
         },
         {
           "id": "steps",
@@ -547,14 +547,9 @@
           "members": ["model", "binding", "plan", "poster", "map"]
         },
         {
-          "id": "foundations",
-          "label": "Foundations",
-          "members": ["layout", "supplies"]
-        },
-        {
           "id": "outside",
           "label": "Outside the package",
-          "members": ["repository", "documents"]
+          "members": ["repository"]
         }
       ]
     },
@@ -595,17 +590,45 @@
         {
           "id": "media",
           "label": "Media",
-          "members": ["poster", "map", "raster"]
+          "members": ["poster", "map"]
         },
         {
           "id": "parts",
           "label": "Parts",
-          "members": ["typefaces", "presentation", "layout"]
+          "members": ["typefaces", "presentation", "raster"]
         },
         {
           "id": "supplies",
           "label": "Supplies",
           "members": ["supplies"]
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Acceptance and publication",
+      "question": "How does a built delivery become a published version?",
+      "summary": "A reviewer accepts an unchanged delivery against its manifest digest. Publication copies only an accepted delivery into a versioned directory and never replaces a different one.",
+      "tiers": [
+        {
+          "id": "people",
+          "label": "Editor",
+          "members": ["editor"]
+        },
+        {
+          "id": "commands",
+          "label": "Command line",
+          "members": ["cli"]
+        },
+        {
+          "id": "stages",
+          "label": "Stages",
+          "members": ["builder", "acceptance"]
+        },
+        {
+          "id": "outside",
+          "label": "Outside the package",
+          "members": ["documents"]
         }
       ]
     }
