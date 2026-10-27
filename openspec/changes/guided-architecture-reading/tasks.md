@@ -6,13 +6,14 @@
 
 ## 2. Reading plan and layout
 
-- [ ] 2.1 Implement explicit and automatic views with tiers, flow, collapsed overviews, group views and the five-view limit; each plan fixture yields its specified views or refusal.
-- [ ] 2.2 Implement the fixed-configuration ELK layout for both media with label sizing, fan-out sharing and the eight-kind limit; repeated runs return identical geometry.
+- [ ] 2.1 Implement explicit and automatic views with tiers, rows from relations, collapsed overviews, group views and the five-view limit; each plan fixture yields its specified views or refusal.
+- [ ] 2.2 Implement the grid layout for both media: equal cards, optimal lattice placement, the system boundary, buses, corridors and exact channel routing; repeated runs return identical geometry.
+- [ ] 2.3 Implement the neatness measurements and layout bounds; the AIGW, Big Bank, cycle, skipped-row, bus and CJK fixtures measure clean, the three-by-three fixture reports its minimum crossings, and the seven-card row is refused.
 
 ## 3. Media
 
-- [ ] 3.1 Implement poster composition with design tokens, bundled fonts, outlined text, legend, footnote, defect checks and frame admission; render PNG at 1800 and 6000 px.
-- [ ] 3.2 Implement the native Archify map with regions, connections, color families, guided views and evidence cards; showcase delivery passes and Chromium measures primary labels of at least 14 CSS px.
+- [ ] 3.1 Implement poster composition from the grid layout with design tokens, bundled fonts and icons, outlined text, row bands, the boundary, legend, footnote, scale-up and frame admission; render PNG at 1800 and 6000 px.
+- [ ] 3.2 Implement the native Archify map with authored positions and routes, regions, color families, guided views and evidence cards; showcase delivery passes and Chromium measures primary labels of at least 14 CSS px.
 
 ## 4. Delivery and commands
 

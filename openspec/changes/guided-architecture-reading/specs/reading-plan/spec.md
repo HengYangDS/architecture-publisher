@@ -8,20 +8,39 @@ only posters that fit their frame at the reading floor.
 ### Requirement: Explicit views
 
 A model SHALL declare at most five views. Each view SHALL name either ordered
-tiers, which are group ids drawn as bands in that order, or members, which are
-component ids laid out by their relations. Each view SHALL produce one poster
-and one guided view in the map. Groups SHALL be drawn as bands only when a
-view names them as tiers.
+tiers, which are group ids or inline groups drawn as rows in that order, or
+members, which are component ids whose rows follow their relations. Each view
+SHALL produce one poster and one guided view in the map. Groups SHALL be drawn
+as rows only when a view names them as tiers.
 
 #### Scenario: A tiered view
 
 - **WHEN** a view names three groups as tiers
-- **THEN** its poster draws three bands in that order with their members inside
+- **THEN** its poster draws three rows in that order with their members
 
 #### Scenario: Too many views
 
 - **WHEN** a model declares six views
 - **THEN** the build refuses and states the five-view limit
+
+### Requirement: Rows from relations
+
+For a view that names members, the publisher SHALL assign rows by
+longest-path layering after reversing the relations that close cycles, and
+SHALL then place siblings that share a caller and call each other in one row
+when that removes a row without exceeding the row limit.
+
+#### Scenario: A cycle
+
+- **WHEN** members form the cycle a → b → c → a
+- **THEN** the rows are a, b and c from top to bottom and the relation c → a
+  points upward
+
+#### Scenario: Siblings that call each other
+
+- **WHEN** a customer uses a web application and a single-page application and
+  the web application delivers the single-page application
+- **THEN** both applications share one row below the customer
 
 ### Requirement: Automatic single view
 
@@ -58,9 +77,9 @@ five views, the build SHALL refuse with the measured size and the remedy.
 
 Every poster SHALL be exactly 1800 px wide and at most 1350 px high, and no
 text SHALL be smaller than 14 px. Admission SHALL compose each view once with
-the fixed layout configuration. A view that does not fit SHALL be refused with
-its id, measured width and height, and component and relation counts. The
-publisher SHALL NOT scale text down, retry other layout parameters or crop.
+the grid layout. A view that does not fit SHALL be refused with its id,
+measured width and height, and component and relation counts. The publisher
+SHALL NOT scale text down, retry other layout parameters or crop.
 
 #### Scenario: An oversized view
 

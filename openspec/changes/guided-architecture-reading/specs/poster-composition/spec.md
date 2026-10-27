@@ -7,18 +7,22 @@ deterministic SVG and PNG outputs.
 
 ### Requirement: Graph-first content
 
-Each poster SHALL contain a header with the title, the view question and an
-optional summary of at most three lines; the graph; one legend line for the
-kinds and statuses present; and a footnote with the scope, limits,
-attribution, repository revision and source verification state. Components
-SHALL show their kind glyph, label and details; relations SHALL show their
-label and details beside their own route. Posters SHALL NOT print claim
-records, digest lists, status tables or reading indexes.
+Cards SHALL show their category color, kind icon, label and details;
+relations SHALL show their label and details on their own wire. Posters SHALL
+NOT print claim records, digest lists, status tables or reading indexes.
 
 #### Scenario: A component with details
 
 - **WHEN** a component declares `owns: account tokens`
-- **THEN** its poster node shows its glyph, its label and that detail
+- **THEN** its card shows its icon, its label and that detail
+
+### Requirement: Header, legend and footnote
+
+Each poster SHALL contain a header with the title, the view question, an
+optional summary of at most three lines and the repository, revision and view
+number; one legend line for the kinds, the system boundary and the statuses
+present; and a footnote with the scope, limits, attribution, repository
+revision and source verification state.
 
 #### Scenario: Evidence stays off the poster
 
@@ -26,12 +30,31 @@ records, digest lists, status tables or reading indexes.
 - **THEN** the poster shows the revision and verification state in its
   footnote and no digest
 
+### Requirement: Grid composition
+
+The poster SHALL draw the grid layout computed with the poster's metrics:
+equal cards, tiers as tinted row bands with numbered row labels, the system
+boundary as one dashed rectangle with the repository name, orthogonal wires
+with arrowheads and relation labels inside the channels. A view smaller than
+its stage SHALL be enlarged by at most 1.4 times and centered; a view SHALL
+never be reduced.
+
+#### Scenario: A tiered view
+
+- **WHEN** a view names five tiers
+- **THEN** the poster shows five bands numbered 1 to 5 with their labels and
+  every card of a band at one height
+
+#### Scenario: A small view
+
+- **WHEN** a view of two rows occupies a third of the stage
+- **THEN** it is drawn at no more than 1.4 times its natural size, centered
+
 ### Requirement: Readable typography and geometry
 
 The poster SHALL use the bundled fonts at a fixed type scale in which no text
-is smaller than 14 px. Labels SHALL NOT overlap nodes, other labels or the
-frame edge, and every relation label SHALL sit beside its own route. A
-composition that violates these rules SHALL fail the build as a defect.
+is smaller than 14 px, and SHALL refuse a view whose layout fails the measured
+neatness rules.
 
 #### Scenario: Text floor
 
@@ -40,8 +63,8 @@ composition that violates these rules SHALL fail the build as a defect.
 
 #### Scenario: A composition defect
 
-- **WHEN** a laid-out label box intersects a node box
-- **THEN** the build fails with the label's relation id and the node id
+- **WHEN** a label box would intersect a card
+- **THEN** the build fails with the label's relation id and the card id
 
 ### Requirement: Status styles
 
@@ -52,14 +75,15 @@ explain each style present.
 #### Scenario: A planned relation
 
 - **WHEN** a relation has status `planned`
-- **THEN** its route is dashed and the legend explains the dashed style
+- **THEN** its wire is dashed and the legend explains the dashed style
 
 ### Requirement: Portable deterministic output
 
-Each poster SHALL be written as SVG whose text is converted to glyph outlines,
-and as PNG at 1800 and 6000 px wide rendered from that SVG by the vendored
-renderer. The publisher SHALL NOT discover host fonts. Building the same model
-with the same publisher version SHALL reproduce identical bytes.
+Each poster SHALL be written as SVG whose text is converted to glyph outlines
+and whose icons are inline paths, and as PNG at 1800 and 6000 px wide rendered
+from that SVG by the vendored renderer. The publisher SHALL NOT discover host
+fonts. Building the same model with the same publisher version SHALL reproduce
+identical bytes.
 
 #### Scenario: Rendering without fonts
 

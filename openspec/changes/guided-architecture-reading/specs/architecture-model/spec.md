@@ -67,21 +67,50 @@ and its own route.
 
 - **WHEN** four relations from one component have the same label and no
   details
-- **THEN** the poster prints that label once on their shared route
+- **THEN** the poster prints that label once on their shared bus
 - **AND** the manifest still lists four relations with their own ids
 
 ### Requirement: Editorial decisions are optional
 
-Kinds, statuses, groups and views SHALL be optional. When kind labels,
-legend order or interactive categories are absent, the publisher SHALL derive
-them deterministically from the order in which kinds first appear.
+Kinds, statuses, groups and views SHALL be optional. When kind labels, legend
+order, categories or icons are absent, the publisher SHALL derive them
+deterministically: labels from kind names, order from first appearance, the
+`backend` category and each category's default icon.
 
 #### Scenario: Kinds without declarations
 
 - **WHEN** components use three kinds that the model does not declare
 - **THEN** the legend lists them in first-appearance order with their kind
   names as labels
-- **AND** a rebuild assigns the same glyphs and color families
+- **AND** a rebuild assigns the same icons and color families
+
+### Requirement: Kind categories and icons
+
+A kind MAY declare one of the categories `person`, `external`, `frontend`,
+`backend`, `database`, `cloud`, `messagebus` and `security`, and the name of a
+Lucide icon. Components whose kind category is `person` or `external` SHALL
+be treated as outside the described system. An icon name outside the bundled
+Lucide artwork SHALL be refused.
+
+#### Scenario: An external kind
+
+- **WHEN** a kind declares the category `external`
+- **THEN** its components are drawn outside the system boundary
+
+#### Scenario: An unknown icon
+
+- **WHEN** a kind names an icon that the bundled artwork does not contain
+- **THEN** validation refuses it with the kind's path
+
+### Requirement: Relations connect two components
+
+Every relation SHALL connect two different declared components. A relation
+from a component to itself SHALL be refused with its JSON path.
+
+#### Scenario: A self relation
+
+- **WHEN** a relation declares the same component as `from` and `to`
+- **THEN** validation refuses it with its path
 
 ### Requirement: LikeC4 import
 

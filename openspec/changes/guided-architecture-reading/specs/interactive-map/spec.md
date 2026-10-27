@@ -26,9 +26,10 @@ error, warning or failed showcase check SHALL refuse the build.
 
 ### Requirement: Independent composition
 
-The publisher SHALL compute map positions with its own layout and Archify's
-component metrics. Map geometry SHALL NOT be derived from poster coordinates,
-poster images or screenshots.
+The publisher SHALL compute map positions, sizes, connection sides, waypoints
+and label positions with the grid layout and Archify's component and label
+metrics, and SHALL write them as authored Archify geometry. Map geometry SHALL
+NOT be derived from poster coordinates, poster images or screenshots.
 
 #### Scenario: Different metrics, same structure
 
@@ -36,15 +37,32 @@ poster images or screenshots.
 - **THEN** each medium's positions come from its own layout run with its own
   metrics
 
+#### Scenario: Authored routes
+
+- **WHEN** a relation jogs between two rows in the grid layout
+- **THEN** the Archify connection carries that route's sides and waypoints and
+  its label position
+
 ### Requirement: Exploration content
 
 The map SHALL contain every component of the model with its label, its kind as
-tag and a short first detail as sublabel; tiers and groups as regions; every
-relation as a labeled connection, dashed when planned or retired; the seven
-native component types as color families whose legend labels name the model
-kinds; one guided view per model view; and cards for the question and
-summary, the scope, limits and attribution, and the complete evidence of every
-component and relation.
+tag and a short first detail as sublabel; tiers and the system boundary as
+regions; every relation as a labeled connection, dashed when planned or
+retired; and the seven native component types as color families mapped from
+the kind categories, with `person` drawn as `external`, whose legend labels
+name the model kinds.
+
+#### Scenario: Kinds become color families
+
+- **WHEN** a model declares a `database` kind and a `person` kind
+- **THEN** their components use Archify's database and external types
+- **AND** the legend names the model's kind labels
+
+### Requirement: Guided views and evidence cards
+
+The map SHALL offer one guided view per model view and cards for the question
+and summary, the scope, limits and attribution, and the complete evidence of
+every component and relation.
 
 #### Scenario: Evidence is inspectable
 

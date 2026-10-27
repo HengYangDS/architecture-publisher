@@ -18,6 +18,8 @@ starts from what a reader needs and what the user decided:
   overview plus mechanism views.
 - Interactive primary labels are 14 px; relation labels keep Archify's native
   size.
+- Boxes of one view share one size and align on one grid; the user rejected
+  the ELK composition because its boxes differed in size and height.
 - Deliver AIGW, self and ETHOS media, the Documents delivery and a signed
   release by 2026-10-31.
 - The product must draw any repository, not only ETHOS, AIGW and itself.
@@ -31,7 +33,10 @@ starts from what a reader needs and what the user decided:
 - Three media with distinct jobs: the poster explains one question at a
   glance, the map supports exploration and inspection, and the manifest binds
   both to exact content.
-- Identical inputs produce identical bytes; no layout is chosen by search.
+- Neatness is measured, not judged: equal cards on one grid, orthogonal wires,
+  no overlapping lines or labels, and text never below 14 px.
+- Identical inputs produce identical bytes; each layout is the exact optimum of
+  one published cost, with no candidates, retries or randomness.
 - Each poster fits its frame at its type scale, or the build refuses with the
   view, its measured size and the remedy.
 - The map is produced by unmodified native Archify.
@@ -43,7 +48,7 @@ starts from what a reader needs and what the user decided:
 - Inferring architecture from source code. Agents may author models; the
   publisher does not guess them.
 - Mobile layouts, PDF, PPTX, resident services, registries or catalogs.
-- Modifying Archify, ELK, resvg, fonts or any other vendored supply.
+- Modifying Archify, resvg, the fonts, the icons or any other vendored supply.
 - The ETHOS north-star packet, the research settlement and the GitLab
   simulated-loss recovery; they are deferred past 2026-10-31.
 
@@ -66,14 +71,21 @@ The model (`format: "architecture-publisher.model"`, `version: 1`) declares:
 - `components`: `id`, `label`, optional `kind`, `details`, `status`, `sources`;
 - `relations`: `id`, `from`, `to`, `label`, optional `details`, `status`,
   `sources`;
-- optional `kinds` (label, legend order and interactive `category`),
-  `groups` (`id`, `label`, `members`) and `views` (decision 5).
+- optional `kinds`, `groups` (`id`, `label`, `members`) and `views`
+  (decision 5).
+
+A kind declares a legend `label`, a `category` and an optional Lucide `icon`.
+The eight categories are `person`, `external`, `frontend`, `backend`,
+`database`, `cloud`, `messagebus` and `security`. They choose the card color,
+the default icon and the Archify component type; `person` and `external` mark
+elements outside the described system.
 
 `details` maps a name to a string or a list of strings and carries the
 qualifiers a reader needs, such as `owns: account tokens`. `status` is
-`implemented`, `planned` or `retired`; absence means not stated. A JSON Schema
-shipped with the package defines the format; validation reports every problem
-with its JSON path before any output.
+`implemented`, `planned` or `retired`; absence means not stated. A relation
+connects two different components. A JSON Schema shipped with the package
+defines the format; validation reports every problem with its JSON path before
+any output.
 
 This replaces the Claim Model, Edition project, Build Request and Provider.
 Claims, predicates, planes, selections, questions per selection and Candidate
@@ -104,77 +116,123 @@ Content digests, not remote names, are the identity anchor: none of the three
 current repositories has an `origin` remote, and a checkout's working tree may
 differ from the revision. Archify's native repository evidence requires an
 `origin` that matches the declared URL; archpub uses it only when that is true
-(decision 9) and never fabricates a remote to satisfy it.
+(decision 10) and never fabricates a remote to satisfy it.
 
-### 5. Reading Plan
+### 5. Reading Plan and rows
 
 A view is a poster and a guided view of the map. A model declares at most
 five views, matching Archify's native guided-view limit. Each view has an
 `id`, an optional `title`, `question` and `summary`, and either:
 
-- `tiers`: ordered group ids drawn as horizontal bands, used when groups are
-  architectural layers; or
-- `members`: component ids laid out by their relations alone.
+- `tiers`: ordered group ids, or inline groups, drawn as rows in that order,
+  used when groups are architectural layers; or
+- `members`: component ids whose rows follow their relations.
 
-Groups are bands only when a view names them as tiers. The previous self
-edition put one element in each group; forcing those groups into bands turned
-a two-branch pipeline into one vertical chain twice as tall as its flow
-layout.
+Members are assigned rows by longest-path layering after reversing the edges
+that close cycles, so relations point downward where the graph allows.
+Siblings that share a caller and call each other then share a row when that
+removes a row without widening it beyond the row limit. Groups are rows only
+when a view names them as tiers.
 
 Without declared views, the plan is derived deterministically:
 
-1. one flow view of all components, if it is admitted;
+1. one view of all components, if it is admitted;
 2. otherwise, when the model has groups: an overview with one node per group
    and one aggregated relation per ordered group pair, followed by one view per
    group with its members and their direct neighbors as context;
 3. otherwise, or when more than five views would result, a refusal that names
    the measured size and asks for groups or views.
 
-Admission composes the poster once and measures it (decision 7). Nothing is
+Admission composes the poster once and measures it (decision 8). Nothing is
 retried with other parameters.
 
-### 6. One fixed layout configuration
+### 6. Grid layout
 
-Both media use ELK layered once per view with one configuration: downward
-direction, orthogonal routing, network-simplex node placement, model-order
-crossing minimization, a fixed seed, centered edge labels and merged edges.
-Tiers become ELK partitions. Each medium supplies its own node and label
-metrics, so the poster and the map never share coordinates or screenshots.
+Both media use one layout engine. Each medium supplies its own metrics: card
+width bounds, text measurement, label sizes and spacing.
 
-Edge labels are passed to ELK as measured boxes with their text, because
-elkjs 0.12 does not place labels that have no `text`. When several relations
-share a source, label and details, the first carries the label and the others
-share its route. Edge coordinates are requested in root space. A view with
-more than eight distinct kinds is refused, because the legend can then no
-longer distinguish them.
+- **Cards.** Every card of a view has one width and one height. The width is
+  the largest that lets the widest row fit the frame, capped by the medium;
+  the height fits the tallest card content at that width.
+- **Lattice.** Card positions are whole or half columns of one pitch (card
+  width plus column gap); half columns center a card between two others.
+- **Placement.** Rows are placed by exact dynamic programming over every row
+  order and lattice position. The cost counts, in decreasing weight, crossings
+  between adjacent rows, bends of wires between adjacent rows, an off-center
+  bus hub, room for same-row arrows, row centering, half-column use and
+  departures from model order. The minimum is unique for a given enumeration
+  order, so the result is deterministic. Long relations are placed in a second
+  pass that keeps their endpoints near the first optimum's corridor.
+- **Boundary.** When a view shows elements of the described system together
+  with `person` or `external` elements, the internal cards of every internal
+  row occupy one shared column interval and the others lie outside it, so the
+  system boundary is one rectangle named after the repository.
+- **Channels.** Rows are separated by channels that hold every wire and label
+  between them. A relation between adjacent rows runs vertically from its
+  source, makes at most one horizontal jog and runs vertically into its target.
+  Relations with one source, one label, the same details and targets in one
+  row form a bus with one label; so do relations into one target. A same-row
+  relation between neighbors is a straight arrow when its label fits between
+  them, otherwise it turns through the channel below. A relation that skips
+  rows runs down a corridor, a column gap or empty cell free in every row it
+  passes.
+- **Channel routing.** Each channel is solved exactly: every label position
+  (on the jog, beside the source or beside the target), up to three label
+  rows and every track order are tried, and the clean solution with the fewest
+  tracks, crossings and label rows wins. Ports on a card side are spread
+  symmetrically in the order of their far ends; wider spacing is tried only
+  when the default has no clean solution.
+- **Bounds.** A row holds at most six cards, or five beside row labels. A
+  wider row, or a channel without a clean solution, refuses the view with the
+  row or channel and its relations, and asks for more tiers or views.
 
-A custom band layout was rejected: it handled only edges between adjacent
-bands, while arbitrary repositories have cycles, skipped tiers and no groups.
-Candidate search, libavoid and dagre were rejected or removed for the reasons
-in the context.
+ELK, Graphviz, D2 (including TALA), PlantUML C4, LikeC4's own layout and
+libavoid were measured on the AIGW overview. None keeps equal card sizes, tier
+order and labels clear of other wires together, because their objective is
+edge length and crossings rather than a grid; libavoid routes but places no
+labels. The previous custom band layout was rejected because it handled only
+edges between adjacent bands; corridors, automatic rows and cycle reversal
+remove that limit.
 
-### 7. Graph-first poster
+### 7. Measured neatness
+
+Every laid-out view is measured before any output, and the manifest records
+the measurements. The build refuses a view with any of:
+
+- a wire segment that is neither horizontal nor vertical;
+- two wires of different relations sharing a segment;
+- a wire through a card;
+- a label box intersecting a card, another label or another relation's wire;
+- text below 14 px, or content outside the frame.
+
+Crossings are minimized by placement and channel routing and reported, not
+refused: some relation sets, such as three components each calling the same
+three others, cannot be drawn without one. A remaining crossing is
+perpendicular and never at a bend, a port or a label.
+
+### 8. Graph-first poster
 
 The poster has a fixed width of 1800 px and a height of at most 1350 px:
 
-- a header with the title (40 px bold), the view question (20 px) and a
-  summary of at most three lines (16 px);
-- the graph: each component shows a kind glyph, its label (17 px bold) and its
-  details (14 px); each relation shows its label and details (14 px) beside
-  its route; tiers are tinted bands with their labels in a left column;
-  `planned` is dashed and `retired` is dotted and muted;
-- a one-line legend of the kinds and statuses present;
+- a header with the title (38 px bold), the view question (20 px), a summary
+  of at most three lines (16 px) and the repository, revision and view number;
+- the stage: tinted row bands with numbered row labels when the view has
+  tiers; cards with a category color bar, the kind icon, the label (18 px
+  bold) and the details (14 px); the boundary rectangle; wires with arrowheads;
+  relation labels (14 px) on their own wire;
+- a one-line legend of the kinds, the boundary and the statuses present;
 - a footnote with scope, limits, attribution, the repository revision and the
   source verification state.
 
-No text is smaller than 14 px. Claim records, digest lists, status tables and
+`planned` is dashed and `retired` is dotted and muted. A view smaller than its
+stage is enlarged up to 1.4 times and centered; a view is never reduced. No
+text is smaller than 14 px. Claim records, digest lists, status tables and
 reading indexes are not printed. Colors, spacing and type sizes are design
 tokens in one module. The poster is written as SVG with text converted to
 glyph outlines, so it renders identically without fonts, and as PNG at 1800
-and 6000 px through the vendored resvg. Overlapping labels, nodes outside the
-frame or text below the floor are composition defects that fail the build.
+and 6000 px through the vendored resvg.
 
-### 8. Bundled fonts
+### 9. Bundled fonts and icons
 
 Noto Sans CJK SC 2.004 Regular and Bold (SIL Open Font License 1.1) are
 bundled unmodified with their license and SHA-256 digests. They cover Latin
@@ -182,19 +240,25 @@ and CJK labels with one family. Host fonts are never discovered. The
 JetBrains Mono supply and the interactive font substitution are removed; the
 map keeps Archify's native typography.
 
-### 9. Native Archify map
+The existing icon supply, the complete Lucide 1.61.0 artwork (ISC) with its
+license and digests, is retained unmodified. Each category has a default icon,
+and a kind may name any Lucide icon; an unknown name is a validation problem.
+
+### 10. Native Archify map
 
 The interactive medium is one standalone HTML document produced by the
 vendored, unmodified Archify through `archify deliver architecture
 --quality showcase`. archpub writes the Archify document:
 
-- every component with its label, kind as tag, a short first detail as
-  sublabel, and a position and size from decision 6 with Archify metrics;
-- tiers and groups as regions; relations as labeled connections, dashed when
-  planned or retired;
-- the seven native component types as color families, mapped from each
-  kind's `category` or, if absent, assigned deterministically in kind order,
-  with legend labels naming the model kinds;
+- every component at the position and size the grid layout computed with
+  Archify's metrics, with its label, kind as tag and a short first detail as
+  sublabel;
+- tiers and the system boundary as regions;
+- relations as labeled connections whose `fromSide`, `toSide`, `via` points
+  and `labelAt` come from the channel routes, dashed when planned or retired;
+- the seven native component types as color families mapped from the kind
+  categories (`person` maps to `external`), with legend labels naming the
+  model kinds;
 - one guided view per model view, focusing its members;
 - cards for the question and summary, scope, limits and attribution, and the
   complete evidence of every component and relation: details, status and
@@ -209,17 +273,17 @@ reader scaling renders primary labels at no less than 14 CSS px in a 1440 ×
 renderer, routing, Inspect records, private-module coupling and font
 replacement are removed.
 
-### 10. Deterministic delivery and minimal trust
+### 11. Deterministic delivery and minimal trust
 
 `archpub build <model> --out <dir>` writes, into a directory that must not
 exist, `<view>.svg`, `<view>.png`, `<view>-6000.png` for each view,
 `index.html` and `manifest.json`. Output is staged and moved into place, so a
 failed build leaves nothing behind. The manifest records the model digest, the
-archpub version, the digests of the fonts and the ELK, resvg and Archify
-supplies, the plan, every artifact digest and every source record. It has no
-timestamps; rebuilding the same model with the same version reproduces every
-byte. `archpub check` runs validation, binding, planning and admission without
-writing.
+archpub version, the digests of the font, icon, resvg and Archify supplies,
+the plan, each view's neatness measurements, every artifact digest and every
+source record. It has no timestamps; rebuilding the same model with the same
+version reproduces every byte. `archpub check` runs validation, binding,
+planning, layout and admission without writing.
 
 `archpub accept <dir> --reviewer <name>` verifies every artifact against the
 manifest and writes `acceptance.json` with the reviewer, an optional note and
@@ -233,25 +297,26 @@ The Candidate, qualification records, publication plans, journals, recovery
 commands and custody manifests are removed. They duplicated Git, release and
 filesystem facts and never ran a check of their own.
 
-### 11. Command surface
+### 12. Command surface
 
 `archpub` offers `build`, `check`, `import likec4`, `accept` and `publish`.
 Every command accepts `--json` and then prints one result object with
 `ok`, the outputs or the diagnostics; exit status 0 means success, 1 a refused
 input and 2 a usage error. There are no aliases or compatibility commands.
 
-### 12. Retained and removed modules
+### 13. Retained and removed modules
 
-Retained: the LikeC4 parser supply, the ELK, resvg and Archify supplies with
-their verification tools, the release and CI tooling, and the repository's
-quality gates. Removed: the Provider, the Claim Model and Edition generations,
-source bundles and locks, scene programs, authored routes, occurrences and
-statements, the custom interactive renderer, libavoid, dagre, the icon supply,
-the JetBrains Mono supply, qualification, publication, the browser-evidence
-harness and every test that only exercised them. The self edition becomes a
-model file in `editions/self` without code.
+Retained: the LikeC4 parser supply, the font, icon, resvg and Archify supplies
+with their verification tools, the release and CI tooling, and the
+repository's quality gates. Removed: the Provider, the Claim Model and Edition
+generations, source bundles and locks, scene programs, authored routes,
+occurrences and statements, the custom interactive renderer and SVG figure
+renderer, the ELK, libavoid and dagre supplies, the JetBrains Mono supply,
+qualification, publication, the browser-evidence harness and every test that
+only exercised them. The self edition becomes a model file in
+`editions/self` without code.
 
-### 13. Edition content
+### 14. Edition content
 
 AIGW and ETHOS models live in `architecture-publications`, owned by their
 editor; the self model lives in this repository. The AIGW conversion keeps
@@ -263,29 +328,40 @@ complete, so each relation keeps `status: implemented` and claim records are
 not copied. The self and ETHOS models are written from their repositories at
 pinned revisions as an overview plus mechanism views.
 
-### 14. Verification
+### 15. Verification
 
-Tests cover model validation, source binding, the plan, layout determinism,
-poster admission and defects, the Archify mapping, the CLI and the LikeC4
-import. End-to-end journeys build a converted AIGW model, a cyclic model
-without groups, a CJK model and a model that must be refused, and rebuild one
-of them to compare bytes. Chromium measures the map's label floor. The
-repository's existing format, lint, type, import, dead-code, Markdown,
-OpenSpec, coverage (at least 95 percent per dimension) and package gates stay
-in force. The user accepts the artwork; tests do not.
+Tests cover model validation, source binding, the plan and automatic rows,
+placement and channel routing, the neatness measurements, layout determinism,
+poster admission, the Archify mapping, the CLI and the LikeC4 import.
+End-to-end journeys build the converted AIGW model; the C4 Big Bank example
+with tiers and without them; models with a cycle, a relation skipping rows, a
+six-way bus, three components each calling the same three others, and CJK
+labels; and models that must be refused for a seven-card row and an oversized
+view. One model is rebuilt to compare bytes. Chromium measures the map's
+label floor. The repository's existing format, lint, type, import, dead-code,
+Markdown, OpenSpec, coverage (at least 95 percent per dimension) and package
+gates stay in force. The user accepts the artwork; tests do not.
 
 ## Risks / Trade-offs
 
-- [A poster holds about twelve to fourteen labelled components] → The plan
-  splits large models into an overview and mechanism views and refuses rather
-  than shrinking text.
-- [Layout bytes depend on the pinned ELK version] → Determinism is promised
-  per archpub version; an ELK upgrade is a release change.
+- [A poster holds about twenty-five cards: five rows of up to five or six]
+  → The plan splits large models into an overview and mechanism views and
+  refuses rather than shrinking text.
+- [Exact placement grows with row width and lattice size] → Rows are limited
+  to six cards and the lattice to two spare columns; the AIGW and Big Bank
+  views lay out in under a second.
+- [Some views have no clean channel routing] → The build refuses with the
+  channel and its relations instead of drawing overlaps; the editor reorders
+  tiers or splits the view.
+- [Straight wires can leave a row off-center] → Placement prefers fewer bends
+  over symmetry; row centering only breaks ties of equal straightness.
 - [The bundled fonts add about 32 MB] → One family covers Latin and CJK
   without host fonts; a subset would be a modified font to maintain.
 - [Archify limits guided views to five and source references to three per
-  component and requires an `origin` remote for native links] → Models have at
-  most five views; complete evidence is always in cards and the manifest.
+  component, requires an `origin` remote for native links and applies its own
+  showcase checks to authored routes] → Models have at most five views;
+  complete evidence is always in cards and the manifest; a failed showcase
+  check refuses the build with Archify's diagnostic.
 - [Previous inputs stop working] → The three real inputs are converted or
   rewritten; earlier releases and delivered artifacts are unchanged.
 
