@@ -132,6 +132,27 @@ test("views taller than the frame are measured and reported as not fitting", () 
   assert.ok(poster.required.height > POSTER.height);
 });
 
+test("views wider than the frame are measured by their drawn width", () => {
+  const model = graphModel(
+    7,
+    [
+      [1, 2, "a"],
+      [1, 3, "b"],
+      [1, 4, "c"],
+      [1, 5, "d"],
+      [1, 6, "e"],
+      [1, 7, "connects and navigates the page"],
+      [6, 7, "screenshots the page now"],
+    ],
+    { kinds: { outside: { category: "external" } } },
+  );
+  model.components[6].kind = "outside";
+  const poster = compose(validateModel(model));
+  assert.equal(poster.fits, false);
+  assert.ok(poster.required.height < POSTER.height);
+  assert.ok(poster.required.width > POSTER.width);
+});
+
 test("CJK labels compose and characters the fonts lack are refused", () => {
   const model = validateModel(
     minimalModel({

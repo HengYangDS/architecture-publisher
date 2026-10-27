@@ -243,14 +243,15 @@ export function layoutView(view, metrics, options = {}) {
     channels,
     boundary,
   };
+  // Paths are relative to the view; the plan names the view the refusal belongs to.
   const measures = measureLayout(geometry);
   if (measures.defects.length)
     refuse(
       "layout_untidy",
-      `View ${view.id} cannot be drawn without overlaps. Reorder its tiers or split the view.`,
+      "The view cannot be drawn without overlaps. Reorder its tiers or split the view.",
       measures.defects.map((defect) => ({
         code: defect.code,
-        path: `/views/${view.id}`,
+        path: "",
         message: `${defect.message} (${defect.relations ?? defect.card})`,
       })),
     );

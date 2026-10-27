@@ -277,6 +277,14 @@ export function mapDocument(model, views, binding) {
     };
   });
   const labelled = new Set();
+  // A relation within a row is a straight arrow only where the grid drew one; otherwise it runs
+  // below its row, or above the last row, as the grid's U wire does.
+  const straight = new Set(
+    layout.arrows
+      .filter(({ direction }) => direction === "left" || direction === "right")
+      .flatMap(({ relations }) => relations.map(({ id }) => id)),
+  );
+  const rowCount = layout.rows.length;
   const connections = model.relations.map((relation) => {
     const [a, b] = [rowOf.get(relation.from), rowOf.get(relation.to)];
     const [from, to] = [relation.from, relation.to].map(
@@ -287,9 +295,13 @@ export function mapDocument(model, views, binding) {
         ? ["bottom", "top"]
         : a > b
           ? ["top", "bottom"]
-          : from.x < to.x
-            ? ["right", "left"]
-            : ["left", "right"];
+          : !straight.has(relation.id)
+            ? a < rowCount - 1 || rowCount === 1
+              ? ["bottom", "bottom"]
+              : ["top", "top"]
+            : from.x < to.x
+              ? ["right", "left"]
+              : ["left", "right"];
     // Relations that share a source, label and details carry one label, as on the poster.
     const key = JSON.stringify([relation.from, relation.label, relation.details, relation.status]);
     const label = labelled.has(key) ? null : relation.label;
@@ -376,8 +388,10 @@ const ROUTE_FINDINGS = Object.freeze({
  * One Archify delivery gated at one quality profile. The document keeps the
  * showcase profile, so Archify repairs label placement either way. Returns the
  * receipt and its route findings when the gate accepts it, or the refusal detail.
+ * A document with native source references names the checkout Archify verifies
+ * them in.
  */
-async function deliverAt(supply, input, output, profile) {
+async function deliverAt(supply, input, output, profile, repoRoot) {
   try {
     const { stdout } = await run(
       process.execPath,
@@ -389,6 +403,7 @@ async function deliverAt(supply, input, output, profile) {
         output,
         "--quality",
         profile,
+        ...(repoRoot ? ["--repo-root", repoRoot] : []),
         "--json",
       ],
       {
@@ -439,14 +454,15 @@ async function deliverAt(supply, input, output, profile) {
  * are recorded. Any other error or warning refuses the build.
  * @param {any} document
  * @param {string} directory a staging directory that receives `map.json` and `index.html`
+ * @param {string | null} [repoRoot] the checkout whose origin matched, for native source references
  */
-export async function deliverMap(document, directory) {
+export async function deliverMap(document, directory, repoRoot = null) {
   const supply = await verifySupply("archify");
   const input = path.join(directory, "map.json");
   const output = path.join(directory, "index.html");
   await fs.writeFile(input, `${JSON.stringify(document, null, 2)}\n`);
-  let result = await deliverAt(supply, input, output, "showcase");
-  if (!result.receipt) result = await deliverAt(supply, input, output, "standard");
+  let result = await deliverAt(supply, input, output, "showcase", repoRoot);
+  if (!result.receipt) result = await deliverAt(supply, input, output, "standard", repoRoot);
   if (!result.receipt) refuse("map_refused", `Archify did not deliver the map: ${result.detail}`);
   const validation = result.receipt.validation;
   // The specification and Archify's receipt (with its random id and staging paths) stay out of the delivery.

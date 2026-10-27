@@ -80,7 +80,8 @@ When the automatic single view is not admitted and the model has groups, the
 plan SHALL be an overview with one node per group and one aggregated relation
 per ordered group pair, followed by one view per group containing its members
 and their direct neighbors. When the model has no groups, or this plan exceeds
-five views, the build SHALL refuse with the measured size and the remedy.
+five views, the build SHALL refuse with the measured size, or with the layout's
+problems when the full view cannot be laid out, and the remedy.
 
 #### Scenario: A large grouped model
 
@@ -88,6 +89,12 @@ five views, the build SHALL refuse with the measured size and the remedy.
   admitted
 - **THEN** the plan has an overview of four group nodes followed by four group
   views
+
+#### Scenario: A full view that cannot be wired
+
+- **WHEN** a model without views has groups and the grid cannot wire its full
+  view
+- **THEN** the plan is the overview followed by the group views
 
 #### Scenario: A large model without groups
 
@@ -99,9 +106,9 @@ five views, the build SHALL refuse with the measured size and the remedy.
 
 Every poster SHALL be exactly 1800 px wide and at most 1350 px high, and no
 text SHALL be smaller than 14 px. Admission SHALL compose each view once with
-the grid layout. A view that does not fit SHALL be refused with its id,
-measured width and height, and component and relation counts. The publisher
-SHALL NOT scale text down, retry other layout parameters or crop.
+the grid layout. A view that does not fit SHALL be refused with its id, the
+measured width and height of its drawing, and component and relation counts.
+The publisher SHALL NOT scale text down, retry other layout parameters or crop.
 
 #### Scenario: An oversized view
 
@@ -110,7 +117,26 @@ SHALL NOT scale text down, retry other layout parameters or crop.
   counts
 - **AND** no other layout is attempted
 
+#### Scenario: A drawing wider than the frame
+
+- **WHEN** a declared view's drawing is wider than its poster stage
+- **THEN** the build refuses and reports a measured width above 1800 px
+
 #### Scenario: A deterministic plan
 
 - **WHEN** the same model is checked twice with the same publisher version
 - **THEN** both results report identical views and measured sizes
+
+### Requirement: Named view refusals
+
+A view whose layout is refused SHALL be refused with its id and the layout's
+problems under that view's path. Admission SHALL report every view it refuses,
+under the code of the first.
+
+#### Scenario: Two refused views
+
+- **WHEN** the grid cannot wire the second of three declared views and the
+  third does not fit
+- **THEN** the refusal names the second view with its layout code
+- **AND** its problems list the second view's layout problems and the third
+  view's measured size under their `/views/<id>` paths

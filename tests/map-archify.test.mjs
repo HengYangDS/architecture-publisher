@@ -250,6 +250,39 @@ test("a model whose relations the map cannot wire is refused as the map's layout
   );
 });
 
+test("a relation within a row too narrow for its label runs below the row, as the grid draws it", async (t) => {
+  const model = validateModel(
+    graphModel(
+      7,
+      [
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [1, 5],
+        [1, 6],
+        [5, 6, "resolves the element index"],
+        [6, 7],
+      ],
+      {
+        groups: [["c1"], ["c2", "c3", "c4", "c5", "c6"], ["c7"]].map((members, index) => ({
+          id: `g${index}`,
+          label: `G${index}`,
+          members,
+        })),
+      },
+    ),
+  );
+  const document = mapDocument(model, [], none);
+  const sides = Object.fromEntries(
+    document.connections.map(({ id, fromSide, toSide }) => [id, [fromSide, toSide]]),
+  );
+  assert.deepEqual(sides.r6, ["bottom", "bottom"]);
+  const directory = await temporaryDirectory("archpub-map-");
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const { receipt } = await deliverMap(document, directory);
+  assert.ok(receipt.checks > 0);
+});
+
 test("native Archify delivers the map deterministically and removes its working files", async (t) => {
   const { document } = await documentOf(BIG_BANK_MODEL);
   const outputs = [];

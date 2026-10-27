@@ -1,44 +1,14 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
 import { bindSources, matchingOrigin } from "../packages/publisher/src/sources/bind.mjs";
-import { minimalModel, temporaryDirectory } from "./fixtures/models.mjs";
+import { minimalModel } from "./fixtures/models.mjs";
+import { MAIN, README, repository } from "./fixtures/repository.mjs";
 
 const sha256 = (text) => createHash("sha256").update(text).digest("hex");
-const MAIN = "export const main = 1;\n";
-const README = "# Read me\n";
-
-/** A one-commit repository holding src/main.mjs and README.md. */
-async function repository(t) {
-  const root = await temporaryDirectory("archpub-sources-");
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
-  await fs.mkdir(path.join(root, "src"));
-  await fs.writeFile(path.join(root, "src/main.mjs"), MAIN);
-  await fs.writeFile(path.join(root, "README.md"), README);
-  const git = (...args) =>
-    execFileSync("git", ["-C", root, "-c", "core.hooksPath=/dev/null", ...args], {
-      encoding: "utf8",
-      env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1" },
-    }).trim();
-  git("init", "--quiet", "--initial-branch=main");
-  git("add", ".");
-  git(
-    "-c",
-    "user.name=Test",
-    "-c",
-    "user.email=test@example.invalid",
-    "-c",
-    "commit.gpgsign=false",
-    "commit",
-    "--quiet",
-    "--message=initial",
-  );
-  return { root, git, revision: git("rev-parse", "HEAD") };
-}
 
 function sourcedModel(revision, sources, extra = {}) {
   return validateModel(

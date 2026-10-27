@@ -3,6 +3,7 @@ import test from "node:test";
 import { ROW_LIMIT, viewRows } from "../packages/publisher/src/layout/rows.mjs";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
+import { refuse } from "../packages/publisher/src/refusal.mjs";
 import { graphModel, minimalModel } from "./fixtures/models.mjs";
 
 const fits = async () => ({ fits: true, width: 1800, height: 1000 });
@@ -156,6 +157,83 @@ test("planning refuses oversized views it cannot split", async () => {
       error.code === "plan_not_admitted" &&
       error.problems[0].path === "/views/v" &&
       /1800 × 1600 px with 2 components and 1 relations/u.test(error.problems[0].message),
+  );
+});
+
+/** An admission whose layout refuses the named views and finds the others too tall. */
+const unroutable =
+  (refused, tall = []) =>
+  async (view) => {
+    if (refused.includes(view.id))
+      refuse("layout_channel_unroutable", "The relations between rows 1 and 2 cannot be wired.", [
+        { code: "layout_channel_unroutable", path: "/channels/0", message: "a-b" },
+      ]);
+    return tall.includes(view.id) ? tooTall() : fits();
+  };
+
+test("a refused layout names its view, and every refused view is reported", async () => {
+  const model = validateModel(
+    minimalModel({
+      views: ["first", "second", "third"].map((id) => ({ id, members: ["a", "b"] })),
+    }),
+  );
+  await assert.rejects(
+    planViews(model, unroutable(["second"], ["third"])),
+    (error) =>
+      error.code === "layout_channel_unroutable" &&
+      error.message ===
+        "View second: The relations between rows 1 and 2 cannot be wired. View third is refused too." &&
+      JSON.stringify(error.problems.map(({ code, path }) => [code, path])) ===
+        JSON.stringify([
+          ["layout_channel_unroutable", "/views/second/channels/0"],
+          ["view_not_admitted", "/views/third"],
+        ]),
+  );
+  await assert.rejects(
+    planViews(model, unroutable([], ["first", "second", "third"])),
+    (error) =>
+      error.code === "plan_not_admitted" &&
+      error.message ===
+        "View first does not fit its poster frame. Views second and third are refused too.",
+  );
+  await assert.rejects(
+    planViews(model, async () => {
+      throw new TypeError("not a refusal");
+    }),
+    TypeError,
+  );
+});
+
+test("an automatic view that cannot be laid out is planned like one that does not fit", async () => {
+  const grouped = validateModel(
+    graphModel(
+      4,
+      [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+      ],
+      {
+        groups: [
+          { id: "edge", label: "Edge", members: ["c1", "c2"] },
+          { id: "core", label: "Core", members: ["c3", "c4"] },
+        ],
+      },
+    ),
+  );
+  const views = await planViews(grouped, unroutable(["architecture"]));
+  assert.deepEqual(
+    views.map(({ id }) => id),
+    ["overview", "edge", "core"],
+  );
+  await assert.rejects(
+    planViews(validateModel(minimalModel()), unroutable(["architecture"])),
+    (error) =>
+      error.code === "plan_requires_structure" &&
+      error.message ===
+        "View architecture with 2 components and 1 relations cannot be laid out: " +
+          "The relations between rows 1 and 2 cannot be wired. Add groups or declare views." &&
+      error.problems[0].path === "/views/architecture/channels/0",
   );
 });
 

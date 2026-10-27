@@ -67,6 +67,12 @@ coordinates, poster images or screenshots.
 - **THEN** its Archify connection names no sides and no waypoints, so Archify
   plans a route around the cards between
 
+#### Scenario: A relation within a row without room for its label
+
+- **WHEN** the grid draws a relation between neighbors of one row below that
+  row because its label does not fit between them
+- **THEN** its Archify connection leaves and enters the bottom sides
+
 ### Requirement: Exploration content
 
 The map SHALL contain every component of the model with its label, its kind as
@@ -150,3 +156,10 @@ create or change a remote to enable them.
 - **WHEN** the repository has no `origin` remote
 - **THEN** the map has no native source references
 - **AND** its evidence card lists every source
+
+#### Scenario: A repository whose origin is the model's
+
+- **WHEN** the supplied checkout's `origin` equals the model's repository URL
+- **THEN** Archify verifies the components' source references in that
+  checkout at the revision
+- **AND** the delivered map links them

@@ -163,7 +163,11 @@ export async function buildDelivery(modelPath, out, options = {}) {
         );
       }
     }
-    const map = await deliverMap(prepared.map, staging);
+    const map = await deliverMap(
+      prepared.map,
+      staging,
+      prepared.origin ? path.resolve(/** @type {string} */ (options.repo)) : null,
+    );
     const [fonts, resvg] = await Promise.all([verifySupply("fonts"), verifySupply("resvg")]);
     const manifest = {
       format: DELIVERY_FORMAT,

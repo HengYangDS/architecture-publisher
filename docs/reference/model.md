@@ -80,8 +80,10 @@ may not connect a component to itself.
 
 - `details` maps a short name to text or a list of texts, such as
   `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. Names are at most
-  64 characters, contain no colon and are not plain numbers. The first detail
-  of a component is printed on its card; every detail is in the evidence card.
+  64 characters, contain no colon and are not plain numbers. A component's
+  details are printed on its poster card and the first one on its map card; a
+  relation's details are printed under its label. The evidence card lists every
+  detail.
 - `status` is `implemented`, `planned` or `retired`. Planned and retired
   relations are drawn dashed.
 - `sources` lists source ids from the catalog that support the statement.

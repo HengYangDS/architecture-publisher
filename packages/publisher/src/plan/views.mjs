@@ -1,4 +1,4 @@
-import { refuse } from "../refusal.mjs";
+import { Refusal, refuse } from "../refusal.mjs";
 import { MAXIMUM_VIEWS } from "../model/load.mjs";
 
 /**
@@ -136,39 +136,96 @@ export async function planViews(model, admit) {
     model.components.map(({ id }) => id),
     null,
   );
-  const measured = await admit(complete);
+  const measured = await measure(complete, admit);
   if (measured.fits) return [complete];
   if (!model.groups.length)
     refuse(
       "plan_requires_structure",
-      oversized(complete, measured, "Add groups or declare views."),
+      unadmitted(complete, measured, "Add groups or declare views."),
+      measured.refusal ? viewProblems(complete, measured) : [],
     );
   const views = [overviewView(model), ...groupViews(model)];
   if (views.length > MAXIMUM_VIEWS)
     refuse(
       "plan_views_exceeded",
-      `${oversized(complete, measured, "")}An overview plus ${model.groups.length} group views exceeds ` +
+      `${unadmitted(complete, measured, "")}An overview plus ${model.groups.length} group views exceeds ` +
         `${MAXIMUM_VIEWS} views. Declare at most ${MAXIMUM_VIEWS} views or use fewer groups.`,
     );
   await admitAll(views, admit);
   return views;
 }
 
-async function admitAll(views, admit) {
-  const problems = [];
-  for (const view of views) {
-    const measured = await admit(view);
-    if (!measured.fits)
-      problems.push({
-        code: "view_not_admitted",
-        path: `/views/${view.id}`,
-        message: oversized(view, measured, "Split the view or reduce its components."),
-      });
+/**
+ * @typedef {{ fits: boolean, width?: number, height?: number, refusal?: Refusal }} Measurement
+ */
+
+/**
+ * Admit one view. A view whose layout or composition is refused is not admitted;
+ * its refusal is kept so that the plan can report every unadmitted view.
+ * @param {View} view
+ * @param {(view: View) => Promise<Measurement>} admit
+ * @returns {Promise<Measurement>}
+ */
+async function measure(view, admit) {
+  try {
+    return await admit(view);
+  } catch (error) {
+    if (!(error instanceof Refusal)) throw error;
+    return { fits: false, refusal: error };
   }
-  if (problems.length)
-    refuse("plan_not_admitted", "A view does not fit its poster frame.", problems);
 }
 
+/**
+ * Refuse with the first unadmitted view's refusal, naming that view, and with the
+ * problems of every unadmitted view under its `/views/<id>` path.
+ */
+async function admitAll(views, admit) {
+  const refused = [];
+  for (const view of views) {
+    const measured = await measure(view, admit);
+    if (!measured.fits) refused.push({ view, measured });
+  }
+  if (!refused.length) return;
+  const [{ view, measured }, ...others] = refused;
+  const ids = others.map(({ view: other }) => other.id);
+  const rest = ids.length
+    ? ` ${ids.length === 1 ? "View" : "Views"} ${series(ids)} ${ids.length === 1 ? "is" : "are"} refused too.`
+    : "";
+  refuse(
+    measured.refusal?.code ?? "plan_not_admitted",
+    (measured.refusal
+      ? `View ${view.id}: ${measured.refusal.message}`
+      : `View ${view.id} does not fit its poster frame.`) + rest,
+    refused.flatMap((each) => viewProblems(each.view, each.measured)),
+  );
+}
+
+/** @param {View} view @param {Measurement} measured */
+function viewProblems(view, measured) {
+  if (measured.refusal)
+    return measured.refusal.problems.map((problem) => ({
+      ...problem,
+      path: `/views/${view.id}${problem.path ?? ""}`,
+    }));
+  return [
+    {
+      code: "view_not_admitted",
+      path: `/views/${view.id}`,
+      message: oversized(view, measured, "Split the view or reduce its components."),
+    },
+  ];
+}
+
+/** @param {View} view @param {Measurement} measured @param {string} remedy */
+function unadmitted(view, measured, remedy) {
+  if (!measured.refusal) return oversized(view, measured, remedy);
+  return (
+    `View ${view.id} with ${view.components.length} components and ${view.relations.length} ` +
+    `relations cannot be laid out: ${measured.refusal.message} ${remedy}`
+  );
+}
+
+/** @param {View} view @param {Measurement} measured @param {string} remedy */
 function oversized(view, measured, remedy) {
   return (
     `View ${view.id} measures ${measured.width} × ${measured.height} px with ` +
@@ -176,3 +233,7 @@ function oversized(view, measured, remedy) {
     `the frame is 1800 × 1350 px. ${remedy}`
   );
 }
+
+/** "a", "a and b", "a, b and c". */
+const series = (items) =>
+  items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;

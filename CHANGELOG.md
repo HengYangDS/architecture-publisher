@@ -17,7 +17,8 @@ remain pre-release contracts and may contain incompatible changes.
 - **Breaking:** A grid-first layout replaces the ELK composition. Cards of one size sit on shared row lines of one
   column lattice; placement is exact, relations run as buses, corridors and straight arrows through the channels
   between rows, and a view is refused rather than drawn with a diagonal, a shared segment, a wire through a card or a
-  touching label. Rows that a view does not declare minimize the rows their relations skip.
+  touching label. A refusal names every view it refuses. Rows that a view does not declare minimize the rows their
+  relations skip.
 - **Breaking:** Posters are 1800 px wide and at most 1350 px high with no text below 14 px. They carry the title,
   question, summary, figure, a one-line legend and a scope footnote; per-relation evidence moves to the map. Small
   views scale up by at most 1.4.
@@ -25,6 +26,8 @@ remain pre-release contracts and may contain incompatible changes.
   positions, with Archify's own routes and labels, guided views and evidence cards. It is delivered at showcase
   quality, or at standard quality when routes must cross or share corridors and those are the only findings. A model
   whose map rows cannot be wired without an overlap is refused with `map_layout_refused` and the relations concerned.
+  With a checkout whose `origin` is the model's repository, components link their sources, which Archify verifies at
+  the pinned revision.
 - Deliveries are staged and byte-reproducible. `archpub accept` records a reviewer against the manifest digest, and
   `archpub publish` copies only an accepted delivery and never replaces a different published one.
 - `VERSION` is the only maintained product version. Required package versions and internal pins are generated from

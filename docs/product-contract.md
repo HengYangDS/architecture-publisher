@@ -60,7 +60,7 @@ px; the interactive map as one standalone `index.html`; and `manifest.json`. The
 fields.
 
 The poster shows the title, the question and summary, the figure with each
-component's icon and first detail and each relation's label, a one-line
+component's icon and details and each relation's label and details, a one-line
 legend and a footnote with the scope, limits, attribution and source revision.
 The map shows every component and relation, one guided view per poster and
 evidence cards with every detail, status, source path, digest and verification

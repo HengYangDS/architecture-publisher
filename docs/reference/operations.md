@@ -78,20 +78,23 @@ scaled up by at most 1.4. Text is outlined from the bundled Noto Sans CJK SC
 fonts, and each kind draws its Lucide icon. Each poster is written as SVG and as PNG
 at 1800 and 6000 px.
 
-The map is one document of every component delivered by the vendored,
-unmodified Archify 3.2.0, positioned by the same layout with Archify's text
-metrics.
-Archify routes the relations and places their labels. The map omits the system
-boundary when the outside components cannot stay outside it, and refuses with
-the relations concerned when its rows cannot be wired without an overlap; it
-never drops a component or relation to fit. Giving every component a group lets
-the model choose the map's rows. It is 1000 units wide so
-that its primary labels render at 14.8 CSS px in a 1440 × 900 window. Archify
-delivers it at its showcase quality profile; a map whose routes must cross or
-share a corridor is delivered at standard quality, only when those are its only
-findings, and the manifest records their counts. Any other Archify finding
-refuses the build. The map carries one guided view per poster and evidence cards
-with every component, relation, detail and source.
+The map is one document of every component delivered by the vendored, unmodified
+Archify 3.2.0, positioned by the same layout with Archify's text metrics.
+Archify routes the relations and places their labels; a relation within a row
+runs below the row when its label does not fit between the two cards. The map
+omits the system boundary when the outside components cannot stay outside it,
+and refuses with the relations concerned when its rows cannot be wired without
+an overlap; it never drops a component or relation to fit. Giving every
+component a group lets the model choose the map's rows. With `--repo` naming a
+checkout whose `origin` is the model's repository URL, each component links up
+to three of its sources, which Archify verifies in that checkout at the pinned
+revision. It is 1000 units wide so that its primary labels render at 14.8 CSS px
+in a 1440 × 900 window. Archify delivers it at its showcase quality profile; a
+map whose routes must cross or share a corridor is delivered at standard
+quality, only when those are its only findings, and the manifest records their
+counts. Any other Archify finding refuses the build. The map carries one guided
+view per poster and evidence cards with every component, relation, detail and
+source.
 
 ## The delivery
 
@@ -129,7 +132,8 @@ delivery under an existing version is refused.
 A refusal names one of these codes. Its problems carry finer codes, such as the
 `model_*` field problems, `source_missing`, `source_digest_mismatch`,
 `view_not_admitted` and the `layout_wire_*` and `layout_label_collision`
-defects.
+defects. A refused view is named in the message, and the problems of every
+refused view carry paths under `/views/<id>`.
 
 | Code                                                                                  | Meaning                                                                    |
 | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |

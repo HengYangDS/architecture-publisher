@@ -10,6 +10,7 @@ import {
   temporaryDirectory,
   writeModel,
 } from "./fixtures/models.mjs";
+import { repository } from "./fixtures/repository.mjs";
 
 async function workspace(t) {
   const root = await temporaryDirectory("archpub-delivery-");
@@ -66,6 +67,30 @@ test("check reports the plan without writing and invalid models leave no partial
   );
   await assert.rejects(buildDelivery(bad, path.join(root, "never")), { code: "model_invalid" });
   assert.deepEqual(await fs.readdir(root), []);
+});
+
+test("a checkout whose origin is the model's repository links the map to its sources", async (t) => {
+  const { root: checkout, git, revision } = await repository(t);
+  const url = "https://example.invalid/fixture.git";
+  git("remote", "add", "origin", url);
+  const model = await writeModel(
+    minimalModel({
+      repository: { name: "fixture", url, revision },
+      sources: { main: { path: "src/main.mjs" } },
+      components: [
+        { id: "a", label: "Alpha", sources: ["main"] },
+        { id: "b", label: "Beta" },
+      ],
+    }),
+  );
+  const out = path.join(await workspace(t), "linked");
+  await buildDelivery(model, out, { repo: checkout });
+  const manifest = await readJson(path.join(out, "manifest.json"));
+  assert.equal(manifest.sources.state, "verified");
+  assert.equal(manifest.map.profile, "showcase");
+  const map = await fs.readFile(path.join(out, "index.html"), "utf8");
+  assert.ok(map.includes('[{"path":"src/main.mjs"}]'));
+  assert.ok(map.includes('"linkMode":"local-only"'));
 });
 
 test("acceptance and publication require an unchanged delivery", async (t) => {

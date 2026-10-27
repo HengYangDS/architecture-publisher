@@ -448,12 +448,17 @@ export function composePoster(model, view, position, typefaces, icons, provenanc
   const requiredHeight = Math.ceil(
     headerBottom + layout.height + POSTER.stageGap + (POSTER.height - footerTop),
   );
+  // A drawing wider than its stage needs a wider poster by the excess.
+  const requiredWidth = Math.max(
+    POSTER.width,
+    Math.ceil(POSTER.width - stage.width + (right - left)),
+  );
   return {
     view: view.id,
     width: POSTER.width,
     height: POSTER.height,
     fits,
-    required: { width: POSTER.width, height: requiredHeight },
+    required: { width: requiredWidth, height: requiredHeight },
     scale,
     measures: layout.measures,
     svg,
