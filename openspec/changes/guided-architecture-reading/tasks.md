@@ -34,7 +34,7 @@
 ## 7. Documentation and quality
 
 - [x] 7.1 Rewrite the README, product contract and references for the model-to-media product; Markdown and link checks pass.
-- [x] 7.2 Pass the full static graph, the test suite with at least 95 percent coverage in every dimension, and the installed package journey on macOS. `npm run check` passed at `3acddd3` with all 92 tests run, coverage of 97.6, 96.1, 99.2 and 97.6 percent, and the packed package installed and building on macOS.
+- [x] 7.2 Pass the full static graph, the test suite with at least 95 percent coverage in every dimension, and the installed package journey on macOS. `npm run check` passed at `f541f69` with all 94 tests run, coverage of 99.2, 95.7, 99.6 and 99.2 percent, and the packed package installed and building on macOS.
 - [ ] 7.3 Pass the Linux and Windows quality jobs on an available Forge. Dependency: intranet GitLab is unreachable until its owner announces recovery.
 
 ## 8. Acceptance and release
