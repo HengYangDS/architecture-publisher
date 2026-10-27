@@ -5,6 +5,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
+import { buildDelivery } from "../../../../packages/publisher/src/build.mjs";
+import { AIGW_MODEL } from "../../../fixtures/models.mjs";
 
 const root = path.resolve(import.meta.dirname, "../../../..");
 const verifier = path.join(root, "tools/raster/resvg/verify.mjs");
@@ -79,7 +81,9 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
     invoke(process.execPath, [verifier, "--archive", archive]);
     const extraction = path.join(work, name);
     await fs.mkdir(extraction);
-    invoke("tar", ["-xf", archive, "-C", extraction]);
+    // Windows tar reads its arguments in the ANSI code page, so the relocated directory is its
+    // working directory rather than an argument.
+    invoke("tar", ["-xf", archive], extraction);
     const source = path.join(
       extraction,
       `architecture-publisher-resvg-wasm-${manifest.source.version}`,
@@ -157,7 +161,15 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
   const shape = Buffer.from(
     '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="24"><rect width="32" height="24" fill="#678"/></svg>',
   );
-  const authored = await fs.readFile(path.join(root, "examples/job-lifecycle.svg"));
+  // A poster the current publisher composes: outlined text, icons, cards and wires.
+  const delivery = path.join(work, "poster delivery Δ");
+  await buildDelivery(AIGW_MODEL, delivery);
+  const authored = await fs.readFile(path.join(delivery, "overview.svg"));
+  const [svgWidth, svgHeight] = /** @type {RegExpMatchArray} */ (
+    authored.toString("utf8").match(/^<svg [^>]*width="(\d+)" height="(\d+)"/u)
+  )
+    .slice(1)
+    .map(Number);
   const observations = [];
   for (const { resvg, interface: exposed } of modules) {
     const renderer = new resvg.Renderer();
@@ -182,7 +194,7 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
       }
       const authoredPng = Buffer.from(renderer.render(authored, 1440));
       assert.equal(authoredPng.readUInt32BE(16), 1440);
-      assert.equal(authoredPng.readUInt32BE(20), 780);
+      assert.equal(authoredPng.readUInt32BE(20), Math.round((1440 * svgHeight) / svgWidth));
       observed.png.push(sha(authoredPng));
       for (const [call, expected] of [
         [() => renderer.render(shape, 0), "width_invalid"],
