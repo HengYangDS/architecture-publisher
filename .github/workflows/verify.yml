@@ -59,13 +59,7 @@ jobs:
       - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
-          CI honors the invoker-owned pinned browser root|self preparation
-          selects one direct Project instead of a legacy Edition authority'
-          tests/quality-contract.test.mjs tests/self-edition.test.mjs
-      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-name-pattern='standalone reader policy blocks dynamic page
-          connections' tests/interactive-html.test.mjs
+          --test-timeout=300000 tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -144,13 +138,7 @@ jobs:
       - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
-          CI honors the invoker-owned pinned browser root|self preparation
-          selects one direct Project instead of a legacy Edition authority'
-          tests/quality-contract.test.mjs tests/self-edition.test.mjs
-      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-name-pattern='standalone reader policy blocks dynamic page
-          connections' tests/interactive-html.test.mjs
+          --test-timeout=300000 tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -224,13 +212,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
-          CI honors the invoker-owned pinned browser root|self preparation
-          selects one direct Project instead of a legacy Edition authority'
-          tests/quality-contract.test.mjs tests/self-edition.test.mjs
-      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-name-pattern='standalone reader policy blocks dynamic page
-          connections' tests/interactive-html.test.mjs
+          --test-timeout=300000 tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -289,13 +271,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
-          CI honors the invoker-owned pinned browser root|self preparation
-          selects one direct Project instead of a legacy Edition authority'
-          tests/quality-contract.test.mjs tests/self-edition.test.mjs
-      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-name-pattern='standalone reader policy blocks dynamic page
-          connections' tests/interactive-html.test.mjs
+          --test-timeout=300000 tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -358,13 +334,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
-          CI honors the invoker-owned pinned browser root|self preparation
-          selects one direct Project instead of a legacy Edition authority'
-          tests/quality-contract.test.mjs tests/self-edition.test.mjs
-      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-name-pattern='standalone reader policy blocks dynamic page
-          connections' tests/interactive-html.test.mjs
+          --test-timeout=300000 tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -427,13 +397,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native
-          CI honors the invoker-owned pinned browser root|self preparation
-          selects one direct Project instead of a legacy Edition authority'
-          tests/quality-contract.test.mjs tests/self-edition.test.mjs
-      - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-name-pattern='standalone reader policy blocks dynamic page
-          connections' tests/interactive-html.test.mjs
+          --test-timeout=300000 tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure

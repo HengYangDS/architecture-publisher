@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const MODELS = fileURLToPath(new URL("./models/", import.meta.url));
+const MODELS = fileURLToPath(new URL("./models/", import.meta.url));
 export const AIGW_MODEL = path.join(MODELS, "aigw.json");
 export const BIG_BANK_MODEL = path.join(MODELS, "big-bank.json");
 

@@ -74,7 +74,7 @@ function sublabel(component, width) {
 }
 
 /** The whole model as one view: groups become rows when they cover every component. */
-export function mapView(model) {
+function mapView(model) {
   const grouped = new Set(model.groups.flatMap(({ members }) => members));
   const tiers =
     model.groups.length && model.components.every(({ id }) => grouped.has(id))

@@ -14,14 +14,14 @@ export const USAGE = `Usage:
 
 class UsageError extends Error {}
 
-/** Split arguments into positionals and `--name value` options; `--json` takes no value. */
+/** Split arguments, without `--json`, into positionals and `--name value` options. */
 function parseArguments(args, allowed) {
   const positionals = [];
-  const options = { json: false };
+  /** @type {Record<string, string>} */
+  const options = {};
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
-    if (arg === "--json") options.json = true;
-    else if (arg.startsWith("--")) {
+    if (arg.startsWith("--")) {
       const name = arg.slice(2);
       if (!allowed.includes(name)) throw new UsageError(`Unknown option ${arg}.`);
       const value = args[index + 1];
@@ -111,8 +111,9 @@ const COMMANDS = {
  */
 export async function runCli(args) {
   const json = args.includes("--json");
-  const name = args[0] === "import" ? `import ${args[1] ?? ""}` : args[0];
-  const rest = args.slice(args[0] === "import" ? 2 : 1);
+  const words = args.filter((arg) => arg !== "--json");
+  const name = words[0] === "import" ? `import ${words[1] ?? ""}` : words[0];
+  const rest = words.slice(words[0] === "import" ? 2 : 1);
   const command = COMMANDS[/** @type {keyof typeof COMMANDS} */ (name)];
   try {
     if (!command) throw new UsageError(name ? `Unknown command ${name}.` : "Name a command.");

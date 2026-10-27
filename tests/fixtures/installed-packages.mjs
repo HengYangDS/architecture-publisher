@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { spawnNativeSync, parseNpmPackRecord } from "./npm-pack-report.mjs";
 
-function run(command, args, cwd, cache, timeout = 60000) {
+function run(command, args, cwd, cache, timeout = 120000) {
   const result = spawnNativeSync(command, args, {
     cwd,
     encoding: "utf8",
@@ -20,25 +20,17 @@ function run(command, args, cwd, cache, timeout = 60000) {
   return result;
 }
 
-function archive(directory, result) {
-  return path.join(directory, parseNpmPackRecord(result.stdout).filename);
-}
-
-export async function installCoreAndSelf(root, directory, extraArchives = []) {
-  const cache = path.join(directory, "npm-cache"),
-    core = run(
-      "npm",
-      ["pack", "--json", "--ignore-scripts", "--pack-destination", directory],
-      path.join(root, "packages/publisher"),
-      cache,
-    ),
-    extension = run(
-      "npm",
-      ["pack", "--json", "--ignore-scripts", "--pack-destination", directory],
-      path.join(root, "editions/self"),
-      cache,
-    ),
-    consumer = path.join(directory, "consumer");
+/** Pack the publisher with scripts disabled and install the archive into a fresh consumer. */
+export async function installPublisher(root, directory) {
+  const cache = path.join(directory, "npm-cache");
+  const packed = run(
+    "npm",
+    ["pack", "--json", "--ignore-scripts", "--pack-destination", directory],
+    path.join(root, "packages/publisher"),
+    cache,
+  );
+  const record = parseNpmPackRecord(packed.stdout);
+  const consumer = path.join(directory, "consumer");
   await fs.mkdir(consumer);
   run(
     "npm",
@@ -52,18 +44,10 @@ export async function installCoreAndSelf(root, directory, extraArchives = []) {
       "--package-lock=false",
       "--prefix",
       consumer,
-      archive(directory, core),
-      archive(directory, extension),
-      ...extraArchives,
+      path.join(directory, record.filename),
     ],
     consumer,
     cache,
   );
-  return {
-    consumer,
-    coreRoot: path.join(consumer, "node_modules/architecture-publisher"),
-    selfRoot: path.join(consumer, "node_modules/@architecture-publisher/self-edition"),
-    core: parseNpmPackRecord(core.stdout),
-    extension: parseNpmPackRecord(extension.stdout),
-  };
+  return { consumer, record };
 }

@@ -241,3 +241,26 @@ test("sources move down beside their nearest consumer", () => {
   ]);
   assert.deepEqual(rowsOf(model), [["c1"], ["c2", "c4"], ["c3"]]);
 });
+
+test("a sibling merge that cannot converge or reduce depth leaves the rows unchanged", () => {
+  // c2 and c3 share caller c1 and c2 calls c3, but c2 also reaches c3 through c4, so only
+  // the later siblings c4 and c3 (both called by c2) can share a row.
+  const looping = graphModel(4, [
+    [1, 2],
+    [1, 3],
+    [2, 3],
+    [2, 4],
+    [4, 3],
+  ]);
+  assert.deepEqual(rowsOf(looping), [["c1"], ["c2"], ["c3", "c4"]]);
+  // Merging c2 with c3 raises c2 to the depth of c3 without making the view shallower.
+  const deep = graphModel(5, [
+    [1, 2],
+    [1, 3],
+    [2, 3],
+    [1, 4],
+    [4, 5],
+    [5, 3],
+  ]);
+  assert.deepEqual(rowsOf(deep), [["c1"], ["c4"], ["c2", "c5"], ["c3"]]);
+});

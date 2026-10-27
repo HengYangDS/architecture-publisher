@@ -1,5 +1,5 @@
 import path from "node:path";
-import { execFileSync, spawnSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -45,11 +45,6 @@ export function spawnNativeSync(command, args, options) {
       stderr: result.stderr,
     });
   return result;
-}
-
-export function execNativeSync(command, args, options) {
-  const selected = command === "npm" ? npmInvocation(args) : { command, args };
-  return execFileSync(selected.command, selected.args, npmSetupOptions(command, args, options));
 }
 
 /** Parse the one-package npm pack report across supported npm JSON envelopes. */

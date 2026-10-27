@@ -28,7 +28,7 @@ const bend = (distance) => (distance === 0 ? 0 : distance === 1 ? 2.5 : 5 + 0.6 
  * @param {Array<{ id: string, from: string, to: string, label: string,
  *   details: Array<[string, string[]]>, status: string | null }>} relations
  */
-export function classifyRelations(rows, relations) {
+function classifyRelations(rows, relations) {
   const rowOf = new Map();
   rows.forEach((members, index) => members.forEach((id) => rowOf.set(id, index)));
   const span = (relation) => rowOf.get(relation.to) - rowOf.get(relation.from);
@@ -104,7 +104,7 @@ export function splitCrossedBuses(classes, center, rowCount) {
 }
 
 /** Relations with one label, details and status share a bus and one label. */
-export function labelKey(relation) {
+function labelKey(relation) {
   return [relation.label, JSON.stringify(relation.details), relation.status ?? ""];
 }
 

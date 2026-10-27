@@ -11,7 +11,7 @@ const fixed = (value) => Math.round(value * 10) / 10;
 const DASH = Object.freeze({ planned: "6 4", retired: "1.5 3.5" });
 
 /** The poster's own layout metrics: its type scale, card bounds and spacing. */
-export function posterMetrics(model, typefaces) {
+function posterMetrics(model, typefaces) {
   const full = POSTER.width - 2 * POSTER.margin.x;
   const cardText = (component, width) => {
     const name = typefaces.wrap(component.label, width - 2 * K.pad - K.icon - K.iconGap, T.name);

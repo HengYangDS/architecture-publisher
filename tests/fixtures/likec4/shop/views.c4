@@ -1,0 +1,12 @@
+views {
+  view index {
+    include *
+  }
+  view internals of shop {
+    title 'Shop internals'
+    include *
+  }
+  dynamic view checkout {
+    customer -> shop.web 'browses'
+  }
+}

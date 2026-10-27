@@ -53,8 +53,7 @@ shared: {
 	]
 	"readerPreparation": [
 		"mise exec -- node node_modules/playwright-core/cli.js install chromium",
-		"mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=1 --test-timeout=90000 --test-name-pattern='native CI honors the invoker-owned pinned browser root|self preparation selects one direct Project instead of a legacy Edition authority' tests/quality-contract.test.mjs tests/self-edition.test.mjs",
-		"mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-name-pattern='standalone reader policy blocks dynamic page connections' tests/interactive-html.test.mjs",
+		"mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-timeout=300000 tests/map-browser.test.mjs",
 	]
 	"preparation": list.Concat([shared.toolPreparation, shared.readerPreparation])
 	"acceptance": [

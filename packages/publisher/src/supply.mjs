@@ -9,7 +9,7 @@ const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const verified = new Map();
 
 /** The vendored supplies this package executes; each directory holds a `supply.json`. */
-export const SUPPLIES = Object.freeze({
+const SUPPLIES = Object.freeze({
   archify: "renderers/archify/supply",
   fonts: "renderers/fonts/supply",
   icons: "renderers/icons/supply",

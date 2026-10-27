@@ -13,7 +13,7 @@ import { bindSources, matchingOrigin } from "./sources/bind.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-export const DELIVERY_VERSION = 1;
+const DELIVERY_VERSION = 1;
 const PNG_WIDTHS = Object.freeze([1800, 6000]);
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 

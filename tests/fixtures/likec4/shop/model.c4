@@ -1,0 +1,38 @@
+specification {
+  element person
+  element system
+  element container
+  element database
+  element externalSystem
+}
+
+model {
+  customer = person 'Customer' {
+    description 'Buys things
+      online'
+  }
+  shop = system 'Shop' {
+    web = container 'Web Store' {
+      technology 'React'
+    }
+    api = container 'Orders API' {
+      technology 'Node.js'
+    }
+    db = database 'Orders DB'
+  }
+  payments = externalSystem 'Payment Provider'
+  platform = system 'Platform' {
+    region = system 'Region' {
+      cache = database 'Cache'
+    }
+  }
+
+  customer -> web 'browses'
+  web -> api 'places orders' {
+    technology 'HTTPS'
+  }
+  api -> db 'stores orders'
+  api <-> payments 'charges'
+  customer -> shop 'uses'
+  api -> cache
+}

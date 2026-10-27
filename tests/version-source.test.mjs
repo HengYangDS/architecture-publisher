@@ -2,17 +2,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { pathToFileURL } from "node:url";
 import test from "node:test";
-import { installCoreAndSelf } from "./fixtures/installed-packages.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
-const files = [
-  "package.json",
-  "packages/publisher/package.json",
-  "editions/self/package.json",
-  "package-lock.json",
-];
+const files = ["package.json", "packages/publisher/package.json", "package-lock.json"];
 
 async function contents(directory) {
   return Promise.all(files.map((name) => fs.readFile(path.join(directory, name), "utf8")));
@@ -41,20 +34,12 @@ function run(directory, mode) {
 }
 
 function assertProjection(texts, version) {
-  const [workspace, product, self, lock] = texts.map((text) => JSON.parse(text));
+  const [workspace, product, lock] = texts.map((text) => JSON.parse(text));
   assert.equal(Object.hasOwn(workspace, "version"), false);
   assert.equal(product.version, version);
-  assert.equal(self.version, version);
-  assert.equal(self.dependencies[product.name], version);
   assert.equal(Object.hasOwn(lock, "version"), false);
   assert.equal(Object.hasOwn(lock.packages[""], "version"), false);
-  for (const [name, manifest] of [
-    ["packages/publisher", product],
-    ["editions/self", self],
-  ]) {
-    assert.equal(lock.packages[name].version, version);
-    assert.deepEqual(lock.packages[name].dependencies, manifest.dependencies);
-  }
+  assert.equal(lock.packages["packages/publisher"].version, version);
 }
 
 test("VERSION owns the repository version and npm manifests are checked projections", async () => {
@@ -76,10 +61,10 @@ test("version projection refuses drift without mutation and updates only owned v
   assert.equal(written.status, 0, written.stdout + written.stderr);
   const projected = await contents(directory);
   assertProjection(projected, "2.4.6");
-  const beforeLock = JSON.parse(before[3]),
-    afterLock = JSON.parse(projected[3]);
+  const beforeLock = JSON.parse(before[2]),
+    afterLock = JSON.parse(projected[2]);
   for (const [name, value] of Object.entries(beforeLock.packages))
-    if (!["", "packages/publisher", "editions/self"].includes(name))
+    if (!["", "packages/publisher"].includes(name))
       assert.deepEqual(afterLock.packages[name], value, name);
   assert.equal(run(directory, "--check").status, 0);
   assert.equal(run(directory, "--write").status, 0);
@@ -118,21 +103,4 @@ test("invalid or absent version and unknown mode cannot change package or lock b
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /usage:/);
   assert.deepEqual(await contents(directory), before);
-});
-
-test("scripts-disabled native packing preserves the VERSION-derived identity after installed relocation", async (t) => {
-  const parent = path.join(root, "build/test-work");
-  await fs.mkdir(parent, { recursive: true });
-  const directory = await fs.mkdtemp(path.join(parent, "version-source-installed-"));
-  t.after(() => fs.rm(directory, { recursive: true, force: true }));
-  const version = (await fs.readFile(path.join(root, "VERSION"), "utf8")).trim();
-  const installed = await installCoreAndSelf(root, directory);
-  assert.equal(installed.core.version, version);
-  assert.equal(installed.extension.version, version);
-  const relocated = path.join(directory, "relocated");
-  await fs.rename(installed.consumer, relocated);
-  const { readPublisherIdentity } = await import(
-    pathToFileURL(path.join(relocated, "node_modules/architecture-publisher/src/runtime.mjs"))
-  );
-  assert.deepEqual(await readPublisherIdentity(), { name: "architecture-publisher", version });
 });

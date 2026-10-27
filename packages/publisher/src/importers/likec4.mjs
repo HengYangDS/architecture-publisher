@@ -193,6 +193,13 @@ export async function importLikeC4(workspace, identity) {
       ...(relation.technology ? { details: { technology: relation.technology } } : {}),
     });
   }
+  // A parent shown in a view stands for the components inside it, which the model draws as a group.
+  const children = new Map();
+  for (const element of reply.elements)
+    if (element.parent)
+      children.set(element.parent, [...(children.get(element.parent) ?? []), element.id]);
+  const inside = (id) =>
+    ids.has(id) ? [ids.get(id)] : (children.get(id) ?? []).flatMap((child) => inside(child));
   const views = [];
   for (const view of reply.views) {
     if (view.generated) continue;
@@ -204,7 +211,7 @@ export async function importLikeC4(workspace, identity) {
       });
       continue;
     }
-    const members = [...new Set(view.elements.map((id) => ids.get(id)).filter(Boolean))];
+    const members = [...new Set(view.elements.flatMap((id) => (id ? inside(id) : [])))];
     if (!members.length) continue;
     if (views.length === MAXIMUM_VIEWS) {
       warnings.push({

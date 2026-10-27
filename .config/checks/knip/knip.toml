@@ -1,7 +1,8 @@
 "$schema" = "https://unpkg.com/knip@6/schema.json"
 treatConfigHintsAsErrors = true
 ignoreBinaries = ["cue", "mise", "taplo"]
-ignoreDependencies = ["sax", "opentype.js"]
+# Vendored or bundled by the supply tools, not imported by maintained modules.
+ignoreDependencies = ["sax", "opentype.js", "@likec4/language-services", "bundle-require"]
 
 [typescript]
 config = ".config/checks/typescript/tsconfig.json"
