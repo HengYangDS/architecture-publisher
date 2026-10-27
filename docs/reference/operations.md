@@ -81,7 +81,11 @@ at 1800 and 6000 px.
 The map is one document of every component delivered by the vendored,
 unmodified Archify 3.2.0, positioned by the same layout with Archify's text
 metrics.
-Archify routes the relations and places their labels. It is 1000 units wide so
+Archify routes the relations and places their labels. The map omits the system
+boundary when the outside components cannot stay outside it, and refuses with
+the relations concerned when its rows cannot be wired without an overlap; it
+never drops a component or relation to fit. Giving every component a group lets
+the model choose the map's rows. It is 1000 units wide so
 that its primary labels render at 14.8 CSS px in a 1440 × 900 window. Archify
 delivers it at its showcase quality profile; a map whose routes must cross or
 share a corridor is delivered at standard quality, only when those are its only
@@ -143,6 +147,7 @@ defects.
 | `layout_channel_unroutable`, `layout_untidy`                                          | Relations between two rows cannot be drawn without an overlap.             |
 | `poster_summary_too_long`, `poster_legend_too_wide`                                   | The header or legend does not fit the poster.                              |
 | `map_label_too_long`, `map_refused`                                                   | A label does not fit a map card, or Archify refused the map.               |
+| `map_layout_refused`                                                                  | The map cannot wire every relation of the model without an overlap.        |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.          |
 | `delivery_exists`                                                                     | `--out` already exists.                                                    |
 | `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`    | The directory is not a delivery.                                           |

@@ -23,7 +23,8 @@ remain pre-release contracts and may contain incompatible changes.
   views scale up by at most 1.4.
 - **Breaking:** The map is the vendored, unmodified Archify 3.2.0 document of the whole model at the grid layout's
   positions, with Archify's own routes and labels, guided views and evidence cards. It is delivered at showcase
-  quality, or at standard quality when routes must cross or share corridors and those are the only findings.
+  quality, or at standard quality when routes must cross or share corridors and those are the only findings. A model
+  whose map rows cannot be wired without an overlap is refused with `map_layout_refused` and the relations concerned.
 - Deliveries are staged and byte-reproducible. `archpub accept` records a reviewer against the manifest digest, and
   `archpub publish` copies only an accepted delivery and never replaces a different published one.
 - `VERSION` is the only maintained product version. Required package versions and internal pins are generated from

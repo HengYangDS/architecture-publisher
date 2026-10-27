@@ -26,9 +26,9 @@
 
 ## 6. Editions
 
-- [ ] 6.1 Convert the AIGW model with identities, relations, details, sources, limits and attribution intact; its sources verify at `aigw-cli` revision `68876f0`, and its poster and map build.
+- [x] 6.1 Convert the AIGW model with identities, relations, details, sources, limits and attribution intact; its sources verify at the pinned `aigw-cli` revision, and its posters and map build. Published in `architecture-publications` `ca74ba4`, pinned to `ed9f0fd5` with 14 verified sources.
 - [x] 6.2 Rewrite the self model for the new architecture as an overview and mechanism views; every view is admitted and its sources verify.
-- [ ] 6.3 Author the ETHOS model and views in `architecture-publications` at a pinned ETHOS revision; every view is admitted and its sources verify.
+- [x] 6.3 Author the ETHOS model and views in `architecture-publications` at a pinned ETHOS revision; every view is admitted and its sources verify. Published in `ca74ba4`, pinned to `ad9108d7` with four views and 65 verified sources.
 - [ ] 6.4 Build models of two unrelated repositories authored outside them; every view is admitted or refused with its specified diagnostic.
 
 ## 7. Documentation and quality

@@ -238,6 +238,18 @@ test("labels too long for any map card are refused", () => {
   );
 });
 
+test("a model whose relations the map cannot wire is refused as the map's layout", () => {
+  const edges = [1, 2, 3].flatMap((from) => [4, 5, 6].map((to) => [from, to, `asks ${from}${to}`]));
+  const model = validateModel(graphModel(6, edges));
+  assert.throws(
+    () => mapDocument(model, [], none),
+    (error) =>
+      error.code === "map_layout_refused" &&
+      error.problems.length === 9 &&
+      error.problems.every(({ code }) => code === "layout_channel_unroutable"),
+  );
+});
+
 test("native Archify delivers the map deterministically and removes its working files", async (t) => {
   const { document } = await documentOf(BIG_BANK_MODEL);
   const outputs = [];

@@ -94,6 +94,21 @@ every component, and otherwise rows from relations with at most five cards.
 - **WHEN** every component is in a group and one group has six members
 - **THEN** that group fills two rows of three cards
 
+### Requirement: Map layout refusal
+
+The map SHALL draw every component and relation of the model. When the grid
+cannot wire the map's rows without an overlap, with or without the system
+boundary, the build SHALL refuse with `map_layout_refused`, list the relations
+concerned and write no delivery; the map SHALL NOT omit a component or relation
+to fit.
+
+#### Scenario: Relations the map cannot wire
+
+- **WHEN** three components each call the same three components with nine
+  distinct labels
+- **THEN** the map is refused with `map_layout_refused`
+- **AND** its problems name the nine relations
+
 ### Requirement: Guided views and evidence cards
 
 The map SHALL offer one guided view per model view and cards for the question

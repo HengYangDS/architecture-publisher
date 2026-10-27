@@ -24,6 +24,12 @@ const WIDE_RATIO = 1.54;
 const MARGIN = 40;
 /** The most cards one map row holds at the minimum card width in the map's content width. */
 const MAP_ROW_LIMIT = 5;
+/** Grid refusals the map answers by omitting the boundary, and then by refusing the map. */
+const MAP_LAYOUT_REFUSALS = new Set([
+  "layout_boundary_unplaced",
+  "layout_channel_unroutable",
+  "layout_untidy",
+]);
 /** Room Archify needs below the content for its legend row. */
 const LEGEND_BAND = 110;
 const LABEL_FONT = 11;
@@ -204,17 +210,32 @@ export function mapDocument(model, views, binding) {
         textUnits(label) * LABEL_FONT * WIDTH_FACTOR <= candidate.card.width - TEXT_PADDING,
     );
   // The system boundary can need spare columns; when its narrower cards cannot hold every label at
-  // 14 px, the map omits the boundary and relies on Archify's external type instead.
+  // 14 px or its rows cannot be wired, the map omits the boundary and relies on Archify's external
+  // type instead. The map draws the whole model, so a layout it cannot wire refuses the map itself.
   const bounded = () => {
     try {
       return layoutView(view, mapMetrics(model, true), name);
     } catch (error) {
-      if (/** @type {any} */ (error).code !== "layout_boundary_unplaced") throw error;
+      if (!MAP_LAYOUT_REFUSALS.has(/** @type {any} */ (error).code)) throw error;
       return null;
     }
   };
+  const unbounded = () => {
+    try {
+      return layoutView(view, mapMetrics(model, false), name);
+    } catch (error) {
+      const { code, problems } = /** @type {any} */ (error);
+      if (!MAP_LAYOUT_REFUSALS.has(code)) throw error;
+      return refuse(
+        "map_layout_refused",
+        "The map cannot draw every relation of the model without overlaps at its 14 px floor. " +
+          "Group the components so that related ones share adjacent rows, or shorten the relation labels concerned.",
+        problems,
+      );
+    }
+  };
   const first = bounded();
-  const layout = first && fits(first) ? first : layoutView(view, mapMetrics(model, false), name);
+  const layout = first && fits(first) ? first : unbounded();
   const width = layout.card.width;
   const tooLong = model.components.filter(
     ({ label }) => textUnits(label) * LABEL_FONT * WIDTH_FACTOR > width - TEXT_PADDING,

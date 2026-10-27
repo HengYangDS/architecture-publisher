@@ -79,7 +79,9 @@ state.
 - The map's primary labels render at no less than 14 CSS px in a 1440 × 900
   window. Archify delivers the map at its showcase quality profile, or at
   standard quality when routes must cross or share a corridor and those are its
-  only findings; the manifest records which, with the counts.
+  only findings; the manifest records which, with the counts. The map draws
+  every component and relation: a model whose map rows cannot be wired without
+  an overlap is refused with the relations concerned.
 - Archify, the fonts, the icons, the raster renderer and the LikeC4 parser are
   bundled unmodified with recorded digests.
 
