@@ -331,6 +331,42 @@ test("a relation that skips rows leaves its sides to Archify, which routes aroun
   assert.deepEqual([receipt.profile, receipt.crossings, receipt.corridors], ["showcase", 0, 0]);
 });
 
+test("a relation that passes cards in its row leaves its sides to Archify as well", async (t) => {
+  // Groups fix the rows, so the audit runs past c3 to c4 within the last row.
+  const model = validateModel(
+    graphModel(
+      4,
+      [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [2, 4, "audits"],
+      ],
+      {
+        groups: [["c1"], ["c2", "c3", "c4"]].map((members, index) => ({
+          id: `g${index}`,
+          label: `G${index}`,
+          members,
+        })),
+      },
+    ),
+  );
+  const document = mapDocument(model, [], none);
+  assert.deepEqual(
+    document.connections.map(({ id, fromSide, toSide }) => [id, fromSide ?? null, toSide ?? null]),
+    [
+      ["r1", "bottom", "top"],
+      ["r2", "right", "left"],
+      ["r3", "right", "left"],
+      ["r4", null, null],
+    ],
+  );
+  const directory = await temporaryDirectory("archpub-map-");
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const { receipt } = await deliverMap(document, directory);
+  assert.deepEqual([receipt.profile, receipt.crossings, receipt.corridors], ["showcase", 0, 0]);
+});
+
 test("a dense many-to-many map is delivered at standard quality with its route findings", async (t) => {
   // Three callers that each use the same three services: Archify merges some routes into corridors.
   const model = validateModel(

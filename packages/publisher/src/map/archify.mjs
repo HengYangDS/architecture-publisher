@@ -277,14 +277,21 @@ export function mapDocument(model, views, binding) {
     };
   });
   const labelled = new Set();
-  // A relation within a row is a straight arrow only where the grid drew one; otherwise it runs
-  // below its row, or above the last row, as the grid's U wire does.
+  // A relation between neighbors in a row is a straight arrow only where the grid drew one;
+  // otherwise it runs below its row, or above the last row, as the grid's U wire does.
   const straight = new Set(
     layout.arrows
       .filter(({ direction }) => direction === "left" || direction === "right")
       .flatMap(({ relations }) => relations.map(({ id }) => id)),
   );
   const rowCount = layout.rows.length;
+  // Archify plans its own sides for a relation that skips rows or passes cards in its row; it
+  // routes around the cards between.
+  const passes = (row, from, to) =>
+    layout.rows[row].members.some((id) => {
+      const { x } = /** @type {{ x: number }} */ (layout.cards.get(id));
+      return x > Math.min(from.x, to.x) && x < Math.max(from.x, to.x);
+    });
   const connections = model.relations.map((relation) => {
     const [a, b] = [rowOf.get(relation.from), rowOf.get(relation.to)];
     const [from, to] = [relation.from, relation.to].map(
@@ -314,8 +321,9 @@ export function mapDocument(model, views, binding) {
       ...(relation.status === "planned" || relation.status === "retired"
         ? { variant: "dashed" }
         : {}),
-      // Archify plans its own sides for a relation that skips rows; it routes around the cards between.
-      ...(Math.abs(a - b) > 1 ? {} : { fromSide: sides[0], toSide: sides[1] }),
+      ...(Math.abs(a - b) > 1 || (a === b && passes(a, from, to))
+        ? {}
+        : { fromSide: sides[0], toSide: sides[1] }),
     };
   });
   const internal = model.components.filter((component) => !presentation(model, component).outside);

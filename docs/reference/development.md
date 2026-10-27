@@ -147,6 +147,13 @@ Two tests need explicit selections and otherwise skip; a skip is not evidence:
 - `tests/conformance/journeys/raster/rebuild.test.mjs` rebuilds the raster
   renderer from `ARCHPUB_RESVG_SOURCE_ARCHIVE` with `ARCHPUB_RESVG_BINDGEN`.
 
+`.gitattributes` gives `ethos-role=test` only to the suite's `tests/*.test.mjs`
+entries, which `npm test` runs; fixtures and the raster journey are tooling.
+ETHOS requires every test-role file to run in its proof and every module to be
+exercised. The importer runs its LikeC4 worker under Node's Permission Model,
+whose children write no coverage, so the worker's own test runs it as a plain
+child.
+
 ## Continuous integration
 
 `.config/ci/pipeline.cue` owns one shared execution graph for Linux ARM64, macOS

@@ -5,9 +5,11 @@
 *.mjs ethos-role=code
 *.cjs ethos-role=code
 *.js ethos-role=code
-tests/**/*.mjs ethos-role=test
-tests/**/*.cjs ethos-role=test
-tests/**/*.js ethos-role=test
+# The suite's entries are tests; fixtures and the separately selected journeys support them.
+tests/**/*.mjs ethos-role=tooling
+tests/**/*.cjs ethos-role=tooling
+tests/**/*.js ethos-role=tooling
+tests/*.test.mjs ethos-role=test
 tools/**/*.mjs ethos-role=tooling
 tools/**/*.cjs ethos-role=tooling
 tools/**/*.js ethos-role=tooling

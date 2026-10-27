@@ -67,6 +67,13 @@ coordinates, poster images or screenshots.
 - **THEN** its Archify connection names no sides and no waypoints, so Archify
   plans a route around the cards between
 
+#### Scenario: A relation that passes cards in its row
+
+- **WHEN** a relation connects two components of one row with another card
+  between them
+- **THEN** its Archify connection names no sides and no waypoints, so Archify
+  plans a route around the cards between
+
 #### Scenario: A relation within a row without room for its label
 
 - **WHEN** the grid draws a relation between neighbors of one row below that

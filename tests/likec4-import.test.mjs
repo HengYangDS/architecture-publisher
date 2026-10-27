@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { importLikeC4 } from "../packages/publisher/src/importers/likec4.mjs";
+import { verifySupply } from "../packages/publisher/src/supply.mjs";
 import { temporaryDirectory } from "./fixtures/models.mjs";
 
 const SHOP = fileURLToPath(new URL("./fixtures/likec4/shop/", import.meta.url));
+const WORKER = fileURLToPath(
+  new URL("../packages/publisher/src/importers/likec4-worker.mjs", import.meta.url),
+);
 
 async function workspace(t, files) {
   const root = await temporaryDirectory("archpub-likec4-");
@@ -16,6 +21,21 @@ async function workspace(t, files) {
     await fs.writeFile(path.join(root, name), text);
   }
   return root;
+}
+
+/**
+ * The parser worker's reply to one message. The importer runs the worker under the Permission
+ * Model, which keeps a child from writing coverage, so this runs it as a plain child.
+ */
+async function ask(input) {
+  const { root } = await verifySupply("likec4");
+  const child = spawnSync(process.execPath, [WORKER], {
+    cwd: root,
+    input,
+    encoding: "utf8",
+    timeout: 60_000,
+  });
+  return { exit: child.status, reply: JSON.parse(child.stdout.trim().split("\n").at(-1) ?? "") };
 }
 
 test("a LikeC4 workspace becomes a valid model and reports what it cannot carry", async () => {
@@ -111,4 +131,81 @@ test("workspaces without sources, with errors or too large are refused", async (
     }),
     { code: "likec4_too_large" },
   );
+});
+
+test("the parser worker answers one message with the model, its errors or its failure", async () => {
+  const model = [
+    "specification {",
+    "  element actor",
+    "  element service",
+    "}",
+    "model {",
+    "  customer = actor 'Customer'",
+    "  shop = service 'Shop' {",
+    "    api = service 'API' 'Takes orders' {",
+    "      technology 'Node'",
+    "    }",
+    "  }",
+    "  customer -> shop.api 'orders'",
+    "}",
+    "views {",
+    "  view index {",
+    "    title 'Overview'",
+    "    include *",
+    "  }",
+    "}",
+    "",
+  ].join("\n");
+  const at = (line) => ({ file: "model.c4", line });
+  const element = (id, kind, title, parent, line, technology = null, description = null) => ({
+    id,
+    kind,
+    title,
+    technology,
+    description,
+    parent,
+    location: at(line),
+  });
+  assert.deepEqual(await ask(JSON.stringify({ files: { "model.c4": model } })), {
+    exit: 0,
+    reply: {
+      status: "ok",
+      elements: [
+        element("customer", "actor", "Customer", null, 6),
+        element("shop", "service", "Shop", null, 7),
+        element("shop.api", "service", "API", "shop", 8, "Node", "Takes orders"),
+      ],
+      relations: [
+        {
+          source: "customer",
+          target: "shop.api",
+          title: "orders",
+          technology: null,
+          bidirectional: false,
+          location: at(12),
+        },
+      ],
+      views: [
+        {
+          id: "index",
+          type: "element",
+          title: "Overview",
+          generated: false,
+          elements: ["customer", "shop"],
+          location: at(15),
+        },
+      ],
+    },
+  });
+  const invalid = await ask(JSON.stringify({ files: { "bad.c4": "model {\n  a = \n}\n" } }));
+  assert.equal(invalid.exit, 0);
+  assert.equal(invalid.reply.status, "invalid");
+  assert.deepEqual(
+    invalid.reply.errors.map(({ file, line }) => [file, line]),
+    [["bad.c4", 3]],
+  );
+  const failed = await ask("not a message");
+  assert.equal(failed.exit, 1);
+  assert.equal(failed.reply.status, "failed");
+  assert.match(failed.reply.message, /JSON/u);
 });
