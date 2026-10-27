@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { verifySupply } from "../supply.mjs";
 import { refuse } from "../refusal.mjs";
 
@@ -11,7 +12,7 @@ let renderer;
 async function resvg() {
   if (!renderer) {
     const supply = await verifySupply("resvg");
-    const glue = await import(path.join(supply.root, "resvg", "index.mjs"));
+    const glue = await import(pathToFileURL(path.join(supply.root, "resvg", "index.mjs")).href);
     const wasm = new WebAssembly.Module(
       await fs.readFile(path.join(supply.root, "resvg", "index_bg.wasm")),
     );

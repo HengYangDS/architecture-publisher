@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -12,7 +13,9 @@ export async function loadTypefaces() {
   if (loaded) return loaded;
   const fonts = await verifySupply("fonts");
   const resvg = await verifySupply("resvg");
-  const opentype = await import(path.join(resvg.root, "opentype", "opentype.mjs"));
+  const opentype = await import(
+    pathToFileURL(path.join(resvg.root, "opentype", "opentype.mjs")).href
+  );
   const faces = new Map();
   for (const file of fonts.manifest.files.filter(({ weight }) => weight)) {
     const bytes = await fs.readFile(path.join(fonts.root, file.path));
