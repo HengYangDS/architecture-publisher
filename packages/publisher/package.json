@@ -1,6 +1,6 @@
 {
   "name": "architecture-publisher",
-  "version": "0.4.0-alpha.0",
+  "version": "0.4.0",
   "description": "Publish a repository's architecture model as a poster and an interactive map",
   "type": "module",
   "bin": {

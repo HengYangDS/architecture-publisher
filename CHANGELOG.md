@@ -5,7 +5,9 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog], and this project adheres to [Semantic Versioning]. Versions below `1.0.0`
 remain pre-release contracts and may contain incompatible changes.
 
-## [Unreleased]
+## Unreleased
+
+## [0.4.0] - 2026-10-27
 
 ### Changed
 
@@ -45,6 +47,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Fixed
 
+- Posters render on Windows: the raster renderer and the typefaces load through file URLs.
+- The raster rebuild journey renders a poster the current publisher composes and extracts the frozen source where
+  Windows tar can.
 - Locked CI Rust installation reconciles the required `cargo`, `rustc` and host standard library components in
   retained tool caches.
 - Native CI retains only each job's verified tool cache across checkout, confines Mise's package store to the job,
@@ -566,6 +571,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.4.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.4.0
 [0.3.0-alpha.15]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.15
 [0.3.0-alpha.14]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.14
 [0.3.0-alpha.13]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.13
