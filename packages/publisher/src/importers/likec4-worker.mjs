@@ -29,9 +29,12 @@ try {
       );
       return { file, line: location.range.start.line + 1 };
     };
+    // An error names its document by file-system path, which uses the platform's separator.
+    const relative = (fsPath) =>
+      (path.sep === "\\" ? fsPath.replaceAll("\\", "/") : fsPath).replace(/^\/workspace\//u, "");
     const errors = parsed.languageServices.getErrors().map((error) => ({
       message: String(error.message ?? error),
-      file: error.sourceFsPath ? String(error.sourceFsPath).replace(/^\/workspace\//u, "") : null,
+      file: error.sourceFsPath ? relative(String(error.sourceFsPath)) : null,
       line: Number.isSafeInteger(error.range?.start?.line) ? error.range.start.line + 1 : null,
     }));
     if (errors.length) {

@@ -48,6 +48,7 @@ remain pre-release contracts and may contain incompatible changes.
 ### Fixed
 
 - Posters render on Windows: the raster renderer and the typefaces load through file URLs.
+- LikeC4 errors name their file relative to the workspace on Windows too.
 - The raster rebuild journey renders a poster the current publisher composes and extracts the frozen source where
   Windows tar can.
 - Locked CI Rust installation reconciles the required `cargo`, `rustc` and host standard library components in
