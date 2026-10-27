@@ -6,7 +6,13 @@ import { chromium } from "playwright-core";
 import { deliverMap, mapDocument } from "../packages/publisher/src/map/archify.mjs";
 import { loadModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { AIGW_MODEL, BIG_BANK_MODEL, temporaryDirectory } from "./fixtures/models.mjs";
+import {
+  AIGW_MODEL,
+  BIG_BANK_MODEL,
+  BROWSER_USE_MODEL,
+  CONTEXT_MODE_MODEL,
+  temporaryDirectory,
+} from "./fixtures/models.mjs";
 
 /** The CI browser, or Playwright's own headless build; a developer machine without one skips. */
 async function launch(t) {
@@ -24,7 +30,7 @@ test("delivered maps draw component labels at the 14 px floor at 1440 × 900", a
   const browser = await launch(t);
   if (browser) {
     t.after(() => browser.close());
-    for (const file of [AIGW_MODEL, BIG_BANK_MODEL]) {
+    for (const file of [AIGW_MODEL, BIG_BANK_MODEL, CONTEXT_MODE_MODEL, BROWSER_USE_MODEL]) {
       const { model } = await loadModel(file);
       const views = await planViews(model, async () => ({ fits: true, width: 1, height: 1 }));
       const directory = await temporaryDirectory("archpub-map-browser-");

@@ -6,6 +6,9 @@ import { fileURLToPath } from "node:url";
 const MODELS = fileURLToPath(new URL("./models/", import.meta.url));
 export const AIGW_MODEL = path.join(MODELS, "aigw.json");
 export const BIG_BANK_MODEL = path.join(MODELS, "big-bank.json");
+/** Models of two repositories unrelated to this one, authored outside them. */
+export const BROWSER_USE_MODEL = path.join(MODELS, "browser-use.json");
+export const CONTEXT_MODE_MODEL = path.join(MODELS, "context-mode.json");
 
 /** A minimal valid model; `extra` replaces or adds top-level fields. */
 export function minimalModel(extra = {}) {

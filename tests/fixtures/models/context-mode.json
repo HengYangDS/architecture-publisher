@@ -1,0 +1,483 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 1,
+  "id": "context-mode",
+  "title": "context-mode",
+  "question": "How does context-mode keep bulky tool output out of an agent's context window while keeping it retrievable?",
+  "summary": "Hooks steer calls that would flood the context to sandboxed ctx_* tools. Only printed output returns; large output is indexed in SQLite FTS5 and searched on demand.",
+  "scope": "context-mode as wired for Claude Code: hook routing, the ctx_* MCP server with its subprocess sandbox and full-text store, and session-event capture.",
+  "limits": [
+    "Draws the Claude Code path of the 18 supported hosts; per-platform hooks, in-process adapters, the CLI, statistics and the web site are left out.",
+    "Relations are calls and imports in the source, not runtime order; security internals and file handoffs between hooks and the server are not drawn."
+  ],
+  "attribution": "the Architecture Publisher maintainers, read from the context-mode source",
+  "repository": {
+    "name": "context-mode",
+    "url": "https://github.com/mksglu/context-mode.git",
+    "revision": "843570277671ae4df0df9137e8a5b9da2d89171b"
+  },
+  "kinds": {
+    "host": {
+      "label": "agent host",
+      "category": "external",
+      "icon": "bot"
+    },
+    "hook": {
+      "label": "hook script",
+      "category": "backend",
+      "icon": "webhook"
+    },
+    "server": {
+      "label": "MCP server",
+      "category": "backend",
+      "icon": "server"
+    },
+    "module": {
+      "label": "module",
+      "category": "backend",
+      "icon": "workflow"
+    },
+    "policy": {
+      "label": "security policy",
+      "category": "security",
+      "icon": "shield-check"
+    },
+    "store": {
+      "label": "SQLite store",
+      "category": "database",
+      "icon": "database"
+    },
+    "runtime": {
+      "label": "language runtime",
+      "category": "external",
+      "icon": "terminal"
+    },
+    "web": {
+      "label": "web origin",
+      "category": "external",
+      "icon": "globe"
+    }
+  },
+  "sources": {
+    "plugin-manifest": {
+      "path": ".claude-plugin/plugin.json",
+      "sha256": "c77f969ede72b091969cf3ed31621b1ec8bbf66554a91684a605aad257fe5ed3"
+    },
+    "hook-registry": {
+      "path": "hooks/hooks.json",
+      "sha256": "e1fdd0c0e82d164f119daa43803513b802ca5edab93bc123b2c7d8d4c637cf3e"
+    },
+    "platform-ids": {
+      "path": "src/adapters/types.ts",
+      "sha256": "ccd6b86d9fb7853e70b2edfe1c7e9eda2796d5f9a47532a498ade85cb207baed"
+    },
+    "pretooluse": {
+      "path": "hooks/pretooluse.mjs",
+      "sha256": "ecac9efe98689e57f50642d1657e212f10445e12c033a4b356738c4ca1c9e3d5"
+    },
+    "formatters": {
+      "path": "hooks/core/formatters.mjs",
+      "sha256": "dfe1c57fea9bcab2d04f93ad499e2020285f1b1a8fe580f52bfb466ac1abd722"
+    },
+    "routing": {
+      "path": "hooks/core/routing.mjs",
+      "sha256": "7447ee2e444743d6581c53aa1cfec9ffe0d904bc5a478d6fe2ac3e09ef0b3462"
+    },
+    "routing-block": {
+      "path": "hooks/routing-block.mjs",
+      "sha256": "93c69245325ded031994ba25ddf8f048e4ef5ef9bc98ce63607506d7306c07be"
+    },
+    "mcp-ready": {
+      "path": "hooks/core/mcp-ready.mjs",
+      "sha256": "78a2fe30b55f3e1f34d1106dca6f43deea5b13ed5850c3d9c8cdee93acdc186f"
+    },
+    "security": {
+      "path": "src/security.ts",
+      "sha256": "769a68f66f879c6d442a441ca69f4d58f84a6442742bfc5d02ab5f3fc7103468"
+    },
+    "server": {
+      "path": "src/server.ts",
+      "sha256": "4a34c4a17b64fa188d2a2c894765f492bf62b624a60c64e666fbaeef760f4a59"
+    },
+    "start": {
+      "path": "start.mjs",
+      "sha256": "0324441841b2aef98db606194ec779c014fba3c8031c725f1be273c65f26e57b"
+    },
+    "executor": {
+      "path": "src/executor.ts",
+      "sha256": "37f19e41e56c8e705fc2bdf06a4a855d920a7d232dc4fd4b432215733d4d7b9d"
+    },
+    "run-pool": {
+      "path": "src/runPool.ts",
+      "sha256": "59bf5cf677eabe04893305b193e48f592f36059c3bc5cd165d6e72fb29d51dee"
+    },
+    "runtime": {
+      "path": "src/runtime.ts",
+      "sha256": "0b33ec940ec1f60203e907353f29e6b400fc66a8b229b1f6ad4f8928dc5e6464"
+    },
+    "fetch-cache": {
+      "path": "src/fetch-cache.ts",
+      "sha256": "6efd65c191e47b0093a9470cce48a003f2907c238b55d362dc74349e6d9490a1"
+    },
+    "store": {
+      "path": "src/store.ts",
+      "sha256": "d7b06661006e884832e0dcd27720ef2c59a585e301d9c7a38afc883330781cad"
+    },
+    "db-base": {
+      "path": "src/db-base.ts",
+      "sha256": "0d3b18188c1b54c1b737f30cd4cc37da72e7f1c0a1540a48ca456dee9d12ed89"
+    },
+    "unified": {
+      "path": "src/search/unified.ts",
+      "sha256": "ff04bf05515bc62952d4eede4b025ad8badb393a97cd67266257f55681cebbe7"
+    },
+    "flood-guard": {
+      "path": "src/search/flood-guard.ts",
+      "sha256": "c646dabf80040a619073f06765dd19670f24c392709e804a257e1dc25b3a85d2"
+    },
+    "posttooluse": {
+      "path": "hooks/posttooluse.mjs",
+      "sha256": "02ead3ad9d5bf8e8367ccc63811a84b4d88bda0ddb3f43de58f51a2f678a63e3"
+    },
+    "precompact": {
+      "path": "hooks/precompact.mjs",
+      "sha256": "4b8b1599057fba8aa9466f6184cec2fe48548a7cafa7c5faf50dae7cef8b2cc1"
+    },
+    "sessionstart": {
+      "path": "hooks/sessionstart.mjs",
+      "sha256": "41952548f197dc40bac50afff2126802c83fc9cbbe8ecc86743cacaeb0ced001"
+    },
+    "extract": {
+      "path": "src/session/extract.ts",
+      "sha256": "8af749c8f29a095774f88f8f2a14a007d028b559bd7c8ce4cf46a6c1300ec20e"
+    },
+    "snapshot": {
+      "path": "src/session/snapshot.ts",
+      "sha256": "568ec1172043462d59da32f04f086465acf780a75936326d1183d1884787e39d"
+    },
+    "session-db": {
+      "path": "src/session/db.ts",
+      "sha256": "6537e1b90faa6c9f9a3485efb94824606d4d2a0918ca4592efef0f6b96259acb"
+    }
+  },
+  "components": [
+    {
+      "id": "agent-host",
+      "label": "Agent host",
+      "kind": "host",
+      "details": {
+        "drawn for": "Claude Code",
+        "platforms": "18 supported hosts"
+      },
+      "sources": ["plugin-manifest", "hook-registry", "platform-ids"]
+    },
+    {
+      "id": "pretool-hook",
+      "label": "PreToolUse hook",
+      "kind": "hook",
+      "details": {
+        "answers": "deny, ask or modify the input"
+      },
+      "sources": ["pretooluse", "formatters", "hook-registry"]
+    },
+    {
+      "id": "routing-engine",
+      "label": "Routing rules",
+      "kind": "module",
+      "details": {
+        "redirects": "curl, wget and WebFetch",
+        "passes through": "until the server is ready"
+      },
+      "sources": ["routing", "routing-block", "mcp-ready"]
+    },
+    {
+      "id": "security-policy",
+      "label": "Security policy",
+      "kind": "policy",
+      "details": {
+        "reads": "host permission rules"
+      },
+      "sources": ["security"]
+    },
+    {
+      "id": "mcp-server",
+      "label": "ctx MCP server",
+      "kind": "server",
+      "details": {
+        "tools": "11 over stdio",
+        "over 100 KB": "indexes and returns a pointer"
+      },
+      "sources": ["server", "start"]
+    },
+    {
+      "id": "executor",
+      "label": "Polyglot executor",
+      "kind": "module",
+      "details": {
+        "runs": "one subprocess per call",
+        "working directory": "the project root"
+      },
+      "sources": ["executor", "run-pool"]
+    },
+    {
+      "id": "lang-runtimes",
+      "label": "Language runtimes",
+      "kind": "runtime",
+      "details": {
+        "languages": "12",
+        "JavaScript": "on Bun when installed"
+      },
+      "sources": ["runtime"]
+    },
+    {
+      "id": "web-origins",
+      "label": "Web origins",
+      "kind": "web",
+      "details": {
+        "fetched by": "the sandbox process",
+        "cache": "24 hours"
+      },
+      "sources": ["server", "fetch-cache"]
+    },
+    {
+      "id": "content-store",
+      "label": "Content store",
+      "kind": "store",
+      "details": {
+        "index": "FTS5, porter and trigram"
+      },
+      "sources": ["store", "db-base"]
+    },
+    {
+      "id": "search-layer",
+      "label": "Unified search",
+      "kind": "module",
+      "details": {
+        "blocks": "the 9th search in 60 s",
+        "returns": "at most 40 KB of snippets"
+      },
+      "sources": ["unified", "flood-guard"]
+    },
+    {
+      "id": "session-hooks",
+      "label": "Session hooks",
+      "kind": "hook",
+      "details": {
+        "run on": "tool use, compaction, start"
+      },
+      "sources": ["posttooluse", "precompact", "sessionstart", "hook-registry"]
+    },
+    {
+      "id": "event-extractor",
+      "label": "Event extractor",
+      "kind": "module",
+      "details": {
+        "style": "pure functions"
+      },
+      "sources": ["extract"]
+    },
+    {
+      "id": "snapshot-builder",
+      "label": "Snapshot builder",
+      "kind": "module",
+      "details": {
+        "writes": "reference-based XML"
+      },
+      "sources": ["snapshot"]
+    },
+    {
+      "id": "session-db",
+      "label": "Session store",
+      "kind": "store",
+      "details": {
+        "scope": "one SQLite file a project"
+      },
+      "sources": ["session-db"]
+    }
+  ],
+  "relations": [
+    {
+      "id": "host-pretool",
+      "from": "agent-host",
+      "to": "pretool-hook",
+      "label": "runs before tools",
+      "sources": ["hook-registry"]
+    },
+    {
+      "id": "host-server",
+      "from": "agent-host",
+      "to": "mcp-server",
+      "label": "calls ctx_* tools",
+      "sources": ["plugin-manifest", "server"]
+    },
+    {
+      "id": "host-session",
+      "from": "agent-host",
+      "to": "session-hooks",
+      "label": "runs on events",
+      "sources": ["hook-registry"]
+    },
+    {
+      "id": "pretool-routing",
+      "from": "pretool-hook",
+      "to": "routing-engine",
+      "label": "routes the call",
+      "sources": ["pretooluse", "routing"]
+    },
+    {
+      "id": "routing-policy",
+      "from": "routing-engine",
+      "to": "security-policy",
+      "label": "checks policy",
+      "sources": ["routing", "security"]
+    },
+    {
+      "id": "server-executor",
+      "from": "mcp-server",
+      "to": "executor",
+      "label": "runs code",
+      "sources": ["server", "executor"]
+    },
+    {
+      "id": "server-policy",
+      "from": "mcp-server",
+      "to": "security-policy",
+      "label": "checks deny rules",
+      "sources": ["server", "security"]
+    },
+    {
+      "id": "server-store",
+      "from": "mcp-server",
+      "to": "content-store",
+      "label": "indexes output",
+      "sources": ["server", "store"]
+    },
+    {
+      "id": "server-search",
+      "from": "mcp-server",
+      "to": "search-layer",
+      "label": "searches",
+      "sources": ["server", "unified", "flood-guard"]
+    },
+    {
+      "id": "executor-runtimes",
+      "from": "executor",
+      "to": "lang-runtimes",
+      "label": "spawns process",
+      "sources": ["executor"]
+    },
+    {
+      "id": "runtimes-web",
+      "from": "lang-runtimes",
+      "to": "web-origins",
+      "label": "fetches pages",
+      "sources": ["server"]
+    },
+    {
+      "id": "search-store",
+      "from": "search-layer",
+      "to": "content-store",
+      "label": "ranks chunks",
+      "sources": ["unified", "store"]
+    },
+    {
+      "id": "search-events",
+      "from": "search-layer",
+      "to": "session-db",
+      "label": "queries events",
+      "sources": ["unified", "session-db"]
+    },
+    {
+      "id": "session-extract",
+      "from": "session-hooks",
+      "to": "event-extractor",
+      "label": "extracts events",
+      "sources": ["posttooluse", "extract"]
+    },
+    {
+      "id": "session-db-write",
+      "from": "session-hooks",
+      "to": "session-db",
+      "label": "writes events",
+      "sources": ["posttooluse", "session-db"]
+    },
+    {
+      "id": "session-snapshot",
+      "from": "session-hooks",
+      "to": "snapshot-builder",
+      "label": "builds snapshot",
+      "sources": ["precompact", "snapshot"]
+    },
+    {
+      "id": "session-guidance",
+      "from": "session-hooks",
+      "to": "routing-engine",
+      "label": "renders guidance",
+      "sources": ["sessionstart", "routing-block"]
+    }
+  ],
+  "views": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "question": "Which parts keep bulky tool output out of the agent's context, and how is it found again?",
+      "members": [
+        "agent-host",
+        "pretool-hook",
+        "routing-engine",
+        "mcp-server",
+        "executor",
+        "content-store",
+        "search-layer",
+        "session-hooks",
+        "session-db"
+      ]
+    },
+    {
+      "id": "sandbox",
+      "title": "Redirect into the sandbox",
+      "question": "How is a call that would flood the context run in a subprocess so that only its printed output returns?",
+      "summary": "The PreToolUse hook denies WebFetch, and curl or wget calls that would print a page, with guidance to use the ctx_* tools. ctx_execute runs code in a subprocess; output over 100 KB is indexed and only a pointer returns.",
+      "tiers": [
+        {
+          "id": "entry",
+          "label": "Hook and server",
+          "members": ["pretool-hook", "mcp-server"]
+        },
+        {
+          "id": "steps",
+          "label": "Rules and sandbox",
+          "members": ["routing-engine", "executor"]
+        },
+        {
+          "id": "below",
+          "label": "Policy and processes",
+          "members": ["security-policy", "lang-runtimes", "web-origins"]
+        }
+      ]
+    },
+    {
+      "id": "retrieval",
+      "title": "Retrieve and resume",
+      "question": "How do indexed output and session events come back as small slices sized to a query?",
+      "summary": "A search returns short snippets from the content store and the session store and is blocked after eight calls in a minute. Session hooks record tool events and build a resume snapshot before compaction.",
+      "tiers": [
+        {
+          "id": "entry",
+          "label": "Server and hooks",
+          "members": ["mcp-server", "session-hooks"]
+        },
+        {
+          "id": "steps",
+          "label": "Search and capture",
+          "members": ["search-layer", "event-extractor", "snapshot-builder"]
+        },
+        {
+          "id": "stores",
+          "label": "Stores",
+          "members": ["content-store", "session-db"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,470 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 1,
+  "id": "browser-use",
+  "title": "browser-use",
+  "question": "How does each Agent step turn a task and the live page into Chrome DevTools Protocol commands?",
+  "summary": "Each Agent step reads the page through CDP, asks a language model for typed actions and dispatches them as bus events whose watchdogs send the CDP calls.",
+  "scope": "The browser_use package traced from Agent.run() through one step: state capture, prompt building, the model's structured output, the tools, the browser session's event bus, the DOM, action and security watchdogs, and Chrome over CDP.",
+  "limits": [
+    "Getting a browser is folded into Chrome over CDP: the local launch, Browser Use Cloud, reconnects and eight other watchdogs are left out, as are the file system, skills, the judge, telemetry, the MCP server and the CLI.",
+    "Relations are calls, dispatches and handler registrations in the source, not runtime order; whether the security watchdog stops a navigation before it starts depends on the bubus event bus."
+  ],
+  "attribution": "the Architecture Publisher maintainers, read from the browser-use source",
+  "repository": {
+    "name": "browser-use",
+    "url": "https://github.com/browser-use/browser-use.git",
+    "revision": "2cc71890e65056b67fdb29d98bb407749c15bb08"
+  },
+  "kinds": {
+    "person": {
+      "label": "developer",
+      "category": "person",
+      "icon": "user"
+    },
+    "module": {
+      "label": "Python module",
+      "category": "backend",
+      "icon": "workflow"
+    },
+    "bus": {
+      "label": "event bus",
+      "category": "messagebus"
+    },
+    "watchdog": {
+      "label": "watchdog",
+      "category": "backend",
+      "icon": "scan-eye"
+    },
+    "guard": {
+      "label": "security watchdog",
+      "category": "security"
+    },
+    "provider": {
+      "label": "LLM API",
+      "category": "external",
+      "icon": "cloud"
+    },
+    "browser": {
+      "label": "browser",
+      "category": "external",
+      "icon": "app-window"
+    }
+  },
+  "sources": {
+    "example": {
+      "path": "examples/simple.py",
+      "sha256": "6eace4f7d08df81dc7e9a9a5580748ffc85075726374aeee7179e41e410425f4"
+    },
+    "package": {
+      "path": "browser_use/__init__.py",
+      "sha256": "ccb1138537c7368d57c73f920c2d5a16a9702751121b606cc10a6f792e795e65"
+    },
+    "agent-service": {
+      "path": "browser_use/agent/service.py",
+      "sha256": "b6b6943492b062754acd322f9f1d0a950e0ce30edebe53ac4392ede9b4796ba1"
+    },
+    "agent-views": {
+      "path": "browser_use/agent/views.py",
+      "sha256": "f08c9e96df9e346ba87c0cd3ceb79a7d3a6c1f7764083a367ca8e10bb65c43ce"
+    },
+    "message-manager": {
+      "path": "browser_use/agent/message_manager/service.py",
+      "sha256": "b9a9ccc6e0c039f18d18ca20477022aa450286576c9c57adbc7ddebf1aa08a56"
+    },
+    "prompts": {
+      "path": "browser_use/agent/prompts.py",
+      "sha256": "ea7958d556babb3805efb2fb9baa8b7be65153be946be43870a892c7cd187b28"
+    },
+    "llm-base": {
+      "path": "browser_use/llm/base.py",
+      "sha256": "e4983edd7bbf65b979c9b047907de99ec1ad2b49f8be86559d9b77833ab3db05"
+    },
+    "llm-schema": {
+      "path": "browser_use/llm/schema.py",
+      "sha256": "0810a398a5c5ca8f76d4d72917f81392cb055f3d8fd816fb85359c6ee1a3fc16"
+    },
+    "openai-chat": {
+      "path": "browser_use/llm/openai/chat.py",
+      "sha256": "27847bcdcddd2a2c62d26aa267d5019dace91b1ba4011c51958b990fafc16a2f"
+    },
+    "browser-use-chat": {
+      "path": "browser_use/llm/browser_use/chat.py",
+      "sha256": "bb469dec6b29795f373b41a701ac9b02a65fa63d388b1ea4dd5de9bdcc1dbe48"
+    },
+    "anthropic-chat": {
+      "path": "browser_use/llm/anthropic/chat.py",
+      "sha256": "39c9e919780fedf33b2fe5b1d276e860e2357d98a33e9d6452b7717189d62cb0"
+    },
+    "tools-service": {
+      "path": "browser_use/tools/service.py",
+      "sha256": "25746ddfe719c0a800b2b4fcc399aea4fc8be20c48b04ab4118841fd5419eb73"
+    },
+    "registry": {
+      "path": "browser_use/tools/registry/service.py",
+      "sha256": "3517c114d622a415c9da48ede49b5b625c97a1169161478541c68a05b8ae495e"
+    },
+    "session": {
+      "path": "browser_use/browser/session.py",
+      "sha256": "524ec4547e5f9d81dac9ac3d7dcb705e5c6e9aec1255f6316d29cdaa1b19e822"
+    },
+    "profile": {
+      "path": "browser_use/browser/profile.py",
+      "sha256": "5b42a8285bab5116c08ec61cad643ed71b546cc9c82cfd77a7d7929330b40a47"
+    },
+    "events": {
+      "path": "browser_use/browser/events.py",
+      "sha256": "5dc6709924a72568257bbe0305891cb1bcf81437289be81e67df24a55968415a"
+    },
+    "watchdog-base": {
+      "path": "browser_use/browser/watchdog_base.py",
+      "sha256": "7970d0070134f629a0d213dc8abe05326d3a49009dd454f863322807c6955c7b"
+    },
+    "dom-watchdog": {
+      "path": "browser_use/browser/watchdogs/dom_watchdog.py",
+      "sha256": "5cafe302c3c148964a745e70230eb0ed14ff109890f1f57994658d25f14a3448"
+    },
+    "screenshot-watchdog": {
+      "path": "browser_use/browser/watchdogs/screenshot_watchdog.py",
+      "sha256": "ec98ee1e13e93e6989a6923e342a6e060e20c389ecbc0fba69d79662a2aa7ce5"
+    },
+    "dom-service": {
+      "path": "browser_use/dom/service.py",
+      "sha256": "43f8e087754ea9a67da21d9576c3485cab53e9f9cf41ebb45d2f03d0107889c3"
+    },
+    "dom-serializer": {
+      "path": "browser_use/dom/serializer/serializer.py",
+      "sha256": "6d523ff457d1f0c99152eeb5cc86a96d6ed6a59bf2636aceae871549afdce91f"
+    },
+    "action-watchdog": {
+      "path": "browser_use/browser/watchdogs/default_action_watchdog.py",
+      "sha256": "0f679e4de08dd45c8bba824666a1d87569855b00a45f5db3c9c8f61e1957aebc"
+    },
+    "security-watchdog": {
+      "path": "browser_use/browser/watchdogs/security_watchdog.py",
+      "sha256": "7d4aba8c663602f2fa506befe7a7b63a8074452e83c6706929b531953665f6ac"
+    },
+    "cdp-timeout": {
+      "path": "browser_use/browser/_cdp_timeout.py",
+      "sha256": "4fabeaa94693979300230caa636705fd1682df6b881166ea03c728d9205a479e"
+    },
+    "local-browser": {
+      "path": "browser_use/browser/watchdogs/local_browser_watchdog.py",
+      "sha256": "378d53c997b5faf1c35c3654d54ee006243624b3c8cd6fb6c24f1c3f672e6a88"
+    },
+    "manifest": {
+      "path": "pyproject.toml",
+      "sha256": "750d2f19a0b13f209326397388a9f3ff3c0ab893a6b006dfd06fe41bc4f0edb1"
+    }
+  },
+  "components": [
+    {
+      "id": "developer",
+      "label": "Developer script",
+      "kind": "person",
+      "details": {
+        "entry": "Agent(task, llm).run()"
+      },
+      "sources": ["example", "package"]
+    },
+    {
+      "id": "agent",
+      "label": "Agent step loop",
+      "kind": "module",
+      "details": {
+        "step": "state, model call, actions, history"
+      },
+      "sources": ["agent-service", "agent-views"]
+    },
+    {
+      "id": "message-manager",
+      "label": "Message manager",
+      "kind": "module",
+      "details": {
+        "state message": "task, page elements, screenshot"
+      },
+      "sources": ["message-manager", "prompts"]
+    },
+    {
+      "id": "llm-adapters",
+      "label": "LLM adapters",
+      "kind": "module",
+      "details": {
+        "contract": "ainvoke with an output schema"
+      },
+      "sources": ["llm-base", "llm-schema", "openai-chat"]
+    },
+    {
+      "id": "llm-providers",
+      "label": "LLM provider APIs",
+      "kind": "provider",
+      "details": {
+        "default": "llm.api.browser-use.com"
+      },
+      "sources": ["browser-use-chat", "anthropic-chat", "openai-chat"]
+    },
+    {
+      "id": "tools",
+      "label": "Tools and registry",
+      "kind": "module",
+      "details": {
+        "schema": "a union of action models"
+      },
+      "sources": ["tools-service", "registry"]
+    },
+    {
+      "id": "browser-session",
+      "label": "Browser session",
+      "kind": "module",
+      "details": {
+        "owns": "the CDP client and event bus",
+        "handles": "its own navigation events"
+      },
+      "sources": ["session", "profile"]
+    },
+    {
+      "id": "event-bus",
+      "label": "Browser event bus",
+      "kind": "bus",
+      "details": {
+        "library": "bubus 1.5.6"
+      },
+      "sources": ["events", "watchdog-base", "manifest"]
+    },
+    {
+      "id": "state-watchdogs",
+      "label": "State watchdogs",
+      "kind": "watchdog",
+      "details": {
+        "handles": "browser state requests"
+      },
+      "sources": ["dom-watchdog", "screenshot-watchdog"]
+    },
+    {
+      "id": "dom-service",
+      "label": "DOM service",
+      "kind": "module",
+      "details": {
+        "output": "an indexed selector map"
+      },
+      "sources": ["dom-service", "dom-serializer"]
+    },
+    {
+      "id": "action-watchdog",
+      "label": "Action watchdog",
+      "kind": "watchdog",
+      "details": {
+        "handles": "click, type and scroll events"
+      },
+      "sources": ["action-watchdog"]
+    },
+    {
+      "id": "security-watchdog",
+      "label": "Security watchdog",
+      "kind": "guard",
+      "details": {
+        "policy": "allowed and prohibited domains"
+      },
+      "sources": ["security-watchdog", "profile"]
+    },
+    {
+      "id": "chrome-cdp",
+      "label": "Chrome over CDP",
+      "kind": "browser",
+      "details": {
+        "transport": "CDP over WebSocket",
+        "library": "cdp-use 1.4.5"
+      },
+      "sources": ["cdp-timeout", "local-browser", "manifest"]
+    }
+  ],
+  "relations": [
+    {
+      "id": "developer-agent",
+      "from": "developer",
+      "to": "agent",
+      "label": "runs the task",
+      "sources": ["example"]
+    },
+    {
+      "id": "agent-session",
+      "from": "agent",
+      "to": "browser-session",
+      "label": "gets state",
+      "sources": ["agent-service", "session"]
+    },
+    {
+      "id": "agent-messages",
+      "from": "agent",
+      "to": "message-manager",
+      "label": "builds prompt",
+      "sources": ["agent-service", "message-manager"]
+    },
+    {
+      "id": "agent-llm",
+      "from": "agent",
+      "to": "llm-adapters",
+      "label": "requests actions",
+      "sources": ["agent-service", "llm-base"]
+    },
+    {
+      "id": "agent-tools",
+      "from": "agent",
+      "to": "tools",
+      "label": "executes actions",
+      "sources": ["agent-service", "tools-service"]
+    },
+    {
+      "id": "llm-api",
+      "from": "llm-adapters",
+      "to": "llm-providers",
+      "label": "calls the API",
+      "sources": ["openai-chat"]
+    },
+    {
+      "id": "tools-bus",
+      "from": "tools",
+      "to": "event-bus",
+      "label": "dispatches events",
+      "sources": ["tools-service", "events"]
+    },
+    {
+      "id": "tools-session",
+      "from": "tools",
+      "to": "browser-session",
+      "label": "resolves index",
+      "sources": ["tools-service", "session"]
+    },
+    {
+      "id": "session-bus",
+      "from": "browser-session",
+      "to": "event-bus",
+      "label": "dispatches events",
+      "sources": ["session", "events"]
+    },
+    {
+      "id": "session-chrome",
+      "from": "browser-session",
+      "to": "chrome-cdp",
+      "label": "connects, navigates",
+      "sources": ["session", "cdp-timeout"]
+    },
+    {
+      "id": "bus-state",
+      "from": "event-bus",
+      "to": "state-watchdogs",
+      "label": "delivers request",
+      "sources": ["dom-watchdog", "watchdog-base"]
+    },
+    {
+      "id": "bus-action",
+      "from": "event-bus",
+      "to": "action-watchdog",
+      "label": "delivers input",
+      "sources": ["action-watchdog", "watchdog-base"]
+    },
+    {
+      "id": "bus-security",
+      "from": "event-bus",
+      "to": "security-watchdog",
+      "label": "delivers navigation",
+      "sources": ["security-watchdog", "watchdog-base"]
+    },
+    {
+      "id": "state-dom",
+      "from": "state-watchdogs",
+      "to": "dom-service",
+      "label": "builds DOM",
+      "sources": ["dom-watchdog", "dom-service"]
+    },
+    {
+      "id": "state-chrome",
+      "from": "state-watchdogs",
+      "to": "chrome-cdp",
+      "label": "screenshots",
+      "sources": ["screenshot-watchdog"]
+    },
+    {
+      "id": "dom-chrome",
+      "from": "dom-service",
+      "to": "chrome-cdp",
+      "label": "snapshots DOM",
+      "sources": ["dom-service"]
+    },
+    {
+      "id": "action-chrome",
+      "from": "action-watchdog",
+      "to": "chrome-cdp",
+      "label": "sends input",
+      "sources": ["action-watchdog"]
+    },
+    {
+      "id": "security-chrome",
+      "from": "security-watchdog",
+      "to": "chrome-cdp",
+      "label": "blanks the page",
+      "sources": ["security-watchdog"]
+    }
+  ],
+  "views": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "question": "How does an Agent turn a developer's task into CDP commands?",
+      "members": [
+        "developer",
+        "agent",
+        "llm-adapters",
+        "llm-providers",
+        "tools",
+        "event-bus",
+        "browser-session",
+        "action-watchdog",
+        "chrome-cdp"
+      ]
+    },
+    {
+      "id": "perception",
+      "title": "Perception",
+      "question": "How does each step turn the live page into the model's prompt?",
+      "summary": "The browser session asks its event bus for the page state; the state watchdogs build an indexed element tree and a screenshot over CDP, and the message manager renders both into the prompt.",
+      "tiers": [
+        {
+          "id": "agent",
+          "label": "Agent",
+          "members": ["agent"]
+        },
+        {
+          "id": "parts",
+          "label": "Step parts",
+          "members": ["message-manager", "browser-session"]
+        },
+        {
+          "id": "bus",
+          "label": "Bus and watchdogs",
+          "members": ["event-bus", "state-watchdogs"]
+        },
+        {
+          "id": "page",
+          "label": "Page",
+          "members": ["dom-service", "chrome-cdp"]
+        }
+      ]
+    },
+    {
+      "id": "action",
+      "title": "Action",
+      "question": "How does an action the model chose become CDP commands, and where can it be stopped?",
+      "summary": "The tools resolve an element index through the session and dispatch an event, and the action watchdog sends the input over CDP. The security watchdog refuses navigation outside the allowed domains and blanks a page a redirect reached.",
+      "members": [
+        "agent",
+        "tools",
+        "browser-session",
+        "event-bus",
+        "action-watchdog",
+        "security-watchdog",
+        "chrome-cdp"
+      ]
+    }
+  ]
+}
