@@ -1,0 +1,159 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 1,
+  "id": "big-bank",
+  "title": "Internet Banking System",
+  "question": "Which containers make up internet banking, and what do they call?",
+  "summary": "Customers use a web or mobile front end; one API application reads and writes its database, calls the mainframe and sends e-mail.",
+  "attribution": "layout test adapted from the C4 model's Big Bank plc example",
+  "scope": "Container view of the fictional Big Bank plc internet banking system.",
+  "limits": ["Fictional example used only to test layout; not a real system."],
+  "kinds": {
+    "person": { "label": "person", "category": "person", "icon": "user" },
+    "webapp": { "label": "web application", "category": "frontend", "icon": "globe" },
+    "spa": { "label": "single-page app", "category": "frontend", "icon": "app-window" },
+    "mobile": { "label": "mobile app", "category": "frontend", "icon": "smartphone" },
+    "api": { "label": "API", "category": "backend", "icon": "server" },
+    "database": { "label": "database", "category": "database", "icon": "database" },
+    "system": { "label": "external system", "category": "external", "icon": "landmark" },
+    "email": { "label": "e-mail system", "category": "external", "icon": "mail" }
+  },
+  "components": [
+    {
+      "id": "customer",
+      "label": "Personal Banking Customer",
+      "kind": "person",
+      "details": { "holds": "personal bank accounts" }
+    },
+    {
+      "id": "web",
+      "label": "Web Application",
+      "kind": "webapp",
+      "details": { "technology": "Java and Spring MVC" }
+    },
+    {
+      "id": "spa",
+      "label": "Single-Page Application",
+      "kind": "spa",
+      "details": { "technology": "JavaScript and Angular" }
+    },
+    {
+      "id": "mobile",
+      "label": "Mobile App",
+      "kind": "mobile",
+      "details": { "technology": "Xamarin" }
+    },
+    {
+      "id": "api",
+      "label": "API Application",
+      "kind": "api",
+      "details": { "technology": "Java and Spring MVC" }
+    },
+    {
+      "id": "db",
+      "label": "Database",
+      "kind": "database",
+      "details": { "stores": ["credentials", "access logs"] }
+    },
+    {
+      "id": "mainframe",
+      "label": "Mainframe Banking System",
+      "kind": "system",
+      "details": { "stores": ["customers", "accounts", "transactions"] }
+    },
+    {
+      "id": "email",
+      "label": "E-mail System",
+      "kind": "email",
+      "details": { "technology": "Microsoft Exchange" }
+    }
+  ],
+  "relations": [
+    {
+      "id": "r1",
+      "from": "customer",
+      "to": "web",
+      "label": "visits",
+      "details": { "protocol": "HTTPS" }
+    },
+    {
+      "id": "r2",
+      "from": "customer",
+      "to": "spa",
+      "label": "uses",
+      "details": { "for": "balances and payments" }
+    },
+    {
+      "id": "r3",
+      "from": "customer",
+      "to": "mobile",
+      "label": "uses",
+      "details": { "for": "balances and payments" }
+    },
+    {
+      "id": "r4",
+      "from": "web",
+      "to": "spa",
+      "label": "delivers",
+      "details": { "to": "the browser" }
+    },
+    {
+      "id": "r5",
+      "from": "spa",
+      "to": "api",
+      "label": "calls",
+      "details": { "protocol": "JSON/HTTPS" }
+    },
+    {
+      "id": "r6",
+      "from": "mobile",
+      "to": "api",
+      "label": "calls",
+      "details": { "protocol": "JSON/HTTPS" }
+    },
+    {
+      "id": "r7",
+      "from": "api",
+      "to": "db",
+      "label": "reads and writes",
+      "details": { "protocol": "JDBC" }
+    },
+    {
+      "id": "r8",
+      "from": "api",
+      "to": "mainframe",
+      "label": "calls",
+      "details": { "protocol": "XML/HTTPS" }
+    },
+    {
+      "id": "r9",
+      "from": "api",
+      "to": "email",
+      "label": "sends e-mail",
+      "details": { "protocol": "SMTP" }
+    },
+    { "id": "r10", "from": "email", "to": "customer", "label": "sends e-mail to" }
+  ],
+  "groups": [],
+  "views": [
+    {
+      "id": "containers-tiers",
+      "question": "Which containers make up internet banking, and what do they call?",
+      "tiers": [
+        { "id": "people", "label": "People", "members": ["customer"] },
+        { "id": "front", "label": "Front ends", "members": ["web", "spa", "mobile"] },
+        { "id": "back", "label": "Back end", "members": ["api"] },
+        {
+          "id": "data",
+          "label": "Data and external systems",
+          "members": ["db", "mainframe", "email"]
+        }
+      ]
+    },
+    {
+      "id": "containers-automatic",
+      "question": "The same containers, laid out with no editorial tiers",
+      "members": ["customer", "web", "spa", "mobile", "api", "db", "mainframe", "email"]
+    }
+  ]
+}

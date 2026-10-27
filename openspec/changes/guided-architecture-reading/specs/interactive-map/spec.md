@@ -26,10 +26,10 @@ error, warning or failed showcase check SHALL refuse the build.
 
 ### Requirement: Independent composition
 
-The publisher SHALL compute map positions, sizes, connection sides, waypoints
-and label positions with the grid layout and Archify's component and label
-metrics, and SHALL write them as authored Archify geometry. Map geometry SHALL
-NOT be derived from poster coordinates, poster images or screenshots.
+The publisher SHALL compute map positions, sizes and connection sides with the
+grid layout and Archify's text metrics, and SHALL leave routing, port spreading
+and label placement to Archify. Map geometry SHALL NOT be derived from poster
+coordinates, poster images or screenshots.
 
 #### Scenario: Different metrics, same structure
 
@@ -37,18 +37,19 @@ NOT be derived from poster coordinates, poster images or screenshots.
 - **THEN** each medium's positions come from its own layout run with its own
   metrics
 
-#### Scenario: Authored routes
+#### Scenario: Native routes
 
-- **WHEN** a relation jogs between two rows in the grid layout
-- **THEN** the Archify connection carries that route's sides and waypoints and
-  its label position
+- **WHEN** a relation connects a component to one in the next row
+- **THEN** the Archify connection leaves the bottom side, enters the top side
+  and carries no waypoints
 
 ### Requirement: Exploration content
 
 The map SHALL contain every component of the model with its label, its kind as
 tag and a short first detail as sublabel; tiers and the system boundary as
-regions; every relation as a labeled connection, dashed when planned or
-retired; and the seven native component types as color families mapped from
+regions when every label still fits at 14 px; every relation as a labeled
+connection, dashed when planned or retired; and the seven native component
+types as color families mapped from
 the kind categories, with `person` drawn as `external`, whose legend labels
 name the model kinds.
 

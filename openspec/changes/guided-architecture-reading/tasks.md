@@ -13,7 +13,7 @@
 ## 3. Media
 
 - [ ] 3.1 Implement poster composition from the grid layout with design tokens, bundled fonts and icons, outlined text, row bands, the boundary, legend, footnote, scale-up and frame admission; render PNG at 1800 and 6000 px.
-- [ ] 3.2 Implement the native Archify map with authored positions and routes, regions, color families, guided views and evidence cards; showcase delivery passes and Chromium measures primary labels of at least 14 CSS px.
+- [ ] 3.2 Implement the native Archify map with grid positions and sides, native routes, the boundary region, color families, guided views and evidence cards; showcase delivery passes and Chromium measures primary labels of at least 14 CSS px.
 
 ## 4. Delivery and commands
 

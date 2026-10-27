@@ -250,12 +250,16 @@ The interactive medium is one standalone HTML document produced by the
 vendored, unmodified Archify through `archify deliver architecture
 --quality showcase`. archpub writes the Archify document:
 
-- every component at the position and size the grid layout computed with
-  Archify's metrics, with its label, kind as tag and a short first detail as
-  sublabel;
-- tiers and the system boundary as regions;
-- relations as labeled connections whose `fromSide`, `toSide`, `via` points
-  and `labelAt` come from the channel routes, dashed when planned or retired;
+- every component of the model at the position and size the grid layout
+  computed with Archify's text metrics, with its label, kind as tag and its
+  first detail, shortened to fit, as sublabel; groups that cover every
+  component are the rows, otherwise rows follow the relations;
+- the system boundary as a region when the cards it needs still hold every
+  label at 14 px, otherwise Archify's external type alone marks outside
+  elements;
+- relations as labeled connections whose `fromSide` and `toSide` follow the
+  grid rows; Archify routes them, spreads their ports and places their labels
+  natively, and dashes planned or retired relations;
 - the seven native component types as color families mapped from the kind
   categories (`person` maps to `external`), with legend labels naming the
   model kinds;
@@ -267,9 +271,10 @@ vendored, unmodified Archify through `archify deliver architecture
 When `--repo` has an `origin` remote equal to the declared repository URL,
 components also carry up to three native source references that Archify
 verifies against the revision. Archify warnings or failed showcase checks
-refuse the build. The map's natural width is bounded so that Archify's own
-reader scaling renders primary labels at no less than 14 CSS px in a 1440 ×
-900 desktop viewport; Chromium measures this in the test suite. The custom
+refuse the build. The map is 1000 units wide and never wider than 1.54 times
+its height, below Archify's wide-canvas ratio, so the reader renders primary
+labels at 14.8 CSS px in a 1440 × 900 desktop viewport; Chromium measures this
+in the test suite. The custom
 renderer, routing, Inspect records, private-module coupling and font
 replacement are removed.
 
