@@ -1,21 +1,18 @@
 # Architecture Publisher Self Edition
 
-This source-owned package authors the first-party Architecture Publisher
-Edition. It accepts explicit, digest-bound product sources and prepares a Claim
-Model, Edition Project, refinement, and Build Request for the generic
-`architecture-publisher` package. It also emits a Source Bundle for a separate
-provenance audit; the direct Build Request selects model bytes, not that Bundle.
+[`model.json`](model.json) describes Architecture Publisher itself: the
+command line, the stages, the build steps, the grid layout and the two media.
+It pins one repository revision and records the SHA-256 digest of every source
+file it cites. Its three views are the overview, the grid layout and the media.
 
-Preparation returns the exact `buildRequest` path and `buildRequestSha256`.
-The portable `build-input/` directory contains the selected model, Edition
-project, data-only scene refinement, and request. Move it as a unit; the generic
-Core can build both media after this authoring package is removed.
+Build it from the repository root; `--repo` verifies each source at the pinned
+revision:
 
-It is a downstream consumer, not part of the generic kernel. It does not scan a
-repository, infer product intent, grant acceptance, authorize publication, or
-retain generated artifacts as source.
+```bash
+node packages/publisher/src/cli/main.mjs build editions/self/model.json --repo . --out build/runtime/work/self
+```
 
-The package owns the self-Edition's art direction, not a build engine.
-Preparation emits selected inputs; the generic build emits an unqualified
-Candidate. Neither grants human acceptance or publication. Historical self-only
-builders remain in signed releases, not in this package.
+The model is the only source. Posters, the map and the manifest are
+reproducible output and stay under the ignored `build/` tree. A revision cannot
+name the commit that contains it, so the model always describes an earlier
+commit; after the described code changes, pin a newer commit and its digests.

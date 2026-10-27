@@ -184,7 +184,12 @@ export async function buildDelivery(modelPath, out, options = {}) {
         archify: map.supplySha256,
       },
       views: prepared.views.map((view, index) => viewSummary(view, prepared.posters[index])),
-      map: { checks: map.receipt.checks, profile: map.receipt.profile },
+      map: {
+        checks: map.receipt.checks,
+        profile: map.receipt.profile,
+        crossings: map.receipt.crossings,
+        corridors: map.receipt.corridors,
+      },
       artifacts: await digestTree(staging),
     };
     await fs.writeFile(

@@ -1,0 +1,613 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 1,
+  "id": "architecture-publisher",
+  "title": "Architecture Publisher",
+  "question": "How does Architecture Publisher turn an architecture model into a poster and a map?",
+  "summary": "An editor runs archpub on a model or a LikeC4 workspace. One build validates the model, verifies its sources, plans the views, lays each out on one grid and writes posters, a native Archify map and a manifest of their digests.",
+  "attribution": "the Architecture Publisher maintainers",
+  "scope": "The publisher package and its vendored supplies; not the repository's quality tooling or CI",
+  "limits": [
+    "Curated from the selected modules at the pinned revision; relations describe calls between those modules, not every function"
+  ],
+  "repository": {
+    "name": "architecture-publisher",
+    "url": "https://github.com/HengYangDS/architecture-publisher",
+    "revision": "32347bbba631af429bc2330ee7d72f7e7584764f"
+  },
+  "kinds": {
+    "person": {
+      "label": "person",
+      "category": "person",
+      "icon": "user-pen"
+    },
+    "command": {
+      "label": "command line",
+      "category": "frontend",
+      "icon": "square-terminal"
+    },
+    "stage": {
+      "label": "stage",
+      "category": "backend",
+      "icon": "workflow"
+    },
+    "check": {
+      "label": "check",
+      "category": "security",
+      "icon": "shield-check"
+    },
+    "engine": {
+      "label": "layout engine",
+      "category": "backend",
+      "icon": "layout-grid"
+    },
+    "medium": {
+      "label": "medium",
+      "category": "frontend",
+      "icon": "image"
+    },
+    "supply": {
+      "label": "vendored supply",
+      "category": "database",
+      "icon": "package"
+    },
+    "repository": {
+      "label": "repository",
+      "category": "external",
+      "icon": "git-branch"
+    },
+    "store": {
+      "label": "delivery store",
+      "category": "external",
+      "icon": "folder-open"
+    }
+  },
+  "sources": {
+    "cli": {
+      "path": "packages/publisher/src/cli/run.mjs",
+      "sha256": "83d7532cd6df8218f9ea9b6f2ca230f77292d107fd7db12290842db5168887c6"
+    },
+    "build": {
+      "path": "packages/publisher/src/build.mjs",
+      "sha256": "c82a72ce0e8be628c8d2d3928a516d4f03a546ba25ef239e9c7633a6f433e334"
+    },
+    "delivery": {
+      "path": "packages/publisher/src/delivery.mjs",
+      "sha256": "7a49af550bebe3db08291c08f106f0a6545cce4b9f744fe7aa1c39711bbc76cb"
+    },
+    "importer": {
+      "path": "packages/publisher/src/importers/likec4.mjs",
+      "sha256": "5e31dd7edc3688caf1874da564c9777412c30142e9afa3206bc0a46d37385cb7"
+    },
+    "worker": {
+      "path": "packages/publisher/src/importers/likec4-worker.mjs",
+      "sha256": "4e39cdfc66d83610a526212c4a045f3b8c37905e2749aff73ea4c78206a2e921"
+    },
+    "model": {
+      "path": "packages/publisher/src/model/load.mjs",
+      "sha256": "ab9005f78f9822d6ad1a704f9e03da1480b19f9562097e1b345db750a2fe03b0"
+    },
+    "schema": {
+      "path": "packages/publisher/src/model/schema.json",
+      "sha256": "3d81a96c0f2e2dabd2729f905c53c46411e8b4ddbc6fbde76cdd646d48db643f"
+    },
+    "binding": {
+      "path": "packages/publisher/src/sources/bind.mjs",
+      "sha256": "1c684f3405587805b1ca8c617d69a182c4823b0c589f496a42e9a71cbc7ed7ab"
+    },
+    "plan": {
+      "path": "packages/publisher/src/plan/views.mjs",
+      "sha256": "b7b4045a083135313f4cf533c6a296854b29d6d144bdbe4567bada57d41f17fa"
+    },
+    "grid": {
+      "path": "packages/publisher/src/layout/grid.mjs",
+      "sha256": "f38d4adcde499d3f2eef665f9d099e00478248a03d6cbc3e2e8df2664f7e4be8"
+    },
+    "rows": {
+      "path": "packages/publisher/src/layout/rows.mjs",
+      "sha256": "d53878e9568723de9913aed249f427fa30c3c9c11aa2455933b2c9b4804de921"
+    },
+    "placement": {
+      "path": "packages/publisher/src/layout/placement.mjs",
+      "sha256": "1cc8ee8270451abbe8af4a6b227c03632237f33f77075ec2efdd641d4fa27cd9"
+    },
+    "channels": {
+      "path": "packages/publisher/src/layout/channels.mjs",
+      "sha256": "68a15380b7316d260fda5139af69cd5525826c36ba0a69ebd83a73dcb78d27ca"
+    },
+    "solver": {
+      "path": "packages/publisher/src/layout/channel-solver.mjs",
+      "sha256": "462570935e3a5432f29222a3a561ba82c4f6b811aba264c9e7a1c8fc2ee28ea7"
+    },
+    "measure": {
+      "path": "packages/publisher/src/layout/measure.mjs",
+      "sha256": "1a4ae88f241976c7481d83553939064e563e6d06c816b806a4b7a33258c13006"
+    },
+    "poster": {
+      "path": "packages/publisher/src/poster/compose.mjs",
+      "sha256": "676da8379e5c5ca1e9f60acbd837d32b835c8d00a9e9727f7d502499d5de5f05"
+    },
+    "tokens": {
+      "path": "packages/publisher/src/poster/tokens.mjs",
+      "sha256": "1880d37fdc3d9071c942614b2eac58efcbc546636fa1863f8220b3aa2b08207d"
+    },
+    "text": {
+      "path": "packages/publisher/src/poster/text.mjs",
+      "sha256": "23ea686a84749b3615128d500b8547acdf0f622b63a5fb1e115051180c97da8b"
+    },
+    "raster": {
+      "path": "packages/publisher/src/poster/raster.mjs",
+      "sha256": "66421627dc02fe17a02cf72bee771df67fa0346f6897d56d6c7af48fd935a5c6"
+    },
+    "map": {
+      "path": "packages/publisher/src/map/archify.mjs",
+      "sha256": "1926953b9899af06957dec4196f11f3b35ef8e68d60371a6dd803f3bf283fab2"
+    },
+    "kinds": {
+      "path": "packages/publisher/src/kinds.mjs",
+      "sha256": "01a5b48aab50173279ae719758edcb0d4dc4191c996049df55946155480246e9"
+    },
+    "icons": {
+      "path": "packages/publisher/src/icons.mjs",
+      "sha256": "7b1731c06a6d081203a6a157e166d4c8447bf0d88c5fb40486ce5ff56f482925"
+    },
+    "supply": {
+      "path": "packages/publisher/src/supply.mjs",
+      "sha256": "c47e5c55e3b98bfb664cea1af190c28d7b26abf952af5d27cf33cf1035947ea7"
+    }
+  },
+  "components": [
+    {
+      "id": "editor",
+      "label": "Editor",
+      "kind": "person",
+      "details": {
+        "writes": "the model"
+      }
+    },
+    {
+      "id": "cli",
+      "label": "archpub",
+      "kind": "command",
+      "sources": ["cli"]
+    },
+    {
+      "id": "importer",
+      "label": "LikeC4 importer",
+      "kind": "stage",
+      "details": {
+        "parses": "LikeC4 sources"
+      },
+      "sources": ["importer", "worker"]
+    },
+    {
+      "id": "builder",
+      "label": "Delivery builder",
+      "kind": "stage",
+      "details": {
+        "writes": "one delivery"
+      },
+      "sources": ["build"]
+    },
+    {
+      "id": "acceptance",
+      "label": "Publication",
+      "kind": "stage",
+      "details": {
+        "keeps": "accepted copies"
+      },
+      "sources": ["delivery"]
+    },
+    {
+      "id": "model",
+      "label": "Model loader",
+      "kind": "check",
+      "details": {
+        "refuses": "invalid fields"
+      },
+      "sources": ["model", "schema"]
+    },
+    {
+      "id": "binding",
+      "label": "Source binding",
+      "kind": "check",
+      "details": {
+        "reads": "Git at a revision"
+      },
+      "sources": ["binding"]
+    },
+    {
+      "id": "plan",
+      "label": "Reading plan",
+      "kind": "engine",
+      "details": {
+        "chooses": "the views"
+      },
+      "sources": ["plan"]
+    },
+    {
+      "id": "poster",
+      "label": "Poster composer",
+      "kind": "medium",
+      "details": {
+        "draws": "1800 × 1350 px"
+      },
+      "sources": ["poster", "tokens"]
+    },
+    {
+      "id": "map",
+      "label": "Archify map",
+      "kind": "medium",
+      "details": {
+        "delivers": "native Archify"
+      },
+      "sources": ["map"]
+    },
+    {
+      "id": "layout",
+      "label": "Grid layout",
+      "kind": "engine",
+      "details": {
+        "places": "equal cards"
+      },
+      "sources": ["grid"]
+    },
+    {
+      "id": "supplies",
+      "label": "Supplies",
+      "kind": "supply",
+      "details": {
+        "verified": "by digest"
+      },
+      "sources": ["supply"]
+    },
+    {
+      "id": "repository",
+      "label": "Repository",
+      "kind": "repository",
+      "details": {
+        "holds": "the source"
+      }
+    },
+    {
+      "id": "documents",
+      "label": "Documents",
+      "kind": "store",
+      "details": {
+        "keeps": "versions"
+      }
+    },
+    {
+      "id": "rows",
+      "label": "Rows",
+      "kind": "engine",
+      "details": {
+        "orders": "tiers or layers"
+      },
+      "sources": ["rows"]
+    },
+    {
+      "id": "placement",
+      "label": "Placement",
+      "kind": "engine",
+      "details": {
+        "solves": "positions exactly"
+      },
+      "sources": ["placement"]
+    },
+    {
+      "id": "wires",
+      "label": "Wires",
+      "kind": "engine",
+      "details": {
+        "forms": "buses and corridors"
+      },
+      "sources": ["channels"]
+    },
+    {
+      "id": "solver",
+      "label": "Channel solver",
+      "kind": "engine",
+      "details": {
+        "routes": "each channel"
+      },
+      "sources": ["solver"]
+    },
+    {
+      "id": "measure",
+      "label": "Neatness measure",
+      "kind": "check",
+      "details": {
+        "refuses": "any overlap"
+      },
+      "sources": ["measure"]
+    },
+    {
+      "id": "typefaces",
+      "label": "Typefaces",
+      "kind": "medium",
+      "details": {
+        "outlines": "Noto Sans CJK"
+      },
+      "sources": ["text"]
+    },
+    {
+      "id": "raster",
+      "label": "Raster",
+      "kind": "medium",
+      "details": {
+        "renders": "PNG"
+      },
+      "sources": ["raster"]
+    },
+    {
+      "id": "presentation",
+      "label": "Kinds and icons",
+      "kind": "medium",
+      "details": {
+        "maps": "kinds to icons"
+      },
+      "sources": ["kinds", "icons"]
+    }
+  ],
+  "relations": [
+    {
+      "id": "runs",
+      "from": "editor",
+      "to": "cli",
+      "label": "runs"
+    },
+    {
+      "id": "imports",
+      "from": "cli",
+      "to": "importer",
+      "label": "import likec4"
+    },
+    {
+      "id": "builds",
+      "from": "cli",
+      "to": "builder",
+      "label": "build, check"
+    },
+    {
+      "id": "accepts",
+      "from": "cli",
+      "to": "acceptance",
+      "label": "accept, publish"
+    },
+    {
+      "id": "validates",
+      "from": "importer",
+      "to": "model",
+      "label": "validates"
+    },
+    {
+      "id": "parses",
+      "from": "importer",
+      "to": "supplies",
+      "label": "parses with LikeC4"
+    },
+    {
+      "id": "loads",
+      "from": "builder",
+      "to": "model",
+      "label": "loads"
+    },
+    {
+      "id": "binds",
+      "from": "builder",
+      "to": "binding",
+      "label": "binds sources"
+    },
+    {
+      "id": "plans",
+      "from": "builder",
+      "to": "plan",
+      "label": "plans views"
+    },
+    {
+      "id": "composes",
+      "from": "builder",
+      "to": "poster",
+      "label": "composes posters"
+    },
+    {
+      "id": "maps",
+      "from": "builder",
+      "to": "map",
+      "label": "maps the model"
+    },
+    {
+      "id": "rasterizes",
+      "from": "builder",
+      "to": "raster",
+      "label": "rasterizes"
+    },
+    {
+      "id": "reads",
+      "from": "binding",
+      "to": "repository",
+      "label": "reads at the revision"
+    },
+    {
+      "id": "poster-layout",
+      "from": "poster",
+      "to": "layout",
+      "label": "lays out"
+    },
+    {
+      "id": "map-layout",
+      "from": "map",
+      "to": "layout",
+      "label": "lays out"
+    },
+    {
+      "id": "delivers",
+      "from": "map",
+      "to": "supplies",
+      "label": "runs Archify"
+    },
+    {
+      "id": "copies",
+      "from": "acceptance",
+      "to": "documents",
+      "label": "copies accepted deliveries"
+    },
+    {
+      "id": "builds-rows",
+      "from": "layout",
+      "to": "rows",
+      "label": "builds rows"
+    },
+    {
+      "id": "places",
+      "from": "layout",
+      "to": "placement",
+      "label": "places cards"
+    },
+    {
+      "id": "wires-up",
+      "from": "layout",
+      "to": "wires",
+      "label": "builds wires"
+    },
+    {
+      "id": "routes",
+      "from": "layout",
+      "to": "solver",
+      "label": "routes channels"
+    },
+    {
+      "id": "measures",
+      "from": "layout",
+      "to": "measure",
+      "label": "measures"
+    },
+    {
+      "id": "sets",
+      "from": "poster",
+      "to": "typefaces",
+      "label": "sets text"
+    },
+    {
+      "id": "styles",
+      "from": "poster",
+      "to": "presentation",
+      "label": "styles cards"
+    },
+    {
+      "id": "types",
+      "from": "map",
+      "to": "presentation",
+      "label": "types components"
+    },
+    {
+      "id": "fonts",
+      "from": "typefaces",
+      "to": "supplies",
+      "label": "loads fonts"
+    },
+    {
+      "id": "icons",
+      "from": "presentation",
+      "to": "supplies",
+      "label": "loads icons"
+    },
+    {
+      "id": "renders",
+      "from": "raster",
+      "to": "supplies",
+      "label": "renders with resvg"
+    }
+  ],
+  "views": [
+    {
+      "id": "overview",
+      "title": "Architecture Publisher",
+      "question": "How does Architecture Publisher turn an architecture model into a poster and a map?",
+      "tiers": [
+        {
+          "id": "people",
+          "label": "Editor",
+          "members": ["editor"]
+        },
+        {
+          "id": "commands",
+          "label": "Command line",
+          "members": ["cli"]
+        },
+        {
+          "id": "stages",
+          "label": "Stages",
+          "members": ["importer", "builder", "acceptance"]
+        },
+        {
+          "id": "steps",
+          "label": "Build steps",
+          "members": ["model", "binding", "plan", "poster", "map"]
+        },
+        {
+          "id": "foundations",
+          "label": "Foundations",
+          "members": ["layout", "supplies"]
+        },
+        {
+          "id": "outside",
+          "label": "Outside the package",
+          "members": ["repository", "documents"]
+        }
+      ]
+    },
+    {
+      "id": "layout",
+      "title": "Grid layout",
+      "question": "How does one layout serve both the poster and the map?",
+      "summary": "Rows come from tiers or relations. Placement solves card positions exactly, wires group relations into buses and corridors, and the channel solver routes each channel; the measure refuses any overlap.",
+      "tiers": [
+        {
+          "id": "media",
+          "label": "Media",
+          "members": ["poster", "map"]
+        },
+        {
+          "id": "grid",
+          "label": "Grid",
+          "members": ["layout"]
+        },
+        {
+          "id": "parts",
+          "label": "Mechanisms",
+          "members": ["rows", "placement", "wires", "solver", "measure"]
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "title": "Media",
+      "question": "What draws the poster and the map, and which supplies do they use?",
+      "summary": "The poster outlines its text with the bundled fonts and draws Lucide icons; resvg renders its PNG. The map hands grid positions to native Archify.",
+      "tiers": [
+        {
+          "id": "build",
+          "label": "Build",
+          "members": ["builder"]
+        },
+        {
+          "id": "media",
+          "label": "Media",
+          "members": ["poster", "map", "raster"]
+        },
+        {
+          "id": "parts",
+          "label": "Parts",
+          "members": ["typefaces", "presentation", "layout"]
+        },
+        {
+          "id": "supplies",
+          "label": "Supplies",
+          "members": ["supplies"]
+        }
+      ]
+    }
+  ]
+}

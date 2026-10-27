@@ -156,6 +156,21 @@ export function placeRows(input) {
     const cost = result.cost + WEIGHT.spareColumn * (columns - minimum);
     if (!best || cost < best.total) best = { ...result, total: cost };
   }
+  if (!best && cardWidth(input, minimum) >= input.card.minWidth) {
+    // The cards fit; only keeping outside components outside one boundary does not.
+    const mixed = rows.flatMap((members, row) =>
+      members.some(input.external) && members.some((id) => !input.external(id))
+        ? [{ code: "layout_boundary_unplaced", path: `/rows/${row}`, message: members.join(", ") }]
+        : [],
+    );
+    refuse(
+      "layout_boundary_unplaced",
+      "Outside components share rows with the system's own components, and one boundary around " +
+        `the system needs more columns than ${input.contentWidth} px holds. ` +
+        "Give the outside components their own tier or split the view.",
+      mixed,
+    );
+  }
   if (!best)
     refuse(
       "layout_row_too_wide",

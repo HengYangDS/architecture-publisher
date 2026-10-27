@@ -132,7 +132,8 @@ test("a six-way fan-out shares one bus and three-by-three calls cross only where
     ),
   );
   assertTidy(mesh);
-  assert.ok(mesh.measures.crossings >= 0);
+  // Two rows of three that all call each other cross at least C(3,2) × C(3,2) = 9 times.
+  assert.equal(mesh.measures.crossings, 9);
   assert.equal(mesh.labels.length, 9);
 });
 
@@ -173,6 +174,33 @@ test("a row of seven cards is refused with the row and its members", () => {
   assert.throws(
     () => layoutView(wholeView(validateModel(graphModel(6, [[1, 2]])), [ids(6)]), simpleMetrics()),
     { code: "layout_row_too_wide" },
+  );
+});
+
+test("three outside components beside one inside component cannot all stay outside one boundary", () => {
+  const model = graphModel(
+    8,
+    [
+      [1, 5],
+      [2, 6],
+      [3, 7],
+      [4, 8],
+    ],
+    {
+      kinds: { person: { label: "person", category: "person" }, service: { label: "service" } },
+      components: ids(8).map((id, index) => ({
+        id,
+        label: `Component ${index + 1}`,
+        kind: index < 3 ? "person" : "service",
+      })),
+    },
+  );
+  assert.throws(
+    () => layout(model, [ids(4), ids(4, 5)]),
+    (error) =>
+      error.code === "layout_boundary_unplaced" &&
+      error.problems.length === 1 &&
+      error.problems[0].path === "/rows/0",
   );
 });
 

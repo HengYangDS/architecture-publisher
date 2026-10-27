@@ -84,6 +84,47 @@ test("inside components share one region unless their labels need the full card 
   assert.equal(bank.components.find(({ id }) => id === "mainframe").type, "external");
 });
 
+test("map rows wider than five wrap, and a boundary the rows cannot keep clear is omitted", () => {
+  const fan = mapDocument(
+    validateModel(
+      graphModel(
+        7,
+        [2, 3, 4, 5, 6, 7].map((to) => [1, to, "notifies"]),
+      ),
+    ),
+    [],
+    none,
+  );
+  const rows = Map.groupBy(fan.components, ({ pos }) => pos[1]);
+  assert.deepEqual(
+    [...rows.values()].map((row) => row.length),
+    [1, 3, 3],
+  );
+  const ids = (count) => Array.from({ length: count }, (_, index) => `c${index + 1}`);
+  const outside = validateModel(
+    graphModel(
+      8,
+      [
+        [1, 5],
+        [2, 6],
+        [3, 7],
+        [4, 8],
+      ],
+      {
+        kinds: { person: { label: "person", category: "person" }, service: { label: "service" } },
+        components: ids(8).map((id, index) => ({
+          id,
+          label: `Component ${index + 1}`,
+          kind: index < 3 ? "person" : "service",
+        })),
+      },
+    ),
+  );
+  const document = mapDocument(outside, [], none);
+  assert.equal(document.boundaries, undefined);
+  assert.equal(document.components.filter(({ type }) => type === "external").length, 3);
+});
+
 test("ids become valid and unique, relation labels are shared and sublabels are shortened", () => {
   const model = validateModel(
     minimalModel({
@@ -192,6 +233,47 @@ test("native Archify delivers the map deterministically and removes its working 
     outputs.push(await fs.readFile(delivered.output));
   }
   assert.ok(outputs[0].equals(outputs[1]));
+});
+
+test("a relation that skips rows leaves its sides to Archify, which routes around the cards between", async (t) => {
+  const model = validateModel(
+    graphModel(4, [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [1, 4, "audits"],
+    ]),
+  );
+  const document = mapDocument(model, [], none);
+  assert.deepEqual(
+    document.connections.map(({ id, fromSide, toSide }) => [id, fromSide ?? null, toSide ?? null]),
+    [
+      ["r1", "bottom", "top"],
+      ["r2", "bottom", "top"],
+      ["r3", "bottom", "top"],
+      ["r4", null, null],
+    ],
+  );
+  const directory = await temporaryDirectory("archpub-map-");
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const { receipt } = await deliverMap(document, directory);
+  assert.deepEqual([receipt.profile, receipt.crossings, receipt.corridors], ["showcase", 0, 0]);
+});
+
+test("a dense many-to-many map is delivered at standard quality with its route findings", async (t) => {
+  // Three callers that each use the same three services: Archify merges some routes into corridors.
+  const model = validateModel(
+    graphModel(
+      6,
+      [1, 2, 3].flatMap((from) => [4, 5, 6].map((to) => [from, to])),
+    ),
+  );
+  const directory = await temporaryDirectory("archpub-map-");
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const { receipt } = await deliverMap(mapDocument(model, [], none), directory);
+  assert.equal(receipt.profile, "standard");
+  assert.ok(receipt.corridors > 0);
+  assert.deepEqual(await fs.readdir(directory), ["index.html"]);
 });
 
 test("documents Archify rejects are refused with its diagnostics", async (t) => {

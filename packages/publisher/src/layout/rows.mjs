@@ -31,6 +31,26 @@ export function viewRows(view) {
   }));
 }
 
+/**
+ * Split every row wider than `limit` into consecutive rows of near-equal size,
+ * for a medium that must show a whole model at a fixed width.
+ * @param {Row[]} rows
+ * @param {number} limit
+ * @returns {Row[]}
+ */
+export function wrapRows(rows, limit) {
+  return rows.flatMap((row) => {
+    const parts = Math.ceil(row.members.length / limit);
+    if (parts <= 1) return [row];
+    const size = Math.ceil(row.members.length / parts);
+    return Array.from({ length: parts }, (_, index) => ({
+      id: `${row.id}-${index + 1}`,
+      label: index ? null : row.label,
+      members: row.members.slice(index * size, (index + 1) * size),
+    }));
+  });
+}
+
 /** Relations that close a cycle, found by depth-first search in member order. */
 function backRelations(members, relations) {
   const out = new Map(members.map((id) => [id, []]));

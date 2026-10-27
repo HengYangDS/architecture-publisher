@@ -4,6 +4,7 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { refuse } from "../refusal.mjs";
 import { layoutView } from "../layout/grid.mjs";
+import { viewRows, wrapRows } from "../layout/rows.mjs";
 import { presentation } from "../kinds.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -21,6 +22,8 @@ export const MAP_WIDTH = 1000;
 /** Archify narrows canvases at or above this width-to-height ratio, which would shrink the labels. */
 const WIDE_RATIO = 1.54;
 const MARGIN = 40;
+/** The most cards one map row holds at the minimum card width in the map's content width. */
+const MAP_ROW_LIMIT = 5;
 /** Room Archify needs below the content for its legend row. */
 const LEGEND_BAND = 110;
 const LABEL_FONT = 11;
@@ -73,23 +76,28 @@ function sublabel(component, width) {
   return `${text} …`;
 }
 
-/** The whole model as one view: groups become rows when they cover every component. */
+/**
+ * The whole model as one view: groups become rows when they cover every
+ * component, and rows wider than the map wrap onto further rows.
+ */
 function mapView(model) {
   const grouped = new Set(model.groups.flatMap(({ members }) => members));
-  const tiers =
-    model.groups.length && model.components.every(({ id }) => grouped.has(id))
-      ? model.groups.map(({ id, label, members }) => ({ id, label, members }))
-      : null;
-  return {
+  const view = {
     id: "map",
     title: model.title,
     question: model.question,
     summary: model.summary,
     origin: /** @type {const} */ ("complete"),
-    tiers,
+    tiers:
+      model.groups.length && model.components.every(({ id }) => grouped.has(id))
+        ? model.groups.map(({ id, label, members }) => ({ id, label, members }))
+        : null,
     components: model.components,
     relations: model.relations,
   };
+  const rows = wrapRows(viewRows(view), MAP_ROW_LIMIT);
+  // Map rows carry no labels: the reader shows groups through guided views instead.
+  return { ...view, tiers: rows.map(({ id, members }) => ({ id, label: "", members })) };
 }
 
 function mapMetrics(model, bounded) {
@@ -190,8 +198,16 @@ export function mapDocument(model, views, binding) {
     );
   // The system boundary can need spare columns; when its narrower cards cannot hold every label at
   // 14 px, the map omits the boundary and relies on Archify's external type instead.
-  let layout = layoutView(view, mapMetrics(model, true), name);
-  if (!fits(layout)) layout = layoutView(view, mapMetrics(model, false), name);
+  const bounded = () => {
+    try {
+      return layoutView(view, mapMetrics(model, true), name);
+    } catch (error) {
+      if (/** @type {any} */ (error).code !== "layout_boundary_unplaced") throw error;
+      return null;
+    }
+  };
+  const first = bounded();
+  const layout = first && fits(first) ? first : layoutView(view, mapMetrics(model, false), name);
   const width = layout.card.width;
   const tooLong = model.components.filter(
     ({ label }) => textUnits(label) * LABEL_FONT * WIDTH_FACTOR > width - TEXT_PADDING,
@@ -258,8 +274,8 @@ export function mapDocument(model, views, binding) {
       ...(relation.status === "planned" || relation.status === "retired"
         ? { variant: "dashed" }
         : {}),
-      fromSide: sides[0],
-      toSide: sides[1],
+      // Archify plans its own sides for a relation that skips rows; it routes around the cards between.
+      ...(Math.abs(a - b) > 1 ? {} : { fromSide: sides[0], toSide: sides[1] }),
     };
   });
   const internal = model.components.filter((component) => !presentation(model, component).outside);
@@ -319,17 +335,21 @@ export function mapDocument(model, views, binding) {
 }
 
 /**
- * Deliver the document through the vendored Archify CLI at showcase quality.
- * Any error, warning or failed check refuses the build.
- * @param {any} document
- * @param {string} directory a staging directory that receives `map.json` and `index.html`
+ * The Archify warnings a standard-quality map may carry, by manifest name: routes
+ * that cross, and routes that share a corridor, which the reader separates by
+ * focusing a relation. Any finding about text or labels refuses the map.
  */
-export async function deliverMap(document, directory) {
-  const supply = await verifySupply("archify");
-  const input = path.join(directory, "map.json");
-  const output = path.join(directory, "index.html");
-  await fs.writeFile(input, `${JSON.stringify(document, null, 2)}\n`);
-  let receipt;
+const ROUTE_FINDINGS = Object.freeze({
+  crossings: "composition/proper-crossing",
+  corridors: "composition/ambiguous-corridor",
+});
+
+/**
+ * One Archify delivery gated at one quality profile. The document keeps the
+ * showcase profile, so Archify repairs label placement either way. Returns the
+ * receipt and its route findings when the gate accepts it, or the refusal detail.
+ */
+async function deliverAt(supply, input, output, profile) {
   try {
     const { stdout } = await run(
       process.execPath,
@@ -340,7 +360,7 @@ export async function deliverMap(document, directory) {
         input,
         output,
         "--quality",
-        "showcase",
+        profile,
         "--json",
       ],
       {
@@ -349,29 +369,58 @@ export async function deliverMap(document, directory) {
         timeout: 300_000,
       },
     );
-    receipt = JSON.parse(stdout);
+    const receipt = JSON.parse(stdout);
+    const validation = receipt.validation ?? {};
+    const warnings = (validation.compositionIssues ?? []).filter(
+      ({ severity }) => severity === "warning",
+    );
+    const count = (code) => warnings.filter((issue) => issue.code === code).length;
+    const findings = {
+      crossings: count(ROUTE_FINDINGS.crossings),
+      corridors: count(ROUTE_FINDINGS.corridors),
+    };
+    const allowed = profile === "showcase" ? 0 : findings.crossings + findings.corridors;
+    if (
+      receipt.ok &&
+      !validation.errors &&
+      validation.compositionStatus === "pass" &&
+      (validation.warnings ?? 0) === allowed
+    )
+      return { receipt, findings };
+    const codes = [...new Set(warnings.map(({ code }) => code))].join(", ");
+    return {
+      detail: `Archify reported ${validation.errors ?? "?"} errors and ${validation.warnings ?? "?"} warnings${codes ? ` (${codes})` : ""}.`,
+    };
   } catch (error) {
     const failure = /** @type {any} */ (error);
     let detail = String(failure.stdout ?? "").slice(0, 4000) || String(failure.message);
     try {
       const parsed = JSON.parse(failure.stdout);
-      detail = JSON.stringify(parsed.diagnostics ?? parsed.validation ?? parsed).slice(0, 4000);
+      detail = JSON.stringify(parsed.diagnostics ?? parsed.error ?? parsed).slice(0, 4000);
     } catch {
       // The raw output is the diagnostic.
     }
-    refuse("map_refused", `Archify did not deliver the map: ${detail}`);
+    return { detail };
   }
-  const validation = receipt.validation ?? {};
-  if (
-    !receipt.ok ||
-    validation.errors ||
-    validation.warnings ||
-    validation.compositionStatus !== "pass"
-  )
-    refuse(
-      "map_refused",
-      `Archify reported ${validation.errors ?? "?"} errors and ${validation.warnings ?? "?"} warnings.`,
-    );
+}
+
+/**
+ * Deliver the document through the vendored Archify CLI at showcase quality.
+ * A map whose routes must cross or share corridors is delivered at standard
+ * quality instead, only when those are Archify's sole findings, and their counts
+ * are recorded. Any other error or warning refuses the build.
+ * @param {any} document
+ * @param {string} directory a staging directory that receives `map.json` and `index.html`
+ */
+export async function deliverMap(document, directory) {
+  const supply = await verifySupply("archify");
+  const input = path.join(directory, "map.json");
+  const output = path.join(directory, "index.html");
+  await fs.writeFile(input, `${JSON.stringify(document, null, 2)}\n`);
+  let result = await deliverAt(supply, input, output, "showcase");
+  if (!result.receipt) result = await deliverAt(supply, input, output, "standard");
+  if (!result.receipt) refuse("map_refused", `Archify did not deliver the map: ${result.detail}`);
+  const validation = result.receipt.validation;
   // The specification and Archify's receipt (with its random id and staging paths) stay out of the delivery.
   await fs.rm(input);
   await fs.rm(path.join(directory, "index.delivery.json"), { force: true });
@@ -381,7 +430,8 @@ export async function deliverMap(document, directory) {
     receipt: {
       checks: validation.checkCount,
       profile: validation.compositionProfile,
-      artifact: receipt.artifact,
+      ...result.findings,
+      artifact: result.receipt.artifact,
     },
   };
 }

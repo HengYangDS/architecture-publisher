@@ -43,6 +43,7 @@ test("a delivery holds every poster, the map and a manifest of their digests", a
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
   assert.equal(manifest.views[0].poster.crossings, 0);
+  assert.deepEqual(manifest.map, { checks: 9, profile: "showcase", crossings: 0, corridors: 0 });
   assert.equal(built.artifacts, 7);
   const second = path.join(root, "second");
   await buildDelivery(BIG_BANK_MODEL, second);
