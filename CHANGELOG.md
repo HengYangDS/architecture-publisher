@@ -35,8 +35,8 @@ remain pre-release contracts and may contain incompatible changes.
 - Refresh the locked development and CI supply: Node 26.12.1, npm 12.2.1, OpenSpec 1.15.0, Knip 6.43.0, Pixi 0.83.0
   and Mise 2026.10.19. The remaining development-tool advisories keep their explicit trusted-input,
   isolated-execution and disabled-install-script acceptance.
-- Admit the observed Linux ARM64 Raster witness for Rust 1.99.0 and `wasm-bindgen` 0.2.129 after two relocated frozen
-  builds and canonical behavior comparison. Packaged renderer bytes remain unchanged.
+- Admit the observed macOS, Linux and Windows ARM64 Raster witnesses for Rust 1.99.1 and `wasm-bindgen` 0.2.129 after
+  two relocated frozen builds and canonical behavior comparison. Packaged renderer bytes remain unchanged.
 
 ### Removed
 
