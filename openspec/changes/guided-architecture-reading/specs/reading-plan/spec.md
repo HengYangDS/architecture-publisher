@@ -7,7 +7,7 @@ only posters that fit their frame at the reading floor.
 
 ### Requirement: Explicit views
 
-A model SHALL declare at most five views. Each view SHALL name either ordered
+A model SHALL declare at most four views, the diagrams one page holds. Each view SHALL name either ordered
 tiers, which are group ids or inline groups drawn as rows in that order, or
 members, which are component ids whose rows follow their relations. Each view
 SHALL produce one poster and one panel of the explainer page. Groups SHALL be drawn
@@ -20,8 +20,8 @@ as rows only when a view names them as tiers.
 
 #### Scenario: Too many views
 
-- **WHEN** a model declares six views
-- **THEN** the build refuses and states the five-view limit
+- **WHEN** a model declares five views
+- **THEN** the build refuses and states the four-view limit
 
 ### Requirement: Rows from relations
 
@@ -79,15 +79,15 @@ When the automatic single view is not admitted and the model has groups, the
 plan SHALL be an overview with one node per group and one aggregated relation
 per ordered group pair, followed by one view per group containing its members
 and their direct neighbors. When the model has no groups, or this plan exceeds
-five views, the build SHALL refuse with the measured size, or with the layout's
+four views, the build SHALL refuse with the measured size, or with the layout's
 problems when the full view cannot be laid out, and the remedy.
 
 #### Scenario: A large grouped model
 
-- **WHEN** a model without views has four groups and its full view is not
+- **WHEN** a model without views has three groups and its full view is not
   admitted
-- **THEN** the plan has an overview of four group nodes followed by four group
-  views
+- **THEN** the plan has an overview of three group nodes followed by three
+  group views
 
 #### Scenario: A full view that cannot be wired
 

@@ -65,7 +65,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   const out = path.join(root, "delivery");
   assert.match(
     (await runCli(["build", model, "--out", out])).output,
-    /^Built 1 views and the map into /u,
+    /^Built 1 views and the page into /u,
   );
   const accepted = await json(["accept", out, "--reviewer", "Reviewer", "--note", "fine"]);
   assert.equal(accepted.body.reviewer, "Reviewer");

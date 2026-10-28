@@ -3,8 +3,9 @@
 Architecture Publisher draws the architecture of any repository from an
 explicit model. Describe the components, the relations between them and the
 files that support them in one JSON model, or import a LikeC4 workspace, and
-`archpub` builds a poster for each view, one interactive map of the whole model
-and a manifest that binds every byte to its inputs.
+`archpub` builds posters of its views, one interactive page that answers the
+model's question view by view, and a manifest that binds every byte to its
+inputs.
 
 ## Quick start
 
@@ -45,19 +46,23 @@ A minimal model:
 ```
 
 The [model reference](docs/reference/model.md) describes every field: kinds and
-their icons, details, statuses, sources, groups and up to five views.
+their icons, details, statuses, sources, groups and up to four views.
 
 ## What a delivery contains
 
-- **Posters:** one per view, as SVG and as PNG at 1800 and 6000 px. Each is 1800
-  × at most 1350 px with no text below 14 px: title, question, summary, the
-  figure, a one-line legend and a footnote with the scope and source revision.
-- **Map:** `index.html`, a standalone native Archify document of every component
-  and relation, with one guided view per poster and evidence cards listing each
-  detail, status and source digest.
+- **Posters:** 16:9 pages of 2400 × 1350 px, each holding one to three views,
+  as SVG and as PNG at 2400 and 6000 px, with no text below 14 px: title,
+  question, summary, the figures, one legend and notes with the scope and
+  source revision. Each page is composed so that its figure fills it.
+- **Page:** `index.html`, a standalone native Archify explainer that answers the
+  model's question with one panel per view: the view's diagram, which opens
+  Archify's full viewer, and steps that light each component and cite its
+  source at the pinned revision.
 - **Manifest:** `manifest.json`, the digest of the model, every source, every
-  bundled supply and every artifact. Building the same model with the same
-  version reproduces every byte.
+  bundled supply and every artifact, each page's measures, each diagram's route
+  measures and the details, statuses and sources of every component and
+  relation. Building the same model with the same version reproduces every
+  byte.
 
 Layout is a grid: cards of one size on shared row lines, wires that are only
 horizontal or vertical, and no shared segment, wire through a card or touching

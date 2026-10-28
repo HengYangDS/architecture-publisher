@@ -9,8 +9,9 @@ specific to the projects that exercised it rather than to repositories in
 general.
 
 The product must draw the architecture of any repository from an explicit
-model: a poster a reader understands at a glance, an interactive map for
-exploration, and a manifest that binds both to exact repository content.
+model: posters a reader understands at a glance, an interactive page that
+answers the model's question view by view, and a manifest that binds both to
+exact repository content.
 
 ## What Changes
 
@@ -19,7 +20,7 @@ exploration, and a manifest that binds both to exact repository content.
   and optional groups, kinds and views. The model is authored by an agent or a
   person, or imported from LikeC4.
 - **BREAKING** Replace selection, scene programs, layout candidates and the
-  Candidate with a Reading Plan: at most five views per model, chosen
+  Candidate with a Reading Plan: at most four views per model, chosen
   explicitly or derived automatically, each admitted only when its poster
   passes the composition gates in one 2400 × 1350 px (16:9) format with no
   text below 14 px.

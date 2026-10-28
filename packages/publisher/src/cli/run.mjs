@@ -51,7 +51,7 @@ const COMMANDS = {
       buildDelivery(one(positionals, "model"), required(options, "out"), {
         repo: options.repo ?? null,
       }),
-    text: (result) => `Built ${result.views.length} views and the map into ${result.out}.\n`,
+    text: (result) => `Built ${result.views.length} views and the page into ${result.out}.\n`,
   },
   check: {
     options: ["repo"],

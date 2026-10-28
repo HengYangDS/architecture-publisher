@@ -167,7 +167,13 @@ test("groups may not overlap or reuse component ids", () => {
   ]);
 });
 
-test("views declare tiers or members, at most five", () => {
+test("views declare tiers or members, at most four", () => {
+  const plain = (count) =>
+    minimalModel({
+      views: Array.from({ length: count }, (_, index) => ({ id: `v${index}`, members: ["a"] })),
+    });
+  assert.equal(validateModel(plain(4)).views.length, 4);
+  assert.deepEqual(problemsOf(plain(5)), ["model_views_exceeded /views"]);
   const groups = [{ id: "g", label: "G", members: ["a", "b"] }];
   const problems = problemsOf(
     minimalModel({

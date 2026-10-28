@@ -142,14 +142,15 @@ test("planning refuses oversized views it cannot split", async () => {
   await assert.rejects(planViews(validateModel(minimalModel()), tooTall), {
     code: "plan_requires_structure",
   });
-  const groups = Array.from({ length: 5 }, (_, index) => ({
+  // An overview and four group views are one view more than a page holds.
+  const groups = Array.from({ length: 4 }, (_, index) => ({
     id: `g${index}`,
     label: `G${index}`,
     members: [`c${index + 1}`],
   }));
   await assert.rejects(
     planViews(validateModel(graphModel(5, [[1, 2]], { groups })), tooTall),
-    (error) => error.code === "plan_views_exceeded" && /exceeds 5 views/u.test(error.message),
+    (error) => error.code === "plan_views_exceeded" && /exceeds 4 views/u.test(error.message),
   );
   await assert.rejects(
     planViews(validateModel(minimalModel({ views: [{ id: "v", members: ["a", "b"] }] })), tooTall),

@@ -4,7 +4,8 @@ import { refuse } from "../refusal.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
 export const MODEL_VERSION = 1;
-export const MAXIMUM_VIEWS = 5;
+/** An Archify explainer page holds at most four native diagrams, one per view. */
+export const MAXIMUM_VIEWS = 4;
 const STATUSES = Object.freeze(["implemented", "planned", "retired"]);
 export const CATEGORIES = Object.freeze([
   "person",

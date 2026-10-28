@@ -21,13 +21,14 @@ async function workspace(t) {
 
 const readJson = async (file) => JSON.parse(await fs.readFile(file, "utf8"));
 
-test("a delivery holds every poster, the map and a manifest of their digests", async (t) => {
+test("a delivery holds every poster, the page and a manifest of their digests", async (t) => {
   const root = await workspace(t);
   const out = path.join(root, "first");
   const built = await buildDelivery(BIG_BANK_MODEL, out);
   assert.deepEqual(built.views, ["containers-tiers", "containers-automatic"]);
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
+  assert.equal(manifest.version, 3);
   assert.equal(manifest.model.id, "big-bank");
   assert.equal(manifest.sources.state, "none");
   assert.deepEqual(Object.keys(manifest.supplies), ["fonts", "icons", "resvg", "archify"]);
@@ -46,7 +47,21 @@ test("a delivery holds every poster, the map and a manifest of their digests", a
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
   assert.equal(manifest.views[0].poster, manifest.posters[0].id);
   for (const poster of manifest.posters) assert.equal(poster.measures.crossings, 0, poster.id);
-  assert.deepEqual(manifest.map, { checks: 9, profile: "showcase", crossings: 0, corridors: 0 });
+  assert.equal(manifest.page.quality, "showcase");
+  assert.deepEqual(
+    manifest.page.diagrams.map(({ view }) => view),
+    ["containers-tiers", "containers-automatic"],
+  );
+  for (const diagram of manifest.page.diagrams) {
+    assert.ok(["grid", "archify"].includes(diagram.sides), diagram.view);
+    assert.equal(diagram.metrics.corridors, 0, diagram.view);
+  }
+  assert.deepEqual(manifest.page.withheld, []);
+  // The evidence the drawings leave out stays in the manifest.
+  const customer = manifest.evidence.components.find(({ id }) => id === "customer");
+  assert.equal(customer.kind, "person");
+  assert.equal(typeof customer.details, "object");
+  assert.equal(manifest.evidence.relations.length, 10);
   assert.equal(built.artifacts, 7);
   const second = path.join(root, "second");
   await buildDelivery(BIG_BANK_MODEL, second);
@@ -71,10 +86,10 @@ test("check reports the plan without writing and invalid models leave no partial
   assert.deepEqual(await fs.readdir(root), []);
 });
 
-test("a checkout whose origin is the model's repository links the map to its sources", async (t) => {
-  const { root: checkout, git, revision } = await repository(t);
+test("sources verified against the checkout are cited on the page at the model's revision", async (t) => {
+  // The checkout has no origin remote: the page names the declared URL and revision.
+  const { root: checkout, revision } = await repository(t);
   const url = "https://example.invalid/fixture.git";
-  git("remote", "add", "origin", url);
   const { components } = pageModel();
   const model = await writeModel(
     pageModel({
@@ -89,10 +104,13 @@ test("a checkout whose origin is the model's repository links the map to its sou
   await buildDelivery(model, out, { repo: checkout });
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.sources.state, "verified");
-  assert.equal(manifest.map.profile, "showcase");
-  const map = await fs.readFile(path.join(out, "index.html"), "utf8");
-  assert.ok(map.includes('[{"path":"src/main.mjs"}]'));
-  assert.ok(map.includes('"linkMode":"local-only"'));
+  assert.equal(manifest.page.quality, "showcase");
+  assert.deepEqual(manifest.evidence.components[0].sources, ["main"]);
+  const page = await fs.readFile(path.join(out, "index.html"), "utf8");
+  assert.ok(page.includes(`"repository":{"url":"${url}","revision":"${revision}"}`));
+  assert.ok(
+    page.includes('"sources":[{"id":"source-main","title":"src/main.mjs","path":"src/main.mjs"}'),
+  );
 });
 
 test("acceptance and publication require an unchanged delivery", async (t) => {

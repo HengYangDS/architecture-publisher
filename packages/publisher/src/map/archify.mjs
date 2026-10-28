@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { refuse } from "../refusal.mjs";
@@ -11,23 +12,34 @@ import { verifySupply } from "../supply.mjs";
 const run = promisify(execFile);
 
 /**
- * The interactive map: one native Archify architecture document of the whole
- * model. Positions, sizes and connection sides come from the grid layout with
- * Archify's own text metrics; Archify routes the connections and places their
- * labels itself.
+ * The view diagrams of the interactive page: one native Archify architecture
+ * document per view. Positions, sizes and connection sides come from the grid
+ * layout with Archify's own text metrics; Archify routes the connections,
+ * places their labels and measures every candidate's routes itself.
  */
 
-/** Natural width of the map; Archify's reader renders its 11-unit labels at 14.8 CSS px at 1440 × 900. */
-export const MAP_WIDTH = 1000;
-/** Archify narrows canvases at or above this width-to-height ratio, which would shrink the labels. */
+/**
+ * Widths a view diagram is laid out at. At 1440 × 900 an explainer panel draws
+ * a diagram up to about 1200 px wide and enlarges it at most 1.25 times, so a
+ * diagram up to 960 wide that spans its panel sets its 11-unit labels at
+ * 13.75 px; beside its steps, Archify draws it no narrower than its 9-unit
+ * sublabels allow, which keeps those labels at 13.29 px or more.
+ */
+export const DIAGRAM_WIDTHS = Object.freeze([960, 840, 720]);
+/** Row limits a view's rows are wrapped at; five cards fit the widest diagram at the minimum card width. */
+const ROW_LIMITS = Object.freeze([5, 4, 3]);
+/** Archify narrows a reader canvas at or above this width-to-height ratio, which would shrink its labels. */
 const WIDE_RATIO = 1.54;
+/** The shapes a diagram should take, width over height, and the narrowest it may take. */
+const SHAPE = Object.freeze({ low: 1, high: 1.8, least: 0.7 });
+/** The stretch Archify suggests a route stay within: its length over the distance it spans. */
+const STRETCH = 1.35;
 const MARGIN = 40;
-/** The most cards one map row holds at the minimum card width in the map's content width. */
-const MAP_ROW_LIMIT = 5;
-/** Grid refusals the map answers by omitting the boundary, and then by refusing the map. */
-const MAP_LAYOUT_REFUSALS = new Set([
+/** Grid refusals a candidate answers by omitting the boundary, and then by giving way to another candidate. */
+const LAYOUT_REFUSALS = new Set([
   "layout_boundary_unplaced",
   "layout_channel_unroutable",
+  "layout_row_too_wide",
   "layout_untidy",
 ]);
 /** Room Archify needs below the content for its legend row. */
@@ -36,6 +48,9 @@ const LABEL_FONT = 11;
 const SUBLABEL_FONT = 9;
 const WIDTH_FACTOR = 0.6;
 const TEXT_PADDING = 8;
+const CARD = Object.freeze({ minWidth: 120, maxWidth: 200 });
+/** Candidates Archify measures at once. */
+const CONCURRENCY = 4;
 const TYPES = Object.freeze({
   person: "external",
   external: "external",
@@ -46,14 +61,14 @@ const TYPES = Object.freeze({
   messagebus: "messagebus",
   security: "security",
 });
-const FULLWIDTH = /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]/u;
+const FULLWIDTH = /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]/u;
 
 /** Archify's text units: one per character, two for full-width characters. */
 export const textUnits = (text) =>
   Array.from(String(text)).reduce((sum, character) => sum + (FULLWIDTH.test(character) ? 2 : 1), 0);
 
-/** Model ids made valid Archify ids, unique and stable for one model. */
-function archifyIds(ids) {
+/** Ids made valid Archify ids, unique and stable for one list. */
+export function archifyIds(ids) {
   const taken = new Set();
   const out = new Map();
   for (const id of ids) {
@@ -82,40 +97,24 @@ function sublabel(component, width) {
   return `${text} …`;
 }
 
-/**
- * The whole model as one view: groups become rows when they cover every
- * component, and group rows wider than the map wrap onto further rows.
- * Otherwise rows derive from the relations at the map's own row limit.
- */
-function mapView(model) {
-  const grouped = new Set(model.groups.flatMap(({ members }) => members));
-  const view = {
-    id: "map",
-    title: model.title,
-    question: model.question,
-    summary: model.summary,
-    origin: /** @type {const} */ ("complete"),
-    tiers:
-      model.groups.length && model.components.every(({ id }) => grouped.has(id))
-        ? model.groups.map(({ id, label, members }) => ({ id, label, members }))
-        : null,
-    components: model.components,
-    relations: model.relations,
-  };
-  const outside = (id) =>
-    presentation(
-      model,
-      /** @type {any} */ (model.components.find((component) => component.id === id)),
-    ).outside;
-  const rows = wrapRows(viewRows(view, MAP_ROW_LIMIT, outside), MAP_ROW_LIMIT);
-  // Map rows carry no labels: the reader shows groups through guided views instead.
-  return { ...view, tiers: rows.map(({ id, members }) => ({ id, label: "", members })) };
-}
+/** The card width a label needs at Archify's 11-unit size. */
+const labelWidth = (label) =>
+  Math.ceil(textUnits(label) * LABEL_FONT * WIDTH_FACTOR + TEXT_PADDING);
 
-function mapMetrics(model, bounded) {
+/**
+ * The grid metrics of a view's diagram. Cards are at least as wide as the
+ * view's longest label needs, so the grid gives up a spare column before it
+ * narrows a card below its label.
+ */
+function diagramMetrics(model, view, bounded, width) {
+  const widest = Math.max(...view.components.map(({ label }) => labelWidth(label)));
   return {
-    contentWidth: () => MAP_WIDTH - 2 * MARGIN,
-    card: { minWidth: 120, maxWidth: 200, height: () => 64 },
+    contentWidth: () => width - 2 * MARGIN,
+    card: {
+      minWidth: Math.min(CARD.maxWidth, Math.max(CARD.minWidth, widest)),
+      maxWidth: CARD.maxWidth,
+      height: () => 64,
+    },
     label: (relation) => ({
       width: Math.max(30, textUnits(relation.label) * 4.8 + 10) + 8,
       height: 18,
@@ -145,154 +144,71 @@ function mapMetrics(model, bounded) {
   };
 }
 
-function evidenceCards(model, binding) {
-  const detail = (details) =>
-    details.map(([name, values]) => `${name}: ${values.join(", ")}`).join("; ");
-  const status = (item) => (item.status ? ` [${item.status}]` : "");
-  const sources = new Map(binding.records.map((record) => [record.id, record]));
-  const cited = (ids) =>
-    ids.length ? ` Sources: ${ids.map((id) => sources.get(id)?.path ?? id).join(", ")}.` : "";
-  const describe = (record) => {
-    const digest = record.sha256 ?? record.declaredSha256;
-    return `${record.id}: ${record.path}${digest ? ` sha256 ${digest}` : ""} (${record.state})`;
-  };
-  return [
-    { dot: "cyan", title: "Question", items: [model.question, model.summary].filter(Boolean) },
-    {
-      dot: "slate",
-      title: "Scope, limits and attribution",
-      items: [
-        model.scope,
-        ...model.limits,
-        model.attribution ? `Model by ${model.attribution}.` : null,
-      ].filter(Boolean),
-    },
-    {
-      dot: "emerald",
-      title: "Components",
-      items: model.components.map(
-        (c) =>
-          `${c.label} (${c.id})${status(c)}${c.details.length ? `: ${detail(c.details)}.` : "."}${cited(c.sources)}`,
-      ),
-    },
-    {
-      dot: "violet",
-      title: "Relations",
-      items: model.relations.map(
-        (r) =>
-          `${r.id}: ${r.from} ${r.label} ${r.to}${status(r)}${r.details.length ? `; ${detail(r.details)}` : ""}.${cited(r.sources)}`,
-      ),
-    },
-    ...(binding.records.length
-      ? [
-          {
-            dot: /** @type {const} */ ("amber"),
-            title: "Sources",
-            items: binding.records.map(describe),
-          },
-        ]
-      : []),
-  ];
+/**
+ * One candidate layout of a view at one width and row wrapping. The system
+ * boundary can need spare columns; when its cards would be narrower than the
+ * labels need or its rows cannot be wired, the candidate omits the boundary and
+ * relies on Archify's external type instead. Returns the layout, or the refusal
+ * that ruled the candidate out.
+ */
+function candidateLayout(model, view, width) {
+  const name = { boundaryName: model.repository?.name ?? model.title };
+  // Without an outside component there is no boundary to omit.
+  const outside = view.components.some((component) => presentation(model, component).outside);
+  /** @type {any} */
+  let refusal = null;
+  for (const bounded of outside ? [true, false] : [false]) {
+    try {
+      return { layout: layoutView(view, diagramMetrics(model, view, bounded, width), name) };
+    } catch (error) {
+      const failure = /** @type {any} */ (error);
+      if (!LAYOUT_REFUSALS.has(failure.code)) throw error;
+      refusal ??= failure;
+    }
+  }
+  return { refusal };
 }
 
 /**
- * Build the Archify document for a model and its planned views.
- * @param {any} model
- * @param {import("../plan/views.mjs").View[]} views
- * @param {{ state: string, records: any[], origin?: boolean }} binding
+ * The view as one Archify document from a candidate layout. Relations between
+ * neighbors in a row are straight arrows only where the grid drew one, and a
+ * relation that skips rows or passes cards in its row names no sides, so
+ * Archify routes it around the cards between.
  */
-export function mapDocument(model, views, binding) {
-  const view = mapView(model);
-  const name = { boundaryName: model.repository?.name ?? model.title };
-  const fits = (candidate) =>
-    model.components.every(
-      ({ label }) =>
-        textUnits(label) * LABEL_FONT * WIDTH_FACTOR <= candidate.card.width - TEXT_PADDING,
-    );
-  // The system boundary can need spare columns; when its narrower cards cannot hold every label at
-  // 14 px or its rows cannot be wired, the map omits the boundary and relies on Archify's external
-  // type instead. The map draws the whole model, so a layout it cannot wire refuses the map itself.
-  const bounded = () => {
-    try {
-      return layoutView(view, mapMetrics(model, true), name);
-    } catch (error) {
-      if (!MAP_LAYOUT_REFUSALS.has(/** @type {any} */ (error).code)) throw error;
-      return null;
-    }
-  };
-  const unbounded = () => {
-    try {
-      return layoutView(view, mapMetrics(model, false), name);
-    } catch (error) {
-      const { code, problems } = /** @type {any} */ (error);
-      if (!MAP_LAYOUT_REFUSALS.has(code)) throw error;
-      return refuse(
-        "map_layout_refused",
-        "The map cannot draw every relation of the model without overlaps at its 14 px floor. " +
-          "Group the components so that related ones share adjacent rows, or shorten the relation labels concerned.",
-        problems,
-      );
-    }
-  };
-  const first = bounded();
-  const layout = first && fits(first) ? first : unbounded();
-  const width = layout.card.width;
-  const tooLong = model.components.filter(
-    ({ label }) => textUnits(label) * LABEL_FONT * WIDTH_FACTOR > width - TEXT_PADDING,
-  );
-  if (tooLong.length)
-    refuse(
-      "map_label_too_long",
-      `Some component labels do not fit a ${width}-unit map card at 14 px. Shorten them or reduce the widest row.`,
-      tooLong.map(({ id, label }) => ({
-        code: "map_label_too_long",
-        path: `/components/${id}`,
-        message: label,
-      })),
-    );
-  const ids = archifyIds(model.components.map(({ id }) => id));
-  const relationIds = archifyIds(model.relations.map(({ id }) => id));
+function diagramDocument(model, view, layout, width) {
+  const ids = archifyIds(view.components.map(({ id }) => id));
+  const relationIds = archifyIds(view.relations.map(({ id }) => id));
   const rowOf = new Map(layout.rows.flatMap((row, index) => row.members.map((id) => [id, index])));
   const kinds = new Map();
-  const components = model.components.map((component) => {
+  const cardWidth = layout.card.width;
+  const components = view.components.map((component) => {
     const card = /** @type {any} */ (layout.cards.get(component.id));
     const style = presentation(model, component);
     const type = TYPES[/** @type {keyof typeof TYPES} */ (style.category)];
     kinds.set(type, [...new Set([...(kinds.get(type) ?? []), style.label])]);
-    const text = sublabel(component, width);
-    const references = binding.origin
-      ? component.sources
-          .slice(0, 3)
-          .map((id) => ({ path: model.sources.find((source) => source.id === id).path }))
-      : [];
+    const text = sublabel(component, cardWidth);
     return {
       id: ids.get(component.id),
       type,
       label: component.label,
       ...(text ? { sublabel: text } : {}),
-      tag: style.label,
-      ...(references.length ? { sources: references } : {}),
       pos: [Math.round(card.x + MARGIN), Math.round(card.y + MARGIN)],
-      size: [width, card.height],
+      size: [cardWidth, card.height],
     };
   });
   const labelled = new Set();
-  // A relation between neighbors in a row is a straight arrow only where the grid drew one;
-  // otherwise it runs below its row, or above the last row, as the grid's U wire does.
   const straight = new Set(
     layout.arrows
       .filter(({ direction }) => direction === "left" || direction === "right")
       .flatMap(({ relations }) => relations.map(({ id }) => id)),
   );
   const rowCount = layout.rows.length;
-  // Archify plans its own sides for a relation that skips rows or passes cards in its row; it
-  // routes around the cards between.
   const passes = (row, from, to) =>
     layout.rows[row].members.some((id) => {
       const { x } = /** @type {{ x: number }} */ (layout.cards.get(id));
       return x > Math.min(from.x, to.x) && x < Math.max(from.x, to.x);
     });
-  const connections = model.relations.map((relation) => {
+  const connections = view.relations.map((relation) => {
     const [a, b] = [rowOf.get(relation.from), rowOf.get(relation.to)];
     const [from, to] = [relation.from, relation.to].map(
       (id) => /** @type {{ x: number }} */ (layout.cards.get(id)),
@@ -326,164 +242,286 @@ export function mapDocument(model, views, binding) {
         : { fromSide: sides[0], toSide: sides[1] }),
     };
   });
-  const internal = model.components.filter((component) => !presentation(model, component).outside);
+  const internal = view.components.filter((component) => !presentation(model, component).outside);
   const entries = Object.fromEntries(
     [...kinds].map(([type, labels]) => [type, { label: labels.join(" / ").slice(0, 80) }]),
   );
+  const natural = Math.ceil(layout.height + MARGIN + LEGEND_BAND);
   return {
-    schema_version: 1,
-    diagram_type: "architecture",
-    meta: {
-      title: model.title,
-      output: "index.html",
-      quality_profile: "showcase",
-      viewBox: [
-        MAP_WIDTH,
-        Math.max(
-          Math.ceil(layout.height + MARGIN + LEGEND_BAND),
-          Math.ceil(MAP_WIDTH / WIDE_RATIO),
-        ),
-      ],
-      legend: { entries },
-      ...(binding.origin && model.repository
+    nodes: ids,
+    height: natural,
+    document: {
+      schema_version: 1,
+      diagram_type: "architecture",
+      meta: {
+        title: view.title,
+        output: `${archifyIds([view.id]).get(view.id)}.html`,
+        quality_profile: "showcase",
+        viewBox: [width, Math.max(natural, Math.ceil(width / WIDE_RATIO))],
+        legend: { entries },
+      },
+      components,
+      ...(layout.boundary && internal.length
         ? {
-            repository: {
-              url: model.repository.url,
-              revision: model.repository.revision,
-              link_mode: "local-only",
-            },
+            boundaries: [
+              {
+                kind: "region",
+                label: layout.boundary.name,
+                wraps: internal.map(({ id }) => ids.get(id)),
+              },
+            ],
           }
         : {}),
-      views: views
-        .map((planned) => ({
-          id: archifyIds([planned.id]).get(planned.id),
-          label: (planned.title === model.title ? planned.question : planned.title).slice(0, 48),
-          focus: planned.components
-            .filter((component) => ids.has(component.id))
-            .map((component) => ids.get(component.id)),
-          note: planned.question.slice(0, 140),
-        }))
-        .filter((planned) => planned.focus.length),
+      connections,
     },
-    components,
-    ...(layout.boundary && internal.length
-      ? {
-          boundaries: [
-            {
-              kind: "region",
-              label: layout.boundary.name,
-              wraps: internal.map(({ id }) => ids.get(id)),
-            },
-          ],
-        }
-      : {}),
-    connections,
-    cards: evidenceCards(model, binding),
   };
 }
 
 /**
- * The Archify warnings a standard-quality map may carry, by manifest name: routes
- * that cross, and routes that share a corridor, which the reader separates by
- * focusing a relation. Any finding about text or labels refuses the map.
+ * Every candidate diagram of a view: each width with each row wrapping, the
+ * widest first. A label longer than the widest card refuses the view; a
+ * candidate the grid cannot lay out is left out, and when none remains, the
+ * first refusal is the view's.
  */
-const ROUTE_FINDINGS = Object.freeze({
-  crossings: "composition/proper-crossing",
-  corridors: "composition/ambiguous-corridor",
-});
+export function diagramCandidates(model, view) {
+  const long = view.components.filter(({ label }) => labelWidth(label) > CARD.maxWidth);
+  if (long.length)
+    refuse(
+      "map_label_too_long",
+      `View ${view.id}: some component labels are longer than the widest diagram card, ` +
+        `${CARD.maxWidth} units at Archify's label size. Shorten them.`,
+      long.map(({ id, label }) => ({
+        code: "map_label_too_long",
+        path: `/components/${id}`,
+        message: label,
+      })),
+    );
+  const component = new Map(view.components.map((item) => [item.id, item]));
+  const outside = (id) => presentation(model, /** @type {any} */ (component.get(id))).outside;
+  const seen = new Set();
+  const out = [];
+  /** @type {any} */
+  let refusal = null;
+  for (const width of DIAGRAM_WIDTHS)
+    for (const limit of ROW_LIMITS) {
+      const rows = wrapRows(viewRows(view, limit, outside), limit);
+      const key = JSON.stringify([width, rows.map(({ members }) => members)]);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const tiered = {
+        ...view,
+        // Diagram rows carry no labels: the panel's steps name the components instead.
+        tiers: rows.map(({ id, members }) => ({ id, label: "", members })),
+      };
+      const made = candidateLayout(model, tiered, width);
+      if (!made.layout) {
+        refusal ??= made.refusal;
+        continue;
+      }
+      const diagram = diagramDocument(model, view, made.layout, width);
+      out.push({ width, rows: rows.map(({ members }) => members.length), ...diagram });
+    }
+  if (out.length) return out;
+  return refuse(
+    "map_layout_refused",
+    `View ${view.id} cannot be drawn in a diagram without overlaps at its 14 px floor. ` +
+      "Group the components so that related ones share adjacent rows, or shorten the relation labels concerned.",
+    refusal.problems ?? [],
+  );
+}
 
 /**
- * One Archify delivery gated at one quality profile. The document keeps the
- * showcase profile, so Archify repairs label placement either way. Returns the
- * receipt and its route findings when the gate accepts it, or the refusal detail.
- * A document with native source references names the checkout Archify verifies
- * them in.
+ * Run the vendored Archify CLI and return its JSON answer, also when it exits
+ * with a refusal.
+ * @param {string[]} args
  */
-async function deliverAt(supply, input, output, profile, repoRoot) {
+export async function runArchify(args) {
+  const supply = await verifySupply("archify");
   try {
     const { stdout } = await run(
       process.execPath,
-      [
-        path.join(supply.root, "bin", "archify.mjs"),
-        "deliver",
-        "architecture",
-        input,
-        output,
-        "--quality",
-        profile,
-        ...(repoRoot ? ["--repo-root", repoRoot] : []),
-        "--json",
-      ],
+      [path.join(supply.root, "bin", "archify.mjs"), ...args],
       {
         env: { ...process.env, ARCHIFY_UPDATE_CHECK_DISABLED: "1" },
         maxBuffer: 16 * 1024 * 1024,
         timeout: 300_000,
       },
     );
-    const receipt = JSON.parse(stdout);
-    const validation = receipt.validation ?? {};
-    const warnings = (validation.compositionIssues ?? []).filter(
-      ({ severity }) => severity === "warning",
-    );
-    const count = (code) => warnings.filter((issue) => issue.code === code).length;
-    const findings = {
-      crossings: count(ROUTE_FINDINGS.crossings),
-      corridors: count(ROUTE_FINDINGS.corridors),
-    };
-    const allowed = profile === "showcase" ? 0 : findings.crossings + findings.corridors;
-    if (
-      receipt.ok &&
-      !validation.errors &&
-      validation.compositionStatus === "pass" &&
-      (validation.warnings ?? 0) === allowed
-    )
-      return { receipt, findings };
-    const codes = [...new Set(warnings.map(({ code }) => code))].join(", ");
-    return {
-      detail: `Archify reported ${validation.errors ?? "?"} errors and ${validation.warnings ?? "?"} warnings${codes ? ` (${codes})` : ""}.`,
-    };
+    return { supply, answer: JSON.parse(stdout) };
   } catch (error) {
     const failure = /** @type {any} */ (error);
-    let detail = String(failure.stdout ?? "").slice(0, 4000) || String(failure.message);
     try {
-      const parsed = JSON.parse(failure.stdout);
-      detail = JSON.stringify(parsed.diagnostics ?? parsed.error ?? parsed).slice(0, 4000);
+      return { supply, answer: JSON.parse(failure.stdout) };
     } catch {
-      // The raw output is the diagnostic.
+      return {
+        supply,
+        answer: {
+          ok: false,
+          diagnostics: [
+            { code: "archify_failed", message: String(failure.message).slice(0, 4000) },
+          ],
+        },
+      };
     }
-    return { detail };
   }
 }
 
-/**
- * Deliver the document through the vendored Archify CLI at showcase quality.
- * A map whose routes must cross or share corridors is delivered at standard
- * quality instead, only when those are Archify's sole findings, and their counts
- * are recorded. Any other error or warning refuses the build.
- * @param {any} document
- * @param {string} directory a staging directory that receives `map.json` and `index.html`
- * @param {string | null} [repoRoot] the checkout whose origin matched, for native source references
- */
-export async function deliverMap(document, directory, repoRoot = null) {
-  const supply = await verifySupply("archify");
-  const input = path.join(directory, "map.json");
-  const output = path.join(directory, "index.html");
-  await fs.writeFile(input, `${JSON.stringify(document, null, 2)}\n`);
-  let result = await deliverAt(supply, input, output, "showcase", repoRoot);
-  if (!result.receipt) result = await deliverAt(supply, input, output, "standard", repoRoot);
-  if (!result.receipt) refuse("map_refused", `Archify did not deliver the map: ${result.detail}`);
-  const validation = result.receipt.validation;
-  // The specification and Archify's receipt (with its random id and staging paths) stay out of the delivery.
-  await fs.rm(input);
-  await fs.rm(path.join(directory, "index.delivery.json"), { force: true });
+/** Archify's showcase verdict and route metrics for one candidate document. */
+async function measure(file) {
+  const { answer } = await runArchify([
+    "validate",
+    "architecture",
+    file,
+    "--json",
+    "--quality",
+    "showcase",
+  ]);
+  const composition = answer.composition ?? {};
+  const metrics = composition.metrics ?? {};
   return {
-    output,
-    supplySha256: supply.sha256,
-    receipt: {
-      checks: validation.checkCount,
-      profile: validation.compositionProfile,
-      ...result.findings,
-      artifact: result.receipt.artifact,
+    passes:
+      answer.ok === true &&
+      (answer.checks ?? []).every(({ ok }) => ok) &&
+      composition.status === "pass" &&
+      !composition.summary?.errors &&
+      !composition.summary?.warnings,
+    diagnostics: answer.diagnostics ?? composition.issues ?? [],
+    metrics: {
+      crossings: (metrics.properCrossings ?? 0) + (metrics.resolvedCrossovers ?? 0),
+      routesOverTwoBends: metrics.routesOverSuggestedBends ?? 0,
+      maxBends: metrics.maxBends ?? 0,
+      maxStretch: metrics.maxStretch ?? 1,
+      corridors: metrics.ambiguousCorridors ?? 0,
     },
   };
+}
+
+/** How far a shape lies outside the band a diagram should take; Infinity below the narrowest it may take. */
+function shapeDistance(width, height) {
+  const ratio = width / height;
+  if (ratio < SHAPE.least) return Infinity;
+  return Math.max(0, SHAPE.low - ratio, ratio - SHAPE.high);
+}
+
+/**
+ * The document with every connection side left to Archify, which plans the
+ * sides of all connections together and can order ports that a side fixed by
+ * the grid would cross.
+ */
+function archifySides(document) {
+  return {
+    ...document,
+    connections: document.connections.map((connection) =>
+      Object.fromEntries(
+        Object.entries(connection).filter(([key]) => key !== "fromSide" && key !== "toSide"),
+      ),
+    ),
+  };
+}
+
+/** Measure documents on Archify's routes, a few at a time, in a directory of the caller's. */
+async function measureAll(documents, directory, offset) {
+  const measured = new Array(documents.length);
+  let next = 0;
+  const worker = async () => {
+    while (next < documents.length) {
+      const index = next++;
+      const file = path.join(directory, `${offset + index}.architecture.json`);
+      await fs.writeFile(file, `${JSON.stringify(documents[index], null, 2)}\n`);
+      measured[index] = await measure(file);
+    }
+  };
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+  return measured;
+}
+
+const rank = ({ metrics, width, height, index }) => [
+  metrics.crossings,
+  metrics.routesOverTwoBends,
+  Math.max(0, metrics.maxStretch - STRETCH),
+  shapeDistance(width, height),
+  index,
+];
+
+/** The best of the measured candidates that pass, or none. */
+function best(measured) {
+  const [first] = measured
+    .filter(({ passes }) => passes)
+    .sort((a, b) => {
+      const [x, y] = [rank(a), rank(b)];
+      const at = x.findIndex((value, position) => value !== y[position]);
+      return at < 0 ? 0 : x[at] - y[at];
+    });
+  return first ?? null;
+}
+
+/**
+ * Lay out a view's candidate diagrams, measure each on Archify's own routes and
+ * choose: among those that pass Archify's showcase checks, the fewest
+ * crossings, then the fewest routes over two bends, then the least stretch
+ * above 1.35, then the shape nearest 1.0 to 1.8 times as wide as high. The
+ * candidates keep the grid's connection sides; when none of them is free of
+ * crossings and routes over two bends, each is measured again with every side
+ * left to Archify, and the choice is made from both. A view with no candidate
+ * inside the shape bounds, or none that passes, is refused.
+ */
+export async function chooseDiagram(model, view) {
+  const candidates = diagramCandidates(model, view).filter(
+    ({ width, height }) => shapeDistance(width, height) !== Infinity,
+  );
+  if (!candidates.length)
+    refuse(
+      "map_shape_refused",
+      `View ${view.id} has no diagram at least ${SHAPE.least} times as wide as it is high. ` +
+        "Split the view or declare fewer tiers.",
+    );
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-diagrams-"));
+  try {
+    const sided = (
+      await measureAll(
+        candidates.map(({ document }) => document),
+        directory,
+        0,
+      )
+    ).map((result, index) => ({ ...candidates[index], ...result, sides: "grid", index }));
+    let chosen = best(sided);
+    let measured = sided;
+    if (!chosen || chosen.metrics.crossings > 0 || chosen.metrics.routesOverTwoBends > 0) {
+      const documents = candidates.map(({ document }) => archifySides(document));
+      const freed = (await measureAll(documents, directory, candidates.length)).map(
+        (result, index) => ({
+          ...candidates[index],
+          document: documents[index],
+          ...result,
+          sides: "archify",
+          index: candidates.length + index,
+        }),
+      );
+      measured = [...sided, ...freed];
+      chosen = best(measured);
+    }
+    if (!chosen)
+      return refuse(
+        "map_refused",
+        `View ${view.id} has no diagram that passes Archify's showcase checks.`,
+        sided[0].diagnostics.slice(0, 20).map((issue) => ({
+          code: String(issue.code ?? "archify"),
+          path: `/views/${view.id}`,
+          message: String(issue.message ?? "").slice(0, 400),
+        })),
+      );
+    return {
+      view: view.id,
+      nodes: chosen.nodes,
+      document: chosen.document,
+      width: chosen.width,
+      height: chosen.document.meta.viewBox[1],
+      rows: chosen.rows,
+      sides: chosen.sides,
+      metrics: chosen.metrics,
+      candidates: measured.length,
+    };
+  } finally {
+    await fs.rm(directory, { recursive: true, force: true });
+  }
 }

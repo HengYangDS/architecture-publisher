@@ -35,8 +35,8 @@ both digests.
 ### Requirement: Unverified sources are disclosed
 
 Without a repository checkout, the publisher SHALL record every source as
-declared and unverified, and every poster footnote and the map's evidence card
-SHALL state that sources were not verified.
+declared and unverified, and every poster footnote SHALL state that sources
+were not verified.
 
 #### Scenario: A build without a checkout
 

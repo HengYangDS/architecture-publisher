@@ -16,7 +16,7 @@ identities, and SHALL be kept outside the core package.
 ### Requirement: The core distribution is domain-neutral
 
 The `architecture-publisher` package and `archpub` command SHALL depend only on
-the generic model, source-binding, reading-plan, poster, map and delivery
+the generic model, source-binding, reading-plan, poster, page and delivery
 contracts. A concrete repository or Edition MAY be developed in the same
 monorepo, but SHALL be a model outside the core package and SHALL NOT be
 included in or required by it.

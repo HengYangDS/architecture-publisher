@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { loadIcons } from "./icons.mjs";
-import { deliverMap, mapDocument } from "./map/archify.mjs";
+import { deliverExplainer, explainerPage } from "./map/explainer.mjs";
 import { loadModel } from "./model/load.mjs";
 import { planViews } from "./plan/views.mjs";
 import { admitsView, composePosters } from "./poster/compose.mjs";
@@ -10,11 +10,11 @@ import { rasterize } from "./poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { POSTER } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
-import { bindSources, matchingOrigin } from "./sources/bind.mjs";
+import { bindSources } from "./sources/bind.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 2;
+const DELIVERY_VERSION = 3;
 /** The poster's own width and a large print width; the first is the default PNG. */
 const PNG_WIDTHS = Object.freeze([POSTER.width, 6000]);
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -65,17 +65,15 @@ async function prepare(modelPath, options = {}) {
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
   requireGlyphs(typefaces, drawnTexts(model));
-  const repo = options.repo ?? null;
-  const binding = bindSources(model, repo);
-  const origin = repo ? matchingOrigin(model, repo) !== null : false;
+  const binding = bindSources(model, options.repo ?? null);
   const views = await planViews(model, async (view) =>
     admitsView(model, view, typefaces, icons, binding),
   );
   // Pages are composed for the edition as a whole: a sparse view shares a page
   // with its neighbour, so a poster is a page, not a view.
   const posters = composePosters(model, views, typefaces, icons, binding);
-  const map = mapDocument(model, views, { ...binding, origin });
-  return { loaded, model, binding, origin, views, posters, map, icons, typefaces };
+  const page = await explainerPage(model, views);
+  return { loaded, model, binding, views, posters, page, icons, typefaces };
 }
 
 function viewSummary(view, posters) {
@@ -89,6 +87,45 @@ function viewSummary(view, posters) {
     components: view.components.map(({ id }) => id),
     relations: view.relations.map(({ id }) => id),
     poster: page >= 0 ? posters[page].view : null,
+  };
+}
+
+/** One view's diagram on the interactive page: its shape and Archify's route measures. */
+function diagramSummary(diagram) {
+  return {
+    view: diagram.view,
+    rows: diagram.rows,
+    width: diagram.width,
+    height: diagram.height,
+    sides: diagram.sides,
+    candidates: diagram.candidates,
+    metrics: diagram.metrics,
+  };
+}
+
+/**
+ * The evidence behind every component and relation, which the delivery keeps
+ * out of its drawings: details, statuses and the sources each one cites.
+ * @param {any} model
+ */
+function evidenceOf(model) {
+  const element = (item) => ({
+    id: item.id,
+    label: item.label,
+    ...(item.status ? { status: item.status } : {}),
+    details: Object.fromEntries(item.details),
+    sources: item.sources,
+  });
+  return {
+    components: model.components.map((component) => ({
+      ...element(component),
+      kind: component.kind,
+    })),
+    relations: model.relations.map((relation) => ({
+      ...element(relation),
+      from: relation.from,
+      to: relation.to,
+    })),
   };
 }
 
@@ -114,6 +151,7 @@ export async function checkModel(modelPath, options = {}) {
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
     views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
     posters: prepared.posters.map(posterSummary),
+    diagrams: prepared.page.diagrams.map(diagramSummary),
   };
 }
 
@@ -171,11 +209,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
         );
       }
     }
-    const map = await deliverMap(
-      prepared.map,
-      staging,
-      prepared.origin ? path.resolve(/** @type {string} */ (options.repo)) : null,
-    );
+    const page = await deliverExplainer(prepared.page, staging);
     const [fonts, resvg] = await Promise.all([verifySupply("fonts"), verifySupply("resvg")]);
     const manifest = {
       format: DELIVERY_FORMAT,
@@ -193,16 +227,17 @@ export async function buildDelivery(modelPath, out, options = {}) {
         fonts: fonts.sha256,
         icons: prepared.icons.supplySha256,
         resvg: resvg.sha256,
-        archify: map.supplySha256,
+        archify: page.supplySha256,
       },
       views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
       posters: prepared.posters.map(posterSummary),
-      map: {
-        checks: map.receipt.checks,
-        profile: map.receipt.profile,
-        crossings: map.receipt.crossings,
-        corridors: map.receipt.corridors,
+      page: {
+        quality: page.receipt.quality,
+        gates: page.receipt.gates,
+        diagrams: prepared.page.diagrams.map(diagramSummary),
+        withheld: prepared.page.withheld,
       },
+      evidence: evidenceOf(prepared.model),
       artifacts: await digestTree(staging),
     };
     await fs.writeFile(

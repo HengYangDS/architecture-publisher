@@ -1,7 +1,7 @@
 {
   "name": "architecture-publisher",
   "version": "0.4.0",
-  "description": "Publish a repository's architecture model as a poster and an interactive map",
+  "description": "Publish a repository's architecture model as posters and an interactive page",
   "type": "module",
   "bin": {
     "archpub": "src/cli/main.mjs"

@@ -19,7 +19,7 @@ SHALL NOT infer components or relations from repository contents.
   id and a label, and relations with an id, endpoints and a label
 - **THEN** the build succeeds with default kinds, statuses and views
 - **AND** every declared component and relation appears in the poster and the
-  map
+  page
 
 #### Scenario: No model is supplied
 
@@ -60,8 +60,7 @@ and its own route.
 
 - **WHEN** a relation declares the detail `state: desired client bindings`
 - **THEN** the poster prints it beside that relation
-- **AND** the map's evidence card and the manifest record it for that
-  relation id
+- **AND** the manifest's evidence records it for that relation id
 
 #### Scenario: Fan-out relations share a label
 
@@ -125,7 +124,7 @@ location and SHALL NOT drop one silently.
 - **WHEN** a LikeC4 workspace with nested elements, relationships and one view
   is imported and then built
 - **THEN** the model validates and the build produces that view's poster and
-  map
+  panel
 
 #### Scenario: A view that shows a parent
 

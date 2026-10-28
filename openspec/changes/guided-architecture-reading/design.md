@@ -18,8 +18,8 @@ starts from what a reader needs and what the user decided:
   so that its figure fills the page; large systems use an overview plus
   mechanism views.
 - The interactive medium is an Archify explainer page; primary labels read at
-  13.75 px in its previews and 14 px or more in the full viewer, and relation
-  labels keep Archify's native size.
+  13.25 px or more in its previews and 14 px or more in the full viewer, and
+  relation labels keep Archify's native size.
 - Boxes of one view share one size and align on one grid; the user rejected
   the ELK composition because its boxes differed in size and height.
 - Deliver AIGW, self and ETHOS media, the Documents delivery and a signed
@@ -116,14 +116,14 @@ footnote says so.
 
 Content digests, not remote names, are the identity anchor: none of the three
 current repositories has an `origin` remote, and a checkout's working tree may
-differ from the revision. Archify's native repository evidence requires an
-`origin` that matches the declared URL; archpub uses it only when that is true
-(decision 10) and never fabricates a remote to satisfy it.
+differ from the revision. The page cites a source at the declared repository
+URL and revision (decision 10) without reading a remote; Archify's own
+repository evidence, which requires an `origin`, is not used.
 
 ### 5. Reading Plan and rows
 
-A view is a poster and a panel of the page. A model declares at most five
-views. Each view has an
+A view is a poster and a panel of the page. A model declares at most four
+views, the diagrams one Archify explainer page holds. Each view has an
 `id`, an optional `title`, `question` and `summary`, and either:
 
 - `tiers`: ordered group ids, or inline groups, drawn as rows in that order,
@@ -150,7 +150,7 @@ Without declared views, the plan is derived deterministically:
 2. otherwise, when the model has groups: an overview with one node per group
    and one aggregated relation per ordered group pair, followed by one view per
    group with its members and their direct neighbors as context;
-3. otherwise, or when more than five views would result, a refusal that names
+3. otherwise, or when more than four views would result, a refusal that names
    the measured size and asks for groups or views.
 
 Admission composes the poster once and measures it (decision 8). Nothing is
@@ -398,7 +398,7 @@ and a kind may name any Lucide icon; an unknown name is a validation problem.
 
 The interactive medium is one Archify explainer page, chosen by the user on
 2026-10-28, produced by the vendored, unmodified Archify 3.2.0 through
-`archify deliver explainer` from a draft and one architecture document per
+`archify finalize explainer` from a draft and one architecture document per
 view that archpub writes. It replaces the single full-model map.
 
 Archify was measured before this choice. Its schema accepts `meta.views`, but
@@ -413,23 +413,53 @@ The explainer page answers the model's question:
 
 - the page title is the model's question, its conclusion the model's summary
   and its scope the model's scope, limits and attribution;
-- each view is a panel titled with the view's question, in the plan's order,
-  with the view's native architecture diagram, which opens Archify's full
-  interactive viewer, and steps that light each component with its first
-  detail;
-- when the model declares a repository, each component's first source is a
-  numbered page source pinned to its revision; digests and verification
-  states stay in the manifest.
+- each view is a panel titled with the view's question, or its title when it
+  asks the model's own question, in the plan's order, with the view's native
+  architecture diagram, which opens Archify's full interactive viewer, and
+  steps that light each component with its first detail;
+- when the model declares a repository URL and revision, each component's
+  first source is a numbered page source linked to the file at that revision;
+  digests and verification states stay in the manifest.
+
+An explainer page holds at most four diagrams, so a model declares at most
+four views (decision 5). A page has one quality profile: every diagram is
+checked at showcase quality, and a view that cannot pass refuses the build
+rather than lowering the whole page.
 
 Each view diagram is laid out by the grid engine with Archify's text metrics
-for a finite set of candidates, each a row wrapping and a content width.
-Archify computes every candidate's routes (`validate --layout-json`), and
-archpub takes the candidate with the fewest crossings, then the fewest routes
-over two bends, then the least stretch above 1.35, then the shape closest to
-1.0 to 1.8 times as wide as high. The chosen diagram passes Archify's showcase
-checks, or the view is refused with Archify's findings. In-page previews are
-enlarged at most 1.25 times by Archify, so primary labels read at 13.75 px
-there and at 14 px or more in the full viewer.
+for a finite set of candidates: the plan's rows wrapped at five, four and
+three cards, at content widths of 960, 840 and 720 px, which a preview
+spanning its panel at 1440 px shows at Archify's full 1.25 times enlargement.
+A card is at least as wide as the view's longest label needs, so the grid gives
+up a spare column rather than narrow a card below its label. Archify validates
+every candidate at showcase quality and measures its routes; among the
+candidates that pass, archpub takes the fewest crossings, then the fewest
+routes over two bends, then the least stretch above 1.35, then the shape
+closest to 1.0 to 1.8 times as wide as high. The candidates keep the grid's
+connection sides; when none of them is free of crossings and routes over two
+bends, each is measured again with every side left to Archify, which plans all
+sides together, and the choice is made from both: on Big Bank's tiered view
+this reduced eight crossings to one. A view without a candidate that passes is
+refused with Archify's findings.
+
+A preview that spans its panel sets primary labels at 13.75 px. A preview
+beside its steps is drawn no narrower than lets its smallest text, the 9-unit
+sublabel, reach Archify's reading floor, three quarters of the page's 14.5 px
+body text at a 1440 px viewport, which sets primary labels at 13.29 px or
+more. The full viewer draws them at 14 px or more.
+
+Components carry no kind tag. Archify's 7 px tag text would sit below that
+reading floor at any enlargement a panel allows, and Archify would mark the
+preview with its notice that the diagram cannot fit the page with readable
+text; the legend names the kinds by their colour instead.
+
+Archify will not cite a source in a sensitive file class, such as a path with
+a `secrets` segment. Such a source is withheld from the page and recorded as
+withheld in the manifest, and a component that cites it cites its next source.
+
+The draft and the diagram documents are written into a fixed-name directory
+inside the staged delivery, because the page records their location relative
+to itself, and are removed with Archify's receipts once the page is written.
 
 A single full-model map was rejected because a large model cannot be both
 complete and readable in one diagram, and because its reading order was lost.
@@ -439,14 +469,17 @@ rule.
 ### 11. Deterministic delivery and minimal trust
 
 `archpub build <model> --out <dir>` writes, into a directory that must not
-exist, `<view>.svg`, `<view>.png`, `<view>-6000.png` for each view,
-`index.html` and `manifest.json`. Output is staged and moved into place, so a
+exist, an SVG and PNGs at 2400 and 6000 px for each poster page, named after
+its views, `index.html` and `manifest.json`. Output is staged and moved into place, so a
 failed build leaves nothing behind. The manifest records the model digest, the
 archpub version, the digests of the font, icon, resvg and Archify supplies,
-the plan, each view's neatness measurements, every artifact digest and every
-source record. It has no timestamps; rebuilding the same model with the same
-version reproduces every byte. `archpub check` runs validation, binding,
-planning, layout and admission without writing.
+the plan, each poster's composition and gate measurements, the page's quality
+and gates, each view diagram's Archify metrics, the sources the page withholds,
+every artifact digest and source record, and the details, statuses and sources
+of every component and relation. It has no timestamps; rebuilding the same
+model with the same version reproduces every byte. `archpub check` runs
+validation, binding, planning, admission and the page's Archify checks, and
+writes only to a temporary directory that it removes.
 
 `archpub accept <dir> --reviewer <name>` verifies every artifact against the
 manifest and writes `acceptance.json` with the reviewer, an optional note and
@@ -495,14 +528,16 @@ pinned revisions as an overview plus mechanism views.
 
 Tests cover model validation, source binding, the plan and automatic rows,
 placement and channel routing, the neatness measurements, layout determinism,
-poster admission, the Archify mapping, the CLI and the LikeC4 import.
+poster admission, the page's diagrams and draft, the CLI and the LikeC4
+import.
 End-to-end journeys build the converted AIGW model; the C4 Big Bank example
 with tiers and without them; models with a cycle, a relation skipping rows, a
 six-way bus, three components each calling the same three others, and CJK
 labels; and models that must be refused for a seven-card row and an oversized
 view. One model is rebuilt to compare bytes. The composition gates are
 tested against posters that must pass and posters that must fail them, and
-Chromium measures the page's label floor. The repository's existing format, lint, type, import, dead-code,
+Chromium measures the page's label floor and that no preview shows Archify's
+fit notice. The repository's existing format, lint, type, import, dead-code,
 Markdown, OpenSpec, coverage (at least 95 percent per dimension) and package
 gates stay in force. The user accepts the artwork; tests do not.
 
@@ -523,12 +558,14 @@ gates stay in force. The user accepts the artwork; tests do not.
   without host fonts; a subset would be a modified font to maintain.
 - [Archify 3.2.0 renders no guided views, enlarges page previews at most
   1.25 times and routes every connection itself] → Each view is its own panel
-  and diagram; previews read at 13.75 px and the full viewer at 14 px or
-  more; candidates are compared on Archify's own routes, and a view without a
-  candidate that passes its showcase checks is refused with its findings.
+  and diagram; previews read at 13.25 px or more and the full viewer at 14 px
+  or more; candidates are compared on Archify's own routes, and a view without a
+  candidate that passes its showcase checks refuses the build with its
+  findings, because a page has one quality profile.
 - [A view whose every composition leaves the page unbalanced] → The build
-  refuses it with the measured values and limits, and the author splits or
-  regroups the view; the format and the type floor never change.
+  prints the closest page and records each gate it misses, with the measured
+  value and limit, in the manifest; the author can split or regroup the view;
+  the format and the type floor never change.
 - [Previous inputs stop working] → The three real inputs are converted or
   rewritten; earlier releases and delivered artifacts are unchanged.
 
@@ -546,5 +583,6 @@ artifacts are not modified.
 
 ## Open Questions
 
-None block implementation. Native Archify source links for the three current
-repositories require an `origin` remote, which only their owner can add.
+None block implementation. Whether a view that cannot pass Archify's showcase
+checks should instead be delivered on a page of standard quality is the user's
+product decision; this change refuses the build.

@@ -8,9 +8,10 @@ relations:
 
 # Operations reference
 
-`archpub` turns one [Architecture Model](model.md) into a delivery: a poster per
-view and one interactive map of the whole model. This page lists the commands,
-what the build does, the delivery it writes and every refusal.
+`archpub` turns one [Architecture Model](model.md) into a delivery: posters of
+its views and one interactive page that answers its question view by view. This
+page lists the commands, what the build does, the delivery it writes and every
+refusal.
 
 ## Installation
 
@@ -87,24 +88,39 @@ at all is refused. Text is outlined from the bundled Noto Sans CJK SC fonts,
 and each kind draws its Lucide icon. Each page is written as SVG and as PNG at
 2400 and 6000 px.
 
-The map is one document of every component delivered by the vendored, unmodified
-Archify 3.2.0, positioned by the same layout with Archify's text metrics.
+The page is one Archify explainer, delivered by the vendored, unmodified
+Archify 3.2.0. Its heading is the model's question, its conclusion the summary
+and its scope the model's scope, limits and attribution. Each view is a panel
+titled with the view's question, or its title when it asks the model's own
+question, in the plan's order, holding the view's native architecture diagram,
+which opens Archify's full interactive viewer, and one step per component that
+lights the component in the diagram and gives its first detail. A model therefore declares at most four views, the diagrams one page
+holds.
+
+A view's diagram is laid out by the same grid with Archify's text metrics, at
+content widths of 960, 840 and 720 units with its rows wrapped at five, four and
+three cards; its cards are at least as wide as its longest label needs.
 Archify routes the relations and places their labels. A relation between
 neighbors in a row runs below the row when its label does not fit between them,
 and a relation that skips rows or passes cards in its row names no sides, so
-Archify routes it around the cards between. The map omits the system boundary
-when the outside components cannot stay outside it, and refuses with the
-relations concerned when its rows cannot be wired without an overlap; it never
-drops a component or relation to fit. Giving every component a group lets the
-model choose the map's rows. With `--repo` naming a checkout whose `origin` is
-the model's repository URL, each component links up to three of its sources,
-which Archify verifies in that checkout at the pinned revision. It is 1000 units
-wide so that its primary labels render at 14.8 CSS px in a 1440 × 900 window.
-Archify delivers it at its showcase quality profile; a map whose routes must
-cross or share a corridor is delivered at standard quality, only when those are
-its only findings, and the manifest records their counts. Any other Archify
-finding refuses the build. The map carries one guided view per poster and
-evidence cards with every component, relation, detail and source.
+Archify routes it around the cards between. A candidate omits the system
+boundary when the outside components cannot stay outside it. Archify validates
+every candidate at its showcase quality profile, and the page takes, among those
+that pass, the fewest crossings, then the fewest routes over two bends, then the
+least route stretch, then the shape nearest 1.0 to 1.8 times as wide as high.
+When every candidate crosses or bends a route more than twice, each is measured
+again with every connection side left to Archify, and the choice is made from
+both. A view without a candidate that passes refuses the build with Archify's
+findings; a diagram never drops a component or relation to fit.
+
+When the model declares a repository URL and revision, each step cites the
+component's first source as a numbered page source at that revision; the
+checkout's remotes are not read. Archify will not cite a file of a sensitive
+class, such as a path with a `secrets` segment, so such a source is withheld
+from the page and recorded as withheld in the manifest, and the component cites
+its next source. In a 1440 × 900 window every preview fits its panel, primary
+labels render at 13.25 CSS px or more in the previews and at 14 CSS px or more
+in the full viewer.
 
 ## The delivery
 
@@ -113,7 +129,7 @@ evidence cards with every component, relation, detail and source.
 | `<page>.svg`      | Each poster page, named by its views.           |
 | `<page>.png`      | The page rasterized at 2400 px wide.            |
 | `<page>-6000.png` | The page rasterized at 6000 px wide.            |
-| `index.html`      | The standalone interactive map.                 |
+| `index.html`      | The standalone interactive explainer page.      |
 | `manifest.json`   | The build record.                               |
 | `acceptance.json` | Written by `archpub accept`; absent until then. |
 
@@ -121,8 +137,10 @@ The manifest records the model id, title, digest and size, the publisher
 version, the declared repository, every source with its declared and observed
 digest, the digest of each bundled supply, each view with its tiers, members
 and page, each page with its views, composition and measures, including every
-gate it misses, the map's quality profile and its crossing and
-corridor counts, and the SHA-256 of every artifact. It contains no time, host
+gate it misses, the explainer page's quality profile and gates, each view
+diagram's width, height, rows, sides and Archify route measures, the sources
+the page withholds, the details, status and sources of every component and
+relation, and the SHA-256 of every artifact. It contains no time, host
 path or user name, so building the same model with the same version reproduces
 every byte.
 
@@ -146,30 +164,31 @@ A refusal names one of these codes. Its problems carry finer codes, such as the
 defects. A refused view is named in the message, and the problems of every
 refused view carry paths under `/views/<id>`.
 
-| Code                                                                                  | Meaning                                                                    |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| `usage`                                                                               | Unknown command or option, or a missing value.                             |
-| `model_invalid`                                                                       | The model breaks the schema; each problem has its own `model_*` code.      |
-| `model_unreadable`, `model_json_invalid`, `model_too_large`                           | The file cannot be read, is not JSON or exceeds 4 MiB.                     |
-| `glyphs_missing`                                                                      | Text uses characters the bundled fonts lack.                               |
-| `source_revision_missing`, `source_revision_unknown`                                  | `--repo` needs `repository.revision`, and the checkout must contain it.    |
-| `sources_unverified`                                                                  | A source is missing at the revision or differs from its declared digest.   |
-| `source_git_unavailable`, `source_read_failed`                                        | Git cannot be run or cannot read the sources.                              |
-| `plan_requires_structure`, `plan_views_exceeded`                                      | An automatic plan needs groups or views, or would exceed five views.       |
-| `plan_not_admitted`                                                                   | A view does not fit its poster; each problem gives its measured size.      |
-| `layout_row_too_wide`                                                                 | A tier holds more cards than a row can.                                    |
-| `layout_boundary_unplaced`                                                            | Outside components leave no room for the system boundary.                  |
-| `layout_channel_unroutable`, `layout_untidy`                                          | Relations between two rows cannot be drawn without an overlap.             |
-| `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.          |
-| `poster_unfittable`                                                                   | A view cannot be laid out on any page at any type step or row wrapping.    |
-| `map_label_too_long`, `map_refused`                                                   | A label does not fit a map card, or Archify refused the map.               |
-| `map_layout_refused`                                                                  | The map cannot wire every relation of the model without an overlap.        |
-| `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.          |
-| `delivery_exists`                                                                     | `--out` already exists.                                                    |
-| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`    | The directory is not a delivery.                                           |
-| `delivery_changed`                                                                    | An artifact differs from the manifest.                                     |
-| `acceptance_reviewer_missing`, `acceptance_exists`                                    | Name a reviewer; a delivery is accepted once.                              |
-| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                   | Accept first, use a valid version name, and never replace a published one. |
-| `publish_copy_invalid`                                                                | The copy differs from the delivery and was removed.                        |
-| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large` | The workspace cannot be imported.                                          |
-| `import_output_exists`                                                                | The output file exists.                                                    |
+| Code                                                                                  | Meaning                                                                     |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `usage`                                                                               | Unknown command or option, or a missing value.                              |
+| `model_invalid`                                                                       | The model breaks the schema; each problem has its own `model_*` code.       |
+| `model_unreadable`, `model_json_invalid`, `model_too_large`                           | The file cannot be read, is not JSON or exceeds 4 MiB.                      |
+| `glyphs_missing`                                                                      | Text uses characters the bundled fonts lack.                                |
+| `source_revision_missing`, `source_revision_unknown`                                  | `--repo` needs `repository.revision`, and the checkout must contain it.     |
+| `sources_unverified`                                                                  | A source is missing at the revision or differs from its declared digest.    |
+| `source_git_unavailable`, `source_read_failed`                                        | Git cannot be run or cannot read the sources.                               |
+| `plan_requires_structure`, `plan_views_exceeded`                                      | An automatic plan needs groups or views, or would exceed four views.        |
+| `plan_not_admitted`                                                                   | A view does not fit its poster; each problem gives its measured size.       |
+| `layout_row_too_wide`                                                                 | A tier holds more cards than a row can.                                     |
+| `layout_boundary_unplaced`                                                            | Outside components leave no room for the system boundary.                   |
+| `layout_channel_unroutable`, `layout_untidy`                                          | Relations between two rows cannot be drawn without an overlap.              |
+| `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.           |
+| `poster_unfittable`                                                                   | A view cannot be laid out on any page at any type step or row wrapping.     |
+| `map_label_too_long`, `map_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.  |
+| `map_layout_refused`, `map_refused`                                                   | A view's diagram cannot be wired, or none passes Archify's showcase checks. |
+| `page_refused`                                                                        | Archify did not validate or deliver the page.                               |
+| `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.           |
+| `delivery_exists`                                                                     | `--out` already exists.                                                     |
+| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`    | The directory is not a delivery.                                            |
+| `delivery_changed`                                                                    | An artifact differs from the manifest.                                      |
+| `acceptance_reviewer_missing`, `acceptance_exists`                                    | Name a reviewer; a delivery is accepted once.                               |
+| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                   | Accept first, use a valid version name, and never replace a published one.  |
+| `publish_copy_invalid`                                                                | The copy differs from the delivery and was removed.                         |
+| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large` | The workspace cannot be imported.                                           |
+| `import_output_exists`                                                                | The output file exists.                                                     |

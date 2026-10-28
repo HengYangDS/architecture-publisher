@@ -134,16 +134,18 @@ passes its exact carrier. See [configuration ownership](configuration.md).
 
 The coverage gate selects every `.mjs` module under `packages/publisher/src/`
 and requires 95 percent of statements, lines, branches and functions. The suite
-covers the model, source binding, reading plan, layout, posters, the map and its
-delivery through the vendored Archify, deliveries, acceptance, publication, the
+covers the model, source binding, reading plan, layout, posters, the page's
+diagrams and its delivery through the vendored Archify, deliveries, acceptance,
+publication, the
 LikeC4 importer, the command line, the packed and installed package, module
 boundaries, the version projection, the CI projection and the file budgets.
 
 Two tests need explicit selections and otherwise skip; a skip is not evidence:
 
-- `tests/map-browser.test.mjs` measures the delivered map's component labels in
-  Chromium at 1440 × 900. It uses `ARCHPUB_BROWSER_EXECUTABLE` when set, or
-  Playwright's own headless browser; CI requires it.
+- `tests/map-browser.test.mjs` opens delivered pages in Chromium at 1440 × 900
+  and measures the component labels of every preview and every full viewer. It
+  uses `ARCHPUB_BROWSER_EXECUTABLE` when set, or Playwright's own headless
+  browser; CI requires it.
 - `tests/conformance/journeys/raster/rebuild.test.mjs` rebuilds the raster
   renderer from `ARCHPUB_RESVG_SOURCE_ARCHIVE` with `ARCHPUB_RESVG_BINDGEN`.
 

@@ -107,17 +107,3 @@ export function bindSources(model, repo) {
     refuse("sources_unverified", "Declared sources do not match the repository.", problems);
   return { state: "verified", repository: model.repository, records };
 }
-
-/**
- * Return the repository's origin URL when it matches the model's declared URL.
- * @param {any} model
- * @param {string | null} repo
- */
-export function matchingOrigin(model, repo) {
-  if (!repo || !model.repository?.url) return null;
-  const origin = git(path.resolve(repo), ["remote", "get-url", "origin"]);
-  if (origin.status !== 0) return null;
-  return origin.stdout.toString("utf8").trim() === model.repository.url
-    ? model.repository.url
-    : null;
-}

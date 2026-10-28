@@ -5,7 +5,7 @@
   "sourceCommit": "208acba8d412335185b2056fedf54b3405df43fb",
   "archiveSha256": "70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "license": "MIT",
-  "scope": "official v3.2.0 release distribution; native diagram renderer, schema and artifact-check runtime closure; required original artifact-discrimination helpers retained by static imports; optional browser/preview modules retained but not invoked; update checks disabled; no explainer rendering, chart vendor, gallery assets or vendor modifications",
+  "scope": "official v3.2.0 release distribution; native diagram and explainer renderers, schemas and artifact-check runtime closure, with the explainer's Pele chart vendor; required original artifact-discrimination helpers retained by static imports; optional browser/preview modules retained but not invoked; update checks disabled; no gallery assets or vendor modifications",
   "files": [
     {
       "path": "LICENSE",
@@ -74,6 +74,12 @@
       "origin": "archify/explainer/browser-check.mjs"
     },
     {
+      "path": "explainer/charts.mjs",
+      "bytes": 5997,
+      "sha256": "bb49c5e8e5d6ba70a511d292dbac6a47953a010b67a8563e5f68222c7b220390",
+      "origin": "archify/explainer/charts.mjs"
+    },
+    {
       "path": "explainer/check.mjs",
       "bytes": 14888,
       "sha256": "151211edd6f1b842ee63b1aef8682cb68e6237ce3b9e7a81e09667420f2b9b3b",
@@ -84,6 +90,24 @@
       "bytes": 38710,
       "sha256": "bb4aae343968db5a5ad70c368ad41dcc9d2ac93f3ace02645059daf33cab16ba",
       "origin": "archify/explainer/diagrams.mjs"
+    },
+    {
+      "path": "explainer/diff.mjs",
+      "bytes": 8454,
+      "sha256": "0851a6b9715a3f277308cb88c84a5ef5fc943f09a9e0a391a573438fe8a30fbb",
+      "origin": "archify/explainer/diff.mjs"
+    },
+    {
+      "path": "explainer/inline.mjs",
+      "bytes": 8721,
+      "sha256": "e024b719a365077b547cb3d50ac9909db7e080ca5bde62387e5d62ead3f819f3",
+      "origin": "archify/explainer/inline.mjs"
+    },
+    {
+      "path": "explainer/layout.mjs",
+      "bytes": 2571,
+      "sha256": "656232369fe0394e35f827c1b5295fb8f14d315e7fa53d5f16248440519736c8",
+      "origin": "archify/explainer/layout.mjs"
     },
     {
       "path": "explainer/page-bundle.mjs",
@@ -98,10 +122,196 @@
       "origin": "archify/explainer/parse.mjs"
     },
     {
+      "path": "explainer/patch.mjs",
+      "bytes": 12039,
+      "sha256": "b2721021de474431537705d696325ea01eb946e9095e8476fad1802d2fb5be4d",
+      "origin": "archify/explainer/patch.mjs"
+    },
+    {
+      "path": "explainer/prepare.mjs",
+      "bytes": 9819,
+      "sha256": "d8ff050738d7c858d62641b069455482814de0c4bdf7c0872d0a2a663b1b0643",
+      "origin": "archify/explainer/prepare.mjs"
+    },
+    {
+      "path": "explainer/reader.css",
+      "bytes": 47157,
+      "sha256": "20ae425a84157c2d478241250975e74fca8938b47b85c5414149710ff4a3538f",
+      "origin": "archify/explainer/reader.css"
+    },
+    {
+      "path": "explainer/reader.js",
+      "bytes": 51676,
+      "sha256": "202d3ad200accd89a1484fe64610d9bc8bb4544c14c3f51522ba74f965b332c6",
+      "origin": "archify/explainer/reader.js"
+    },
+    {
+      "path": "explainer/render.mjs",
+      "bytes": 33903,
+      "sha256": "415c8c0638f42abc3b96f1b105453780678f1e33a9994f844cfbe4833670f25d",
+      "origin": "archify/explainer/render.mjs"
+    },
+    {
       "path": "explainer/revision.mjs",
       "bytes": 1965,
       "sha256": "29032cab30c03b2e4c48730f40175e0e59aa4794893c02e5ae38668776c18288",
       "origin": "archify/explainer/revision.mjs"
+    },
+    {
+      "path": "explainer/sources.mjs",
+      "bytes": 20882,
+      "sha256": "c6aae2ef90b6e49d16c1ccd5cfc5351a7716b8f9150e1c261dbd6ca8b8ca9ab5",
+      "origin": "archify/explainer/sources.mjs"
+    },
+    {
+      "path": "explainer/validate.mjs",
+      "bytes": 14520,
+      "sha256": "4e14063082b4bced482e0d2f771de5b29ef805677fcc354dfd283b9e16bd1b0a",
+      "origin": "archify/explainer/validate.mjs"
+    },
+    {
+      "path": "explainer/vendor/pele/LICENSE",
+      "bytes": 1934,
+      "sha256": "311bccc30de6f7b9cbfb64232bb0c911ccb2191abe316550813ae25b2c7925b9",
+      "origin": "archify/explainer/vendor/pele/LICENSE"
+    },
+    {
+      "path": "explainer/vendor/pele/README.md",
+      "bytes": 475,
+      "sha256": "47cb1894b1d248c49b7d79590a97fba294b090a7f2bac178a85baa79f2dae0d6",
+      "origin": "archify/explainer/vendor/pele/README.md"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/3DKXF73K.js",
+      "bytes": 3429,
+      "sha256": "5901afffb8349d0cb095e93494e8d3f36f09497b28a9255e066c52b6ce0a6c31",
+      "origin": "archify/explainer/vendor/pele/chunks/3DKXF73K.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/42UTT654.js",
+      "bytes": 11384,
+      "sha256": "365a5dcd61413ed715d375c053466ef89652aaa5065214720045d22d3198d7ed",
+      "origin": "archify/explainer/vendor/pele/chunks/42UTT654.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/DKTLEL5E.js",
+      "bytes": 838,
+      "sha256": "91864eed78a6a3cc9791d20fb9b61fd8f458c12101662883cd23e755fd2a4cb6",
+      "origin": "archify/explainer/vendor/pele/chunks/DKTLEL5E.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/EEIX5ZYH.js",
+      "bytes": 14177,
+      "sha256": "1e097466abf989151f92368e6ff7cb463e2ae191724e307ca2d004a58126b651",
+      "origin": "archify/explainer/vendor/pele/chunks/EEIX5ZYH.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/EJ5KOXYD.js",
+      "bytes": 7664,
+      "sha256": "cb84c22da57a11eb988d4e671b12ff17018923619883ddf49cd0b0ab270c4bbe",
+      "origin": "archify/explainer/vendor/pele/chunks/EJ5KOXYD.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/GUJTEFZK.js",
+      "bytes": 511,
+      "sha256": "e8584ce5872c50c6370efc1fbce911848506d84ff6fa88e4f079f412b5e2f068",
+      "origin": "archify/explainer/vendor/pele/chunks/GUJTEFZK.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/IZOKQ2GT.js",
+      "bytes": 8651,
+      "sha256": "80d3ebe446ae5447bf88c7f01b762478f51ce8cdd6e270b90f4b58534fc363f8",
+      "origin": "archify/explainer/vendor/pele/chunks/IZOKQ2GT.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/L4LY553T.js",
+      "bytes": 14810,
+      "sha256": "d574102b3e5499e752513c2ba75f152cd447b9f81d877ddffd37faed0e7dae16",
+      "origin": "archify/explainer/vendor/pele/chunks/L4LY553T.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/MSKIJHB2.js",
+      "bytes": 5132,
+      "sha256": "94317f9dabbe5793c8ed57a298b5a68474fcca6c62ecd07fabd9a3c6f15d3e23",
+      "origin": "archify/explainer/vendor/pele/chunks/MSKIJHB2.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/RVARI57O.js",
+      "bytes": 159,
+      "sha256": "3dc7661b060578920eab83aafd1fa261886e7e331d44f8f5d2f34bd0804027a3",
+      "origin": "archify/explainer/vendor/pele/chunks/RVARI57O.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/UKSIWDDN.js",
+      "bytes": 7382,
+      "sha256": "c0f5a984eaefaefa550d525670624e9d426bb7280ba33fcb5f9fa8adca804fc3",
+      "origin": "archify/explainer/vendor/pele/chunks/UKSIWDDN.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/UPTXNAXN.js",
+      "bytes": 9468,
+      "sha256": "f2fc18109dfb5ca72ea43c7951c4ce36d20a890b2fefb2d531fa751aa9911b87",
+      "origin": "archify/explainer/vendor/pele/chunks/UPTXNAXN.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/XTDUIGUI.js",
+      "bytes": 5037,
+      "sha256": "1ed02bff674691de6cb6ce6b3863fb021b1508f33b992515faeac876d0716c39",
+      "origin": "archify/explainer/vendor/pele/chunks/XTDUIGUI.js"
+    },
+    {
+      "path": "explainer/vendor/pele/chunks/YAYTP6L5.js",
+      "bytes": 15746,
+      "sha256": "9246835c2b1544ab95dd1b89b7ce4cfaa2a89aa26873f3d52f7e4a17ef957da6",
+      "origin": "archify/explainer/vendor/pele/chunks/YAYTP6L5.js"
+    },
+    {
+      "path": "explainer/vendor/pele/core.js",
+      "bytes": 347,
+      "sha256": "ac428c1ca244f030f363e0d0f12e623df92c1439d2a211310d1ff73f0ed224a4",
+      "origin": "archify/explainer/vendor/pele/core.js"
+    },
+    {
+      "path": "explainer/vendor/pele/diagrams/pie.js",
+      "bytes": 184,
+      "sha256": "a2bc92d2f8842b476cdb8a039455493db2c71d6a4e3a1b3dc97cfc1f409056d1",
+      "origin": "archify/explainer/vendor/pele/diagrams/pie.js"
+    },
+    {
+      "path": "explainer/vendor/pele/diagrams/quadrantChart.js",
+      "bytes": 209,
+      "sha256": "9ac8fc714b3973854efdd960fb6831c973e72624bb9b0bc091ada8958794ebfb",
+      "origin": "archify/explainer/vendor/pele/diagrams/quadrantChart.js"
+    },
+    {
+      "path": "explainer/vendor/pele/diagrams/radar.js",
+      "bytes": 179,
+      "sha256": "379748e709992f9e242028ad4a1b103f75ad693a84331c8fc33df0f258a7a9fe",
+      "origin": "archify/explainer/vendor/pele/diagrams/radar.js"
+    },
+    {
+      "path": "explainer/vendor/pele/diagrams/sankey.js",
+      "bytes": 179,
+      "sha256": "a789e591ba81fd434418a64561005caf50760f11cbaa9d4dd589e777bbfe8e36",
+      "origin": "archify/explainer/vendor/pele/diagrams/sankey.js"
+    },
+    {
+      "path": "explainer/vendor/pele/diagrams/venn.js",
+      "bytes": 154,
+      "sha256": "e4bc9943916a8ce8b07d0848eda99d38f7e8334708998a5d951acf27a5f4a059",
+      "origin": "archify/explainer/vendor/pele/diagrams/venn.js"
+    },
+    {
+      "path": "explainer/vendor/pele/diagrams/xychart.js",
+      "bytes": 209,
+      "sha256": "817de14381d9ba413dc70947824ff2538ba532c232592035a5b836094434e4bb",
+      "origin": "archify/explainer/vendor/pele/diagrams/xychart.js"
+    },
+    {
+      "path": "explainer/writing.mjs",
+      "bytes": 11389,
+      "sha256": "1030bc5b09f932e805f87390d8b51a1a23bc8dab2cc02068873621e26da8781f",
+      "origin": "archify/explainer/writing.mjs"
     },
     {
       "path": "locales/en.json",
@@ -216,6 +426,12 @@
       "bytes": 80473,
       "sha256": "ed180a39c00bec377bde0c48c8af798bb93e97d0cf006dd321a9ba14d5c50d7e",
       "origin": "archify/renderers/erd/render-erd.mjs"
+    },
+    {
+      "path": "renderers/explainer/render-explainer.mjs",
+      "bytes": 3292,
+      "sha256": "a646f6e5450bfcde6bd0aac23487d0f9d7feb947b307079f9a6f2df27087fe93",
+      "origin": "archify/renderers/explainer/render-explainer.mjs"
     },
     {
       "path": "renderers/lifecycle/render-lifecycle.mjs",
@@ -462,6 +678,12 @@
       "bytes": 9329,
       "sha256": "83aef0349f3cd415a00da4ed30c7864056dc9599627e004e6b7168ad4149ebc8",
       "origin": "archify/schemas/erd.schema.json"
+    },
+    {
+      "path": "schemas/explainer.schema.json",
+      "bytes": 19246,
+      "sha256": "9fc54042927602b1c37dd130061989f7d9a90718888ad75943275be2fd7d1371",
+      "origin": "archify/schemas/explainer.schema.json"
     },
     {
       "path": "schemas/lifecycle.schema.json",

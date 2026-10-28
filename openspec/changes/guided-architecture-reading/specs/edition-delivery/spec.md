@@ -8,7 +8,7 @@ publish accepted deliveries as immutable versions.
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: an SVG and PNGs at 2400 and 6000 px for each view, the explainer page
+exist: an SVG and PNGs at 2400 and 6000 px for each poster page, the explainer page
 `index.html` and `manifest.json`. It SHALL stage the delivery and move it into place only after
 every artifact succeeds, so a refused or failed build leaves no output.
 
@@ -26,22 +26,33 @@ every artifact succeeds, so a refused or failed build leaves no output.
 ### Requirement: Deterministic manifest
 
 The manifest SHALL record the model digest, the publisher version, the digests
-of the bundled fonts and the layout, raster and Archify supplies, the plan,
-each poster's composition and gate measurements, each view diagram's Archify
-metrics, the digest of every artifact and every source record with its
-verification state. It SHALL contain no
-timestamps, host paths or user names, so the same model built with the same
-version yields the same manifest.
+of the bundled fonts and the layout, raster and Archify supplies, the plan, the
+digest of every artifact and every source record with its verification state.
+It SHALL contain no timestamps, host paths or user names, so the same model
+built with the same version yields the same manifest.
 
 #### Scenario: Two builds
 
 - **WHEN** a model is built twice with the same version
 - **THEN** both manifests are byte-identical
 
+### Requirement: Measures and evidence in the manifest
+
+The manifest SHALL record each poster's composition and gate measurements,
+each view diagram's Archify metrics, the sources the page withholds and the
+details, statuses and sources of every component and relation.
+
+#### Scenario: Evidence kept off the drawing
+
+- **WHEN** a component has details and sources
+- **THEN** the manifest's evidence lists them under the component's id
+
 ### Requirement: Check without output
 
-`archpub check` SHALL run validation, source binding, planning and frame
-admission and SHALL report the result without writing any file.
+`archpub check` SHALL run validation, source binding, planning, frame
+admission and the page's Archify checks and SHALL report the result without
+writing a delivery; what Archify measures is written to a temporary directory
+and removed.
 
 #### Scenario: Checking an oversized model
 

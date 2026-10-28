@@ -23,7 +23,8 @@ Archify, replace its fonts, routing or reader, or post-process its output.
 The page SHALL be titled with the model's question and open with its summary
 as the conclusion and its scope, limits and attribution as the page scope.
 Each view SHALL be one panel, in the plan's order, titled with the view's
-question and holding that view's native architecture diagram. The page SHALL
+question, or with its title when its question is the model's own, and holding
+that view's native architecture diagram. The page SHALL
 NOT print digests, verification records or complete source lists; they stay
 in the manifest.
 
@@ -34,11 +35,17 @@ in the manifest.
   its title and its diagram
 - **AND** no panel lists a SHA-256 digest
 
+#### Scenario: An overview that asks the model's question
+
+- **WHEN** an overview's question is the model's question
+- **THEN** its panel is titled with the overview's title and the question
+  appears once on the page
+
 ### Requirement: View diagrams
 
-Each view's diagram SHALL contain the view's components with their label,
-kind as tag and a first detail as sublabel, and its relations as labeled
-connections, dashed when planned or retired. Kinds SHALL map to Archify's
+Each view's diagram SHALL contain the view's components with their label and
+a first detail as sublabel, and its relations as labeled connections, dashed
+when planned or retired. Kinds SHALL map to Archify's
 seven native types as color families, with `person` drawn as `external`, and
 the legend SHALL name the model's kinds. Positions and sizes SHALL come from
 the grid layout with Archify's text metrics.
@@ -73,6 +80,20 @@ with Archify's findings. The manifest SHALL record the choice and its metrics.
 - **WHEN** the AIGW overview is delivered
 - **THEN** its diagram has no route crossing and no route over two bends
 
+### Requirement: Sides Archify plans
+
+Candidates SHALL keep the grid's connection sides. When no candidate that
+passes is free of crossings and of routes over two bends, every candidate SHALL
+also be measured with all its connection sides left to Archify, and the choice
+SHALL be made from both sets; the manifest SHALL record which sides the chosen
+diagram keeps.
+
+#### Scenario: Grid sides that cross
+
+- **WHEN** Big Bank's tiered view crosses eight times with the grid's sides
+- **THEN** its diagram is chosen with the sides Archify plans and crosses at
+  most once
+
 ### Requirement: Diagram shape
 
 Each view diagram SHALL be between 1.0 and 1.8 times as wide as high when a
@@ -97,14 +118,29 @@ revision.
 - **WHEN** a reader steps through a panel
 - **THEN** each step lights its component in that panel's diagram
 
+### Requirement: Withheld sources
+
+A source that Archify will not cite on a page, such as a file under a
+`secrets` directory, SHALL be withheld from the page and recorded as withheld
+in the manifest, and a component that cites it SHALL cite its next source.
+
+#### Scenario: A source in a sensitive file class
+
+- **WHEN** a component's first source lies under `internal/secrets/`
+- **THEN** the page cites the component's next source, or none
+- **AND** the manifest lists the first source as withheld
+
 ### Requirement: Desktop reading floor
 
-In Chromium with a 1440 × 900 viewport, primary component labels SHALL render
-at no less than 13.75 CSS px in the page's diagram previews and no less than
-14 CSS px in each diagram's full interactive view; relation labels keep
-Archify's native size.
+In Chromium with a 1440 × 900 viewport, no preview SHALL show Archify's notice
+that it cannot fit the page with readable text, and primary component labels
+SHALL render at no less than 13.25 CSS px in the page's diagram previews and no
+less than 14 CSS px in each diagram's full interactive view; relation labels
+keep Archify's native size.
 
 #### Scenario: Measured label size
 
 - **WHEN** the delivered page is opened at 1440 × 900 in Chromium
-- **THEN** every primary component label in its previews is at least 13.75 px
+- **THEN** every preview fits its panel
+- **AND** every primary component label in its previews is at least 13.25 px
+- **AND** every primary component label in each full viewer is at least 14 px

@@ -12,25 +12,31 @@ remain pre-release contracts and may contain incompatible changes.
 ### Changed
 
 - **Breaking:** Architecture Publisher is now a general model-to-media publisher. One Architecture Model, a JSON file
-  written by a person or an agent or imported from LikeC4, becomes a poster per view, one interactive map and a
-  manifest through `archpub check`, `build`, `import likec4`, `accept` and `publish`. The Source Bundle, Claim
+  written by a person or an agent or imported from LikeC4, becomes posters of its views, one interactive page and a
+  manifest through `archpub check`, `build`, `import likec4`, `accept` and `publish`. A model declares at most
+  four views. The Source Bundle, Claim
   Model, Edition, Candidate, Provider, Qualification and publication-plan inputs and commands are removed; earlier
   releases keep them.
-- **Breaking:** A grid-first layout replaces the ELK composition. Cards of one size sit on shared row lines of one
-  column lattice; placement is exact, relations run as buses, corridors and straight arrows through the channels
+- **Breaking:** A grid-first layout replaces the ELK composition. Cards of one view share one width and sit on shared
+  row lines of one column lattice; placement is exact, relations run as buses, corridors and straight arrows through the channels
   between rows, and a view is refused rather than drawn with a diagonal, a shared segment, a wire through a card or a
   touching label. A refusal names every view it refuses. Rows that a view does not declare minimize the rows their
   relations skip.
-- **Breaking:** Posters are 1800 px wide and at most 1350 px high with no text below 14 px. They carry the title,
-  question, summary, figure, a one-line legend and a scope footnote; per-relation evidence moves to the map. Small
-  views scale up by at most 1.4.
-- **Breaking:** The map is the vendored, unmodified Archify 3.2.0 document of the whole model at the grid layout's
-  positions, with Archify's own routes and labels, guided views and evidence cards. It is delivered at showcase
-  quality, or at standard quality when routes must cross or share corridors and those are the only findings. A model
-  whose map rows cannot be wired without an overlap is refused with `map_layout_refused` and the relations concerned.
-  With a checkout whose `origin` is the model's repository, components link their sources, which Archify verifies at
-  the pinned revision.
-- Deliveries are staged and byte-reproducible. `archpub accept` records a reviewer against the manifest digest, and
+- **Breaking:** Posters are 16:9 pages of 2400 × 1350 px with no text below 14 px, rasterized at 2400 and 6000 px.
+  A page holds one to three views as plates under a masthead, beside a rail of text, or with its text set in the
+  corners its figure leaves free. Cards are as large as their text, a sparse view is set at a larger type step of up
+  to 1.8 times, and the edition is grouped into the fewest pages that miss the balance gates for the largest empty
+  area, fill and centre of mass; a page that misses one is still printed and records the miss. Channels take the
+  routing with the fewest crossings. Per-relation evidence moves to the manifest.
+- **Breaking:** The interactive medium is one vendored, unmodified Archify 3.2.0 explainer page that answers the
+  model's question view by view: one panel per view with its native architecture diagram, which opens Archify's full
+  viewer, and steps that light each component and cite its first source at the pinned revision. Each diagram is
+  chosen on Archify's own routes from three widths and three row wrappings, with Archify planning every connection
+  side when the grid's sides cross, and passes Archify's showcase checks, or the build is refused with `map_refused`
+  and Archify's findings. Sources Archify will not cite, such as files under a secrets directory, are withheld and
+  recorded in the manifest.
+- Deliveries are staged and byte-reproducible. The manifest keeps each poster page's measures, each diagram's route
+  measures and the details, statuses and sources of every component and relation. `archpub accept` records a reviewer against the manifest digest, and
   `archpub publish` copies only an accepted delivery and never replaces a different published one.
 - `VERSION` is the only maintained product version. Required package versions and internal pins are generated from
   it; qualification rejects stale projections without changing package or lock bytes.

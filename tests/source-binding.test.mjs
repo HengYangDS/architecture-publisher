@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
-import { bindSources, matchingOrigin } from "../packages/publisher/src/sources/bind.mjs";
+import { bindSources } from "../packages/publisher/src/sources/bind.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { MAIN, README, repository } from "./fixtures/repository.mjs";
 
@@ -103,17 +103,4 @@ test("verification needs a known revision and a working Git", async (t) => {
   } finally {
     process.env.PATH = saved;
   }
-});
-
-test("native links need an origin remote equal to the declared URL", async (t) => {
-  const { root, git, revision } = await repository(t);
-  const url = "https://example.invalid/fixture.git";
-  const model = sourcedModel(revision, { main: { path: "src/main.mjs" } }, { url });
-  assert.equal(matchingOrigin(model, null), null);
-  assert.equal(matchingOrigin(sourcedModel(revision, {}), root), null);
-  assert.equal(matchingOrigin(model, root), null);
-  git("remote", "add", "origin", "https://example.invalid/other.git");
-  assert.equal(matchingOrigin(model, root), null);
-  git("remote", "set-url", "origin", url);
-  assert.equal(matchingOrigin(model, root), url);
 });

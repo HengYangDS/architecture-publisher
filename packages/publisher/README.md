@@ -1,8 +1,9 @@
 # Architecture Publisher
 
 `archpub` draws the architecture of any repository from an explicit
-Architecture Model: a poster for each view, one interactive map of the whole
-model and a manifest that binds every artifact to its inputs.
+Architecture Model: posters of its views, one interactive page that answers
+the model's question view by view, and a manifest that binds every artifact to
+its inputs.
 
 ```sh
 archpub check model.json [--repo <checkout>]
@@ -15,13 +16,14 @@ archpub publish <delivery> --to <root>
 A model is one JSON file with `format: "architecture-publisher.model"`,
 `version: 1`, an `id`, a `title`, a `question`, `components` and `relations`,
 and optionally kinds, details, sources pinned to a repository revision, groups
-and up to five views. `--repo` verifies every source at that revision through
+and up to four views. `--repo` verifies every source at that revision through
 Git without changing the checkout.
 
-Posters are SVG and PNG at 1800 and 6000 px: 1800 × at most 1350 px with no text
-below 14 px. The map is a standalone document delivered by the bundled,
-unmodified Archify. A view that cannot be drawn without overlaps is refused with
-the relations concerned. Every command accepts `--json` and exits with 0 on
+Posters are 2400 × 1350 px pages of one to three views, as SVG and as PNG at
+2400 and 6000 px, with no text below 14 px. The page is a standalone Archify
+explainer delivered by the bundled, unmodified Archify, with one native diagram
+per view. A view that cannot be drawn without overlaps is refused with the
+relations concerned. Every command accepts `--json` and exits with 0 on
 success, 1 on a refused input and 2 on a usage error.
 
 The package needs Node.js 22.13 or later and has no runtime npm dependencies;

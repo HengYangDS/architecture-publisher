@@ -48,24 +48,24 @@ one pass and builds nothing.
 
 ## Top-level fields
 
-| Field         | Required | Meaning                                                                           |
-| ------------- | -------- | --------------------------------------------------------------------------------- |
-| `format`      | yes      | Always `architecture-publisher.model`.                                            |
-| `version`     | yes      | Always `1`.                                                                       |
-| `id`          | yes      | Model id; names the published directory.                                          |
-| `title`       | yes      | Poster and map title.                                                             |
-| `question`    | yes      | The question the model answers, printed under the title.                          |
-| `summary`     | no       | A short answer printed under the question.                                        |
-| `scope`       | no       | What the model covers and leaves out; printed in the poster footnote and the map. |
-| `limits`      | no       | Known limits of the description, each one text; printed with the scope.           |
-| `attribution` | no       | Who wrote the model; printed with the scope.                                      |
-| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`.  |
-| `kinds`       | no       | Kind catalog keyed by kind id.                                                    |
-| `sources`     | no       | Source file catalog keyed by source id.                                           |
-| `components`  | yes      | At least one component.                                                           |
-| `relations`   | yes      | Relations between components; may be empty.                                       |
-| `groups`      | no       | Named sets of components.                                                         |
-| `views`       | no       | At most five views; without them the publisher plans the views itself.            |
+| Field         | Required | Meaning                                                                          |
+| ------------- | -------- | -------------------------------------------------------------------------------- |
+| `format`      | yes      | Always `architecture-publisher.model`.                                           |
+| `version`     | yes      | Always `1`.                                                                      |
+| `id`          | yes      | Model id; names the published directory.                                         |
+| `title`       | yes      | Poster title, and the title of any view without its own.                         |
+| `question`    | yes      | The question the model answers: under the poster title and heading the page.     |
+| `summary`     | no       | A short answer printed under the question; the page's conclusion.                |
+| `scope`       | no       | What the model covers and leaves out; in the poster footnote and the page scope. |
+| `limits`      | no       | Known limits of the description, each one text; printed with the scope.          |
+| `attribution` | no       | Who wrote the model; printed with the scope.                                     |
+| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`. |
+| `kinds`       | no       | Kind catalog keyed by kind id.                                                   |
+| `sources`     | no       | Source file catalog keyed by source id.                                          |
+| `components`  | yes      | At least one component.                                                          |
+| `relations`   | yes      | Relations between components; may be empty.                                      |
+| `groups`      | no       | Named sets of components.                                                        |
+| `views`       | no       | At most four views; without them the publisher plans the views itself.           |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -81,9 +81,9 @@ may not connect a component to itself.
 - `details` maps a short name to text or a list of texts, such as
   `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. Names are at most
   64 characters, contain no colon and are not plain numbers. A component's
-  details are printed on its poster card and the first one on its map card; a
-  relation's details are printed under its label. The evidence card lists every
-  detail.
+  details are printed on its poster card, and the first one on its page diagram
+  card and step; a relation's details are printed under its label. The
+  manifest's evidence lists every detail.
 - `status` is `implemented`, `planned` or `retired`. Planned and retired
   relations are drawn dashed.
 - `sources` lists source ids from the catalog that support the statement.
@@ -117,6 +117,12 @@ fetching, prompting or changing the checkout, and record its digest. A missing
 file or a digest that differs from the declared one refuses the build and names
 the actual digest. Without `--repo`, sources are recorded as unverified.
 
+When the model also declares `repository.url`, the page cites each component's
+first source at that URL and revision. Archify does not cite a file of a
+sensitive class, such as a path with a `secrets` segment; the page withholds
+such a source, cites the component's next one and records the withheld source in
+the manifest.
+
 A revision cannot name the commit that contains it, so a model kept in the
 repository it describes pins an earlier commit.
 
@@ -124,18 +130,17 @@ repository it describes pins an earlier commit.
 
 A group has an `id`, a `label` and the component ids of its `members`. A
 component belongs to at most one group, and a group id may not equal a
-component id. Groups shape the media in three places:
+component id. Groups shape the media in two places:
 
 - A view's `tiers` may name groups.
-- When every component is in a group, the interactive map draws the groups as
-  its rows, wrapping a group wider than five cards onto further rows.
 - When a model has no views and is too large for one poster, the plan is an
   overview with one card per group followed by one view per group.
 
 ## Views
 
-A view is one poster and one guided view of the map. It has an `id`, an
-optional `title`, `question` and `summary`, and exactly one of:
+A view is drawn on a poster page, which holds one to three views, and as one
+panel of the page, with its own diagram. It has an `id`, an optional `title`,
+`question` and `summary`, and exactly one of:
 
 - `tiers`: an ordered list of group ids or inline `{ id, label, members }`
   bands, drawn as labelled rows in that order. A component appears in at most

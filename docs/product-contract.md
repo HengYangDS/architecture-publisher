@@ -12,8 +12,9 @@ relations:
 
 Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
-delivery: a static poster for each view, one interactive map of the whole model
-and a manifest that binds every artifact to its inputs.
+delivery: static posters of its views on fixed 16:9 pages, one interactive page
+that answers the model's question view by view, and a manifest that binds every
+artifact to its inputs and keeps the evidence the drawings leave out.
 
 The model says what the architecture is: components, relations, their details
 and the repository files that support them. Architecture Publisher owns how that
@@ -41,12 +42,13 @@ A model may live anywhere, including in a separate publications repository.
 1. **Validate** the model against its schema and report every problem with its
    JSON path in one pass.
 2. **Bind sources** at the pinned revision when a checkout is given.
-3. **Plan views**: the declared views, or one view of every component when it
-   fits, or an overview of the groups and one view per group.
+3. **Plan views**: the declared views, at most four, or one view of every
+   component when it fits, or an overview of the groups and one view per group.
 4. **Lay out** each view as rows of equal cards on one column lattice, with an
    exact placement and routing that refuses any overlap.
-5. **Compose** each poster and rasterize it; **map** the whole model through the
-   vendored Archify.
+5. **Compose** the views onto 2400 × 1350 px poster pages and rasterize them;
+   **explain** the model on one page of the vendored Archify with one native
+   diagram per view.
 6. **Deliver** the artifacts and the manifest into a new directory, staged and
    renamed into place only when complete.
 
@@ -54,34 +56,43 @@ The same model, sources and publisher version always produce the same bytes.
 
 ## Outputs
 
-A delivery holds, for each view, the poster as SVG and as PNG at 1800 and 6000
-px; the interactive map as one standalone `index.html`; and `manifest.json`. The
+A delivery holds each poster page as SVG and as PNG at 2400 and 6000 px; the
+interactive page as one standalone `index.html`; and `manifest.json`. The
 [operations reference](reference/operations.md#the-delivery) lists the manifest
 fields.
 
-The poster shows the title, the question and summary, the figure with each
-component's icon and details and each relation's label and details, a one-line
-legend and a footnote with the scope, limits, attribution and source revision.
-The map shows every component and relation, one guided view per poster and
-evidence cards with every detail, status, source path, digest and verification
+A poster page holds one to three views. It shows the title, the question and
+summary, each view's figure with each component's icon and details and each
+relation's label and details, one legend of the kinds, boundary and statuses
+present, and notes with the scope, limits, attribution, repository revision and
+source verification state. It prints no digests, claim records or tables.
+
+The page heads with the model's question and its summary as the conclusion.
+Each view is a panel with its native Archify diagram, which opens Archify's
+full interactive viewer, and one step per component with its first detail and,
+when the model names its repository, its first source at the pinned revision.
+The manifest keeps every detail, status, source path, digest and verification
 state.
 
 ## Quality floor
 
-- Posters are 1800 px wide and at most 1350 px high, and no text is smaller
-  than 14 px. A view that does not fit is refused with its measured size; text
-  is never shrunk and nothing is cropped.
-- Cards in a view have one size and sit on shared row lines. Wires are
+- Every poster page is 2400 × 1350 px, and no text is smaller than 14 px. A
+  page is composed so that its figure fills it: its largest empty area, fill
+  and centre of mass are measured, and a page that no composition balances is
+  printed with each gate it misses recorded in the manifest. A view that no page
+  can lay out is refused; text is never shrunk and nothing is cropped.
+- Cards in a view have one width, cards of a row one height, and all sit on
+  shared row lines. Wires are
   horizontal and vertical only; no segment is shared by two relations, no wire
   crosses a card and no label touches a card, a label or another wire. A view
   that cannot meet this is refused with the relations concerned. Crossings the
   relations force are allowed and counted.
-- The map's primary labels render at no less than 14 CSS px in a 1440 × 900
-  window. Archify delivers the map at its showcase quality profile, or at
-  standard quality when routes must cross or share a corridor and those are its
-  only findings; the manifest records which, with the counts. The map draws
-  every component and relation: a model whose map rows cannot be wired without
-  an overlap is refused with the relations concerned.
+- Archify delivers the page at its showcase quality profile, and every view
+  diagram passes Archify's showcase checks, or the build is refused with
+  Archify's findings. In a 1440 × 900 window every preview fits its panel,
+  primary labels render at no less than 13.25 CSS px in the previews and 14 CSS
+  px in the full viewer. Each diagram draws every component and relation of its
+  view, and the manifest records its route measures.
 - Archify, the fonts, the icons, the raster renderer and the LikeC4 parser are
   bundled unmodified with recorded digests.
 
@@ -97,9 +108,9 @@ published delivery. Tests and checks never stand in for that acceptance.
 
 - The publisher draws what the model states; it does not discover components,
   rank evidence or fill gaps.
-- One model has at most five views, matching Archify's guided-view limit.
-- The media are the poster and the map. Slides, PDF and mobile layouts are not
-  produced.
+- One model has at most four views, the diagrams one Archify page holds.
+- The media are the posters and the page. Slides, PDF and mobile layouts are
+  not produced.
 - A build needs no network, account or credential. Publication copies files
   locally; uploading to a Forge or a website is the caller's own step.
 
