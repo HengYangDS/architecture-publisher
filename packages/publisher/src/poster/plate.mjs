@@ -4,7 +4,6 @@ import { presentation } from "../kinds.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
 import { measureWidth } from "./blocks.mjs";
-import { softSegments } from "./text.mjs";
 import { POSTER, figureMetrics, figureStyles } from "./tokens.mjs";
 
 /**
@@ -86,33 +85,39 @@ function layoutFor(view, rows, metrics, key, boundaryName) {
 }
 
 /**
- * How wide a view's cards are at one type step: wide enough to set the longest
- * label and the longest detail of any card on one line each, within the card
- * measures, and no wider. A card as wide as its field divides into is a panel
- * of paper around a short line; a card as wide as its text reads as a card.
- * @param {any} view
+ * How wide one card is at one type step: wide enough to set its label and each
+ * of its details on one line, within the card measures, and no wider. A card as
+ * wide as its field divides into is a panel of paper around a short line; a
+ * card as wide as its text reads as a card.
+ * @param {any} component
  * @param {any} typefaces
  * @param {any} styles
  * @param {any} card the card metrics at this step
  */
-function naturalWidth(view, typefaces, styles, card) {
+function cardWidthOf(component, typefaces, styles, card) {
   const name = POSTER.cardMeasure.name * styles.name.size;
   const detail = POSTER.cardMeasure.detail * styles.detail.size;
-  let width = card.minimumWidth;
-  for (const component of view.components)
-    width = Math.max(
-      width,
-      Math.min(typefaces.measure(component.label, styles.name), name) +
-        card.icon +
-        card.iconGap +
+  const width = Math.max(
+    card.minimumWidth,
+    Math.min(typefaces.measure(component.label, styles.name), name) +
+      card.icon +
+      card.iconGap +
+      2 * card.pad,
+    ...component.details.map(
+      ([key, values]) =>
+        Math.min(typefaces.measure(`${key}: ${values.join(", ")}`, styles.detail), detail) +
         2 * card.pad,
-      ...component.details.map(
-        ([key, values]) =>
-          Math.min(typefaces.measure(`${key}: ${values.join(", ")}`, styles.detail), detail) +
-          2 * card.pad,
-      ),
-    );
+    ),
+  );
   return Math.ceil(width / 8) * 8;
+}
+
+/** How wide a view's widest card is at one type step. */
+function naturalWidth(view, typefaces, styles, card) {
+  return Math.max(
+    card.minimumWidth,
+    ...view.components.map((component) => cardWidthOf(component, typefaces, styles, card)),
+  );
 }
 
 /**
@@ -151,6 +156,7 @@ function candidateMetrics(input) {
         field.width - 2 * spacing.inset,
         naturalWidth(view, typefaces, styles, card),
       ),
+      natural: (component) => cardWidthOf(component, typefaces, styles, card),
       height: (component, width) => {
         const { name, details } = cardText(component, width);
         return (
@@ -185,6 +191,7 @@ function candidateMetrics(input) {
       };
     },
     external: (component) => presentation(model, component).outside,
+    arrow: wire.arrow,
     spacing,
   };
 }
@@ -209,10 +216,9 @@ function attempt(input) {
   if (layout.width > input.field.width + 1)
     return { rejected: { reason: "too_wide", value: layout.width, bound: input.field.width } };
   // Card text never breaks inside a word: a column too narrow for one of its
-  // words sets "TransitionPl" over "an", which is not a label a reader can read.
-  // A detail may break a path or identifier after a slash or hyphen, never
-  // between two letters.
-  const broken = brokenText(input, layout.card.width);
+  // words sets "TransitionPl" over "an", which is not a label a reader can read,
+  // and a path or identifier split after a slash or hyphen reads as two names.
+  const broken = brokenText(input, layout);
   if (broken)
     return { rejected: { reason: broken.reason, value: broken.width, bound: broken.room } };
   const justified = justify(layout, input.field.height, { bound: POSTER.channelBound });
@@ -233,17 +239,31 @@ function attempt(input) {
     });
   // The layout centres the span of its cards. A figure whose single-card rows
   // stand off the middle of its wide rows, or whose wires run down one side, is
-  // then balanced on its outline but heavy to one side, so it moves across its
-  // field just far enough to bring its ink back near the centre line.
-  let figure = draw(0);
-  const offset = balancingShift(figure.rects, input.field);
-  if (offset) figure = draw(offset);
-  // Nothing is drawn outside the plate: its field and, for a labelled figure,
-  // the column its tier labels sit in.
+  // then balanced on its outline but heavy to one side, and a figure whose tier
+  // labels are set beside its rows leaves the label column empty; so the figure
+  // moves across its plate just far enough to bring its ink, labels included,
+  // back near the plate's centre line. Labels beside their rows move with it,
+  // and it may move into the label column only while no label touches it there;
+  // otherwise it is balanced within its field alone.
   const column = input.labelColumn;
   const left = column ? column.x : input.field.x;
   const right = input.field.x + input.field.width;
   const bottom = input.field.y + input.field.height;
+  let figure = draw(0);
+  const offset = balancingShift(figure.rects, { x: left, width: right - left });
+  if (offset) {
+    const moved = draw(offset);
+    if (labelsClear(moved.rects)) figure = moved;
+    else {
+      const within = balancingShift(
+        figure.rects.filter((rect) => !rect.tier),
+        input.field,
+      );
+      if (within) figure = draw(within);
+    }
+  }
+  // Nothing is drawn outside the plate: its field and, for a labelled figure,
+  // the column its tier labels sit in.
   const outside = figure.rects.find(
     (rect) =>
       rect.x < left - 2 ||
@@ -256,11 +276,10 @@ function attempt(input) {
 }
 
 /**
- * How far to move a drawn figure across its field so that its ink centroid lies
- * within the centring tolerance of the field's centre line, without any of it
- * leaving the field. A figure already within the tolerance keeps its outline
- * centred. Tier labels sit in their own column left of the field and do not
- * move with the figure.
+ * How far to move a drawn figure across its span so that its ink centroid lies
+ * within the centring tolerance of the span's centre line, without any of it
+ * leaving the span. A figure already within the tolerance keeps its outline
+ * centred.
  * @param {Array<{ x: number, y: number, width: number, height: number }>} rects
  * @param {{ x: number, width: number }} field
  */
@@ -284,24 +303,43 @@ function balancingShift(rects, field) {
 }
 
 /**
- * The first word of a card label wider than the label's line at this card
- * width, or the first piece of a detail wider than the detail's line, or null
- * when every one fits. A label wraps between words only; a detail also after a
- * slash, hyphen, underscore, dot or colon.
+ * Whether every tier label of a drawn figure keeps clear of its cards, wires
+ * and relation labels.
+ * @param {Array<{ x: number, y: number, width: number, height: number, tier?: boolean }>} rects
+ */
+function labelsClear(rects) {
+  const labels = rects.filter((rect) => rect.tier);
+  const others = rects.filter((rect) => !rect.tier);
+  return labels.every((label) =>
+    others.every(
+      (other) =>
+        label.x >= other.x + other.width ||
+        other.x >= label.x + label.width ||
+        label.y >= other.y + other.height ||
+        other.y >= label.y + label.height,
+    ),
+  );
+}
+
+/**
+ * The first word of a card's label or details wider than the line it is set
+ * on at that card's width, or null when every one fits. Card text wraps between
+ * words only, so every word of a card must fit the card.
  * @param {any} input
- * @param {number} width
+ * @param {any} layout the layout, with every card's width
  * @returns {{ reason: string, id: string, width: number, room: number } | null}
  */
-function brokenText(input, width) {
+function brokenText(input, layout) {
   const { card } = input.figureMetrics;
   const { typefaces, styles } = input;
-  const nameRoom = Math.min(
-    width - 2 * card.pad - card.icon - card.iconGap,
-    measureWidth(typefaces, styles.name),
-  );
-  const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
   const words = (text) => String(text).split(/\s+/u).filter(Boolean);
   for (const component of input.view.components) {
+    const width = layout.cards.get(component.id)?.width ?? layout.card.width;
+    const nameRoom = Math.min(
+      width - 2 * card.pad - card.icon - card.iconGap,
+      measureWidth(typefaces, styles.name),
+    );
+    const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
     for (const word of words(component.label)) {
       const measured = typefaces.measure(word, styles.name);
       if (measured > nameRoom)
@@ -313,17 +351,16 @@ function brokenText(input, width) {
         };
     }
     for (const [key, values] of component.details)
-      for (const word of words(`${key}: ${values.join(", ")}`))
-        for (const piece of softSegments(word)) {
-          const measured = typefaces.measure(piece, styles.detail);
-          if (measured > detailRoom)
-            return {
-              reason: "detail_broken",
-              id: component.id,
-              width: Math.ceil(measured),
-              room: Math.floor(detailRoom),
-            };
-        }
+      for (const word of words(`${key}: ${values.join(", ")}`)) {
+        const measured = typefaces.measure(word, styles.detail);
+        if (measured > detailRoom)
+          return {
+            reason: "detail_broken",
+            id: component.id,
+            width: Math.ceil(measured),
+            room: Math.floor(detailRoom),
+          };
+      }
   }
   return null;
 }
@@ -449,9 +486,9 @@ export function platesOf(input, plate) {
       // Each plate is flat: the page needs its figure, and the manifest needs
       // the step and wrapping that produced it.
       found.push({
-        shape: `${index}|${flat}`,
         rank: [
           made.layout.measures.crossings,
+          made.layout.measures.routes,
           -index,
           order,
           offCenter(made.figure.rects, plate.field),
@@ -460,22 +497,18 @@ export function platesOf(input, plate) {
       });
     }
   }
-  // A plate is judged as a figure, not as a filler of its band. A narrower
-  // wrapping exists to fit a field the view's own rows do not, so at each type
-  // step a plate keeps, of its layered rows and of its flatter rows, only the
-  // widest wrapping that fits with the fewest crossings: splitting a row that
-  // fits only to fill a band is the loose figure this page must not print.
-  // Wires that cross are a fault a reader sees before anything else, so the
-  // compositions with the fewest crossings come first; then the largest type
-  // step, because the same figure set larger reads from further away; then
-  // layered rows before flatter ones; then the centroid nearest the field's
-  // centre. Filling the page is the page's work: it sets larger type, groups
-  // views and sets its text beside the figure.
+  // A plate offers every wrapping it can draw, ordered as figures. Wires that
+  // cross, run together or carry another's label are faults a reader sees
+  // before anything else, so the compositions with the fewest come first; then
+  // the largest type step, because
+  // the same figure set larger reads from further away; then the widest rows,
+  // layered before flatter ones, so the page splits a row only when the figure
+  // its widest rows make leaves the page unbalanced; then the centroid nearest
+  // the field's centre. Filling the page is the page's work: it sets larger
+  // type, takes a narrower wrapping, groups views and sets its text beside the
+  // figure.
   found.sort((a, b) => compare(a.rank, b.rank));
-  const shapes = new Set();
-  return found
-    .filter(({ shape }) => !shapes.has(shape) && Boolean(shapes.add(shape)))
-    .map(({ plate: one }) => one);
+  return found.map(({ plate: one }) => one);
 }
 
 const compare = (a, b) => {

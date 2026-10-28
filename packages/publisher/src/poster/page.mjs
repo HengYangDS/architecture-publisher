@@ -59,15 +59,17 @@ export function gutterFor(typefaces, labels) {
  * refusal names the text to shorten instead of a page that failed to compose.
  * @param {any} typefaces
  * @param {any} model
- * @param {any[]} [views] the page's views, whose summary the page may set
+ * @param {any[]} views the page's views, whose summary the page may set
+ * @param {ReturnType<typeof import("./blocks.mjs").leadOf>} lead the lines the page leads with
+ * @param {boolean} first whether the page opens the edition
  */
-export function refuseUnsetText(typefaces, model, views = []) {
-  if (!headBlock(typefaces, model, spanWidth(7), 3))
+export function refuseUnsetText(typefaces, model, views, lead, first) {
+  if (!headBlock(typefaces, lead, spanWidth(7), 3))
     refuse(
       "poster_title_too_long",
-      `The title or question of ${model.title} needs more than three lines across seven columns.`,
+      `The title or question of ${lead.title} needs more than three lines across seven columns.`,
     );
-  const summary = summaryOf(model, views);
+  const summary = summaryOf(model, views, first);
   if (!summary) return;
   const { lines } = wrapWithin(typefaces, summary, spanWidth(5), PAGE.summary);
   const owner = summary === model.summary ? model.title : `view ${views[0].id}`;
@@ -87,14 +89,14 @@ export function refuseUnsetText(typefaces, model, views = []) {
  */
 function masthead(input) {
   const { model, typefaces } = input;
-  const text = summaryOf(model, input.views);
+  const text = summaryOf(model, input.views, input.first);
   /** @type {{ blocks: Array<{ block: import("./blocks.mjs").Block, x: number }>, height: number, slack: number } | null} */
   let best = null;
   for (const lead of [4, 5, 6, 7])
     for (const middle of text ? [3, 4, 5] : [0]) {
       const right = 12 - lead - middle;
       if (right < 3) continue;
-      const head = headBlock(typefaces, model, spanWidth(lead), 2);
+      const head = headBlock(typefaces, input.lead, spanWidth(lead), 2);
       const summary = text ? summaryBlock(typefaces, text, spanWidth(middle), SUMMARY_LINES) : null;
       if (!head || (text && !summary)) continue;
       for (const columns of [1, 2, 3]) {
@@ -118,60 +120,78 @@ function masthead(input) {
 }
 
 /**
- * The rail: head, summary, legend and notes down the left columns, spaced over
- * the full height. The gaps between blocks take the slack up to one column gap
- * each, and whatever remains centres the stack, so the rail has no empty middle
- * and no hanging bottom. Null when its text does not fit the column.
+ * One stack of blocks down a rail, spaced over the full height. The gaps
+ * between blocks take the slack up to one column gap each, and whatever
+ * remains centres the stack, so the rail has no empty middle and no hanging
+ * bottom. Null when the blocks are taller than the page.
+ * @template {{ runs: any[], glyphs: any[] }} T
+ * @param {Array<import("./blocks.mjs").Block>} blocks
+ * @param {number} x
+ * @param {T} into
+ * @returns {T | null}
  */
-function railBlocks(input, rail) {
-  const { model, typefaces, views } = input;
-  const width = spanWidth(rail);
-  const head = headBlock(typefaces, model, width, 3);
-  const text = summaryOf(model, views);
-  const summary = text ? summaryBlock(typefaces, text, width, SUMMARY_LINES) : null;
-  const legend = [1, 2]
-    .map((columns) => legendBlock(input, width, columns))
-    .filter(Boolean)
-    .sort((a, b) => /** @type {any} */ (a).height - /** @type {any} */ (b).height)[0];
-  if (!head || (text && !summary) || !legend) return null;
-  const notes = notesOf(model, views, input.provenance).map((note) =>
-    noteBlock(typefaces, note.label, note.text, width),
-  );
-  const blocks = [head, ...(summary ? [summary] : []), legend, ...notes];
+function stackDown(blocks, x, into) {
   const total = blocks.reduce((sum, block) => sum + block.height, 0);
   const slack = LIVE.height - total;
   if (slack < 0) return null;
   const gaps = blocks.length - 1;
   const gap = gaps ? Math.min(POSTER.spacing.column, slack / gaps) : 0;
   let top = LIVE.y + (slack - gaps * gap) / 2;
-  const runs = [];
-  const glyphs = [];
   for (const block of blocks) {
-    const set = placed(block, LIVE.x, top);
-    runs.push(...set.runs);
-    glyphs.push(...set.glyphs);
+    const set = placed(block, x, top);
+    into.runs.push(...set.runs);
+    into.glyphs.push(...set.glyphs);
     top += block.height + gap;
   }
-  return { runs, glyphs };
+  return into;
+}
+
+/**
+ * The rails: head, summary, legend and notes down the left columns, or the
+ * head and summary down the left and the legend and notes down a flank of
+ * `flank` columns on the right, so a tall figure between them is weighed on
+ * both sides. `ink` is how far the left rail's text reaches. Null when the
+ * text does not fit its columns.
+ * @returns {{ runs: any[], glyphs: any[], ink: number } | null}
+ */
+function railBlocks(input, rail, flank = 0) {
+  const { model, typefaces, views } = input;
+  const width = spanWidth(rail);
+  const side = flank ? spanWidth(flank) : width;
+  const head = headBlock(typefaces, input.lead, width, 3);
+  const text = summaryOf(model, views, input.first);
+  const summary = text ? summaryBlock(typefaces, text, width, SUMMARY_LINES) : null;
+  const legend = [1, 2]
+    .map((columns) => legendBlock(input, side, columns))
+    .filter(Boolean)
+    .sort((a, b) => /** @type {any} */ (a).height - /** @type {any} */ (b).height)[0];
+  if (!head || (text && !summary) || !legend) return null;
+  const notes = notesOf(model).map((note) => noteBlock(typefaces, note.label, note.text, side));
+  const lead = [head, ...(summary ? [summary] : [])];
+  const left = flank ? lead : [...lead, legend, ...notes];
+  const into = { runs: [], glyphs: [], ink: Math.max(...left.map((block) => block.ink)) };
+  if (!stackDown(left, LIVE.x, into)) return null;
+  return flank ? stackDown([legend, ...notes], columnX(12 - flank), into) : into;
 }
 
 /**
  * Plan the page around one or more view plates.
  *
  * `stack` sets the masthead across the top and the plates in bands beneath it,
- * one or more to a band, which suits wide, shallow figures. `column` sets all the text down a rail of
- * `rail` columns and the plates over the full height of the rest, which is how a
- * figure of five or more tiers fits a 16:9 page. `corner` gives one plate the
+ * one or more to a band, which suits wide, shallow figures. `column` sets all
+ * the text down a rail of `rail` columns, or the legend and notes down a flank
+ * of `flank` columns on the right, and the plates over the full height of the
+ * rest, which is how a figure of five or more tiers fits a 16:9 page. `corner` gives one plate the
  * full width above the notes and leaves the head, summary and legend floating:
  * they are set after the figure is drawn, into the space its narrow rows leave
  * at the corners of the field, which is where a tree's title and legend belong.
  * Returns null when this plan cannot set its text or its plates.
  *
- * @param {{ model: any, views: any[], provenance: any, typefaces: any,
- *   boundary?: string | null }} input
+ * @param {{ model: any, views: any[], typefaces: any, lead: ReturnType<typeof import("./blocks.mjs").leadOf>,
+ *   first: boolean, boundary?: string | null }} input
  * @param {{ archetype?: "stack" | "column" | "corner", gutters?: number[],
- *   weights?: number[], widths?: number[], rail?: number, reserve?: boolean,
- *   notes?: boolean, bands?: number[] }} [options]
+ *   weights?: number[], widths?: number[], rail?: number, flank?: number,
+ *   reserve?: boolean, notes?: boolean, bands?: number[] }} [options]
  *   `gutters` is the width of each plate's tier-label column, zero when its rows
  *   carry no labels; `weights` and `widths` are the height and width each
  *   plate's figure needs; `reserve` sets a corner page's head in a strip above
@@ -192,25 +212,27 @@ export function planSheet(input, options = {}) {
 
   if (archetype === "column") {
     const rail = Math.min(6, Math.max(3, options.rail ?? 4));
-    const set = railBlocks(input, rail);
+    const flank = options.flank ?? 0;
+    const set = railBlocks(input, rail, flank);
     if (!set) return null;
     runs.push(...set.runs);
     glyphs.push(...set.glyphs);
-    region = { x: columnX(rail), y: LIVE.y, width: spanWidth(12 - rail), height: LIVE.height };
+    // The figure's field starts a column gap after the rail's text, not after
+    // the rail's last column: text that ends short of its columns would leave a
+    // strip of paper down the page between it and the figure.
+    const x = Math.min(columnX(rail), LIVE.x + set.ink + 2 * GRID.gutter);
+    region = {
+      x,
+      y: LIVE.y,
+      width: columnX(12 - flank) - GRID.gutter - x,
+      height: LIVE.height,
+    };
   } else {
     // A corner page may set its notes beside its figure like the rest of its
     // text, instead of in a footer across the page.
     const footed = archetype !== "corner" || !options.notes;
     const footer = footed
-      ? footerNotes(
-          model,
-          views,
-          input.provenance,
-          typefaces,
-          LIVE.x,
-          LIVE.width,
-          LIVE.y + LIVE.height,
-        )
+      ? footerNotes(model, typefaces, LIVE.x, LIVE.width, LIVE.y + LIVE.height)
       : { runs: [], rule: null, top: LIVE.y + LIVE.height + 56 };
     runs.push(...footer.runs);
     if (footer.rule) rules.push(footer.rule);
@@ -223,8 +245,9 @@ export function planSheet(input, options = {}) {
       // legend float either way.
       let top = LIVE.y;
       if (options.reserve) {
+        const below = { summary: summaryOf(model, views, input.first) };
         const head = [4, 5, 6, 7]
-          .map((span) => headBlock(typefaces, model, spanWidth(span), 3, views[0]))
+          .map((span) => headBlock(typefaces, input.lead, spanWidth(span), 3, below))
           .filter((block) => block !== null)
           .sort((a, b) => /** @type {any} */ (a).height - /** @type {any} */ (b).height)[0];
         if (!head) return null;
@@ -284,11 +307,13 @@ function arrange(input, options, region, headless) {
         index === count - 1
           ? region.x + region.width - x
           : Math.floor((free * need[index]) / total);
-      // A floating page sets its one view's heading with the page's head, so
-      // its plate starts at the top of the region.
-      const heading = headless
-        ? { runs: [], glyphs: [], width: 0, ink: 0, height: 0 }
-        : plateHeading(typefaces, views[order], width - 2 * inset, model, views.length > 1);
+      // A page of one view leads with the question it answers, so its plate
+      // sets no second heading and starts at the top of the region; each plate
+      // of a page of several views asks its own question.
+      const heading =
+        headless || views.length === 1
+          ? { runs: [], glyphs: [], width: 0, ink: 0, height: 0 }
+          : plateHeading(typefaces, views[order], width - 2 * inset, model, views.length > 1);
       if (!heading) return null;
       plates.push({ order, x, width, heading });
       x += width + side;

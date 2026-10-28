@@ -13,14 +13,16 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  * @typedef {{
  *   contentWidth: (labelled: boolean) => number,
  *   card: { minWidth: number, maxWidth: number,
+ *     natural?: (component: any) => number,
  *     height: (component: any, width: number) => number },
  *   label: (relation: any, maxWidth?: number) => LabelBox,
  *   external: (component: any) => boolean,
  *   centring?: "all" | "inside" | null,
+ *   arrow?: number,
  *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
- *     minJog: number, clear: number, minChannel: number, rowPad: number, boundaryPad: number,
- *     boundaryBottom: number, boundaryHead: number }
+ *     separation?: number, minJog: number, clear: number, minChannel: number, rowPad: number,
+ *     boundaryPad: number, boundaryBottom: number, boundaryHead: number }
  * }} Metrics
  */
 
@@ -77,21 +79,44 @@ export function layoutView(view, metrics, options = {}) {
   const { labelled, contentWidth } = placement;
   const { width: cardWidth, pitch, interval } = placement;
   const order = placement.order;
+  // A card is as wide as its own text needs, within its lattice slot, and the
+  // cards one column holds take the widest of them, so every column keeps one
+  // left and one right edge from row to row and its centre on the lattice. A
+  // short card is not a panel of paper around one line; the gap beside it grows
+  // instead.
+  const natural = (id) =>
+    Math.min(
+      cardWidth,
+      Math.max(metrics.card.minWidth, metrics.card.natural?.(components.get(id)) ?? cardWidth),
+    );
+  /** @type {Map<number, number>} */
+  const columnWidths = new Map();
+  for (const [id, position] of placement.position)
+    columnWidths.set(position, Math.max(columnWidths.get(position) ?? 0, natural(id)));
+  const widthOf = (id) =>
+    /** @type {number} */ (columnWidths.get(/** @type {number} */ (placement.position.get(id))));
   // Every card of a row is as tall as the row's tallest text, so a row reads on
   // one line; rows differ, so a row of names is not as tall as the row with the
   // most detail.
   const rowHeights = order.map((members) =>
-    Math.max(0, ...members.map((id) => metrics.card.height(components.get(id), cardWidth))),
+    Math.max(0, ...members.map((id) => metrics.card.height(components.get(id), widthOf(id)))),
   );
   const used = [...placement.position.values()];
   const usedSpan = ((Math.max(...used) - Math.min(...used)) / 2) * pitch + cardWidth;
   const gridLeft = (contentWidth - usedSpan) / 2 - (Math.min(...used) / 2) * pitch;
   const columnX = (position) => gridLeft + (position / 2) * pitch;
   const box = new Map(
-    [...placement.position].map(([id, position]) => [
-      id,
-      { x: columnX(position), cx: columnX(position) + cardWidth / 2 },
-    ]),
+    [...placement.position].map(([id, position]) => {
+      const width = widthOf(id);
+      return [
+        id,
+        {
+          x: columnX(position) + (cardWidth - width) / 2,
+          cx: columnX(position) + cardWidth / 2,
+          width,
+        },
+      ];
+    }),
   );
   const internal = rows.map((_, index) => order[index].some((id) => !external(id)));
   const first = internal.indexOf(true);
@@ -106,9 +131,11 @@ export function layoutView(view, metrics, options = {}) {
   const frame = bounded
     ? /** @type {[number, number]} */ ([
         Math.min(...insiders.map((id) => /** @type {any} */ (box.get(id)).x)) - spacing.boundaryPad,
-        Math.max(...insiders.map((id) => /** @type {any} */ (box.get(id)).x)) +
-          cardWidth +
-          spacing.boundaryPad,
+        Math.max(
+          ...insiders.map(
+            (id) => /** @type {any} */ (box.get(id)).x + /** @type {any} */ (box.get(id)).width,
+          ),
+        ) + spacing.boundaryPad,
       ])
     : null;
   const classes = splitCrossedBuses(
@@ -136,8 +163,8 @@ export function layoutView(view, metrics, options = {}) {
   for (const channel of wiring.channels)
     channel.edges =
       frame && ((channel.index >= first && channel.index < last) || trailing) ? frame : [];
-  spreadPorts(wiring.sides, box, cardWidth, spacing, spacing.portSpacing);
-  straighten(wiring.wires, wiring.sides, box, cardWidth, spacing);
+  spreadPorts(wiring.sides, box, spacing, spacing.portSpacing);
+  straighten(wiring.wires, wiring.sides, box, spacing);
   const solutions = wiring.channels.map((channel) =>
     routeChannel(channel, wiring, box, cardWidth, spacing),
   );
@@ -164,9 +191,9 @@ export function layoutView(view, metrics, options = {}) {
     spacing.rowPad +
     (bounded && last === rows.length - 1 ? spacing.boundaryBottom : 0);
   const cards = new Map(
-    [...box].map(([id, { x }]) => {
+    [...box].map(([id, { x, width }]) => {
       const row = /** @type {number} */ (classes.rowOf.get(id));
-      return [id, { x, y: rowTop[row], width: cardWidth, height: rowHeights[row] }];
+      return [id, { x, y: rowTop[row], width, height: rowHeights[row] }];
     }),
   );
 
@@ -214,16 +241,16 @@ export function layoutView(view, metrics, options = {}) {
     paths.push({
       relations: [relation],
       points: [
-        [left.x + cardWidth, y],
+        [left.x + left.width, y],
         [right.x, y],
       ],
     });
     arrows.push(
       fromLeft
         ? { relations: [relation], x: right.x, y, direction: "right" }
-        : { relations: [relation], x: left.x + cardWidth, y, direction: "left" },
+        : { relations: [relation], x: left.x + left.width, y, direction: "left" },
     );
-    let center = (left.x + cardWidth + right.x) / 2;
+    let center = (left.x + left.width + right.x) / 2;
     // A label in a gap that the boundary crosses moves to the side of the gap away from the edge.
     if (frame)
       for (const edge of frame)
@@ -269,6 +296,7 @@ export function layoutView(view, metrics, options = {}) {
     paths,
     labels,
     arrows,
+    arrow: metrics.arrow ?? spacing.arrowStub,
     channels,
     boundary,
   };
@@ -284,7 +312,15 @@ export function layoutView(view, metrics, options = {}) {
         message: `${defect.message} (${defect.relations ?? defect.card})`,
       })),
     );
-  return { ...geometry, measures: { crossings: measures.crossings, bends: measures.bends } };
+  return {
+    ...geometry,
+    measures: {
+      crossings: measures.crossings,
+      bends: measures.bends,
+      routes: measures.routes.length,
+      routeDefects: measures.routes,
+    },
+  };
 }
 
 /** Solve one channel, widening port spacing only when the default leaves no clean routing. */
@@ -301,8 +337,8 @@ function routeChannel(channel, wiring, box, cardWidth, spacing) {
    *   solution: NonNullable<ReturnType<typeof solveChannel>> } | null} */
   let best = null;
   for (const gap of [...PORT_GAPS, cardWidth]) {
-    spreadPorts(wiring.sides, box, cardWidth, spacing, gap ?? spacing.portSpacing, keys);
-    straighten(channel.wires, wiring.sides, box, cardWidth, spacing);
+    spreadPorts(wiring.sides, box, spacing, gap ?? spacing.portSpacing, keys);
+    straighten(channel.wires, wiring.sides, box, spacing);
     // Wires that cross are the fault a reader sees first, so a spacing that
     // uncrosses them wins whatever height it costs, and while the best still
     // crosses, a wider spacing may take more label rows. Once one routes clean,
@@ -332,8 +368,8 @@ function routeChannel(channel, wiring, box, cardWidth, spacing) {
       })),
     );
   // The ports return to the chosen spacing, where the kept solution was found.
-  spreadPorts(wiring.sides, box, cardWidth, spacing, best.gap ?? spacing.portSpacing, keys);
-  straighten(channel.wires, wiring.sides, box, cardWidth, spacing);
+  spreadPorts(wiring.sides, box, spacing, best.gap ?? spacing.portSpacing, keys);
+  straighten(channel.wires, wiring.sides, box, spacing);
   // Wires that still cross may uncross with their labels on another row, as
   // two relations into one card can when their labels do not fit side by
   // side: more label rows are tried while each uncrosses some of what fewer

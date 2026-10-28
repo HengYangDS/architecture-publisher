@@ -180,20 +180,19 @@ function diagramDocument(model, view, layout, width) {
   const relationIds = archifyIds(view.relations.map(({ id }) => id));
   const rowOf = new Map(layout.rows.flatMap((row, index) => row.members.map((id) => [id, index])));
   const kinds = new Map();
-  const cardWidth = layout.card.width;
   const components = view.components.map((component) => {
     const card = /** @type {any} */ (layout.cards.get(component.id));
     const style = presentation(model, component);
     const type = TYPES[/** @type {keyof typeof TYPES} */ (style.category)];
     kinds.set(type, [...new Set([...(kinds.get(type) ?? []), style.label])]);
-    const text = sublabel(component, cardWidth);
+    const text = sublabel(component, card.width);
     return {
       id: ids.get(component.id),
       type,
       label: component.label,
       ...(text ? { sublabel: text } : {}),
       pos: [Math.round(card.x + MARGIN), Math.round(card.y + MARGIN)],
-      size: [cardWidth, card.height],
+      size: [card.width, card.height],
     };
   });
   const labelled = new Set();

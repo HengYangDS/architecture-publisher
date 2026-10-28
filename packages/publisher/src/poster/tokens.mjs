@@ -71,6 +71,11 @@ export const POSTER = Object.freeze({
     labelRowGap: 8,
     portSpacing: 40,
     portMargin: 30,
+    /**
+     * The least distance between two parallel wires, or two ports side by
+     * side: closer, a reader takes two wires for one.
+     */
+    separation: 24,
     minJog: 56,
     clear: 14,
     minChannel: 64,
@@ -176,7 +181,8 @@ export function figureMetrics(styles) {
       columnSpread: POSTER.gapBound,
       inset: round(28 * unit),
       stub: round(16 * unit),
-      track: round(16 * unit),
+      track: Math.max(POSTER.spacing.separation, round(16 * unit)),
+      separation: Math.max(POSTER.spacing.separation, round(2 * POSTER.wire.arrow * unit)),
       arrowStub: round(18 * unit),
       labelGap: round(16 * unit),
       labelRowGap: round(8 * unit),
@@ -190,6 +196,8 @@ export function figureMetrics(styles) {
 /** The page's fixed text styles: the header, the plates, the notes and the legend. */
 export const PAGE = Object.freeze({
   kicker: style(14, { weight: 400 }),
+  /** The model's title above a later page's own title: the edition's running head. */
+  running: style(20, { weight: 700 }),
   title: style(48, { weight: 700 }),
   question: style(24, { weight: 400 }),
   summary: style(16, { weight: 400 }),

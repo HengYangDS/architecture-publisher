@@ -2,7 +2,7 @@
  * Rows of a view. Tiers keep their declared order; otherwise rows follow the
  * relations, which are drawn downward or within one row after the relations
  * that close cycles are reversed.
- * @typedef {{ id: string, label: string | null, members: string[] }} Row
+ * @typedef {{ id: string, label: string | null, members: string[], tier?: string }} Row
  */
 
 /** The most cards one row may hold; rows beside row labels hold one fewer. */
@@ -72,8 +72,11 @@ export function wrapRows(rows, limit) {
     const parts = Math.ceil(row.members.length / limit);
     if (parts <= 1) return [row];
     const size = Math.ceil(row.members.length / parts);
+    // The parts keep the tier they were wrapped from, so its label can stand
+    // beside all of them.
     return Array.from({ length: parts }, (_, index) => ({
       id: `${row.id}-${index + 1}`,
+      tier: row.tier ?? row.id,
       label: index ? null : row.label,
       members: row.members.slice(index * size, (index + 1) * size),
     }));

@@ -25,7 +25,7 @@ test("clean geometry reports its crossings and bends", () => {
       labels: [label("c", 130, 30)],
     }),
   );
-  assert.deepEqual(measured, { crossings: 1, bends: 2, defects: [] });
+  assert.deepEqual(measured, { crossings: 1, bends: 2, defects: [], routes: [] });
 });
 
 test("diagonal, shared and card-crossing wires are defects", () => {

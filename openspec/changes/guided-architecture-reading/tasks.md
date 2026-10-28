@@ -37,13 +37,25 @@
 - [x] 7.2 Pass the full static graph, the test suite with at least 95 percent coverage in every dimension, and the installed package journey on macOS. `npm run check` passed at `f541f69` with all 94 tests run, coverage of 99.2, 95.7, 99.6 and 99.2 percent, and the packed package installed and building on macOS.
 - [x] 7.3 Pass the Linux and Windows quality jobs on an available Forge. GitHub Actions run `40552006899` passed the Linux, macOS and Windows review jobs at `d4db5ec`.
 
-## 8. Composition
+## 8. Composition and readiness
 
 - [x] 8.1 Measure a page's balance from one ink grid shared by geometry and the rendered raster: largest empty rectangle, empty ninths, centroid and reach; balanced and unbalanced fixtures measure as specified. At the page gates 7 of the twelve 01538e9 posters fail; the other five were rejected for their 4:3 format and detached text, which the fixed format and set-in text replace.
 - [x] 8.2 Compose pages of one to three plates in the fixed 2400 × 1350 format on the token page grid, with the masthead (bands of one or more plates), sidebar and corner (floating text and notes) archetypes, cards sized by their text, five type steps up to 1.8 times with one step per page, ink-centred figures, flat chain rows and an edition-wide grouping; every edition is drawn with each page's gate misses recorded, the self and ETHOS editions miss no gate, and AIGW misses only its five-component authority page's empty share.
 - [x] 8.3 Deliver the Archify explainer page with one panel and diagram per view for at most four views, steps and pinned sources, withholding sources Archify will not cite; candidates are chosen on Archify's own routes, with every side left to Archify when the grid's sides cross, the page passes Archify's showcase checks, and Chromium measures every preview fitting with labels of at least 13.25 px and every full viewer at 14 px or more. Measured on the AIGW and Big Bank pages; the Big Bank tiered and context-mode retrieval diagrams keep one crossing each on Archify's routes.
 - [x] 8.4 Move the evidence cards to the manifest and record each view's composition and Archify metrics; two builds are byte-identical.
 - [x] 8.5 Update the README, product contract, references, changelog, package description and Skill for the 16:9 pages and the explainer page; Markdown checks pass.
+- [x] 8.6 Calibrate the balance gates on labelled posters, measuring the largest blank rectangle, full-width bands no text or card crosses, the share of the page in empty squares of at least 240 px and a darkness-weighted centroid over the whole page; every poster the visual review rejected fails a gate, and every poster labelled balanced passes.
+- [x] 8.7 Set text with its figure: each tier label beside its row, the poster's own question above its summary in reading order, the model's question only on the first page and notes only at the page's foot.
+- [x] 8.8 Size each card by its own text on whole lattice columns, with equal heights within a row, details set from the top and no line broken inside a word or identifier; no page draws a component twice.
+- [ ] 8.9 Count stubs that overlap or continue one another, wires within 24 px of each other, arrowheads closer than two heads and labels within 16 px of another wire as route defects beside crossings, and choose layouts without them.
+- [ ] 8.10 Refuse a page that misses a gate instead of drawing its best failing candidate, naming each view no page admits with its measured values and limits; the AIGW, ETHOS and self editions and both unrelated-repository models build with no miss and no route defect.
+- [ ] 8.11 Carry every card detail into the explainer page's steps, set every diagram's card text without an ellipsis and choose diagrams without crossings; Chromium measures every preview fitting with no truncated text.
+- [ ] 8.12 Remove verification wording from posters, keeping the repository and revision in the source note, and from the AIGW and ETHOS model prose in `architecture-publications`.
+- [ ] 8.13 Fix the public contract before the tag, each with a test: `page_*` refusal codes, an allowlisted environment for child processes, a bounded withheld-source loop, required Archify metric keys and a CLI internal-error status with a JSON body.
+- [ ] 8.14 Bring the specs, design, tasks and references in line with the implementation, including admission, route limits, four views, the manifest's identity fields, same-platform bytes and the retired map terms; OpenSpec strict validation and the Markdown checks pass.
+- [ ] 8.15 Register the vendored explainer files as Archify source contracts; the full ETHOS proof passes at the lane head.
+- [ ] 8.16 Rebuild the AIGW, self and ETHOS deliveries; an independent blind visual review finds no blocker, and every major finding is fixed or carries the user's decision.
+- [ ] 8.17 Pass `npm run check` and the hosted Linux, macOS and Windows jobs at the lane head.
 
 ## 9. Acceptance and release
 

@@ -1,252 +1,221 @@
-import { inflateSync } from "node:zlib";
-import { refuse } from "../refusal.mjs";
+import { POSTER } from "./tokens.mjs";
 
 /**
- * Balance of a composed page, measured from ink. Geometry and the rendered
- * raster share this one measure: both become a grid of cells whose ink is the
- * share of their pixels darker than the page.
- * @typedef {{ cell: number, columns: number, rows: number, ink: Float64Array }} InkGrid
+ * Balance of a composed page, measured from what it prints. A page is still
+ * geometry when it is measured: every element it draws is a rectangle of ink,
+ * either mass — text, a card, a relation label, an icon — or a stroke, a thin
+ * wire or rule. Each rectangle also carries its darkness per unit of area, so
+ * the page's centre of gravity is the centre of what a reader sees, not of the
+ * boxes the elements were set in.
+ *
+ * The measures were calibrated on pages a reader judged: the posters the visual
+ * review rejected for blank bands and empty corners fail them, and the pages it
+ * judged balanced pass.
+ * @typedef {{ x: number, y: number, width: number, height: number,
+ *   kind?: "mass" | "stroke", weight?: number }} Ink
  * @typedef {{ x: number, y: number, width: number, height: number }} Field
  */
 
-const SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+/** The side of a measuring cell in px. */
+const CELL = 8;
 /**
- * A pixel is printed, and so not blank paper, when any channel differs from the
- * page color by more than this. The question a balance measurement asks is
- * whether the page carries anything at that point, not whether it is dark: a
- * white card on cream paper and a faint band tint are both printed surfaces,
- * and only untouched paper counts as empty. Rendering is deterministic and the
- * colors are exact, so this stays far above any rounding noise.
+ * The side of the smallest square a reader sees as a hole in the page: wider
+ * than any gutter, channel or gap the grid sets on purpose, and narrower than
+ * the corners a figure of few cards leaves on a full page.
  */
-const PRINTED_DIFFERENCE = 3;
+const HOLE = 240;
 
 /**
- * Decode an 8-bit, non-interlaced RGBA PNG, the format the vendored resvg writes.
- * @param {Buffer} bytes
+ * Darkness weights, per unit of area, of each kind of ink. A line box of text
+ * prints about a third of its area; a white card prints only its outline, bar
+ * and shadow; a wire's rectangle is twice its stroke wide. Fitted so the
+ * geometric centroid of the review pages matches their rendered raster within
+ * 0.035 of the page.
  */
-export function decodePng(bytes) {
-  const unreadable = (detail) =>
-    refuse("raster_unreadable", `The rendered poster cannot be measured: ${detail}.`);
-  if (bytes.length < 33 || !bytes.subarray(0, 8).equals(SIGNATURE)) unreadable("not a PNG");
-  let offset = 8;
-  let width = 0;
-  let height = 0;
-  const data = [];
-  while (offset + 8 <= bytes.length) {
-    const length = bytes.readUInt32BE(offset);
-    const type = bytes.toString("latin1", offset + 4, offset + 8);
-    const body = bytes.subarray(offset + 8, offset + 8 + length);
-    if (type === "IHDR") {
-      width = body.readUInt32BE(0);
-      height = body.readUInt32BE(4);
-      const [depth, color, , , interlace] = body.subarray(8, 13);
-      if (depth !== 8 || color !== 6 || interlace !== 0) unreadable("not 8-bit RGBA");
-    } else if (type === "IDAT") data.push(body);
-    else if (type === "IEND") break;
-    offset += 12 + length;
-  }
-  const raw = inflateSync(Buffer.concat(data));
-  const stride = width * 4;
-  const pixels = Buffer.alloc(stride * height);
-  for (let y = 0; y < height; y += 1) {
-    const filter = raw[y * (stride + 1)];
-    const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
-    for (let i = 0; i < stride; i += 1) {
-      const left = i >= 4 ? pixels[y * stride + i - 4] : 0;
-      const up = y ? pixels[(y - 1) * stride + i] : 0;
-      const corner = i >= 4 && y ? pixels[(y - 1) * stride + i - 4] : 0;
-      const predictor =
-        filter === 1
-          ? left
-          : filter === 2
-            ? up
-            : filter === 3
-              ? (left + up) >> 1
-              : filter === 4
-                ? paeth(left, up, corner)
-                : 0;
-      pixels[y * stride + i] = (line[i] + predictor) & 0xff;
-    }
-  }
-  return { width, height, data: pixels };
-}
+export const DARKNESS = Object.freeze({ text: 0.35, card: 0.05, stroke: 0.4, glyph: 0.05 });
 
-function paeth(a, b, c) {
-  const p = a + b - c;
-  const [pa, pb, pc] = [Math.abs(p - a), Math.abs(p - b), Math.abs(p - c)];
-  return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
-}
+const luminance = (color) => {
+  const [r, g, b] = [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const PAPER = luminance(POSTER.color.paper);
+
+/** How much darker than the page a color prints, from 0 for paper to 1 for black. */
+export const darkness = (color) => Math.max(0, 1 - luminance(color) / PAPER);
 
 /**
- * The share of ink in each square cell of a decoded image.
- * @param {{ width: number, height: number, data: Buffer }} image
- * @param {number} cell
- * @param {[number, number, number]} paper the page color
- * @returns {InkGrid}
+ * Cells of the page covered by ink, and by mass alone: a cell is covered when
+ * a rectangle covers any part of it.
+ * @param {Ink[]} rects
+ * @param {{ width: number, height: number }} page
  */
-export function inkGrid(image, cell, paper) {
-  const columns = Math.floor(image.width / cell);
-  const rows = Math.floor(image.height / cell);
-  const ink = new Float64Array(columns * rows);
-  for (let row = 0; row < rows; row += 1)
-    for (let column = 0; column < columns; column += 1) {
-      let dark = 0;
-      for (let y = row * cell; y < (row + 1) * cell; y += 1)
-        for (let x = column * cell; x < (column + 1) * cell; x += 1) {
-          const at = (y * image.width + x) * 4;
-          const difference = Math.max(
-            Math.abs(image.data[at] - paper[0]),
-            Math.abs(image.data[at + 1] - paper[1]),
-            Math.abs(image.data[at + 2] - paper[2]),
-          );
-          if (difference > PRINTED_DIFFERENCE) dark += 1;
-        }
-      ink[row * columns + column] = dark / (cell * cell);
-    }
-  return { cell, columns, rows, ink };
-}
-
-/**
- * The same ink grid, built from drawn rectangles instead of pixels: a cell is
- * printed when a rectangle covers any part of it. A composition is measured
- * this way while it is still geometry, and the rendered 2400 px raster is
- * measured again with `inkGrid`, so the two passes share one notion of ink.
- * @param {{ x: number, y: number, width: number, height: number }[]} rects
- * @param {number} cell
- * @param {number} width
- * @param {number} height
- * @returns {InkGrid}
- */
-export function inkFromRects(rects, cell, width, height) {
-  const columns = Math.floor(width / cell);
-  const rows = Math.floor(height / cell);
-  const ink = new Float64Array(columns * rows);
+function cellsOf(rects, page) {
+  const columns = Math.ceil(page.width / CELL);
+  const rows = Math.ceil(page.height / CELL);
+  const ink = new Uint8Array(columns * rows);
+  const mass = new Uint8Array(columns * rows);
   for (const rect of rects) {
-    const left = Math.max(0, Math.floor(rect.x / cell));
-    const top = Math.max(0, Math.floor(rect.y / cell));
-    const right = Math.min(columns - 1, Math.floor((rect.x + rect.width - 0.001) / cell));
-    const bottom = Math.min(rows - 1, Math.floor((rect.y + rect.height - 0.001) / cell));
-    for (let row = top; row <= bottom; row += 1)
-      for (let column = left; column <= right; column += 1) ink[row * columns + column] = 1;
+    const left = Math.max(0, Math.floor(rect.x / CELL));
+    const top = Math.max(0, Math.floor(rect.y / CELL));
+    const right = Math.min(columns - 1, Math.floor((rect.x + rect.width - 0.001) / CELL));
+    const bottom = Math.min(rows - 1, Math.floor((rect.y + rect.height - 0.001) / CELL));
+    for (let row = top; row <= bottom; row += 1) {
+      ink.fill(1, row * columns + left, row * columns + right + 1);
+      if (rect.kind !== "stroke") mass.fill(1, row * columns + left, row * columns + right + 1);
+    }
   }
-  return { cell, columns, rows, ink };
+  return { columns, rows, ink, mass };
 }
 
-/** Cell index range covered by a field, clamped to the grid. */
-function cellsOf(grid, field) {
+/** The cell range of a field, clamped to the grid. */
+function rangeOf(grid, field) {
   return {
-    left: Math.max(0, Math.round(field.x / grid.cell)),
-    top: Math.max(0, Math.round(field.y / grid.cell)),
-    right: Math.min(grid.columns, Math.round((field.x + field.width) / grid.cell)),
-    bottom: Math.min(grid.rows, Math.round((field.y + field.height) / grid.cell)),
+    left: Math.max(0, Math.round(field.x / CELL)),
+    top: Math.max(0, Math.round(field.y / CELL)),
+    right: Math.min(grid.columns, Math.round((field.x + field.width) / CELL)),
+    bottom: Math.min(grid.rows, Math.round((field.y + field.height) / CELL)),
   };
 }
 
 /**
- * The largest axis-aligned rectangle of cells without ink inside `live`, by
- * the maximal-rectangle-in-histogram method.
+ * The tallest band of the live area, across its whole width, that carries no
+ * mass. A band crossed only by wires or a rule is still blank to a reader.
  */
-function largestEmpty(grid, live) {
-  const { left, top, right, bottom } = cellsOf(grid, live);
+function blankBand(grid, live) {
+  const { left, top, right, bottom } = rangeOf(grid, live);
+  let best = { height: 0, y: live.y };
+  let run = 0;
+  for (let row = top; row < bottom; row += 1) {
+    const line = grid.mass.subarray(row * grid.columns + left, row * grid.columns + right);
+    run = line.includes(1) ? 0 : run + 1;
+    if (run * CELL > best.height) best = { height: run * CELL, y: (row - run + 1) * CELL };
+  }
+  return best;
+}
+
+/**
+ * The share of the live area covered by holes: empty squares, with any ink
+ * counting, at least `HOLE` px on a side. A wire crossing a region divides it;
+ * the gaps and channels a figure is built from are narrower than a hole.
+ */
+function holeShare(grid, live) {
+  const { left, top, right, bottom } = rangeOf(grid, live);
+  const width = right - left;
+  const height = bottom - top;
+  const side = Math.ceil(HOLE / CELL);
+  const stride = width + 1;
+  // The side of the largest empty square ending at each cell, and where one of
+  // at least the hole's side ends.
+  const square = new Int32Array(stride * (height + 1));
+  const ends = new Int32Array(stride * (height + 1));
+  for (let row = 0; row < height; row += 1)
+    for (let column = 0; column < width; column += 1) {
+      const at = (row + 1) * stride + column + 1;
+      const empty = !grid.ink[(top + row) * grid.columns + left + column];
+      square[at] = empty
+        ? 1 + Math.min(square[at - 1], square[at - stride], square[at - stride - 1])
+        : 0;
+      ends[at] =
+        (square[at] >= side ? 1 : 0) + ends[at - 1] + ends[at - stride] - ends[at - stride - 1];
+    }
+  // A cell lies in a hole when some hole square ending within one side of it covers it.
+  let covered = 0;
+  for (let row = 0; row < height; row += 1)
+    for (let column = 0; column < width; column += 1) {
+      const lastRow = Math.min(height, row + side);
+      const lastColumn = Math.min(width, column + side);
+      const count =
+        ends[lastRow * stride + lastColumn] -
+        ends[row * stride + lastColumn] -
+        ends[lastRow * stride + column] +
+        ends[row * stride + column];
+      if (count > 0) covered += 1;
+    }
+  return width * height ? covered / (width * height) : 0;
+}
+
+/**
+ * The largest rectangle of the live area that no ink touches, by the
+ * maximal-rectangle-in-histogram method: one blank block the eye finds at once,
+ * however the rest of the page is filled.
+ */
+function largestBlank(grid, live) {
+  const { left, top, right, bottom } = rangeOf(grid, live);
   const width = right - left;
   const heights = new Array(width).fill(0);
   let best = { area: 0, x: left, y: top, width: 0, height: 0 };
   for (let row = top; row < bottom; row += 1) {
     for (let i = 0; i < width; i += 1)
-      heights[i] = grid.ink[row * grid.columns + left + i] > 0 ? 0 : heights[i] + 1;
+      heights[i] = grid.ink[row * grid.columns + left + i] ? 0 : heights[i] + 1;
     const stack = [];
     for (let i = 0; i <= width; i += 1) {
       const height = i < width ? heights[i] : 0;
       let start = i;
       while (stack.length && stack.at(-1).height >= height) {
-        const top = /** @type {{ start: number, height: number }} */ (stack.pop());
-        const area = top.height * (i - top.start);
+        const open = /** @type {{ start: number, height: number }} */ (stack.pop());
+        const area = open.height * (i - open.start);
         if (area > best.area)
           best = {
             area,
-            x: left + top.start,
-            y: row - top.height + 1,
-            width: i - top.start,
-            height: top.height,
+            x: left + open.start,
+            y: row - open.height + 1,
+            width: i - open.start,
+            height: open.height,
           };
-        start = top.start;
+        start = open.start;
       }
       stack.push({ start, height });
     }
   }
-  return { cells: best.area, total: width * (bottom - top), best };
+  const total = width * (bottom - top);
+  return {
+    share: total ? best.area / total : 0,
+    rectangle: [best.x * CELL, best.y * CELL, best.width * CELL, best.height * CELL],
+  };
+}
+
+/** The darkness-weighted centre of the live area's ink, as a share of its width and height off centre. */
+function centroidOf(rects, live) {
+  let mass = 0;
+  let mx = 0;
+  let my = 0;
+  for (const rect of rects) {
+    const x1 = Math.max(live.x, rect.x);
+    const y1 = Math.max(live.y, rect.y);
+    const x2 = Math.min(live.x + live.width, rect.x + rect.width);
+    const y2 = Math.min(live.y + live.height, rect.y + rect.height);
+    if (x2 <= x1 || y2 <= y1) continue;
+    const weight = (x2 - x1) * (y2 - y1) * (rect.weight ?? 0);
+    mass += weight;
+    mx += (weight * (x1 + x2)) / 2;
+    my += (weight * (y1 + y2)) / 2;
+  }
+  if (!mass) return [0, 0];
+  return [
+    (mx / mass - (live.x + live.width / 2)) / live.width,
+    (my / mass - (live.y + live.height / 2)) / live.height,
+  ];
 }
 
 /**
- * Balance of a page: the largest empty rectangle in the live area and its
- * share, the number of empty cells in a three-by-three division of the figure
- * field, the ink centroid's offset from the figure's center, and how much of
- * the live area the ink reaches across and down.
- *
- * Each measure is taken over the region it describes. The empty block and the
- * fill describe the page, so they read the live area: a column skeleton sets a
- * third of its type in a rail beside the figure, and a measure that read only
- * the figure would call a full page empty. The centroid describes the figure's
- * internal balance — are its cards centered in the field or piled to one side —
- * so it reads the figure field, which is the frame the figure was composed for;
- * measured over the live area, every column page is right-heavy by design and
- * the gate would reject the skeleton rather than a badly balanced figure.
- * @param {InkGrid} grid
- * @param {{ live: Field, figure: Field }} regions
+ * Balance of one page: the largest blank rectangle in its live area and its
+ * share, the tallest blank band across it, the share of the live area that
+ * lies in holes, and its centre of gravity. The rectangle finds one blank
+ * block, the band a blank stripe between a figure and its text, and the holes
+ * the corners a sparse figure leaves on every side.
+ * @param {Ink[]} rects every rectangle of ink the page draws
+ * @param {Field} live the live area inside the page's margins
+ * @param {{ width: number, height: number }} [page]
  */
-export function balanceOf(grid, { live, figure }) {
-  const empty = largestEmpty(grid, live);
-  const { left, top, right, bottom } = cellsOf(grid, live);
-  const field = cellsOf(grid, figure);
-  const ninths = new Float64Array(9);
-  let mass = 0;
-  // The centroid reads the figure's own frame, so it says whether the figure is
-  // balanced inside the field it was composed for.
-  let figureMass = 0;
-  let fx = 0;
-  let fy = 0;
-  /** @type {[number, number, number, number]} ink bounding box in cells */
-  const box = [Infinity, Infinity, -Infinity, -Infinity];
-  for (let row = top; row < bottom; row += 1)
-    for (let column = left; column < right; column += 1) {
-      const ink = grid.ink[row * grid.columns + column];
-      if (!ink) continue;
-      if (row >= field.top && row < field.bottom && column >= field.left && column < field.right) {
-        const ninth =
-          Math.min(2, Math.floor(((row - field.top) * 3) / (field.bottom - field.top))) * 3 +
-          Math.min(2, Math.floor(((column - field.left) * 3) / (field.right - field.left)));
-        ninths[ninth] += ink;
-        figureMass += ink;
-        fx += ink * (column + 0.5);
-        fy += ink * (row + 0.5);
-      }
-      mass += ink;
-      box[0] = Math.min(box[0], column);
-      box[1] = Math.min(box[1], row);
-      box[2] = Math.max(box[2], column + 1);
-      box[3] = Math.max(box[3], row + 1);
-    }
+export function balanceOf(rects, live, page = POSTER) {
+  const grid = cellsOf(rects, page);
   const round = (value) => Math.round(value * 1000) / 1000;
-  const center = [(field.left + field.right) / 2, (field.top + field.bottom) / 2];
+  const blank = largestBlank(grid, live);
   return {
-    emptyShare: round(empty.total ? empty.cells / empty.total : 0),
-    emptyRectangle: [
-      empty.best.x * grid.cell,
-      empty.best.y * grid.cell,
-      empty.best.width * grid.cell,
-      empty.best.height * grid.cell,
-    ],
-    emptyNinths: ninths.filter((value) => value === 0).length,
-    centroid: figureMass
-      ? [
-          round((fx / figureMass - center[0]) / (field.right - field.left)),
-          round((fy / figureMass - center[1]) / (field.bottom - field.top)),
-        ]
-      : [0, 0],
-    // The share of the live area the ink reaches across and down: a page drawn
-    // small inside its margins, or one that stops halfway down, measures short.
-    fill: mass
-      ? [round((box[2] - box[0]) / (right - left)), round((box[3] - box[1]) / (bottom - top))]
-      : [0, 0],
+    emptyShare: round(blank.share),
+    emptyRectangle: blank.rectangle,
+    band: blankBand(grid, live),
+    holes: round(holeShare(grid, live)),
+    centroid: centroidOf(rects, live).map(round),
   };
 }

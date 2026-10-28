@@ -98,9 +98,15 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(JSON.parse(await fs.readFile(imported, "utf8")).id, "shop");
   const again = await json(["import", "likec4", SHOP, "--out", imported, "--id", "shop"]);
   assert.deepEqual([again.exitCode, again.body.code], [1, "import_output_exists"]);
+  // Six components cannot fill a balanced 16:9 page: the build refuses, names
+  // each view with what its closest page misses, and writes nothing.
   const built = await json(["build", imported, "--out", path.join(root, "shop")]);
-  assert.equal(built.exitCode, 0, JSON.stringify(built.body));
-  assert.deepEqual(built.body.views, ["index", "internals"]);
+  assert.deepEqual([built.exitCode, built.body.code], [1, "poster_unbalanced"]);
+  assert.deepEqual(
+    built.body.problems.map((problem) => problem.path),
+    ["/views/index", "/views/internals"],
+  );
+  await assert.rejects(fs.access(path.join(root, "shop")));
 });
 
 test("the archpub executable prints one result and sets its exit status", async () => {

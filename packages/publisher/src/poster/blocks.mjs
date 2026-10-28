@@ -75,19 +75,48 @@ function legendOf(model, views, boundary) {
 
 /**
  * What a page says its figures show. A page of one view says what that view
- * shows, or the model's summary when the view has none; a page of several
- * views sets the model's summary, and each plate's heading says what its own
- * view shows. Null when there is nothing to say.
+ * shows; the first page also falls back to the model's summary, and a page of
+ * several views sets the model's summary only when it opens the edition, since
+ * each plate's heading says what its own view shows. Null when there is nothing
+ * to say.
  * @param {any} model
  * @param {any[]} views
+ * @param {boolean} [first] whether the page opens the edition
  * @returns {string | null}
  */
-export function summaryOf(model, views) {
-  return (views.length === 1 ? views[0].summary : null) || model.summary || null;
+export function summaryOf(model, views, first = true) {
+  return (views.length === 1 ? views[0].summary : null) || (first ? model.summary : null) || null;
 }
 
-/** The footer's note blocks: what the model covers, what it leaves out, where it comes from. */
-export function notesOf(model, views, provenance) {
+/**
+ * The lines a page leads with. The page that opens the edition asks the model's
+ * question under its title. A later page of one view asks that view's own
+ * question under the view's title, with the model's title set small above them
+ * as a running head, so a reader sees what this page answers before what the
+ * edition as a whole does; a view with no title of its own asks its question
+ * under the model's title, with no running head to repeat it. A later page of
+ * several views carries the model's title alone; each plate asks its own
+ * question.
+ * @param {any} model
+ * @param {any[]} views
+ * @param {boolean} first
+ * @returns {{ kicker: string | null, title: string, question: string | null }}
+ */
+export function leadOf(model, views, first) {
+  if (first) return { kicker: null, title: model.title, question: model.question };
+  if (views.length !== 1) return { kicker: null, title: model.title, question: null };
+  const [view] = views;
+  const kicker = view.title === model.title ? null : model.title;
+  return { kicker, title: view.title, question: view.question };
+}
+
+/**
+ * The footer's note blocks: what the model covers, what it leaves out, where it
+ * comes from. The source note names the repository and revision a reader can
+ * open; whether each source was verified, and by which digest, is evidence the
+ * manifest keeps.
+ */
+export function notesOf(model) {
   const sentence = (text) => (/[.!?。]$/u.test(text) ? text : `${text}.`);
   /** @type {Array<{ label: string, text: string }>} */
   const blocks = [];
@@ -97,9 +126,6 @@ export function notesOf(model, views, provenance) {
   const origin = [];
   if (model.repository)
     origin.push(`Source ${model.repository.name} at ${model.repository.revision.slice(0, 12)}`);
-  const count = provenance.records.length;
-  if (provenance.state === "verified") origin.push(`${count} sources verified by SHA-256`);
-  if (provenance.state === "unverified") origin.push(`${count} sources declared and not verified`);
   if (model.attribution) origin.push(`Model by ${model.attribution}`);
   if (origin.length) blocks.push({ label: "Source", text: `${origin.join("; ")}.` });
   return blocks;
@@ -143,32 +169,38 @@ function setLines(runs, lines, top, style, color, x = 0) {
 }
 
 /**
- * The page's head: its title and question. A page that sets one view without a
- * plate heading carries the view's own title and question beneath them, so the
- * figure is still named where the reader starts. Null when a line group needs
- * more lines than `most` allows at this width.
+ * The page's head: its lead lines, then the summary beneath them in reading
+ * order. Null when a line group needs more lines than `most` allows at this
+ * width, or the summary more than its allowance.
  * @param {any} typefaces
- * @param {any} model
+ * @param {{ kicker: string | null, title: string, question: string | null }} lead
  * @param {number} width
  * @param {number} most lines allowed for the title and for each question
- * @param {any} [view]
+ * @param {{ summary?: string | null }} [below]
  * @returns {Block | null}
  */
-export function headBlock(typefaces, model, width, most, view = null) {
-  const title = linesWithin(typefaces, model.title, width, PAGE.title, most);
-  const question = linesWithin(typefaces, model.question, width, PAGE.question, most);
-  if (!title || !question) return null;
+export function headBlock(typefaces, lead, width, most, below = {}) {
+  const kicker = lead.kicker ? linesWithin(typefaces, lead.kicker, width, PAGE.running, 1) : [];
+  const title = linesWithin(typefaces, lead.title, width, PAGE.title, most);
+  const question = lead.question
+    ? linesWithin(typefaces, lead.question, width, PAGE.question, most)
+    : [];
+  if (!kicker || !title || !question) return null;
   const runs = [];
-  let y = setLines(runs, title, 0, PAGE.title, POSTER.color.ink);
-  y = setLines(runs, question, y + LEAD, PAGE.question, POSTER.color.accent);
-  if (view) {
-    const heading = plateHeading(typefaces, view, width, model, false);
-    if (!heading) return null;
-    if (heading.height) {
-      y += 2 * LEAD;
-      for (const run of heading.runs) runs.push({ ...run, top: run.top + y });
-      y += heading.height;
-    }
+  let y = setLines(runs, kicker, 0, PAGE.running, POSTER.color.muted);
+  if (kicker.length) y += LEAD / 2;
+  y = setLines(runs, title, y, PAGE.title, POSTER.color.ink);
+  if (question.length) y = setLines(runs, question, y + LEAD, PAGE.question, POSTER.color.accent);
+  if (below.summary) {
+    const lines = linesWithin(
+      typefaces,
+      below.summary,
+      width,
+      PAGE.summary,
+      POSTER.summaryLines + 2,
+    );
+    if (!lines) return null;
+    y = setLines(runs, lines, y + 2 * LEAD, PAGE.summary, POSTER.color.muted);
   }
   return block(typefaces, runs, [], width, y);
 }
@@ -341,8 +373,8 @@ export function plateHeading(typefaces, view, width, model, shows) {
  * column, or side by side in one column each. Null when the page has no notes.
  * @returns {Block | null}
  */
-export function notesBlock(typefaces, model, views, provenance, width, columns) {
-  const notes = notesOf(model, views, provenance);
+export function notesBlock(typefaces, model, width, columns) {
+  const notes = notesOf(model);
   if (!notes.length) return null;
   const across = columns > 1 ? notes.length : 1;
   const span = across > 1 ? (width - (across - 1) * POSTER.grid.gutter) / across : width;
@@ -366,8 +398,8 @@ export function notesBlock(typefaces, model, views, provenance, width, columns) 
  * no notes has no footer and no rule.
  * @returns {{ runs: any[], rule: any, top: number }}
  */
-export function footerNotes(model, views, provenance, typefaces, left, width, bottom) {
-  const notes = notesOf(model, views, provenance);
+export function footerNotes(model, typefaces, left, width, bottom) {
+  const notes = notesOf(model);
   if (!notes.length) return { runs: [], rule: null, top: bottom + 56 };
   const columns = Math.max(1, notes.length);
   const span = width / columns;

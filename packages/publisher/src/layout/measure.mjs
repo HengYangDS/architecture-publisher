@@ -31,6 +31,8 @@ const overlaps = (a, b, tolerance = 0.5) =>
  * @param {{ cards: Map<string, { x: number, y: number, width: number, height: number }>,
  *   paths: Array<{ relations: Array<{ id: string }>, points: number[][] }>,
  *   labels: Array<{ relations: Array<{ id: string }>, x: number, y: number, width: number, height: number }>,
+ *   arrows?: Array<{ relations: Array<{ id: string }>, x: number, y: number }>,
+ *   arrow?: number,
  *   boundary: { x: number, y: number, width: number, height: number } | null }} geometry
  */
 export function measureLayout(geometry) {
@@ -144,5 +146,91 @@ export function measureLayout(geometry) {
     }
   }
   const bends = geometry.paths.reduce((sum, { points }) => sum + points.length - 2, 0);
-  return { crossings, bends, defects };
+  return { crossings, bends, defects, routes: routeDefects(geometry, segments) };
+}
+
+/**
+ * The spacing below which wiring misreads although no two wires cross: two
+ * parallel wires closer than `parallel` read as one, a wire that stops less
+ * than `parallel` short of another in line with it reads as continuing it, two
+ * arrowheads closer than two heads read as one, and a relation label closer
+ * than `label` to another relation's wire reads as that wire's label.
+ */
+const ROUTE = Object.freeze({ parallel: 24, label: 16, heads: 2 });
+
+/**
+ * Route defects of one layout: wires a reader takes for one, a wire that seems
+ * to continue another, arrowheads that run together and labels set against
+ * another relation's wire. A layout is chosen without them as it is without
+ * crossings.
+ * @param {{ paths: Array<{ relations: Array<{ id: string }>, points: number[][] }>,
+ *   labels: Array<{ relations: Array<{ id: string }>, x: number, y: number, width: number, height: number }>,
+ *   arrows?: Array<{ relations: Array<{ id: string }>, x: number, y: number }>,
+ *   arrow?: number }} geometry `arrow` is the length of one arrowhead
+ * @param {ReturnType<typeof segmentsOf>} segments
+ * @returns {Array<{ code: string, relations: string, at: number[] }>}
+ *   `at` is a point of the layout where the defect lies
+ */
+function routeDefects(geometry, segments) {
+  const found = [];
+  for (let i = 0; i < segments.length; i += 1)
+    for (let j = i + 1; j < segments.length; j += 1) {
+      const [s, u] = [segments[i], segments[j]];
+      if (s.owner === u.owner || vertical(s) !== vertical(u)) continue;
+      const [a, b] = [span(s), span(u)];
+      // Across the wires, and along them: positive overlap, negative gap.
+      const [apart, along] = vertical(s)
+        ? [Math.abs(a.x1 - b.x1), Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1)]
+        : [Math.abs(a.y1 - b.y1), Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)];
+      const at = [
+        (Math.max(a.x1, b.x1) + Math.min(a.x2, b.x2)) / 2,
+        (Math.max(a.y1, b.y1) + Math.min(a.y2, b.y2)) / 2,
+      ];
+      const relations = `${s.owner} ${u.owner}`;
+      if (apart >= 0.5 && apart < ROUTE.parallel && along > 0.5)
+        found.push({ code: "route_wires_close", relations, at });
+      else if (apart < 0.5 && along <= 0.5 && along > -ROUTE.parallel)
+        found.push({ code: "route_wire_continued", relations, at });
+    }
+  const arrows = geometry.arrows ?? [];
+  for (let i = 0; i < arrows.length; i += 1)
+    for (let j = i + 1; j < arrows.length; j += 1) {
+      const [p, q] = [arrows[i], arrows[j]];
+      if (owner(p.relations) === owner(q.relations)) continue;
+      if (Math.hypot(p.x - q.x, p.y - q.y) < ROUTE.heads * (geometry.arrow ?? 0))
+        found.push({
+          code: "route_arrows_close",
+          relations: `${owner(p.relations)} ${owner(q.relations)}`,
+          at: [(p.x + q.x) / 2, (p.y + q.y) / 2],
+        });
+    }
+  for (const label of geometry.labels) {
+    const name = owner(label.relations);
+    const near = {
+      x: label.x - ROUTE.label,
+      y: label.y - ROUTE.label,
+      width: label.width + 2 * ROUTE.label,
+      height: label.height + 2 * ROUTE.label,
+    };
+    for (const segment of segments) {
+      if (segment.owner === name) continue;
+      const box = span(segment);
+      if (
+        overlaps(near, {
+          x: box.x1 - 0.5,
+          y: box.y1 - 0.5,
+          width: box.x2 - box.x1 + 1,
+          height: box.y2 - box.y1 + 1,
+        })
+      ) {
+        found.push({
+          code: "route_label_near_wire",
+          relations: `${name} ${segment.owner}`,
+          at: [label.x + label.width / 2, label.y + label.height / 2],
+        });
+        break;
+      }
+    }
+  }
+  return found;
 }

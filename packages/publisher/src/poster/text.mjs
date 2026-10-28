@@ -33,7 +33,7 @@ export async function loadTypefaces() {
  * long path or identifier may break. Each delimiter stays with the piece before it.
  * @param {string} word
  */
-export function softSegments(word) {
+function softSegments(word) {
   return word.match(/[^/\-_.:]+[/\-_.:]*|[/\-_.:]+/gu) ?? [word];
 }
 

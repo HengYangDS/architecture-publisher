@@ -67,11 +67,11 @@ async function prepare(modelPath, options = {}) {
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo ?? null);
   const views = await planViews(model, async (view) =>
-    admitsView(model, view, typefaces, icons, binding),
+    admitsView(model, view, typefaces, icons),
   );
   // Pages are composed for the edition as a whole: a sparse view shares a page
   // with its neighbour, so a poster is a page, not a view.
-  const posters = composePosters(model, views, typefaces, icons, binding);
+  const posters = composePosters(model, views, typefaces, icons);
   const page = await explainerPage(model, views);
   return { loaded, model, binding, views, posters, page, icons, typefaces };
 }

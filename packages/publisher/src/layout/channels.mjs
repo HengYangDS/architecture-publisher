@@ -17,13 +17,13 @@ import { refuse } from "../refusal.mjs";
 
 /**
  * Build every wire, its ends and the card sides they use.
- * @param {{ order: string[][], classes: any, box: Map<string, { x: number, cx: number }>, cardWidth: number,
+ * @param {{ order: string[][], classes: any, box: Map<string, { x: number, cx: number, width: number }>, cardWidth: number,
  *   rowHeights: number[], contentWidth: number, columns: number, pitch: number, gridLeft: number, slots: number,
  *   frame: [number, number] | null, spacing: any, label: (relation: any, maxWidth?: number) => LabelBox }} input
  */
 export function buildWires(input) {
   const { order, classes, box, spacing } = input;
-  const at = (id) => /** @type {{ x: number, cx: number }} */ (box.get(id));
+  const at = (id) => /** @type {{ x: number, cx: number, width: number }} */ (box.get(id));
   const rowCount = order.length;
   const channels = Array.from(
     { length: Math.max(0, rowCount - 1) },
@@ -83,7 +83,7 @@ export function buildWires(input) {
     const [left, right] = a.x < b.x ? [a, b] : [b, a];
     const neighbors =
       Math.abs(order[row].indexOf(relation.from) - order[row].indexOf(relation.to)) === 1;
-    const gap = right.x - (left.x + input.cardWidth);
+    const gap = right.x - (left.x + left.width);
     const label = input.label(relation, Math.max(80, gap - 2 * spacing.clear));
     const key = `${row}:${left.x}`;
     if (
@@ -167,7 +167,7 @@ function corridor(input, first, last, x1, x2, taken) {
     order
       .slice(first + 1, last)
       .every((row) =>
-        row.every((id) => x < box.get(id).x - 12 || x > box.get(id).x + cardWidth + 12),
+        row.every((id) => x < box.get(id).x - 12 || x > box.get(id).x + box.get(id).width + 12),
       ) &&
     (!frame || frame.every((edge) => Math.abs(edge - x) > 10)) &&
     !taken.some(
@@ -190,14 +190,15 @@ function corridor(input, first, last, x1, x2, taken) {
 }
 
 /** Spread the ports of each card side symmetrically, ordered by where their wires go. */
-export function spreadPorts(sides, box, cardWidth, spacing, gap, keys = [...sides.keys()]) {
+export function spreadPorts(sides, box, spacing, gap, keys = [...sides.keys()]) {
   for (const key of keys) {
     const ends = sides.get(key);
     if (!ends) continue;
-    const center = box.get(key.slice(0, key.lastIndexOf(":"))).cx;
+    const card = box.get(key.slice(0, key.lastIndexOf(":")));
+    const center = card.cx;
     ends.sort((a, b) => a.toward - b.toward || a.wire.order - b.wire.order);
     const span =
-      ends.length > 1 ? Math.min(gap * (ends.length - 1), cardWidth - 2 * spacing.portMargin) : 0;
+      ends.length > 1 ? Math.min(gap * (ends.length - 1), card.width - 2 * spacing.portMargin) : 0;
     ends.forEach((point, index) => {
       point.x = ends.length === 1 ? center : center - span / 2 + (span * index) / (ends.length - 1);
     });
@@ -223,7 +224,7 @@ export function spreadPorts(sides, box, cardWidth, spacing, gap, keys = [...side
       ends.every(
         (point) =>
           point.x + shift >= card.x + spacing.portMargin - 0.01 &&
-          point.x + shift <= card.x + cardWidth - spacing.portMargin + 0.01,
+          point.x + shift <= card.x + card.width - spacing.portMargin + 0.01,
       );
     const shift = [gap / 2, -gap / 2].find((candidate) => fits(candidate) && !clash(candidate));
     if (shift !== undefined) for (const point of ends) point.x += shift;
@@ -231,7 +232,7 @@ export function spreadPorts(sides, box, cardWidth, spacing, gap, keys = [...side
 }
 
 /** Make a wire one straight vertical when its ends can share an x. */
-export function straighten(wires, sides, box, cardWidth, spacing) {
+export function straighten(wires, sides, box, spacing) {
   const sideOf = (point) =>
     sides.get(`${point.id}:${point.wire.top.includes(point) ? "bottom" : "top"}`);
   const move = (point, x) => {
@@ -239,13 +240,14 @@ export function straighten(wires, sides, box, cardWidth, spacing) {
     const card = box.get(point.id);
     if (
       x < card.x + spacing.portMargin - 0.01 ||
-      x > card.x + cardWidth - spacing.portMargin + 0.01
+      x > card.x + card.width - spacing.portMargin + 0.01
     )
       return false;
     const index = ends.indexOf(point);
+    const apart = spacing.separation ?? 18;
     if (
-      (index > 0 && x - ends[index - 1].x < 18) ||
-      (index < ends.length - 1 && ends[index + 1].x - x < 18)
+      (index > 0 && x - ends[index - 1].x < apart) ||
+      (index < ends.length - 1 && ends[index + 1].x - x < apart)
     )
       return false;
     point.x = x;
@@ -265,7 +267,7 @@ export function straighten(wires, sides, box, cardWidth, spacing) {
     }
     const [a, b] = [box.get(p.id), box.get(q.id)];
     const low = Math.max(a.x, b.x) + spacing.portMargin;
-    const high = Math.min(a.x, b.x) + cardWidth - spacing.portMargin;
+    const high = Math.min(a.x + a.width, b.x + b.width) - spacing.portMargin;
     if (low > high) continue;
     if (sideOf(p).length === 1 && sideOf(q).length === 1) {
       const x = Math.abs(a.cx - b.cx) < 0.5 ? a.cx : (low + high) / 2;

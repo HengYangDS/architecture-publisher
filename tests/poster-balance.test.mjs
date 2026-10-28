@@ -1,145 +1,105 @@
 import assert from "node:assert/strict";
-import { deflateSync } from "node:zlib";
+import fs from "node:fs/promises";
 import test from "node:test";
-import { balanceOf, decodePng, inkGrid } from "../packages/publisher/src/poster/balance.mjs";
+import { DARKNESS, balanceOf, darkness } from "../packages/publisher/src/poster/balance.mjs";
+import { gateFailures } from "../packages/publisher/src/poster/compose.mjs";
+import { LIVE } from "../packages/publisher/src/poster/page.mjs";
+import { POSTER } from "../packages/publisher/src/poster/tokens.mjs";
 
-/** An 8-bit RGBA PNG of `width` × `height` pixels drawn by `paint(x, y)`, with mixed row filters. */
-function png(width, height, paint) {
-  const raw = Buffer.alloc(height * (1 + width * 4));
-  for (let y = 0; y < height; y += 1) {
-    const row = y * (1 + width * 4);
-    const filter = y % 5;
-    raw[row] = filter;
-    const pixels = Buffer.alloc(width * 4);
-    for (let x = 0; x < width; x += 1) pixels.set(paint(x, y), x * 4);
-    const previous = y ? decodedRows[y - 1] : Buffer.alloc(width * 4);
-    for (let i = 0; i < pixels.length; i += 1) {
-      const left = i >= 4 ? pixels[i - 4] : 0;
-      const up = previous[i];
-      const corner = i >= 4 ? previous[i - 4] : 0;
-      const predictor = [0, left, up, (left + up) >> 1, paeth(left, up, corner)][filter];
-      raw[row + 1 + i] = (pixels[i] - predictor) & 0xff;
-    }
-    decodedRows[y] = pixels;
+const judged = JSON.parse(
+  await fs.readFile(new URL("./fixtures/balance-pages.json", import.meta.url), "utf8"),
+);
+
+/** One fixture rectangle as the ink a page measures. */
+const ink = ([x, y, width, height, mass, weight]) => ({
+  x,
+  y,
+  width,
+  height,
+  kind: mass ? "mass" : "stroke",
+  weight,
+});
+const text = (x, y, width, height) => ({ x, y, width, height, kind: "mass", weight: 0.35 });
+const wire = (x, y, width, height) => ({ x, y, width, height, kind: "stroke", weight: 0.4 });
+
+test("every page the review rejected fails a gate and every page it accepted passes them all", () => {
+  const rejectedBy = {
+    "aigw/authority": ["emptyShare", "blankBand"],
+    "ethos/intent": ["blankBand"],
+    "self/overview": ["holes"],
+  };
+  for (const page of judged.pages) {
+    const name = `${page.edition}/${page.page}`;
+    const fails = gateFailures(balanceOf(page.rects.map(ink), LIVE)).map(({ measure }) => measure);
+    assert.deepEqual(fails, page.verdict === "rejected" ? rejectedBy[name] : [], name);
   }
-  const chunk = (type, data) => {
-    const length = Buffer.alloc(4);
-    length.writeUInt32BE(data.length);
-    return Buffer.concat([length, Buffer.from(type, "latin1"), data, Buffer.alloc(4)]);
-  };
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(width, 0);
-  header.writeUInt32BE(height, 4);
-  header.set([8, 6, 0, 0, 0], 8);
-  return Buffer.concat([
-    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-    chunk("IHDR", header),
-    chunk("IDAT", deflateSync(raw)),
-    chunk("IEND", Buffer.alloc(0)),
-  ]);
-}
-const decodedRows = [];
-function paeth(a, b, c) {
-  const p = a + b - c;
-  const [pa, pb, pc] = [Math.abs(p - a), Math.abs(p - b), Math.abs(p - c)];
-  return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
-}
-
-const PAPER = [251, 251, 248, 255];
-const INK = [20, 27, 38, 255];
-
-test("a PNG decodes to its exact pixels under every row filter", () => {
-  const paint = (x, y) => [x * 3, y * 7, (x + y) % 256, 255];
-  const image = decodePng(png(37, 23, paint));
-  assert.equal(image.width, 37);
-  assert.equal(image.height, 23);
-  for (const [x, y] of [
-    [0, 0],
-    [36, 22],
-    [17, 11],
-    [5, 19],
-  ])
-    assert.deepEqual([...image.data.subarray((y * 37 + x) * 4, (y * 37 + x) * 4 + 4)], paint(x, y));
+  assert.equal(judged.pages.filter(({ verdict }) => verdict === "rejected").length, 3);
+  assert.equal(judged.pages.filter(({ verdict }) => verdict === "accepted").length, 4);
 });
 
-test("only an 8-bit RGBA non-interlaced PNG is accepted", () => {
-  const good = png(4, 4, () => PAPER);
-  const bad = Buffer.from(good);
-  bad[24] = 16;
-  assert.throws(() => decodePng(bad), { code: "raster_unreadable" });
-  assert.throws(() => decodePng(Buffer.from("not a png")), { code: "raster_unreadable" });
+test("darkness runs from the paper to black", () => {
+  assert.equal(darkness(POSTER.color.paper), 0);
+  assert.equal(darkness("#000000"), 1);
+  assert.ok(darkness(POSTER.color.ink) > darkness(POSTER.color.muted));
+  assert.ok(DARKNESS.text > DARKNESS.card);
 });
 
-test("ink is measured per cell against the page color", () => {
-  const image = decodePng(png(16, 8, (x) => (x < 8 ? INK : PAPER)));
-  const grid = inkGrid(image, 8, PAPER.slice(0, 3));
-  assert.equal(grid.columns, 2);
-  assert.equal(grid.rows, 1);
-  assert.ok(grid.ink[0] > 0.9);
-  assert.equal(grid.ink[1], 0);
+test("a page set edge to edge with text is balanced", () => {
+  const lines = [];
+  for (let y = LIVE.y; y + 24 <= LIVE.y + LIVE.height; y += 48)
+    lines.push(text(LIVE.x, y, LIVE.width, 24));
+  const measured = balanceOf(lines, LIVE);
+  // The 24 px gaps between lines, and the paper below the last line.
+  assert.ok(measured.band.height <= 48, String(measured.band.height));
+  assert.equal(measured.holes, 0);
+  assert.ok(measured.emptyShare < 0.05, String(measured.emptyShare));
+  assert.ok(Math.hypot(...measured.centroid) < 0.02, String(measured.centroid));
+  assert.deepEqual(gateFailures(measured), []);
 });
 
-/** A grid of `columns` × `rows` cells with ink where `inked(column, row)` holds. */
-function cells(columns, rows, inked) {
-  return {
-    cell: 10,
-    columns,
-    rows,
-    ink: Float64Array.from({ length: columns * rows }, (_, index) =>
-      inked(index % columns, Math.floor(index / columns)) ? 1 : 0,
-    ),
-  };
-}
-const field = (x, y, width, height) => ({ x, y, width, height });
-
-test("a figure that fills its field is balanced", () => {
-  const grid = cells(40, 30, (column, row) => (column + row) % 3 === 0);
-  const measured = balanceOf(grid, { live: field(0, 0, 400, 300), figure: field(0, 0, 400, 300) });
-  assert.ok(measured.emptyShare <= 0.05);
-  assert.equal(measured.emptyNinths, 0);
-  assert.ok(Math.abs(measured.centroid[0]) < 0.05 && Math.abs(measured.centroid[1]) < 0.05);
-});
-
-test("a strip in the middle of the field leaves empty space, empty ninths and no offset", () => {
-  const grid = cells(40, 30, (_, row) => row >= 14 && row < 16);
-  const measured = balanceOf(grid, { live: field(0, 0, 400, 300), figure: field(0, 0, 400, 300) });
-  assert.ok(measured.emptyShare > 0.4);
-  assert.equal(measured.emptyNinths, 6);
-  assert.ok(Math.abs(measured.centroid[1]) < 0.02);
-  // Ink crosses the field, but reaches only two of thirty rows down it.
-  assert.deepEqual(measured.fill, [1, 0.067]);
-});
-
-test("ink on one side moves the centroid toward it", () => {
-  const grid = cells(40, 30, (column) => column < 12);
-  const measured = balanceOf(grid, { live: field(0, 0, 400, 300), figure: field(0, 0, 400, 300) });
-  assert.ok(measured.centroid[0] < -0.3);
-  assert.equal(measured.emptyNinths, 6);
-  assert.ok(measured.emptyShare > 0.6);
-  assert.deepEqual(measured.emptyRectangle, [120, 0, 280, 300]);
-});
-
-test("the largest empty rectangle is measured inside the live area only", () => {
-  const grid = cells(40, 30, (column, row) => column === 0 || row === 0 || column === 39);
-  const measured = balanceOf(grid, {
-    live: field(100, 100, 200, 100),
-    figure: field(100, 100, 200, 100),
-  });
-  assert.deepEqual(measured.emptyRectangle, [100, 100, 200, 100]);
-  assert.equal(measured.emptyShare, 1);
-});
-
-test("a rail of text beside a centred figure fills the page and keeps the figure centred", () => {
-  // Text in the left quarter of the page, a figure filling the right three quarters.
-  const grid = cells(40, 30, (column, row) =>
-    column < 10 ? row % 4 === 0 : (column + row) % 2 === 0,
+test("a wire across a blank band leaves the band blank but divides the largest blank rectangle", () => {
+  const top = text(LIVE.x, LIVE.y, LIVE.width, 336);
+  const bottom = text(LIVE.x, 704, LIVE.width, LIVE.y + LIVE.height - 704);
+  const open = balanceOf([top, bottom], LIVE);
+  assert.deepEqual(open.band, { height: 304, y: 400 });
+  assert.deepEqual(open.emptyRectangle, [LIVE.x, 400, LIVE.width, 304]);
+  const crossed = balanceOf([top, bottom, wire(1200, 400, 2, 304)], LIVE);
+  assert.deepEqual(crossed.band, open.band);
+  assert.ok(crossed.emptyShare < open.emptyShare / 1.9, `${crossed.emptyShare} ${open.emptyShare}`);
+  assert.deepEqual(
+    gateFailures(crossed).map(({ measure }) => measure),
+    ["emptyShare", "blankBand"],
   );
-  const measured = balanceOf(grid, {
-    live: field(0, 0, 400, 300),
-    figure: field(100, 0, 300, 300),
-  });
-  // The fill reads the page, so the rail counts toward reaching its left edge…
-  assert.equal(measured.fill[0], 1);
-  // …and the centroid reads the figure's own frame, which the figure fills evenly.
-  assert.ok(Math.abs(measured.centroid[0]) < 0.05);
+});
+
+test("holes are the empty squares of the page at least 240 px on a side", () => {
+  /** The live area filled with text around one empty square of `side` px. */
+  const around = (side) => {
+    const [x, y] = [1000, 504];
+    return [
+      text(LIVE.x, LIVE.y, LIVE.width, y - LIVE.y),
+      text(LIVE.x, y + side, LIVE.width, LIVE.y + LIVE.height - y - side),
+      text(LIVE.x, y, x - LIVE.x, side),
+      text(x + side, y, LIVE.x + LIVE.width - x - side, side),
+    ];
+  };
+  const hole = balanceOf(around(320), LIVE);
+  // A 40 × 40 cell square out of 284 × 153 cells.
+  assert.equal(hole.holes, 0.037);
+  assert.deepEqual(hole.emptyRectangle, [1000, 504, 320, 320]);
+  assert.equal(balanceOf(around(200), LIVE).holes, 0);
+});
+
+test("the centre of gravity weighs each element by how dark it prints", () => {
+  const half = LIVE.width / 4;
+  const left = text(LIVE.x, LIVE.y, half, LIVE.height);
+  const right = { ...left, x: LIVE.x + LIVE.width - half, weight: DARKNESS.card };
+  const [across, down] = balanceOf([left, right], LIVE).centroid;
+  assert.ok(across < -0.25, String(across));
+  assert.equal(down, 0);
+  const even = balanceOf([left, { ...right, weight: left.weight }], LIVE).centroid;
+  assert.deepEqual(
+    even.map((value) => Math.abs(value)),
+    [0, 0],
+  );
 });

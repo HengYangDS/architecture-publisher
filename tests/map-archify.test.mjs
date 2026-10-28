@@ -130,7 +130,7 @@ test("ids become valid and unique, relation labels are shared and sublabels are 
 test("every AIGW view has native architecture candidates on the grid, without kind tags", async () => {
   const { model } = await loadModel(AIGW_MODEL);
   const views = await viewsOf(model);
-  assert.equal(views.length, 4);
+  assert.equal(views.length, 3);
   for (const view of views) {
     const candidates = diagramCandidates(model, view);
     assert.ok(candidates.length > 0, view.id);

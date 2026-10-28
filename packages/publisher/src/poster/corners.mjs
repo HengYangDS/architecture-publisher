@@ -1,4 +1,4 @@
-import { headBlock, legendBlock, notesBlock, placed, summaryBlock, summaryOf } from "./blocks.mjs";
+import { headBlock, legendBlock, notesBlock, placed, summaryOf } from "./blocks.mjs";
 import { LIVE, columnX, spanWidth } from "./page.mjs";
 import { POSTER } from "./tokens.mjs";
 
@@ -6,11 +6,12 @@ import { POSTER } from "./tokens.mjs";
  * Text set in a figure's corners. A layered figure is seldom a rectangle: a tree
  * is narrow at its root and a fan-in at its sink, and the paper beside its
  * narrow rows is the page's largest blank unless something is set there. The
- * summary and the legend float, and so does the head unless the page reserved a
- * strip for it: they are placed after the figure is drawn, into the corners its
- * rows leave free, at the widths and in the corners that leave the page least
- * empty. Every block keeps a fixed margin of paper from every card, wire and
- * label, and from the other blocks.
+ * head starts the page at its top-left corner and carries the summary beneath
+ * its question, so the page reads in order; the legend, and the notes when the
+ * page sets no footer, float: they are placed after the figure is drawn, into
+ * the corners its rows leave free, at the widths and in the corners that leave
+ * the page least empty. Every block keeps a fixed margin of paper from every
+ * card, wire and label, and from the other blocks.
  */
 
 const CELL = 8;
@@ -21,7 +22,6 @@ const CLEARANCE = 40;
  * narrower margin from it than from cards, wires and labels.
  */
 const FRAME_CLEARANCE = 24;
-const SUMMARY_LINES = POSTER.summaryLines + 2;
 const CORNERS = /** @type {const} */ (["top-left", "top-right", "bottom-left", "bottom-right"]);
 /** Notes are fine print: they sit at the foot of the page, never above the figure. */
 const FOOT = /** @type {const} */ (["bottom-left", "bottom-right"]);
@@ -34,7 +34,7 @@ const NOTE_SHAPES = Object.freeze([
   [10, 3],
   [12, 3],
 ]);
-/** Legend placements carried forward to be paired with every summary placement. */
+/** Legend placements carried forward to be paired with every notes placement. */
 const BEAM = 4;
 
 /**
@@ -148,25 +148,39 @@ function slide(occupancy, block, corner, start, bounds, typefaces) {
  * Every way to set one floating block: each width it can take, in each corner,
  * at the first free position from the page's edge and from the figure field's
  * edge. A page that reserved a strip for its head has two places for a block
- * at its top: beside the head, or beside the figure's first row.
+ * at its top: beside the head, or beside the figure's first row. A block held
+ * at the edge takes the corner at the page's edge or not at all.
  * @param {any[]} blocks
  * @param {Occupancy} occupancy
  * @param {{ top: number, bottom: number }} bounds
  * @param {{ x: number, y: number, width: number, height: number }} field
  * @param {any} typefaces
  * @param {ReadonlyArray<string>} [corners] the corners a block may take
+ * @param {boolean} [atEdge] whether the block stays at the page's edge
  */
-function options(blocks, occupancy, bounds, field, typefaces, corners = CORNERS) {
+function options(blocks, occupancy, bounds, field, typefaces, corners = CORNERS, atEdge = false) {
   const out = [];
   const seen = new Set();
   for (const block of blocks)
     for (const corner of corners) {
       const down = corner.startsWith("top");
-      const starts = down
-        ? [bounds.top, field.y]
-        : [bounds.bottom - block.height, field.y + field.height - block.height];
+      const edge = down ? bounds.top : bounds.bottom - block.height;
+      // Beside a figure whose rows leave a strip down one side, a block may also
+      // start from the middle of that side, so the strip is not left blank below
+      // a block set at its top.
+      const middle = Math.round((field.y + (field.height - block.height) / 2) / CELL) * CELL;
+      const starts = atEdge
+        ? [edge]
+        : [edge, down ? field.y : field.y + field.height - block.height, middle];
       for (const start of starts) {
-        const at = slide(occupancy, block, corner, start, bounds, typefaces);
+        const at = slide(
+          occupancy,
+          block,
+          corner,
+          start,
+          atEdge ? { top: start, bottom: start + block.height } : bounds,
+          typefaces,
+        );
         if (!at) continue;
         const key = `${block.ink}:${block.height}:${at.x}:${at.y}`;
         if (seen.has(key)) continue;
@@ -196,16 +210,15 @@ const compare = (a, b) => {
 };
 
 /**
- * Place a floating page's head, summary and legend beside its drawn figure,
- * and its notes too when the page set no footer. The head starts the page at
- * its top-left corner, unless the page already set it in a reserved strip; the
- * legend and the summary take whichever corners, and widths, give the page the
- * best measure `score` returns, and the notes take one of the page's bottom
- * corners or its foot. The legends that measure best alone are each paired
- * with every summary placement, and the pairs that measure best with every
- * notes placement. Null when the figure leaves no top-left corner for the
- * head, or no room for the legend, the summary or the notes.
- * @param {{ model: any, views: any[], typefaces: any, provenance: any,
+ * Place a floating page's head and legend beside its drawn figure, and its
+ * notes too when the page set no footer. The head, with its summary beneath its
+ * question, starts the page at its top-left corner, unless the page already set
+ * it in a reserved strip; the legend takes whichever corner, and width, gives
+ * the page the best measure `score` returns, and the notes take one of the
+ * page's bottom corners or its foot. The legends that measure best alone are
+ * each paired with every notes placement. Null when the figure leaves no
+ * top-left corner for the head, or no room for the legend or the notes.
+ * @param {{ model: any, views: any[], typefaces: any, lead: any, first: boolean,
  *   boundary?: string | null }} input
  * @param {any} page the planned page, with its footer set
  * @param {any[]} made the plate drawn in the page's field
@@ -213,7 +226,7 @@ const compare = (a, b) => {
  */
 export function settleFloating(input, page, made, score) {
   const { model, typefaces } = input;
-  const { view, head: reserved } = page.floating;
+  const { head: reserved } = page.floating;
   const base = new Occupancy();
   for (const one of made) {
     for (const rect of one.figure.rects) base.mark(rect, CLEARANCE);
@@ -250,23 +263,17 @@ export function settleFloating(input, page, made, score) {
     bottom: page.rules.length ? page.rules[0].y1 : LIVE.y + LIVE.height,
   };
   const field = page.plates[0].field;
+  const below = { summary: summaryOf(model, input.views, input.first) };
   const heads = reserved
     ? [null]
     : [4, 5, 6, 7].flatMap((span) => {
-        const block = headBlock(typefaces, model, spanWidth(span), 3, view);
+        const block = headBlock(typefaces, input.lead, spanWidth(span), 3, below);
         if (!block) return [];
         const rects = inkOf(block, LIVE.x, LIVE.y, typefaces);
         return base.clear(rects) ? [{ block, x: LIVE.x, y: LIVE.y, rects }] : [];
       });
-  const text = summaryOf(model, input.views);
   // A block may be as narrow as two columns, so the strip a compact figure
-  // leaves beside it can hold the summary or the legend.
-  const summaries = text
-    ? [2, 3, 4, 5].flatMap((span) => {
-        const block = summaryBlock(typefaces, text, spanWidth(span), SUMMARY_LINES);
-        return block ? [block] : [];
-      })
-    : null;
+  // leaves beside it can hold the legend.
   const legends = [2, 3, 4, 5].flatMap((span) =>
     [1, 2].flatMap((columns) => {
       const block = legendBlock(input, spanWidth(span), columns);
@@ -275,14 +282,7 @@ export function settleFloating(input, page, made, score) {
   );
   const notes = page.floating.notes
     ? NOTE_SHAPES.flatMap(([span, columns]) => {
-        const block = notesBlock(
-          typefaces,
-          model,
-          input.views,
-          input.provenance,
-          spanWidth(span),
-          columns,
-        );
+        const block = notesBlock(typefaces, model, spanWidth(span), columns);
         return block ? [block] : [];
       })
     : null;
@@ -295,26 +295,19 @@ export function settleFloating(input, page, made, score) {
       .map((legend) => ({ legend, rank: score(textOf([...lead, legend])).rank }))
       .sort((a, b) => compare(a.rank, b.rank))
       .slice(0, BEAM);
-    for (const { legend } of ranked) {
+    for (const { legend, rank } of notes ? ranked : ranked.slice(0, 1)) {
+      const set = [...lead, legend];
+      if (!notes) {
+        if (!best || compare(rank, best.rank) < 0) best = { rank, extra: textOf(set) };
+        continue;
+      }
       const afterLegend = afterHead.with(legend.rects);
-      const tails = summaries ? options(summaries, afterLegend, bounds, field, typefaces) : [null];
-      const pairs = tails
-        .map((summary) => {
-          const set = [...lead, legend, ...(summary ? [summary] : [])];
-          return { set, summary, rank: score(textOf(set)).rank };
-        })
-        .sort((a, b) => compare(a.rank, b.rank));
-      for (const { set, summary, rank } of notes ? pairs.slice(0, BEAM) : pairs) {
-        if (!notes) {
-          if (!best || compare(rank, best.rank) < 0) best = { rank, extra: textOf(set) };
-          continue;
-        }
-        const afterSummary = summary ? afterLegend.with(summary.rects) : afterLegend;
-        for (const note of options(notes, afterSummary, bounds, field, typefaces, FOOT)) {
-          const extra = textOf([...set, note]);
-          const measured = score(extra).rank;
-          if (!best || compare(measured, best.rank) < 0) best = { rank: measured, extra };
-        }
+      // Notes are fine print: they sit at the foot of the page, in one of its
+      // bottom corners, and never rise beside the figure.
+      for (const note of options(notes, afterLegend, bounds, field, typefaces, FOOT, true)) {
+        const extra = textOf([...set, note]);
+        const measured = score(extra).rank;
+        if (!best || compare(measured, best.rank) < 0) best = { rank: measured, extra };
       }
     }
   }

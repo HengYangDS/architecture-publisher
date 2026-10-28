@@ -3,13 +3,13 @@ import test from "node:test";
 import { loadIcons } from "../packages/publisher/src/icons.mjs";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
+import { leadOf } from "../packages/publisher/src/poster/blocks.mjs";
 import { composeEdition } from "../packages/publisher/src/poster/compose.mjs";
 import { LIVE, gutterFor, planSheet } from "../packages/publisher/src/poster/page.mjs";
 import { loadTypefaces } from "../packages/publisher/src/poster/text.mjs";
 import { POSTER, figureStyles } from "../packages/publisher/src/poster/tokens.mjs";
 import { graphModel, pageModel } from "./fixtures/models.mjs";
 
-const none = { state: "none", records: [] };
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 
 test("the tier-label column is as wide as its labels need and no wider than its token", () => {
@@ -50,7 +50,7 @@ test("a long legend is set in sub-columns beside a one-line title", () => {
     relations: [],
   };
   const page = planSheet(
-    { model, views: [view], provenance: none, typefaces },
+    { model, views: [view], typefaces, lead: leadOf(model, [view], true), first: true },
     { archetype: "stack" },
   );
   assert.ok(page);
@@ -61,15 +61,14 @@ test("a long legend is set in sub-columns beside a one-line title", () => {
   assert.ok(bottom - LIVE.y <= 160, `the legend ends ${bottom - LIVE.y} px below the top`);
 });
 
-test("a single view sets its head and legend beside its figure, clear of every card and wire", async () => {
+test("a page sets its text clear of every card, wire and label of its figure", async () => {
   const model = validateModel(pageModel());
   const views = await planViews(model, () => ({
     fits: true,
     width: POSTER.width,
     height: POSTER.height,
   }));
-  const [page] = composeEdition(model, views, typefaces, icons, none);
-  assert.equal(page.composition.archetype, "corner");
+  const [page] = composeEdition(model, views, typefaces, icons);
   // Every run of page text keeps clear of every card, wire and label.
   const figure = page.made.flatMap((one) => one.figure.rects);
   for (const run of page.page.runs) {
@@ -90,13 +89,41 @@ test("a single view sets its head and legend beside its figure, clear of every c
   }
 });
 
+test("the first page asks the model's question, and a later page its own view's", () => {
+  const model = validateModel(pageModel());
+  const view = { ...wholeView(model), id: "detail", title: "Detail", question: "What is in it?" };
+  assert.deepEqual(leadOf(model, [view], true), {
+    kicker: null,
+    title: "Page",
+    question: model.question,
+  });
+  assert.deepEqual(leadOf(model, [view], false), {
+    kicker: "Page",
+    title: "Detail",
+    question: "What is in it?",
+  });
+  // A view with no title of its own leads with the model's, and no running
+  // head repeats it.
+  assert.deepEqual(leadOf(model, [{ ...view, title: model.title }], false), {
+    kicker: null,
+    title: "Page",
+    question: "What is in it?",
+  });
+  // Each plate of a page of several views asks its own question.
+  assert.deepEqual(leadOf(model, [view, { ...view, id: "more" }], false), {
+    kicker: null,
+    title: "Page",
+    question: null,
+  });
+});
+
 test("a title no composition can set is refused, not cut", () => {
   const title = Array.from({ length: 30 }, () => "Architecture").join(" ");
   const model = validateModel(graphModel(4, [[1, 2]], { title }));
   return planViews(model, () => ({ fits: true, width: POSTER.width, height: POSTER.height })).then(
     (views) =>
       assert.throws(
-        () => composeEdition(model, views, typefaces, icons, none),
+        () => composeEdition(model, views, typefaces, icons),
         (error) => error.code === "poster_title_too_long",
       ),
   );
@@ -105,12 +132,10 @@ test("a title no composition can set is refused, not cut", () => {
 test("a plan whose text or plates do not fit its archetype is not a candidate", () => {
   const model = validateModel(pageModel());
   const view = (id) => ({ ...wholeView(model), id });
-  const input = (views, extra = {}) => ({
-    model: { ...model, ...extra },
-    views,
-    provenance: none,
-    typefaces,
-  });
+  const input = (views, extra = {}) => {
+    const shown = { ...model, ...extra };
+    return { model: shown, views, typefaces, lead: leadOf(shown, views, true), first: true };
+  };
   const one = [view("one")];
   const two = [view("one"), view("two")];
   // A corner page sets one view.
@@ -148,7 +173,7 @@ test("a view no page can draw is refused by name", async () => {
     height: POSTER.height,
   }));
   assert.throws(
-    () => composeEdition(model, views, typefaces, icons, none),
+    () => composeEdition(model, views, typefaces, icons),
     (error) =>
       error.code === "poster_unfittable" &&
       /cannot be laid out on a 2400 × 1350 page/u.test(error.message) &&

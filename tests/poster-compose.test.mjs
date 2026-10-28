@@ -4,40 +4,37 @@ import test from "node:test";
 import { loadIcons } from "../packages/publisher/src/icons.mjs";
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { GATES, admitsView, composePosters } from "../packages/publisher/src/poster/compose.mjs";
+import { notesOf } from "../packages/publisher/src/poster/blocks.mjs";
+import {
+  admitsView,
+  composePosters,
+  gateFailures,
+} from "../packages/publisher/src/poster/compose.mjs";
 import { rasterize } from "../packages/publisher/src/poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "../packages/publisher/src/poster/text.mjs";
 import { PAGE, POSTER } from "../packages/publisher/src/poster/tokens.mjs";
-import { AIGW_MODEL, BIG_BANK_MODEL, graphModel, minimalModel } from "./fixtures/models.mjs";
+import {
+  AIGW_MODEL,
+  BIG_BANK_MODEL,
+  SELF_MODEL,
+  graphModel,
+  minimalModel,
+} from "./fixtures/models.mjs";
 
-const none = { state: "none", records: [] };
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 
 /** Plan a model's views and compose its edition, as the build does. */
-async function edition(model, provenance = none) {
-  const views = await planViews(model, async (view) =>
-    admitsView(model, view, typefaces, icons, provenance),
-  );
-  return composePosters(model, views, typefaces, icons, provenance);
+async function edition(model) {
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  return composePosters(model, views, typefaces, icons);
 }
 
-/** The gates a page's measures miss, as its manifest entry must record them. */
-function missed(poster) {
-  const { emptyShare, fill, centroid } = poster.measures;
-  return [
-    emptyShare > GATES.emptyShare && "emptyShare",
-    fill[0] < GATES.fill && "fillAcross",
-    fill[1] < GATES.fill && "fillDown",
-    Math.abs(centroid[0]) > GATES.centroid && "centroidX",
-    Math.abs(centroid[1]) > GATES.centroid && "centroidY",
-  ].filter(Boolean);
-}
-
-/** A page records exactly the gates its measures miss. */
-function assertRecorded(poster) {
+/** A drawn page passes every gate its manifest entry records measures for. */
+function assertBalanced(poster) {
+  const { emptyShare, blankBand, holes, centroid } = poster.measures;
   assert.deepEqual(
-    poster.measures.misses.map(({ measure }) => measure),
-    missed(poster),
+    gateFailures({ emptyShare, band: { height: blankBand }, holes, centroid }),
+    [],
     poster.view,
   );
 }
@@ -66,11 +63,10 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
   const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
   const first = await edition(model);
   const second = await edition(model);
-  // A sparse view shares a page with its neighbour instead of printing as a band.
-  assert.ok(first.length < 4, `${first.length} pages for four views`);
+  // Its views share components, so each fills a page of its own.
   assert.deepEqual(
-    first.flatMap(({ views }) => views),
-    ["overview", "authority", "adapters", "transaction"],
+    first.map(({ views }) => views),
+    [["overview"], ["authority"], ["adapters"]],
   );
   for (const [index, poster] of first.entries()) {
     assert.equal(poster.svg, second[index].svg);
@@ -82,19 +78,11 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
       poster.svg,
       /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="2400" height="1350"/u,
     );
-    assertRecorded(poster);
-  }
-  // Only the view of five components that no neighbour can share a page with
-  // misses a target, and only the empty share, by a little.
-  const misses = first.flatMap((poster) => poster.measures.misses);
-  assert.ok(misses.length <= 1, JSON.stringify(misses));
-  for (const miss of misses) {
-    assert.equal(miss.measure, "emptyShare");
-    assert.ok(miss.value - miss.limit <= 0.02, `${miss.value} against ${miss.limit}`);
+    assertBalanced(poster);
   }
 });
 
-test("statuses, the boundary and provenance appear in the drawing and its legend", async () => {
+test("statuses and the boundary appear in the drawing, and the source note names the revision", async () => {
   // A model large enough to fill a page, with one planned and one retired element.
   const base = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
   base.components[1].status = "planned";
@@ -103,84 +91,42 @@ test("statuses, the boundary and provenance appear in the drawing and its legend
   base.relations[1].status = "retired";
   base.repository = { name: "fixture", revision: "0123456789abcdef0123456789abcdef01234567" };
   const model = validateModel(base);
-  const [unverified] = await edition(model, { state: "unverified", records: [{}, {}] });
-  assert.match(unverified.svg, /stroke-dasharray="6 4"/u);
-  assert.match(unverified.svg, /stroke-dasharray="1\.5 3\.5"/u);
-  const [verified] = await edition(model, { state: "verified", records: [{}] });
-  assert.notEqual(verified.svg, unverified.svg);
-  const [plain] = await edition(model);
-  assert.notEqual(plain.svg, verified.svg);
+  const [page] = await edition(model);
+  assert.match(page.svg, /stroke-dasharray="6 4"/u);
+  assert.match(page.svg, /stroke-dasharray="1\.5 3\.5"/u);
+  // Whether each source was verified, and by which digest, is the manifest's
+  // evidence: the page names the repository and revision a reader can open.
+  const source = notesOf(model).find(({ label }) => label === "Source");
+  assert.match(source?.text ?? "", /^Source fixture at 0123456789ab; Model by /u);
+  assert.ok(notesOf(model).every(({ text }) => !/verif|SHA-256|digest/iu.test(text)));
 });
 
-test("a model too sparse to balance a page is drawn with the gates it misses", async () => {
+test("a model too sparse to balance a page is refused with what its closest page misses", async () => {
   // One relation between two cards: no page of this format can hold it without
-  // a blank band. Any repository can be drawn, so the build prints the closest
-  // page it can compose and records what it misses, instead of refusing.
+  // a blank band, so the build names the view and the gates its closest page
+  // misses, with their measured values and limits, instead of printing it.
   const model = validateModel(graphModel(2, [[1, 2]]));
-  const [page, more] = await edition(model);
-  assert.equal(more, undefined);
-  assert.ok(page.measures.misses.length > 0);
-  assertRecorded(page);
-  for (const miss of page.measures.misses) assert.ok(typeof miss.limit === "number", miss.measure);
+  await assert.rejects(edition(model), (error) => {
+    assert.equal(error.code, "poster_unbalanced");
+    assert.equal(error.problems.length, 1);
+    assert.equal(error.problems[0].code, "poster_unbalanced");
+    assert.match(error.problems[0].message, /\(limit \d/u);
+    return true;
+  });
 });
 
 test("a page lays its rows out uncentred when centring crosses a relation that skips a row", async () => {
-  // Centred, the media row sits over the middle of the parts row, so the
-  // relation from the builder down to the raster turns across the wires that
-  // leave the map. Placement weighs only the wires between neighbouring rows,
-  // so the page measures the uncentred rows as well and draws those.
-  const edge = ([id, from, to, label]) => ({ id, from, to, label });
-  const model = validateModel(
-    minimalModel({
-      id: "media",
-      title: "Media",
-      question: "What draws the poster and the map, and which supplies do they use?",
-      kinds: {
-        stage: { label: "stage", category: "backend", icon: "workflow" },
-        medium: { label: "medium", category: "frontend", icon: "image" },
-        supply: { label: "vendored supply", category: "database", icon: "package" },
-      },
-      components: [
-        ["builder", "Delivery builder", "stage", { writes: "one delivery" }],
-        ["poster", "Poster composer", "medium", { draws: "2400 × 1350 px" }],
-        ["map", "Archify map", "medium", { delivers: "native Archify" }],
-        ["typefaces", "Typefaces", "medium", { outlines: "Noto Sans CJK" }],
-        ["presentation", "Kinds and icons", "medium", { maps: "kinds to icons" }],
-        ["raster", "Raster", "medium", { renders: "PNG" }],
-        ["supplies", "Supplies", "supply", { verified: "by digest" }],
-      ].map(([id, label, kind, details]) => ({ id, label, kind, details })),
-      relations: [
-        ["composes", "builder", "poster", "composes posters"],
-        ["maps", "builder", "map", "maps the model"],
-        ["rasterizes", "builder", "raster", "rasterizes"],
-        ["delivers", "map", "supplies", "runs Archify"],
-        ["sets", "poster", "typefaces", "sets text"],
-        ["styles", "poster", "presentation", "styles cards"],
-        ["types", "map", "presentation", "types components"],
-        ["fonts", "typefaces", "supplies", "loads fonts"],
-        ["icons", "presentation", "supplies", "loads icons"],
-        ["renders", "raster", "supplies", "renders with resvg"],
-      ].map(edge),
-      views: [
-        {
-          id: "media",
-          title: "Media",
-          question: "What draws the poster and the map, and which supplies do they use?",
-          tiers: [
-            { id: "build", label: "Build", members: ["builder"] },
-            { id: "media", label: "Media", members: ["poster", "map"] },
-            { id: "parts", label: "Parts", members: ["typefaces", "presentation", "raster"] },
-            { id: "supplies", label: "Supplies", members: ["supplies"] },
-          ],
-        },
-      ],
-    }),
-  );
-  const [page, more] = await edition(model);
-  assert.equal(more, undefined);
+  // Centred, the self edition's media row sits over the middle of its parts
+  // row, so the relation from the builder down to the raster turns across the
+  // wires that leave the map. Placement weighs only the wires between
+  // neighbouring rows, so the page measures the uncentred rows as well and
+  // draws those.
+  const { model } = await loadModel(SELF_MODEL, { icon: icons.has });
+  const page = (await edition(model)).find(({ views }) => views.includes("media"));
+  assert.ok(page);
   assert.equal(page.composition.centring, null);
   assert.equal(page.measures.crossings, 0);
-  assertRecorded(page);
+  assertBalanced(page);
 });
 
 test("CJK labels compose and characters the fonts lack are refused", () => {

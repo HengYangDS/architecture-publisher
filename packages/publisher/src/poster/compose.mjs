@@ -1,7 +1,8 @@
 import { presentation } from "../kinds.mjs";
 import { ROW_LIMIT, viewRows } from "../layout/rows.mjs";
 import { refuse } from "../refusal.mjs";
-import { balanceOf, inkFromRects } from "./balance.mjs";
+import { DARKNESS, balanceOf, darkness } from "./balance.mjs";
+import { leadOf } from "./blocks.mjs";
 import { settleFloating } from "./corners.mjs";
 import { LIVE, gutterFor, planSheet, refuseUnsetText } from "./page.mjs";
 import { extentOf, naturalOf, platesOf } from "./plate.mjs";
@@ -13,20 +14,36 @@ import { POSTER } from "./tokens.mjs";
  * cards as large as their text, justified into its band, and drawn. A view with
  * few components fills a plate of its own badly — an architecture figure of
  * three cards is a band, not a page — so the composer packs views onto a page,
- * in bands of one or more plates, until the page itself is full. Nothing is
- * stretched to fill a frame: the page is filled by what it carries.
+ * in bands of one or more plates, until the page itself is full. A page never
+ * draws a component twice, so only views that share no component share a page.
+ * Nothing is stretched to fill a frame: the page is filled by what it carries,
+ * and a page that is not filled is not drawn.
  */
 
 const C = POSTER.color;
 
-/** The gates a composed page must pass, each measured from the page itself. */
-export const GATES = Object.freeze({
-  /** The largest empty rectangle covers at most this share of the live area. */
+/**
+ * The gates every drawn page passes, each measured from the page itself. They
+ * were calibrated on pages a reader judged: the posters rejected for blank bands
+ * and empty corners fail them and the pages judged balanced pass.
+ */
+const GATES = Object.freeze({
+  /** The largest blank rectangle covers at most this share of the live area. */
   emptyShare: 0.12,
-  /** Ink reaches at least this share of the plates' region across and down. */
-  fill: 0.9,
-  /** The ink centroid sits at most this far from the region's center. */
-  centroid: 0.06,
+  /** No band this tall or taller runs blank across the whole live area. */
+  band: 96,
+  /**
+   * At most this share of the live area lies in holes: midway between the most
+   * on a page judged balanced and the fewest on a page rejected for its holes.
+   */
+  holes: 0.4,
+  /**
+   * The page's centre of gravity sits at most this far off centre, across and
+   * down. A page led by its text at the top left, as every page judged
+   * balanced is, sits a little left of centre; a page whose ink lies mostly on
+   * one side does not pass.
+   */
+  centroid: Object.freeze([0.12, 0.12]),
 });
 
 /** Plates tried on one page, fewest first. */
@@ -40,57 +57,58 @@ const BANDS = Object.freeze({
   3: [[3], [2, 1], [1, 2]],
 });
 /** A floating page sets its text around at most this many of its plate's compositions. */
-const FLOATING_PLATES = 12;
+const FLOATING_PLATES = 24;
+/** Compositions each plate offers at one type step, by the number of plates on the page. */
+const PAIRED = Object.freeze({ 1: 12, 2: 4, 3: 2 });
 
 /** The ink of one page, measured from its drawn rectangles before it is rendered. */
 function measure(page, made, typefaces) {
+  const text = (run) => ({
+    x: run.x,
+    y: run.top,
+    width: Math.min(typefaces.measure(run.value, run.style), POSTER.width - run.x),
+    height: run.style.line,
+    kind: /** @type {const} */ ("mass"),
+    weight: DARKNESS.text * darkness(run.color),
+  });
   const rects = [
-    ...made.flatMap((one) => one.figure.rects),
-    ...page.runs.map((run) => ({
-      x: run.x,
-      y: run.top,
-      width: Math.min(typefaces.measure(run.value, run.style), POSTER.width - run.x),
-      height: run.style.line,
-    })),
+    ...made.flatMap((one) => [...one.figure.rects, ...one.figure.runs.map(text)]),
+    ...page.runs.map(text),
     ...page.glyphs.map((glyph) => ({
       x: glyph.x,
       y: glyph.top,
       width: glyph.size,
       height: glyph.size,
+      kind: /** @type {const} */ ("mass"),
+      weight: DARKNESS.glyph,
     })),
     ...page.rules.map((rule) => ({
       x: Math.min(rule.x1, rule.x2),
       y: rule.y1 - 1,
       width: Math.abs(rule.x2 - rule.x1),
       height: 2,
+      kind: /** @type {const} */ ("stroke"),
+      weight: DARKNESS.stroke * darkness(C.rule),
     })),
   ];
-  // The figure's frame is the rectangle its plates' fields cover, not the region
-  // they sit in: a labelled plate reserves a gutter at the left of the region for
-  // its tier labels, and measuring the centroid against the region would call
-  // every labelled figure right-heavy for drawing exactly where it was told to.
-  const fields = page.plates.map((plate) => plate.field);
-  const left = Math.min(...fields.map((field) => field.x));
-  const right = Math.max(...fields.map((field) => field.x + field.width));
-  const top = Math.min(...fields.map((field) => field.y));
-  const bottom = Math.max(...fields.map((field) => field.y + field.height));
-  const grid = inkFromRects(rects, 8, POSTER.width, POSTER.height);
-  return balanceOf(grid, {
-    live: LIVE,
-    figure: { x: left, y: top, width: right - left, height: bottom - top },
-  });
+  return balanceOf(rects, LIVE);
 }
 
 /**
- * Compose one page of `views`. Returns the drawn page, or null when this
- * grouping cannot fill the format in either skeleton.
+ * Compose one page of `views`. Returns the best page that passes every gate, or
+ * null, and the closest page drawn at all, which names what a grouping misses
+ * when none passes; both are null when the grouping cannot be laid out, or when
+ * two of its views share a component the page would then draw twice.
  */
-function sheet(model, views, position, typefaces, icons, provenance, boundaryName) {
-  if (views.length > PLATES[PLATES.length - 1]) return null;
-  refuseUnsetText(typefaces, model, views);
+function sheet(model, views, first, typefaces, icons, boundaryName) {
+  if (views.length > PLATES[PLATES.length - 1]) return { chosen: null, closest: null };
+  const drawn = views.flatMap((view) => view.components.map(({ id }) => id));
+  if (new Set(drawn).size < drawn.length) return { chosen: null, closest: null };
+  const lead = leadOf(model, views, first);
+  refuseUnsetText(typefaces, model, views, lead, first);
   /** @type {any[]} */
   const candidates = [];
-  const input = { model, views, provenance, typefaces, boundary: boundaryName };
+  const input = { model, views, typefaces, lead, first, boundary: boundaryName };
   // The skeletons a page may take. A column page with a narrower rail gives the
   // figure fewer columns, so its rows wrap tighter and the figure grows taller —
   // the lever a view too shallow for a full-height band needs. Each skeleton is
@@ -101,15 +119,17 @@ function sheet(model, views, position, typefaces, icons, provenance, boundaryNam
   // figure leaves free; a page of several views keeps them in a masthead or
   // rail, and under the masthead may set its plates side by side in a band, or
   // two in one band and one in the other.
-  /** @type {Array<{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean, notes?: boolean, bands?: number[] }>} */
+  /** @type {Array<{ archetype: "stack" | "column" | "corner", rail?: number, flank?: number, reserve?: boolean, notes?: boolean, bands?: number[] }>} */
   const skeletons = [
     { archetype: "stack" },
     ...(BANDS[views.length] ?? []).map((bands) => ({
       archetype: /** @type {const} */ ("stack"),
       bands,
     })),
+    { archetype: "column", rail: 5 },
     { archetype: "column", rail: 4 },
     { archetype: "column", rail: 3 },
+    { archetype: "column", rail: 3, flank: 3 },
     ...(views.length === 1
       ? [false, true].flatMap((notes) => [
           { archetype: /** @type {const} */ ("corner"), notes },
@@ -124,35 +144,38 @@ function sheet(model, views, position, typefaces, icons, provenance, boundaryNam
   /** @type {Array<"all" | "inside">} */
   const centrings = outside ? ["all", "inside"] : ["all"];
   const context = { model, typefaces, icons, boundaryName };
-  const chosen = () => {
-    const passing = candidates.filter(({ fails }) => fails.length === 0);
-    return candidates.length ? best(passing.length ? passing : candidates) : null;
+  const outcome = () => {
+    const passed = candidates.filter(({ fails }) => fails.length === 0);
+    return {
+      chosen: passed.length ? best(passed) : null,
+      closest: candidates.length ? nearest(candidates) : null,
+    };
   };
   for (const skeleton of skeletons)
     for (const centring of centrings) {
       const made = candidate(input, skeleton, centring, context);
-      if (made) candidates.push({ ...made, views, position });
+      if (made) candidates.push({ ...made, views });
     }
   // Centring a row may move it rather than bend a wire, never rather than
   // cross one, and placement weighs it so. But placement sees only the wires
   // between neighbouring rows: a relation that skips rows turns in the last
   // channel it enters and can cross wires placement never weighed. When the
-  // best page still crosses, its plates are laid out uncentred as well, and the
-  // page is chosen again from what both measure.
-  const first = chosen();
-  if (first && crossingsOf(first) > 0)
+  // best page still crosses, or no page passes, its plates are laid out
+  // uncentred as well, and the page is chosen again from what both measure.
+  const { chosen: leading, closest } = outcome();
+  if (closest && (!leading || faultsOf(leading).some(Boolean)))
     for (const skeleton of skeletons) {
       const made = candidate(input, skeleton, null, context);
-      if (made) candidates.push({ ...made, views, position });
+      if (made) candidates.push({ ...made, views });
     }
-  return chosen();
+  return outcome();
 }
 
 /**
  * One page candidate: a skeleton and a centring rule, planned on the plates'
  * natural heights, drawn and measured. Null when the grouping does not fit.
  * @param {any} input
- * @param {{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean,
+ * @param {{ archetype: "stack" | "column" | "corner", rail?: number, flank?: number, reserve?: boolean,
  *   notes?: boolean, bands?: number[] }} skeleton
  * @param {"all" | "inside" | null} centring null lays the rows out uncentred
  * @param {any} context
@@ -191,9 +214,30 @@ function candidate(input, skeleton, centring, context) {
     platesOf({ model, typefaces, icons, boundaryName, centring }, plate),
   );
   if (options.some((list) => !list.length)) return null;
-  let made = sharedStep(options);
-  if (!made) return null;
-  if (page.floating) {
+  const pairs = pairings(options);
+  if (!pairs.length) return null;
+  let made = pairs[0];
+  if (!page.floating) {
+    // A page whose text is already set measures its plates' compositions in
+    // figure order and takes the first that passes every gate, or else the one
+    // closest to passing: a row is split, or the type set smaller, only when
+    // the figure the page prefers leaves it unbalanced.
+    /** @type {{ rank: number[], picks: any[] } | null} */
+    let chosen = null;
+    for (const picks of pairs) {
+      const balance = measure(page, picks, typefaces);
+      const rank = [
+        gateFailures(balance).length,
+        ...faultsOf({ made: picks }),
+        balance.holes + balance.emptyShare,
+        balance.band.height,
+        Math.hypot(...balance.centroid),
+      ];
+      if (!chosen || compareRanks(rank, chosen.rank) < 0) chosen = { rank, picks };
+      if (rank[0] === 0) break;
+    }
+    made = /** @type {{ picks: any[] }} */ (chosen).picks;
+  } else {
     // A floating page sets its text around each of its plate's compositions,
     // best first: the best figure may leave no corner for the head. A page that
     // passes comes first, then one whose wires do not cross, then the better
@@ -201,14 +245,16 @@ function candidate(input, skeleton, centring, context) {
     const planned = page;
     /** @type {{ rank: number[], page: any, one: any } | null} */
     let chosen = null;
-    for (const [order, one] of options[0].slice(0, FLOATING_PLATES).entries()) {
+    for (const [order, [one]] of pairs.slice(0, FLOATING_PLATES).entries()) {
       const rankOf = (set) => {
         const balance = measure(set, [one], typefaces);
         return [
           gateFailures(balance).length,
           one.layout.measures.crossings,
+          one.layout.measures.routes,
           order,
-          balance.emptyShare,
+          balance.holes + balance.emptyShare,
+          balance.band.height,
           Math.hypot(...balance.centroid),
         ];
       };
@@ -238,6 +284,7 @@ function candidate(input, skeleton, centring, context) {
     composition: {
       archetype: drawn.archetype,
       rail: skeleton.rail ?? null,
+      flank: skeleton.flank ?? 0,
       reserve: skeleton.reserve ?? false,
       notes: skeleton.notes ? "floating" : drawn.archetype === "column" ? "rail" : "footer",
       bands: skeleton.bands ?? drawn.plates.map(() => 1),
@@ -253,24 +300,38 @@ function candidate(input, skeleton, centring, context) {
 }
 
 /**
- * One composition per plate, all at one type step: the plates of one page set
- * their cards in one size, so a page never pairs a large figure with a small
- * one. The step is the largest every plate can draw at among those with the
- * fewest crossings across the page; each plate takes its best composition at
- * that step. Null when no step suits every plate.
+ * The ways to compose a page's plates, in figure order. The plates of one page
+ * set their cards in one size, so a page never pairs a large figure with a
+ * small one: each way takes one composition per plate, all at one type step,
+ * from the best few each plate offers at that step. Ways with fewer wiring
+ * faults come first, then larger steps, then each plate's better compositions.
+ * Empty when no step suits every plate.
  * @param {any[][]} options each plate's compositions, best first
+ * @returns {any[][]}
  */
-function sharedStep(options) {
-  const steps = [...new Set(options.flat().map((one) => one.step))].sort((a, b) => b - a);
-  /** @type {{ picks: any[], crossings: number } | null} */
-  let best = null;
+function pairings(options) {
+  const limit = PAIRED[options.length] ?? 1;
+  const ranked = options.map((list) => list.map((one, order) => ({ one, order })));
+  const steps = new Set(options.flat().map((one) => one.step));
+  /** @type {Array<{ picks: any[], key: number[] }>} */
+  const out = [];
   for (const step of steps) {
-    const picks = options.map((list) => list.find((one) => one.step === step));
-    if (picks.some((one) => !one)) continue;
-    const crossings = picks.reduce((sum, one) => sum + one.layout.measures.crossings, 0);
-    if (!best || crossings < best.crossings) best = { picks, crossings };
+    const lists = ranked.map((list) => list.filter(({ one }) => one.step === step).slice(0, limit));
+    if (lists.some((list) => !list.length)) continue;
+    /** @type {Array<Array<{ one: any, order: number }>>} */
+    let ways = [[]];
+    for (const list of lists) ways = ways.flatMap((picks) => list.map((pick) => [...picks, pick]));
+    for (const picks of ways)
+      out.push({
+        picks: picks.map(({ one }) => one),
+        key: [
+          ...faultsOf({ made: picks.map(({ one }) => one) }),
+          -step,
+          picks.reduce((sum, { order }) => sum + order, 0),
+        ],
+      });
   }
-  return best ? best.picks : null;
+  return out.sort((a, b) => compareRanks(a.key, b.key)).map(({ picks }) => picks);
 }
 
 const compareRanks = (a, b) => {
@@ -293,17 +354,18 @@ function withText(page, extra) {
  * views, and the grouping is chosen for the edition as a whole, not page by page:
  * a greedy packer that takes a passing page whenever it sees one strands the last
  * view alone, and a view of three components cannot fill a 16:9 page by itself.
- * The search minimises the pages that fail a gate, then the page count, then the
- * empty share the edition leaves.
+ * Every page passes every gate; among the groupings that do, the search takes
+ * the fewest pages, then the least of their area lying in holes. An edition no
+ * grouping can print on balanced pages is refused, naming the views no passing
+ * page holds and what their closest pages miss.
  * @param {any} model
  * @param {import("../plan/views.mjs").View[]} views
  * @param {any} typefaces
  * @param {any} icons
- * @param {{ state: string, records: any[] }} provenance
  */
-export function composeEdition(model, views, typefaces, icons, provenance) {
+export function composeEdition(model, views, typefaces, icons) {
   const boundaryName = model.repository?.name ?? model.title;
-  /** @type {Map<string, any>} */
+  /** @type {Map<string, { chosen: any, closest: any }>} */
   const tried = new Map();
   const at = (index, count) => {
     const key = `${index}:${count}`;
@@ -313,33 +375,31 @@ export function composeEdition(model, views, typefaces, icons, provenance) {
         sheet(
           model,
           views.slice(index, index + count),
-          { index: 0, count: 0 },
+          index === 0,
           typefaces,
           icons,
-          provenance,
           boundaryName,
         ),
       );
-    return tried.get(key);
+    return /** @type {{ chosen: any, closest: any }} */ (tried.get(key));
   };
 
   const count = views.length;
   /** @type {Array<any>} */
   const plan = new Array(count + 1).fill(null);
-  plan[count] = { pages: 0, fails: 0, empty: 0, next: count, made: null };
+  plan[count] = { pages: 0, holes: 0, next: count, made: null };
   for (let index = count - 1; index >= 0; index -= 1) {
     /** @type {any} */
     let chosen = null;
     for (const size of PLATES) {
       if (index + size > count) continue;
       const rest = plan[index + size];
-      const made = at(index, size);
-      // A grouping that cannot be drawn is not a page.
+      const made = at(index, size).chosen;
+      // A grouping no balanced page can hold is not a page.
       if (!rest || !made) continue;
       const total = {
         pages: 1 + rest.pages,
-        fails: (made.fails.length ? 1 : 0) + rest.fails,
-        empty: made.balance.emptyShare + rest.empty,
+        holes: made.balance.holes + rest.holes,
         next: index + size,
         made,
       };
@@ -347,17 +407,7 @@ export function composeEdition(model, views, typefaces, icons, provenance) {
     }
     plan[index] = chosen;
   }
-  // Admission draws every planned view on a page of its own, so a plan always
-  // exists for an admitted edition; a view no page can draw is refused by name.
-  if (!plan[0]) {
-    const lost = views.filter((_, index) => !at(index, 1)).map(({ id }) => id);
-    refuse(
-      "poster_unfittable",
-      `View ${lost.join(", ")} cannot be laid out on a ${POSTER.width} × ${POSTER.height} page ` +
-        "at any type step or row wrapping. Split the view or shorten its labels.",
-      lost.map((id) => ({ code: "poster_unfittable", path: `/views/${id}`, message: id })),
-    );
-  }
+  if (!plan[0]) refuseEdition(views, at);
 
   const pages = [];
   for (let index = 0; index < count; index = plan[index].next) pages.push(plan[index].made);
@@ -366,29 +416,67 @@ export function composeEdition(model, views, typefaces, icons, provenance) {
 }
 
 /**
- * Fewer failing pages first, then fewer pages, then the least empty share. A
- * count of passing pages would prefer splitting a passing page in two.
+ * Refuse an edition no grouping prints on balanced pages. The views to name are
+ * those no passing page holds, alone or with a neighbour; each is reported with
+ * the gates its own closest page misses, or as impossible to lay out at all.
  */
-function betterPlan(a, b) {
-  if (a.fails !== b.fails) return a.fails < b.fails;
-  if (a.pages !== b.pages) return a.pages < b.pages;
-  return a.empty < b.empty;
+function refuseEdition(views, at) {
+  const holds = (view) =>
+    PLATES.some((size) =>
+      Array.from({ length: size }, (_, offset) => view - offset).some(
+        (index) => index >= 0 && index + size <= views.length && at(index, size).chosen,
+      ),
+    );
+  const lost = views.flatMap((view, index) => (holds(index) ? [] : [{ view, index }]));
+  const named = lost.length ? lost : views.map((view, index) => ({ view, index }));
+  const problems = named.map(({ view, index }) => {
+    const closest = at(index, 1).closest;
+    return {
+      code: closest ? "poster_unbalanced" : "poster_unfittable",
+      path: `/views/${view.id}`,
+      message: closest
+        ? closest.fails
+            .map(({ measure: name, value, limit }) => `${name} ${value} (limit ${limit})`)
+            .join("; ")
+        : "no type step or row wrapping lays the view out",
+    };
+  });
+  const unfit = problems.every(({ code }) => code === "poster_unfittable");
+  refuse(
+    unfit ? "poster_unfittable" : "poster_unbalanced",
+    unfit
+      ? `View ${named.map(({ view }) => view.id).join(", ")} cannot be laid out on a ${POSTER.width} × ${POSTER.height} page ` +
+          "at any type step or row wrapping. Split the view or shorten its labels."
+      : `View ${named.map(({ view }) => view.id).join(", ")} cannot be printed on a balanced ` +
+          `${POSTER.width} × ${POSTER.height} page, alone or with a neighbouring view. ` +
+          "Give the view more of the model to show, merge it with a neighbour, or split it.",
+    problems,
+  );
 }
 
-/** Which gates a measured page fails. */
-function gateFailures(balance) {
+/** Fewer pages first, then the least area in holes. */
+function betterPlan(a, b) {
+  if (a.pages !== b.pages) return a.pages < b.pages;
+  return a.holes < b.holes;
+}
+
+/**
+ * Which gates a measured page fails, each with its measured value and limit.
+ * @param {ReturnType<typeof balanceOf>} balance
+ */
+export function gateFailures(balance) {
   /** @type {Array<{ measure: string, value: number, limit: number }>} */
   const fails = [];
   if (balance.emptyShare > GATES.emptyShare)
     fails.push({ measure: "emptyShare", value: balance.emptyShare, limit: GATES.emptyShare });
-  if (balance.fill[0] < GATES.fill)
-    fails.push({ measure: "fillAcross", value: balance.fill[0], limit: GATES.fill });
-  if (balance.fill[1] < GATES.fill)
-    fails.push({ measure: "fillDown", value: balance.fill[1], limit: GATES.fill });
-  if (Math.abs(balance.centroid[0]) > GATES.centroid)
-    fails.push({ measure: "centroidX", value: balance.centroid[0], limit: GATES.centroid });
-  if (Math.abs(balance.centroid[1]) > GATES.centroid)
-    fails.push({ measure: "centroidY", value: balance.centroid[1], limit: GATES.centroid });
+  if (balance.band.height >= GATES.band)
+    fails.push({ measure: "blankBand", value: balance.band.height, limit: GATES.band });
+  if (balance.holes > GATES.holes)
+    fails.push({ measure: "holes", value: balance.holes, limit: GATES.holes });
+  if (Math.abs(balance.centroid[0]) > GATES.centroid[0])
+    fails.push({ measure: "centroidX", value: balance.centroid[0], limit: GATES.centroid[0] });
+  if (Math.abs(balance.centroid[1]) > GATES.centroid[1])
+    fails.push({ measure: "centroidY", value: balance.centroid[1], limit: GATES.centroid[1] });
   return fails;
 }
 
@@ -397,15 +485,33 @@ function crossingsOf(page) {
   return page.made.reduce((sum, one) => sum + one.layout.measures.crossings, 0);
 }
 
-/** The best of a set: fewest crossings, least empty, then nearest the center, then fewest plates. */
+/**
+ * Wiring faults on one page, over all its plates, worst first: its crossings,
+ * then the route defects a reader misreads although no wire crosses.
+ * @returns {[number, number]}
+ */
+function faultsOf(page) {
+  return [crossingsOf(page), page.made.reduce((sum, one) => sum + one.layout.measures.routes, 0)];
+}
+
+/**
+ * The best of a set: fewest wiring faults, least area in holes and in the
+ * largest blank, then nearest the center, then fewest plates.
+ */
 function best(list) {
   return [...list].sort(
     (a, b) =>
-      crossingsOf(a) - crossingsOf(b) ||
-      a.balance.emptyShare - b.balance.emptyShare ||
+      compareRanks(faultsOf(a), faultsOf(b)) ||
+      a.balance.holes + a.balance.emptyShare - (b.balance.holes + b.balance.emptyShare) ||
       Math.hypot(...a.balance.centroid) - Math.hypot(...b.balance.centroid) ||
       a.views.length - b.views.length,
   )[0];
+}
+
+/** The page of a set that comes closest to passing: fewest gates missed, then the best. */
+function nearest(list) {
+  const fewest = Math.min(...list.map(({ fails }) => fails.length));
+  return best(list.filter(({ fails }) => fails.length === fewest));
 }
 
 /**
@@ -479,21 +585,21 @@ function renderSheet(model, typefaces, icons, chosen) {
     composition: chosen.composition,
     measures: {
       crossings: crossingsOf(chosen),
+      routes: made.reduce((sum, one) => sum + one.layout.measures.routes, 0),
       bends: made.reduce((sum, one) => sum + one.layout.measures.bends, 0),
       emptyShare: chosen.balance.emptyShare,
       emptyRectangle: chosen.balance.emptyRectangle,
-      emptyNinths: chosen.balance.emptyNinths,
-      fill: chosen.balance.fill,
+      blankBand: chosen.balance.band.height,
+      holes: chosen.balance.holes,
       centroid: chosen.balance.centroid,
-      misses: chosen.fails,
     },
     svg,
   };
 }
 
 /** Compose and draw every page of a model. */
-export function composePosters(model, views, typefaces, icons, provenance) {
-  return composeEdition(model, views, typefaces, icons, provenance).map((chosen) =>
+export function composePosters(model, views, typefaces, icons) {
+  return composeEdition(model, views, typefaces, icons).map((chosen) =>
     renderSheet(model, typefaces, icons, chosen),
   );
 }
@@ -505,22 +611,8 @@ export function composePosters(model, views, typefaces, icons, provenance) {
  * a page alone is still a view the plan may keep.
  * @returns {{ fits: boolean, width: number, height: number }}
  */
-export function admitsView(
-  model,
-  view,
-  typefaces,
-  icons,
-  provenance = { state: "none", records: [] },
-) {
+export function admitsView(model, view, typefaces, icons) {
   const boundaryName = model.repository?.name ?? model.title;
-  const made = sheet(
-    model,
-    [view],
-    { index: 0, count: 1 },
-    typefaces,
-    icons,
-    provenance,
-    boundaryName,
-  );
-  return { fits: made !== null, width: POSTER.width, height: POSTER.height };
+  const { closest } = sheet(model, [view], true, typefaces, icons, boundaryName);
+  return { fits: closest !== null, width: POSTER.width, height: POSTER.height };
 }

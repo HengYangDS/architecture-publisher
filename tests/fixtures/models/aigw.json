@@ -390,7 +390,7 @@
     },
     {
       "id": "adapters",
-      "question": "How are native client adapters admitted and dispatched?",
+      "question": "How are native client adapters admitted and dispatched, and where are their effects guarded?",
       "tiers": [
         {
           "id": "coordination",
@@ -399,29 +399,13 @@
         },
         {
           "id": "registry",
-          "label": "Admission and dispatch",
-          "members": ["registry", "adapter-contract"]
+          "label": "Admission, dispatch and guard",
+          "members": ["registry", "adapter-contract", "transaction"]
         },
         {
           "id": "clients",
           "label": "Native projections",
           "members": ["codex", "claude-code", "claude-desktop", "hermes"]
-        }
-      ]
-    },
-    {
-      "id": "transaction",
-      "question": "Where are client projection effects guarded and compensated?",
-      "tiers": [
-        {
-          "id": "admission",
-          "label": "Admitted operation",
-          "members": ["registry", "adapter-contract"]
-        },
-        {
-          "id": "effect",
-          "label": "Guarded effect",
-          "members": ["transaction"]
         }
       ]
     }
