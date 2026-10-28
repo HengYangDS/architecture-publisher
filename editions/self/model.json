@@ -3,8 +3,8 @@
   "version": 1,
   "id": "architecture-publisher",
   "title": "Architecture Publisher",
-  "question": "How does Architecture Publisher turn an architecture model into a poster and a map?",
-  "summary": "An editor runs archpub on a model or a LikeC4 workspace. One build validates the model, verifies its sources, plans the views, lays each out on one grid and writes posters, a native Archify map and a manifest of their digests.",
+  "question": "How does Architecture Publisher turn an architecture model into posters and a page?",
+  "summary": "An editor runs archpub on a model or a LikeC4 workspace. One build validates the model, verifies its sources, plans at most four views, lays each out on one grid and writes 16:9 poster pages, a native Archify explainer page and a manifest of their digests and evidence.",
   "attribution": "the Architecture Publisher maintainers",
   "scope": "The publisher package and its vendored supplies; not the repository's quality tooling or CI",
   "limits": [
@@ -13,7 +13,7 @@
   "repository": {
     "name": "architecture-publisher",
     "url": "https://github.com/HengYangDS/architecture-publisher",
-    "revision": "f541f69ddac1426f2b1000481cc9e5a02706cb13"
+    "revision": "19e16c4565e1ab4a5d308e860db24fc63d6e4946"
   },
   "kinds": {
     "person": {
@@ -65,11 +65,11 @@
   "sources": {
     "cli": {
       "path": "packages/publisher/src/cli/run.mjs",
-      "sha256": "83d7532cd6df8218f9ea9b6f2ca230f77292d107fd7db12290842db5168887c6"
+      "sha256": "0a42b082abdb2616ece754cedbc883bb512a4c2f20df6c84cd180d3b6646659b"
     },
     "build": {
       "path": "packages/publisher/src/build.mjs",
-      "sha256": "c8c1eb4a4a64aef48df1da8ad332adb8232ab652b064410d38c197911cb8e4e0"
+      "sha256": "d295cf7464c889fbdd6ebcf1e58ca38ae71202fd62f6ca55725ba020e409873a"
     },
     "delivery": {
       "path": "packages/publisher/src/delivery.mjs",
@@ -81,11 +81,11 @@
     },
     "worker": {
       "path": "packages/publisher/src/importers/likec4-worker.mjs",
-      "sha256": "4e39cdfc66d83610a526212c4a045f3b8c37905e2749aff73ea4c78206a2e921"
+      "sha256": "7fa5da5d726ddfe4374971b36dfea48aa64d351c39a102271e90d47faa391d9b"
     },
     "model": {
       "path": "packages/publisher/src/model/load.mjs",
-      "sha256": "ab9005f78f9822d6ad1a704f9e03da1480b19f9562097e1b345db750a2fe03b0"
+      "sha256": "248563ccfda54e32743ef5cdf79be28e01cf99ad5bbdb1632a834a5f67ac6832"
     },
     "schema": {
       "path": "packages/publisher/src/model/schema.json",
@@ -93,31 +93,31 @@
     },
     "binding": {
       "path": "packages/publisher/src/sources/bind.mjs",
-      "sha256": "1c684f3405587805b1ca8c617d69a182c4823b0c589f496a42e9a71cbc7ed7ab"
+      "sha256": "95368a5375a7f6da6fade18ccb5d0f379d2f44f750607ea80965bec332aba3f3"
     },
     "plan": {
       "path": "packages/publisher/src/plan/views.mjs",
-      "sha256": "026f228ccf76edd8a8272ca41143c245cd771ead0176e3f2c506eae115e3b4d3"
+      "sha256": "7b8dbc16aef23da4af6db2aa9c5d0e1b25e4fda61d71667be3c1c87577fb13eb"
     },
     "grid": {
       "path": "packages/publisher/src/layout/grid.mjs",
-      "sha256": "b115a9faa7a4096c2ee40ce40009cc4d15aaee73b5b1d465f126c2d4ff5a670e"
+      "sha256": "80c14285148ff5386a34f835e10056b109ff47fddb15363a2991078a0b18b178"
     },
     "rows": {
       "path": "packages/publisher/src/layout/rows.mjs",
-      "sha256": "90418293dc8ba0832a86feba5c4852207b63e373663267f7d77f0e033ce9238e"
+      "sha256": "ea4f41841b69b112d3d40f400df6082056eda96d66ff1d7e249e35230bd28e62"
     },
     "placement": {
       "path": "packages/publisher/src/layout/placement.mjs",
-      "sha256": "fa3052f4a816a3060fbd17814528e525bfc862f9c303bf01b6caeb345e20b93c"
+      "sha256": "3288fc2128225a132432758c3b61def96d43ba62bb975aea6e62e8ee2bb99760"
     },
     "channels": {
       "path": "packages/publisher/src/layout/channels.mjs",
-      "sha256": "68a15380b7316d260fda5139af69cd5525826c36ba0a69ebd83a73dcb78d27ca"
+      "sha256": "f710570522b7b1c51862e681464984da86246609fee5d406dd550b95fcfeffcc"
     },
     "solver": {
       "path": "packages/publisher/src/layout/channel-solver.mjs",
-      "sha256": "462570935e3a5432f29222a3a561ba82c4f6b811aba264c9e7a1c8fc2ee28ea7"
+      "sha256": "6aded9bbb1ce469465b81423b1b975acca491e4f99b96f161305f9e2acf4dc6b"
     },
     "measure": {
       "path": "packages/publisher/src/layout/measure.mjs",
@@ -125,23 +125,27 @@
     },
     "poster": {
       "path": "packages/publisher/src/poster/compose.mjs",
-      "sha256": "4331a62b1a5386c7e4047593cfab1f324732226b1570b494bf00379ac7e5cd55"
+      "sha256": "e21a4aa61b62f6543a02bc4ab7eeafe3f82f2d347e699922953fac6bec25855b"
     },
     "tokens": {
       "path": "packages/publisher/src/poster/tokens.mjs",
-      "sha256": "1880d37fdc3d9071c942614b2eac58efcbc546636fa1863f8220b3aa2b08207d"
+      "sha256": "16a613fc695baeccf3e53989a18dca3283c32a9968ad898b728abc4dfaf7ebad"
     },
     "text": {
       "path": "packages/publisher/src/poster/text.mjs",
-      "sha256": "23ea686a84749b3615128d500b8547acdf0f622b63a5fb1e115051180c97da8b"
+      "sha256": "32ed52d09de3ad4c44d57f1dc36e5f852329a6493d3711bec3f072ffd6e8bf13"
     },
     "raster": {
       "path": "packages/publisher/src/poster/raster.mjs",
-      "sha256": "66421627dc02fe17a02cf72bee771df67fa0346f6897d56d6c7af48fd935a5c6"
+      "sha256": "91c4a8e6f76bcad8602f6f11f971c016cdea6558a4cde516dc02021e029105c2"
+    },
+    "explainer": {
+      "path": "packages/publisher/src/map/explainer.mjs",
+      "sha256": "9e0762af53de3ad4df69edcc40e9846eebb8966ce5a76b8eef0cd42bd6ca0e8c"
     },
     "map": {
       "path": "packages/publisher/src/map/archify.mjs",
-      "sha256": "ae3ccbf630c3c47ed47ccb36c34c04c99ac6df440bd2793d82b45f813dd46c3c"
+      "sha256": "02da2cf8e109061e9b35f3f3e6d26c4d55756f5acd1a7caad7494ce2ddc835ae"
     },
     "kinds": {
       "path": "packages/publisher/src/kinds.mjs",
@@ -230,18 +234,18 @@
       "label": "Poster composer",
       "kind": "medium",
       "details": {
-        "draws": "1800 × 1350 px"
+        "draws": "2400 × 1350 px pages"
       },
       "sources": ["poster", "tokens"]
     },
     {
       "id": "map",
-      "label": "Archify map",
+      "label": "Explainer page",
       "kind": "medium",
       "details": {
         "delivers": "native Archify"
       },
-      "sources": ["map"]
+      "sources": ["explainer", "map"]
     },
     {
       "id": "layout",
@@ -415,7 +419,7 @@
       "id": "maps",
       "from": "builder",
       "to": "map",
-      "label": "maps the model"
+      "label": "writes the page"
     },
     {
       "id": "rasterizes",
@@ -524,7 +528,7 @@
     {
       "id": "overview",
       "title": "Architecture Publisher",
-      "question": "How does Architecture Publisher turn an architecture model into a poster and a map?",
+      "question": "Which parts does one build pass through, from the editor to the repository?",
       "tiers": [
         {
           "id": "people",
@@ -556,7 +560,7 @@
     {
       "id": "layout",
       "title": "Grid layout",
-      "question": "How does one layout serve both the poster and the map?",
+      "question": "How does one grid lay out both the posters and the page's diagrams?",
       "summary": "Rows come from tiers or relations. Placement solves card positions exactly, wires group relations into buses and corridors, and the channel solver routes each channel; the measure refuses any overlap.",
       "tiers": [
         {
@@ -579,7 +583,7 @@
     {
       "id": "media",
       "title": "Media",
-      "question": "What draws the poster and the map, and which supplies do they use?",
+      "question": "What draws the posters and the page, and which supplies do they use?",
       "summary": "The poster outlines its text with the bundled fonts and draws Lucide icons; resvg renders its PNG. The map hands grid positions to native Archify.",
       "tiers": [
         {
