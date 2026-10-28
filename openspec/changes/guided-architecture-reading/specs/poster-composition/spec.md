@@ -21,22 +21,37 @@ never drawn on a longer, wider or narrower page.
 
 A page SHALL carry one, two or three consecutive views, each as a plate: the
 view's question as its heading, its title too when it differs from the
-model's, and its figure in a band of the page. The publisher SHALL choose the
-grouping for the whole edition rather than page by page, maximising first the
-pages that pass every gate, then fewer pages, then the smallest total empty
-share, so that a view too sparse to fill a page alone shares one with its
-neighbour.
+model's, and its figure in a band of the page.
+
+#### Scenario: Every view is printed once
+
+- **WHEN** an edition is composed
+- **THEN** its pages carry every planned view exactly once, in plan order
+
+### Requirement: Bands of plates
+
+A band SHALL hold one plate or several side by side, in reading order,
+dividing its width in proportion to the width each figure needs at the densest
+step.
+
+#### Scenario: Two short plates beside a wide one
+
+- **WHEN** a page carries three views whose figures do not fit one above another
+- **THEN** a composition with two of them side by side in one band and the
+  third in the other is among its candidates
+
+### Requirement: Edition grouping
+
+The publisher SHALL choose the grouping for the whole edition rather than page
+by page, minimising first the pages that miss a gate, then the page count, then
+the total empty share, so that a view too sparse to fill a page alone shares
+one with its neighbour.
 
 #### Scenario: A sparse view shares a page
 
 - **WHEN** an edition ends with a view of three components
 - **THEN** that view shares a page with the view before it rather than
   printing as a band on a page of its own
-
-#### Scenario: Every view is printed once
-
-- **WHEN** an edition is composed
-- **THEN** its pages carry every planned view exactly once, in plan order
 
 ### Requirement: Page grid
 
@@ -104,9 +119,10 @@ plates over the full height of the remaining columns.
 
 ### Requirement: Corner page
 
-A corner page SHALL give its one plate the full width above the notes and set
-the summary and the legend after the figure is drawn. The head SHALL start at
-the top-left corner of the live area, carrying the view's title and question
+A corner page SHALL give its one plate the full width, above the notes or down
+to the foot of the live area, and set the summary and the legend after the
+figure is drawn, and the notes too when it sets no footer. The head SHALL start
+at the top-left corner of the live area, carrying the view's title and question
 beneath the model's, either set beside the drawn figure or in a strip reserved
 above it. A figure that leaves no room beside it SHALL NOT be a candidate for
 the first form.
@@ -119,11 +135,31 @@ the first form.
 ### Requirement: Corner placement
 
 The summary and the legend of a corner page SHALL each take the corner,
-nearest the page edge, and the width that leave the page the smallest largest
-empty rectangle and then the smallest centroid offset. Every block SHALL keep
-40 px of paper from every card, wire, label and other block and 24 px from the
-boundary frame, and none SHALL be set between a figure's first and last tier
-label.
+nearest the page edge, and the width, from two columns up, that leave the page
+passing its gates and then with the smallest largest empty rectangle and the
+smallest centroid offset.
+
+#### Scenario: A strip beside a compact figure
+
+- **WHEN** a compact figure leaves a strip two columns wide beside it
+- **THEN** a summary or legend set in that strip is among the placements
+
+### Requirement: Floating notes
+
+A corner page that sets no footer SHALL set its notes as one block, stacked or
+side by side, in one of the page's bottom corners or along its foot, never above
+the figure.
+
+#### Scenario: Notes under a compact figure
+
+- **WHEN** a corner page's figure leaves its lower left corner free
+- **THEN** placing the notes there is among its candidates
+
+### Requirement: Text clearance
+
+Every floating block SHALL keep 40 px of paper from every card, wire, label and
+other block and 24 px from the boundary frame, and none SHALL be set between a
+figure's first and last tier label.
 
 #### Scenario: No text over the figure
 
@@ -154,17 +190,28 @@ NOT print claim records, digest lists, status tables or reading indexes.
 
 ### Requirement: Header, legend and notes
 
-Each poster SHALL show the title, the view question, an optional summary of at
-most three lines and the repository, revision and view number; one legend of
-the kinds, the system boundary and the statuses present; and notes with the
-scope, limits, attribution, repository revision and source verification
-state.
+Each poster SHALL show the title, the view question, an optional summary and
+the repository, revision and view number; one legend of the kinds, the system
+boundary and the statuses present; and notes with the scope, limits,
+attribution, repository revision and source verification state.
 
 #### Scenario: Evidence stays off the poster
 
 - **WHEN** a model declares source digests for every component
 - **THEN** the poster shows the revision and verification state in its notes
   and no digest
+
+### Requirement: One summary per page
+
+A page of one view SHALL set that view's summary, or the model's when the view
+has none; a page of several views SHALL set the model's summary and each
+plate's own under its heading. The scope note SHALL carry the model's scope
+only, so that no text is set twice on one page.
+
+#### Scenario: The overview's summary is set once
+
+- **WHEN** a page shows an overview whose summary is the model's
+- **THEN** the summary appears once on the page and not again in its notes
 
 ### Requirement: Uncut text
 
@@ -182,12 +229,11 @@ question or summary no composition can set is refused with
 ### Requirement: Candidate compositions
 
 The publisher SHALL derive for each page a finite, ordered set of candidates:
-an archetype with its rail, and for each plate a row wrapping that splits a
-wide row into consecutive rows of one band, for rows derived from relations
-also the flatter rows that draw a chain along one row, a figure type step on
-the type scale, and whether a row's centre is taken over all its cards or only
-those inside the system boundary. Every candidate SHALL be laid out with the
-grid layout and the poster's metrics.
+an archetype with its rail and band arrangement, and for each plate a row
+wrapping that splits a wide row into consecutive rows of one band, for rows
+derived from relations also the flatter rows that draw a chain along one row, a
+figure type step, and, when a page holds outside components, whether a row's
+centre is taken over all its cards or only those inside the boundary.
 
 #### Scenario: A wide tier wraps
 
@@ -199,6 +245,17 @@ grid layout and the poster's metrics.
 - **WHEN** a view's derived rows put three single cards in three rows above a
   row of three
 - **THEN** a candidate draws the three single cards along one row
+
+### Requirement: Widest fitting wrapping
+
+At each type step a plate SHALL keep, of its layered rows and of its flatter
+rows, only the widest wrapping that fits its field with the fewest crossings: a
+row that fits is never split to fill a band.
+
+#### Scenario: A row that fits is not split
+
+- **WHEN** a view's rows of two, three and two cards fit their field at a step
+- **THEN** no candidate at that step splits the row of three
 
 ### Requirement: Whole-word card text
 
@@ -229,19 +286,30 @@ candidate.
 - **WHEN** a page carries a tall plate and a short one
 - **THEN** each plate's band is at least its figure's natural height
 
-### Requirement: Filled figure
+### Requirement: Cards as large as their text
 
-Within its band a figure SHALL be filled, not scaled: its cards grow to take
-the band's slack, up to the card height token and no taller than the card
-aspect token allows, and its row channels then deepen within their token
-bound. Rows SHALL be centred on the column lattice.
+A card SHALL be as wide as the longest label and the longest detail of any card
+in its view need on one line, within card measures of 16 ems for a label and
+24 ems for a detail, and no wider; a field too narrow for that width narrows
+the cards and their text wraps.
 
-#### Scenario: A small view fills its field
+#### Scenario: A short card in a row of tall ones
 
-- **WHEN** a view of two rows of three cards is composed
-- **THEN** its cards grow and its channels deepen until the figure spans the
-  band within those bounds
-- **AND** no blank band crosses the page between the header and the notes
+- **WHEN** a row holds a card with one detail line beside a card with five
+- **THEN** both cards share the row's height and the short card's spare height
+  lies below its text
+
+### Requirement: No stretched cards
+
+Every card of a row SHALL be as tall as the row's tallest text, with its label
+first and its details directly beneath. A card SHALL NOT grow to fill its band:
+a figure shorter than its band deepens its channels within their token bound
+and is centred in the rest.
+
+#### Scenario: A sparse view keeps compact cards
+
+- **WHEN** a view of two rows of three cards is composed on a page of its own
+- **THEN** no card is taller than its row's tallest text needs
 
 ### Requirement: Ink-centred figure
 
@@ -268,59 +336,78 @@ such corridor in a candidate is not composed in that candidate.
   used column, outside its field
 - **THEN** that candidate is rejected and the relation never runs off the page
 
-### Requirement: No strip cards
+### Requirement: Figure type steps
 
-A card SHALL NOT be wider than five times its height once grown; a wrapping
-that would draw one SHALL NOT be a candidate.
+The figure SHALL be set in one of five steps of card label, detail and
+relation-label sizes: 18/14/14, 20/16/16, 24/18/18, 28/20/20 and 32/24/24 px. A
+step SHALL scale the cards' padding, icons, gaps and wires with its text. No
+size SHALL exceed 1.8 times its size at the densest step, and every card label
+SHALL be smaller than the view heading.
 
-#### Scenario: A one-card row is not a strip
+#### Scenario: A sparse view is set large
 
-- **WHEN** a wrapping puts one card in a row of a wide field
-- **THEN** that wrapping is not a candidate unless its grown card is at most
-  five times as wide as it is tall
+- **WHEN** a view of seven components has a page of its own
+- **THEN** its figure uses the 28 or 32 px step that fits its field
+
+### Requirement: One step per page
+
+Every plate of one page SHALL use one type step: the largest every plate can
+draw at among those with the fewest crossings across the page.
+
+#### Scenario: Two plates share a size
+
+- **WHEN** a page carries a plate that fits at 24 px and one that fits only at
+  18 px
+- **THEN** both plates are drawn at 18 px
 
 ### Requirement: Chosen plate
 
-The publisher SHALL choose for each plate, among the candidates with the
-fewest wire crossings, and among those whose figures cover within two percent
-of the most of their band, the one with the larger type step, then the least
-justification padding, then the nearest the band's centre, then the wider
-wrapping.
+The publisher SHALL judge each plate as a figure: among its candidates with the
+fewest wire crossings, the one at the largest type step, then with layered rows
+before flatter ones, then the nearest the band's centre.
 
 #### Scenario: The same choice every time
 
 - **WHEN** the same view is composed twice
 - **THEN** both posters are byte-identical
 
-#### Scenario: A sparse view is set larger
-
-- **WHEN** a view's cards fill their band at every type step
-- **THEN** the plate uses the largest step
-
 ### Requirement: Chosen page
 
 The publisher SHALL choose for each page, among the candidates that pass every
-gate, the one with the smallest empty-rectangle share, then the smallest
-centroid offset. The manifest SHALL record each page's views, archetype, rail
-and centring, each plate's wrapping and type step, and the page's measures.
+gate, or among all when none passes, the one with the fewest crossings, then
+the smallest empty-rectangle share, then the smallest centroid offset; a corner
+page SHALL set its text around its plate's candidates best first and keep the
+first that passes.
+
+#### Scenario: The same page every time
+
+- **WHEN** the same edition is composed twice
+- **THEN** both runs choose the same pages
+
+### Requirement: Recorded composition
+
+The manifest SHALL record each page's views, archetype, rail, band
+arrangement, notes placement and centring, each plate's wrapping and type step,
+and the page's measures with every gate it misses.
 
 #### Scenario: A page in the manifest
 
 - **WHEN** an edition is built
 - **THEN** its manifest records every page's composition and measures
 
-### Requirement: Unbalanced edition refusal
+### Requirement: Recorded balance misses
 
-An edition whose chosen grouping leaves a page without a passing candidate
-SHALL be refused with that page's views, every failing gate's measured value
-and limit, and a remedy for the author. The grouping search SHALL prefer
-groupings that can be drawn at all before passing pages and page count, so
-that the refusal names the views that failed a gate rather than every view.
+Any repository's model SHALL be drawable: an edition whose chosen grouping
+leaves a page without a passing candidate SHALL print the page the search
+chose and record, in that page's measures, every gate it misses with the
+measured value and the limit. A view that no page can lay out at any step or
+wrapping SHALL be refused with `poster_unfittable` and its id.
 
-#### Scenario: A composition with a blank band
+#### Scenario: A model too sparse for a balanced page
 
-- **WHEN** every grouping of a view leaves an empty rectangle above the limit
-- **THEN** the build refuses with that view, the measured share and the limit
+- **WHEN** a model of two components and one relation is built
+- **THEN** its page is printed and its manifest entry records the empty share
+  and the limit it misses
 
 ### Requirement: Balance gate
 

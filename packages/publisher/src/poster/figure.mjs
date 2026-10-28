@@ -4,7 +4,8 @@ import { POSTER } from "./tokens.mjs";
 /**
  * Draw one laid-out figure into SVG shapes and text runs, and report the
  * rectangle each element fills. The balance gate measures those rectangles, so
- * a card counts as filled across its whole surface, as a reader sees it.
+ * a card counts as filled across its whole surface, as a reader sees it; a card
+ * is only as large as its row's text, so that surface is the card's text.
  */
 
 const C = POSTER.color;
@@ -108,7 +109,7 @@ export function drawFigure(layout, input) {
       if (!members.length) return;
       const left = Math.min(...members.map(({ x }) => at(x)));
       const right = Math.max(...members.map(({ x, width }) => at(x) + width));
-      const ruleY = down(row.top + layout.card.height + 8);
+      const ruleY = down(row.top + row.height + 8);
       shapes.push(
         `<line x1="${fixed(left)}" y1="${fixed(ruleY)}" x2="${fixed(right)}" y2="${fixed(ruleY)}" ` +
           `stroke="${C.rule}" stroke-width="1.5"/>`,
@@ -119,7 +120,7 @@ export function drawFigure(layout, input) {
       if (!column) return;
       const labelWidth = column.width - 64;
       const lines = typefaces.wrap(row.label, labelWidth, styles.tier);
-      const top = down(row.top + (layout.card.height - lines.length * styles.tier.line) / 2);
+      const top = down(row.top + (row.height - lines.length * styles.tier.line) / 2);
       shapes.push(
         `<circle cx="${fixed(column.x + 18)}" cy="${fixed(top + styles.tier.line / 2)}" r="14" fill="none" stroke="${C.muted}" stroke-width="1.4"/>`,
       );
@@ -261,11 +262,12 @@ export function drawFigure(layout, input) {
         styles.name,
         component.status === "retired" ? C.muted : C.ink,
       );
-    // Details sit at the foot of the card, so a tall card reads as a panel rather
-    // than a loose label in a box.
-    let foot = y + card.height - cardStyle.pad - details.length * styles.detail.line;
+    // Details follow the label as one block read from the card's top edge, so a
+    // card shorter than its row's tallest keeps its spare height at its foot,
+    // not between a name and what is said about it.
+    top += details.length ? cardStyle.detailGap : 0;
     for (const line of details)
-      foot = text("cards", line, x + cardStyle.pad, foot, styles.detail, C.muted);
+      top = text("cards", line, x + cardStyle.pad, top, styles.detail, C.muted);
   }
 
   for (const label of layout.labels) {

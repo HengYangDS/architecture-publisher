@@ -12,12 +12,12 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  * @typedef {{ width: number, height: number, lines: Array<{ text: string, role: "label" | "detail" }> }} LabelBox
  * @typedef {{
  *   contentWidth: (labelled: boolean) => number,
- *   card: { minWidth: number, maxWidth: number, minimumHeight?: number,
+ *   card: { minWidth: number, maxWidth: number,
  *     height: (component: any, width: number) => number },
  *   label: (relation: any, maxWidth?: number) => LabelBox,
  *   external: (component: any) => boolean,
  *   centring?: "all" | "inside",
- *   spacing: { column: number, inset: number, stub: number, track: number, bandGap: number,
+ *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
  *     minJog: number, clear: number, minChannel: number, rowPad: number, boundaryPad: number,
  *     boundaryBottom: number, boundaryHead: number }
@@ -51,6 +51,7 @@ export function placementOf(view, rows, metrics) {
     contentWidth,
     card: metrics.card,
     columnGap: spacing.column,
+    spread: spacing.columnSpread ?? 1,
     inset: spacing.inset,
     clearance: spacing.clear,
     labelWidth: (relation, maxWidth) => metrics.label(relation, maxWidth).width,
@@ -73,11 +74,12 @@ export function layoutView(view, metrics, options = {}) {
   const placement = options.placement ?? placementOf(view, rows, metrics);
   const { labelled, contentWidth } = placement;
   const { width: cardWidth, pitch, interval } = placement;
-  // A medium may ask its cards to carry the page's vertical fill: they grow to a
-  // common height, and their content is set inside that height.
-  const cardHeight = Math.max(
-    metrics.card.minimumHeight ?? 0,
-    ...view.components.map((component) => metrics.card.height(component, cardWidth)),
+  const order = placement.order;
+  // Every card of a row is as tall as the row's tallest text, so a row reads on
+  // one line; rows differ, so a row of names is not as tall as the row with the
+  // most detail.
+  const rowHeights = order.map((members) =>
+    Math.max(0, ...members.map((id) => metrics.card.height(components.get(id), cardWidth))),
   );
   const used = [...placement.position.values()];
   const usedSpan = ((Math.max(...used) - Math.min(...used)) / 2) * pitch + cardWidth;
@@ -89,7 +91,6 @@ export function layoutView(view, metrics, options = {}) {
       { x: columnX(position), cx: columnX(position) + cardWidth / 2 },
     ]),
   );
-  const order = placement.order;
   const internal = rows.map((_, index) => order[index].some((id) => !external(id)));
   const first = internal.indexOf(true);
   const last = internal.lastIndexOf(true);
@@ -118,7 +119,7 @@ export function layoutView(view, metrics, options = {}) {
     classes,
     box,
     cardWidth,
-    cardHeight,
+    rowHeights,
     contentWidth,
     columns: placement.columns,
     pitch,
@@ -150,26 +151,21 @@ export function layoutView(view, metrics, options = {}) {
       const above = bounded && index === last ? spacing.boundaryBottom + 8 : 0;
       const below = bounded && index + 1 === first ? head + 8 : 0;
       offsets.push(above);
-      cursor += cardHeight + above + solutions[index].height + below;
+      cursor += rowHeights[index] + above + solutions[index].height + below;
     }
   }
   const below = trailing ? solutions[rows.length - 1].height : 0;
   const height =
     rowTop[rows.length - 1] +
-    cardHeight +
+    rowHeights[rows.length - 1] +
     below +
     spacing.rowPad +
     (bounded && last === rows.length - 1 ? spacing.boundaryBottom : 0);
   const cards = new Map(
-    [...box].map(([id, { x }]) => [
-      id,
-      {
-        x,
-        y: rowTop[/** @type {number} */ (classes.rowOf.get(id))],
-        width: cardWidth,
-        height: cardHeight,
-      },
-    ]),
+    [...box].map(([id, { x }]) => {
+      const row = /** @type {number} */ (classes.rowOf.get(id));
+      return [id, { x, y: rowTop[row], width: cardWidth, height: rowHeights[row] }];
+    }),
   );
 
   const paths = [];
@@ -177,7 +173,7 @@ export function layoutView(view, metrics, options = {}) {
   const arrows = [];
   const channels = [];
   wiring.channels.forEach((channel, index) => {
-    const top = rowTop[index] + cardHeight;
+    const top = rowTop[index] + rowHeights[index];
     const bottom = rowTop[index + 1] ?? top + solutions[index].height;
     const geometry = channelGeometry(
       channel,
@@ -208,11 +204,11 @@ export function layoutView(view, metrics, options = {}) {
         relations: [relation],
         points: [
           [x, rowTop[row]],
-          [x, rowTop[row] + cardHeight],
+          [x, rowTop[row] + rowHeights[row]],
         ],
       });
   for (const { relation, left, right, label, fromLeft, row } of wiring.straights) {
-    const y = rowTop[row] + cardHeight / 2;
+    const y = rowTop[row] + rowHeights[row] / 2;
     paths.push({
       relations: [relation],
       points: [
@@ -252,7 +248,7 @@ export function layoutView(view, metrics, options = {}) {
       x: frame[0],
       y,
       width: frame[1] - frame[0],
-      height: rowTop[last] + cardHeight + below + spacing.boundaryBottom - y,
+      height: rowTop[last] + rowHeights[last] + below + spacing.boundaryBottom - y,
       name: options.boundaryName ?? null,
     };
   }
@@ -260,8 +256,13 @@ export function layoutView(view, metrics, options = {}) {
     width: contentWidth,
     height,
     labelled,
-    card: { width: cardWidth, height: cardHeight },
-    rows: rows.map((row, index) => ({ ...row, members: order[index], top: rowTop[index] })),
+    card: { width: cardWidth, height: Math.max(...rowHeights) },
+    rows: rows.map((row, index) => ({
+      ...row,
+      members: order[index],
+      top: rowTop[index],
+      height: rowHeights[index],
+    })),
     cards,
     paths,
     labels,

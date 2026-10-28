@@ -73,13 +73,25 @@ function legendOf(model, views, boundary) {
   return { kinds, rest };
 }
 
-/** The footer's note blocks: what the views cover, what they leave out, where it comes from. */
+/**
+ * What a page says its figures show. A page of one view says what that view
+ * shows, or the model's summary when the view has none; a page of several
+ * views sets the model's summary, and each plate's heading says what its own
+ * view shows. Null when there is nothing to say.
+ * @param {any} model
+ * @param {any[]} views
+ * @returns {string | null}
+ */
+export function summaryOf(model, views) {
+  return (views.length === 1 ? views[0].summary : null) || model.summary || null;
+}
+
+/** The footer's note blocks: what the model covers, what it leaves out, where it comes from. */
 export function notesOf(model, views, provenance) {
   const sentence = (text) => (/[.!?。]$/u.test(text) ? text : `${text}.`);
   /** @type {Array<{ label: string, text: string }>} */
   const blocks = [];
-  const scope = [model.scope, ...views.map((view) => view.summary)].filter(Boolean);
-  if (scope.length) blocks.push({ label: "Scope", text: scope.map(sentence).join(" ") });
+  if (model.scope) blocks.push({ label: "Scope", text: sentence(model.scope) });
   const limits = [...new Set(model.limits)].filter(Boolean);
   if (limits.length) blocks.push({ label: "Limits", text: limits.map(sentence).join(" ") });
   const origin = [];
@@ -150,7 +162,7 @@ export function headBlock(typefaces, model, width, most, view = null) {
   let y = setLines(runs, title, 0, PAGE.title, POSTER.color.ink);
   y = setLines(runs, question, y + LEAD, PAGE.question, POSTER.color.accent);
   if (view) {
-    const heading = plateHeading(typefaces, view, width, model);
+    const heading = plateHeading(typefaces, view, width, model, false);
     if (!heading) return null;
     if (heading.height) {
       y += 2 * LEAD;
@@ -290,25 +302,62 @@ export function noteBlock(typefaces, label, text, width) {
 
 /**
  * The heading a plate sets above its figure: the view's title, then its
- * question. What the page's head already says is not repeated: a view whose
- * title or question is the model's own keeps only what tells this figure apart
- * from the others, and a view that is the whole model has no heading at all.
- * Null when either line group needs more than two lines at this width.
+ * question, and on a page of several views what the view shows. What the
+ * page's head already says is not repeated: a view whose title, question or
+ * summary is the model's own keeps only what tells this figure apart from the
+ * others, and a view that is the whole model has no heading at all. Null when
+ * the title or question needs more than two lines at this width, or the
+ * summary more than three.
+ * @param {any} typefaces
+ * @param {any} view
+ * @param {number} width
+ * @param {any} model
+ * @param {boolean} shows whether the heading also says what the view shows
  * @returns {Block | null}
  */
-export function plateHeading(typefaces, view, width, model) {
+export function plateHeading(typefaces, view, width, model, shows) {
   const own =
     view.title === model.title ? [] : linesWithin(typefaces, view.title, width, PAGE.plate, 2);
   const asks =
     view.question === model.question
       ? []
       : linesWithin(typefaces, view.question, width, PAGE.plateQuestion, 2);
-  if (!own || !asks) return null;
+  const says =
+    shows && view.summary && view.summary !== model.summary
+      ? linesWithin(typefaces, view.summary, width, PAGE.summary, POSTER.summaryLines)
+      : [];
+  if (!own || !asks || !says) return null;
   const runs = [];
   let y = setLines(runs, own, 0, PAGE.plate, POSTER.color.ink);
   if (own.length && asks.length) y += 4;
   y = setLines(runs, asks, y, PAGE.plateQuestion, POSTER.color.accent);
+  if (says.length && y) y += 8;
+  y = setLines(runs, says, y, PAGE.summary, POSTER.color.muted);
   return block(typefaces, runs, [], width, y);
+}
+
+/**
+ * The page's notes as one block a page sets beside its figure: stacked in one
+ * column, or side by side in one column each. Null when the page has no notes.
+ * @returns {Block | null}
+ */
+export function notesBlock(typefaces, model, views, provenance, width, columns) {
+  const notes = notesOf(model, views, provenance);
+  if (!notes.length) return null;
+  const across = columns > 1 ? notes.length : 1;
+  const span = across > 1 ? (width - (across - 1) * POSTER.grid.gutter) / across : width;
+  const runs = [];
+  let height = 0;
+  let y = 0;
+  notes.forEach((note, index) => {
+    const set = noteBlock(typefaces, note.label, note.text, span);
+    const x = across > 1 ? index * (span + POSTER.grid.gutter) : 0;
+    const top = across > 1 ? 0 : y;
+    for (const run of set.runs) runs.push({ ...run, x: run.x + x, top: run.top + top });
+    y = top + set.height + 2 * LEAD;
+    height = Math.max(height, top + set.height);
+  });
+  return block(typefaces, runs, [], width, height);
 }
 
 /**

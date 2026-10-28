@@ -17,6 +17,12 @@ const WEIGHT = Object.freeze({
   sameRowFits: 0.002,
   sameRowBlocked: 14,
   spareColumn: 1.5,
+  /**
+   * A card narrower than the width its text asks for, per card and per whole
+   * width short: a spare column that squeezes every card wraps their text into
+   * more lines, which costs more than the alignment it buys.
+   */
+  narrowCard: 4,
   boundarySpan: 0.05,
   corridor: 0.6,
   /**
@@ -141,8 +147,8 @@ function placements(count, slots, compact) {
  * Choose row orders and positions with the minimum cost.
  * @param {{ rows: string[][], relations: any[], order: Map<string, number>,
  *   external: (id: string) => boolean, rowLimit: number, contentWidth: number,
- *   card: { minWidth: number, maxWidth: number,
- *     minimumHeight?: number }, columnGap: number, inset: number,
+ *   card: { minWidth: number, maxWidth: number }, columnGap: number, spread?: number,
+ *   inset: number,
  *   clearance: number, labelWidth: (relation: any, maxWidth: number) => number,
  *   centring?: "all" | "inside" | null }} input `centring` takes a row's centre over
  *   all its cards, or over only those inside the boundary.
@@ -161,10 +167,13 @@ export function placeRows(input) {
   const minimum = Math.max(1, ...rows.map((members) => members.length));
   /** @type {any} */
   let best = null;
+  const cards = rows.reduce((sum, members) => sum + members.length, 0);
   for (let columns = minimum; columns <= minimum + MAXIMUM_SPARE_COLUMNS; columns += 1) {
     const result = placeOnLattice(input, relations, columns, columns > minimum);
     if (!result) continue;
-    const cost = result.cost + WEIGHT.spareColumn * (columns - minimum);
+    const short = Math.max(0, input.card.maxWidth - result.width) / input.card.maxWidth;
+    const cost =
+      result.cost + WEIGHT.spareColumn * (columns - minimum) + WEIGHT.narrowCard * cards * short;
     if (!best || cost < best.total) best = { ...result, total: cost };
   }
   if (!best && cardWidth(input, minimum) >= input.card.minWidth) {
@@ -196,10 +205,22 @@ function cardWidth(input, columns) {
   return Math.min(input.card.maxWidth, Math.floor(free / columns));
 }
 
+/**
+ * The gap between columns of cards `width` wide: the token gap, widened up to
+ * `spread` times it when the cards are narrower than the field divides into,
+ * so a figure of compact cards spans more of its field than its middle.
+ */
+function columnGap(input, columns, width) {
+  if (columns < 2) return input.columnGap;
+  const free = input.contentWidth - 2 * input.inset - columns * width;
+  const widest = input.columnGap * (input.spread ?? 1);
+  return Math.max(input.columnGap, Math.min(widest, Math.floor(free / (columns - 1))));
+}
+
 function placeOnLattice(input, relations, columns, optional) {
   const width = cardWidth(input, columns);
   if (width < input.card.minWidth) return null;
-  const pitch = width + input.columnGap;
+  const pitch = width + columnGap(input, columns, width);
   const slots = 2 * columns - 1;
   let states = statesFor(input.rows, slots, false);
   if (!withinBudget(states)) {

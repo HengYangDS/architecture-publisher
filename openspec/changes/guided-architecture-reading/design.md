@@ -35,7 +35,7 @@ starts from what a reader needs and what the user decided:
 - Three media with distinct jobs: the poster explains one question at a
   glance, the page answers the model's question view by view, and the manifest binds
   both to exact content.
-- Neatness is measured, not judged: equal cards on one grid, orthogonal wires,
+- Neatness is measured, not judged: cards of one width on one grid, orthogonal wires,
   no overlapping lines or labels, and text never below 14 px.
 - Identical inputs produce identical bytes; each layout is the exact optimum of
   one published cost, with no candidates, retries or randomness.
@@ -161,9 +161,13 @@ retried with other parameters.
 Both media use one layout engine. Each medium supplies its own metrics: card
 width bounds, text measurement, label sizes and spacing.
 
-- **Cards.** Every card of a view has one width and one height. The width is
-  the largest that lets the widest row fit the frame, capped by the medium;
-  the height fits the tallest card content at that width.
+- **Cards.** Every card of a view has one width, and every card of a row one
+  height. The width is the largest that lets the widest row fit the frame,
+  capped by the medium; the height of a row fits its tallest card content at
+  that width. When the medium caps the width below what the frame divides
+  into, the column gaps may widen up to the medium's spread, and a column
+  count that narrows every card below the medium's cap costs placement more
+  than the alignment it buys.
 - **Lattice.** Card positions are whole or half columns of one pitch (card
   width plus column gap); half columns center a card between two others.
 - **Placement.** Rows are placed by exact dynamic programming over every row
@@ -241,26 +245,25 @@ blocks with their own spacing. Nothing measured the result.
 The poster is now composed format first:
 
 - **Format.** One page, 2400 × 1350 px (16:9), the shape of a projected slide,
-  chosen by the user. Content never changes it; a view that cannot be composed
+  chosen by the user. Content never changes it; a view that cannot be laid out
   in it is refused.
 - **Grid.** Design tokens own an 8 px unit, twelve columns between fixed
-  margins, a baseline and a type scale (14, 16, 18, 20, 24, 28, 32 and 48 px).
+  margins, a baseline and a type scale (14, 16, 18, 20, 24, 28, 32, 36 and
+  48 px).
   Every block starts on a column line and a baseline; text keeps a measure of
   at most 80 characters. Three archetypes share the grid: a masthead (head,
   summary and legend across the top, figure across twelve columns), a sidebar
   (all text in the left columns, figure over the full height of the rest) and,
   for a page of one view, a corner page (figure across the full width, head,
-  summary and legend set in the corners it leaves free).
+  summary, legend and optionally the notes set in the corners it leaves free).
 - **Solver.** For each view the publisher enumerates archetype, a row wrapping
   that splits a wide tier into consecutive rows of one band, and a figure type
-  step (card labels at 18, 20 or 24 px with details and relation labels at 14,
-  16 or 18 px, so no size grows past 1.4 times its densest step). It lays out
-  every candidate with the grid engine, then justifies it to the field: cards
-  take the remaining height within their aspect and row channels deepen within
-  a token bound, instead of scaling the figure. Among candidates that pass the
-  gates it takes the one with the lowest cost, which is the empty-rectangle
-  share, then the centroid offset. The candidate set is finite and ordered, so
-  the choice is deterministic.
+  step. It lays out every candidate with the grid engine at the cards' own size,
+  then justifies it to the field: row channels deepen within a token bound and
+  the rest is centred, instead of scaling the figure or stretching its cards.
+  Among candidates that pass the gates it takes the best figure, then the
+  smallest empty-rectangle share, then the centroid offset. The candidate set is
+  finite and ordered, so the choice is deterministic.
 - **Gates.** The same measures decide and verify: balance (largest empty
   rectangle at most 12 percent of the live area, reach of at least 90 percent
   of its width and height, centroid within 6 percent of the figure fields'
@@ -268,8 +271,10 @@ The poster is now composed format first:
   line (two bends, or four for a relation that skips rows; 16 px segments; no
   wire across a card or label). The emptiest ninths of the figure field are
   recorded but not gated: a tree's corners are empty by its shape, and the
-  corner page fills them with text instead. A page with no passing candidate is
-  refused with every failing measure and its limit.
+  corner page fills them with text instead. The user also requires that any
+  repository can be drawn, so a page with no passing candidate is printed as
+  the closest the search found, and its manifest entry records every gate it
+  misses with the measured value and the limit.
 
 Composing the AIGW, self and ETHOS views against these gates showed that one
 view per page cannot work for every view: a view of three to five components
@@ -278,18 +283,25 @@ justification within the token bounds fills the rest. The page, not the view,
 became the unit:
 
 - **Pages of plates.** A page carries one to three consecutive views as plates,
-  each with its question as a heading. The grouping is chosen for the whole
-  edition by an exact search over consecutive groupings, maximising pages that
-  pass every gate, then fewer pages, then the smallest empty share; a greedy
-  packer stranded the last sparse view alone.
+  each with its question as a heading. A band holds one plate or several side
+  by side, each taking a share of the band's width in proportion to the width
+  its figure needs, so three short plates may set two side by side over the
+  third. The grouping is chosen for the whole edition by an exact search over
+  consecutive groupings, minimising the pages that miss a gate, then the page
+  count, then the empty share; a greedy packer stranded the last sparse view
+  alone, and counting passing pages instead preferred splitting a passing page
+  in two.
 - **Bands from natural heights.** Each plate's band is its figure's natural
   height at the densest step plus a share of the surplus in proportion to it.
   Equal bands overflowed the tall plate and left the short one blank.
-- **Cards carry vertical fill.** Within its band a figure's cards grow to take
-  the slack, capped by the card height token and by a card aspect of 2.6, and
-  only then do the channels deepen. A card wider than five times its height
-  after growing is a strip and its wrapping is rejected; a label that would
-  break inside a word rejects its wrapping too.
+- **Cards as large as their text.** An earlier solver let cards grow to take
+  a band's slack, and counted a card's surface as ink. Its pages passed the
+  gates with cards several times taller and wider than their text: a page of
+  paper in boxes, the blank the gates exist to forbid, moved inside the cards.
+  A card is now as wide as its longest label and detail need within card
+  measures of 16 and 24 ems, every card of a row as tall as the row's tallest
+  text, with the details directly under the label, and no card grows. A label
+  that would break inside a word still rejects its wrapping.
 - **Rail and masthead.** The sidebar rail is three or four columns and spaces
   its blocks, including the notes, over the full height, because a rail of
   500 px of text against 1222 px of column left the void the gates measure.
@@ -303,19 +315,38 @@ became the unit:
   band-based archetype: the paper beside its narrow rows is the largest blank,
   and its ink sits low. The corner page draws such a figure across the full
   width and only then sets the head at the top-left corner and the summary and
-  legend in whichever corners and widths leave the page least empty, each 40 px
-  clear of every card, wire and label and 24 px clear of the boundary frame.
+  legend in whichever corners and widths, from two columns up, leave the page
+  least empty, each 40 px clear of every card, wire and label and 24 px clear of
+  the boundary frame. A corner page may also set its notes as one floating
+  block in a bottom corner or along the foot instead of in a footer, so a
+  compact figure's lower corners hold the fine print.
   The page tries its plate's compositions best first, because the figure that
   fills its band most can leave no corner for the head, and it may reserve a
   strip above the figure for the head when the figure's first row fills its
   boundary. The tier-label column is as wide as its widest label, not a fixed
   280 px, and no text is cut to fit: a width that cannot hold a title,
   question, summary, legend entry or plate heading is not used.
-- **Larger type where cards are hollow.** Cards take a band's slack at every
-  type step, so the fill measure ties across steps and the old tie-break, the
-  smaller step, set 18 px labels in 700 px cards. Among compositions within two
-  percent of the fullest the larger step now wins. Card text never breaks
-  between two letters; a detail path breaks after a slash or hyphen.
+- **Plates judged as figures.** With cards no longer stretched, a plate chosen
+  by how much of its band it covers split rows that fit, to make a looser
+  figure reach further. A plate now keeps, at each step, only the widest
+  wrapping of its layered rows and of its flatter rows that fits with the
+  fewest crossings, and prefers the fewest crossings, then the largest step,
+  then layered rows, then the centred figure. Filling the page is the page's
+  work: grouping, band arrangement, corner text and type size.
+- **Sparse views set larger.** A view of five to seven components still leaves
+  a page half empty at 24 px, and no neighbour can share its page. Shown both,
+  the user chose on 2026-10-28 to set such figures larger rather than keep the
+  1.4 bound: two steps, 28/20/20 and 32/24/24, scale cards, padding, icons,
+  gaps and wires with their text, up to 1.8 times the densest step. The view
+  heading rises to 36 px so that no card label outranks it, and every plate of
+  a page uses one step, so a page never pairs a large figure with a small one.
+  Card text never breaks between two letters; a detail path breaks after a
+  slash or hyphen.
+- **Summaries set once.** The scope note carried the views' summaries after
+  the model's scope, so an overview printed its summary twice. A page of one
+  view now sets that view's summary, or the model's; a page of several sets the
+  model's and each plate's own under its heading; the scope note carries the
+  scope only.
 - **Ink-centred figures and contained wires.** The layout centres the span of
   its cards, which leaves a figure with off-centre single-card rows heavy to one
   side; the drawn figure moves just far enough to bring its ink within 2.5
@@ -330,9 +361,8 @@ became the unit:
   figures' own fields, so a rail of text beside a centred figure is not read as
   an off-centre figure.
 
-The figure keeps decision 6's equal cards and channels; the poster draws
-card labels at 24 px and details, relation labels, legend and notes at 16 px
-before the type step. Relation labels use a lighter ink than card labels, and
+The figure keeps decision 6's lattice and channels. Relation labels use a
+lighter ink than card labels, and
 tier bands span their members rather than the page. `planned` is dashed and
 `retired` is dotted and muted. Claim records, digest lists, status tables and
 reading indexes are not printed. The poster is written as SVG with text

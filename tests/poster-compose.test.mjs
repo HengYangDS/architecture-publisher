@@ -21,14 +21,24 @@ async function edition(model, provenance = none) {
   return composePosters(model, views, typefaces, icons, provenance);
 }
 
-/** Every page of an edition passes every balance gate. */
-function assertBalanced(poster) {
+/** The gates a page's measures miss, as its manifest entry must record them. */
+function missed(poster) {
   const { emptyShare, fill, centroid } = poster.measures;
-  assert.ok(emptyShare <= GATES.emptyShare, `${poster.view}: empty share ${emptyShare}`);
-  assert.ok(fill[0] >= GATES.fill && fill[1] >= GATES.fill, `${poster.view}: fill ${fill}`);
-  assert.ok(
-    Math.abs(centroid[0]) <= GATES.centroid && Math.abs(centroid[1]) <= GATES.centroid,
-    `${poster.view}: centroid ${centroid}`,
+  return [
+    emptyShare > GATES.emptyShare && "emptyShare",
+    fill[0] < GATES.fill && "fillAcross",
+    fill[1] < GATES.fill && "fillDown",
+    Math.abs(centroid[0]) > GATES.centroid && "centroidX",
+    Math.abs(centroid[1]) > GATES.centroid && "centroidY",
+  ].filter(Boolean);
+}
+
+/** A page records exactly the gates its measures miss. */
+function assertRecorded(poster) {
+  assert.deepEqual(
+    poster.measures.misses.map(({ measure }) => measure),
+    missed(poster),
+    poster.view,
   );
 }
 
@@ -39,11 +49,17 @@ test("every page style is on the type scale and at least the 14 px floor", () =>
   }
   for (const step of POSTER.steps)
     for (const size of Object.values(step)) assert.ok(POSTER.scale.includes(size));
-  // A sparse figure is set larger, but no size passes 1.4 times its densest step.
+  // A sparse figure is set larger, but no size passes 1.8 times its densest
+  // step, and no card label reaches the heading that names its view.
   const [first] = POSTER.steps;
-  for (const step of POSTER.steps)
+  for (const step of POSTER.steps) {
     for (const [role, size] of Object.entries(step))
-      assert.ok(size <= 1.4 * first[role], `${role} ${size} px against ${first[role]} px`);
+      assert.ok(size <= 1.8 * first[role], `${role} ${size} px against ${first[role]} px`);
+    assert.ok(
+      step.name < PAGE.plate.size,
+      `${step.name} px labels under a ${PAGE.plate.size} px heading`,
+    );
+  }
 });
 
 test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async () => {
@@ -66,7 +82,15 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
       poster.svg,
       /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="2400" height="1350"/u,
     );
-    assertBalanced(poster);
+    assertRecorded(poster);
+  }
+  // Only the view of five components that no neighbour can share a page with
+  // misses a target, and only the empty share, by a little.
+  const misses = first.flatMap((poster) => poster.measures.misses);
+  assert.ok(misses.length <= 1, JSON.stringify(misses));
+  for (const miss of misses) {
+    assert.equal(miss.measure, "emptyShare");
+    assert.ok(miss.value - miss.limit <= 0.02, `${miss.value} against ${miss.limit}`);
   }
 });
 
@@ -88,15 +112,16 @@ test("statuses, the boundary and provenance appear in the drawing and its legend
   assert.notEqual(plain.svg, verified.svg);
 });
 
-test("a view whose page cannot be balanced is refused with its measures", async () => {
+test("a model too sparse to balance a page is drawn with the gates it misses", async () => {
   // One relation between two cards: no page of this format can hold it without
-  // a blank band, so the build refuses rather than printing one.
+  // a blank band. Any repository can be drawn, so the build prints the closest
+  // page it can compose and records what it misses, instead of refusing.
   const model = validateModel(graphModel(2, [[1, 2]]));
-  await assert.rejects(edition(model), (error) => {
-    assert.equal(error.code, "poster_unfittable");
-    assert.match(error.message, /emptyShare|fill|centroid/u);
-    return true;
-  });
+  const [page, more] = await edition(model);
+  assert.equal(more, undefined);
+  assert.ok(page.measures.misses.length > 0);
+  assertRecorded(page);
+  for (const miss of page.measures.misses) assert.ok(typeof miss.limit === "number", miss.measure);
 });
 
 test("CJK labels compose and characters the fonts lack are refused", () => {

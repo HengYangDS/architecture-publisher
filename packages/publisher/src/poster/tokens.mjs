@@ -8,7 +8,7 @@ export const POSTER = Object.freeze({
   height: 1350,
   /** The smallest type on any poster, and the type scale every size must come from. */
   floor: 14,
-  scale: Object.freeze([14, 16, 18, 20, 24, 28, 32, 48]),
+  scale: Object.freeze([14, 16, 18, 20, 24, 28, 32, 36, 48]),
   margin: 64,
   /** Twelve columns of 160 px with 32 px gutters fill 2400 − 2 × 64 exactly. */
   grid: Object.freeze({ columns: 12, column: 160, gutter: 32, baseline: 4 }),
@@ -17,11 +17,15 @@ export const POSTER = Object.freeze({
   summaryLines: 3,
   /** One tier holds at most this many cards before a candidate wraps it. */
   rowLimit: 6,
-  /** A composition may widen a column gap up to this multiple of the token gap. */
+  /**
+   * A figure of compact cards may widen its column gaps up to this multiple of
+   * the token gap, so it spans more of its field instead of sitting in its middle.
+   */
   gapBound: 2,
   /**
    * A justified figure deepens its channels only slightly: a stretched channel
-   * is blank space between rows, so height is carried by larger cards instead.
+   * is blank space between rows. Cards never stretch; a figure shorter than its
+   * band is centred in it, and the page fills by what it carries.
    */
   channelBound: 1.35,
   /**
@@ -31,38 +35,34 @@ export const POSTER = Object.freeze({
    * this tolerance, half the balance gate, leaves.
    */
   centreTolerance: 0.025,
-  /** A card may grow to this height to carry the page's vertical fill. */
-  maximumCardHeight: 520,
   /**
-   * A card keeps at least this width-to-height ratio as it grows. Below it the
-   * card stops reading as a labelled panel and starts reading as a tile, so the
-   * height a page may ask of a card is bounded by the width its row gives it.
+   * A card's lines, in ems of their size: a label runs to this measure before it
+   * wraps, and a detail to its own. Cards are as wide as their longest line
+   * within these measures and no wider, so a card is never a panel of paper
+   * around a short line; a field too narrow for that width narrows them.
    */
-  cardAspect: 2.6,
-  /**
-   * And at most this one: past it a card is a strip across the page — a line of
-   * text in a long box, not a component. A plate whose rows would draw strips is
-   * rejected, because a figure of strips is the band the format must not print.
-   */
-  cardLimit: 5,
+  cardMeasure: Object.freeze({ name: 16, detail: 24 }),
   /**
    * Figure type steps, densest first: card label, detail and relation-label
    * sizes, each on the type scale. A dense view takes the first step and a
-   * sparse one a later, larger step; no size grows past 1.4 times its size at
-   * the first step, so a sparse figure is set larger without changing voice.
+   * sparse one a later, larger step, with its cards, padding and gaps scaled
+   * with its text, so a figure of a few components fills its page instead of
+   * floating in it. No size grows past 1.8 times its size at the first step,
+   * and every step stays below the plate heading, so a sparse figure is set
+   * larger without changing voice.
    */
   steps: Object.freeze([
     Object.freeze({ name: 18, detail: 14, edge: 14 }),
     Object.freeze({ name: 20, detail: 16, edge: 16 }),
     Object.freeze({ name: 24, detail: 18, edge: 18 }),
+    Object.freeze({ name: 28, detail: 20, edge: 20 }),
+    Object.freeze({ name: 32, detail: 24, edge: 24 }),
   ]),
   spacing: Object.freeze({
     column: 64,
     inset: 28,
     /** The column at the left of a labelled row that holds its tier label. */
     rowColumn: 280,
-    /** A card grows to fill its field only up to this height. */
-    cardHeight: 520,
     stub: 16,
     track: 16,
     bandGap: 8,
@@ -173,6 +173,7 @@ export function figureMetrics(styles) {
     spacing: Object.freeze({
       ...POSTER.spacing,
       column: round(64 * unit),
+      columnSpread: POSTER.gapBound,
       inset: round(28 * unit),
       stub: round(16 * unit),
       track: round(16 * unit),
@@ -193,8 +194,12 @@ export const PAGE = Object.freeze({
   question: style(24, { weight: 400 }),
   summary: style(16, { weight: 400 }),
   legend: style(16, { weight: 400 }),
-  /** A plate's own heading, when a page carries more than one view. */
-  plate: style(28, { weight: 700 }),
-  plateQuestion: style(18, { weight: 400 }),
+  /**
+   * A view's own heading, above its plate or under the page's head: one step
+   * above the largest card label, so a sparse figure set large never outranks
+   * the heading that names it.
+   */
+  plate: style(36, { weight: 700 }),
+  plateQuestion: style(20, { weight: 400 }),
   notes: style(14, { weight: 400 }),
 });

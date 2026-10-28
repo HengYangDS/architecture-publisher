@@ -58,7 +58,8 @@ line.
 
 ## Layout and media
 
-Each view becomes rows of equal cards on one column lattice. Declared tiers are
+Each view becomes rows of cards on one column lattice: every card has one
+width and every card of a row one height. Declared tiers are
 the rows, in order. Otherwise rows follow the relations: every relation points
 down or stays within one row, and the publisher chooses the rows that skip the
 fewest rows with their relations, then have the fewest relations within a row,
@@ -72,11 +73,18 @@ shared by different relations, a wire through a card or a label touching a card,
 another label or another wire refuses the view. Crossings that the relations
 force are allowed and counted in the manifest.
 
-The poster is 1800 px wide and at most 1350 px high, with no text below 14 px. A
-view that needs more room is refused with its measured size; a smaller view is
-scaled up by at most 1.4. Text is outlined from the bundled Noto Sans CJK SC
-fonts, and each kind draws its Lucide icon. Each poster is written as SVG and as PNG
-at 1800 and 6000 px.
+Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
+one to three consecutive views as plates, in bands of one or more plates under
+a masthead, beside a rail of text, or, for one view, with its text set in the
+corners its figure leaves free. Cards are as large as their text and never
+stretch; a sparse view is instead set at a larger type step, up to 32 px labels
+and 24 px details, and every plate of a page uses one step. The grouping is
+chosen for the whole edition: the fewest pages that miss a balance gate, then
+the fewest pages. A page that no composition can balance is still printed, and
+its manifest entry records each gate it misses; a view that no page can lay out
+at all is refused. Text is outlined from the bundled Noto Sans CJK SC fonts,
+and each kind draws its Lucide icon. Each page is written as SVG and as PNG at
+2400 and 6000 px.
 
 The map is one document of every component delivered by the vendored, unmodified
 Archify 3.2.0, positioned by the same layout with Archify's text metrics.
@@ -101,17 +109,18 @@ evidence cards with every component, relation, detail and source.
 
 | File              | Content                                         |
 | ----------------- | ----------------------------------------------- |
-| `<view>.svg`      | The poster for each view.                       |
-| `<view>.png`      | The poster rasterized at 1800 px wide.          |
-| `<view>-6000.png` | The poster rasterized at 6000 px wide.          |
+| `<page>.svg`      | Each poster page, named by its views.           |
+| `<page>.png`      | The page rasterized at 2400 px wide.            |
+| `<page>-6000.png` | The page rasterized at 6000 px wide.            |
 | `index.html`      | The standalone interactive map.                 |
 | `manifest.json`   | The build record.                               |
 | `acceptance.json` | Written by `archpub accept`; absent until then. |
 
 The manifest records the model id, title, digest and size, the publisher
 version, the declared repository, every source with its declared and observed
-digest, the digest of each bundled supply, each view with its rows, members,
-scale, crossings and bends, the map's quality profile and its crossing and
+digest, the digest of each bundled supply, each view with its tiers, members
+and page, each page with its views, composition and measures, including every
+gate it misses, the map's quality profile and its crossing and
 corridor counts, and the SHA-256 of every artifact. It contains no time, host
 path or user name, so building the same model with the same version reproduces
 every byte.
@@ -151,7 +160,7 @@ refused view carry paths under `/views/<id>`.
 | `layout_boundary_unplaced`                                                            | Outside components leave no room for the system boundary.                  |
 | `layout_channel_unroutable`, `layout_untidy`                                          | Relations between two rows cannot be drawn without an overlap.             |
 | `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.          |
-| `poster_unfittable`                                                                   | A page cannot pass the balance gates; each problem names a measure.        |
+| `poster_unfittable`                                                                   | A view cannot be laid out on any page at any type step or row wrapping.    |
 | `map_label_too_long`, `map_refused`                                                   | A label does not fit a map card, or Archify refused the map.               |
 | `map_layout_refused`                                                                  | The map cannot wire every relation of the model without an overlap.        |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.          |

@@ -273,7 +273,7 @@ export function mapDocument(model, views, binding) {
       tag: style.label,
       ...(references.length ? { sources: references } : {}),
       pos: [Math.round(card.x + MARGIN), Math.round(card.y + MARGIN)],
-      size: [width, layout.card.height],
+      size: [width, card.height],
     };
   });
   const labelled = new Set();

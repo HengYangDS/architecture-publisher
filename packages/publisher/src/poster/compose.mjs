@@ -1,19 +1,20 @@
+import { presentation } from "../kinds.mjs";
 import { ROW_LIMIT, viewRows } from "../layout/rows.mjs";
 import { refuse } from "../refusal.mjs";
 import { balanceOf, inkFromRects } from "./balance.mjs";
 import { settleFloating } from "./corners.mjs";
 import { LIVE, gutterFor, planSheet, refuseUnsetText } from "./page.mjs";
-import { naturalOf, platesOf } from "./plate.mjs";
+import { extentOf, naturalOf, platesOf } from "./plate.mjs";
 import { POSTER } from "./tokens.mjs";
 
 /**
  * Compose views into 16:9 pages. A page is one, two or three plates; each plate
- * is one view's figure with its own heading, and each figure is laid out at its
- * content height, justified into its band, and drawn. A view with few components
- * fills a plate of its own badly — an architecture figure of three cards is a
- * band, not a page — so the composer packs views onto a page until the page
- * itself is full. Nothing is stretched to fill a frame: the cards keep the
- * height their text needs, and the page is filled by what it carries.
+ * is one view's figure with its own heading, and each figure is laid out with
+ * cards as large as their text, justified into its band, and drawn. A view with
+ * few components fills a plate of its own badly — an architecture figure of
+ * three cards is a band, not a page — so the composer packs views onto a page,
+ * in bands of one or more plates, until the page itself is full. Nothing is
+ * stretched to fill a frame: the page is filled by what it carries.
  */
 
 const C = POSTER.color;
@@ -30,6 +31,14 @@ export const GATES = Object.freeze({
 
 /** Plates tried on one page, fewest first. */
 const PLATES = Object.freeze([1, 2, 3]);
+/**
+ * The ways a masthead page sets several plates other than one band each, by
+ * plate count: all side by side, or two side by side above or below the third.
+ */
+const BANDS = Object.freeze({
+  2: [[2]],
+  3: [[3], [2, 1], [1, 2]],
+});
 /** A floating page sets its text around at most this many of its plate's compositions. */
 const FLOATING_PLATES = 12;
 
@@ -78,7 +87,7 @@ function measure(page, made, typefaces) {
  */
 function sheet(model, views, position, typefaces, icons, provenance, boundaryName) {
   if (views.length > PLATES[PLATES.length - 1]) return null;
-  refuseUnsetText(typefaces, model);
+  refuseUnsetText(typefaces, model, views);
   /** @type {any[]} */
   const candidates = [];
   const input = { model, views, provenance, typefaces, boundary: boundaryName };
@@ -90,20 +99,30 @@ function sheet(model, views, position, typefaces, icons, provenance, boundaryNam
   // outside cards sit, so the page measures both rather than guessing.
   // A page of one view may also float its head and legend into the corners its
   // figure leaves free; a page of several views keeps them in a masthead or
-  // rail, and may set its plates side by side under the masthead.
-  /** @type {Array<{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean, across?: boolean }>} */
+  // rail, and under the masthead may set its plates side by side in a band, or
+  // two in one band and one in the other.
+  /** @type {Array<{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean, notes?: boolean, bands?: number[] }>} */
   const skeletons = [
     { archetype: "stack" },
+    ...(BANDS[views.length] ?? []).map((bands) => ({
+      archetype: /** @type {const} */ ("stack"),
+      bands,
+    })),
     { archetype: "column", rail: 4 },
     { archetype: "column", rail: 3 },
     ...(views.length === 1
-      ? [
-          { archetype: /** @type {const} */ ("corner") },
-          { archetype: /** @type {const} */ ("corner"), reserve: true },
-        ]
-      : [{ archetype: /** @type {const} */ ("stack"), across: true }]),
+      ? [false, true].flatMap((notes) => [
+          { archetype: /** @type {const} */ ("corner"), notes },
+          { archetype: /** @type {const} */ ("corner"), reserve: true, notes },
+        ])
+      : []),
   ];
-  const centrings = /** @type {const} */ (["all", "inside"]);
+  // Centring over the inside cards differs only where a row holds outside ones.
+  const outside = views.some((view) =>
+    view.components.some((component) => presentation(model, component).outside),
+  );
+  /** @type {Array<"all" | "inside">} */
+  const centrings = outside ? ["all", "inside"] : ["all"];
   for (const skeleton of skeletons)
     for (const centring of centrings) {
       const made = candidate(input, skeleton, centring, { model, typefaces, icons, boundaryName });
@@ -119,7 +138,7 @@ function sheet(model, views, position, typefaces, icons, provenance, boundaryNam
  * natural heights, drawn and measured. Null when the grouping does not fit.
  * @param {any} input
  * @param {{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean,
- *   across?: boolean }} skeleton
+ *   notes?: boolean, bands?: number[] }} skeleton
  * @param {"all" | "inside"} centring
  * @param {any} context
  */
@@ -131,10 +150,15 @@ function candidate(input, skeleton, centring, context) {
       viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) => (label ? [label] : [])),
     ),
   );
-  // A probe plan measures how tall each figure wants to be; the real plan gives
-  // every plate that height and shares only the surplus. A plan that cannot set
-  // its text or fit its plates is one skeleton that does not suit this grouping.
-  const probe = planSheet(input, { gutters, ...skeleton });
+  // Plates that share a band divide it by the width their figures need. A
+  // probe plan measures how tall each figure wants to be at its width; the real
+  // plan gives every plate that height and shares only the surplus. A plan that
+  // cannot set its text or fit its plates is one skeleton that does not suit
+  // this grouping.
+  const widths = input.views.map(
+    (view, index) => extentOf({ model, typefaces, boundaryName }, view) + gutters[index],
+  );
+  const probe = planSheet(input, { gutters, widths, ...skeleton });
   if (!probe) return null;
   const natural = probe.plates.map((plate) => naturalOf({ model, typefaces, boundaryName }, plate));
   // A plate no wrapping can draw at the densest step makes this grouping
@@ -143,6 +167,7 @@ function candidate(input, skeleton, centring, context) {
   if (natural.some((height) => height === null)) return null;
   let page = planSheet(input, {
     gutters,
+    widths,
     ...skeleton,
     weights: /** @type {number[]} */ (natural),
   });
@@ -151,21 +176,23 @@ function candidate(input, skeleton, centring, context) {
     platesOf({ model, typefaces, icons, boundaryName, centring }, plate),
   );
   if (options.some((list) => !list.length)) return null;
-  let made = options.map((list) => list[0]);
+  let made = sharedStep(options);
+  if (!made) return null;
   if (page.floating) {
     // A floating page sets its text around each of its plate's compositions,
-    // best first, and keeps the page that measures best with its text set: the
-    // figure that fills its band most may leave no corner for the head.
+    // best first: the best figure may leave no corner for the head. A page that
+    // passes comes first, then one whose wires do not cross, then the better
+    // figure, and only then the fuller page.
     const planned = page;
     /** @type {{ rank: number[], page: any, one: any } | null} */
     let chosen = null;
-    for (const one of options[0].slice(0, FLOATING_PLATES)) {
-      // A page that passes comes first, then one whose wires do not cross.
+    for (const [order, one] of options[0].slice(0, FLOATING_PLATES).entries()) {
       const rankOf = (set) => {
         const balance = measure(set, [one], typefaces);
         return [
           gateFailures(balance).length,
           one.layout.measures.crossings,
+          order,
           balance.emptyShare,
           Math.hypot(...balance.centroid),
         ];
@@ -177,6 +204,9 @@ function candidate(input, skeleton, centring, context) {
       const set = withText(planned, extra);
       const rank = rankOf(set);
       if (!chosen || compareRanks(rank, chosen.rank) < 0) chosen = { rank, page: set, one };
+      // Compositions come best first, with no fewer crossings than this one,
+      // so none after a passing page can rank above it.
+      if (rank[0] === 0) break;
     }
     if (!chosen) return null;
     page = chosen.page;
@@ -194,7 +224,8 @@ function candidate(input, skeleton, centring, context) {
       archetype: drawn.archetype,
       rail: skeleton.rail ?? null,
       reserve: skeleton.reserve ?? false,
-      across: skeleton.across ?? false,
+      notes: skeleton.notes ? "floating" : drawn.archetype === "column" ? "rail" : "footer",
+      bands: skeleton.bands ?? drawn.plates.map(() => 1),
       centring,
       plates: drawn.plates.map((plate, order) => ({
         view: plate.view.id,
@@ -204,6 +235,27 @@ function candidate(input, skeleton, centring, context) {
       })),
     },
   };
+}
+
+/**
+ * One composition per plate, all at one type step: the plates of one page set
+ * their cards in one size, so a page never pairs a large figure with a small
+ * one. The step is the largest every plate can draw at among those with the
+ * fewest crossings across the page; each plate takes its best composition at
+ * that step. Null when no step suits every plate.
+ * @param {any[][]} options each plate's compositions, best first
+ */
+function sharedStep(options) {
+  const steps = [...new Set(options.flat().map((one) => one.step))].sort((a, b) => b - a);
+  /** @type {{ picks: any[], crossings: number } | null} */
+  let best = null;
+  for (const step of steps) {
+    const picks = options.map((list) => list.find((one) => one.step === step));
+    if (picks.some((one) => !one)) continue;
+    const crossings = picks.reduce((sum, one) => sum + one.layout.measures.crossings, 0);
+    if (!best || crossings < best.crossings) best = { picks, crossings };
+  }
+  return best ? best.picks : null;
 }
 
 const compareRanks = (a, b) => {
@@ -226,7 +278,7 @@ function withText(page, extra) {
  * views, and the grouping is chosen for the edition as a whole, not page by page:
  * a greedy packer that takes a passing page whenever it sees one strands the last
  * view alone, and a view of three components cannot fill a 16:9 page by itself.
- * The search maximises the pages that pass every gate, then page count, then the
+ * The search minimises the pages that fail a gate, then the page count, then the
  * empty share the edition leaves.
  * @param {any} model
  * @param {import("../plan/views.mjs").View[]} views
@@ -259,7 +311,7 @@ export function composeEdition(model, views, typefaces, icons, provenance) {
   const count = views.length;
   /** @type {Array<any>} */
   const plan = new Array(count + 1).fill(null);
-  plan[count] = { pages: 0, passes: 0, empty: 0, next: count, made: null };
+  plan[count] = { pages: 0, fails: 0, empty: 0, next: count, made: null };
   for (let index = count - 1; index >= 0; index -= 1) {
     /** @type {any} */
     let chosen = null;
@@ -271,7 +323,7 @@ export function composeEdition(model, views, typefaces, icons, provenance) {
       if (!rest || !made) continue;
       const total = {
         pages: 1 + rest.pages,
-        passes: (made.fails.length === 0 ? 1 : 0) + rest.passes,
+        fails: (made.fails.length ? 1 : 0) + rest.fails,
         empty: made.balance.emptyShare + rest.empty,
         next: index + size,
         made,
@@ -294,35 +346,16 @@ export function composeEdition(model, views, typefaces, icons, provenance) {
 
   const pages = [];
   for (let index = 0; index < count; index = plan[index].next) pages.push(plan[index].made);
-  // An edition prints only balanced pages. A grouping the search had to keep
-  // although it fails a gate is refused with every failing measure, so the
-  // author sees which view to split or regroup rather than receiving a page
-  // with a blank band.
-  const failing = pages.filter((made) => made.fails.length);
-  if (failing.length) {
-    const [first] = failing;
-    refuse(
-      "poster_unfittable",
-      `Views ${first.views.map(({ id }) => id).join(" + ")} cannot be composed on a balanced ` +
-        `${POSTER.width} × ${POSTER.height} page: ` +
-        `${first.fails.map(({ measure, value, limit }) => `${measure} ${value} against ${limit}`).join(", ")}. ` +
-        "Regroup or split the views.",
-      failing.flatMap((made) =>
-        made.fails.map(({ measure, value, limit }) => ({
-          code: "poster_unbalanced",
-          path: `/views/${made.views[0].id}`,
-          message: `${made.views.map(({ id }) => id).join(" + ")}: ${measure} ${value} against ${limit}`,
-        })),
-      ),
-    );
-  }
   pages.forEach((made, order) => (made.position = { index: order, count: pages.length }));
   return pages;
 }
 
-/** More passing pages first, then fewer pages, then the least empty share. */
+/**
+ * Fewer failing pages first, then fewer pages, then the least empty share. A
+ * count of passing pages would prefer splitting a passing page in two.
+ */
 function betterPlan(a, b) {
-  if (a.passes !== b.passes) return a.passes > b.passes;
+  if (a.fails !== b.fails) return a.fails < b.fails;
   if (a.pages !== b.pages) return a.pages < b.pages;
   return a.empty < b.empty;
 }
@@ -434,6 +467,7 @@ function renderSheet(model, typefaces, icons, chosen) {
       emptyNinths: chosen.balance.emptyNinths,
       fill: chosen.balance.fill,
       centroid: chosen.balance.centroid,
+      misses: chosen.fails,
     },
     svg,
   };

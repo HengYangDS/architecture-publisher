@@ -6,23 +6,41 @@ medium's own metrics.
 
 ## ADDED Requirements
 
-### Requirement: Equal cards on one lattice
+### Requirement: Cards on one lattice
 
-Every card of a view SHALL have the same width and height. The width SHALL be
-the one the composition chose within the medium's bounds, and the height SHALL
-fit the tallest card content at that width. Card positions SHALL be whole or half columns of one pitch, and every
-card of a row SHALL share one top edge.
+Every card of a view SHALL have the same width, the one the composition chose
+within the medium's bounds, and every card of a row the same height, the one
+that fits the row's tallest content at that width. Card positions SHALL be whole
+or half columns of one pitch, and every card of a row SHALL share its top and
+bottom edges.
 
 #### Scenario: Cards with different amounts of text
 
-- **WHEN** one component has one detail line and another has three
+- **WHEN** one component has one detail line and another in its row has three
 - **THEN** both cards have the height of the three-line card
-- **AND** both cards in a row share their top and bottom edges
+- **AND** both cards share their top and bottom edges
+
+#### Scenario: Rows of different heights
+
+- **WHEN** one row's cards each have one detail line and another row's three
+- **THEN** the first row is shorter than the second
 
 #### Scenario: A centered parent
 
 - **WHEN** one component calls two components placed in adjacent columns
 - **THEN** it may sit on the half column between them
+
+### Requirement: Column gaps for compact cards
+
+When the cards are narrower than the field divides into, the column gap MAY
+widen up to the medium's spread of the token gap. The placement SHALL weigh a
+column count that narrows every card below the width the medium asks for
+against the alignment it buys.
+
+#### Scenario: Compact cards in a wide field
+
+- **WHEN** three cards of 400 px share a 2000 px field
+- **THEN** their column gaps are wider than the token gap and at most twice it
 
 ### Requirement: Deterministic optimal placement
 

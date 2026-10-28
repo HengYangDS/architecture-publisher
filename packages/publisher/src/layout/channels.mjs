@@ -18,7 +18,7 @@ import { refuse } from "../refusal.mjs";
 /**
  * Build every wire, its ends and the card sides they use.
  * @param {{ order: string[][], classes: any, box: Map<string, { x: number, cx: number }>, cardWidth: number,
- *   cardHeight: number, contentWidth: number, columns: number, pitch: number, gridLeft: number, slots: number,
+ *   rowHeights: number[], contentWidth: number, columns: number, pitch: number, gridLeft: number, slots: number,
  *   frame: [number, number] | null, spacing: any, label: (relation: any, maxWidth?: number) => LabelBox }} input
  */
 export function buildWires(input) {
@@ -90,7 +90,7 @@ export function buildWires(input) {
       neighbors &&
       !gaps.has(key) &&
       gap >= label.width + 2 * spacing.clear &&
-      label.height <= input.cardHeight - 16
+      label.height <= input.rowHeights[row] - 16
     ) {
       gaps.add(key);
       straights.push({ relation, left, right, label, fromLeft: a === left, row });

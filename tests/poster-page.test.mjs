@@ -3,7 +3,7 @@ import test from "node:test";
 import { loadIcons } from "../packages/publisher/src/icons.mjs";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { GATES, composeEdition } from "../packages/publisher/src/poster/compose.mjs";
+import { composeEdition } from "../packages/publisher/src/poster/compose.mjs";
 import { LIVE, gutterFor, planSheet } from "../packages/publisher/src/poster/page.mjs";
 import { loadTypefaces } from "../packages/publisher/src/poster/text.mjs";
 import { POSTER, figureStyles } from "../packages/publisher/src/poster/tokens.mjs";
@@ -70,7 +70,6 @@ test("a single view sets its head and legend beside its figure, clear of every c
   }));
   const [page] = composeEdition(model, views, typefaces, icons, none);
   assert.equal(page.composition.archetype, "corner");
-  assert.ok(page.balance.emptyShare <= GATES.emptyShare);
   // Every run of page text keeps clear of every card, wire and label.
   const figure = page.made.flatMap((one) => one.figure.rects);
   for (const run of page.page.runs) {
@@ -118,10 +117,7 @@ test("a plan whose text or plates do not fit its archetype is not a candidate", 
   assert.equal(planSheet(input(two), { archetype: "corner" }), null);
   // Figures taller than the region, together or side by side.
   assert.equal(planSheet(input(one), { archetype: "stack", weights: [5000] }), null);
-  assert.equal(
-    planSheet(input(two), { archetype: "stack", across: true, weights: [5000, 1] }),
-    null,
-  );
+  assert.equal(planSheet(input(two), { archetype: "stack", bands: [2], weights: [5000, 1] }), null);
   // A plate squeezed below the shallowest band.
   assert.equal(
     planSheet(input([view("one"), view("two"), view("three")]), {

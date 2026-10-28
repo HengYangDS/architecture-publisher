@@ -9,9 +9,10 @@ import { POSTER, figureMetrics, figureStyles } from "./tokens.mjs";
 
 /**
  * One plate: one view's figure in one band of a page. The plate tries every
- * type step and row wrapping, lays each out at its content height, lets the
- * cards take the band's slack within their aspect, justifies the figure into
- * the band and keeps the candidate that fills it most completely and evenly.
+ * type step and row wrapping, lays each out with cards as large as their text
+ * and no larger, justifies the figure into the band and orders the candidates
+ * as figures. A band the figure cannot fill is not filled by stretching its
+ * cards: a page fills by what it carries.
  */
 
 /** Row wrappings tried for every view, widest first. */
@@ -58,23 +59,24 @@ function refusedLayout(error) {
   return typeof code === "string" && code.startsWith("layout_") ? code : null;
 }
 
-/** Wrappings and placements already derived, per planned view. */
+/** Wrappings and layouts already derived, per planned view. */
 const wrappings = new WeakMap();
-const placements = new WeakMap();
+const layouts = new WeakMap();
 
 /**
- * The placement of one set of rows at one type step and field width. Placement
- * is the costly half of a layout and does not depend on the card height or the
- * band, so every plate, skeleton and page that asks again for the same view,
- * rows, step, width and centring reuses it, and a growing card reuses it too.
- * @returns {{ placement?: any, error?: any }}
+ * The layout of one set of rows at one type step and field width. A layout's
+ * placement and channel routing depend on nothing else — not on the band, the
+ * page or where the figure is drawn — so every plate, skeleton and page that
+ * asks again for the same view, rows, step, width and centring reuses it.
+ * @returns {{ layout?: any, error?: any }}
  */
-function placementFor(view, rows, metrics, key) {
-  if (!placements.has(view)) placements.set(view, new Map());
-  const known = placements.get(view);
+function layoutFor(view, rows, metrics, key, boundaryName) {
+  if (!layouts.has(view)) layouts.set(view, new Map());
+  const known = layouts.get(view);
   if (!known.has(key)) {
     try {
-      known.set(key, { placement: placementOf(view, rows, metrics) });
+      const placement = placementOf(view, rows, metrics);
+      known.set(key, { layout: layoutView(view, metrics, { rows, placement, boundaryName }) });
     } catch (error) {
       if (!refusedLayout(error)) throw error;
       known.set(key, { error });
@@ -84,11 +86,42 @@ function placementFor(view, rows, metrics, key) {
 }
 
 /**
- * The layout metrics of one plate. The field decides the card's bounds; the card
- * keeps its content height, so the figure reports how tall it really is.
+ * How wide a view's cards are at one type step: wide enough to set the longest
+ * label and the longest detail of any card on one line each, within the card
+ * measures, and no wider. A card as wide as its field divides into is a panel
+ * of paper around a short line; a card as wide as its text reads as a card.
+ * @param {any} view
+ * @param {any} typefaces
+ * @param {any} styles
+ * @param {any} card the card metrics at this step
+ */
+function naturalWidth(view, typefaces, styles, card) {
+  const name = POSTER.cardMeasure.name * styles.name.size;
+  const detail = POSTER.cardMeasure.detail * styles.detail.size;
+  let width = card.minimumWidth;
+  for (const component of view.components)
+    width = Math.max(
+      width,
+      Math.min(typefaces.measure(component.label, styles.name), name) +
+        card.icon +
+        card.iconGap +
+        2 * card.pad,
+      ...component.details.map(
+        ([key, values]) =>
+          Math.min(typefaces.measure(`${key}: ${values.join(", ")}`, styles.detail), detail) +
+          2 * card.pad,
+      ),
+    );
+  return Math.ceil(width / 8) * 8;
+}
+
+/**
+ * The layout metrics of one plate. The field bounds the cards and their text
+ * sets their width; every card keeps its content height, so the figure reports
+ * how large it really is.
  */
 function candidateMetrics(input) {
-  const { model, typefaces, styles, metrics, field, cardFloor = 0 } = input;
+  const { model, view, typefaces, styles, metrics, field } = input;
   const { card, wire, spacing } = metrics;
   const cardText = (component, width) => ({
     name: typefaces.wrap(
@@ -113,10 +146,11 @@ function candidateMetrics(input) {
     contentWidth: () => field.width,
     card: {
       minWidth: card.minimumWidth,
-      maxWidth: Math.min(card.maximumWidth, field.width - 2 * spacing.inset),
-      // The page may ask the cards to carry its vertical fill; the layout grows
-      // them all to this floor, which the plate never sets above the token's cap.
-      minimumHeight: cardFloor,
+      maxWidth: Math.min(
+        card.maximumWidth,
+        field.width - 2 * spacing.inset,
+        naturalWidth(view, typefaces, styles, card),
+      ),
       height: (component, width) => {
         const { name, details } = cardText(component, width);
         return (
@@ -162,22 +196,16 @@ function candidateMetrics(input) {
  */
 function attempt(input) {
   const { rows } = input;
-  const { placement, error: unplaced } = placementFor(input.view, rows, input.metrics, input.key);
-  if (unplaced) return { rejected: { reason: unplaced.code } };
-  let layout;
-  try {
-    layout = layoutView(input.view, input.metrics, {
-      rows,
-      placement,
-      boundaryName: input.boundaryName,
-    });
-  } catch (error) {
-    // A wrapping the engine cannot wire is one rejected candidate, not a failure
-    // of the view: another wrapping or a larger page may still compose.
-    const refused = refusedLayout(error);
-    if (refused) return { rejected: { reason: refused } };
-    throw error;
-  }
+  // A wrapping the engine cannot wire is one rejected candidate, not a failure
+  // of the view: another wrapping or a larger page may still compose.
+  const { layout, error } = layoutFor(
+    input.view,
+    rows,
+    input.metrics,
+    input.key,
+    input.boundaryName,
+  );
+  if (error) return { rejected: { reason: error.code } };
   if (layout.width > input.field.width + 1)
     return { rejected: { reason: "too_wide", value: layout.width, bound: input.field.width } };
   // Card text never breaks inside a word: a column too narrow for one of its
@@ -187,40 +215,6 @@ function attempt(input) {
   const broken = brokenText(input, layout.card.width);
   if (broken)
     return { rejected: { reason: broken.reason, value: broken.width, bound: broken.room } };
-  // Cards carry the band's vertical fill: the space a figure does not need for
-  // its wires is given to its cards, up to the token's cap and no further than
-  // the aspect a card still reads as a panel at. Growing a card never changes
-  // its width, so the plate keeps its columns and its wires.
-  const floor = cardFloor(layout, input.field);
-  if (floor > layout.card.height + 0.5) {
-    const grown = {
-      ...input.metrics,
-      card: { ...input.metrics.card, minimumHeight: floor },
-    };
-    try {
-      layout = layoutView(input.view, grown, {
-        rows,
-        placement,
-        boundaryName: input.boundaryName,
-      });
-    } catch (error) {
-      const refused = refusedLayout(error);
-      if (refused) return { rejected: { reason: refused } };
-      throw error;
-    }
-  }
-  // A card wider than a few times its height is a strip across the page: a line
-  // of text in a long box. The check comes after the cards have taken the band's
-  // slack, because growing is what turns a one-card row back into a panel; only
-  // a strip the band still leaves is a wrapping this format must not print.
-  if (layout.card.width > POSTER.cardLimit * layout.card.height)
-    return {
-      rejected: {
-        reason: "too_wide_card",
-        value: layout.card.width,
-        bound: POSTER.cardLimit * layout.card.height,
-      },
-    };
   const justified = justify(layout, input.field.height, { bound: POSTER.channelBound });
   if (justified.height > input.field.height + 1)
     return { rejected: { reason: "too_tall", value: justified.height, bound: input.field.height } };
@@ -287,22 +281,6 @@ function balancingShift(rects, field) {
   const off = field.x + field.width / 2 - moment / mass;
   const wanted = Math.sign(off) * Math.max(0, Math.abs(off) - POSTER.centreTolerance * field.width);
   return Math.round(Math.max(field.x - left, Math.min(field.x + field.width - right, wanted)));
-}
-
-/**
- * The card height that lets a laid-out figure fill its band. The rows and the
- * spaces between them keep their size; only the cards grow, up to the cap the
- * tokens set and the aspect a card keeps.
- * @param {any} layout
- * @param {{ width: number, height: number }} field
- */
-function cardFloor(layout, field) {
-  const rows = layout.rows.length;
-  if (!rows) return layout.card.height;
-  const fixed = layout.height - rows * layout.card.height;
-  const wanted = (field.height - fixed) / rows;
-  const byAspect = layout.card.width / POSTER.cardAspect;
-  return Math.min(wanted, POSTER.maximumCardHeight, byAspect);
 }
 
 /**
@@ -373,34 +351,67 @@ export function naturalOf(input, plate) {
       metrics,
       field: plate.field,
     });
-    const { placement } = placementFor(
+    // One wrapping the engine cannot wire says nothing about the others.
+    const { layout } = layoutFor(
       plate.view,
       rows,
       measured,
       `0|${order}|${plate.field.width}|-`,
+      input.boundaryName,
     );
-    if (!placement) continue;
-    try {
-      const layout = layoutView(plate.view, measured, {
-        rows,
-        placement,
-        boundaryName: input.boundaryName,
-      });
-      if (layout.width > plate.field.width + 1) continue;
-      if (best === null || layout.height < best) best = layout.height;
-    } catch {
-      // One wrapping the engine cannot wire says nothing about the others.
-      continue;
-    }
+    if (!layout || layout.width > plate.field.width + 1) continue;
+    if (best === null || layout.height < best) best = layout.height;
   }
   return best === null ? null : Math.round(best);
 }
 
+/** Figure widths already measured, per planned view. */
+const extents = new WeakMap();
+
+/**
+ * How wide one view's figure is at the densest step when nothing asks it to
+ * spread: the span of its cards and boundary at their own widths, with the
+ * token gaps between them, in its most natural wrapping. Plates that share a
+ * band divide it in proportion to these widths.
+ * @param {any} input
+ * @param {any} view
+ * @returns {number}
+ */
+export function extentOf(input, view) {
+  if (extents.has(view)) return extents.get(view);
+  const styles = figureStyles(POSTER.steps[0]);
+  const metrics = figureMetrics(styles);
+  const field = { x: 0, y: 0, width: POSTER.width - 2 * POSTER.margin, height: POSTER.height };
+  const measured = candidateMetrics({
+    model: input.model,
+    view,
+    typefaces: input.typefaces,
+    styles,
+    metrics,
+    field,
+  });
+  const fixed = { ...measured, spacing: { ...measured.spacing, columnSpread: 1 } };
+  let width = field.width;
+  for (const [order, { rows }] of wrappingsOf(input.model, view).entries()) {
+    const { layout } = layoutFor(view, rows, fixed, `extent|${order}`, input.boundaryName);
+    if (!layout) continue;
+    const cards = [...layout.cards.values()];
+    const left = Math.min(...cards.map((card) => card.x), layout.boundary?.x ?? Infinity);
+    const right = Math.max(
+      ...cards.map((card) => card.x + card.width),
+      layout.boundary ? layout.boundary.x + layout.boundary.width : -Infinity,
+    );
+    width = Math.ceil(right - left + 2 * metrics.spacing.inset);
+    break;
+  }
+  extents.set(view, width);
+  return width;
+}
+
 /**
  * Every composition of one plate, best first. A page whose text is set around
- * its figure needs more than the plate's own best: the figure that fills its
- * band most may leave no corner for the page's head, and a figure one rank
- * down may leave a page that is fuller overall.
+ * its figure needs more than the plate's own best: the best figure may leave no
+ * corner for the page's head, and a figure one rank down may balance the page.
  */
 export function platesOf(input, plate) {
   const found = [];
@@ -435,53 +446,37 @@ export function platesOf(input, plate) {
       };
       const { made } = attempt(fields);
       if (!made) continue;
-      const area = plate.field.width * plate.field.height;
-      const ink = made.figure.rects.reduce(
-        (sum, rect) =>
-          sum + Math.min(rect.width, plate.field.width) * Math.min(rect.height, plate.field.height),
-        0,
-      );
-      const off = offCenter(made.figure.rects, plate.field);
       // Each plate is flat: the page needs its figure, and the manifest needs
       // the step and wrapping that produced it.
       found.push({
-        fill: ink / area,
-        rank: [made.justified.padding ?? 0, off, order],
-        step: index,
+        shape: `${index}|${flat}`,
+        rank: [
+          made.layout.measures.crossings,
+          -index,
+          order,
+          offCenter(made.figure.rects, plate.field),
+        ],
         plate: { step: index, limit, flat, ...made },
       });
-      // A crossing-free wrapping that fills the band at this step leaves no
-      // narrower wrapping a better composition to find.
-      if (ink / area > 0.98 && made.layout.measures.crossings === 0) break;
     }
   }
-  // Wires that cross are a fault a reader sees before any measure of the page,
-  // so the compositions with the fewest crossings come first. Among them the
-  // plate that fills its band most is the one a reader sees as composed. Cards
-  // carry the band's slack, so a sparse figure fills it at every type step;
-  // among the compositions within a small margin of the fullest, the larger
-  // step comes first, because a card grown to fill its band at the smallest
-  // step is a panel of paper around a line of small text. Then the least slack
-  // the justification left, the centroid nearest the field's centre and the
-  // wider wrapping.
-  const crossings = (one) => one.plate.layout.measures.crossings;
-  const fewest = Math.min(...found.map(crossings));
-  const clean = found.filter((one) => crossings(one) === fewest);
-  const fullest = Math.max(...clean.map(({ fill }) => fill));
-  const near = (one) => one.fill >= fullest - FILL_MARGIN;
+  // A plate is judged as a figure, not as a filler of its band. A narrower
+  // wrapping exists to fit a field the view's own rows do not, so at each type
+  // step a plate keeps, of its layered rows and of its flatter rows, only the
+  // widest wrapping that fits with the fewest crossings: splitting a row that
+  // fits only to fill a band is the loose figure this page must not print.
+  // Wires that cross are a fault a reader sees before anything else, so the
+  // compositions with the fewest crossings come first; then the largest type
+  // step, because the same figure set larger reads from further away; then
+  // layered rows before flatter ones; then the centroid nearest the field's
+  // centre. Filling the page is the page's work: it sets larger type, groups
+  // views and sets its text beside the figure.
+  found.sort((a, b) => compare(a.rank, b.rank));
+  const shapes = new Set();
   return found
-    .sort(
-      (a, b) =>
-        crossings(a) - crossings(b) ||
-        Number(near(b)) - Number(near(a)) ||
-        (near(a) ? b.step - a.step : b.fill - a.fill) ||
-        compare(a.rank, b.rank),
-    )
+    .filter(({ shape }) => !shapes.has(shape) && Boolean(shapes.add(shape)))
     .map(({ plate: one }) => one);
 }
-
-/** Compositions this close to the fullest in a band count as filling it. */
-const FILL_MARGIN = 0.02;
 
 const compare = (a, b) => {
   for (let index = 0; index < a.length; index += 1) {
