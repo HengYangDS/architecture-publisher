@@ -416,7 +416,8 @@ The explainer page answers the model's question:
 - each view is a panel titled with the view's question, or its title when it
   asks the model's own question, in the plan's order, with the view's native
   architecture diagram, which opens Archify's full interactive viewer, and
-  steps that light each component with its first detail;
+  steps that light each component with its first detail, in the diagram's
+  reading order;
 - when the model declares a repository URL and revision, each component's
   first source is a numbered page source linked to the file at that revision;
   digests and verification states stay in the manifest.

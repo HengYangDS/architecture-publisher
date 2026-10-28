@@ -93,8 +93,9 @@ Archify 3.2.0. Its heading is the model's question, its conclusion the summary
 and its scope the model's scope, limits and attribution. Each view is a panel
 titled with the view's question, or its title when it asks the model's own
 question, in the plan's order, holding the view's native architecture diagram,
-which opens Archify's full interactive viewer, and one step per component that
-lights the component in the diagram and gives its first detail. A model therefore declares at most four views, the diagrams one page
+which opens Archify's full interactive viewer, and one step per component, in
+the diagram's reading order, that lights the component and gives its first
+detail. A model therefore declares at most four views, the diagrams one page
 holds.
 
 A view's diagram is laid out by the same grid with Archify's text metrics, at

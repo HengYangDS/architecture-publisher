@@ -48,8 +48,8 @@ const shopInput = () =>
   minimalModel({
     id: "shop",
     summary: "Orders flow from the web to the store.",
-    scope: "Checkout only.",
-    limits: ["Payments are out of scope."],
+    scope: "Checkout only",
+    limits: ["Payments are out of scope.", "不含退款"],
     attribution: "the shop team",
     repository: {
       name: "shop",
@@ -379,7 +379,7 @@ test("the page draft answers the model's question view by view and cites sources
       "",
       "Orders flow from the web to the store.",
       "",
-      '@answer scope="Checkout only. Payments are out of scope. Model by the shop team."',
+      '@answer scope="Checkout only. Payments are out of scope. 不含退款。 Model by the shop team."',
       `@meta locale=en repo_url="https://example.invalid/shop.git" repo_revision=${"a".repeat(40)}`,
       '@source source-main title="src/main.go" path="src/main.go"',
       "",
@@ -401,6 +401,23 @@ test("the page draft answers the model's question view by view and cites sources
   assert.deepEqual(cited, ["main"]);
   // Without a withheld source each component cites its first; without a repository URL, none.
   assert.deepEqual(explainerDraft(model, views, diagrams).cited, ["secret", "main"]);
+  // Steps follow the diagram's rows from the top, left to right, not the model's order.
+  const fanned = validateModel(
+    graphModel(3, [
+      [3, 1],
+      [3, 2],
+    ]),
+  );
+  const fan = await firstView(fanned);
+  const [drawn] = diagramCandidates(fanned, fan);
+  const stepped = [
+    ...explainerDraft(fanned, [fan], [drawn]).draft.matchAll(/^\| step-\S+ \| ([^|]+) \|/gmu),
+  ].map(([, label]) => label.trim());
+  const rows = [...drawn.document.components]
+    .sort((a, b) => a.pos[1] - b.pos[1] || a.pos[0] - b.pos[0])
+    .map(({ label }) => label);
+  assert.deepEqual(stepped, rows);
+  assert.equal(stepped[0], "Component 3");
   // A view that asks the model's own question is titled with its title instead.
   const asked = validateModel({
     ...shopInput(),

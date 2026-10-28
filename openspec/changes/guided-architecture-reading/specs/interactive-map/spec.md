@@ -21,7 +21,8 @@ Archify, replace its fonts, routing or reader, or post-process its output.
 ### Requirement: Question-led page
 
 The page SHALL be titled with the model's question and open with its summary
-as the conclusion and its scope, limits and attribution as the page scope.
+as the conclusion and its scope, limits and attribution as the page scope, each
+ended as a sentence.
 Each view SHALL be one panel, in the plan's order, titled with the view's
 question, or with its title when its question is the model's own, and holding
 that view's native architecture diagram. The page SHALL
@@ -108,8 +109,9 @@ with its measured shapes.
 
 ### Requirement: Steps and sources
 
-A panel SHALL list the view's components as steps that light their node in
-the diagram, each with its first detail. When the model declares a repository,
+A panel SHALL list the view's components as steps, in its diagram's reading
+order from the top row down and left to right, that light their node in the
+diagram, each with its first detail. When the model declares a repository,
 each component's first source SHALL be a numbered page source pinned to the
 revision.
 
@@ -117,6 +119,7 @@ revision.
 
 - **WHEN** a reader steps through a panel
 - **THEN** each step lights its component in that panel's diagram
+- **AND** the steps walk the diagram's rows from the top, left to right
 
 ### Requirement: Withheld sources
 

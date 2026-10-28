@@ -32,6 +32,27 @@ const quoted = (value) => JSON.stringify(text(value));
 /** One detail as a step reads it. */
 const detailText = ([name, values]) => `${name}: ${values.join(", ")}`;
 
+/** A text ended as a sentence, so that the parts of one scope read apart. */
+const sentence = (value) => {
+  const trimmed = String(value).trim();
+  if (/[.!?。！？]$/u.test(trimmed)) return trimmed;
+  return /\p{Script=Han}$/u.test(trimmed) ? `${trimmed}。` : `${trimmed}.`;
+};
+
+/**
+ * A view's components in its diagram's reading order, row by row from the top
+ * and left to right, so that stepping through a panel walks its diagram.
+ */
+function readingOrder(view, diagram) {
+  const at = new Map(diagram.document.components.map(({ id, pos }) => [id, pos]));
+  const position = (component) => at.get(diagram.nodes.get(component.id));
+  return [...view.components].sort((a, b) => {
+    const [ax, ay] = position(a);
+    const [bx, by] = position(b);
+    return ay - by || ax - bx;
+  });
+}
+
 /**
  * The draft of a page, the file each view's diagram is written to beside it
  * and the sources it cites, in citation order. Every id is drawn from one
@@ -70,7 +91,7 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   };
   const panels = views.map((view, index) => {
     const diagram = diagrams[index];
-    const steps = view.components.map((component) => {
+    const steps = readingOrder(view, diagram).map((component) => {
       const [first] = component.details;
       return `| ${id(`step-${view.id}-${component.id}`)} | ${text(component.label)} | ${
         first ? text(detailText(first)) : ""
@@ -88,9 +109,10 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   const scope = [
     model.scope,
     ...model.limits,
-    model.attribution ? `Model by ${model.attribution}.` : null,
+    model.attribution ? `Model by ${model.attribution}` : null,
   ]
     .filter(Boolean)
+    .map(sentence)
     .join(" ");
   const sources = cited.map((sourceId) => {
     const source = model.sources.find((entry) => entry.id === sourceId);
