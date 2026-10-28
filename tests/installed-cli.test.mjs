@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { installPublisher } from "./fixtures/installed-packages.mjs";
-import { minimalModel, writeModel } from "./fixtures/models.mjs";
+import { pageModel, writeModel } from "./fixtures/models.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 
@@ -37,7 +37,7 @@ test("the packed publisher installs, relocates and builds with its own verified 
 
   const relocated = path.join(directory, "relocated");
   await fs.rename(consumer, relocated);
-  const model = await writeModel(minimalModel());
+  const model = await writeModel(pageModel());
   const out = path.join(directory, "delivery");
   const built = archpub(relocated, "build", model, "--out", out);
   assert.equal(built.status, 0, built.stderr + JSON.stringify(built.body));

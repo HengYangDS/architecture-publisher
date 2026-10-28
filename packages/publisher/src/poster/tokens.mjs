@@ -1,17 +1,86 @@
-/** Poster design tokens: the frame, type scale, colors and spacing in one place. */
+/**
+ * Poster design tokens. One fixed landscape page, one grid, one type scale and
+ * one palette; every composition is a choice of archetype, wrapping and type
+ * step on these tokens, never a new format.
+ */
 export const POSTER = Object.freeze({
-  width: 1800,
+  width: 2400,
   height: 1350,
+  /** The smallest type on any poster, and the type scale every size must come from. */
   floor: 14,
-  maximumZoom: 1.4,
-  margin: Object.freeze({ x: 72, top: 54, bottom: 40 }),
-  rowColumn: 216,
+  scale: Object.freeze([14, 16, 18, 20, 24, 28, 32, 48]),
+  margin: 64,
+  /** Twelve columns of 160 px with 32 px gutters fill 2400 − 2 × 64 exactly. */
+  grid: Object.freeze({ columns: 12, column: 160, gutter: 32, baseline: 4 }),
+  /** A text block keeps a measure a reader can follow without losing the line. */
+  measure: 80,
   summaryLines: 3,
-  summaryWidth: 1240,
-  titleReserve: 420,
-  headerGap: 20,
-  stageGap: 16,
-  family: "Noto Sans CJK SC",
+  /** One tier holds at most this many cards before a candidate wraps it. */
+  rowLimit: 6,
+  /** A composition may widen a column gap up to this multiple of the token gap. */
+  gapBound: 2,
+  /**
+   * A justified figure deepens its channels only slightly: a stretched channel
+   * is blank space between rows, so height is carried by larger cards instead.
+   */
+  channelBound: 1.35,
+  /**
+   * A drawn figure's ink may sit this far from its field's centre line, as a
+   * share of the field's width, before the figure is moved: within it the
+   * figure's outline stays centred, and past it the figure moves only as far as
+   * this tolerance, half the balance gate, leaves.
+   */
+  centreTolerance: 0.025,
+  /** A card may grow to this height to carry the page's vertical fill. */
+  maximumCardHeight: 520,
+  /**
+   * A card keeps at least this width-to-height ratio as it grows. Below it the
+   * card stops reading as a labelled panel and starts reading as a tile, so the
+   * height a page may ask of a card is bounded by the width its row gives it.
+   */
+  cardAspect: 2.6,
+  /**
+   * And at most this one: past it a card is a strip across the page — a line of
+   * text in a long box, not a component. A plate whose rows would draw strips is
+   * rejected, because a figure of strips is the band the format must not print.
+   */
+  cardLimit: 5,
+  /**
+   * Figure type steps, densest first: card label, detail and relation-label
+   * sizes, each on the type scale. A dense view takes the first step and a
+   * sparse one a later, larger step; no size grows past 1.4 times its size at
+   * the first step, so a sparse figure is set larger without changing voice.
+   */
+  steps: Object.freeze([
+    Object.freeze({ name: 18, detail: 14, edge: 14 }),
+    Object.freeze({ name: 20, detail: 16, edge: 16 }),
+    Object.freeze({ name: 24, detail: 18, edge: 18 }),
+  ]),
+  spacing: Object.freeze({
+    column: 64,
+    inset: 28,
+    /** The column at the left of a labelled row that holds its tier label. */
+    rowColumn: 280,
+    /** A card grows to fill its field only up to this height. */
+    cardHeight: 520,
+    stub: 16,
+    track: 16,
+    bandGap: 8,
+    arrowStub: 18,
+    labelGap: 16,
+    labelRowGap: 8,
+    portSpacing: 40,
+    portMargin: 30,
+    minJog: 56,
+    clear: 14,
+    minChannel: 64,
+    rowPad: 16,
+    boundaryPad: 16,
+    boundaryBottom: 16,
+    boundaryHead: 20,
+    /** The gap between two plates on one page. */
+    plateGap: 40,
+  }),
   color: Object.freeze({
     paper: "#FBFBF8",
     ink: "#141B26",
@@ -39,31 +108,6 @@ export const POSTER = Object.freeze({
     messagebus: "#8650CC",
     security: "#B86A1C",
   }),
-  type: Object.freeze({
-    title: Object.freeze({ size: 38, weight: 700, line: 46 }),
-    question: Object.freeze({ size: 20, weight: 400, line: 28 }),
-    summary: Object.freeze({ size: 16, weight: 400, line: 24 }),
-    meta: Object.freeze({ size: 14, weight: 400, line: 20 }),
-    row: Object.freeze({ size: 15, weight: 700, line: 21 }),
-    rowNumber: Object.freeze({ size: 14, weight: 700, line: 18 }),
-    name: Object.freeze({ size: 18, weight: 700, line: 24 }),
-    detail: Object.freeze({ size: 14, weight: 400, line: 20 }),
-    edge: Object.freeze({ size: 14, weight: 700, line: 19 }),
-    edgeDetail: Object.freeze({ size: 14, weight: 400, line: 19 }),
-    legend: Object.freeze({ size: 14, weight: 400, line: 20 }),
-    foot: Object.freeze({ size: 14, weight: 400, line: 20 }),
-    boundary: Object.freeze({ size: 15, weight: 700, line: 21 }),
-  }),
-  card: Object.freeze({
-    minWidth: 196,
-    maxWidth: 280,
-    pad: 16,
-    radius: 10,
-    icon: 20,
-    iconGap: 10,
-    detailGap: 6,
-    bar: 4,
-  }),
   wire: Object.freeze({
     arrow: 9,
     radius: 7,
@@ -72,23 +116,85 @@ export const POSTER = Object.freeze({
     labelPadY: 4,
     maximumLabel: 250,
   }),
-  spacing: Object.freeze({
-    column: 64,
-    inset: 28,
-    stub: 12,
-    track: 14,
-    bandGap: 6,
-    arrowStub: 18,
-    labelGap: 16,
-    labelRowGap: 8,
-    portSpacing: 40,
-    portMargin: 30,
-    minJog: 56,
-    clear: 14,
-    minChannel: 60,
-    rowPad: 12,
-    boundaryPad: 16,
-    boundaryBottom: 16,
-    boundaryHead: 20,
-  }),
+});
+
+/** Line boxes on the 4 px baseline: a size's line is its size rounded up to a baseline multiple. */
+const line = (size) => Math.ceil((size * 1.32) / POSTER.grid.baseline) * POSTER.grid.baseline;
+
+/**
+ * Style for one size of the type scale. `extra` sets the weight, so the same
+ * size carries a card label and a detail without the size leaving the scale.
+ * @param {number} size
+ * @param {object} [extra]
+ */
+function style(size, extra = {}) {
+  return Object.freeze({ size, weight: 400, line: line(size), ...extra });
+}
+
+/**
+ * A figure's text at one type step. Every size comes from the type scale, so a
+ * sparse view is set larger and a dense one smaller without ever leaving it.
+ * @param {{ name: number, detail: number, edge: number }} step
+ */
+export function figureStyles(step) {
+  return Object.freeze({
+    name: style(step.name, { weight: 700 }),
+    detail: style(step.detail),
+    edge: style(step.edge, { weight: 700 }),
+    edgeDetail: style(step.detail),
+    tier: style(step.detail, { weight: 700 }),
+    note: style(POSTER.floor, { weight: 700 }),
+    boundary: style(Math.min(24, Math.max(step.name, 20)), { weight: 700 }),
+  });
+}
+
+/** A figure's card and wire metrics at one type step, rounded to 8 px. */
+export function figureMetrics(styles) {
+  const unit = styles.name.size / 24;
+  const round = (value) => Math.max(8, Math.round(value / 8) * 8);
+  return Object.freeze({
+    card: Object.freeze({
+      pad: round(20 * unit),
+      radius: round(10 * unit),
+      icon: round(24 * unit),
+      iconGap: round(10 * unit),
+      detailGap: round(6 * unit),
+      bar: round(4 * unit),
+      minimumWidth: 200,
+      maximumWidth: 760,
+    }),
+    wire: Object.freeze({
+      ...POSTER.wire,
+      labelPadX: round(POSTER.wire.labelPadX * unit),
+      labelPadY: round(POSTER.wire.labelPadY * unit),
+      arrow: round(POSTER.wire.arrow * unit),
+      maximumLabel: Math.min(360, round(POSTER.wire.maximumLabel * unit)),
+    }),
+    spacing: Object.freeze({
+      ...POSTER.spacing,
+      column: round(64 * unit),
+      inset: round(28 * unit),
+      stub: round(16 * unit),
+      track: round(16 * unit),
+      arrowStub: round(18 * unit),
+      labelGap: round(16 * unit),
+      labelRowGap: round(8 * unit),
+      clear: round(14 * unit),
+      rowPad: round(16 * unit),
+      minChannel: round(64 * unit),
+    }),
+  });
+}
+
+/** The page's fixed text styles: the header, the plates, the notes and the legend. */
+export const PAGE = Object.freeze({
+  kicker: style(14, { weight: 400 }),
+  title: style(48, { weight: 700 }),
+  question: style(24, { weight: 400 }),
+  summary: style(16, { weight: 400 }),
+  legend: style(16, { weight: 400 }),
+  /** A plate's own heading, when a page carries more than one view. */
+  plate: style(28, { weight: 700 }),
+  plateQuestion: style(18, { weight: 400 }),
+  notes: style(14, { weight: 400 }),
 });

@@ -1,466 +1,474 @@
+import { ROW_LIMIT, viewRows } from "../layout/rows.mjs";
 import { refuse } from "../refusal.mjs";
-import { layoutView } from "../layout/grid.mjs";
-import { presentation } from "../kinds.mjs";
+import { balanceOf, inkFromRects } from "./balance.mjs";
+import { settleFloating } from "./corners.mjs";
+import { LIVE, gutterFor, planSheet, refuseUnsetText } from "./page.mjs";
+import { naturalOf, platesOf } from "./plate.mjs";
 import { POSTER } from "./tokens.mjs";
 
-const T = POSTER.type;
+/**
+ * Compose views into 16:9 pages. A page is one, two or three plates; each plate
+ * is one view's figure with its own heading, and each figure is laid out at its
+ * content height, justified into its band, and drawn. A view with few components
+ * fills a plate of its own badly — an architecture figure of three cards is a
+ * band, not a page — so the composer packs views onto a page until the page
+ * itself is full. Nothing is stretched to fill a frame: the cards keep the
+ * height their text needs, and the page is filled by what it carries.
+ */
+
 const C = POSTER.color;
-const K = POSTER.card;
-const W = POSTER.wire;
-const fixed = (value) => Math.round(value * 10) / 10;
-const DASH = Object.freeze({ planned: "6 4", retired: "1.5 3.5" });
 
-/** The poster's own layout metrics: its type scale, card bounds and spacing. */
-function posterMetrics(model, typefaces) {
-  const full = POSTER.width - 2 * POSTER.margin.x;
-  const cardText = (component, width) => {
-    const name = typefaces.wrap(component.label, width - 2 * K.pad - K.icon - K.iconGap, T.name);
-    const details = component.details.flatMap(([key, values]) =>
-      typefaces.detailLines(key, values, width - 2 * K.pad, T.detail),
-    );
-    return { name, details };
-  };
-  return {
-    contentWidth: (labelled) => full - (labelled ? POSTER.rowColumn : 0),
-    card: {
-      minWidth: K.minWidth,
-      maxWidth: K.maxWidth,
-      height: (component, width) => {
-        const { name, details } = cardText(component, width);
-        return (
-          2 * K.pad +
-          name.length * T.name.line +
-          (details.length ? K.detailGap + details.length * T.detail.line : 0)
-        );
-      },
-    },
-    cardText,
-    label: (relation, maxWidth = /** @type {number} */ (W.maximumLabel)) => {
-      const width = Math.min(maxWidth, W.maximumLabel);
-      const lines = [
-        ...typefaces.wrap(relation.label, width, T.edge).map((text) => ({ text, role: "label" })),
-        ...relation.details.flatMap(([key, values]) =>
-          typefaces
-            .detailLines(key, values, width, T.edgeDetail)
-            .map((text) => ({ text, role: "detail" })),
-        ),
-      ];
-      const measured = Math.max(
-        ...lines.map(({ text, role }) =>
-          typefaces.measure(text, role === "label" ? T.edge : T.edgeDetail),
-        ),
-      );
-      return {
-        width: Math.ceil(measured) + 2 * W.labelPadX,
-        height: lines.length * T.edge.line + 2 * W.labelPadY,
-        lines,
-      };
-    },
-    external: (component) => presentation(model, component).outside,
-    spacing: POSTER.spacing,
-  };
-}
+/** The gates a composed page must pass, each measured from the page itself. */
+export const GATES = Object.freeze({
+  /** The largest empty rectangle covers at most this share of the live area. */
+  emptyShare: 0.12,
+  /** Ink reaches at least this share of the plates' region across and down. */
+  fill: 0.9,
+  /** The ink centroid sits at most this far from the region's center. */
+  centroid: 0.06,
+});
 
-function rounded(points) {
-  let d = `M${fixed(points[0][0])},${fixed(points[0][1])}`;
-  for (let i = 1; i < points.length - 1; i += 1) {
-    const [px, py] = points[i - 1];
-    const [cx, cy] = points[i];
-    const [nx, ny] = points[i + 1];
-    const r = Math.min(
-      W.radius,
-      Math.hypot(cx - px, cy - py) / 2,
-      Math.hypot(nx - cx, ny - cy) / 2,
-    );
-    d +=
-      ` L${fixed(cx - Math.sign(cx - px) * r)},${fixed(cy - Math.sign(cy - py) * r)}` +
-      ` Q${fixed(cx)},${fixed(cy)} ${fixed(cx + Math.sign(nx - cx) * r)},${fixed(cy + Math.sign(ny - cy) * r)}`;
-  }
-  return `${d} L${fixed(points.at(-1)[0])},${fixed(points.at(-1)[1])}`;
-}
+/** Plates tried on one page, fewest first. */
+const PLATES = Object.freeze([1, 2, 3]);
+/** A floating page sets its text around at most this many of its plate's compositions. */
+const FLOATING_PLATES = 12;
 
-function arrowHead({ x, y, direction }) {
-  const a = W.arrow;
-  const shapes = {
-    down: [
-      [x, y],
-      [x - a / 2, y - a],
-      [x + a / 2, y - a],
-    ],
-    up: [
-      [x, y],
-      [x - a / 2, y + a],
-      [x + a / 2, y + a],
-    ],
-    right: [
-      [x, y],
-      [x - a, y - a / 2],
-      [x - a, y + a / 2],
-    ],
-    left: [
-      [x, y],
-      [x + a, y - a / 2],
-      [x + a, y + a / 2],
-    ],
-  };
-  const [p, q, r] = shapes[/** @type {keyof typeof shapes} */ (direction)];
-  return `M${fixed(p[0])},${fixed(p[1])} L${fixed(q[0])},${fixed(q[1])} L${fixed(r[0])},${fixed(r[1])} Z`;
-}
-
-const statusOf = (relations) =>
-  relations.some(({ status }) => status === "retired")
-    ? "retired"
-    : relations.some(({ status }) => status === "planned")
-      ? "planned"
-      : null;
-
-function iconMarkup(icons, name, x, y, size, color) {
-  return (
-    `<g transform="translate(${fixed(x)},${fixed(y)}) scale(${size / 24})" fill="none" stroke="${color}" ` +
-    `stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons.artwork(name)}</g>`
-  );
-}
-
-function footnotes(model, provenance) {
-  const sentence = (text) => (/[.!?。]$/u.test(text) ? text : `${text}.`);
-  const notes = [];
-  const scope = [model.scope, ...new Set(model.limits)].filter(Boolean).map(sentence).join(" ");
-  if (scope) notes.push(scope);
-  const parts = [];
-  if (model.repository)
-    parts.push(`Source ${model.repository.name} at ${model.repository.revision.slice(0, 12)}`);
-  const count = provenance.records.length;
-  if (provenance.state === "verified") parts.push(`${count} sources verified by SHA-256`);
-  if (provenance.state === "unverified") parts.push(`${count} sources declared and not verified`);
-  if (model.attribution) parts.push(`Model by ${model.attribution}`);
-  if (parts.length) notes.push(`${parts.join("; ")}.`);
-  return notes;
+/** The ink of one page, measured from its drawn rectangles before it is rendered. */
+function measure(page, made, typefaces) {
+  const rects = [
+    ...made.flatMap((one) => one.figure.rects),
+    ...page.runs.map((run) => ({
+      x: run.x,
+      y: run.top,
+      width: Math.min(typefaces.measure(run.value, run.style), POSTER.width - run.x),
+      height: run.style.line,
+    })),
+    ...page.glyphs.map((glyph) => ({
+      x: glyph.x,
+      y: glyph.top,
+      width: glyph.size,
+      height: glyph.size,
+    })),
+    ...page.rules.map((rule) => ({
+      x: Math.min(rule.x1, rule.x2),
+      y: rule.y1 - 1,
+      width: Math.abs(rule.x2 - rule.x1),
+      height: 2,
+    })),
+  ];
+  // The figure's frame is the rectangle its plates' fields cover, not the region
+  // they sit in: a labelled plate reserves a gutter at the left of the region for
+  // its tier labels, and measuring the centroid against the region would call
+  // every labelled figure right-heavy for drawing exactly where it was told to.
+  const fields = page.plates.map((plate) => plate.field);
+  const left = Math.min(...fields.map((field) => field.x));
+  const right = Math.max(...fields.map((field) => field.x + field.width));
+  const top = Math.min(...fields.map((field) => field.y));
+  const bottom = Math.max(...fields.map((field) => field.y + field.height));
+  const grid = inkFromRects(rects, 8, POSTER.width, POSTER.height);
+  return balanceOf(grid, {
+    live: LIVE,
+    figure: { x: left, y: top, width: right - left, height: bottom - top },
+  });
 }
 
 /**
- * Compose one view into a complete poster. The returned SVG has fixed pixel
- * dimensions, outlined text and inline icons.
+ * Compose one page of `views`. Returns the drawn page, or null when this
+ * grouping cannot fill the format in either skeleton.
+ */
+function sheet(model, views, position, typefaces, icons, provenance, boundaryName) {
+  if (views.length > PLATES[PLATES.length - 1]) return null;
+  refuseUnsetText(typefaces, model);
+  /** @type {any[]} */
+  const candidates = [];
+  const input = { model, views, provenance, typefaces, boundary: boundaryName };
+  // The skeletons a page may take. A column page with a narrower rail gives the
+  // figure fewer columns, so its rows wrap tighter and the figure grows taller —
+  // the lever a view too shallow for a full-height band needs. Each skeleton is
+  // tried with a row's centre taken over all its cards and over only those
+  // inside the boundary: which one balances a figure depends on where its
+  // outside cards sit, so the page measures both rather than guessing.
+  // A page of one view may also float its head and legend into the corners its
+  // figure leaves free; a page of several views keeps them in a masthead or
+  // rail, and may set its plates side by side under the masthead.
+  /** @type {Array<{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean, across?: boolean }>} */
+  const skeletons = [
+    { archetype: "stack" },
+    { archetype: "column", rail: 4 },
+    { archetype: "column", rail: 3 },
+    ...(views.length === 1
+      ? [
+          { archetype: /** @type {const} */ ("corner") },
+          { archetype: /** @type {const} */ ("corner"), reserve: true },
+        ]
+      : [{ archetype: /** @type {const} */ ("stack"), across: true }]),
+  ];
+  const centrings = /** @type {const} */ (["all", "inside"]);
+  for (const skeleton of skeletons)
+    for (const centring of centrings) {
+      const made = candidate(input, skeleton, centring, { model, typefaces, icons, boundaryName });
+      if (made) candidates.push({ ...made, views, position });
+    }
+  if (!candidates.length) return null;
+  const passing = candidates.filter(({ fails }) => fails.length === 0);
+  return best(passing.length ? passing : candidates);
+}
+
+/**
+ * One page candidate: a skeleton and a centring rule, planned on the plates'
+ * natural heights, drawn and measured. Null when the grouping does not fit.
+ * @param {any} input
+ * @param {{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean,
+ *   across?: boolean }} skeleton
+ * @param {"all" | "inside"} centring
+ * @param {any} context
+ */
+function candidate(input, skeleton, centring, context) {
+  const { model, typefaces, icons, boundaryName } = context;
+  const gutters = input.views.map((view) =>
+    gutterFor(
+      typefaces,
+      viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) => (label ? [label] : [])),
+    ),
+  );
+  // A probe plan measures how tall each figure wants to be; the real plan gives
+  // every plate that height and shares only the surplus. A plan that cannot set
+  // its text or fit its plates is one skeleton that does not suit this grouping.
+  const probe = planSheet(input, { gutters, ...skeleton });
+  if (!probe) return null;
+  const natural = probe.plates.map((plate) => naturalOf({ model, typefaces, boundaryName }, plate));
+  // A plate no wrapping can draw at the densest step makes this grouping
+  // impossible; the search tries a different grouping instead of shrinking the
+  // figure below what its cards need.
+  if (natural.some((height) => height === null)) return null;
+  let page = planSheet(input, {
+    gutters,
+    ...skeleton,
+    weights: /** @type {number[]} */ (natural),
+  });
+  if (!page) return null;
+  const options = page.plates.map((plate) =>
+    platesOf({ model, typefaces, icons, boundaryName, centring }, plate),
+  );
+  if (options.some((list) => !list.length)) return null;
+  let made = options.map((list) => list[0]);
+  if (page.floating) {
+    // A floating page sets its text around each of its plate's compositions,
+    // best first, and keeps the page that measures best with its text set: the
+    // figure that fills its band most may leave no corner for the head.
+    const planned = page;
+    /** @type {{ rank: number[], page: any, one: any } | null} */
+    let chosen = null;
+    for (const one of options[0].slice(0, FLOATING_PLATES)) {
+      // A page that passes comes first, then one whose wires do not cross.
+      const rankOf = (set) => {
+        const balance = measure(set, [one], typefaces);
+        return [
+          gateFailures(balance).length,
+          one.layout.measures.crossings,
+          balance.emptyShare,
+          Math.hypot(...balance.centroid),
+        ];
+      };
+      const extra = settleFloating(input, planned, [one], (more) => ({
+        rank: rankOf(withText(planned, more)),
+      }));
+      if (!extra) continue;
+      const set = withText(planned, extra);
+      const rank = rankOf(set);
+      if (!chosen || compareRanks(rank, chosen.rank) < 0) chosen = { rank, page: set, one };
+    }
+    if (!chosen) return null;
+    page = chosen.page;
+    made = [chosen.one];
+  }
+  const drawn = /** @type {any} */ (page);
+  const balance = measure(drawn, made, typefaces);
+  const fails = gateFailures(balance);
+  return {
+    page: drawn,
+    made,
+    balance,
+    fails,
+    composition: {
+      archetype: drawn.archetype,
+      rail: skeleton.rail ?? null,
+      reserve: skeleton.reserve ?? false,
+      across: skeleton.across ?? false,
+      centring,
+      plates: drawn.plates.map((plate, order) => ({
+        view: plate.view.id,
+        step: made[order].step,
+        wrap: made[order].limit,
+        flat: made[order].flat,
+      })),
+    },
+  };
+}
+
+const compareRanks = (a, b) => {
+  for (let index = 0; index < a.length; index += 1)
+    if (a[index] !== b[index]) return a[index] - b[index];
+  return 0;
+};
+
+/** A page with more text set on it. */
+function withText(page, extra) {
+  return {
+    ...page,
+    runs: [...page.runs, ...extra.runs],
+    glyphs: [...page.glyphs, ...extra.glyphs],
+  };
+}
+
+/**
+ * Compose every view of a model into pages. Pages carry one to three consecutive
+ * views, and the grouping is chosen for the edition as a whole, not page by page:
+ * a greedy packer that takes a passing page whenever it sees one strands the last
+ * view alone, and a view of three components cannot fill a 16:9 page by itself.
+ * The search maximises the pages that pass every gate, then page count, then the
+ * empty share the edition leaves.
  * @param {any} model
- * @param {import("../plan/views.mjs").View} view
- * @param {{ index: number, count: number }} position
+ * @param {import("../plan/views.mjs").View[]} views
  * @param {any} typefaces
  * @param {any} icons
  * @param {{ state: string, records: any[] }} provenance
  */
-export function composePoster(model, view, position, typefaces, icons, provenance) {
-  const metrics = posterMetrics(model, typefaces);
-  const layout = layoutView(view, metrics, { boundaryName: model.repository?.name ?? model.title });
-  const runs = [];
-  const text = (layer, value, x, top, style, color) => {
-    runs.push({ layer, value, x, y: typefaces.baseline(top, style), style, color });
-    return top + style.line;
+export function composeEdition(model, views, typefaces, icons, provenance) {
+  const boundaryName = model.repository?.name ?? model.title;
+  /** @type {Map<string, any>} */
+  const tried = new Map();
+  const at = (index, count) => {
+    const key = `${index}:${count}`;
+    if (!tried.has(key))
+      tried.set(
+        key,
+        sheet(
+          model,
+          views.slice(index, index + count),
+          { index: 0, count: 0 },
+          typefaces,
+          icons,
+          provenance,
+          boundaryName,
+        ),
+      );
+    return tried.get(key);
   };
-  const full = POSTER.width - 2 * POSTER.margin.x;
-  const page = [];
 
-  // Header.
-  /** @type {number} */
-  let y = POSTER.margin.top;
-  const meta = [
-    model.repository
-      ? `${model.repository.name} · ${model.repository.revision.slice(0, 7)}`
-      : model.id,
-    `view ${position.index + 1} of ${position.count}`,
-  ].join(" · ");
-  text(
-    "page",
-    meta,
-    POSTER.width - POSTER.margin.x - typefaces.measure(meta, T.meta),
-    y + 12,
-    T.meta,
-    C.muted,
-  );
-  for (const line of typefaces.wrap(view.title, full - POSTER.titleReserve, T.title))
-    y = text("page", line, POSTER.margin.x, y, T.title, C.ink);
-  y += 6;
-  for (const line of typefaces.wrap(view.question, full, T.question))
-    y = text("page", line, POSTER.margin.x, y, T.question, C.accent);
-  if (view.summary) {
-    const lines = typefaces.wrap(view.summary, POSTER.summaryWidth, T.summary);
-    if (lines.length > POSTER.summaryLines)
-      refuse(
-        "poster_summary_too_long",
-        `The summary of view ${view.id} needs ${lines.length} lines; the poster allows ${POSTER.summaryLines}.`,
-      );
-    y += 4;
-    for (const line of lines) y = text("page", line, POSTER.margin.x, y, T.summary, C.muted);
-  }
-  const headerBottom = y + POSTER.headerGap;
-
-  // Legend and footnote sit at the bottom of the frame.
-  const notes = footnotes(model, provenance).flatMap((note) => typefaces.wrap(note, full, T.foot));
-  const footerTop =
-    POSTER.height -
-    POSTER.margin.bottom -
-    (T.legend.line + 14 + 1 + 12 + notes.length * T.foot.line);
-  const stage = {
-    x: POSTER.margin.x + (layout.labelled ? POSTER.rowColumn : 0),
-    y: headerBottom,
-    width: layout.width,
-    height: footerTop - POSTER.stageGap - headerBottom,
-  };
-  // Fit and center the drawn extent, not the whole content width.
-  const xs = [
-    ...[...layout.cards.values()].flatMap((card) => [card.x, card.x + card.width]),
-    ...layout.labels.flatMap((label) => [label.x, label.x + label.width]),
-    ...layout.paths.flatMap(({ points }) => points.map(([px]) => px)),
-    ...(layout.boundary ? [layout.boundary.x, layout.boundary.x + layout.boundary.width] : []),
-  ];
-  const left = Math.min(...xs) - 8;
-  const right = Math.max(...xs) + 8;
-  const fitScale = Math.min(stage.width / (right - left), stage.height / layout.height);
-  const scale = Math.max(1, Math.min(POSTER.maximumZoom, Math.floor(fitScale * 20) / 20));
-  const fits = fitScale >= 1;
-  const offsetX = stage.x + (stage.width - (right - left) * scale) / 2 - left * scale;
-  const offsetY = stage.y + Math.max(0, (stage.height - layout.height * scale) / 2);
-  const local = (pageX) => (pageX - offsetX) / scale;
-
-  // Graph, in local layout coordinates under one transform.
-  const graph = [];
-  const bandEdges = [0];
-  for (const channel of layout.channels) {
-    const last = channel.labelRows.at(-1);
-    bandEdges.push(last ? last.center + last.height / 2 + 4 : (channel.top + channel.bottom) / 2);
-  }
-  bandEdges.push(layout.height);
-  const bandFill = (row) => (row % 2 === 0 ? C.bandA : C.bandB);
-  const fillAt = (localY) =>
-    layout.labelled
-      ? bandFill(
-          Math.max(
-            0,
-            bandEdges.findLastIndex((edge) => edge <= localY),
-          ),
-        )
-      : C.paper;
-  if (layout.labelled) {
-    layout.rows.forEach((row, index) => {
-      graph.push(
-        `<rect x="${fixed(local(POSTER.margin.x))}" y="${fixed(bandEdges[index])}" width="${fixed(full / scale)}" height="${fixed(bandEdges[index + 1] - bandEdges[index])}" fill="${bandFill(index)}"/>`,
-      );
-      if (!row.label) return;
-      const x = local(POSTER.margin.x + 20);
-      const lines = typefaces.wrap(row.label, (POSTER.rowColumn - 64) / scale, T.row);
-      let top = row.top + (layout.card.height - lines.length * T.row.line) / 2;
-      graph.push(
-        `<circle cx="${fixed(x + 12)}" cy="${fixed(top + T.row.line / 2)}" r="12" fill="none" stroke="${C.muted}" stroke-width="1.3"/>`,
-      );
-      const number = String(index + 1);
-      text(
-        "graph",
-        number,
-        x + 12 - typefaces.measure(number, T.rowNumber) / 2,
-        top + (T.row.line - T.rowNumber.line) / 2,
-        T.rowNumber,
-        C.muted,
-      );
-      for (const line of lines) top = text("graph", line, x + 32, top, T.row, C.muted);
-    });
-  }
-  const boundary = layout.boundary;
-  if (boundary) {
-    const name = boundary.name;
-    const tabWidth = typefaces.measure(name, T.boundary) + 20;
-    const crossings = layout.paths.flatMap(({ points }) =>
-      points.slice(1).flatMap((point, i) => {
-        const prior = points[i];
-        return Math.abs(point[0] - prior[0]) < 0.5 &&
-          Math.min(point[1], prior[1]) <= boundary.y &&
-          Math.max(point[1], prior[1]) >= boundary.y
-          ? [point[0]]
-          : [];
-      }),
-    );
-    let tabX = boundary.x + 18;
-    while (crossings.some((x) => x > tabX - 10 && x < tabX + tabWidth + 10)) tabX += 8;
-    graph.push(
-      `<rect x="${fixed(boundary.x)}" y="${fixed(boundary.y)}" width="${fixed(boundary.width)}" height="${fixed(boundary.height)}" rx="16" fill="none" stroke="${C.boundary}" stroke-width="1.4" stroke-dasharray="7 5"/>`,
-    );
-    graph.push(
-      `<rect x="${fixed(tabX)}" y="${fixed(boundary.y - 12)}" width="${fixed(tabWidth)}" height="24" rx="6" fill="${fillAt(boundary.y)}"/>`,
-    );
-    text("graph", name, tabX + 10, boundary.y - 11, T.boundary, C.ink);
-  }
-  for (const { relations, points } of layout.paths) {
-    const status = statusOf(relations);
-    const dash = status ? ` stroke-dasharray="${DASH[status]}"` : "";
-    graph.push(
-      `<path d="${rounded(points)}" fill="none" stroke="${status === "retired" ? C.faint : C.line}" stroke-width="${W.stroke}" stroke-linejoin="round" stroke-linecap="round"${dash}/>`,
-    );
-  }
-  for (const arrow of layout.arrows)
-    graph.push(
-      `<path d="${arrowHead(arrow)}" fill="${statusOf(arrow.relations) === "retired" ? C.faint : C.line}"/>`,
-    );
-  graph.push(
-    `<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="1.6" flood-color="${C.shadow}" flood-opacity="0.09"/></filter></defs>`,
-  );
-  const components = new Map(view.components.map((component) => [component.id, component]));
-  for (const [id, card] of layout.cards) {
-    const component = /** @type {any} */ (components.get(id));
-    const style = presentation(model, component);
-    const muted = style.outside || component.context;
-    const hue = POSTER.hue[/** @type {keyof typeof POSTER.hue} */ (style.category)];
-    const dash =
-      component.status && component.status !== "implemented"
-        ? ` stroke-dasharray="${DASH[component.status]}"`
-        : "";
-    graph.push(
-      `<rect x="${fixed(card.x)}" y="${fixed(card.y)}" width="${card.width}" height="${card.height}" rx="${K.radius}" fill="${muted ? C.external : C.card}" stroke="${muted ? C.externalStroke : C.cardStroke}" stroke-width="1.1" filter="url(#lift)"${dash}/>`,
-    );
-    graph.push(
-      `<rect x="${fixed(card.x)}" y="${fixed(card.y + 14)}" width="${K.bar}" height="${card.height - 28}" rx="2" fill="${hue}"/>`,
-    );
-    graph.push(
-      iconMarkup(
-        icons,
-        style.icon,
-        card.x + K.pad,
-        card.y + K.pad + (T.name.line - K.icon) / 2,
-        K.icon,
-        hue,
-      ),
-    );
-    const { name, details } = metrics.cardText(component, card.width);
-    let top = card.y + K.pad;
-    for (const line of name)
-      top = text(
-        "cards",
-        line,
-        card.x + K.pad + K.icon + K.iconGap,
-        top,
-        T.name,
-        component.status === "retired" ? C.muted : C.ink,
-      );
-    top += K.detailGap;
-    for (const line of details) top = text("cards", line, card.x + K.pad, top, T.detail, C.muted);
-  }
-  const labelShapes = [];
-  for (const label of layout.labels) {
-    const fill =
-      label.row !== undefined
-        ? layout.labelled
-          ? bandFill(label.row)
-          : C.paper
-        : fillAt(label.y + label.height / 2);
-    labelShapes.push(
-      `<rect x="${fixed(label.x)}" y="${fixed(label.y)}" width="${fixed(label.width)}" height="${fixed(label.height)}" rx="5" fill="${fill}"/>`,
-    );
-    let top = label.y + W.labelPadY;
-    for (const line of label.lines) {
-      const style = line.role === "label" ? T.edge : T.edgeDetail;
-      top = text(
-        "labels",
-        line.text,
-        label.x + (label.width - typefaces.measure(line.text, style)) / 2,
-        top,
-        style,
-        line.role === "label" ? C.ink : C.muted,
-      );
+  const count = views.length;
+  /** @type {Array<any>} */
+  const plan = new Array(count + 1).fill(null);
+  plan[count] = { pages: 0, passes: 0, empty: 0, next: count, made: null };
+  for (let index = count - 1; index >= 0; index -= 1) {
+    /** @type {any} */
+    let chosen = null;
+    for (const size of PLATES) {
+      if (index + size > count) continue;
+      const rest = plan[index + size];
+      const made = at(index, size);
+      // A grouping that cannot be drawn is not a page.
+      if (!rest || !made) continue;
+      const total = {
+        pages: 1 + rest.pages,
+        passes: (made.fails.length === 0 ? 1 : 0) + rest.passes,
+        empty: made.balance.emptyShare + rest.empty,
+        next: index + size,
+        made,
+      };
+      if (!chosen || betterPlan(total, chosen)) chosen = total;
     }
+    plan[index] = chosen;
+  }
+  // Admission draws every planned view on a page of its own, so a plan always
+  // exists for an admitted edition; a view no page can draw is refused by name.
+  if (!plan[0]) {
+    const lost = views.filter((_, index) => !at(index, 1)).map(({ id }) => id);
+    refuse(
+      "poster_unfittable",
+      `View ${lost.join(", ")} cannot be laid out on a ${POSTER.width} × ${POSTER.height} page ` +
+        "at any type step or row wrapping. Split the view or shorten its labels.",
+      lost.map((id) => ({ code: "poster_unfittable", path: `/views/${id}`, message: id })),
+    );
   }
 
-  // Legend: the kinds present, the boundary and the statuses present.
-  y = footerTop;
-  let x = POSTER.margin.x;
-  const entries = [];
-  for (const component of view.components) {
-    const style = presentation(model, component);
-    if (!entries.some((entry) => entry.kind === style.kind)) entries.push(style);
-  }
-  for (const entry of entries) {
-    page.push(
-      iconMarkup(
-        icons,
-        entry.icon,
-        x,
-        y + 1,
-        18,
-        POSTER.hue[/** @type {keyof typeof POSTER.hue} */ (entry.category)],
+  const pages = [];
+  for (let index = 0; index < count; index = plan[index].next) pages.push(plan[index].made);
+  // An edition prints only balanced pages. A grouping the search had to keep
+  // although it fails a gate is refused with every failing measure, so the
+  // author sees which view to split or regroup rather than receiving a page
+  // with a blank band.
+  const failing = pages.filter((made) => made.fails.length);
+  if (failing.length) {
+    const [first] = failing;
+    refuse(
+      "poster_unfittable",
+      `Views ${first.views.map(({ id }) => id).join(" + ")} cannot be composed on a balanced ` +
+        `${POSTER.width} × ${POSTER.height} page: ` +
+        `${first.fails.map(({ measure, value, limit }) => `${measure} ${value} against ${limit}`).join(", ")}. ` +
+        "Regroup or split the views.",
+      failing.flatMap((made) =>
+        made.fails.map(({ measure, value, limit }) => ({
+          code: "poster_unbalanced",
+          path: `/views/${made.views[0].id}`,
+          message: `${made.views.map(({ id }) => id).join(" + ")}: ${measure} ${value} against ${limit}`,
+        })),
       ),
     );
-    text("page", entry.label, x + 25, y, T.legend, C.ink);
-    x += 25 + typefaces.measure(entry.label, T.legend) + 28;
   }
-  if (boundary) {
-    page.push(
-      `<rect x="${fixed(x)}" y="${fixed(y + 3)}" width="22" height="14" rx="4" fill="none" stroke="${C.boundary}" stroke-dasharray="4 3"/>`,
-    );
-    const inside = `inside ${boundary.name}`;
-    text("page", inside, x + 30, y, T.legend, C.ink);
-    x += 30 + typefaces.measure(inside, T.legend) + 28;
-    page.push(
-      `<rect x="${fixed(x)}" y="${fixed(y + 3)}" width="22" height="14" rx="4" fill="${C.external}" stroke="${C.externalStroke}"/>`,
-    );
-    text("page", "outside it", x + 30, y, T.legend, C.ink);
-    x += 30 + typefaces.measure("outside it", T.legend) + 28;
-  }
-  for (const status of ["planned", "retired"].filter((status) =>
-    [...view.components, ...view.relations].some((item) => item.status === status),
-  )) {
-    page.push(
-      `<line x1="${fixed(x)}" y1="${fixed(y + 10)}" x2="${fixed(x + 24)}" y2="${fixed(y + 10)}" stroke="${status === "retired" ? C.faint : C.line}" stroke-width="${W.stroke}" stroke-dasharray="${DASH[status]}"/>`,
-    );
-    text("page", status, x + 32, y, T.legend, C.ink);
-    x += 32 + typefaces.measure(status, T.legend) + 28;
-  }
-  if (x > POSTER.width - POSTER.margin.x)
-    refuse(
-      "poster_legend_too_wide",
-      `The legend of view ${view.id} does not fit one line; use fewer kinds in the view.`,
-    );
-  y += T.legend.line + 14;
-  page.push(
-    `<line x1="${POSTER.margin.x}" y1="${y}" x2="${POSTER.width - POSTER.margin.x}" y2="${y}" stroke="${C.rule}"/>`,
-  );
-  y += 12;
-  for (const line of notes) y = text("page", line, POSTER.margin.x, y, T.foot, C.muted);
+  pages.forEach((made, order) => (made.position = { index: order, count: pages.length }));
+  return pages;
+}
 
-  const layer = (name) => {
-    const byColor = new Map();
-    for (const run of runs.filter((item) => item.layer === name))
-      byColor.set(
-        run.color,
-        (byColor.get(run.color) ?? "") + typefaces.outline(run.value, run.x, run.y, run.style),
+/** More passing pages first, then fewer pages, then the least empty share. */
+function betterPlan(a, b) {
+  if (a.passes !== b.passes) return a.passes > b.passes;
+  if (a.pages !== b.pages) return a.pages < b.pages;
+  return a.empty < b.empty;
+}
+
+/** Which gates a measured page fails. */
+function gateFailures(balance) {
+  /** @type {Array<{ measure: string, value: number, limit: number }>} */
+  const fails = [];
+  if (balance.emptyShare > GATES.emptyShare)
+    fails.push({ measure: "emptyShare", value: balance.emptyShare, limit: GATES.emptyShare });
+  if (balance.fill[0] < GATES.fill)
+    fails.push({ measure: "fillAcross", value: balance.fill[0], limit: GATES.fill });
+  if (balance.fill[1] < GATES.fill)
+    fails.push({ measure: "fillDown", value: balance.fill[1], limit: GATES.fill });
+  if (Math.abs(balance.centroid[0]) > GATES.centroid)
+    fails.push({ measure: "centroidX", value: balance.centroid[0], limit: GATES.centroid });
+  if (Math.abs(balance.centroid[1]) > GATES.centroid)
+    fails.push({ measure: "centroidY", value: balance.centroid[1], limit: GATES.centroid });
+  return fails;
+}
+
+/** The best of a set: fewest crossings, least empty, then nearest the center, then fewest plates. */
+function best(list) {
+  const crossings = (made) =>
+    made.made.reduce((sum, one) => sum + one.layout.measures.crossings, 0);
+  return [...list].sort(
+    (a, b) =>
+      crossings(a) - crossings(b) ||
+      a.balance.emptyShare - b.balance.emptyShare ||
+      Math.hypot(...a.balance.centroid) - Math.hypot(...b.balance.centroid) ||
+      a.views.length - b.views.length,
+  )[0];
+}
+
+/**
+ * Assemble one composed page's SVG: figure shapes, page shapes, then outlined text.
+ * @param {any} model
+ * @param {any} typefaces
+ * @param {any} icons
+ * @param {ReturnType<typeof sheet>} chosen
+ */
+function renderSheet(model, typefaces, icons, chosen) {
+  const page = /** @type {any} */ (chosen.page);
+  const made = /** @type {any[]} */ (chosen.made);
+  const shapes = [...made.flatMap((one) => one.figure.shapes)];
+  for (const glyph of page.glyphs) {
+    if (glyph.shape === "icon")
+      shapes.push(
+        `<g transform="translate(${glyph.x},${glyph.top}) scale(${glyph.size / 24})" fill="none" ` +
+          `stroke="${glyph.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">` +
+          `${icons.artwork(glyph.icon)}</g>`,
       );
-    return [...byColor].map(([color, d]) => `<path fill="${color}" d="${d}"/>`);
-  };
+    else if (glyph.shape === "boundary")
+      shapes.push(
+        `<rect x="${glyph.x}" y="${glyph.top + 4}" width="22" height="14" rx="4" fill="none" ` +
+          `stroke="${C.boundary}" stroke-dasharray="4 3"/>`,
+      );
+    else if (glyph.shape === "outside")
+      shapes.push(
+        `<rect x="${glyph.x}" y="${glyph.top + 4}" width="22" height="14" rx="4" ` +
+          `fill="${C.external}" stroke="${C.externalStroke}"/>`,
+      );
+    else
+      shapes.push(
+        `<line x1="${glyph.x}" y1="${glyph.top + 11}" x2="${glyph.x + 22}" y2="${glyph.top + 11}" ` +
+          `stroke="${glyph.shape === "retired" ? C.faint : C.line}" stroke-width="${POSTER.wire.stroke}" ` +
+          `stroke-dasharray="${glyph.shape === "retired" ? "1.5 3.5" : "6 4"}"/>`,
+      );
+  }
+  for (const rule of page.rules)
+    shapes.push(
+      `<line x1="${rule.x1}" y1="${rule.y1}" x2="${rule.x2}" y2="${rule.y2}" stroke="${C.rule}"/>`,
+    );
+  const layers = new Map();
+  for (const run of [...page.runs, ...made.flatMap((one) => one.figure.runs)]) {
+    const key = `${run.layer}\u0000${run.color}`;
+    const path = typefaces.outline(
+      run.value,
+      run.x,
+      typefaces.baseline(run.top, run.style),
+      run.style,
+    );
+    layers.set(key, (layers.get(key) ?? "") + path);
+  }
   const svg = [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${POSTER.width}" height="${POSTER.height}" viewBox="0 0 ${POSTER.width} ${POSTER.height}">`,
     `<rect width="${POSTER.width}" height="${POSTER.height}" fill="${C.paper}"/>`,
-    ...page,
-    ...layer("page"),
-    `<g transform="translate(${fixed(offsetX)},${fixed(offsetY)}) scale(${scale})">`,
-    ...graph,
-    ...layer("graph"),
-    ...layer("cards"),
-    ...labelShapes,
-    ...layer("labels"),
-    "</g>",
+    ...shapes,
+    ...[...layers].map(
+      ([key, d]) => `<path fill="${key.slice(key.indexOf("\u0000") + 1)}" d="${d}"/>`,
+    ),
     "</svg>",
     "",
   ].join("\n");
-  const requiredHeight = Math.ceil(
-    headerBottom + layout.height + POSTER.stageGap + (POSTER.height - footerTop),
-  );
-  // A drawing wider than its stage needs a wider poster by the excess.
-  const requiredWidth = Math.max(
-    POSTER.width,
-    Math.ceil(POSTER.width - stage.width + (right - left)),
-  );
   return {
-    view: view.id,
+    view: chosen.views.map(({ id }) => id).join("-"),
+    views: chosen.views.map(({ id }) => id),
+    title: chosen.views.length === 1 ? chosen.views[0].title : model.title,
     width: POSTER.width,
     height: POSTER.height,
-    fits,
-    required: { width: requiredWidth, height: requiredHeight },
-    scale,
-    measures: layout.measures,
+    fits: true,
+    position: chosen.position,
+    composition: chosen.composition,
+    measures: {
+      crossings: made.reduce((sum, one) => sum + one.layout.measures.crossings, 0),
+      bends: made.reduce((sum, one) => sum + one.layout.measures.bends, 0),
+      emptyShare: chosen.balance.emptyShare,
+      emptyRectangle: chosen.balance.emptyRectangle,
+      emptyNinths: chosen.balance.emptyNinths,
+      fill: chosen.balance.fill,
+      centroid: chosen.balance.centroid,
+    },
     svg,
   };
+}
+
+/** Compose and draw every page of a model. */
+export function composePosters(model, views, typefaces, icons, provenance) {
+  return composeEdition(model, views, typefaces, icons, provenance).map((chosen) =>
+    renderSheet(model, typefaces, icons, chosen),
+  );
+}
+
+/**
+ * Admit one view for the reading plan: the view is admitted when a page can lay
+ * it out at all. Whether its page is balanced is decided for the edition, where
+ * a sparse view may share a page with the next one, so a view that cannot fill
+ * a page alone is still a view the plan may keep.
+ * @returns {{ fits: boolean, width: number, height: number }}
+ */
+export function admitsView(
+  model,
+  view,
+  typefaces,
+  icons,
+  provenance = { state: "none", records: [] },
+) {
+  const boundaryName = model.repository?.name ?? model.title;
+  const made = sheet(
+    model,
+    [view],
+    { index: 0, count: 1 },
+    typefaces,
+    icons,
+    provenance,
+    boundaryName,
+  );
+  return { fits: made !== null, width: POSTER.width, height: POSTER.height };
 }

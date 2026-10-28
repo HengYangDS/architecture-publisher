@@ -7,6 +7,7 @@ import { acceptDelivery, publishDelivery } from "../packages/publisher/src/deliv
 import {
   BIG_BANK_MODEL,
   minimalModel,
+  pageModel,
   temporaryDirectory,
   writeModel,
 } from "./fixtures/models.mjs";
@@ -43,7 +44,8 @@ test("a delivery holds every poster, the map and a manifest of their digests", a
     ],
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
-  assert.equal(manifest.views[0].poster.crossings, 0);
+  assert.equal(manifest.views[0].poster, manifest.posters[0].id);
+  for (const poster of manifest.posters) assert.equal(poster.measures.crossings, 0, poster.id);
   assert.deepEqual(manifest.map, { checks: 9, profile: "showcase", crossings: 0, corridors: 0 });
   assert.equal(built.artifacts, 7);
   const second = path.join(root, "second");
@@ -73,14 +75,14 @@ test("a checkout whose origin is the model's repository links the map to its sou
   const { root: checkout, git, revision } = await repository(t);
   const url = "https://example.invalid/fixture.git";
   git("remote", "add", "origin", url);
+  const { components } = pageModel();
   const model = await writeModel(
-    minimalModel({
+    pageModel({
       repository: { name: "fixture", url, revision },
       sources: { main: { path: "src/main.mjs" } },
-      components: [
-        { id: "a", label: "Alpha", sources: ["main"] },
-        { id: "b", label: "Beta" },
-      ],
+      components: components.map((component, index) =>
+        index ? component : { ...component, sources: ["main"] },
+      ),
     }),
   );
   const out = path.join(await workspace(t), "linked");
@@ -96,7 +98,7 @@ test("a checkout whose origin is the model's repository links the map to its sou
 test("acceptance and publication require an unchanged delivery", async (t) => {
   const root = await workspace(t);
   const out = path.join(root, "delivery");
-  await buildDelivery(await writeModel(minimalModel()), out);
+  await buildDelivery(await writeModel(pageModel()), out);
   await assert.rejects(acceptDelivery(out, { reviewer: " " }), {
     code: "acceptance_reviewer_missing",
   });
@@ -153,7 +155,7 @@ test("deliveries need their own manifest, acceptance and plain files", async (t)
     code: "delivery_manifest_invalid",
   });
   const out = path.join(root, "delivery");
-  await buildDelivery(await writeModel(minimalModel()), out);
+  await buildDelivery(await writeModel(pageModel()), out);
   await fs.writeFile(
     path.join(out, "acceptance.json"),
     JSON.stringify({ manifest: "0".repeat(64) }),

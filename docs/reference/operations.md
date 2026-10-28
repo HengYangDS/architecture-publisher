@@ -150,7 +150,8 @@ refused view carry paths under `/views/<id>`.
 | `layout_row_too_wide`                                                                 | A tier holds more cards than a row can.                                    |
 | `layout_boundary_unplaced`                                                            | Outside components leave no room for the system boundary.                  |
 | `layout_channel_unroutable`, `layout_untidy`                                          | Relations between two rows cannot be drawn without an overlap.             |
-| `poster_summary_too_long`, `poster_legend_too_wide`                                   | The header or legend does not fit the poster.                              |
+| `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.          |
+| `poster_unfittable`                                                                   | A page cannot pass the balance gates; each problem names a measure.        |
 | `map_label_too_long`, `map_refused`                                                   | A label does not fit a map card, or Archify refused the map.               |
 | `map_layout_refused`                                                                  | The map cannot wire every relation of the model without an overlap.        |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.          |

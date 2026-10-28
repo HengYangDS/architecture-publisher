@@ -28,12 +28,33 @@ export async function loadTypefaces() {
   return loaded;
 }
 
+/**
+ * A word cut after each slash, hyphen, underscore, dot or colon, the places a
+ * long path or identifier may break. Each delimiter stays with the piece before it.
+ * @param {string} word
+ */
+export function softSegments(word) {
+  return word.match(/[^/\-_.:]+[/\-_.:]*|[/\-_.:]+/gu) ?? [word];
+}
+
 /** @param {Map<number, any>} faces */
 function createTypefaces(faces, supplySha256) {
   const face = (style) => faces.get(style.weight >= 600 ? 700 : 400);
 
+  // Shaping a string is the costliest step of a layout, and a composition
+  // measures the same words and lines thousands of times while it tries its
+  // candidates, so each advance is shaped once per face and size.
+  const advances = new Map();
   /** @param {string} text @param {TextStyle} style */
-  const measure = (text, style) => face(style).getAdvanceWidth(text, style.size, { kerning: true });
+  const measure = (text, style) => {
+    const key = `${style.weight >= 600 ? 700 : 400}\u0000${style.size}\u0000${text}`;
+    let width = advances.get(key);
+    if (width === undefined) {
+      width = face(style).getAdvanceWidth(text, style.size, { kerning: true });
+      advances.set(key, width);
+    }
+    return width;
+  };
 
   /** Characters the bundled faces cannot draw. @param {string} text */
   function missing(text) {
@@ -60,7 +81,12 @@ function createTypefaces(faces, supplySha256) {
     return lines;
   }
 
-  /** Words, with any word wider than the line split into pieces that fit. */
+  /**
+   * Words, with any word wider than the line split into pieces that fit. A
+   * long word breaks first after a slash, hyphen, underscore, dot or colon, so
+   * a path or an identifier breaks where a reader expects it to; only a piece
+   * still wider than the line is split between characters.
+   */
   function breakable(text, width, style) {
     return text
       .split(/\s+/u)
@@ -69,12 +95,24 @@ function createTypefaces(faces, supplySha256) {
         if (measure(word, style) <= width) return [word];
         const pieces = [];
         let piece = "";
-        for (const character of word) {
-          if (piece && measure(piece + character, style) > width) {
-            pieces.push(piece);
-            piece = "";
+        for (const segment of softSegments(word)) {
+          if (piece && measure(piece + segment, style) <= width) {
+            piece += segment;
+            continue;
           }
-          piece += character;
+          if (piece) pieces.push(piece);
+          piece = "";
+          if (measure(segment, style) <= width) {
+            piece = segment;
+            continue;
+          }
+          for (const character of segment) {
+            if (piece && measure(piece + character, style) > width) {
+              pieces.push(piece);
+              piece = "";
+            }
+            piece += character;
+          }
         }
         return piece ? [...pieces, piece] : pieces;
       });

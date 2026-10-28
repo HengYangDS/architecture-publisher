@@ -121,7 +121,25 @@ test("ink on one side moves the centroid toward it", () => {
 
 test("the largest empty rectangle is measured inside the live area only", () => {
   const grid = cells(40, 30, (column, row) => column === 0 || row === 0 || column === 39);
-  const measured = balanceOf(grid, { live: field(100, 100, 200, 100), figure: field(100, 100, 200, 100) });
+  const measured = balanceOf(grid, {
+    live: field(100, 100, 200, 100),
+    figure: field(100, 100, 200, 100),
+  });
   assert.deepEqual(measured.emptyRectangle, [100, 100, 200, 100]);
   assert.equal(measured.emptyShare, 1);
+});
+
+test("a rail of text beside a centred figure fills the page and keeps the figure centred", () => {
+  // Text in the left quarter of the page, a figure filling the right three quarters.
+  const grid = cells(40, 30, (column, row) =>
+    column < 10 ? row % 4 === 0 : (column + row) % 2 === 0,
+  );
+  const measured = balanceOf(grid, {
+    live: field(0, 0, 400, 300),
+    figure: field(100, 0, 300, 300),
+  });
+  // The fill reads the page, so the rail counts toward reaching its left edge…
+  assert.equal(measured.fill[0], 1);
+  // …and the centroid reads the figure's own frame, which the figure fills evenly.
+  assert.ok(Math.abs(measured.centroid[0]) < 0.05);
 });

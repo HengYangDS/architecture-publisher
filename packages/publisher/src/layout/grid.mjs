@@ -12,9 +12,11 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  * @typedef {{ width: number, height: number, lines: Array<{ text: string, role: "label" | "detail" }> }} LabelBox
  * @typedef {{
  *   contentWidth: (labelled: boolean) => number,
- *   card: { minWidth: number, maxWidth: number, height: (component: any, width: number) => number },
+ *   card: { minWidth: number, maxWidth: number, minimumHeight?: number,
+ *     height: (component: any, width: number) => number },
  *   label: (relation: any, maxWidth?: number) => LabelBox,
  *   external: (component: any) => boolean,
+ *   centring?: "all" | "inside",
  *   spacing: { column: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
  *     minJog: number, clear: number, minChannel: number, rowPad: number, boundaryPad: number,
@@ -26,15 +28,17 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
 const PORT_GAPS = [null, 64, 96, 140];
 
 /**
+ * Placement of one set of rows on the grid: the expensive half of a layout, and
+ * the half that does not depend on card height or channel depth, so a
+ * composition that tries several card heights pays for it once.
  * @param {import("../plan/views.mjs").View} view
+ * @param {import("./rows.mjs").Row[]} rows
  * @param {Metrics} metrics
- * @param {{ boundaryName?: string | null }} [options]
  */
-export function layoutView(view, metrics, options = {}) {
+export function placementOf(view, rows, metrics) {
   const { spacing } = metrics;
   const components = new Map(view.components.map((component) => [component.id, component]));
   const external = (id) => metrics.external(components.get(id));
-  const rows = viewRows(view, ROW_LIMIT, external);
   const labelled = rows.some(({ label }) => label);
   const contentWidth = metrics.contentWidth(labelled);
   const placement = placeRows({
@@ -42,6 +46,7 @@ export function layoutView(view, metrics, options = {}) {
     relations: view.relations.filter(({ from, to }) => from !== to),
     order: new Map(view.components.map(({ id }, index) => [id, index])),
     external,
+    // A row beside the row-label column holds one card fewer.
     rowLimit: labelled ? ROW_LIMIT - 1 : ROW_LIMIT,
     contentWidth,
     card: metrics.card,
@@ -49,9 +54,29 @@ export function layoutView(view, metrics, options = {}) {
     inset: spacing.inset,
     clearance: spacing.clear,
     labelWidth: (relation, maxWidth) => metrics.label(relation, maxWidth).width,
+    centring: metrics.centring ?? null,
   });
+  return { ...placement, labelled, contentWidth };
+}
+
+/**
+ * @param {import("../plan/views.mjs").View} view
+ * @param {Metrics} metrics
+ * @param {{ boundaryName?: string | null, rows?: import("./rows.mjs").Row[],
+ *   placement?: ReturnType<typeof placementOf> }} [options]
+ */
+export function layoutView(view, metrics, options = {}) {
+  const { spacing } = metrics;
+  const components = new Map(view.components.map((component) => [component.id, component]));
+  const external = (id) => metrics.external(components.get(id));
+  const rows = options.rows ?? viewRows(view, ROW_LIMIT, external);
+  const placement = options.placement ?? placementOf(view, rows, metrics);
+  const { labelled, contentWidth } = placement;
   const { width: cardWidth, pitch, interval } = placement;
+  // A medium may ask its cards to carry the page's vertical fill: they grow to a
+  // common height, and their content is set inside that height.
   const cardHeight = Math.max(
+    metrics.card.minimumHeight ?? 0,
     ...view.components.map((component) => metrics.card.height(component, cardWidth)),
   );
   const used = [...placement.position.values()];
@@ -94,6 +119,7 @@ export function layoutView(view, metrics, options = {}) {
     box,
     cardWidth,
     cardHeight,
+    contentWidth,
     columns: placement.columns,
     pitch,
     gridLeft,

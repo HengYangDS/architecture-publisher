@@ -1,3 +1,4 @@
+import { refuse } from "../refusal.mjs";
 /**
  * Wires between rows. Each channel between row g and row g + 1 holds, from top
  * to bottom: a stub, an upper band of horizontal tracks, label rows, a lower
@@ -17,7 +18,7 @@
 /**
  * Build every wire, its ends and the card sides they use.
  * @param {{ order: string[][], classes: any, box: Map<string, { x: number, cx: number }>, cardWidth: number,
- *   cardHeight: number, columns: number, pitch: number, gridLeft: number, slots: number,
+ *   cardHeight: number, contentWidth: number, columns: number, pitch: number, gridLeft: number, slots: number,
  *   frame: [number, number] | null, spacing: any, label: (relation: any, maxWidth?: number) => LabelBox }} input
  */
 export function buildWires(input) {
@@ -141,9 +142,15 @@ export function buildWires(input) {
   return { channels, wires, sides, straights, passages };
 }
 
-/** A column gap or empty cell free in every row a long relation passes; each is used once per row range. */
+/**
+ * A column gap, empty cell or lane beside the boundary that is free in every
+ * row a long relation passes; each is used once per row range. A corridor lies
+ * inside the content width: the lattice is centred on the columns its cards
+ * use, so a gap past its last used column can fall outside the figure, and a
+ * wire there runs off the page.
+ */
 function corridor(input, first, last, x1, x2, taken) {
-  const { gridLeft, pitch, columns, slots, cardWidth, box, order, frame } = input;
+  const { gridLeft, pitch, columns, slots, cardWidth, box, order, frame, spacing } = input;
   const gap = pitch - cardWidth;
   const candidates = [];
   for (let column = -1; column <= columns; column += 1)
@@ -151,7 +158,12 @@ function corridor(input, first, last, x1, x2, taken) {
       candidates.push(gridLeft + column * pitch - gap / 2 + offset);
   for (let position = 0; position < slots; position += 1)
     candidates.push(gridLeft + (position / 2) * pitch + cardWidth / 2);
+  // A lane just outside the boundary, as far from its edge as a card inside it.
+  if (frame)
+    candidates.push(frame[0] - spacing.boundaryPad - 8, frame[1] + spacing.boundaryPad + 8);
+  const inside = (x) => x >= spacing.clear && x <= input.contentWidth - spacing.clear;
   const free = (x) =>
+    inside(x) &&
     order
       .slice(first + 1, last)
       .every((row) =>
@@ -167,6 +179,12 @@ function corridor(input, first, last, x1, x2, taken) {
     (Math.abs(x - x1) > 0.5 ? 120 : 0) +
     (Math.abs(x - x2) > 0.5 ? 120 : 0);
   const chosen = candidates.filter(free).sort((a, b) => cost(a) - cost(b) || a - b)[0];
+  if (chosen === undefined)
+    refuse(
+      "layout_channel_unroutable",
+      `A relation from row ${first + 1} to row ${last + 1} has no free corridor inside the figure. ` +
+        "Reorder the tiers or split the view.",
+    );
   taken.push({ x: chosen, first, last });
   return chosen;
 }

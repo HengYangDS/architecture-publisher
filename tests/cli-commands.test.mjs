@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { USAGE, runCli } from "../packages/publisher/src/cli/run.mjs";
-import { minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
+import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 
 const MAIN = fileURLToPath(new URL("../packages/publisher/src/cli/main.mjs", import.meta.url));
 const SHOP = fileURLToPath(new URL("./fixtures/likec4/shop/", import.meta.url));
@@ -52,14 +52,14 @@ test("refusals exit with status 1 and list each problem", async () => {
 test("check, build, accept, publish and import run end to end", async (t) => {
   const root = await temporaryDirectory("archpub-cli-");
   t.after(() => fs.rm(root, { recursive: true, force: true }));
-  const model = await writeModel(minimalModel());
+  const model = await writeModel(pageModel());
   const checked = await json(["check", model]);
   assert.equal(checked.exitCode, 0);
   assert.equal(checked.body.ok, true);
-  assert.equal(checked.body.model.id, "minimal");
+  assert.equal(checked.body.model.id, "page");
   assert.match(
     (await runCli(["check", model])).output,
-    /^minimal: 1 views admitted; sources none\.\n$/u,
+    /^page: 1 views admitted; sources none\.\n$/u,
   );
 
   const out = path.join(root, "delivery");
@@ -104,7 +104,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
 });
 
 test("the archpub executable prints one result and sets its exit status", async () => {
-  const model = await writeModel(minimalModel());
+  const model = await writeModel(pageModel());
   const passed = spawnSync(process.execPath, [MAIN, "check", model, "--json"], {
     encoding: "utf8",
   });

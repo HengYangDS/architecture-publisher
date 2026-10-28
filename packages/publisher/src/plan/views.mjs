@@ -228,9 +228,9 @@ function unadmitted(view, measured, remedy) {
 /** @param {View} view @param {Measurement} measured @param {string} remedy */
 function oversized(view, measured, remedy) {
   return (
-    `View ${view.id} measures ${measured.width} × ${measured.height} px with ` +
-    `${view.components.length} components and ${view.relations.length} relations; ` +
-    `the frame is 1800 × 1350 px. ${remedy}`
+    `View ${view.id} with ${view.components.length} components and ` +
+    `${view.relations.length} relations cannot be laid out on a ` +
+    `${measured.width} × ${measured.height} px page. ${remedy}`
   );
 }
 

@@ -26,13 +26,23 @@ const COST = Object.freeze({
 });
 
 /**
+ * What each further row costs when a medium asks for a flat figure. It weighs
+ * more than a relation within one row, so a chain of single cards is drawn
+ * along one row instead of down a column of its own, and less than a card
+ * with a third neighbour in its row, so a hub keeps its fan below it.
+ */
+const FLAT_ROW = 8;
+
+/**
  * @param {{ tiers: Array<{ id: string, label: string, members: string[] }> | null,
  *   components: Array<{ id: string }>, relations: Array<{ from: string, to: string }> }} view
  * @param {number} [limit] the most components one derived row holds
  * @param {(id: string) => boolean} [outside] components drawn outside the system boundary
+ * @param {{ flat?: boolean }} [options] `flat` asks for fewer, fuller rows: a
+ *   wide page fills better with a chain drawn along a row than down a column
  * @returns {Row[]}
  */
-export function viewRows(view, limit = ROW_LIMIT, outside = () => false) {
+export function viewRows(view, limit = ROW_LIMIT, outside = () => false, options = {}) {
   const shown = new Set(view.components.map(({ id }) => id));
   if (view.tiers)
     return view.tiers.map(({ id, label, members }) => ({
@@ -41,7 +51,7 @@ export function viewRows(view, limit = ROW_LIMIT, outside = () => false) {
       members: members.filter((m) => shown.has(m)),
     }));
   const members = view.components.map(({ id }) => id);
-  const level = layers(members, view.relations, limit, outside);
+  const level = layers(members, view.relations, limit, outside, options.flat ? FLAT_ROW : COST.row);
   const depth = Math.max(...level.values()) + 1;
   return Array.from({ length: depth }, (_, index) => ({
     id: `row-${index + 1}`,
@@ -95,7 +105,7 @@ function backRelations(members, relations) {
  * order, so the result is deterministic.
  * @returns {Map<string, number>}
  */
-function layers(members, relations, limit, outside) {
+function layers(members, relations, limit, outside, rowCost) {
   const local = relations.filter(({ from, to }) => from !== to);
   const back = backRelations(members, local);
   // Each relation as an edge from the component drawn above to the one below or beside it.
@@ -178,7 +188,7 @@ function layers(members, relations, limit, outside) {
     const rows = Array.from({ length: depth }, () => ({ inside: 0, outside: 0 }));
     for (const id of members) rows[at(level, id)][outside(id) ? "outside" : "inside"] += 1;
     const widest = Math.max(...rows.map(({ inside }) => inside));
-    let total = (depth - 1) * COST.row;
+    let total = (depth - 1) * rowCost;
     for (const row of rows) {
       total += Math.max(0, row.inside + row.outside - limit) * COST.overflow;
       if (row.inside && row.outside)

@@ -5,16 +5,18 @@ import { loadIcons } from "./icons.mjs";
 import { deliverMap, mapDocument } from "./map/archify.mjs";
 import { loadModel } from "./model/load.mjs";
 import { planViews } from "./plan/views.mjs";
-import { composePoster } from "./poster/compose.mjs";
+import { admitsView, composePosters } from "./poster/compose.mjs";
 import { rasterize } from "./poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
+import { POSTER } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
 import { bindSources, matchingOrigin } from "./sources/bind.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 1;
-const PNG_WIDTHS = Object.freeze([1800, 6000]);
+const DELIVERY_VERSION = 2;
+/** The poster's own width and a large print width; the first is the default PNG. */
+const PNG_WIDTHS = Object.freeze([POSTER.width, 6000]);
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 /** The publisher's own version, recorded in every manifest. */
@@ -66,18 +68,18 @@ async function prepare(modelPath, options = {}) {
   const repo = options.repo ?? null;
   const binding = bindSources(model, repo);
   const origin = repo ? matchingOrigin(model, repo) !== null : false;
-  const views = await planViews(model, async (view) => {
-    const poster = composePoster(model, view, { index: 0, count: 1 }, typefaces, icons, binding);
-    return { fits: poster.fits, width: poster.required.width, height: poster.required.height };
-  });
-  const posters = views.map((view, index) =>
-    composePoster(model, view, { index, count: views.length }, typefaces, icons, binding),
+  const views = await planViews(model, async (view) =>
+    admitsView(model, view, typefaces, icons, binding),
   );
+  // Pages are composed for the edition as a whole: a sparse view shares a page
+  // with its neighbour, so a poster is a page, not a view.
+  const posters = composePosters(model, views, typefaces, icons, binding);
   const map = mapDocument(model, views, { ...binding, origin });
   return { loaded, model, binding, origin, views, posters, map, icons, typefaces };
 }
 
-function viewSummary(view, poster) {
+function viewSummary(view, posters) {
+  const page = posters.findIndex((poster) => poster.views.includes(view.id));
   return {
     id: view.id,
     title: view.title,
@@ -86,12 +88,17 @@ function viewSummary(view, poster) {
     tiers: view.tiers?.map(({ id }) => id) ?? null,
     components: view.components.map(({ id }) => id),
     relations: view.relations.map(({ id }) => id),
-    poster: {
-      scale: poster.scale,
-      requiredHeight: poster.required.height,
-      crossings: poster.measures.crossings,
-      bends: poster.measures.bends,
-    },
+    poster: page >= 0 ? posters[page].view : null,
+  };
+}
+
+/** One page's composition and the measures it passed, for the manifest. */
+function posterSummary(poster) {
+  return {
+    id: poster.view,
+    views: poster.views,
+    composition: poster.composition,
+    measures: poster.measures,
   };
 }
 
@@ -105,7 +112,8 @@ export async function checkModel(modelPath, options = {}) {
   return {
     model: { id: prepared.model.id, sha256: prepared.loaded.sha256 },
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
-    views: prepared.views.map((view, index) => viewSummary(view, prepared.posters[index])),
+    views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
+    posters: prepared.posters.map(posterSummary),
   };
 }
 
@@ -156,7 +164,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
     for (const poster of prepared.posters) {
       await fs.writeFile(path.join(staging, `${poster.view}.svg`), poster.svg);
       for (const width of PNG_WIDTHS) {
-        const name = width === 1800 ? `${poster.view}.png` : `${poster.view}-${width}.png`;
+        const name = width === POSTER.width ? `${poster.view}.png` : `${poster.view}-${width}.png`;
         await fs.writeFile(
           path.join(staging, name),
           await rasterize(poster.svg, width, poster.height, poster.width),
@@ -187,7 +195,8 @@ export async function buildDelivery(modelPath, out, options = {}) {
         resvg: resvg.sha256,
         archify: map.supplySha256,
       },
-      views: prepared.views.map((view, index) => viewSummary(view, prepared.posters[index])),
+      views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
+      posters: prepared.posters.map(posterSummary),
       map: {
         checks: map.receipt.checks,
         profile: map.receipt.profile,

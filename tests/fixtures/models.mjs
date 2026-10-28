@@ -27,6 +27,40 @@ export function minimalModel(extra = {}) {
   };
 }
 
+/**
+ * A small model that fills one balanced page: two front ends over one API, a
+ * queue and its worker, and the store both write. A model of two components
+ * cannot fill a 16:9 page, so builds and commands that need a delivery use this.
+ */
+export function pageModel(extra = {}) {
+  const relation = ([from, to, label], index) => ({ id: `r${index + 1}`, from, to, label });
+  return minimalModel({
+    id: "page",
+    title: "Page",
+    question: "How does a request reach its store?",
+    components: [
+      { id: "client", label: "Client" },
+      { id: "web", label: "Web front end" },
+      { id: "mobile", label: "Mobile app" },
+      { id: "api", label: "API" },
+      { id: "worker", label: "Worker" },
+      { id: "db", label: "Database" },
+      { id: "queue", label: "Queue" },
+    ],
+    relations: [
+      ["client", "web", "uses"],
+      ["client", "mobile", "uses"],
+      ["web", "api", "calls"],
+      ["mobile", "api", "calls"],
+      ["api", "db", "reads and writes"],
+      ["api", "queue", "enqueues"],
+      ["queue", "worker", "delivers"],
+      ["worker", "db", "writes"],
+    ].map(relation),
+    ...extra,
+  });
+}
+
 /** A chain or graph of components named c1..cN with the given relations. */
 export function graphModel(count, edges, extra = {}) {
   return minimalModel({

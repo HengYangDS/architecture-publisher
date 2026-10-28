@@ -19,6 +19,14 @@ const WEIGHT = Object.freeze({
   spareColumn: 1.5,
   boundarySpan: 0.05,
   corridor: 0.6,
+  /**
+   * A row sits nearer the lattice's centre. Without this a short row is free to
+   * take the leftmost slot that wires well, so a figure of 3/1/2/2/4 rows leaves
+   * its ink mass left of centre even though it fills the field edge to edge.
+   * It outweighs one bend (2.5) and stays under one crossing (25): a row moves
+   * to the centre rather than bend a wire, but not rather than cross one.
+   */
+  rowCentre: 4,
 });
 const bend = (distance) => (distance === 0 ? 0 : distance === 1 ? 2.5 : 5 + 0.6 * distance);
 
@@ -133,8 +141,11 @@ function placements(count, slots, compact) {
  * Choose row orders and positions with the minimum cost.
  * @param {{ rows: string[][], relations: any[], order: Map<string, number>,
  *   external: (id: string) => boolean, rowLimit: number, contentWidth: number,
- *   card: { minWidth: number, maxWidth: number }, columnGap: number, inset: number,
- *   clearance: number, labelWidth: (relation: any, maxWidth: number) => number }} input
+ *   card: { minWidth: number, maxWidth: number,
+ *     minimumHeight?: number }, columnGap: number, inset: number,
+ *   clearance: number, labelWidth: (relation: any, maxWidth: number) => number,
+ *   centring?: "all" | "inside" | null }} input `centring` takes a row's centre over
+ *   all its cards, or over only those inside the boundary.
  */
 export function placeRows(input) {
   const { rows } = input;
@@ -195,7 +206,7 @@ function placeOnLattice(input, relations, columns, optional) {
     if (optional) return null;
     states = statesFor(input.rows, slots, true);
   }
-  const cost = costModel(input, relations, width, pitch);
+  const cost = costModel(input, relations, width, pitch, slots);
   const unary = states.map((list, row) => list.map((state) => cost.unary(row, state)));
   const pairs = [];
   for (let row = 0; row + 1 < states.length; row += 1) {
@@ -345,8 +356,10 @@ function viterbi(states, unary, pairs, allowed, extra) {
   return { chosen, cost: total };
 }
 
-function costModel(input, relations, width, pitch) {
+function costModel(input, relations, width, pitch, slots) {
   const sameByRow = new Map();
+  // Half-column positions run 0..slots-1, so the lattice's centre is their mean.
+  const centre = (slots - 1) / 2;
   for (const relation of relations.sameRow) {
     const row = relations.rowOf.get(relation.from);
     sameByRow.set(row, [...(sameByRow.get(row) ?? []), relation]);
@@ -358,6 +371,18 @@ function costModel(input, relations, width, pitch) {
       for (let j = i + 1; j < order.length; j += 1)
         if (input.order.get(order[i]) > input.order.get(order[j])) cost += WEIGHT.order;
     for (const value of position.values()) if (value % 2) cost += WEIGHT.halfColumn;
+    // A row's span centres on the lattice, so the figure's mass sits where the
+    // field's centre is rather than at its left edge. `centring` names which of
+    // the row's cards the span is taken over: all of them, or only those inside
+    // the boundary, which leaves an outside card where the boundary puts it. A
+    // medium that does not ask for centring — the map, whose own renderer
+    // composes the page — keeps the placement that wires best.
+    if (input.centring) {
+      const inside =
+        input.centring === "inside" ? order.filter((id) => !input.external(id)) : order;
+      const values = (inside.length ? inside : order).map((id) => position.get(id));
+      cost += WEIGHT.rowCentre * Math.abs((Math.min(...values) + Math.max(...values)) / 2 - centre);
+    }
     for (const relation of sameByRow.get(row) ?? []) {
       const neighbors = Math.abs(order.indexOf(relation.from) - order.indexOf(relation.to)) === 1;
       const gap =

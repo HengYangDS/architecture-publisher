@@ -244,30 +244,91 @@ The poster is now composed format first:
   chosen by the user. Content never changes it; a view that cannot be composed
   in it is refused.
 - **Grid.** Design tokens own an 8 px unit, twelve columns between fixed
-  margins, a baseline and a type scale (14, 16, 20, 24, 32 and 48 px). Every
-  block starts on a column line and a baseline; text keeps a measure of at
-  most 80 characters. Two archetypes share the grid: a masthead (header band,
-  legend at its right, figure across twelve columns) and a sidebar (title,
-  question, summary, legend and notes in the left columns, figure over the
-  full height of the rest).
+  margins, a baseline and a type scale (14, 16, 18, 20, 24, 28, 32 and 48 px).
+  Every block starts on a column line and a baseline; text keeps a measure of
+  at most 80 characters. Three archetypes share the grid: a masthead (head,
+  summary and legend across the top, figure across twelve columns), a sidebar
+  (all text in the left columns, figure over the full height of the rest) and,
+  for a page of one view, a corner page (figure across the full width, head,
+  summary and legend set in the corners it leaves free).
 - **Solver.** For each view the publisher enumerates archetype, a row wrapping
   that splits a wide tier into consecutive rows of one band, and a figure type
-  step (1.0, 1.15, 1.25 or 1.4, each size rounded to the scale). It lays out
-  every candidate with the grid engine, then justifies it to the field: the
-  remaining width widens column gaps and the remaining height deepens row
-  channels, each within a token bound, instead of scaling the figure. Among
-  candidates that pass the gates it takes the one with the lowest cost, which
-  is the empty-rectangle share, then the centroid offset, then the step away
-  from 1.0. The candidate set is finite and ordered, so the choice is
-  deterministic.
+  step (card labels at 18, 20 or 24 px with details and relation labels at 14,
+  16 or 18 px, so no size grows past 1.4 times its densest step). It lays out
+  every candidate with the grid engine, then justifies it to the field: cards
+  take the remaining height within their aspect and row channels deepen within
+  a token bound, instead of scaling the figure. Among candidates that pass the
+  gates it takes the one with the lowest cost, which is the empty-rectangle
+  share, then the centroid offset. The candidate set is finite and ordered, so
+  the choice is deterministic.
 - **Gates.** The same measures decide and verify: balance (largest empty
-  rectangle at most 12 percent of the live area, ink in every ninth of the
-  figure field, centroid within 6 percent of the field centre), type (scale
-  sizes only, 14 px floor, measure, no broken label) and line (two bends, or
-  four for a relation that skips rows; 16 px segments; no wire across a card
-  or label). Balance is checked again on the rendered 2400 px raster. A view
-  with no passing candidate is refused with every failing measure and its
-  limit.
+  rectangle at most 12 percent of the live area, reach of at least 90 percent
+  of its width and height, centroid within 6 percent of the figure fields'
+  centre), type (scale sizes only, 14 px floor, measure, no broken label) and
+  line (two bends, or four for a relation that skips rows; 16 px segments; no
+  wire across a card or label). The emptiest ninths of the figure field are
+  recorded but not gated: a tree's corners are empty by its shape, and the
+  corner page fills them with text instead. A page with no passing candidate is
+  refused with every failing measure and its limit.
+
+Composing the AIGW, self and ETHOS views against these gates showed that one
+view per page cannot work for every view: a view of three to five components
+has a natural figure of 300 to 450 px, a third of the page, and no
+justification within the token bounds fills the rest. The page, not the view,
+became the unit:
+
+- **Pages of plates.** A page carries one to three consecutive views as plates,
+  each with its question as a heading. The grouping is chosen for the whole
+  edition by an exact search over consecutive groupings, maximising pages that
+  pass every gate, then fewer pages, then the smallest empty share; a greedy
+  packer stranded the last sparse view alone.
+- **Bands from natural heights.** Each plate's band is its figure's natural
+  height at the densest step plus a share of the surplus in proportion to it.
+  Equal bands overflowed the tall plate and left the short one blank.
+- **Cards carry vertical fill.** Within its band a figure's cards grow to take
+  the slack, capped by the card height token and by a card aspect of 2.6, and
+  only then do the channels deepen. A card wider than five times its height
+  after growing is a strip and its wrapping is rejected; a label that would
+  break inside a word rejects its wrapping too.
+- **Rail and masthead.** The sidebar rail is three or four columns and spaces
+  its blocks, including the notes, over the full height, because a rail of
+  500 px of text against 1222 px of column left the void the gates measure.
+  The masthead splits its twelve columns among head, summary and legend, and
+  sets the legend in up to three sub-columns, choosing the shallowest band and
+  then the most level columns: a fixed five-three-four split left a legend
+  column taller than the title beside it, and the paper under the title was
+  the largest blank on the page.
+- **Text set with the figure.** Composing models of unrelated repositories
+  showed that a tree, narrow at its root and wide at its leaves, fails in every
+  band-based archetype: the paper beside its narrow rows is the largest blank,
+  and its ink sits low. The corner page draws such a figure across the full
+  width and only then sets the head at the top-left corner and the summary and
+  legend in whichever corners and widths leave the page least empty, each 40 px
+  clear of every card, wire and label and 24 px clear of the boundary frame.
+  The page tries its plate's compositions best first, because the figure that
+  fills its band most can leave no corner for the head, and it may reserve a
+  strip above the figure for the head when the figure's first row fills its
+  boundary. The tier-label column is as wide as its widest label, not a fixed
+  280 px, and no text is cut to fit: a width that cannot hold a title,
+  question, summary, legend entry or plate heading is not used.
+- **Larger type where cards are hollow.** Cards take a band's slack at every
+  type step, so the fill measure ties across steps and the old tie-break, the
+  smaller step, set 18 px labels in 700 px cards. Among compositions within two
+  percent of the fullest the larger step now wins. Card text never breaks
+  between two letters; a detail path breaks after a slash or hyphen.
+- **Ink-centred figures and contained wires.** The layout centres the span of
+  its cards, which leaves a figure with off-centre single-card rows heavy to one
+  side; the drawn figure moves just far enough to bring its ink within 2.5
+  percent of the centre line. A long relation's corridor could fall past the
+  last used column and run off the page; corridors are now bounded by the
+  content width, and a plate that draws anything outside its field is
+  rejected.
+- **Centred rows and measured regions.** Placement carries a row-centring cost
+  above one bend and below one crossing, taken over all of a row's cards or
+  only those inside the boundary, and the page tries both. The empty rectangle
+  and the reach are measured over the whole page; the centroid over the
+  figures' own fields, so a rail of text beside a centred figure is not read as
+  an off-centre figure.
 
 The figure keeps decision 6's equal cards and channels; the poster draws
 card labels at 24 px and details, relation labels, legend and notes at 16 px

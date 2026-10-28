@@ -156,7 +156,9 @@ test("planning refuses oversized views it cannot split", async () => {
     (error) =>
       error.code === "plan_not_admitted" &&
       error.problems[0].path === "/views/v" &&
-      /1800 × 1600 px with 2 components and 1 relations/u.test(error.problems[0].message),
+      /2 components and 1 relations cannot be laid out on a 1800 × 1600 px page/u.test(
+        error.problems[0].message,
+      ),
   );
 });
 
