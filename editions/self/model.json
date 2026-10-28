@@ -13,7 +13,7 @@
   "repository": {
     "name": "architecture-publisher",
     "url": "https://github.com/HengYangDS/architecture-publisher",
-    "revision": "19e16c4565e1ab4a5d308e860db24fc63d6e4946"
+    "revision": "2cbf48e5d9fa40e88e2a6b74d8fb4b25d04f47b8"
   },
   "kinds": {
     "person": {
@@ -141,7 +141,7 @@
     },
     "explainer": {
       "path": "packages/publisher/src/map/explainer.mjs",
-      "sha256": "9e0762af53de3ad4df69edcc40e9846eebb8966ce5a76b8eef0cd42bd6ca0e8c"
+      "sha256": "a69930c6ddb87588d6fdb150d08c0ed64e3d6cbc6cf2c3e13519e70911ed6cde"
     },
     "map": {
       "path": "packages/publisher/src/map/archify.mjs",
