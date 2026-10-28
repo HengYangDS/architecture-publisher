@@ -70,8 +70,9 @@ through the channels between rows as buses, corridors and straight arrows.
 
 The layout refuses rather than draws overlaps. A diagonal segment, a segment
 shared by different relations, a wire through a card or a label touching a card,
-another label or another wire refuses the view. Crossings that the relations
-force are allowed and counted in the manifest.
+another label or another wire refuses the view. Each channel takes the routing
+with the fewest crossings, even when that needs another label row. Crossings
+that the relations force are allowed and counted in the manifest.
 
 Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
 one to three consecutive views as plates, in bands of one or more plates under

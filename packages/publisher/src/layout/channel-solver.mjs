@@ -9,7 +9,7 @@ import { permutations } from "./permutations.mjs";
  */
 
 const SEARCH_BUDGET = 60_000;
-const MAXIMUM_LABEL_ROWS = 3;
+export const MAXIMUM_LABEL_ROWS = 3;
 
 /** Label centers along a horizontal: its middle and the middles of free gaps between verticals. */
 function slides(channel, made, low, high, own, spacing) {
@@ -347,9 +347,10 @@ function rowCrossings(chosen, rows) {
 
 /**
  * Solve one channel exactly within a search budget: the clean assignment with
- * the fewest label rows, tracks and crossings. Returns null when none exists.
+ * the fewest label rows from `minimumRows`, then the fewest tracks and
+ * crossings. Returns null when none exists.
  */
-export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS) {
+export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS, minimumRows = 1) {
   const wires = channel.wires;
   const choices = wires.map((made) => options(channel, made, spacing));
   // Many assignments differ only in label positions, so band tracks are solved once per band content.
@@ -359,7 +360,7 @@ export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS)
     if (!solved.has(key)) solved.set(key, assignTracks(spans, crossers));
     return solved.get(key);
   };
-  for (let rows = 1; rows <= maximumRows; rows += 1) {
+  for (let rows = minimumRows; rows <= maximumRows; rows += 1) {
     /** @type {any} */
     let best = null;
     let visited = 0;
@@ -383,12 +384,18 @@ export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS)
         const up = tracksFor(upper, crossers("upper"));
         const low = tracksFor(lower, crossers("lower"));
         if (!up || !low) return;
-        const score =
-          preference +
-          (up.tracks + low.tracks) * 3 +
-          (up.crossings + low.crossings + rowCrossings(chosen, rows)) * 10;
+        const crossings = up.crossings + low.crossings + rowCrossings(chosen, rows);
+        const score = preference + (up.tracks + low.tracks) * 3 + crossings * 10;
         if (!best || score < best.score)
-          best = { score, chosen: chosen.map(([i, option]) => [i, option]), upper, lower, up, low };
+          best = {
+            score,
+            crossings,
+            chosen: chosen.map(([i, option]) => [i, option]),
+            upper,
+            lower,
+            up,
+            low,
+          };
         return;
       }
       for (const option of choices[index]) {
@@ -438,7 +445,7 @@ function finish(channel, best, rows, spacing) {
   return {
     combo,
     score: best.score,
-    crossings: best.up.crossings + best.low.crossings,
+    crossings: best.crossings,
     labelHeights,
     rowsHeight,
     upperHeight,

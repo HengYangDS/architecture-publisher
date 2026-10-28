@@ -157,6 +157,34 @@ test("upward relations, two-hub buses and long labels lay out tidily", () => {
   assertTidy(long);
 });
 
+test("two relations into one card take a second label row rather than cross", () => {
+  // Centred rows set c3 and c4 over the middle of the five cards below, so
+  // "validates" and "loads" both travel left to c5, whose ports leave no room
+  // for both labels in one row beside them.
+  const model = validateModel(
+    graphModel(10, [
+      [1, 2, "runs"],
+      [2, 3, "import likec4"],
+      [2, 4, "build, check"],
+      [3, 5, "validates"],
+      [4, 5, "loads"],
+      [4, 6, "plans views"],
+      [4, 7, "binds sources"],
+      [4, 8, "composes posters"],
+      [4, 9, "maps the model"],
+      [7, 10, "reads at the revision"],
+    ]),
+  );
+  const made = layoutView(
+    wholeView(model, [["c1"], ["c2"], ["c3", "c4"], ["c5", "c6", "c7", "c8", "c9"], ["c10"]]),
+    { ...simpleMetrics(model), centring: "all" },
+    { boundaryName: "System" },
+  );
+  assertTidy(made);
+  assert.equal(made.measures.crossings, 0);
+  assert.equal(made.channels[2].labelRows.length, 2);
+});
+
 test("a tier of seven cards is refused with the row and its members", () => {
   assert.throws(
     () =>

@@ -194,8 +194,8 @@ width bounds, text measurement, label sizes and spacing.
   (on the jog, beside the source or beside the target), up to three label
   rows and every track order are tried, and the clean solution with the fewest
   tracks, crossings and label rows wins. Ports on a card side are spread
-  symmetrically in the order of their far ends; wider spacing is tried only
-  when the default has no clean solution.
+  symmetrically in the order of their far ends, and wider spacings are tried
+  as well.
 - **Bounds.** A row holds at most six cards, or five beside row labels. A
   wider row, or a channel without a clean solution, refuses the view with the
   row or channel and its relations, and asks for more tiers or views.
@@ -360,6 +360,15 @@ became the unit:
   and the reach are measured over the whole page; the centroid over the
   figures' own fields, so a rail of text beside a centred figure is not read as
   an off-centre figure.
+- **Crossings before height.** Reviewing the pages for acceptance found wires
+  crossing on two that measured clean otherwise. A channel took its fewest
+  label rows first, so two relations into one card whose labels did not fit
+  side by side crossed rather than take a second row; a channel now takes the
+  fewest crossings over every port spacing and label row, then the lowest. And
+  placement weighs only the wires between neighbouring rows, so centring could
+  turn a relation that skips rows across the wires above its target; when a
+  page's best candidate still crosses, its plates are also laid out uncentred
+  and the page is chosen from both.
 
 The figure keeps decision 6's lattice and channels. Relation labels use a
 lighter ink than card labels, and

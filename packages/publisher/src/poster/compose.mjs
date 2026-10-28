@@ -123,14 +123,29 @@ function sheet(model, views, position, typefaces, icons, provenance, boundaryNam
   );
   /** @type {Array<"all" | "inside">} */
   const centrings = outside ? ["all", "inside"] : ["all"];
+  const context = { model, typefaces, icons, boundaryName };
+  const chosen = () => {
+    const passing = candidates.filter(({ fails }) => fails.length === 0);
+    return candidates.length ? best(passing.length ? passing : candidates) : null;
+  };
   for (const skeleton of skeletons)
     for (const centring of centrings) {
-      const made = candidate(input, skeleton, centring, { model, typefaces, icons, boundaryName });
+      const made = candidate(input, skeleton, centring, context);
       if (made) candidates.push({ ...made, views, position });
     }
-  if (!candidates.length) return null;
-  const passing = candidates.filter(({ fails }) => fails.length === 0);
-  return best(passing.length ? passing : candidates);
+  // Centring a row may move it rather than bend a wire, never rather than
+  // cross one, and placement weighs it so. But placement sees only the wires
+  // between neighbouring rows: a relation that skips rows turns in the last
+  // channel it enters and can cross wires placement never weighed. When the
+  // best page still crosses, its plates are laid out uncentred as well, and the
+  // page is chosen again from what both measure.
+  const first = chosen();
+  if (first && crossingsOf(first) > 0)
+    for (const skeleton of skeletons) {
+      const made = candidate(input, skeleton, null, context);
+      if (made) candidates.push({ ...made, views, position });
+    }
+  return chosen();
 }
 
 /**
@@ -139,7 +154,7 @@ function sheet(model, views, position, typefaces, icons, provenance, boundaryNam
  * @param {any} input
  * @param {{ archetype: "stack" | "column" | "corner", rail?: number, reserve?: boolean,
  *   notes?: boolean, bands?: number[] }} skeleton
- * @param {"all" | "inside"} centring
+ * @param {"all" | "inside" | null} centring null lays the rows out uncentred
  * @param {any} context
  */
 function candidate(input, skeleton, centring, context) {
@@ -377,13 +392,16 @@ function gateFailures(balance) {
   return fails;
 }
 
+/** Wires that cross on one page, over all its plates. */
+function crossingsOf(page) {
+  return page.made.reduce((sum, one) => sum + one.layout.measures.crossings, 0);
+}
+
 /** The best of a set: fewest crossings, least empty, then nearest the center, then fewest plates. */
 function best(list) {
-  const crossings = (made) =>
-    made.made.reduce((sum, one) => sum + one.layout.measures.crossings, 0);
   return [...list].sort(
     (a, b) =>
-      crossings(a) - crossings(b) ||
+      crossingsOf(a) - crossingsOf(b) ||
       a.balance.emptyShare - b.balance.emptyShare ||
       Math.hypot(...a.balance.centroid) - Math.hypot(...b.balance.centroid) ||
       a.views.length - b.views.length,
@@ -460,7 +478,7 @@ function renderSheet(model, typefaces, icons, chosen) {
     position: chosen.position,
     composition: chosen.composition,
     measures: {
-      crossings: made.reduce((sum, one) => sum + one.layout.measures.crossings, 0),
+      crossings: crossingsOf(chosen),
       bends: made.reduce((sum, one) => sum + one.layout.measures.bends, 0),
       emptyShare: chosen.balance.emptyShare,
       emptyRectangle: chosen.balance.emptyRectangle,

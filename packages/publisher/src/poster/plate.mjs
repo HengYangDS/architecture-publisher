@@ -419,7 +419,7 @@ export function platesOf(input, plate) {
     const styles = figureStyles(step);
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
-      const centring = input.centring ?? "all";
+      const { centring } = input;
       const fields = {
         model: input.model,
         view: plate.view,

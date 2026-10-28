@@ -1,5 +1,5 @@
 import { refuse } from "../refusal.mjs";
-import { solveChannel } from "./channel-solver.mjs";
+import { MAXIMUM_LABEL_ROWS, solveChannel } from "./channel-solver.mjs";
 import { buildWires, channelGeometry, spreadPorts, straighten } from "./channels.mjs";
 import { measureLayout } from "./measure.mjs";
 import { placeRows, splitCrossedBuses } from "./placement.mjs";
@@ -16,7 +16,7 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  *     height: (component: any, width: number) => number },
  *   label: (relation: any, maxWidth?: number) => LabelBox,
  *   external: (component: any) => boolean,
- *   centring?: "all" | "inside",
+ *   centring?: "all" | "inside" | null,
  *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
  *     minJog: number, clear: number, minChannel: number, rowPad: number, boundaryPad: number,
@@ -26,6 +26,8 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
 
 /** Port spacings tried for a channel, smallest first. */
 const PORT_GAPS = [null, 64, 96, 140];
+/** A crossing outranks any difference in channel height or routing score. */
+const CROSSING_RANK = 1e6;
 
 /**
  * Placement of one set of rows on the grid: the expensive half of a layout, and
@@ -295,16 +297,28 @@ function routeChannel(channel, wiring, box, cardWidth, spacing) {
       ]),
     ),
   ];
-  /** @type {{ rank: number, gap: number | null, rows: number } | null} */
+  /** @type {{ rank: number, gap: number | null, rows: number, crossings: number,
+   *   solution: NonNullable<ReturnType<typeof solveChannel>> } | null} */
   let best = null;
   for (const gap of [...PORT_GAPS, cardWidth]) {
     spreadPorts(wiring.sides, box, cardWidth, spacing, gap ?? spacing.portSpacing, keys);
     straighten(channel.wires, wiring.sides, box, cardWidth, spacing);
-    // A wider spacing is worth searching only for routings with no more label rows than the best.
-    const solution = solveChannel(channel, spacing, best?.rows);
+    // Wires that cross are the fault a reader sees first, so a spacing that
+    // uncrosses them wins whatever height it costs, and while the best still
+    // crosses, a wider spacing may take more label rows. Once one routes clean,
+    // a wider spacing is worth searching only for no more label rows.
+    const solution = solveChannel(channel, spacing, best?.crossings === 0 ? best.rows : undefined);
     if (!solution) continue;
-    const rank = solution.height * 10 + solution.score + (gap ?? 0) / 100;
-    if (!best || rank < best.rank) best = { rank, gap, rows: solution.labelHeights.length };
+    const rank =
+      solution.crossings * CROSSING_RANK + solution.height * 10 + solution.score + (gap ?? 0) / 100;
+    if (!best || rank < best.rank)
+      best = {
+        rank,
+        gap,
+        rows: solution.labelHeights.length,
+        crossings: solution.crossings,
+        solution,
+      };
   }
   if (!best)
     refuse(
@@ -317,9 +331,22 @@ function routeChannel(channel, wiring, box, cardWidth, spacing) {
         message: made.relations.map(({ id }) => id).join(", "),
       })),
     );
+  // The ports return to the chosen spacing, where the kept solution was found.
   spreadPorts(wiring.sides, box, cardWidth, spacing, best.gap ?? spacing.portSpacing, keys);
   straighten(channel.wires, wiring.sides, box, cardWidth, spacing);
-  return /** @type {NonNullable<ReturnType<typeof solveChannel>>} */ (
-    solveChannel(channel, spacing)
-  );
+  // Wires that still cross may uncross with their labels on another row, as
+  // two relations into one card can when their labels do not fit side by
+  // side: more label rows are tried while each uncrosses some of what fewer
+  // rows crossed. A taller channel costs less than a crossing.
+  let solution = best.solution;
+  for (
+    let rows = solution.labelHeights.length + 1;
+    solution.crossings > 0 && rows <= MAXIMUM_LABEL_ROWS;
+    rows += 1
+  ) {
+    const more = solveChannel(channel, spacing, rows, rows);
+    if (!more || more.crossings >= solution.crossings) break;
+    solution = more;
+  }
+  return solution;
 }

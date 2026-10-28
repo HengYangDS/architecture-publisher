@@ -39,8 +39,8 @@
 
 ## 8. Composition
 
-- [ ] 8.1 Measure composition: largest empty rectangle, ninths, centroid, type sizes, measure, bends, segments and stretch from geometry and from a rendered raster; the twelve 01538e9 posters fail it and a balanced fixture passes it.
-- [ ] 8.2 Compose pages of one to three plates in the fixed 2400 × 1350 format on the token page grid, with the masthead (bands of one or more plates), sidebar and corner (floating text and notes) archetypes, cards sized by their text, five type steps up to 1.8 times with one step per page, ink-centred figures, flat chain rows and an edition-wide grouping; every edition is drawn with each page's gate misses recorded, the self and ETHOS editions miss no gate, and AIGW misses only its five-component authority page's empty share.
+- [x] 8.1 Measure a page's balance from one ink grid shared by geometry and the rendered raster: largest empty rectangle, empty ninths, centroid and reach; balanced and unbalanced fixtures measure as specified. At the page gates 7 of the twelve 01538e9 posters fail; the other five were rejected for their 4:3 format and detached text, which the fixed format and set-in text replace.
+- [x] 8.2 Compose pages of one to three plates in the fixed 2400 × 1350 format on the token page grid, with the masthead (bands of one or more plates), sidebar and corner (floating text and notes) archetypes, cards sized by their text, five type steps up to 1.8 times with one step per page, ink-centred figures, flat chain rows and an edition-wide grouping; every edition is drawn with each page's gate misses recorded, the self and ETHOS editions miss no gate, and AIGW misses only its five-component authority page's empty share.
 - [ ] 8.3 Deliver the Archify explainer page with one panel and diagram per view, steps and pinned sources; candidates are chosen on Archify's own routes, the page passes Archify's checks, and Chromium measures preview labels of at least 13.75 px.
 - [ ] 8.4 Move the evidence cards to the manifest and record each view's composition and Archify metrics; two builds are byte-identical.
 

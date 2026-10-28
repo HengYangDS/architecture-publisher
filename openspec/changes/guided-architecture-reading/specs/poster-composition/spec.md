@@ -246,6 +246,18 @@ centre is taken over all its cards or only those inside the boundary.
   row of three
 - **THEN** a candidate draws the three single cards along one row
 
+### Requirement: Uncentred rows
+
+When a page's chosen candidate crosses wires, the publisher SHALL also lay the
+page's plates out with uncentred rows and choose the page again from both.
+
+#### Scenario: Centring would cross a skipping relation
+
+- **WHEN** centring the rows makes a relation that skips a row turn across the
+  wires of the row above its target
+- **THEN** the page also measures the uncentred rows and draws the one that
+  does not cross
+
 ### Requirement: Widest fitting wrapping
 
 At each type step a plate SHALL keep, of its layered rows and of its flatter

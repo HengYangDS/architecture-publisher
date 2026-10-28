@@ -124,6 +124,65 @@ test("a model too sparse to balance a page is drawn with the gates it misses", a
   for (const miss of page.measures.misses) assert.ok(typeof miss.limit === "number", miss.measure);
 });
 
+test("a page lays its rows out uncentred when centring crosses a relation that skips a row", async () => {
+  // Centred, the media row sits over the middle of the parts row, so the
+  // relation from the builder down to the raster turns across the wires that
+  // leave the map. Placement weighs only the wires between neighbouring rows,
+  // so the page measures the uncentred rows as well and draws those.
+  const edge = ([id, from, to, label]) => ({ id, from, to, label });
+  const model = validateModel(
+    minimalModel({
+      id: "media",
+      title: "Media",
+      question: "What draws the poster and the map, and which supplies do they use?",
+      kinds: {
+        stage: { label: "stage", category: "backend", icon: "workflow" },
+        medium: { label: "medium", category: "frontend", icon: "image" },
+        supply: { label: "vendored supply", category: "database", icon: "package" },
+      },
+      components: [
+        ["builder", "Delivery builder", "stage", { writes: "one delivery" }],
+        ["poster", "Poster composer", "medium", { draws: "2400 × 1350 px" }],
+        ["map", "Archify map", "medium", { delivers: "native Archify" }],
+        ["typefaces", "Typefaces", "medium", { outlines: "Noto Sans CJK" }],
+        ["presentation", "Kinds and icons", "medium", { maps: "kinds to icons" }],
+        ["raster", "Raster", "medium", { renders: "PNG" }],
+        ["supplies", "Supplies", "supply", { verified: "by digest" }],
+      ].map(([id, label, kind, details]) => ({ id, label, kind, details })),
+      relations: [
+        ["composes", "builder", "poster", "composes posters"],
+        ["maps", "builder", "map", "maps the model"],
+        ["rasterizes", "builder", "raster", "rasterizes"],
+        ["delivers", "map", "supplies", "runs Archify"],
+        ["sets", "poster", "typefaces", "sets text"],
+        ["styles", "poster", "presentation", "styles cards"],
+        ["types", "map", "presentation", "types components"],
+        ["fonts", "typefaces", "supplies", "loads fonts"],
+        ["icons", "presentation", "supplies", "loads icons"],
+        ["renders", "raster", "supplies", "renders with resvg"],
+      ].map(edge),
+      views: [
+        {
+          id: "media",
+          title: "Media",
+          question: "What draws the poster and the map, and which supplies do they use?",
+          tiers: [
+            { id: "build", label: "Build", members: ["builder"] },
+            { id: "media", label: "Media", members: ["poster", "map"] },
+            { id: "parts", label: "Parts", members: ["typefaces", "presentation", "raster"] },
+            { id: "supplies", label: "Supplies", members: ["supplies"] },
+          ],
+        },
+      ],
+    }),
+  );
+  const [page, more] = await edition(model);
+  assert.equal(more, undefined);
+  assert.equal(page.composition.centring, null);
+  assert.equal(page.measures.crossings, 0);
+  assertRecorded(page);
+});
+
 test("CJK labels compose and characters the fonts lack are refused", () => {
   const model = validateModel(
     minimalModel({

@@ -102,6 +102,17 @@ of their far ends.
 - **WHEN** a relation connects cards in adjacent rows and different columns
 - **THEN** its wire has two bends inside the channel between those rows
 
+### Requirement: Fewest crossings per channel
+
+Each channel SHALL take the routing with the fewest crossings over every port
+spacing and up to three label rows, then the lowest channel.
+
+#### Scenario: Labels that do not fit side by side
+
+- **WHEN** two relations travel into one card from the same side and their
+  labels do not fit side by side in one label row without crossing
+- **THEN** the channel takes a second label row and its wires do not cross
+
 ### Requirement: Buses and corridors
 
 Relations sharing a source, label, details and target row SHALL form one bus
