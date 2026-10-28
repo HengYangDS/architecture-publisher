@@ -84,7 +84,9 @@ const touches = (a, b) =>
 /**
  * Set each tier's numbered label beside the first card of its tier, centred on
  * the rows the tier was wrapped into, so a label stands with the row it names.
- * A label that would touch a card, a wire, a relation label or the boundary's
+ * A tier whose rows the boundary encloses has its label outside the boundary,
+ * beside its edge, so the labels of the tiers inside it stand in one line. A
+ * label that would touch a card, a wire, a relation label or the boundary's
  * edge there, or that has no room before the card, sits in the plate's tier
  * column instead, which nothing else enters.
  * @param {any} layout the justified layout
@@ -145,11 +147,14 @@ function tierLabels(layout, input, draw) {
     if (!label) continue;
     number += 1;
     const members = rows.flatMap((row) => row.members.map((id) => layout.cards.get(id)));
-    const first = Math.min(...members.map(({ x }) => at(x)));
+    const last = rows[rows.length - 1];
+    const frame = layout.boundary;
+    const enclosed =
+      frame && rows[0].top < frame.y + frame.height && last.top + last.height > frame.y;
+    const first = Math.min(...members.map(({ x }) => at(x)), enclosed ? at(frame.x) : Infinity);
     const lines = typefaces.wrap(label, labelWidth, styles.tier);
     const width = 42 + Math.max(...lines.map((line) => typefaces.measure(line, styles.tier)));
     const height = lines.length * styles.tier.line;
-    const last = rows[rows.length - 1];
     const top = down((rows[0].top + last.top + last.height - height) / 2);
     const box = (x) => ({ x: x + 4, y: top - 4, width, height: height + 8 });
     const beside = Math.max(column.x, first - TIER_GAP - width);

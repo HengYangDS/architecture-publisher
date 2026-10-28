@@ -78,16 +78,19 @@ function classifyRelations(rows, relations) {
 
 /**
  * Split each bus whose span would pass another wire leaving its hub on the same
- * side; its relations become single wires. `center` gives a card's center x.
+ * side; its relations become single wires. `center` gives a card's center x,
+ * and `straight` the relations drawn as straight arrows within their row,
+ * which leave the hub on no side.
  * @param {ReturnType<typeof classifyRelations>} classes
  * @param {(id: string) => number} center
  * @param {number} rowCount
+ * @param {Set<any>} straight
  */
-export function splitCrossedBuses(classes, center, rowCount) {
+export function splitCrossedBuses(classes, center, rowCount, straight) {
   const { rowOf } = classes;
   const all = [
     ...classes.singles,
-    ...classes.sameRow,
+    ...classes.sameRow.filter((relation) => !straight.has(relation)),
     ...classes.long,
     ...classes.buses.flatMap((bus) => bus.relations),
   ];

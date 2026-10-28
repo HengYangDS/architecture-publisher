@@ -154,9 +154,10 @@ export function measureLayout(geometry) {
  * parallel wires closer than `parallel` read as one, a wire that stops less
  * than `parallel` short of another in line with it reads as continuing it, two
  * arrowheads closer than two heads read as one, and a relation label closer
- * than `label` to another relation's wire reads as that wire's label.
+ * than `label` to another relation's wire reads as that wire's label. Layout
+ * spacing keeps them, so the measure only finds what the spacing could not.
  */
-const ROUTE = Object.freeze({ parallel: 24, label: 16, heads: 2 });
+export const ROUTE = Object.freeze({ parallel: 24, label: 16, heads: 2 });
 
 /**
  * Route defects of one layout: wires a reader takes for one, a wire that seems
@@ -168,8 +169,9 @@ const ROUTE = Object.freeze({ parallel: 24, label: 16, heads: 2 });
  *   arrows?: Array<{ relations: Array<{ id: string }>, x: number, y: number }>,
  *   arrow?: number }} geometry `arrow` is the length of one arrowhead
  * @param {ReturnType<typeof segmentsOf>} segments
- * @returns {Array<{ code: string, relations: string, at: number[] }>}
- *   `at` is a point of the layout where the defect lies
+ * @returns {Array<{ code: string, relations: string, at: number[], apart?: number[] }>}
+ *   `at` is a point of the layout where the defect lies, and `apart` how far a
+ *   label stands from the other wire across and down
  */
 function routeDefects(geometry, segments) {
   const found = [];
@@ -227,6 +229,10 @@ function routeDefects(geometry, segments) {
           code: "route_label_near_wire",
           relations: `${name} ${segment.owner}`,
           at: [label.x + label.width / 2, label.y + label.height / 2],
+          apart: [
+            Math.max(0, box.x1 - label.x - label.width, label.x - box.x2),
+            Math.max(0, box.y1 - label.y - label.height, label.y - box.y2),
+          ],
         });
         break;
       }

@@ -494,14 +494,20 @@ function faultsOf(page) {
   return [crossingsOf(page), page.made.reduce((sum, one) => sum + one.layout.measures.routes, 0)];
 }
 
+/** Every turn the wires of a page's plates take: each is one more a reader follows. */
+const bendsOf = (page) => page.made.reduce((sum, one) => sum + one.layout.measures.bends, 0);
+
 /**
- * The best of a set: fewest wiring faults, least area in holes and in the
- * largest blank, then nearest the center, then fewest plates.
+ * The best of a set: fewest wiring faults, then the fewest turns in its wires,
+ * least area in holes and in the largest blank, then nearest the center, then
+ * fewest plates. Every page in the set passes its gates, so a page that wires
+ * its figure more simply is preferred to one that only fills it more.
  */
 function best(list) {
   return [...list].sort(
     (a, b) =>
       compareRanks(faultsOf(a), faultsOf(b)) ||
+      bendsOf(a) - bendsOf(b) ||
       a.balance.holes + a.balance.emptyShare - (b.balance.holes + b.balance.emptyShare) ||
       Math.hypot(...a.balance.centroid) - Math.hypot(...b.balance.centroid) ||
       a.views.length - b.views.length,

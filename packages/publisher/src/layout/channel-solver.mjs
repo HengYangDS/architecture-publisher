@@ -11,7 +11,10 @@ import { permutations } from "./permutations.mjs";
 const SEARCH_BUDGET = 60_000;
 export const MAXIMUM_LABEL_ROWS = 3;
 
-/** Label centers along a horizontal: its middle and the middles of free gaps between verticals. */
+/**
+ * Label centers along a horizontal: its middle and the middles of gaps between
+ * verticals wide enough to keep the label clear of them.
+ */
 function slides(channel, made, low, high, own, spacing) {
   const label = /** @type {LabelBox} */ (made.label);
   const xs = [
@@ -25,9 +28,9 @@ function slides(channel, made, low, high, own, spacing) {
     .filter((x) => x >= low - 0.5 && x <= high + 0.5)
     .sort((a, b) => a - b);
   const out = [];
-  if (high - low >= label.width + 2 * spacing.clear) out.push((low + high) / 2);
+  if (high - low >= label.width + 2 * spacing.labelClear) out.push((low + high) / 2);
   for (let index = 1; index < xs.length; index += 1)
-    if (xs[index] - xs[index - 1] >= label.width + 2 * spacing.clear)
+    if (xs[index] - xs[index - 1] >= label.width + 2 * spacing.labelClear)
       out.push((xs[index] + xs[index - 1]) / 2);
   return [...new Set(out.map((x) => Math.round(x * 2) / 2))];
 }
@@ -36,7 +39,9 @@ function options(channel, made, spacing) {
   const width = made.label?.width ?? 0;
   const clearOfEdges = (option) =>
     option.label === undefined ||
-    (channel.edges ?? []).every((edge) => Math.abs(edge - option.label) > width / 2 + 6);
+    (channel.edges ?? []).every(
+      (edge) => Math.abs(edge - option.label) > width / 2 + spacing.labelClear,
+    );
   return candidates(channel, made, spacing).filter(clearOfEdges);
 }
 
@@ -219,8 +224,12 @@ function crossesBand(vertical, band) {
   );
 }
 
-/** Tracks for one band: fewest tracks, no shared vertical, fewest crossings. */
-function assignTracks(spans, crossers) {
+/**
+ * Tracks for one band: fewest tracks, no shared vertical, fewest crossings.
+ * Spans on one track keep `apart` between them, so neither seems to continue
+ * the other.
+ */
+function assignTracks(spans, crossers, apart) {
   if (!spans.length) return { tracks: 0, track: [], crossings: 0 };
   const count = spans.length;
   const orders =
@@ -242,7 +251,8 @@ function assignTracks(spans, crossers) {
       while (
         spans.some(
           (span, j) =>
-            track[j] === level && !(span.high + 12 < spans[i].low || spans[i].high + 12 < span.low),
+            track[j] === level &&
+            !(span.high + apart <= spans[i].low || spans[i].high + apart <= span.low),
         )
       )
         level += 1;
@@ -292,7 +302,11 @@ function coincident(choice, other) {
   return false;
 }
 
-/** Whether `choice` for wire `index` fits the choices already made on its label rows. */
+/**
+ * Whether `choice` for wire `index` fits the choices already made on its label
+ * rows: labels keep `labelGap` from each other and `labelClear` from another
+ * wire's jog or vertical, and jogs on one row keep `separation` apart.
+ */
 function compatible(channel, chosen, index, choice, rows, spacing) {
   const wires = channel.wires;
   const near = (a, b, gap) => a.low - gap < b.high && b.low - gap < a.high;
@@ -311,20 +325,21 @@ function compatible(channel, chosen, index, choice, rows, spacing) {
       const otherJog =
         other.jog && other.row === row ? { low: other.jog[0], high: other.jog[1] } : null;
       if (mineBox && otherBox && near(mineBox, otherBox, spacing.labelGap)) return false;
-      if (mineJog && otherBox && near(mineJog, otherBox, 6)) return false;
-      if (otherJog && mineBox && near(otherJog, mineBox, 6)) return false;
-      if (mineJog && otherJog && near(mineJog, otherJog, 10)) return false;
+      if (mineJog && otherBox && near(mineJog, otherBox, spacing.labelClear)) return false;
+      if (otherJog && mineBox && near(otherJog, mineBox, spacing.labelClear)) return false;
+      if (mineJog && otherJog && near(mineJog, otherJog, spacing.separation)) return false;
       const passes = (option, at) =>
         option.verticals.filter(
           (vertical) =>
             rowsPassed(vertical, option.row, rows).includes(at) &&
             !(vertical.own && option.row === at),
         );
+      const beside = (vertical, box) =>
+        vertical.x > box.low - spacing.labelClear && vertical.x < box.high + spacing.labelClear;
       for (const vertical of passes(choice, row))
-        if (otherBox && vertical.x > otherBox.low - 6 && vertical.x < otherBox.high + 6)
-          return false;
+        if (otherBox && beside(vertical, otherBox)) return false;
       for (const vertical of passes(other, row))
-        if (mineBox && vertical.x > mineBox.low - 6 && vertical.x < mineBox.high + 6) return false;
+        if (mineBox && beside(vertical, mineBox)) return false;
     }
   }
   return true;
@@ -357,7 +372,7 @@ export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS,
   const solved = new Map();
   const tracksFor = (spans, crossers) => {
     const key = JSON.stringify([spans, crossers]);
-    if (!solved.has(key)) solved.set(key, assignTracks(spans, crossers));
+    if (!solved.has(key)) solved.set(key, assignTracks(spans, crossers, spacing.separation));
     return solved.get(key);
   };
   for (let rows = minimumRows; rows <= maximumRows; rows += 1) {
@@ -432,24 +447,35 @@ function finish(channel, best, rows, spacing) {
   const rowsHeight =
     labelHeights.reduce((sum, height) => sum + height, 0) +
     spacing.labelRowGap * Math.max(0, used - 1);
-  const upperHeight = best.up.tracks ? (best.up.tracks - 1) * spacing.track + spacing.bandGap : 0;
-  const lowerHeight = best.low.tracks ? (best.low.tracks - 1) * spacing.track + spacing.bandGap : 0;
-  const height = Math.max(
-    spacing.minChannel,
-    spacing.stub +
-      upperHeight +
-      (rowsHeight ? rowsHeight + 2 * spacing.bandGap : 0) +
-      lowerHeight +
-      spacing.arrowStub,
-  );
+  // From the channel top: a stub, the upper band, the label rows, the lower
+  // band and an arrow stub. Label rows keep `labelClear` from a track on
+  // either side, and the bands keep a track apart where no row parts them.
+  const band = (tracks) => (tracks ? (tracks - 1) * spacing.track : 0);
+  const [upper, lower] = [best.up.tracks, best.low.tracks];
+  const upperTop = spacing.stub;
+  const upperEnd = upperTop + band(upper);
+  const rowsTop = !rowsHeight
+    ? upperEnd
+    : upper
+      ? upperEnd + spacing.labelClear
+      : upperTop + spacing.bandGap;
+  const rowsEnd = rowsTop + rowsHeight;
+  const lowerTop = rowsHeight
+    ? rowsEnd + spacing.labelClear
+    : upper
+      ? upperEnd + spacing.track
+      : upperTop;
+  const end = lower ? lowerTop + band(lower) : rowsHeight ? rowsEnd : upperEnd;
+  const height = Math.max(spacing.minChannel, end + spacing.bandGap + spacing.arrowStub);
   return {
     combo,
     score: best.score,
     crossings: best.crossings,
     labelHeights,
     rowsHeight,
-    upperHeight,
-    lowerHeight,
+    upperTop,
+    rowsTop,
+    lowerTop,
     height,
     upperTrack: new Map(best.upper.map((span, n) => [span.wire, best.up.track[n]])),
     lowerTrack: new Map(best.lower.map((span, n) => [span.wire, best.low.track[n]])),

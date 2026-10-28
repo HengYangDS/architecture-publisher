@@ -5,7 +5,8 @@ import { checkModel } from "../packages/publisher/src/build.mjs";
 import { BROWSER_USE_MODEL, CONTEXT_MODE_MODEL } from "./fixtures/models.mjs";
 
 // Models of two repositories unrelated to this one, written outside them, keep the publisher
-// general: every view is admitted and printed on a balanced page without a crossing.
+// general: every view is admitted and printed on a balanced page whose wires neither cross
+// nor run together.
 for (const [file, views] of [
   [CONTEXT_MODE_MODEL, ["overview", "sandbox", "retrieval"]],
   [BROWSER_USE_MODEL, ["overview", "perception", "action"]],
@@ -18,6 +19,9 @@ for (const [file, views] of [
       views,
     );
     for (const view of checked.views) assert.ok(view.poster, `${view.id} has no page`);
-    for (const poster of checked.posters) assert.equal(poster.measures.crossings, 0, poster.id);
+    for (const poster of checked.posters) {
+      assert.equal(poster.measures.crossings, 0, poster.id);
+      assert.equal(poster.measures.routes, 0, poster.id);
+    }
   });
 }

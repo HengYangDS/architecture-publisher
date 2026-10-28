@@ -132,6 +132,8 @@ function diagramMetrics(model, view, bounded, width) {
       labelRowGap: 6,
       portSpacing: 24,
       portMargin: 20,
+      separation: 18,
+      labelClear: 8,
       minJog: 40,
       clear: 10,
       // Archify sets a 14 px label box on either side of a channel's turn, with its clearance.

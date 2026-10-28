@@ -191,6 +191,8 @@ function candidateMetrics(input) {
       };
     },
     external: (component) => presentation(model, component).outside,
+    // The poster draws its own wires, so a long relation may run around the cards.
+    lanes: true,
     arrow: wire.arrow,
     spacing,
   };

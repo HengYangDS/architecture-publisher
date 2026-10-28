@@ -256,14 +256,18 @@ test("a candidate whose boundary cannot be placed omits it and keeps outside com
 });
 
 test("a view whose relations the grid cannot wire is refused as the view's layout", async () => {
-  const edges = [1, 2, 3].flatMap((from) => [4, 5, 6].map((to) => [from, to, `asks ${from}${to}`]));
-  const model = validateModel(graphModel(6, edges));
+  // Four cards each asking four others under sixteen labels cannot set their
+  // labels in one channel's rows.
+  const edges = [1, 2, 3, 4].flatMap((from) =>
+    [5, 6, 7, 8].map((to) => [from, to, `asks ${from}${to}`]),
+  );
+  const model = validateModel(graphModel(8, edges));
   const view = await firstView(model);
   assert.throws(
     () => diagramCandidates(model, view),
     (error) =>
       error.code === "map_layout_refused" &&
-      error.problems.length === 9 &&
+      error.problems.length === 16 &&
       error.problems.every(({ code }) => code === "layout_channel_unroutable"),
   );
 });

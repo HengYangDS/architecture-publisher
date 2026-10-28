@@ -1,6 +1,12 @@
-import { refuse } from "../refusal.mjs";
+import { Refusal, refuse } from "../refusal.mjs";
 import { MAXIMUM_LABEL_ROWS, solveChannel } from "./channel-solver.mjs";
-import { buildWires, channelGeometry, spreadPorts, straighten } from "./channels.mjs";
+import {
+  buildWires,
+  channelGeometry,
+  spreadPorts,
+  straightArrows,
+  straighten,
+} from "./channels.mjs";
 import { measureLayout } from "./measure.mjs";
 import { placeRows, splitCrossedBuses } from "./placement.mjs";
 import { ROW_LIMIT, viewRows } from "./rows.mjs";
@@ -18,11 +24,12 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  *   label: (relation: any, maxWidth?: number) => LabelBox,
  *   external: (component: any) => boolean,
  *   centring?: "all" | "inside" | null,
+ *   lanes?: boolean,
  *   arrow?: number,
  *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
- *     separation?: number, minJog: number, clear: number, minChannel: number, rowPad: number,
- *     boundaryPad: number, boundaryBottom: number, boundaryHead: number }
+ *     separation: number, labelClear: number, minJog: number, clear: number, minChannel: number,
+ *     rowPad: number, boundaryPad: number, boundaryBottom: number, boundaryHead: number }
  * }} Metrics
  */
 
@@ -66,16 +73,51 @@ export function placementOf(view, rows, metrics) {
 
 /**
  * @param {import("../plan/views.mjs").View} view
- * @param {Metrics} metrics
+ * @param {Metrics} metrics `lanes` lets a medium that draws its own wires give
+ *   up lattice width for a lane beyond the cards on each side, where a long
+ *   relation runs when every corridor between them crosses a wire
  * @param {{ boundaryName?: string | null, rows?: import("./rows.mjs").Row[],
  *   placement?: ReturnType<typeof placementOf> }} [options]
  */
 export function layoutView(view, metrics, options = {}) {
-  const { spacing } = metrics;
   const components = new Map(view.components.map((component) => [component.id, component]));
   const external = (id) => metrics.external(components.get(id));
   const rows = options.rows ?? viewRows(view, ROW_LIMIT, external);
   const placement = options.placement ?? placementOf(view, rows, metrics);
+  const drawn = drawLayout(view, metrics, rows, placement, options.boundaryName);
+  if (!metrics.lanes || !drawn.measures.crossings || !placement.relations.long.length) return drawn;
+  const { spacing } = metrics;
+  // A lane keeps two wires' separation from the outermost card or boundary
+  // and its clearance from the content's edge.
+  const lane = spacing.clear + spacing.separation + spacing.boundaryPad;
+  const laned = { ...metrics, spacing: { ...spacing, inset: Math.max(spacing.inset, lane) } };
+  try {
+    const around = drawLayout(
+      view,
+      laned,
+      rows,
+      placementOf(view, rows, laned),
+      options.boundaryName,
+    );
+    return around.measures.crossings < drawn.measures.crossings ? around : drawn;
+  } catch (error) {
+    if (error instanceof Refusal) return drawn;
+    throw error;
+  }
+}
+
+/**
+ * One layout of the view's rows on one placement.
+ * @param {import("../plan/views.mjs").View} view
+ * @param {Metrics} metrics
+ * @param {import("./rows.mjs").Row[]} rows
+ * @param {ReturnType<typeof placementOf>} placement
+ * @param {string | null | undefined} boundaryName
+ */
+function drawLayout(view, metrics, rows, placement, boundaryName) {
+  const { spacing } = metrics;
+  const components = new Map(view.components.map((component) => [component.id, component]));
+  const external = (id) => metrics.external(components.get(id));
   const { labelled, contentWidth } = placement;
   const { width: cardWidth, pitch, interval } = placement;
   const order = placement.order;
@@ -138,10 +180,20 @@ export function layoutView(view, metrics, options = {}) {
         ) + spacing.boundaryPad,
       ])
     : null;
+  // A straight arrow stays in its row, so it neither crosses a bus nor takes a channel.
+  const straights = straightArrows({
+    order,
+    classes: placement.relations,
+    box,
+    rowHeights,
+    spacing,
+    label: metrics.label,
+  });
   const classes = splitCrossedBuses(
     placement.relations,
     (id) => /** @type {any} */ (box.get(id)).cx,
     rows.length,
+    new Set(straights.map(({ relation }) => relation)),
   );
   const wiring = buildWires({
     order,
@@ -157,6 +209,7 @@ export function layoutView(view, metrics, options = {}) {
     frame,
     spacing,
     label: metrics.label,
+    straights,
   });
   // A one-row view's U wires run in a trailing channel below the row, inside the boundary.
   const trailing = wiring.channels.length === rows.length;
@@ -278,7 +331,7 @@ export function layoutView(view, metrics, options = {}) {
       y,
       width: frame[1] - frame[0],
       height: rowTop[last] + rowHeights[last] + below + spacing.boundaryBottom - y,
-      name: options.boundaryName ?? null,
+      name: boundaryName ?? null,
     };
   }
   const geometry = {

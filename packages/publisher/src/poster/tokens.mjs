@@ -1,3 +1,5 @@
+import { ROUTE } from "../layout/measure.mjs";
+
 /**
  * Poster design tokens. One fixed landscape page, one grid, one type scale and
  * one palette; every composition is a choice of archetype, wrapping and type
@@ -75,7 +77,12 @@ export const POSTER = Object.freeze({
      * The least distance between two parallel wires, or two ports side by
      * side: closer, a reader takes two wires for one.
      */
-    separation: 24,
+    separation: ROUTE.parallel,
+    /**
+     * The least distance between a relation's label and another relation's
+     * wire: closer, the label reads as that wire's.
+     */
+    labelClear: ROUTE.label,
     minJog: 56,
     clear: 14,
     minChannel: 64,
@@ -186,6 +193,7 @@ export function figureMetrics(styles) {
       arrowStub: round(18 * unit),
       labelGap: round(16 * unit),
       labelRowGap: round(8 * unit),
+      labelClear: Math.max(POSTER.spacing.labelClear, round(POSTER.spacing.labelClear * unit)),
       clear: round(14 * unit),
       rowPad: round(16 * unit),
       minChannel: round(64 * unit),

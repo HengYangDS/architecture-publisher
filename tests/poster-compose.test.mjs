@@ -73,11 +73,26 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
     assert.equal(poster.width, 2400);
     assert.equal(poster.height, 1350);
     assert.equal(poster.measures.crossings, 0);
+    assert.equal(poster.measures.routes, 0);
     assert.doesNotMatch(poster.svg, /<text|NaN|undefined/u);
     assert.match(
       poster.svg,
       /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="2400" height="1350"/u,
     );
+    assertBalanced(poster);
+  }
+});
+
+test("the publisher's own model prints each view on a balanced page with clean wiring", async () => {
+  const { model } = await loadModel(SELF_MODEL, { icon: icons.has });
+  const pages = await edition(model);
+  assert.deepEqual(
+    pages.map(({ views }) => views),
+    [["overview"], ["layout"], ["media"]],
+  );
+  for (const poster of pages) {
+    assert.equal(poster.measures.crossings, 0, poster.view);
+    assert.equal(poster.measures.routes, 0, poster.view);
     assertBalanced(poster);
   }
 });
@@ -116,13 +131,13 @@ test("a model too sparse to balance a page is refused with what its closest page
 });
 
 test("a page lays its rows out uncentred when centring crosses a relation that skips a row", async () => {
-  // Centred, the self edition's media row sits over the middle of its parts
-  // row, so the relation from the builder down to the raster turns across the
-  // wires that leave the map. Placement weighs only the wires between
-  // neighbouring rows, so the page measures the uncentred rows as well and
-  // draws those.
-  const { model } = await loadModel(SELF_MODEL, { icon: icons.has });
-  const page = (await edition(model)).find(({ views }) => views.includes("media"));
+  // Centred, the AIGW authority view's lone credential store sits under the
+  // middle of the row above it, so the relation from native discovery past it
+  // to the synchronizer turns across the store's wire to the adapter contract.
+  // Placement weighs only the wires between neighbouring rows, so the page
+  // measures the uncentred rows as well and draws those.
+  const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
+  const page = (await edition(model)).find(({ views }) => views.includes("authority"));
   assert.ok(page);
   assert.equal(page.composition.centring, null);
   assert.equal(page.measures.crossings, 0);
