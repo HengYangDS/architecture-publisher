@@ -37,9 +37,11 @@ remain pre-release contracts and may contain incompatible changes.
   cite its first source at the pinned revision. Each diagram is chosen on Archify's own routes from three widths and
   three row wrappings, with the grid's connection sides and with Archify's own side planning. It never takes routes a
   reader reads as one, side by side or lined up end to end, or a route along a card's or the boundary's edge, while
-  another passes without; then it takes the fewest crossings, a preview beside its steps, the fewest routes over two
-  bends, labels set close to another route or card and crowded route ends, and the connections involved take other
-  sides while that improves the diagram. A card shows a detail whole or not at all, and the steps carry every detail.
+  another passes without; then it takes the fewest crossings, a preview beside its steps, the fewest labels a reader
+  takes for another route's, a card's or another label's, routes doubled into one line, routes over two bends, crowded
+  labels and crowded route ends. The connections involved take other sides while that improves the diagram, and a
+  label still misplaced is pinned clear beside its own route. A card shows a detail whole or not at all, and the steps
+  carry every detail.
   The diagram passes Archify's showcase checks, or the build is refused with a `page_*` code and Archify's findings.
   Sources Archify will not cite, such as files under a secrets directory, are withheld and recorded in the manifest.
 - A failure that is not a refusal or usage error exits with status 3 and an `internal_error` JSON body. Git and

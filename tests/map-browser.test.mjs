@@ -26,83 +26,92 @@ const labelSizes = (/** @type {Element[]} */ labels) =>
     return (matrix?.a ?? 0) * Number.parseFloat(element.getAttribute("font-size") ?? "0");
   });
 
-test("delivered pages fit every preview and set component labels at 13.25 px there and 14 px in the full viewer at 1440 × 900", async (t) => {
-  const browser = await launch(t);
-  if (browser) {
-    t.after(() => browser.close());
-    for (const file of [AIGW_MODEL, BIG_BANK_MODEL]) {
-      const { model } = await loadModel(file);
-      const views = await planViews(model, async () => ({ fits: true, width: 1, height: 1 }));
-      const directory = await temporaryDirectory(t, "archpub-page-browser-");
-      const explained = await explainerPage(model, views);
-      const { output } = await deliverExplainer(explained, directory);
-      const page = await browser.newPage({
-        viewport: { width: 1440, height: 900 },
-        reducedMotion: "reduce",
-      });
-      await page.goto(pathToFileURL(output).href);
-      // The reader marks each preview once it has fitted it to its panel.
-      await page.waitForFunction(() =>
-        [...globalThis.document.querySelectorAll(".diagram-preview")].every(
-          (preview) => /** @type {HTMLElement} */ (preview).dataset.diagramFit,
-        ),
-      );
-      const sizes = await page.$$eval(".diagram-preview text[data-node-label]", labelSizes);
-      assert.equal(
-        sizes.length,
-        views.reduce((sum, view) => sum + view.components.length, 0),
-        file,
-      );
-      // Beside its steps a preview is drawn just wide enough for its 9-unit sublabels to reach
-      // Archify's reading floor, three quarters of the 14.5 px body text: 11 / 9 × 10.875 px.
-      assert.ok(
-        Math.min(...sizes) >= 13.25,
-        `${file} previews a label at ${Math.min(...sizes)} px`,
-      );
-      const fits = await page.$$eval(".diagram-preview", (previews) =>
-        previews.map((preview) => /** @type {HTMLElement} */ (preview).dataset.diagramFit),
-      );
-      assert.deepEqual(new Set(fits), new Set(["fit"]), file);
-      // A card shows a detail whole or not at all, and the steps carry every detail.
-      const cut = await page.$$eval(
-        ".diagram-preview text",
-        (texts) => texts.filter((text) => text.textContent?.includes("…")).length,
-      );
-      assert.equal(cut, 0, `${file} cuts text in a preview`);
-      const notices = await page.$$eval(
-        ".diagram-fit-status",
-        (statuses) =>
-          statuses.filter((status) => !(/** @type {HTMLElement} */ (status).hidden)).length,
-      );
-      assert.equal(notices, 0, file);
-      // The reader sets each preview beside its steps exactly where the choice
-      // predicted it would.
-      const beside = await page.$$eval(".guided", (guides) =>
-        guides.map((guide) => guide.classList.contains("beside")),
-      );
-      assert.deepEqual(
-        beside,
-        explained.diagrams.map((diagram) => diagram.beside),
-        file,
-      );
-      const diagrams = await page.$$eval("button[data-open-diagram]", (buttons) =>
-        buttons.map((button) => /** @type {HTMLElement} */ (button).dataset.openDiagram),
-      );
-      assert.equal(diagrams.length, views.length, file);
-      for (const id of diagrams) {
-        await page.click(`button[data-open-diagram="${id}"]`);
-        await page.waitForSelector(`#diagram-dialog[data-native-ready="true"] iframe`);
-        const frame = await (await page.$("#diagram-dialog iframe"))?.contentFrame();
-        assert.ok(frame, `${file} ${id} opens no viewer`);
-        await frame.waitForSelector("text[data-node-label]");
-        const full = await frame.$$eval("text[data-node-label]", labelSizes);
-        assert.ok(
-          Math.min(...full) >= 14,
-          `${file} ${id} draws a label at ${Math.min(...full)} px`,
+// Building two pages measures a few hundred candidate diagrams, each through
+// Archify's own command line in processes of its own; on a hosted Windows
+// runner that alone takes about five minutes.
+const PAGE_BUILDS = 15 * 60 * 1000;
+
+test(
+  "delivered pages fit every preview and set component labels at 13.25 px there and 14 px in the full viewer at 1440 × 900",
+  { timeout: PAGE_BUILDS },
+  async (t) => {
+    const browser = await launch(t);
+    if (browser) {
+      t.after(() => browser.close());
+      for (const file of [AIGW_MODEL, BIG_BANK_MODEL]) {
+        const { model } = await loadModel(file);
+        const views = await planViews(model, async () => ({ fits: true, width: 1, height: 1 }));
+        const directory = await temporaryDirectory(t, "archpub-page-browser-");
+        const explained = await explainerPage(model, views);
+        const { output } = await deliverExplainer(explained, directory);
+        const page = await browser.newPage({
+          viewport: { width: 1440, height: 900 },
+          reducedMotion: "reduce",
+        });
+        await page.goto(pathToFileURL(output).href);
+        // The reader marks each preview once it has fitted it to its panel.
+        await page.waitForFunction(() =>
+          [...globalThis.document.querySelectorAll(".diagram-preview")].every(
+            (preview) => /** @type {HTMLElement} */ (preview).dataset.diagramFit,
+          ),
         );
-        await page.click("#diagram-dialog [data-close-diagram]");
+        const sizes = await page.$$eval(".diagram-preview text[data-node-label]", labelSizes);
+        assert.equal(
+          sizes.length,
+          views.reduce((sum, view) => sum + view.components.length, 0),
+          file,
+        );
+        // Beside its steps a preview is drawn just wide enough for its 9-unit sublabels to reach
+        // Archify's reading floor, three quarters of the 14.5 px body text: 11 / 9 × 10.875 px.
+        assert.ok(
+          Math.min(...sizes) >= 13.25,
+          `${file} previews a label at ${Math.min(...sizes)} px`,
+        );
+        const fits = await page.$$eval(".diagram-preview", (previews) =>
+          previews.map((preview) => /** @type {HTMLElement} */ (preview).dataset.diagramFit),
+        );
+        assert.deepEqual(new Set(fits), new Set(["fit"]), file);
+        // A card shows a detail whole or not at all, and the steps carry every detail.
+        const cut = await page.$$eval(
+          ".diagram-preview text",
+          (texts) => texts.filter((text) => text.textContent?.includes("…")).length,
+        );
+        assert.equal(cut, 0, `${file} cuts text in a preview`);
+        const notices = await page.$$eval(
+          ".diagram-fit-status",
+          (statuses) =>
+            statuses.filter((status) => !(/** @type {HTMLElement} */ (status).hidden)).length,
+        );
+        assert.equal(notices, 0, file);
+        // The reader sets each preview beside its steps exactly where the choice
+        // predicted it would.
+        const beside = await page.$$eval(".guided", (guides) =>
+          guides.map((guide) => guide.classList.contains("beside")),
+        );
+        assert.deepEqual(
+          beside,
+          explained.diagrams.map((diagram) => diagram.beside),
+          file,
+        );
+        const diagrams = await page.$$eval("button[data-open-diagram]", (buttons) =>
+          buttons.map((button) => /** @type {HTMLElement} */ (button).dataset.openDiagram),
+        );
+        assert.equal(diagrams.length, views.length, file);
+        for (const id of diagrams) {
+          await page.click(`button[data-open-diagram="${id}"]`);
+          await page.waitForSelector(`#diagram-dialog[data-native-ready="true"] iframe`);
+          const frame = await (await page.$("#diagram-dialog iframe"))?.contentFrame();
+          assert.ok(frame, `${file} ${id} opens no viewer`);
+          await frame.waitForSelector("text[data-node-label]");
+          const full = await frame.$$eval("text[data-node-label]", labelSizes);
+          assert.ok(
+            Math.min(...full) >= 14,
+            `${file} ${id} draws a label at ${Math.min(...full)} px`,
+          );
+          await page.click("#diagram-dialog [data-close-diagram]");
+        }
+        await page.close();
       }
-      await page.close();
     }
-  }
-});
+  },
+);

@@ -437,12 +437,13 @@ lacks, a route 3 px from an edge as a second outline, a label 4 px under a card
 as the card's, ends 14 px apart on one side of a card as one doubled arrow.
 archpub measures them against Archify's 8 px shortest and 16 px interior
 segments and takes the fewest routes that read as one or along an edge, since a
-crossing still reads as two, then crossings, a preview beside its steps, routes
-over two bends, crowded labels and ends, stretch above 1.35 and the shape
-closest to 1.0 to 1.8. A choice with a defect, or stacked above its steps, has
-the connections involved re-sided from the three best diagrams and the three
-best beside their steps, within 96 measured changes. A view without a passing
-candidate is refused with Archify's findings.
+crossing still reads as two, then crossings, a preview beside its steps, labels
+read as another's, doubled routes, routes over two bends, crowded labels and
+ends, stretch above 1.35 and the shape closest to 1.0 to 1.8. A choice with a
+defect, or stacked above its steps, has the connections involved re-sided from
+the three best diagrams and the three best beside their steps, within 96
+measured changes; a label still misplaced is then pinned clear beside its own
+route. A view with no passing candidate is refused with Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit
@@ -477,11 +478,11 @@ failed build leaves nothing behind. The manifest records its format and
 version, the publisher's name and version, the model's id, title, digest and
 size, the repository, the font, icon, resvg and Archify digests, the plan,
 each poster's composition and measures, the page's quality and gates, each
-diagram's Archify metrics and re-sided connections, the withheld sources,
-every artifact digest and source record, and the evidence of every component
-and relation. It has no timestamps; a rebuild of the same model and version
-on one platform reproduces every byte. `archpub check` does all but write the
-delivery: its Archify work stays in a temporary directory it removes.
+diagram's Archify metrics, re-sided connections and pinned labels, the withheld
+sources, every artifact digest and source record, and the evidence of every
+component and relation. It has no timestamps; a rebuild of the same model and
+version on one platform reproduces every byte. `archpub check` does all but
+write the delivery: its Archify work stays in a temporary directory it removes.
 
 `archpub accept <dir> --reviewer <name>` verifies every artifact against the
 manifest and writes `acceptance.json` with the reviewer, an optional note and

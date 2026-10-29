@@ -110,9 +110,10 @@ showcase checks SHALL be refused with Archify's findings.
 Among candidates that pass Archify's showcase checks, the publisher SHALL
 choose the one with the fewest routes that read as one or run along an edge,
 then crossings, then one Archify's reader sets beside its steps at a 1440 px
-viewport, then the fewest routes over two bends, crowded labels, crowded route
-ends and stretch above 1.35, then the shape closest to the landscape band. The
-manifest SHALL record the choice and its metrics.
+viewport, then the fewest labels read as another's, doubled routes, routes
+over two bends, crowded labels, crowded route ends and stretch above 1.35, then
+the shape closest to the landscape band. The manifest SHALL record the choice
+and its metrics.
 
 #### Scenario: A clean view diagram
 
@@ -171,14 +172,14 @@ while a candidate that passes has none.
 - **THEN** that candidate is not chosen
 - **AND** the chosen diagram has no routes that read as one
 
-### Requirement: Routes along an edge, crowded labels and ends
+### Requirement: Routes along an edge, doubled routes and crowded ends
 
 A route SHALL run along an edge when it keeps parallel to a card's or the
 boundary's edge closer than 12 px for more than 16 px, and SHALL count with
-routes that read as one. A relation label SHALL crowd when it comes nearer
-than 8 px to another relation's route or to a card. Two route ends SHALL crowd
-when they meet one side of a card less than 24 px apart. The manifest SHALL
-record each count with the chosen diagram's metrics.
+routes that read as one. Two routes SHALL be doubled when they run side by
+side 8 to 24 px apart for more than 64 px. Two route ends SHALL crowd when they
+meet one side of a card less than 24 px apart. The manifest SHALL record each
+count with the chosen diagram's metrics.
 
 #### Scenario: A route under the boundary's edge
 
@@ -186,11 +187,30 @@ record each count with the chosen diagram's metrics.
   boundary's edge
 - **THEN** the other is chosen
 
+#### Scenario: Two routes 17 px apart
+
+- **WHEN** two routes run 17 px apart along 120 px
+- **THEN** they count as doubled
+
+### Requirement: Relation labels
+
+A relation label SHALL read as another's when another route, a card or another
+label is no farther from it than its own route, or another label is nearer
+than 8 px. It SHALL crowd when anything else, a boundary's outline included,
+comes nearer than 8 px or than twice its own route's distance. The manifest
+SHALL record both counts with the chosen diagram's metrics.
+
 #### Scenario: A label under another card
 
 - **WHEN** two candidates differ only in that one sets a relation's label 4 px
   under a card the relation does not connect
 - **THEN** the other is chosen
+
+#### Scenario: Two labels stacked in one gap
+
+- **WHEN** context-mode's overview sets two relation labels 5 px apart between
+  their routes
+- **THEN** the chosen diagram has no label read as another's
 
 ### Requirement: Sides Archify plans
 
@@ -208,11 +228,11 @@ keeps.
 ### Requirement: Re-sided connections
 
 When the chosen diagram crosses, has routes that read as one or along an edge,
-crowded labels, or stands above its steps, the publisher SHALL change the sides
-of the connections involved, one at a time from the three best diagrams and the three
-best beside their steps, within 96 measured changes for the view, keeping a
-change only when it ranks the diagram higher. The manifest SHALL record the
-re-sided connections.
+a label read as another's or crowded, or stands above its steps, the publisher
+SHALL change the sides of the connections involved, one at a time from the
+three best diagrams and the three best beside their steps, within 96 measured
+changes for the view, keeping a change only when it ranks the diagram higher.
+The manifest SHALL record the re-sided connections.
 
 #### Scenario: A crossing cleared by other sides
 
@@ -220,6 +240,21 @@ re-sided connections.
   Archify's routes
 - **THEN** the connections that cross take other sides
 - **AND** the chosen diagram does not cross
+
+### Requirement: Pinned labels
+
+When the chosen diagram still has a label read as another's or crowded, the
+publisher SHALL pin those labels on the three best diagrams by their routes
+alone, each beside the middle or a quarter of one of its own route's segments
+where it is not read as anything else, and choose again among every measured
+diagram. The manifest SHALL record the pinned labels.
+
+#### Scenario: A label pinned clear
+
+- **WHEN** context-mode's sandbox sets "fetches pages" 4 px under Security
+  policy and 6 px from its own route
+- **THEN** the chosen diagram pins that label where it reads as its route's
+- **AND** the manifest records the pin
 
 ### Requirement: Diagram shape
 

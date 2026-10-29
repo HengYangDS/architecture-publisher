@@ -51,8 +51,9 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   for (const diagram of manifest.page.diagrams) {
     assert.ok(["grid", "archify"].includes(diagram.sides), diagram.view);
     assert.ok(Array.isArray(diagram.resided), diagram.view);
+    assert.ok(Array.isArray(diagram.pinned), diagram.view);
     assert.equal(diagram.metrics.corridors, 0, diagram.view);
-    for (const defect of ["tangles", "joins", "hugs", "labels", "crowded"])
+    for (const defect of ["tangles", "joins", "hugs", "mislabels", "doubles", "labels", "crowded"])
       assert.ok(Number.isInteger(diagram.metrics[defect]), `${diagram.view} ${defect}`);
   }
   // Every Big Bank tiered candidate misreads, which map-choice covers; the

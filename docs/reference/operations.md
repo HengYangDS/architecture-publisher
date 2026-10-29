@@ -139,20 +139,27 @@ showcase quality profile and lays out its routes, which archpub measures for
 what Archify does not report: two routes that read as one, running side by side
 closer than 8 units along more than 16, or lining up within 8 units of one line
 and less than 32 units apart with no card between them; a route along a card's
-or the boundary's edge, closer than 12 units along more than 16; a relation
-label closer than 8 units to another relation's route or to a card; and two
-route ends less than 24 units apart on one side of a card. Among the candidates
-that pass, the page takes the fewest routes that read as one or run along an
-edge, then the fewest crossings, then one narrow enough for Archify's reader to
-set beside its steps at 1440 px, then the fewest routes over two bends, crowded
-labels, crowded route ends and route stretch, then the shape nearest 1.0 to 1.8
-times as wide as high. When the choice still crosses, reads two routes as one,
-runs a route along an edge, crowds a label or stands above its steps, the
-connections involved take other sides, one at a time from the three best
-diagrams and the three best beside their steps, within 96 measured changes,
-wherever that ranks the diagram higher. A view without a candidate that passes
-refuses the build with Archify's findings; a diagram never drops a component or
-relation to fit.
+or the boundary's edge, closer than 12 units along more than 16; two routes
+doubled, 8 to 24 units apart along more than 64; a relation label read as
+another's, when another route, a card or another label is no farther from it
+than its own route, or another label is nearer than 8 units; a label that
+crowds, when anything else, a boundary's outline included, comes nearer than 8
+units or than twice its own route's distance; and two route ends less than 24
+units apart on one side of a card. Among the candidates that pass, the page
+takes the fewest routes that read as one or run along an edge, then the fewest
+crossings, then one narrow enough for Archify's reader to set beside its steps
+at 1440 px, then the fewest labels read as another's, doubled routes, routes
+over two bends, crowded labels, crowded route ends and route stretch, then the
+shape nearest 1.0 to 1.8 times as wide as high. When the choice still crosses,
+reads two routes as one, runs a route along an edge, has a label read as
+another's or crowded, or stands above its steps, the connections involved take
+other sides, one at a time from the three best diagrams and the three best
+beside their steps, within 96 measured changes, wherever that ranks the
+diagram higher. A label still read as another's or crowded is then pinned,
+on the three best diagrams by their routes, beside the middle or a quarter of a
+segment of its own route where nothing else is taken for it, and the page
+chooses again. A view without a candidate that passes refuses the build with
+Archify's findings; a diagram never drops a component or relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
 component's first source as a numbered page source at that revision, listed
@@ -181,7 +188,7 @@ the model id, title, digest and size, the declared repository, every source
 with its state and declared and observed digest, the digest of each bundled
 supply, each view with its tiers, members and page, each page with its views,
 composition and measures, the explainer page's quality profile and gates, each
-view diagram's width, height, rows, sides, re-sided connections, whether its
+view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
 the sources the page withholds, the details,
 status and sources of every component and relation, and the path, size and

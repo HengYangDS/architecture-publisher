@@ -5,10 +5,10 @@ import {
   besideSteps,
   chooseDiagram,
   drawingOf,
-  routeDefects,
   routeLayout,
   routeMetrics,
 } from "../packages/publisher/src/map/choice.mjs";
+import { clearLabels, routeDefects } from "../packages/publisher/src/map/routes.mjs";
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import {
@@ -105,12 +105,102 @@ test("routes that read as one, run along an edge or crowd one side of a card are
     tangles: 1,
     joins: 2,
     hugs: 1,
+    mislabels: 0,
+    doubles: 0,
     labels: 1,
     crowded: 1,
-    misread: ["join-up", "join-down", "side-a", "side-b", "offset-up", "offset-down"],
-    along: ["along"],
-    labelled: ["labelled"],
+    owners: {
+      misread: ["join-up", "join-down", "side-a", "side-b", "offset-up", "offset-down"],
+      along: ["along"],
+      doubled: [],
+      mislabelled: [],
+      labelled: ["labelled"],
+    },
   });
+});
+
+/** A relation label of `width` × 14 px whose anchor sits at `x`, 10 px under its top. */
+const labelAt = (text, x, top, width = 80) => ({
+  text,
+  x: x - width / 2,
+  y: top,
+  width,
+  height: 14,
+  labelAt: [x, top + 10],
+});
+
+test("labels read as another's, labels that crowd and doubled routes are counted", () => {
+  const card = (id, x, y, width = 100, height = 60) => ({ id, x, y, width, height });
+  const route = (labelled, ...points) => ({ points, ...(labelled ? { labelAt: labelled } : {}) });
+  const labels = [
+    // 6 px left of its route and 4 px under a card it does not connect.
+    labelAt("under a card", 54, 64),
+    // Two labels 5 px apart, each 6 px beside its own route.
+    labelAt("upper", 254, 300),
+    labelAt("lower", 254, 319),
+    // 6 px beside its route and 4 px inside the boundary's edge.
+    labelAt("by the outline", 454, 304),
+  ];
+  const layout = {
+    components: [card("a", 0, 0), card("b", 0, 200)],
+    boundaries: [{ x: 410, y: 250, width: 200, height: 200 }],
+    labels,
+    connections: [
+      route(labels[0].labelAt, [100, 60], [100, 200]),
+      route(labels[1].labelAt, [300, 250], [300, 340]),
+      route(labels[2].labelAt, [300, 300], [300, 400]),
+      route(labels[3].labelAt, [500, 260], [500, 400]),
+      // Two routes 17 px apart along 120 px read as one doubled line.
+      route(null, [700, 0], [700, 200]),
+      route(null, [717, 40], [717, 160]),
+    ],
+  };
+  const ids = ["card", "upper", "lower", "outline", "double-a", "double-b"];
+  const { mislabels, doubles, labels: crowding, owners } = routeDefects(layout, ids);
+  assert.deepEqual([mislabels, doubles, crowding], [3, 1, 1]);
+  assert.deepEqual(owners.mislabelled, ["card", "upper", "lower"]);
+  assert.deepEqual(owners.labelled, ["outline"]);
+  assert.deepEqual(owners.doubled, ["double-a", "double-b"]);
+});
+
+test("a label read as another's is pinned beside a segment of its own route clear of it", () => {
+  const card = (id, x, y, width = 100, height = 60) => ({ id, x, y, width, height });
+  // The label stands 6 px left of its route's first segment and 4 px under a
+  // card; beside the route's long last segment nothing comes near it.
+  const label = labelAt("routes the call", 54, 64);
+  const layout = {
+    components: [card("a", 0, 0), card("b", 300, 300)],
+    boundaries: [],
+    labels: [label],
+    connections: [
+      {
+        points: [
+          [100, 60],
+          [100, 120],
+          [400, 120],
+          [400, 300],
+        ],
+        labelAt: label.labelAt,
+      },
+    ],
+  };
+  const pins = clearLabels(layout, ["call"], ["call"]);
+  // Above the horizontal segment a quarter from its far end, 6 px from it,
+  // where it lies farthest from both cards.
+  assert.deepEqual([...pins], [["call", [325, 110]]]);
+  assert.equal(routeDefects(layout, ["call"]).mislabels, 1);
+  const pinned = { ...label, x: 285, y: 100, labelAt: [325, 110] };
+  const moved = {
+    ...layout,
+    labels: [pinned],
+    connections: [{ ...layout.connections[0], labelAt: pinned.labelAt }],
+  };
+  assert.deepEqual(
+    [routeDefects(moved, ["call"]).mislabels, routeDefects(moved, ["call"]).labels],
+    [0, 0],
+  );
+  // A label already clear of everything is left where Archify set it.
+  assert.equal(clearLabels(moved, ["call"], ["call"]).size, 0);
 });
 
 test("a route on the line another enters a card by takes other sides", async () => {
@@ -119,8 +209,21 @@ test("a route on the line another enters a card by takes other sides", async () 
   const { model } = await loadModel(CONTEXT_MODE_MODEL);
   const sandbox = (await viewsOf(model)).find(({ id }) => id === "sandbox");
   const chosen = await chooseDiagram(model, /** @type {any} */ (sandbox));
-  const { crossings, tangles, joins, hugs } = chosen.metrics;
+  const { crossings, tangles, joins, hugs, mislabels } = chosen.metrics;
   assert.deepEqual([crossings, tangles, joins, hugs], [0, 0, 0, 0]);
+  // Archify then sets "fetches pages" 4 px under Security policy and 6 px from
+  // its own route; the label is pinned where it reads as its route's.
+  assert.equal(mislabels, 0);
+  assert.ok(chosen.pinned.includes("runtimes-web"), String(chosen.pinned));
+});
+
+test("labels Archify stacks in one gap are each chosen clearly their own route's", async () => {
+  // On context-mode's overview Archify sets "writes events" and "queries
+  // events" 5 px apart between their two routes.
+  const { model } = await loadModel(CONTEXT_MODE_MODEL);
+  const overview = (await viewsOf(model)).find(({ id }) => id === "overview");
+  const chosen = await chooseDiagram(model, /** @type {any} */ (overview));
+  assert.deepEqual([chosen.metrics.mislabels, chosen.metrics.crossings], [0, 0]);
 });
 
 test("the connections that cross take other sides when that clears their crossings", async () => {
