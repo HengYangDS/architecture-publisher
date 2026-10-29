@@ -13,7 +13,7 @@
   "repository": {
     "name": "architecture-publisher",
     "url": "https://github.com/HengYangDS/architecture-publisher",
-    "revision": "2cbf48e5d9fa40e88e2a6b74d8fb4b25d04f47b8"
+    "revision": "2347fb76266871bed9b615573bdbf8e63280cbee"
   },
   "kinds": {
     "person": {
@@ -65,19 +65,19 @@
   "sources": {
     "cli": {
       "path": "packages/publisher/src/cli/run.mjs",
-      "sha256": "0a42b082abdb2616ece754cedbc883bb512a4c2f20df6c84cd180d3b6646659b"
+      "sha256": "afc57e1c9b86666fcf6ee1f0e0bd3d5ecfd170edf75ad28ff134648e67c9240c"
     },
     "build": {
       "path": "packages/publisher/src/build.mjs",
-      "sha256": "d295cf7464c889fbdd6ebcf1e58ca38ae71202fd62f6ca55725ba020e409873a"
+      "sha256": "3b45c77d2677384a69bee5c2a9257b256adef9a93165c7b1abd87636d41120f5"
     },
     "delivery": {
       "path": "packages/publisher/src/delivery.mjs",
-      "sha256": "7a49af550bebe3db08291c08f106f0a6545cce4b9f744fe7aa1c39711bbc76cb"
+      "sha256": "440749852521f208d57918bb7489e382e7c2d540053d8d8824eb4cd5fd467e92"
     },
     "importer": {
       "path": "packages/publisher/src/importers/likec4.mjs",
-      "sha256": "5e31dd7edc3688caf1874da564c9777412c30142e9afa3206bc0a46d37385cb7"
+      "sha256": "91f5a3f5408558e358e90ceb45c2643663999615f0f120efadd94c12e4046608"
     },
     "worker": {
       "path": "packages/publisher/src/importers/likec4-worker.mjs",
@@ -85,71 +85,71 @@
     },
     "model": {
       "path": "packages/publisher/src/model/load.mjs",
-      "sha256": "248563ccfda54e32743ef5cdf79be28e01cf99ad5bbdb1632a834a5f67ac6832"
+      "sha256": "a7dad7575c64cff30ca95d8e32a04b04f27d2d8408713176370a93f84cf9d343"
     },
     "schema": {
       "path": "packages/publisher/src/model/schema.json",
-      "sha256": "3d81a96c0f2e2dabd2729f905c53c46411e8b4ddbc6fbde76cdd646d48db643f"
+      "sha256": "c987a703979aa4e68b9c991c2663a32f50937bf1e2fd83bd0e83c60ab1e39d6f"
     },
     "binding": {
       "path": "packages/publisher/src/sources/bind.mjs",
-      "sha256": "95368a5375a7f6da6fade18ccb5d0f379d2f44f750607ea80965bec332aba3f3"
+      "sha256": "34b8fc0f89367f0c90031da931e38c654446198308af9d4ba79a7af9ea72b162"
     },
     "plan": {
       "path": "packages/publisher/src/plan/views.mjs",
-      "sha256": "7b8dbc16aef23da4af6db2aa9c5d0e1b25e4fda61d71667be3c1c87577fb13eb"
+      "sha256": "7deebecd2be132809124771929dd3fb51a86a959509dda54e9a4a7c098b24601"
     },
     "grid": {
       "path": "packages/publisher/src/layout/grid.mjs",
-      "sha256": "80c14285148ff5386a34f835e10056b109ff47fddb15363a2991078a0b18b178"
+      "sha256": "bbfadeaaa636a9505734d4944d957b904f60581b462226af4af8d77af1170e89"
     },
     "rows": {
       "path": "packages/publisher/src/layout/rows.mjs",
-      "sha256": "ea4f41841b69b112d3d40f400df6082056eda96d66ff1d7e249e35230bd28e62"
+      "sha256": "7c827b5cffee94201c62687ed53aa35aaf22b0df9097792717d985628a6cf478"
     },
     "placement": {
       "path": "packages/publisher/src/layout/placement.mjs",
-      "sha256": "3288fc2128225a132432758c3b61def96d43ba62bb975aea6e62e8ee2bb99760"
+      "sha256": "f2f080ae722a1d99ea28ebb284305b1199882e7d161ffac3ebf3a9d0dd9f72a9"
     },
     "channels": {
       "path": "packages/publisher/src/layout/channels.mjs",
-      "sha256": "f710570522b7b1c51862e681464984da86246609fee5d406dd550b95fcfeffcc"
+      "sha256": "074751f876b79463f575b63b28926c99db93a2c34906e0d26ff0ef26844cb194"
     },
     "solver": {
       "path": "packages/publisher/src/layout/channel-solver.mjs",
-      "sha256": "6aded9bbb1ce469465b81423b1b975acca491e4f99b96f161305f9e2acf4dc6b"
+      "sha256": "3b3d0c6865233f5af6d9d88b8da99de3d9ea3a9cc90e34afbb48fc59df936ec5"
     },
     "measure": {
       "path": "packages/publisher/src/layout/measure.mjs",
-      "sha256": "1a4ae88f241976c7481d83553939064e563e6d06c816b806a4b7a33258c13006"
+      "sha256": "cb1a40c3a9de3830b496d18d9723736630c1d7a483a87e51c3f99042979108ab"
     },
     "poster": {
       "path": "packages/publisher/src/poster/compose.mjs",
-      "sha256": "e21a4aa61b62f6543a02bc4ab7eeafe3f82f2d347e699922953fac6bec25855b"
+      "sha256": "000f28aff92c485a1f4109de9d2730cd764be381f238dfe2285707f1f089ba83"
     },
     "tokens": {
       "path": "packages/publisher/src/poster/tokens.mjs",
-      "sha256": "16a613fc695baeccf3e53989a18dca3283c32a9968ad898b728abc4dfaf7ebad"
+      "sha256": "a2f08a20df10d8c13b5e2da2639f75146b4b7b2b8e28a5dd56e8ffe4b90daf89"
     },
     "text": {
       "path": "packages/publisher/src/poster/text.mjs",
-      "sha256": "32ed52d09de3ad4c44d57f1dc36e5f852329a6493d3711bec3f072ffd6e8bf13"
+      "sha256": "ddcbf656a5ee2e096c2f7578e3ece75711cd4d2ba5919650206dd71f9c781a84"
     },
     "raster": {
       "path": "packages/publisher/src/poster/raster.mjs",
-      "sha256": "91c4a8e6f76bcad8602f6f11f971c016cdea6558a4cde516dc02021e029105c2"
+      "sha256": "d320400f0ca105e3b426fb7715e92639ca3de2b0d64f829a06b96f79b849c056"
     },
     "explainer": {
       "path": "packages/publisher/src/map/explainer.mjs",
-      "sha256": "a69930c6ddb87588d6fdb150d08c0ed64e3d6cbc6cf2c3e13519e70911ed6cde"
+      "sha256": "b089688e4d917703912537582646df424f8acfb7759d344a3edcc5742a12693d"
     },
     "map": {
       "path": "packages/publisher/src/map/archify.mjs",
-      "sha256": "02da2cf8e109061e9b35f3f3e6d26c4d55756f5acd1a7caad7494ce2ddc835ae"
+      "sha256": "6863453da0b7685f788b4022fb0699d3c130374b34b6d5e0d9686d24ed9c791e"
     },
     "kinds": {
       "path": "packages/publisher/src/kinds.mjs",
-      "sha256": "01a5b48aab50173279ae719758edcb0d4dc4191c996049df55946155480246e9"
+      "sha256": "815cfae915efc9538f230112a048df8aca236df4dd4d47c1873137cc986611b0"
     },
     "icons": {
       "path": "packages/publisher/src/icons.mjs",
@@ -158,6 +158,18 @@
     "supply": {
       "path": "packages/publisher/src/supply.mjs",
       "sha256": "c47e5c55e3b98bfb664cea1af190c28d7b26abf952af5d27cf33cf1035947ea7"
+    },
+    "breaks": {
+      "path": "packages/publisher/src/breaks.mjs",
+      "sha256": "cf24db6037eb011d62d187e8f5df897a2513e6d66b9e10c82b2d05151db7a001"
+    },
+    "choice": {
+      "path": "packages/publisher/src/map/choice.mjs",
+      "sha256": "7d4330135a94634abd90b7aa42e7b90df219d98368d81c98cd9b014a908e7460"
+    },
+    "routes": {
+      "path": "packages/publisher/src/map/routes.mjs",
+      "sha256": "f9984c7782143b763248c188ac0f6d338f19db44edfae98e8ebeb51869d1f35f"
     }
   },
   "components": [
@@ -245,7 +257,7 @@
       "details": {
         "delivers": "native Archify"
       },
-      "sources": ["explainer", "map"]
+      "sources": ["explainer", "map", "choice", "routes"]
     },
     {
       "id": "layout",
@@ -331,9 +343,9 @@
       "label": "Typefaces",
       "kind": "medium",
       "details": {
-        "outlines": "Noto Sans CJK"
+        "outlines": "Noto Sans CJK and Noto Sans"
       },
-      "sources": ["text"]
+      "sources": ["text", "breaks"]
     },
     {
       "id": "raster",
