@@ -367,7 +367,7 @@ became the unit:
   edition still balances. Where one column balances no page, as Big Bank's data
   tier starting far left of its boundary shows, tiers that start at one edge
   share a column before it. A label centred on two rows read as a relation
-  label between them, so a bracket spans its rows.
+  label between them, so it stands level with the first, beside a bracket.
 
 The figure keeps decision 6's lattice and channels. Relation details use a
 lighter ink than their labels. `planned` is dashed and
@@ -431,18 +431,18 @@ spanning its panel at 1440 px shows at Archify's full 1.25 times enlargement.
 A card is at least as wide as the view's longest label needs, so the grid gives
 up a spare column rather than narrow a card below its label. Archify validates
 every candidate at showcase quality, with the grid's sides and with every side
-left to Archify, and lays out its routes. A blind review found misread what
-Archify does not report: routes on one line 14 px apart read as a relation the
-model lacks, a route 3 px from an edge as a second outline, ends 14 px apart on
-one side of a card as one doubled arrow. archpub measures them against
-Archify's 8 px shortest and 16 px interior segments and takes the fewest routes
-that read as one, since a crossing still reads as two, then crossings, routes
-along an edge, a preview beside its steps, crowded ends, routes over two bends,
-stretch above 1.35 and the shape closest to 1.0 to 1.8. A choice with a defect
-above its placement, or stacked above its steps, has the connections involved
-re-sided from the three best diagrams and the three best beside their steps,
-within 96 measured changes. A view without a passing candidate is refused with
-Archify's findings.
+left to Archify, and lays out its routes. Blind reviews found misread what
+Archify does not report: routes 1 px off one line read as a relation the model
+lacks, a route 3 px from an edge as a second outline, a label 4 px under a card
+as the card's, ends 14 px apart on one side of a card as one doubled arrow.
+archpub measures them against Archify's 8 px shortest and 16 px interior
+segments and takes the fewest routes that read as one or along an edge, since a
+crossing still reads as two, then crossings, a preview beside its steps, routes
+over two bends, crowded labels and ends, stretch above 1.35 and the shape
+closest to 1.0 to 1.8. A choice with a defect, or stacked above its steps, has
+the connections involved re-sided from the three best diagrams and the three
+best beside their steps, within 96 measured changes. A view without a passing
+candidate is refused with Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit

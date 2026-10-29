@@ -187,7 +187,7 @@ figure's first and last tier label.
 ### Requirement: Tier labels
 
 The numbered tier labels of a figure SHALL stand in one column before it, at
-one left edge, each centred on the rows its tier wraps into: one gap before the
+one left edge, each centred on its tier's first row: one gap before the
 leftmost card a label names, outside the system boundary for a tier the
 boundary encloses. A tier SHALL be named by its label alone, with no rule
 under its rows. When no page with the labels in one column passes every gate,
@@ -209,14 +209,16 @@ the labels of tiers that start at one edge SHALL share one column before it.
 
 ### Requirement: Tier brackets
 
-A tier label centred on several rows SHALL stand beside a bracket that spans
-them, from the first row's top to the last row's bottom, so that it does not
-read as one of the relation labels between them.
+The label of a tier that wraps into several rows SHALL stand level with the
+first of them, beside a bracket that spans them all from the first row's top to
+the last row's bottom, so that it reads as naming those rows and not as a
+relation label between them.
 
 #### Scenario: A tier wrapped into two rows
 
 - **WHEN** the first tier of the AIGW authority view wraps into two rows
-- **THEN** its label stands beside one bracket that spans both rows
+- **THEN** its label stands level with the first row, beside one bracket that
+  spans both rows
 
 ### Requirement: Tier-label column
 

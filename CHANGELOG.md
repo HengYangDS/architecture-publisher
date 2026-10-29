@@ -22,25 +22,26 @@ remain pre-release contracts and may contain incompatible changes.
   run as buses, corridors, lanes and straight arrows through the channels between rows, and a layout with a diagonal,
   a shared segment, a wire through a card or a touching label is never drawn: a view that no layout draws is refused.
   A refusal names every view it refuses. Rows that a view does not declare minimize the rows their relations skip.
-- **Breaking:** Posters are 16:9 pages of 2400 × 1350 px with no text below 14 px, rasterized at 2400 and 6000 px.
-  A page holds one to three views as plates under a masthead, beside a rail of text, or with its text set in the
-  corners its figure leaves free. Cards are as large as their text, a sparse view is set at a larger type step of up
-  to 1.8 times, tier labels stand in one column before the figure, or before the edge each tier starts at when no
-  page with one column balances, a bracket spans the rows of a tier that wraps, and the edition is grouped into the
-  fewest pages
-  that pass the balance gates for the largest empty area, blank bands, holes and centre of mass, each preferring the
-  composition with the fewest crossings and route defects; a view no passing page holds is refused with
-  `poster_unbalanced` and its closest page's measures. Per-relation evidence moves to the manifest.
+- **Breaking:** Posters are 16:9 pages of 2400 × 1350 px with no text below 14 px, rasterized at 2400 and 6000 px. A
+  page holds one to three views as plates under a masthead, beside a rail of text, or with its text set in the corners
+  its figure leaves free. Cards are as large as their text, a sparse view is set at a larger type step of up to 1.8
+  times, tier labels stand in one column before the figure, or before the edge each tier starts at when no page with
+  one column balances, a tier that wraps has its label level with its first row beside a bracket over its rows, and
+  the edition is grouped into the fewest pages that pass the balance gates for the largest empty area, blank bands,
+  holes and centre of mass, each preferring the composition with the fewest crossings and route defects; a view no
+  passing page holds is refused with `poster_unbalanced` and its closest page's measures. Per-relation evidence moves
+  to the manifest.
 - **Breaking:** The interactive medium is one vendored, unmodified Archify 3.2.0 explainer page that answers the
   model's question view by view: its conclusion beside a list of its panels, then one panel per view with its native
   architecture diagram, named by the view, which opens Archify's full viewer, and steps that light each component and
   cite its first source at the pinned revision. Each diagram is chosen on Archify's own routes from three widths and
   three row wrappings, with the grid's connection sides and with Archify's own side planning. It never takes routes a
-  reader reads as one, side by side or lined up end to end, while another passes without; then it takes the fewest
-  crossings, routes along a card's or the boundary's edge, a preview beside its steps and crowded route ends, and
-  the connections involved take other sides while that improves the diagram. A card shows a detail whole or not at all, and the steps carry every detail. The diagram passes Archify's
-  showcase checks, or the build is refused with a `page_*` code and Archify's findings. Sources Archify will not cite, such as files under a secrets directory, are withheld and
-  recorded in the manifest.
+  reader reads as one, side by side or lined up end to end, or a route along a card's or the boundary's edge, while
+  another passes without; then it takes the fewest crossings, a preview beside its steps, the fewest routes over two
+  bends, labels set close to another route or card and crowded route ends, and the connections involved take other
+  sides while that improves the diagram. A card shows a detail whole or not at all, and the steps carry every detail.
+  The diagram passes Archify's showcase checks, or the build is refused with a `page_*` code and Archify's findings.
+  Sources Archify will not cite, such as files under a secrets directory, are withheld and recorded in the manifest.
 - A failure that is not a refusal or usage error exits with status 3 and an `internal_error` JSON body. Git and
   Archify run with only the caller's path, home and temporary-directory variables, and `SystemRoot` on Windows.
 - Deliveries are staged and byte-reproducible on one platform. The manifest keeps each poster page's measures, each diagram's route

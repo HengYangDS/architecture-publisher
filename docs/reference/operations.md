@@ -100,18 +100,18 @@ their text and never stretch; a sparse view is instead set at a larger type
 step, up to 32 px labels and 24 px details, and every plate of a page uses one
 step. The numbered tier labels stand in one column before the figure; when no
 page with them in one column balances, the labels of tiers that start at one
-edge share a column before that edge, and the manifest records which. A label
-centred on several rows stands beside a bracket that spans them. Every page
-passes four balance gates over its live area: its largest blank rectangle
-covers at most 12 percent of it, no blank band 96 px or taller runs across it,
-at most 40 percent of it lies in empty squares of 240 px or more, and its
-centre of mass lies within 12 percent of the centre across and down. The
-edition is grouped into the fewest such pages, then the least area in those
-holes, and each page prefers the fewest crossings and route defects. A view
-that no passing page holds, alone or with a neighbour, is refused with
-`poster_unbalanced` and its closest page's measures and limits. Text is
-outlined from the bundled Noto Sans CJK SC fonts, and each kind draws its Lucide
-icon. Each page is written as SVG and as PNG at 2400 and 6000 px.
+edge share a column before that edge, and the manifest records which. A tier
+wrapped into several rows has its label level with its first row, beside a
+bracket that spans them all. Every page passes four balance gates over its live
+area: its largest blank rectangle covers at most 12 percent of it, no blank band
+96 px or taller runs across it, at most 40 percent of it lies in empty squares
+of 240 px or more, and its centre of mass lies within 12 percent of the centre
+across and down. The edition is grouped into the fewest such pages, then the
+least area in those holes, and each page prefers the fewest crossings and route
+defects. A view that no passing page holds, alone or with a neighbour, is
+refused with `poster_unbalanced` and its closest page's measures and limits.
+Text is outlined from the bundled Noto Sans CJK SC fonts, and each kind draws
+its Lucide icon. Each page is written as SVG and as PNG at 2400 and 6000 px.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
 Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
@@ -137,20 +137,22 @@ measured with the grid's connection sides and with every side left to Archify,
 which plans all sides together. Archify validates every candidate at its
 showcase quality profile and lays out its routes, which archpub measures for
 what Archify does not report: two routes that read as one, running side by side
-closer than 8 units along more than 16, or lining up on one line less than 32
-units apart with no card between them; a route along a card's or the boundary's
-edge, closer than 12 units along more than 16; and two route ends less than 24
-units apart on one side of a card. Among the candidates that pass, the page
-takes the fewest routes that read as one, then the fewest crossings, then the
-fewest routes along an edge, then one narrow enough for Archify's reader to set
-beside its steps at 1440 px, then the fewest crowded route ends, routes over two
-bends and route stretch, then the shape nearest 1.0 to 1.8 times as wide as
-high. When the choice still crosses, reads two routes as one, runs a route along
-an edge or stands above its steps, the connections involved take other sides,
-one at a time from the three best diagrams and the three best beside their
-steps, within 96 measured changes, wherever that ranks the diagram higher. A
-view without a candidate that passes refuses the build with Archify's findings;
-a diagram never drops a component or relation to fit.
+closer than 8 units along more than 16, or lining up within 8 units of one line
+and less than 32 units apart with no card between them; a route along a card's
+or the boundary's edge, closer than 12 units along more than 16; a relation
+label closer than 8 units to another relation's route or to a card; and two
+route ends less than 24 units apart on one side of a card. Among the candidates
+that pass, the page takes the fewest routes that read as one or run along an
+edge, then the fewest crossings, then one narrow enough for Archify's reader to
+set beside its steps at 1440 px, then the fewest routes over two bends, crowded
+labels, crowded route ends and route stretch, then the shape nearest 1.0 to 1.8
+times as wide as high. When the choice still crosses, reads two routes as one,
+runs a route along an edge, crowds a label or stands above its steps, the
+connections involved take other sides, one at a time from the three best
+diagrams and the three best beside their steps, within 96 measured changes,
+wherever that ranks the diagram higher. A view without a candidate that passes
+refuses the build with Archify's findings; a diagram never drops a component or
+relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
 component's first source as a numbered page source at that revision, listed

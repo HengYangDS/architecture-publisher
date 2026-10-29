@@ -55,8 +55,14 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   for (const diagram of manifest.page.diagrams) {
     assert.ok(["grid", "archify"].includes(diagram.sides), diagram.view);
     assert.ok(Array.isArray(diagram.resided), diagram.view);
-    assert.deepEqual([diagram.metrics.corridors, diagram.metrics.tangles], [0, 0], diagram.view);
+    assert.equal(diagram.metrics.corridors, 0, diagram.view);
+    for (const defect of ["tangles", "joins", "hugs", "labels", "crowded"])
+      assert.ok(Number.isInteger(diagram.metrics[defect]), `${diagram.view} ${defect}`);
   }
+  // Every Big Bank tiered candidate misreads, which map-choice covers; the
+  // other view reads as drawn.
+  const automatic = manifest.page.diagrams[1].metrics;
+  assert.equal(automatic.tangles + automatic.joins + automatic.hugs, 0);
   assert.deepEqual(manifest.page.withheld, []);
   // The evidence the drawings leave out stays in the manifest.
   const customer = manifest.evidence.components.find(({ id }) => id === "customer");

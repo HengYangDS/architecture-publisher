@@ -97,7 +97,8 @@ the view has one of its own, otherwise by its question.
 
 For each view the publisher SHALL lay out a finite set of candidate diagrams,
 each a row wrapping and a content width, and obtain every candidate's routes
-from Archify's own layout.
+from Archify's own layout. A view with no candidate that passes Archify's
+showcase checks SHALL be refused with Archify's findings.
 
 #### Scenario: Routes from Archify
 
@@ -107,12 +108,11 @@ from Archify's own layout.
 ### Requirement: Chosen diagram
 
 Among candidates that pass Archify's showcase checks, the publisher SHALL
-choose the one with the fewest routes that read as one, then the fewest route
-crossings, routes along an edge, one Archify's reader sets beside its steps at
-a 1440 px viewport, crowded route ends, routes over two bends, stretch above
-1.35, then the shape closest to the landscape band. A view with no passing
-candidate SHALL be refused with Archify's findings. The manifest SHALL record
-the choice and its metrics.
+choose the one with the fewest routes that read as one or run along an edge,
+then crossings, then one Archify's reader sets beside its steps at a 1440 px
+viewport, then the fewest routes over two bends, crowded labels, crowded route
+ends and stretch above 1.35, then the shape closest to the landscape band. The
+manifest SHALL record the choice and its metrics.
 
 #### Scenario: A clean view diagram
 
@@ -140,17 +140,15 @@ the measure as zero.
 ### Requirement: Routes that read as one
 
 Two routes SHALL read as one when, on Archify's layout, they run side by side,
-closer than 8 px along more than 16 px, or line up on one line, sharing a
-stretch of it or ending less than 32 px apart with no card between them and no
-end in common. A candidate with such routes SHALL NOT be chosen while a
-candidate that passes has none.
+closer than 8 px along more than 16 px, or line up within 8 px of one line,
+sharing a stretch of it or ending less than 32 px apart with no card between
+them and no end in common. A candidate with such routes SHALL NOT be chosen
+while a candidate that passes has none.
 
-#### Scenario: Routes 2 px apart
+#### Scenario: Routes 1 px off one line
 
-- **WHEN** the Big Bank tiered candidate that crosses least runs a route 2 px
-  beside two others on Archify's routes
-- **THEN** another candidate is chosen
-- **AND** the chosen diagram has no routes that read as one
+- **WHEN** one route ends 14 px before another starts, 1 px off its line
+- **THEN** the two read as one
 
 #### Scenario: Routes on one line
 
@@ -159,17 +157,25 @@ candidate that passes has none.
 - **THEN** that candidate is not chosen
 - **AND** the chosen diagram has no routes that read as one
 
-### Requirement: Routes along an edge
+### Requirement: Routes along an edge, crowded labels and ends
 
 A route SHALL run along an edge when it keeps parallel to a card's or the
-boundary's edge closer than 12 px for more than 16 px. Two route ends SHALL
-crowd when they meet one side of a card less than 24 px apart. The manifest
-SHALL record both counts with the chosen diagram's metrics.
+boundary's edge closer than 12 px for more than 16 px, and SHALL count with
+routes that read as one. A relation label SHALL crowd when it comes nearer
+than 8 px to another relation's route or to a card. Two route ends SHALL crowd
+when they meet one side of a card less than 24 px apart. The manifest SHALL
+record each count with the chosen diagram's metrics.
 
 #### Scenario: A route under the boundary's edge
 
 - **WHEN** two candidates differ only in that one runs a route 4 px under the
   boundary's edge
+- **THEN** the other is chosen
+
+#### Scenario: A label under another card
+
+- **WHEN** two candidates differ only in that one sets a relation's label 4 px
+  under a card the relation does not connect
 - **THEN** the other is chosen
 
 ### Requirement: Sides Archify plans
@@ -188,8 +194,8 @@ keeps.
 ### Requirement: Re-sided connections
 
 When the chosen diagram crosses, has routes that read as one or along an edge,
-or stands above its steps, the publisher SHALL change the sides of the
-connections involved, one at a time from the three best diagrams and the three
+crowded labels, or stands above its steps, the publisher SHALL change the sides
+of the connections involved, one at a time from the three best diagrams and the three
 best beside their steps, within 96 measured changes for the view, keeping a
 change only when it ranks the diagram higher. The manifest SHALL record the
 re-sided connections.

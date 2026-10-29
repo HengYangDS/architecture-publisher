@@ -120,7 +120,7 @@ test("tier labels stand before the edge their tier starts at when one column can
   assert.equal(new Set(numbers).size, 3);
 });
 
-test("a tier label centred on several rows stands beside a bracket that spans them", async () => {
+test("a wrapped tier's label stands level with its first row beside a bracket over its rows", async () => {
   const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
   const pages = await edition(model);
   const authority = pages.find(({ views }) => views.includes("authority"));
@@ -135,8 +135,12 @@ test("a tier label centred on several rows stands beside a bracket that spans th
     ...(authority?.svg ?? "").matchAll(/<circle cx="[\d.]+" cy="([\d.]+)" r="14"/gu),
   ];
   const label = Number(first[1]);
-  // The label stands between the rows its bracket spans, which are taller than one card row.
-  assert.ok(top < label && label < bottom, `label at ${label}, bracket ${top}–${bottom}`);
+  // The label stands level with the first of the rows its bracket spans, which
+  // are taller than one card row.
+  assert.ok(
+    top < label && label < (top + bottom) / 2,
+    `label at ${label}, bracket ${top}–${bottom}`,
+  );
   assert.ok(bottom - top > 300, `bracket ${bottom - top} px`);
 });
 

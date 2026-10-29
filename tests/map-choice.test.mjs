@@ -30,21 +30,28 @@ test("Archify chooses every side when the grid's sides cross on its routes", asy
   assert.ok(chosen.candidates > diagramCandidates(model, /** @type {any} */ (action)).length);
 });
 
-test("a diagram whose routes run side by side is not chosen", async () => {
-  // On Archify's routes the Big Bank tiered candidate that crosses least runs
-  // the e-mail system's reply to the customer 2 px beside two other routes.
+test("a view whose every candidate misreads takes the one that misreads least", async () => {
+  // On Archify's routes every Big Bank tiered candidate, and every re-siding the
+  // repair measures, runs at least one pair of routes that read as one.
   const { model } = await loadModel(BIG_BANK_MODEL);
   const [tiered] = await viewsOf(model);
   const chosen = await chooseDiagram(model, tiered);
-  assert.deepEqual([chosen.metrics.tangles, chosen.metrics.joins], [0, 0]);
+  const { tangles, joins, hugs } = chosen.metrics;
+  assert.equal(tangles + joins + hugs, 1);
 });
 
 test("routes that read as one, run along an edge or crowd one side of a card are counted", () => {
   const card = (id, x, y, width = 100, height = 60) => ({ id, x, y, width, height });
   const route = (...points) => ({ points });
   const layout = {
-    components: [card("a", 0, 0), card("b", 200, 0), card("s", 40, 200, 20, 20)],
+    components: [
+      card("a", 0, 0),
+      card("b", 200, 0),
+      card("s", 40, 200, 20, 20),
+      card("c", 845, 20),
+    ],
     boundaries: [],
+    labels: [{ text: "near", x: 760, y: 43, width: 80, height: 14, labelAt: [800, 50] }],
     connections: [
       // One line, 14 px apart and nothing between: they read as one route.
       route([400, 0], [400, 100]),
@@ -63,6 +70,17 @@ test("routes that read as one, run along an edge or crowd one side of a card are
       // One line through a shared end: one bundle, not a misread.
       route([600, 0], [600, 50]),
       route([600, 50], [600, 100]),
+      // 3 px off one line and 14 px apart: still one route to a reader.
+      route([700, 0], [700, 100]),
+      route([703, 114], [703, 200]),
+      // A label 5 px from a card it does not connect.
+      {
+        points: [
+          [800, 0],
+          [800, 100],
+        ],
+        labelAt: [800, 50],
+      },
     ],
   };
   const ids = [
@@ -77,14 +95,19 @@ test("routes that read as one, run along an edge or crowd one side of a card are
     "side-b",
     "bundle-a",
     "bundle-b",
+    "offset-up",
+    "offset-down",
+    "labelled",
   ];
   assert.deepEqual(routeDefects(layout, ids), {
     tangles: 1,
-    joins: 1,
+    joins: 2,
     hugs: 1,
+    labels: 1,
     crowded: 1,
-    misread: ["join-up", "join-down", "side-a", "side-b"],
+    misread: ["join-up", "join-down", "side-a", "side-b", "offset-up", "offset-down"],
     along: ["along"],
+    labelled: ["labelled"],
   });
 });
 

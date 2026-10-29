@@ -84,18 +84,18 @@ const touches = (a, b) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
 /**
- * Set the tiers' numbered labels before the figure, each centred on the rows
- * its tier was wrapped into, so each label names the rows beside it. A tier
- * starts at its leftmost card, or at the boundary's edge when the boundary
- * encloses it. With `column`, every label shares one column one gap before the
- * leftmost start, so the numbers stand in one straight line; with `edges`, the
- * labels of tiers that start at one edge share a column before that edge, so
- * no label stands apart from its rows across paper the others leave blank. A
- * label centred on several rows stands level with the relation labels between
- * them, so a bracket before it spans its rows. When a label or its bracket in a
- * column would touch a card, a wire, a relation label or the boundary's edge,
- * every label of that column sits in the plate's tier column instead, which
- * nothing else enters.
+ * Set the tiers' numbered labels before the figure, each centred on the first
+ * row of its tier, so each label names the row beside it. A label centred
+ * between the rows of a wrapped tier read as one more relation label, so it
+ * stands level with the first of them and a bracket before it spans them all.
+ * A tier starts at its leftmost card, or at the boundary's edge when the
+ * boundary encloses it. With `column`, every label shares one column one gap
+ * before the leftmost start, so the numbers stand in one straight line; with
+ * `edges`, the labels of tiers that start at one edge share a column before
+ * that edge, so no label stands apart from its rows across paper the others
+ * leave blank. When a label or its bracket in a column would touch a card, a
+ * wire, a relation label or the boundary's edge, every label of that column
+ * sits in the plate's tier column instead, which nothing else enters.
  * @param {any} layout the justified layout
  * @param {any} input the figure's input, with its tier column
  * @param {{ at: (x: number) => number, down: (y: number) => number,
@@ -161,7 +161,7 @@ function tierLabels(layout, input, draw) {
       const lines = typefaces.wrap(label, labelWidth, styles.tier);
       const width = 42 + Math.max(...lines.map((line) => typefaces.measure(line, styles.tier)));
       const height = lines.length * styles.tier.line;
-      const top = down((rows[0].top + last.top + last.height - height) / 2);
+      const top = down((2 * rows[0].top + rows[0].height - height) / 2);
       const span = rows.length > 1 ? [down(rows[0].top), down(last.top + last.height)] : null;
       return { first, lines, width, height, top, span };
     });

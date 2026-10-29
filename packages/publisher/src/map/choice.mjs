@@ -95,10 +95,12 @@ export function routeMetrics(composition) {
  * What a reader misreads in Archify's routes of one diagram, and the
  * connections involved. Two routes read as one when they run side by side,
  * closer than Archify's shortest segment for longer than its shortest interior
- * segment, or when they line up on one line, sharing a stretch of it or ending
- * less than two interior segments apart with no card between them and no end
- * in common. A route runs along an edge when it keeps beside a card's or the
- * boundary's edge for longer than an interior segment. Two route ends crowd
+ * segment, or when they line up, within that segment of one line, sharing a
+ * stretch of it or ending less than two interior segments apart with no card
+ * between them and no end in common. A route runs along an edge when it keeps
+ * beside a card's or the boundary's edge for longer than an interior segment.
+ * A relation label crowds when it comes nearer another route or a card than
+ * Archify's shortest segment, where it reads as theirs. Two route ends crowd
  * when they meet one side of a card close together.
  * @param {any} layout Archify's layout of the diagram
  * @param {string[]} ids the diagram's connection ids, in Archify's order
@@ -144,9 +146,10 @@ export function routeDefects(layout, ids) {
       const overlap = Math.min(p[1], q[1]) - Math.max(p[0], q[0]);
       const side = apart >= 0.5 && apart < SEGMENT.micro && overlap > SEGMENT.interior;
       const lined =
-        apart < 0.5 &&
+        !side &&
+        apart < SEGMENT.micro &&
         !shareEnd(s.owner, u.owner) &&
-        (overlap > 0.5 ||
+        ((apart < 0.5 && overlap > 0.5) ||
           (-overlap < DEFECT.join &&
             !cardBetween(axis, s.a[axis], Math.min(p[1], q[1]), Math.max(p[0], q[0]))));
       if (side) tangles += 1;
@@ -204,15 +207,50 @@ export function routeDefects(layout, ids) {
         if (list[i].owner !== list[j].owner && spacing >= 0.5 && spacing < DEFECT.crowd)
           crowded += 1;
       }
+  // The gap between two boxes, 0 where they touch or overlap.
+  const gap = (a, b) =>
+    Math.hypot(
+      Math.max(0, a.x - (b.x + b.width), b.x - (a.x + a.width)),
+      Math.max(0, a.y - (b.y + b.height), b.y - (a.y + a.height)),
+    );
+  const boxOf = ({ a, b }) => ({
+    x: Math.min(a[0], b[0]),
+    y: Math.min(a[1], b[1]),
+    width: Math.abs(a[0] - b[0]),
+    height: Math.abs(a[1] - b[1]),
+  });
+  const anchor = (at) => `${at?.[0]},${at?.[1]}`;
+  const boxes = new Map((layout.labels ?? []).map((label) => [anchor(label.labelAt), label]));
+  /** @type {Set<number>} */
+  const labelled = new Set();
+  layout.connections.forEach(({ labelAt }, owner) => {
+    const box = labelAt && boxes.get(anchor(labelAt));
+    if (!box) return;
+    const near = (other) => gap(box, other) < SEGMENT.micro;
+    if (
+      segments.some((segment) => segment.owner !== owner && near(boxOf(segment))) ||
+      cards.some(near)
+    )
+      labelled.add(owner);
+  });
   const named = (owners) => [...owners].sort((a, b) => a - b).map((owner) => ids[owner]);
-  return { tangles, joins, hugs, crowded, misread: named(misread), along: named(along) };
+  return {
+    tangles,
+    joins,
+    hugs,
+    labels: labelled.size,
+    crowded,
+    misread: named(misread),
+    along: named(along),
+    labelled: named(labelled),
+  };
 }
 
 /**
  * Archify's showcase verdict and route metrics for one candidate document, with
  * the route defects it does not report, and the connections a repair re-sides:
- * those whose routes cross, then those a reader misreads, then those along an
- * edge.
+ * those whose routes cross, then those a reader misreads, those along an edge
+ * and those whose labels crowd.
  * @param {string} file
  * @param {string[]} ids the document's connection ids
  */
@@ -237,7 +275,7 @@ async function measure(file, ids) {
       "Archify's layout lacks the routes of its connections; " +
         "the vendored Archify does not match this publisher.",
     );
-  const { misread, along, ...defects } = routeDefects(layout, ids);
+  const { misread, along, labelled, ...defects } = routeDefects(layout, ids);
   const crossing = (composition.routeReview?.crossings ?? []).flatMap(({ left, right }) => [
     left.id,
     right.id,
@@ -246,7 +284,7 @@ async function measure(file, ids) {
     file,
     passes,
     diagnostics,
-    faults: [...new Set([...crossing, ...misread, ...along])],
+    faults: [...new Set([...crossing, ...misread, ...along, ...labelled])],
     metrics: { ...metrics, ...defects },
   };
 }
@@ -329,18 +367,18 @@ function measurer(directory) {
   };
 }
 
-// Routes a reader takes for one state a relation the model does not, so they
-// outrank a crossing, which a reader sees as one. A route along an edge reads as
-// a second outline and outranks a preview stacked above its steps, which leaves
-// most of its panel blank; both outrank crowded route ends and a route's third
-// bend.
+// Routes a reader takes for one, or for a card's outline, state what the model
+// does not, so they outrank a crossing, which a reader sees as two routes. A
+// preview stacked above its steps leaves most of its panel blank; a route bent
+// more than twice is harder to follow than a label set close to another route
+// or card, and both are harder than ends crowded on one side of a card.
 const rank = ({ metrics, width, height, drawing, index }) => [
-  metrics.tangles + metrics.joins,
+  metrics.tangles + metrics.joins + metrics.hugs,
   metrics.crossings,
-  metrics.hugs,
   besideSteps(drawing) ? 0 : 1,
-  metrics.crowded,
   metrics.routesOverTwoBends,
+  metrics.labels,
+  metrics.crowded,
   Math.max(0, metrics.maxStretch - STRETCH),
   shapeDistance(width, height),
   index,
@@ -353,10 +391,11 @@ function compare(a, b) {
 }
 
 /**
- * Change the sides of the connections whose routes cross, read as one or run
- * along an edge. From each diagram, each round measures every such connection
- * with each other pair of sides it can take, and keeps the best change when it
- * ranks the diagram higher, until no change helps or the budget is spent.
+ * Change the sides of the connections whose routes cross, read as one, run
+ * along an edge or carry a crowded label. From each diagram, each round
+ * measures every such connection with each other pair of sides it can take, and
+ * keeps the best change when it ranks the diagram higher, until no change helps
+ * or the budget is spent.
  * @param {any[]} starts
  * @param {(documents: any[]) => Promise<any[]>} measureAll
  */
@@ -391,11 +430,11 @@ async function repair(starts, measureAll) {
  * Lay out a view's candidate diagrams, measure each on Archify's own routes,
  * once with the grid's connection sides and once with every side left to
  * Archify, and choose among those that pass Archify's showcase checks: the
- * fewest routes a reader takes for one, then the fewest crossings, routes along
- * an edge, one the reader sets beside its steps, the fewest crowded route ends,
- * routes over two bends, the least stretch above 1.35 and the shape nearest 1.0
- * to 1.8 times as wide as high. When the choice still crosses, misreads, runs
- * along an edge or stands above its steps, the best few, and the best few
+ * fewest routes a reader takes for one or that run along an edge, then the
+ * fewest crossings, one the reader sets beside its steps, the fewest routes over
+ * two bends, crowded labels and crowded route ends, the least stretch above
+ * 1.35 and the shape nearest 1.0 to 1.8 times as wide as high. When the choice
+ * still has a defect or stands above its steps, the best few, and the best few
  * beside their steps, are repaired by changing the sides of the connections
  * involved. A view with no candidate inside the shape bounds, or none that
  * passes, is refused.
