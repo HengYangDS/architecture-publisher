@@ -4,7 +4,9 @@ import { diagramCandidates } from "../packages/publisher/src/map/archify.mjs";
 import {
   besideSteps,
   chooseDiagram,
+  drawingOf,
   routeDefects,
+  routeLayout,
   routeMetrics,
 } from "../packages/publisher/src/map/choice.mjs";
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
@@ -149,6 +151,14 @@ test("an Archify answer without a route measure the choice ranks by is refused, 
     Object.entries(metrics).filter(([name]) => name !== "maxStretch"),
   );
   assert.throws(() => routeMetrics({ metrics: renamed }), { code: "page_measures_missing" });
+  // The layout the route defects read needs its cards, boundaries, labels and
+  // the route of every connection.
+  const layout = { components: [], boundaries: [], connections: [{ points: [] }], labels: [] };
+  assert.equal(routeLayout(layout, 1), layout);
+  assert.throws(() => routeLayout(layout, 2), { code: "page_measures_missing" });
+  assert.throws(() => routeLayout({ ...layout, labels: undefined }, 1), {
+    code: "page_measures_missing",
+  });
 });
 
 test("a dense view is drawn with its crossings measured, not refused", async () => {
@@ -166,10 +176,30 @@ test("a dense view is drawn with its crossings measured, not refused", async () 
 });
 
 test("a preview stands beside its steps when its smallest text reaches the floor there", () => {
-  // A 9-unit sublabel needs 10.875 / 9 times the drawing's width; the 11-unit
-  // label alone needs less than its width.
-  assert.equal(besideSteps({ width: 700, sublabels: true }), true);
-  assert.equal(besideSteps({ width: 760, sublabels: true }), false);
-  assert.equal(besideSteps({ width: 860, sublabels: false }), true);
-  assert.equal(besideSteps({ width: 920, sublabels: false }), false);
+  // A 9-unit sublabel or boundary label needs 10.875 / 9 times the drawing's
+  // width; the 11-unit label alone needs less than its width.
+  assert.equal(besideSteps({ width: 700, smallest: 9 }), true);
+  assert.equal(besideSteps({ width: 760, smallest: 9 }), false);
+  assert.equal(besideSteps({ width: 860, smallest: 11 }), true);
+  assert.equal(besideSteps({ width: 920, smallest: 11 }), false);
+  // The reader crops a preview to everything Archify draws, so a route and its
+  // label that reach past the cards widen it.
+  const card = (x) => ({ x, y: 0, width: 200, height: 60 });
+  const layout = {
+    components: [card(0), card(500)],
+    boundaries: [],
+    connections: [
+      {
+        points: [
+          [200, 30],
+          [760, 30],
+          [760, 90],
+        ],
+      },
+    ],
+    labels: [{ x: 700, y: 40, width: 90, height: 14 }],
+  };
+  assert.deepEqual(drawingOf(layout, { components: [{}, {}] }), { width: 790, smallest: 11 });
+  const bounded = { ...layout, boundaries: [{ x: -20, y: -20, width: 740, height: 100 }] };
+  assert.deepEqual(drawingOf(bounded, { components: [] }), { width: 810, smallest: 9 });
 });

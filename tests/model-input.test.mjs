@@ -268,16 +268,18 @@ test("declared views resolve their tiers", () => {
   });
 });
 
-test("model files are read, bounded and digested", async () => {
+test("model files are read, bounded and digested", async (t) => {
   const loaded = await loadModel(AIGW_MODEL);
   assert.equal(loaded.model.id, "aigw-client-projection");
   assert.match(loaded.sha256, /^[0-9a-f]{64}$/u);
   assert.equal(loaded.bytes, (await fs.stat(AIGW_MODEL)).size);
-  await assert.rejects(loadModel(path.join(await temporaryDirectory(), "absent.json")), {
+  await assert.rejects(loadModel(path.join(await temporaryDirectory(t), "absent.json")), {
     code: "model_unreadable",
   });
-  await assert.rejects(loadModel(await writeModel("{ not json")), { code: "model_json_invalid" });
-  await assert.rejects(loadModel(await writeModel(" ".repeat(4 * 1024 * 1024 + 1))), {
+  await assert.rejects(loadModel(await writeModel(t, "{ not json")), {
+    code: "model_json_invalid",
+  });
+  await assert.rejects(loadModel(await writeModel(t, " ".repeat(4 * 1024 * 1024 + 1))), {
     code: "model_too_large",
   });
 });

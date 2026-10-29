@@ -470,8 +470,7 @@ test("native Archify delivers the page deterministically and leaves only index.h
     { ARCHIFY_EXPLAINER_PREPARED: "missing.json", ARCHIFY_QUALITY_PROFILE: "standard" },
   ];
   for (const variables of callers) {
-    const directory = await temporaryDirectory("archpub-page-");
-    t.after(() => fs.rm(directory, { recursive: true, force: true }));
+    const directory = await temporaryDirectory(t, "archpub-page-");
     Object.assign(process.env, variables);
     const delivered = await deliverExplainer(page, directory).finally(() => {
       for (const name of Object.keys(variables)) delete process.env[name];
@@ -501,8 +500,7 @@ test("a page Archify rejects is refused with its diagnostics and leaves nothing 
       ...rest,
     ],
   };
-  const directory = await temporaryDirectory("archpub-page-");
-  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  const directory = await temporaryDirectory(t, "archpub-page-");
   await assert.rejects(deliverExplainer(broken, directory), { code: "page_refused" });
   assert.deepEqual(await fs.readdir(directory), []);
 });

@@ -125,16 +125,30 @@ manifest SHALL record the choice and its metrics.
   as one and of routes along an edge, and only the narrower one leaves its steps
   room beside it
 - **THEN** the narrower one is chosen
+- **AND** the manifest records that its preview stands beside its steps
+
+#### Scenario: Routes past the cards
+
+- **WHEN** Archify routes a relation and its label past the cards of a
+  candidate
+- **THEN** the room the candidate's preview needs beside its steps counts the
+  route and the label
 
 ### Requirement: Archify's route measures
 
 A candidate that passes Archify's checks SHALL carry each route measure the
-choice ranks by; an answer without one SHALL refuse the view rather than read
-the measure as zero.
+choice ranks by, and a layout with its cards, boundaries, relation labels and
+the route of every connection; an answer without one SHALL refuse the view
+rather than read the measure as zero.
 
 #### Scenario: A renamed measure
 
 - **WHEN** Archify passes a candidate without its maximum stretch
+- **THEN** the view is refused with `page_measures_missing`
+
+#### Scenario: A layout without its labels
+
+- **WHEN** Archify lays out a passing candidate without its relation labels
 - **THEN** the view is refused with `page_measures_missing`
 
 ### Requirement: Routes that read as one

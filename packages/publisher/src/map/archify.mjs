@@ -249,15 +249,9 @@ function diagramDocument(model, view, layout, width) {
     [...kinds].map(([type, labels]) => [type, { label: labels.join(" / ").slice(0, 80) }]),
   );
   const natural = Math.ceil(layout.height + MARGIN + LEGEND_BAND);
-  // The extent Archify's reader crops a preview to: the cards and the boundary.
-  const boxes = [...layout.cards.values()];
-  if (layout.boundary && internal.length) boxes.push(layout.boundary);
-  const left = Math.min(...boxes.map(({ x }) => x));
-  const right = Math.max(...boxes.map(({ x, width }) => x + width));
   return {
     nodes: ids,
     height: natural,
-    drawing: { width: right - left, sublabels: components.some((item) => "sublabel" in item) },
     document: {
       schema_version: 1,
       diagram_type: "architecture",

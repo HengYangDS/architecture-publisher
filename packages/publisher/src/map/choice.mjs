@@ -8,8 +8,9 @@ import { diagramCandidates, runArchify } from "./archify.mjs";
  * The choice of each view's diagram on Archify's own routes. Archify validates
  * and measures every candidate; the routes it lays out are measured as well for
  * what a reader misreads and Archify does not report: two routes that read as
- * one, a route along an edge and route ends crowded on one side of a card. The
- * connections of a choice that still crosses or misreads take other sides.
+ * one, a route along an edge, a label set close to another route or a card and
+ * route ends crowded on one side of a card. The connections of a choice that
+ * still crosses or misreads take other sides.
  */
 
 /** The shapes a diagram should take, width over height, and the narrowest it may take. */
@@ -45,15 +46,37 @@ const OUTWARD = Object.freeze({ top: [0, -1], bottom: [0, 1], left: [-1, 0], rig
  * floor, leaves the steps 320 px of the 1246 px panel body and the 36 px gap
  * between them. Stacked above its steps instead, a preview leaves the steps a
  * narrow column under it and most of the panel blank. Its smallest text is a
- * 9-unit sublabel, or else the 11-unit label: a relation's 8-unit label counts
- * at 0.7 of its size, as Archify counts it.
+ * 9-unit sublabel or boundary label, or else the 11-unit label: a relation's
+ * 8-unit label counts at 0.7 of its size, as Archify counts it.
  */
-const BESIDE = Object.freeze({ floor: 10.875, room: 890, crop: 12, sublabel: 9, label: 11 });
+const BESIDE = Object.freeze({ floor: 10.875, room: 890, crop: 12, small: 9, label: 11 });
+
+/**
+ * The drawing Archify's reader crops a preview to, on Archify's own layout: its
+ * cards, boundaries, routes and relation labels, which can reach past the cards,
+ * and the size of its smallest text.
+ * @param {any} layout Archify's layout of the diagram
+ * @param {any} document the diagram's document
+ */
+export function drawingOf(layout, document) {
+  const boxes = [...layout.components, ...layout.boundaries, ...layout.labels];
+  const xs = [
+    ...boxes.flatMap(({ x, width }) => [x, x + width]),
+    ...layout.connections.flatMap(({ points }) => points.map(([x]) => x)),
+  ];
+  const small =
+    layout.boundaries.length > 0 || document.components.some((item) => "sublabel" in item);
+  return {
+    width: Math.max(...xs) - Math.min(...xs),
+    smallest: small ? BESIDE.small : BESIDE.label,
+  };
+}
 
 /** Whether Archify's reader sets a diagram's preview beside its steps at 1440 px. */
 export function besideSteps(drawing) {
-  const smallest = drawing.sublabels ? BESIDE.sublabel : BESIDE.label;
-  return Math.ceil(((drawing.width + BESIDE.crop) * BESIDE.floor) / smallest) + 2 <= BESIDE.room;
+  return (
+    Math.ceil(((drawing.width + BESIDE.crop) * BESIDE.floor) / drawing.smallest) + 2 <= BESIDE.room
+  );
 }
 
 /** Candidates Archify measures at once. */
@@ -89,6 +112,29 @@ export function routeMetrics(composition) {
     maxStretch: metrics.maxStretch,
     corridors: metrics.ambiguousCorridors,
   };
+}
+
+/** The parts of Archify's layout the route defects and the drawing read. */
+const LAYOUT = Object.freeze(["components", "boundaries", "connections", "labels"]);
+
+/**
+ * Archify's layout of a candidate that Archify passed. A layout without its
+ * cards, boundaries, labels or the route of each connection refuses the view,
+ * as a missing route measure does.
+ * @param {any} layout Archify's layout answer
+ * @param {number} connections the document's connection count
+ */
+export function routeLayout(layout, connections) {
+  const complete =
+    LAYOUT.every((part) => Array.isArray(layout[part])) &&
+    layout.connections.length === connections;
+  if (!complete)
+    refuse(
+      "page_measures_missing",
+      "Archify's layout lacks the cards, boundaries, labels or routes of its connections; " +
+        "the vendored Archify does not match this publisher.",
+    );
+  return layout;
 }
 
 /**
@@ -156,7 +202,7 @@ export function routeDefects(layout, ids) {
       if (lined) joins += 1;
       if (side || lined) misread.add(s.owner).add(u.owner);
     }
-  const edges = [...cards, ...(layout.boundaries ?? [])].flatMap(({ x, y, width, height }) => [
+  const edges = [...cards, ...layout.boundaries].flatMap(({ x, y, width, height }) => [
     { axis: 1, at: y, from: x, to: x + width },
     { axis: 1, at: y + height, from: x, to: x + width },
     { axis: 0, at: x, from: y, to: y + height },
@@ -219,8 +265,8 @@ export function routeDefects(layout, ids) {
     width: Math.abs(a[0] - b[0]),
     height: Math.abs(a[1] - b[1]),
   });
-  const anchor = (at) => `${at?.[0]},${at?.[1]}`;
-  const boxes = new Map((layout.labels ?? []).map((label) => [anchor(label.labelAt), label]));
+  const anchor = ([x, y]) => `${x},${y}`;
+  const boxes = new Map(layout.labels.map((label) => [anchor(label.labelAt), label]));
   /** @type {Set<number>} */
   const labelled = new Set();
   layout.connections.forEach(({ labelAt }, owner) => {
@@ -248,13 +294,14 @@ export function routeDefects(layout, ids) {
 
 /**
  * Archify's showcase verdict and route metrics for one candidate document, with
- * the route defects it does not report, and the connections a repair re-sides:
- * those whose routes cross, then those a reader misreads, those along an edge
- * and those whose labels crowd.
+ * the route defects it does not report, the drawing its preview is cropped to
+ * and the connections a repair re-sides: those whose routes cross, then those a
+ * reader misreads, those along an edge and those whose labels crowd.
  * @param {string} file
- * @param {string[]} ids the document's connection ids
+ * @param {any} document the document written to `file`
  */
-async function measure(file, ids) {
+async function measure(file, document) {
+  const ids = document.connections.map(({ id }) => id);
   const validate = ["validate", "architecture", file, "--json", "--quality", "showcase"];
   const { answer } = await runArchify(validate);
   const composition = answer.composition ?? {};
@@ -268,13 +315,8 @@ async function measure(file, ids) {
   // Only a candidate that passes is ranked.
   if (!passes) return { file, passes, diagnostics, faults: [], metrics: null };
   const metrics = routeMetrics(composition);
-  const { answer: layout } = await runArchify([...validate, "--layout-json"]);
-  if (!Array.isArray(layout.connections) || layout.connections.length !== ids.length)
-    refuse(
-      "page_measures_missing",
-      "Archify's layout lacks the routes of its connections; " +
-        "the vendored Archify does not match this publisher.",
-    );
+  const laid = await runArchify([...validate, "--layout-json"]);
+  const layout = routeLayout(laid.answer, ids.length);
   const { misread, along, labelled, ...defects } = routeDefects(layout, ids);
   const crossing = (composition.routeReview?.crossings ?? []).flatMap(({ left, right }) => [
     left.id,
@@ -286,6 +328,7 @@ async function measure(file, ids) {
     diagnostics,
     faults: [...new Set([...crossing, ...misread, ...along, ...labelled])],
     metrics: { ...metrics, ...defects },
+    drawing: drawingOf(layout, document),
   };
 }
 
@@ -358,8 +401,7 @@ function measurer(directory) {
       while (next < documents.length) {
         const index = next++;
         await fs.writeFile(files[index], `${JSON.stringify(documents[index], null, 2)}\n`);
-        const ids = documents[index].connections.map(({ id }) => id);
-        measured[index] = await measure(files[index], ids);
+        measured[index] = await measure(files[index], documents[index]);
       }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
@@ -502,6 +544,7 @@ export async function chooseDiagram(model, view) {
       rows: chosen.rows,
       sides: chosen.sides,
       resided: chosen.resided,
+      beside: besideSteps(chosen.drawing),
       metrics: chosen.metrics,
       candidates: tried,
     };

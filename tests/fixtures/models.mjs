@@ -145,14 +145,24 @@ export function graphModel(count, edges, extra = {}) {
   });
 }
 
-/** Write a model to a fresh temporary file and return its path. */
-export async function writeModel(model) {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-model-"));
-  const file = path.join(directory, "model.json");
+/**
+ * A fresh temporary directory, removed when the test ends.
+ * @param {import("node:test").TestContext} t
+ */
+export async function temporaryDirectory(t, prefix = "archpub-") {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
+  t.after(() => fs.rm(directory, { recursive: true, force: true }));
+  return directory;
+}
+
+/**
+ * Write a model to a fresh temporary file, removed when the test ends, and
+ * return its path.
+ * @param {import("node:test").TestContext} t
+ * @param {unknown} model
+ */
+export async function writeModel(t, model) {
+  const file = path.join(await temporaryDirectory(t, "archpub-model-"), "model.json");
   await fs.writeFile(file, typeof model === "string" ? model : JSON.stringify(model));
   return file;
 }
-
-/** A fresh temporary directory. */
-export const temporaryDirectory = (prefix = "archpub-") =>
-  fs.mkdtemp(path.join(os.tmpdir(), prefix));

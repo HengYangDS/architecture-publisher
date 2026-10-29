@@ -33,8 +33,9 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
   assert.equal(text.output, `Unknown command draw.\n\n${USAGE}`);
 });
 
-test("refusals exit with status 1 and list each problem", async () => {
+test("refusals exit with status 1 and list each problem", async (t) => {
   const model = await writeModel(
+    t,
     minimalModel({ relations: [{ id: "x", from: "a", to: "a", label: "y" }] }),
   );
   const { exitCode, body } = await json(["check", model]);
@@ -51,8 +52,7 @@ test("refusals exit with status 1 and list each problem", async () => {
 
 test("a failure that is not a refusal exits with status 3 and a JSON body", async (t) => {
   // A manifest that is a directory cannot be read, which is not a missing manifest.
-  const root = await temporaryDirectory("archpub-cli-");
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const root = await temporaryDirectory(t, "archpub-cli-");
   await fs.mkdir(path.join(root, "manifest.json"));
   const { exitCode, body } = await json(["accept", root, "--reviewer", "Reviewer"]);
   assert.equal(exitCode, 3);
@@ -64,9 +64,8 @@ test("a failure that is not a refusal exits with status 3 and a JSON body", asyn
 });
 
 test("check, build, accept, publish and import run end to end", async (t) => {
-  const root = await temporaryDirectory("archpub-cli-");
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
-  const model = await writeModel(pageModel());
+  const root = await temporaryDirectory(t, "archpub-cli-");
+  const model = await writeModel(t, pageModel());
   const checked = await json(["check", model]);
   assert.equal(checked.exitCode, 0);
   assert.equal(checked.body.ok, true);
@@ -123,8 +122,8 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   await assert.rejects(fs.access(path.join(root, "shop")));
 });
 
-test("the archpub executable prints one result and sets its exit status", async () => {
-  const model = await writeModel(pageModel());
+test("the archpub executable prints one result and sets its exit status", async (t) => {
+  const model = await writeModel(t, pageModel());
   const passed = spawnSync(process.execPath, [MAIN, "check", model, "--json"], {
     encoding: "utf8",
   });

@@ -14,8 +14,7 @@ const WORKER = fileURLToPath(
 );
 
 async function workspace(t, files) {
-  const root = await temporaryDirectory("archpub-likec4-");
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const root = await temporaryDirectory(t, "archpub-likec4-");
   for (const [name, text] of Object.entries(files)) {
     await fs.mkdir(path.dirname(path.join(root, name)), { recursive: true });
     await fs.writeFile(path.join(root, name), text);

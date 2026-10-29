@@ -181,8 +181,9 @@ the model id, title, digest and size, the declared repository, every source
 with its state and declared and observed digest, the digest of each bundled
 supply, each view with its tiers, members and page, each page with its views,
 composition and measures, the explainer page's quality profile and gates, each
-view diagram's width, height, rows, sides, re-sided connections, candidate
-count and Archify route measures, the sources the page withholds, the details,
+view diagram's width, height, rows, sides, re-sided connections, whether its
+preview stands beside its steps, candidate count and Archify route measures,
+the sources the page withholds, the details,
 status and sources of every component and relation, and the path, size and
 SHA-256 of every artifact. It contains no time, host path or user name, so
 building the same model with the same version on one platform reproduces every
@@ -225,7 +226,7 @@ or Archify reported.
 | `poster_unbalanced`                                                                   | No page holding a view, alone or with a neighbour, passes the balance gates.                |
 | `page_label_too_long`, `page_shape_refused`                                           | A label exceeds the widest diagram card, or no diagram has a usable shape.                  |
 | `page_layout_refused`, `page_diagram_refused`                                         | A view's diagram cannot be wired, or none passes Archify's showcase checks.                 |
-| `page_measures_missing`                                                               | Archify's answer lacks a route measure; the bundled Archify is unexpected.                  |
+| `page_measures_missing`                                                               | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.   |
 | `page_refused`                                                                        | Archify did not validate or deliver the page.                                               |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.                           |
 | `delivery_exists`                                                                     | `--out` already exists.                                                                     |

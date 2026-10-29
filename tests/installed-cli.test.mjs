@@ -37,7 +37,7 @@ test("the packed publisher installs, relocates and builds with its own verified 
 
   const relocated = path.join(directory, "relocated");
   await fs.rename(consumer, relocated);
-  const model = await writeModel(pageModel());
+  const model = await writeModel(t, pageModel());
   const out = path.join(directory, "delivery");
   const built = archpub(relocated, "build", model, "--out", out);
   assert.equal(built.status, 0, built.stderr + JSON.stringify(built.body));

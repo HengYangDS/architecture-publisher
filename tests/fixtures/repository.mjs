@@ -8,8 +8,7 @@ export const README = "# Read me\n";
 
 /** A one-commit repository holding src/main.mjs and README.md. */
 export async function repository(t) {
-  const root = await temporaryDirectory("archpub-sources-");
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const root = await temporaryDirectory(t, "archpub-sources-");
   await fs.mkdir(path.join(root, "src"));
   await fs.writeFile(path.join(root, "src/main.mjs"), MAIN);
   await fs.writeFile(path.join(root, "README.md"), README);

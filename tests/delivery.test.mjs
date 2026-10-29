@@ -13,11 +13,7 @@ import {
 } from "./fixtures/models.mjs";
 import { repository } from "./fixtures/repository.mjs";
 
-async function workspace(t) {
-  const root = await temporaryDirectory("archpub-delivery-");
-  t.after(() => fs.rm(root, { recursive: true, force: true }));
-  return root;
-}
+const workspace = (t) => temporaryDirectory(t, "archpub-delivery-");
 
 const readJson = async (file) => JSON.parse(await fs.readFile(file, "utf8"));
 
@@ -87,6 +83,7 @@ test("check reports the plan without writing and invalid models leave no partial
   assert.deepEqual(checked.sources, { state: "none", count: 0 });
   assert.equal(checked.views.length, 2);
   const bad = await writeModel(
+    t,
     minimalModel({ relations: [{ id: "x", from: "a", to: "zz", label: "y" }] }),
   );
   await assert.rejects(buildDelivery(bad, path.join(root, "never")), { code: "model_invalid" });
@@ -99,6 +96,7 @@ test("sources verified against the checkout are cited on the page at the model's
   const url = "https://example.invalid/fixture.git";
   const { components } = pageModel();
   const model = await writeModel(
+    t,
     pageModel({
       repository: { name: "fixture", url, revision },
       sources: { main: { path: "src/main.mjs" } },
@@ -124,7 +122,7 @@ test("sources verified against the checkout are cited on the page at the model's
 test("acceptance and publication require an unchanged delivery", async (t) => {
   const root = await workspace(t);
   const out = path.join(root, "delivery");
-  await buildDelivery(await writeModel(pageModel()), out);
+  await buildDelivery(await writeModel(t, pageModel()), out);
   await assert.rejects(acceptDelivery(out, { reviewer: " " }), {
     code: "acceptance_reviewer_missing",
   });
@@ -185,7 +183,7 @@ test("deliveries need their own manifest, acceptance and plain files", async (t)
     code: "delivery_manifest_invalid",
   });
   const out = path.join(root, "delivery");
-  await buildDelivery(await writeModel(pageModel()), out);
+  await buildDelivery(await writeModel(t, pageModel()), out);
   await fs.writeFile(
     path.join(out, "acceptance.json"),
     JSON.stringify({ manifest: "0".repeat(64) }),

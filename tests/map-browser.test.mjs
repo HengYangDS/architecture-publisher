@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
@@ -34,9 +33,9 @@ test("delivered pages fit every preview and set component labels at 13.25 px the
     for (const file of [AIGW_MODEL, BIG_BANK_MODEL]) {
       const { model } = await loadModel(file);
       const views = await planViews(model, async () => ({ fits: true, width: 1, height: 1 }));
-      const directory = await temporaryDirectory("archpub-page-browser-");
-      t.after(() => fs.rm(directory, { recursive: true, force: true }));
-      const { output } = await deliverExplainer(await explainerPage(model, views), directory);
+      const directory = await temporaryDirectory(t, "archpub-page-browser-");
+      const explained = await explainerPage(model, views);
+      const { output } = await deliverExplainer(explained, directory);
       const page = await browser.newPage({
         viewport: { width: 1440, height: 900 },
         reducedMotion: "reduce",
@@ -76,6 +75,16 @@ test("delivered pages fit every preview and set component labels at 13.25 px the
           statuses.filter((status) => !(/** @type {HTMLElement} */ (status).hidden)).length,
       );
       assert.equal(notices, 0, file);
+      // The reader sets each preview beside its steps exactly where the choice
+      // predicted it would.
+      const beside = await page.$$eval(".guided", (guides) =>
+        guides.map((guide) => guide.classList.contains("beside")),
+      );
+      assert.deepEqual(
+        beside,
+        explained.diagrams.map((diagram) => diagram.beside),
+        file,
+      );
       const diagrams = await page.$$eval("button[data-open-diagram]", (buttons) =>
         buttons.map((button) => /** @type {HTMLElement} */ (button).dataset.openDiagram),
       );

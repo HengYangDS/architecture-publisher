@@ -97,6 +97,7 @@ function diagramSummary(diagram) {
     height: diagram.height,
     sides: diagram.sides,
     resided: diagram.resided,
+    beside: diagram.beside,
     candidates: diagram.candidates,
     metrics: diagram.metrics,
   };
