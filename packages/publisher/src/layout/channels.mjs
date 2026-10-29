@@ -63,7 +63,7 @@ export function straightArrows(input) {
  * @param {{ order: string[][], classes: any, box: Map<string, { x: number, cx: number, width: number }>, cardWidth: number,
  *   rowHeights: number[], contentWidth: number, columns: number, pitch: number, gridLeft: number, slots: number,
  *   frame: [number, number] | null, spacing: any, label: (relation: any, maxWidth?: number) => LabelBox,
- *   straights: Straight[] }} input
+ *   straights: Straight[], lanes?: boolean }} input `lanes` when the medium draws its own wires
  */
 export function buildWires(input) {
   const { order, classes, box, straights } = input;
@@ -216,6 +216,16 @@ function corridor(input, first, last, x1, x2, taken, wired) {
   ];
   candidates.push(left - 2 * spacing.separation, right + 2 * spacing.separation);
   const inside = (x) => x >= spacing.clear && x <= input.contentWidth - spacing.clear;
+  // Within the boundary a corridor keeps one separation from its edge. Beyond
+  // it, a wire the medium draws keeps the lane's two, or it reads as a second
+  // edge; where Archify draws the routes, the corridor only reserves a gap.
+  const beyond = input.lanes ? 2 : 1;
+  const fromFrame = (x) =>
+    !frame ||
+    frame.every(
+      (edge) =>
+        Math.abs(edge - x) >= (x < frame[0] || x > frame[1] ? beyond : 1) * spacing.separation,
+    );
   const free = (x) =>
     inside(x) &&
     order
@@ -223,7 +233,7 @@ function corridor(input, first, last, x1, x2, taken, wired) {
       .every((row) =>
         row.every((id) => x < box.get(id).x - 12 || x > box.get(id).x + box.get(id).width + 12),
       ) &&
-    (!frame || frame.every((edge) => Math.abs(edge - x) >= spacing.separation)) &&
+    fromFrame(x) &&
     !taken.some(
       (use) =>
         Math.abs(use.x - x) < spacing.separation && use.first <= last - 1 && first <= use.last - 1,

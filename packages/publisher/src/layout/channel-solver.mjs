@@ -333,7 +333,9 @@ function coincident(choice, other) {
 /**
  * Whether `choice` for wire `index` fits the choices already made on its label
  * rows: labels keep `labelGap` from each other and `labelClear` from another
- * wire's jog or vertical, and jogs on one row keep `separation` apart.
+ * wire's jog or vertical, and jogs on one row keep `separation` apart. Where the
+ * medium sets `join`, two wires' marks on one row, a jog or a label, keep it
+ * apart: they share one line, and closer a reader continues one into the other.
  */
 function compatible(channel, chosen, index, choice, rows, spacing) {
   const wires = channel.wires;
@@ -342,6 +344,14 @@ function compatible(channel, chosen, index, choice, rows, spacing) {
     const width = /** @type {LabelBox} */ (wires[i].label).width;
     return { low: option.label - width / 2, high: option.label + width / 2 };
   };
+  const mark = (i, option, row) =>
+    option.row !== row
+      ? null
+      : option.jog
+        ? { low: option.jog[0], high: option.jog[1] }
+        : option.label !== undefined
+          ? boxOf(i, option)
+          : null;
   for (const [j, other] of chosen) {
     if (coincident(choice, other)) return false;
     for (let row = 0; row < rows; row += 1) {
@@ -356,6 +366,10 @@ function compatible(channel, chosen, index, choice, rows, spacing) {
       if (mineJog && otherBox && near(mineJog, otherBox, spacing.labelClear)) return false;
       if (otherJog && mineBox && near(otherJog, mineBox, spacing.labelClear)) return false;
       if (mineJog && otherJog && near(mineJog, otherJog, spacing.separation)) return false;
+      if (spacing.join) {
+        const [mine, theirs] = [mark(index, choice, row), mark(j, other, row)];
+        if (mine && theirs && near(mine, theirs, spacing.join)) return false;
+      }
       const passes = (option, at) =>
         option.verticals.filter(
           (vertical) =>
@@ -400,7 +414,8 @@ export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS,
   const solved = new Map();
   const tracksFor = (spans, crossers) => {
     const key = JSON.stringify([spans, crossers]);
-    if (!solved.has(key)) solved.set(key, assignTracks(spans, crossers, spacing.separation));
+    if (!solved.has(key))
+      solved.set(key, assignTracks(spans, crossers, spacing.join ?? spacing.separation));
     return solved.get(key);
   };
   for (let rows = minimumRows; rows <= maximumRows; rows += 1) {

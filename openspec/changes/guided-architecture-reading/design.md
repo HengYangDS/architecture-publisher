@@ -221,10 +221,12 @@ never drawn, with any of:
   the system boundary's edge.
 
 Route defects are counted, not refused: parallel wires closer than 24 px, a
-wire stopping within 24 px of another in line with it, arrowheads closer than
-two heads and a label within 16 px of another wire. Posters rank by crossings,
-then route defects, and record both; the page's diagrams are judged on
-Archify's own routes (decision 10).
+wire stopping within 48 px of another in line with it, arrowheads closer than
+two heads and a label within 16 px of another wire. Two relations' jogs and
+labels on one label row, and the tracks of one band, keep 48 px apart, or the
+row reads as one labelled bus. Posters rank by crossings, then route defects,
+and record both; the page's diagrams are judged on Archify's own routes
+(decision 10).
 
 Crossings are minimized by placement and channel routing and reported, not
 refused: some relation sets, such as three components each calling the same
@@ -335,20 +337,15 @@ became the unit:
   gaps and wires with their text, up to 1.8 times the densest step. The view
   heading rises to 36 px so that no card label outranks it, and every plate of
   a page uses one step, so a page never pairs a large figure with a small one.
-  Card text breaks only at spaces: a card too narrow for a word, path or
-  identifier rejects its wrapping.
-- **Summaries set once.** The scope note carried the views' summaries after
-  the model's scope, so an overview printed its summary twice. A page of one
-  view now sets that view's summary, or on the first page the model's; a page
-  of several sets the model's only on the first page and each plate's own under
-  its heading; the scope note carries the scope only.
+- **Summaries set once.** A page of one view sets that view's summary, or on
+  the first page the model's; a page of several sets the model's only on the
+  first page and each plate's own under its heading; the scope note carries the
+  scope only, so no summary prints twice.
 - **Ink-centred figures and contained wires.** The layout centres the span of
   its cards, which leaves a figure with off-centre single-card rows heavy to one
   side; the drawn figure moves just far enough to bring its ink within 2.5
-  percent of the centre line. A long relation's corridor could fall past the
-  last used column and run off the page; corridors are now bounded by the
-  content width, and a plate that draws anything outside its field and tier
-  column is rejected.
+  percent of the centre line. Corridors are bounded by the content width, and a
+  plate that draws anything outside its field and tier column is rejected.
 - **Centred rows and measured regions.** Placement carries a row-centring cost
   above one bend and below one crossing, taken over all of a row's cards or
   only those inside the boundary, and the page tries both. Every balance gate
@@ -430,20 +427,22 @@ three cards, at diagram widths of 960, 840 and 720 px, which a preview
 spanning its panel at 1440 px shows at Archify's full 1.25 times enlargement.
 A card is at least as wide as the view's longest label needs, so the grid gives
 up a spare column rather than narrow a card below its label. Archify validates
-every candidate at showcase quality, with the grid's sides and with every side
-left to Archify, and lays out its routes. Blind reviews found misread what
-Archify does not report: routes 1 px off one line read as a relation the model
-lacks, a route 3 px from an edge as a second outline, a label 4 px under a card
-as the card's, ends 14 px apart on one side of a card as one doubled arrow.
-archpub measures them against Archify's 8 px shortest and 16 px interior
-segments and takes the fewest routes that read as one or along an edge, since a
-crossing still reads as two, then crossings, a preview beside its steps, labels
-read as another's, doubled routes, routes over two bends, crowded labels and
-ends, stretch above 1.35 and the shape closest to 1.0 to 1.8. A choice with a
-defect, or stacked above its steps, has the connections involved re-sided from
-the three best diagrams and the three best beside their steps, within 96
-measured changes; a label still misplaced is then pinned clear beside its own
-route. A view with no passing candidate is refused with Archify's findings.
+every candidate at the build's quality, with the grid's sides and with every
+side left to Archify, and lays out its routes. Blind reviews found misread what
+Archify does not report: routes 1 px off one line, or two cards' routes into
+one point, read as a relation the model lacks, a route 3 px from an edge as a
+second outline, a label 4 px under a card as the card's, ends 14 px apart on
+one side of a card as one doubled arrow. archpub measures them against
+Archify's 8 px shortest and 16 px interior segments and takes the fewest routes
+that read as one or along an edge, since a crossing still reads as two, then
+crossings, a preview beside its steps, labels read as another's, doubled
+routes, routes over two bends, crowded labels and ends, stretch above 1.35 and
+the shape closest to 1.0 to 1.8. A choice with a defect, or stacked above its
+steps, has the connections involved re-sided from the three best diagrams and
+the three best beside their steps, within 96 measured changes; a label still
+misplaced is then pinned on or beside its own route, one read as another's
+alone as well, since a pin moves Archify's routes. A view with no passing
+candidate is refused with Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit

@@ -168,6 +168,7 @@ async function measure(file, document) {
         ...owners.labelled,
       ]),
     ],
+    mislabelled: owners.mislabelled,
     relabel: [...new Set([...owners.mislabelled, ...owners.labelled])],
     layout,
     metrics: { ...metrics, ...defects },
@@ -393,20 +394,30 @@ export async function chooseDiagram(model, view) {
     }
     let [chosen] = [...pool].sort(compare);
     if (chosen.relabel.length) {
+      // Pinning a label moves Archify's routes around it, so the labels read as
+      // another's are pinned alone as well as with those that only crowd.
       const starts = [...pool]
         .sort(byRoutes)
         .slice(0, REPAIR.starts)
         .flatMap((start) => {
           const ids = start.document.connections.map(({ id }) => id);
-          const pins = clearLabels(start.layout, ids, start.relabel);
-          if (!pins.size) return [];
-          const document = {
-            ...start.document,
-            connections: start.document.connections.map((item) =>
-              pins.has(item.id) ? { ...item, labelAt: pins.get(item.id) } : item,
-            ),
-          };
-          return [{ start, document, pinned: [...pins.keys()] }];
+          const sets = start.mislabelled.length
+            ? [start.mislabelled, start.relabel]
+            : [start.relabel];
+          const seen = new Set();
+          return sets.flatMap((owners) => {
+            const pins = clearLabels(start.layout, ids, owners);
+            const key = JSON.stringify([...pins]);
+            if (!pins.size || seen.has(key)) return [];
+            seen.add(key);
+            const document = {
+              ...start.document,
+              connections: start.document.connections.map((item) =>
+                pins.has(item.id) ? { ...item, labelAt: pins.get(item.id) } : item,
+              ),
+            };
+            return [{ start, document, pinned: [...pins.keys()] }];
+          });
         });
       tried += starts.length;
       const pinned = (await measureAll(starts.map(({ document }) => document))).map(

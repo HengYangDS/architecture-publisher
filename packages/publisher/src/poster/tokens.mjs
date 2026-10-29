@@ -83,6 +83,12 @@ export const POSTER = Object.freeze({
      * wire: closer, the label reads as that wire's.
      */
     labelClear: ROUTE.label,
+    /**
+     * The least gap between two relations' marks on one line, a label row or a
+     * band track: closer, a reader continues one into the other, and a row of
+     * labels and jogs reads as one labelled bus.
+     */
+    join: ROUTE.join,
     minJog: 56,
     clear: 14,
     minChannel: 64,
@@ -170,6 +176,7 @@ export function figureStyles(step) {
 export function figureMetrics(styles) {
   const unit = styles.name.size / 24;
   const round = (value) => Math.max(8, Math.round(value / 8) * 8);
+  const separation = Math.max(POSTER.spacing.separation, round(2 * POSTER.wire.arrow * unit));
   return Object.freeze({
     card: Object.freeze({
       pad: round(20 * unit),
@@ -195,7 +202,8 @@ export function figureMetrics(styles) {
       inset: round(28 * unit),
       stub: round(16 * unit),
       track: Math.max(POSTER.spacing.separation, round(16 * unit)),
-      separation: Math.max(POSTER.spacing.separation, round(2 * POSTER.wire.arrow * unit)),
+      separation,
+      join: Math.max(POSTER.spacing.join, 2 * separation),
       arrowStub: round(18 * unit),
       labelGap: round(16 * unit),
       labelRowGap: round(8 * unit),

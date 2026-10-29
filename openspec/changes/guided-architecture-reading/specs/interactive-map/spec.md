@@ -157,13 +157,26 @@ rather than read the measure as zero.
 Two routes SHALL read as one when, on Archify's layout, they run side by side,
 closer than 8 px along more than 16 px, or line up within 8 px of one line,
 sharing a stretch of it or ending less than 32 px apart with no card between
-them and no end in common. A candidate with such routes SHALL NOT be chosen
-while a candidate that passes has none.
+them, or end at one point, unless they leave one card at that point and at
+most one of them carries a label: those fan out as one labelled relation. A
+candidate with such routes SHALL NOT be chosen while a candidate that passes
+has none.
 
 #### Scenario: Routes 1 px off one line
 
 - **WHEN** one route ends 14 px before another starts, 1 px off its line
 - **THEN** the two read as one
+
+#### Scenario: Two cards' routes into one point
+
+- **WHEN** relations from two cards end at one point of a third card
+- **THEN** the two read as one
+
+#### Scenario: One label fanning out of one point
+
+- **WHEN** two relations leave one card at one point and only one of them
+  carries a label
+- **THEN** the two do not read as one
 
 #### Scenario: Routes on one line
 
@@ -197,8 +210,8 @@ count with the chosen diagram's metrics.
 A relation label SHALL read as another's when another route, a card or another
 label is no farther from it than its own route, or another label is nearer
 than 8 px. It SHALL crowd when anything else, a boundary's outline included,
-comes nearer than 8 px or than twice its own route's distance. The manifest
-SHALL record both counts with the chosen diagram's metrics.
+comes nearer than 16 px or than two and a half times its own route's distance.
+The manifest SHALL record both counts with the chosen diagram's metrics.
 
 #### Scenario: A label under another card
 
@@ -245,9 +258,9 @@ The manifest SHALL record the re-sided connections.
 
 When the chosen diagram still has a label read as another's or crowded, the
 publisher SHALL pin those labels on the three best diagrams by their routes
-alone, each beside the middle or a quarter of one of its own route's segments
-where it is not read as anything else, and choose again among every measured
-diagram. The manifest SHALL record the pinned labels.
+alone, each on or beside the middle or a quarter of one of its own route's
+segments where it is not read as anything else, and choose again among every
+measured diagram. The manifest SHALL record the pinned labels.
 
 #### Scenario: A label pinned clear
 
@@ -255,6 +268,24 @@ diagram. The manifest SHALL record the pinned labels.
   policy and 6 px from its own route
 - **THEN** the chosen diagram pins that label where it reads as its route's
 - **AND** the manifest records the pin
+
+### Requirement: Pins that move routes
+
+A pin moves Archify's routes around its label, so the labels read as another's
+SHALL be pinned alone as well as with those that only crowd. A label pinned on
+a segment SHALL mask its route, which runs on at least 8 px past it at either
+end.
+
+#### Scenario: A label read as another's pinned alone
+
+- **WHEN** a diagram has one label read as another's and two that crowd
+- **THEN** the publisher measures it with that label pinned alone and with all
+  three pinned
+
+#### Scenario: A label pinned on its route
+
+- **WHEN** a label is pinned on one of its route's segments
+- **THEN** the segment runs on at least 8 px past the label at either end
 
 ### Requirement: Diagram shape
 

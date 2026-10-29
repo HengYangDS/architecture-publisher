@@ -582,6 +582,25 @@ bends SHALL be recorded in the page's measures and SHALL NOT refuse a page.
 - **WHEN** a page that passes every gate draws a crossing
 - **THEN** the build delivers it and its manifest entry records the crossing
 
+### Requirement: Marks a reader joins
+
+Two relations' jogs and labels on one label row of a poster, and the tracks of
+one band, SHALL keep 48 px apart, or twice the step's wire separation when that
+is more; closer, a reader continues one into the other and reads the row as
+one labelled bus. A wire that stops less than 48 px short of another in line
+with it SHALL count as a route defect. A corridor outside the system boundary
+SHALL keep two wire separations from its edge.
+
+#### Scenario: Two labels on one row
+
+- **WHEN** two relations' labels share one label row of a channel
+- **THEN** they stand at least 48 px apart
+
+#### Scenario: A wire that stops short of another
+
+- **WHEN** a wire stops 40 px short of another in line with it
+- **THEN** the page's measures count a route defect
+
 ### Requirement: Status styles
 
 Relations and components with status `planned` SHALL be drawn dashed, and

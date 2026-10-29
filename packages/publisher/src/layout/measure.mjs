@@ -152,12 +152,12 @@ export function measureLayout(geometry) {
 /**
  * The spacing below which wiring misreads although no two wires cross: two
  * parallel wires closer than `parallel` read as one, a wire that stops less
- * than `parallel` short of another in line with it reads as continuing it, two
+ * than `join` short of another in line with it reads as continuing it, two
  * arrowheads closer than two heads read as one, and a relation label closer
  * than `label` to another relation's wire reads as that wire's label. Layout
  * spacing keeps them, so the measure only finds what the spacing could not.
  */
-export const ROUTE = Object.freeze({ parallel: 24, label: 16, heads: 2 });
+export const ROUTE = Object.freeze({ parallel: 24, join: 48, label: 16, heads: 2 });
 
 /**
  * Route defects of one layout: wires a reader takes for one, a wire that seems
@@ -191,7 +191,7 @@ function routeDefects(geometry, segments) {
       const relations = `${s.owner} ${u.owner}`;
       if (apart >= 0.5 && apart < ROUTE.parallel && along > 0.5)
         found.push({ code: "route_wires_close", relations, at });
-      else if (apart < 0.5 && along <= 0.5 && along > -ROUTE.parallel)
+      else if (apart < 0.5 && along <= 0.5 && along > -ROUTE.join)
         found.push({ code: "route_wire_continued", relations, at });
     }
   const arrows = geometry.arrows ?? [];

@@ -86,11 +86,13 @@ label, another wire or the system boundary rejects that layout, and a view is
 refused only when no row wrapping, width or type step lays it out. Each channel
 takes the routing with the fewest crossings, even when that needs another label
 row, and on posters keeps parallel wires 24 px apart and a label 16 px from
-another relation's wire wherever the cards leave room; a lane keeps at least
-48 px from the cards and the system boundary. Crossings that the relations force are
-allowed; they and the route defects, wires closer than those distances,
-arrowheads closer than two heads and a wire that seems to continue another, are
-counted in each poster page's measures.
+another relation's wire wherever the cards leave room. Two relations' jogs and
+labels on one label row, and the tracks of one band, keep 48 px apart, or the
+row reads as one labelled bus; a lane keeps at least 48 px from the cards and
+the system boundary. Crossings that the relations force are allowed; they and
+the route defects, wires closer than those distances, arrowheads closer than
+two heads and a wire that stops less than 48 px short of another in line with
+it, so seems to continue it, are counted in each poster page's measures.
 
 Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
 one to three consecutive views that share no component as plates, in bands of
@@ -126,40 +128,45 @@ its details; a card shows the first detail it holds whole, or none. A model ther
 holds.
 
 A view's diagram is laid out by the same grid with Archify's text metrics, at
-widths of 960, 840 and 720 units with its rows wrapped at five, four and
-three cards; its cards are at least as wide as its longest label needs.
-Archify routes the relations and places their labels. A relation between
-neighbors in a row runs below the row when its label does not fit between them,
-and a relation that skips rows or passes cards in its row names no sides, so
-Archify routes it around the cards between. A candidate omits the system
-boundary when the outside components cannot stay outside it. Each candidate is
-measured with the grid's connection sides and with every side left to Archify,
-which plans all sides together. Archify validates every candidate at its
-showcase quality profile and lays out its routes, which archpub measures for
-what Archify does not report: two routes that read as one, running side by side
-closer than 8 units along more than 16, or lining up within 8 units of one line
-and less than 32 units apart with no card between them; a route along a card's
-or the boundary's edge, closer than 12 units along more than 16; two routes
-doubled, 8 to 24 units apart along more than 64; a relation label read as
+widths of 960, 840 and 720 units with its rows wrapped at five, four and three
+cards, or at two and one when none of those lays out; its cards are at least as
+wide as its longest label needs, at most 200 units unless that label needs more,
+and a label wider than 640 units is refused. Archify routes the relations and
+places their labels. A relation between neighbors in a row runs below the row
+when its label does not fit between them, and a relation that skips rows or
+passes cards in its row names no sides, so Archify routes it around the cards
+between. A candidate omits the system boundary when the outside components
+cannot stay outside it. Each candidate is measured with the grid's connection
+sides and with every side left to Archify, which plans all sides together.
+Archify validates every candidate at the build's quality profile and lays out
+its routes, which archpub measures for what Archify does not report: two routes
+that read as one, running side by side closer than 8 units along more than 16,
+lining up within 8 units of one line and less than 32 units apart with no card
+between them, or ending at one point, unless they leave one card there and at
+most one carries a label, as one labelled relation fans out; a route along a
+card's or the boundary's edge, closer than 12 units along more than 16; two
+routes doubled, 8 to 24 units apart along more than 64; a relation label read as
 another's, when another route, a card or another label is no farther from it
 than its own route, or another label is nearer than 8 units; a label that
-crowds, when anything else, a boundary's outline included, comes nearer than 8
-units or than twice its own route's distance; and two route ends less than 24
-units apart on one side of a card. Among the candidates that pass, the page
-takes the fewest routes that read as one or run along an edge, then the fewest
-crossings, then one narrow enough for Archify's reader to set beside its steps
-at 1440 px, then the fewest labels read as another's, doubled routes, routes
-over two bends, crowded labels, crowded route ends and route stretch, then the
-shape nearest 1.0 to 1.8 times as wide as high. When the choice still crosses,
-reads two routes as one, runs a route along an edge, has a label read as
-another's or crowded, or stands above its steps, the connections involved take
-other sides, one at a time from the three best diagrams and the three best
-beside their steps, within 96 measured changes, wherever that ranks the
-diagram higher. A label still read as another's or crowded is then pinned,
-on the three best diagrams by their routes, beside the middle or a quarter of a
-segment of its own route where nothing else is taken for it, and the page
-chooses again. A view without a candidate that passes refuses the build with
-Archify's findings; a diagram never drops a component or relation to fit.
+crowds, when anything else, a boundary's outline included, comes nearer than 16
+units or than two and a half times its own route's distance; and two route ends
+less than 24 units apart on one side of a card. Among the candidates that pass,
+the page takes the fewest routes that read as one or run along an edge, then the
+fewest crossings, then one narrow enough for Archify's reader to set beside its
+steps at 1440 px, then the fewest labels read as another's, doubled routes,
+routes over two bends, crowded labels, crowded route ends and route stretch,
+then the shape nearest 1.0 to 1.8 times as wide as high. When the choice still
+crosses, reads two routes as one, runs a route along an edge, has a label read
+as another's or crowded, or stands above its steps, the connections involved
+take other sides, one at a time from the three best diagrams and the three best
+beside their steps, within 96 measured changes, wherever that ranks the diagram
+higher. A label still read as another's or crowded is then pinned, on the three
+best diagrams by their routes, on or beside the middle or a quarter of a segment
+of its own route where nothing else is taken for it, and the page chooses again.
+A pin moves Archify's routes, so a label read as another's is also pinned alone,
+and a label pinned on a segment masks its route, which runs on at least 8 units
+past it at either end. A view without a candidate that passes refuses the build
+with Archify's findings; a diagram never drops a component or relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
 component's first source as a numbered page source at that revision, listed

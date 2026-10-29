@@ -26,6 +26,12 @@ const DEFECT = Object.freeze({
 
 /** How far Archify sets a relation label beside its route, and its baseline below the label's top, in px. */
 const LABEL = Object.freeze({ gap: 6, baseline: 10 });
+/**
+ * How far everything but its own route keeps from a label that reads clearly
+ * as its route's: two and a half times as far as its own route, and no nearer
+ * than Archify's shortest interior segment.
+ */
+const CLEAR = Object.freeze({ ratio: 2.5, least: SEGMENT.interior });
 
 /** The gap between two boxes, 0 where they touch or overlap. */
 const gap = (a, b) =>
@@ -91,13 +97,18 @@ function labelScene(layout) {
 /** Where along a route segment a pinned label may stand: its middle first, then a quarter from either end. */
 const ALONG = Object.freeze([0.5, 0.25, 0.75]);
 
+/** Whether a label stands clear of everything but its own route, by its distances. */
+const clear = ({ own, other }) => other >= Math.max(CLEAR.least, CLEAR.ratio * own);
+
 /**
- * Where to pin the labels of `owners` so each reads as its own route's: beside
- * one of the route's segments, at its middle or a quarter from either end, on
- * either side, at the distance Archify keeps, wherever it is not taken for
- * anything else and lies farthest from everything else, when that is better
- * than where Archify set it. A label pinned earlier counts where it is pinned,
- * so labels that crowd one gap stand at different heights.
+ * Where to pin the labels of `owners` so each reads as its own route's: on one
+ * of the route's segments, or beside it at the distance Archify keeps, at its
+ * middle or a quarter from either end, wherever it is not taken for anything
+ * else and lies farthest from everything else, when that is better than where
+ * Archify set it. On a segment the label masks its route, as Archify's own
+ * labels do, where the segment runs on past the label by a shortest segment at
+ * either end. A label pinned earlier counts where it is pinned, so labels that
+ * crowd one gap stand at different heights.
  * @param {any} layout Archify's layout of the diagram
  * @param {string[]} ids the diagram's connection ids, in Archify's order
  * @param {string[]} owners the ids of the connections whose labels to move
@@ -112,19 +123,27 @@ export function clearLabels(layout, ids, owners) {
     const box = labels[owner];
     if (!box) continue;
     // A place is better when its label is not taken for anything else, then
-    // the farther it lies from everything else.
+    // when it stands clear, then the farther it lies from everything else.
     const score = (place) => {
-      const { own, label, taken, other } = distances(owner, place);
-      return [taken > own && label >= SEGMENT.micro ? 1 : 0, other];
+      const distance = distances(owner, place);
+      const { own, label, taken, other } = distance;
+      return [taken > own && label >= SEGMENT.micro ? 1 : 0, clear(distance) ? 1 : 0, other];
     };
-    const better = (x, y) => x[0] > y[0] || (x[0] === y[0] && x[1] > y[1]);
+    const better = (x, y) => {
+      const at = x.findIndex((value, index) => value !== y[index]);
+      return at >= 0 && x[at] > y[at];
+    };
     let best = { score: score(box), place: box };
     for (const { a, b } of segments.filter((segment) => segment.owner === owner)) {
+      const vertical = Math.abs(a[0] - b[0]) < 0.5;
+      const length = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      const runs = length >= (vertical ? box.height : box.width) + 2 * SEGMENT.micro;
       const corners = ALONG.flatMap((share) => {
         const [x, y] = [a[0] + share * (b[0] - a[0]), a[1] + share * (b[1] - a[1])];
-        return Math.abs(a[0] - b[0]) < 0.5
+        const beside = vertical
           ? [x - LABEL.gap - box.width, x + LABEL.gap].map((left) => [left, y - box.height / 2])
           : [y - LABEL.gap - box.height, y + LABEL.gap].map((top) => [x - box.width / 2, top]);
+        return runs ? [[x - box.width / 2, y - box.height / 2], ...beside] : beside;
       });
       for (const [left, top] of corners) {
         const place = { x: left, y: top, width: box.width, height: box.height };
@@ -146,18 +165,20 @@ export function clearLabels(layout, ids, owners) {
  * What a reader misreads in Archify's routes of one diagram, and the
  * connections involved. Two routes read as one when they run side by side,
  * closer than Archify's shortest segment for longer than its shortest interior
- * segment, or when they line up, within that segment of one line, sharing a
+ * segment, when they line up, within that segment of one line, sharing a
  * stretch of it or ending less than two interior segments apart with no card
- * between them and no end in common. A route runs along an edge when it keeps
- * beside a card's or the boundary's edge for longer than an interior segment.
- * A relation label reads as another's when another route, a card or another
+ * between them, or when they end at one point. Only the routes of one label
+ * fan out of one point: relations from one card that share their label, which
+ * the diagram labels once. A route runs along an edge when it keeps beside a
+ * card's or the boundary's edge for longer than an interior segment. A
+ * relation label reads as another's when another route, a card or another
  * label is no farther from it than its own route, or another label is nearer
- * than Archify's shortest segment. Two routes are doubled when they
- * run side by side, closer than one and a half interior segments, for longer
- * than four. A label crowds when anything but its own route, an outline
- * included, comes within twice its own route's distance, or within the
- * shortest segment. Two route
- * ends crowd when they meet one side of a card close together.
+ * than Archify's shortest segment. Two routes are doubled when they run side
+ * by side, closer than one and a half interior segments, for longer than four.
+ * A label crowds when anything but its own route, an outline included, comes
+ * within two and a half times its own route's distance, or within the
+ * shortest interior segment. Two route ends crowd when they meet one side of a
+ * card close together.
  * @param {any} layout Archify's layout of the diagram
  * @param {string[]} ids the diagram's connection ids, in Archify's order
  */
@@ -170,7 +191,11 @@ export function routeDefects(layout, ids) {
   const span = ({ a, b }, axis) => [a[axis], b[axis]].sort((p, q) => p - q);
   const same = (p, q) => Math.abs(p[0] - q[0]) < 0.5 && Math.abs(p[1] - q[1]) < 0.5;
   const ends = (owner) => [routes[owner][0], routes[owner][routes[owner].length - 1]];
-  const shareEnd = (s, u) => ends(s).some((p) => ends(u).some((q) => same(p, q)));
+  // Two relations of one label: one card's, the second without a label of its own.
+  const fan = (s, u) => {
+    const [p, q] = [layout.connections[s], layout.connections[u]];
+    return p.from === q.from && (!p.label || !q.label) && same(routes[s][0], routes[u][0]);
+  };
   const cards = layout.components;
   // Whether a card stands on the line `at` between `from` and `to` along it.
   const cardBetween = (axis, at, from, to) =>
@@ -192,6 +217,8 @@ export function routeDefects(layout, ids) {
   /** @type {Set<number>} */
   const doubled = new Set();
   let [tangles, joins, doubles] = [0, 0, 0];
+  // Pairs of routes already read as one, by their owners.
+  const together = new Set();
   for (let i = 0; i < segments.length; i += 1)
     for (let j = i + 1; j < segments.length; j += 1) {
       const [s, u] = [segments[i], segments[j]];
@@ -204,13 +231,16 @@ export function routeDefects(layout, ids) {
       const lined =
         !side &&
         apart < SEGMENT.micro &&
-        !shareEnd(s.owner, u.owner) &&
+        !fan(s.owner, u.owner) &&
         ((apart < 0.5 && overlap > 0.5) ||
           (-overlap < DEFECT.join &&
             !cardBetween(axis, s.a[axis], Math.min(p[1], q[1]), Math.max(p[0], q[0]))));
       if (side) tangles += 1;
       if (lined) joins += 1;
-      if (side || lined) misread.add(s.owner).add(u.owner);
+      if (side || lined) {
+        misread.add(s.owner).add(u.owner);
+        together.add(`${s.owner}:${u.owner}`).add(`${u.owner}:${s.owner}`);
+      }
       if (apart >= SEGMENT.micro && apart < DEFECT.crowd && overlap > DEFECT.double) {
         doubles += 1;
         doubled.add(s.owner).add(u.owner);
@@ -263,9 +293,16 @@ export function routeDefects(layout, ids) {
   for (const list of sides.values())
     for (let i = 0; i < list.length; i += 1)
       for (let j = i + 1; j < list.length; j += 1) {
+        const [p, q] = [list[i].owner, list[j].owner];
+        if (p === q) continue;
         const spacing = Math.abs(list[i].at - list[j].at);
-        if (list[i].owner !== list[j].owner && spacing >= 0.5 && spacing < DEFECT.crowd)
-          crowded += 1;
+        if (spacing < 0.5) {
+          // Two routes into one point read as one, unless one label fans out of it.
+          if (!fan(p, q) && !together.has(`${p}:${q}`)) {
+            joins += 1;
+            misread.add(p).add(q);
+          }
+        } else if (spacing < DEFECT.crowd) crowded += 1;
       }
   /** @type {Set<number>} */
   const mislabelled = new Set();
@@ -273,9 +310,9 @@ export function routeDefects(layout, ids) {
   const labelled = new Set();
   labels.forEach((box, owner) => {
     if (!box) return;
-    const { own, label, taken, other } = distances(owner, box);
-    if (taken <= own || label < SEGMENT.micro) mislabelled.add(owner);
-    else if (other < Math.max(SEGMENT.micro, 2 * own)) labelled.add(owner);
+    const distance = distances(owner, box);
+    if (distance.taken <= distance.own || distance.label < SEGMENT.micro) mislabelled.add(owner);
+    else if (!clear(distance)) labelled.add(owner);
   });
   const named = (owners) => [...owners].sort((a, b) => a - b).map((owner) => ids[owner]);
   return {

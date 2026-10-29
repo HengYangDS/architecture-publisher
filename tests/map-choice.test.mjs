@@ -51,6 +51,8 @@ test("routes that read as one, run along an edge or crowd one side of a card are
       card("b", 200, 0),
       card("s", 40, 200, 20, 20),
       card("c", 845, 20),
+      card("t", 1500, 100),
+      card("w", 1800, 100),
     ],
     boundaries: [],
     labels: [{ text: "near", x: 760, y: 43, width: 80, height: 14, labelAt: [800, 50] }],
@@ -69,9 +71,9 @@ test("routes that read as one, run along an edge or crowd one side of a card are
       // 3 px apart along 70 px.
       route([500, 0], [500, 80]),
       route([503, 10], [503, 90]),
-      // One line through a shared end: one bundle, not a misread.
-      route([600, 0], [600, 50]),
-      route([600, 50], [600, 100]),
+      // One label fanning out of one point of one card: one relation, not a misread.
+      { from: "f", label: "fans", ...route([600, 0], [600, 100]) },
+      { from: "f", ...route([600, 0], [600, 50], [650, 50]) },
       // 3 px off one line and 14 px apart: still one route to a reader.
       route([700, 0], [700, 100]),
       route([703, 114], [703, 200]),
@@ -83,6 +85,12 @@ test("routes that read as one, run along an edge or crowd one side of a card are
         ],
         labelAt: [800, 50],
       },
+      // Relations of two cards into one point of a third read as one, along
+      // one line or from two sides.
+      { from: "p", label: "one", ...route([1550, 0], [1550, 100]) },
+      { from: "q", label: "other", ...route([1480, 40], [1550, 40], [1550, 100]) },
+      { from: "r", label: "third", ...route([1850, 0], [1850, 100]) },
+      { from: "u", label: "fourth", ...route([1950, 100], [1850, 100]) },
     ],
   };
   const ids = [
@@ -95,23 +103,38 @@ test("routes that read as one, run along an edge or crowd one side of a card are
     "crowd-b",
     "side-a",
     "side-b",
-    "bundle-a",
-    "bundle-b",
+    "fan-a",
+    "fan-b",
     "offset-up",
     "offset-down",
     "labelled",
+    "merge-a",
+    "merge-b",
+    "meet-a",
+    "meet-b",
   ];
   assert.deepEqual(routeDefects(layout, ids), {
     tangles: 1,
-    joins: 2,
-    hugs: 1,
+    joins: 4,
+    hugs: 2,
     mislabels: 0,
     doubles: 0,
     labels: 1,
     crowded: 1,
     owners: {
-      misread: ["join-up", "join-down", "side-a", "side-b", "offset-up", "offset-down"],
-      along: ["along"],
+      misread: [
+        "join-up",
+        "join-down",
+        "side-a",
+        "side-b",
+        "offset-up",
+        "offset-down",
+        "merge-a",
+        "merge-b",
+        "meet-a",
+        "meet-b",
+      ],
+      along: ["along", "meet-b"],
       doubled: [],
       mislabelled: [],
       labelled: ["labelled"],

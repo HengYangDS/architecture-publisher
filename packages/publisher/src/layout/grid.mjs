@@ -29,7 +29,7 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
  *     separation: number, labelClear: number, minJog: number, clear: number, minChannel: number,
- *     rowPad: number, boundaryPad: number, boundaryBottom: number, boundaryHead: number }
+ *     rowPad: number, boundaryPad: number, boundaryBottom: number, boundaryHead: number, join?: number }
  * }} Metrics
  */
 
@@ -214,6 +214,7 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
     spacing,
     label: metrics.label,
     straights,
+    lanes: metrics.lanes,
   });
   // A one-row view's U wires run in a trailing channel below the row, inside the boundary.
   const trailing = wiring.channels.length === rows.length;
