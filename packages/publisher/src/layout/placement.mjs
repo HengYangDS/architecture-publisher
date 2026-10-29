@@ -153,8 +153,11 @@ function placements(count, slots, compact) {
  *   card: { minWidth: number, maxWidth: number }, columnGap: number, spread?: number,
  *   inset: number,
  *   clearance: number, labelWidth: (relation: any, maxWidth: number) => number,
- *   centring?: "all" | "inside" | null }} input `centring` takes a row's centre over
- *   all its cards, or over only those inside the boundary.
+ *   centring?: "all" | "inside" | null, lattices?: Map<string, any> }} input
+ *   `centring` takes a row's centre over all its cards, or over only those inside
+ *   the boundary. `lattices` keeps what placement derives from these rows and
+ *   relations on each lattice: the row states and pair costs, which no other
+ *   input changes, and each placement found, by everything else it depends on.
  */
 export function placeRows(input) {
   const { rows } = input;
@@ -220,37 +223,87 @@ function columnGap(input, columns, width) {
   return Math.max(input.columnGap, Math.min(widest, Math.floor(free / (columns - 1))));
 }
 
+/**
+ * The states of each row on a lattice of `slots` half columns and the cost of
+ * each pair of states in neighbouring rows, or null when the rows have too many
+ * states and the lattice is `optional`. Neither depends on the cards' width or
+ * the field, so placements of the same rows on the same lattice share them.
+ */
+function latticeOf(input, relations, slots, optional) {
+  const key = JSON.stringify([input.rows, slots]);
+  const known = input.lattices?.get(key);
+  if (known !== undefined) return known;
+  let states = statesFor(input.rows, slots, false);
+  /** @type {{ states: any[][], pairs: Float64Array[] } | null} */
+  let lattice = null;
+  if (withinBudget(states) || !optional) {
+    if (!withinBudget(states)) states = statesFor(input.rows, slots, true);
+    const pair = pairCost(relations);
+    const pairs = [];
+    for (let row = 0; row + 1 < states.length; row += 1) {
+      const upper = states[row];
+      const lower = states[row + 1];
+      const matrix = new Float64Array(upper.length * lower.length);
+      upper.forEach((a, i) =>
+        lower.forEach((b, j) => (matrix[i * lower.length + j] = pair(row, a, b))),
+      );
+      pairs.push(matrix);
+    }
+    lattice = { states, pairs };
+  }
+  input.lattices?.set(key, lattice);
+  return lattice;
+}
+
 function placeOnLattice(input, relations, columns, optional) {
   const width = cardWidth(input, columns);
   if (width < input.card.minWidth) return null;
   const pitch = width + columnGap(input, columns, width);
   const slots = 2 * columns - 1;
-  let states = statesFor(input.rows, slots, false);
-  if (!withinBudget(states)) {
-    if (optional) return null;
-    states = statesFor(input.rows, slots, true);
+  const lattice = latticeOf(input, relations, slots, optional);
+  if (!lattice) return null;
+  const unary = unaryCost(input, relations, width, pitch, slots);
+  // Besides the lattice, a placement depends on its unary costs: the centring,
+  // which cards are outside, and the room each same-row label has. Card width
+  // and pitch reach it only through that room, so the same rows placed in a
+  // field of another width reuse it.
+  const key = JSON.stringify([
+    "placement",
+    input.rows,
+    slots,
+    input.centring ?? null,
+    input.rows.map((members) => members.map((id) => input.external(id))),
+    unary.rooms,
+  ]);
+  let placed = input.lattices?.get(key);
+  if (placed === undefined) {
+    placed = bestPlacement(input, relations, lattice, unary.cost, slots);
+    input.lattices?.set(key, placed);
   }
-  const cost = costModel(input, relations, width, pitch, slots);
-  const unary = states.map((list, row) => list.map((state) => cost.unary(row, state)));
-  const pairs = [];
-  for (let row = 0; row + 1 < states.length; row += 1) {
-    const upper = states[row];
-    const lower = states[row + 1];
-    const matrix = new Float64Array(upper.length * lower.length);
-    upper.forEach((a, i) =>
-      lower.forEach((b, j) => (matrix[i * lower.length + j] = cost.pair(row, a, b))),
-    );
-    pairs.push(matrix);
-  }
+  if (!placed) return null;
+  return { columns, width, pitch, slots, ...placed, position: new Map(placed.position) };
+}
+
+/** The cheapest placement of the rows on a lattice, or null when none is allowed. */
+function bestPlacement(input, relations, lattice, unary, slots) {
+  const { states, pairs } = lattice;
+  const unaries = states.map((list, row) => list.map((state) => unary(row, state)));
   const internalRows = input.rows
     .map((members, row) => (members.some((id) => !input.external(id)) ? row : -1))
     .filter((row) => row >= 0);
   const bounded =
     internalRows.length > 0 && input.rows.some((members) => members.some(input.external));
   const intervals = bounded ? boundaryIntervals(input, internalRows, slots) : [null];
+  const everywhere = states.map((list) => list.map(() => true));
+  // No interval's placement costs less than the best with no interval at all,
+  // and the corridor pass only adds to its first pass. An interval whose bound
+  // cannot beat the best so far is skipped, which leaves the choice unchanged.
+  const unbounded = bounded ? viterbi(states, unaries, pairs, everywhere, () => 0) : null;
   /** @type {any} */
   let best = null;
   for (const interval of intervals) {
+    const span = interval ? WEIGHT.boundarySpan * (interval[1] - interval[0]) : 0;
+    if (best && unbounded && unbounded.cost + span >= best.cost) continue;
     const allowed = states.map((list, row) =>
       list.map(
         (state) =>
@@ -261,25 +314,21 @@ function placeOnLattice(input, relations, columns, optional) {
       ),
     );
     /** @type {any} */
-    let result = viterbi(states, unary, pairs, allowed, () => 0);
-    if (!result) continue;
+    let result = viterbi(states, unaries, pairs, allowed, () => 0);
+    if (!result || (best && result.cost + span >= best.cost)) continue;
     if (relations.long.length) {
       const first = positionsOf(result.chosen);
       result = /** @type {any} */ (
-        viterbi(states, unary, pairs, allowed, (row, state) =>
+        viterbi(states, unaries, pairs, allowed, (row, state) =>
           corridorPull(relations, row, state, first),
         )
       );
     }
-    const total = result.cost + (interval ? WEIGHT.boundarySpan * (interval[1] - interval[0]) : 0);
+    const total = result.cost + span;
     if (!best || total < best.cost) best = { chosen: result.chosen, cost: total, interval };
   }
   if (!best) return null;
   return {
-    columns,
-    width,
-    pitch,
-    slots,
     order: best.chosen.map((state) => state.order),
     position: positionsOf(best.chosen),
     interval: best.interval,
@@ -350,11 +399,15 @@ function viterbi(states, unary, pairs, allowed, extra) {
     const width = states[row].length;
     const next = new Float64Array(width).fill(Infinity);
     const from = new Int32Array(width).fill(-1);
+    // A state the rows above cannot reach adds an infinite cost and is never
+    // chosen, so only reachable states are weighed, in order, as before.
+    const reachable = [];
+    for (let i = 0; i < cost.length; i += 1) if (cost[i] < Infinity) reachable.push(i);
     for (let j = 0; j < width; j += 1) {
       if (!allowed[row][j]) continue;
       let low = Infinity;
       let arg = -1;
-      for (let i = 0; i < cost.length; i += 1) {
+      for (const i of reachable) {
         const value = cost[i] + matrix[i * width + j];
         if (value < low) {
           low = value;
@@ -380,15 +433,29 @@ function viterbi(states, unary, pairs, allowed, extra) {
   return { chosen, cost: total };
 }
 
-function costModel(input, relations, width, pitch, slots) {
+/**
+ * The cost of one row's state: its order, half columns, centre and same-row
+ * relations. `rooms` holds what each same-row relation costs when its cards
+ * are neighbours, by how many half columns apart they stand: the gap between
+ * them when its label fits there, or the cost of a blocked label.
+ */
+function unaryCost(input, relations, width, pitch, slots) {
   const sameByRow = new Map();
   // Half-column positions run 0..slots-1, so the lattice's centre is their mean.
   const centre = (slots - 1) / 2;
-  for (const relation of relations.sameRow) {
+  const rooms = relations.sameRow.map((relation) =>
+    Array.from({ length: slots }, (_, apart) => {
+      const gap = (apart / 2) * pitch - width;
+      const need =
+        input.labelWidth(relation, Math.max(80, gap - 2 * input.clearance)) + 2 * input.clearance;
+      return gap >= need ? WEIGHT.sameRowFits * gap : WEIGHT.sameRowBlocked;
+    }),
+  );
+  relations.sameRow.forEach((relation, index) => {
     const row = relations.rowOf.get(relation.from);
-    sameByRow.set(row, [...(sameByRow.get(row) ?? []), relation]);
-  }
-  const unary = (row, state) => {
+    sameByRow.set(row, [...(sameByRow.get(row) ?? []), index]);
+  });
+  const cost = (row, state) => {
     let cost = 0;
     const { order, position } = state;
     for (let i = 0; i < order.length; i += 1)
@@ -407,17 +474,20 @@ function costModel(input, relations, width, pitch, slots) {
       const values = (inside.length ? inside : order).map((id) => position.get(id));
       cost += WEIGHT.rowCentre * Math.abs((Math.min(...values) + Math.max(...values)) / 2 - centre);
     }
-    for (const relation of sameByRow.get(row) ?? []) {
+    for (const index of sameByRow.get(row) ?? []) {
+      const relation = relations.sameRow[index];
       const neighbors = Math.abs(order.indexOf(relation.from) - order.indexOf(relation.to)) === 1;
-      const gap =
-        (Math.abs(position.get(relation.from) - position.get(relation.to)) / 2) * pitch - width;
-      const need =
-        input.labelWidth(relation, Math.max(80, gap - 2 * input.clearance)) + 2 * input.clearance;
-      cost += neighbors && gap >= need ? WEIGHT.sameRowFits * gap : WEIGHT.sameRowBlocked;
+      const apart = Math.abs(position.get(relation.from) - position.get(relation.to));
+      cost += neighbors ? rooms[index][apart] : WEIGHT.sameRowBlocked;
     }
     return cost;
   };
-  const pair = (row, upper, lower) => {
+  return { cost, rooms };
+}
+
+/** The cost of two neighbouring rows' states: the bends, bus spans and crossings of their wires. */
+function pairCost(relations) {
+  return (row, upper, lower) => {
     const at = (id) =>
       relations.rowOf.get(id) === row ? upper.position.get(id) : lower.position.get(id);
     let cost = 0;
@@ -454,5 +524,4 @@ function costModel(input, relations, width, pitch, slots) {
       }
     return cost;
   };
-  return { unary, pair };
 }

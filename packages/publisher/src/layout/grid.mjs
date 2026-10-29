@@ -37,6 +37,8 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
 const PORT_GAPS = [null, 64, 96, 140];
 /** A crossing outranks any difference in channel height or routing score. */
 const CROSSING_RANK = 1e6;
+/** Row states and pair costs already derived, per planned view. */
+const lattices = new WeakMap();
 
 /**
  * Placement of one set of rows on the grid: the expensive half of a layout, and
@@ -52,6 +54,7 @@ export function placementOf(view, rows, metrics) {
   const external = (id) => metrics.external(components.get(id));
   const labelled = rows.some(({ label }) => label);
   const contentWidth = metrics.contentWidth(labelled);
+  if (!lattices.has(view)) lattices.set(view, new Map());
   const placement = placeRows({
     rows: rows.map(({ members }) => members),
     relations: view.relations.filter(({ from, to }) => from !== to),
@@ -67,6 +70,7 @@ export function placementOf(view, rows, metrics) {
     clearance: spacing.clear,
     labelWidth: (relation, maxWidth) => metrics.label(relation, maxWidth).width,
     centring: metrics.centring ?? null,
+    lattices: lattices.get(view),
   });
   return { ...placement, labelled, contentWidth };
 }

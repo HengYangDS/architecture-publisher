@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { presentation } from "../kinds.mjs";
 import { ROW_LIMIT, viewRows } from "../layout/rows.mjs";
 import { refuse } from "../refusal.mjs";
@@ -61,8 +62,13 @@ const FLOATING_PLATES = 24;
 /** Compositions each plate offers at one type step, by the number of plates on the page. */
 const PAIRED = Object.freeze({ 1: 12, 2: 4, 3: 2 });
 
-/** The ink of one page, measured from its drawn rectangles before it is rendered. */
-function measure(page, made, typefaces) {
+/**
+ * The ink of one page, measured from its drawn rectangles before it is
+ * rendered. A grouping measures many pages, and different skeletons can draw the
+ * same one, so each measure is kept by the exact ink it measured.
+ * @param {Map<string, ReturnType<typeof balanceOf>>} measured
+ */
+function measure(page, made, typefaces, measured) {
   const text = (run) => ({
     x: run.x,
     y: run.top,
@@ -91,7 +97,13 @@ function measure(page, made, typefaces) {
       weight: DARKNESS.stroke * darkness(C.rule),
     })),
   ];
-  return balanceOf(rects, LIVE);
+  const key = createHash("sha256").update(JSON.stringify(rects)).digest("hex");
+  let balance = measured.get(key);
+  if (!balance) {
+    balance = balanceOf(rects, LIVE);
+    measured.set(key, balance);
+  }
+  return balance;
 }
 
 /**
@@ -101,9 +113,23 @@ function measure(page, made, typefaces) {
  * two of its views share a component the page would then draw twice.
  */
 function sheet(model, views, first, typefaces, icons, boundaryName) {
-  if (views.length > PLATES[PLATES.length - 1]) return { chosen: null, closest: null };
+  const candidates = [...pageCandidates(model, views, first, typefaces, icons, boundaryName)];
+  const passed = candidates.filter(({ fails }) => fails.length === 0);
+  return {
+    chosen: passed.length ? best(passed) : null,
+    closest: candidates.length ? nearest(candidates) : null,
+  };
+}
+
+/**
+ * Every page candidate of `views`, in the order the composer weighs them: none
+ * when the grouping holds more plates than a page, or two of its views share a
+ * component the page would then draw twice.
+ */
+function* pageCandidates(model, views, first, typefaces, icons, boundaryName) {
+  if (views.length > PLATES[PLATES.length - 1]) return;
   const drawn = views.flatMap((view) => view.components.map(({ id }) => id));
-  if (new Set(drawn).size < drawn.length) return { chosen: null, closest: null };
+  if (new Set(drawn).size < drawn.length) return;
   const lead = leadOf(model, views, first);
   refuseUnsetText(typefaces, model, views, lead, first);
   /** @type {any[]} */
@@ -150,14 +176,23 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
       closest: candidates.length ? nearest(candidates) : null,
     };
   };
+  /** @type {Map<string, ReturnType<typeof balanceOf>>} */
+  const measured = new Map();
   /** @param {"column" | "edges"} tierLabels */
-  const compose = (tierLabels) => {
-    const context = { model, typefaces, icons, boundaryName, tierLabels };
-    for (const skeleton of skeletons)
-      for (const centring of centrings) {
-        const made = candidate(input, skeleton, centring, context);
-        if (made) candidates.push({ ...made, views });
-      }
+  const compose = function* (tierLabels) {
+    const context = { model, typefaces, icons, boundaryName, tierLabels, measured };
+    /** @param {Array<"all" | "inside" | null>} rules */
+    const tryAll = function* (rules) {
+      for (const skeleton of skeletons)
+        for (const centring of rules) {
+          const made = candidate(input, skeleton, centring, context);
+          if (!made) continue;
+          const one = { ...made, views };
+          candidates.push(one);
+          yield one;
+        }
+    };
+    yield* tryAll(centrings);
     // Centring a row may move it rather than bend a wire, never rather than
     // cross one, and placement weighs it so. But placement sees only the wires
     // between neighbouring rows: a relation that skips rows turns in the last
@@ -165,22 +200,17 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
     // best page still crosses, or no page passes, its plates are laid out
     // uncentred as well, and the page is chosen again from what both measure.
     const { chosen: leading, closest } = outcome();
-    if (closest && (!leading || faultsOf(leading).some(Boolean)))
-      for (const skeleton of skeletons) {
-        const made = candidate(input, skeleton, null, context);
-        if (made) candidates.push({ ...made, views });
-      }
+    if (closest && (!leading || faultsOf(leading).some(Boolean))) yield* tryAll([null]);
   };
   // Tier labels stand in one column, so their numbers read down one line. A
   // figure whose tiers start at different edges can leave paper blank between
   // that column and the tiers that start further in; when no page with one
   // column balances, each label stands before the edge its tier starts at.
-  compose("column");
+  yield* compose("column");
   const tiered = views.some((view) =>
     viewRows(view, ROW_LIMIT, () => false).some(({ label }) => label),
   );
-  if (tiered && !outcome().chosen) compose("edges");
-  return outcome();
+  if (tiered && !outcome().chosen) yield* compose("edges");
 }
 
 /**
@@ -193,7 +223,7 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
  * @param {any} context
  */
 function candidate(input, skeleton, centring, context) {
-  const { model, typefaces, icons, boundaryName, tierLabels } = context;
+  const { model, typefaces, icons, boundaryName, tierLabels, measured } = context;
   const gutters = input.views.map((view) =>
     gutterFor(
       typefaces,
@@ -237,7 +267,7 @@ function candidate(input, skeleton, centring, context) {
     /** @type {{ rank: number[], picks: any[] } | null} */
     let chosen = null;
     for (const picks of pairs) {
-      const balance = measure(page, picks, typefaces);
+      const balance = measure(page, picks, typefaces, measured);
       const rank = [
         gateFailures(balance).length,
         ...faultsOf({ made: picks }),
@@ -259,7 +289,7 @@ function candidate(input, skeleton, centring, context) {
     let chosen = null;
     for (const [order, [one]] of pairs.slice(0, FLOATING_PLATES).entries()) {
       const rankOf = (set) => {
-        const balance = measure(set, [one], typefaces);
+        const balance = measure(set, [one], typefaces, measured);
         return [
           gateFailures(balance).length,
           one.layout.measures.crossings,
@@ -286,7 +316,7 @@ function candidate(input, skeleton, centring, context) {
     made = [chosen.one];
   }
   const drawn = /** @type {any} */ (page);
-  const balance = measure(drawn, made, typefaces);
+  const balance = measure(drawn, made, typefaces, measured);
   const fails = gateFailures(balance);
   return {
     page: drawn,
@@ -632,6 +662,6 @@ export function composePosters(model, views, typefaces, icons) {
  */
 export function admitsView(model, view, typefaces, icons) {
   const boundaryName = model.repository?.name ?? model.title;
-  const { closest } = sheet(model, [view], true, typefaces, icons, boundaryName);
-  return { fits: closest !== null, width: POSTER.width, height: POSTER.height };
+  const pages = pageCandidates(model, [view], true, typefaces, icons, boundaryName);
+  return { fits: !pages.next().done, width: POSTER.width, height: POSTER.height };
 }

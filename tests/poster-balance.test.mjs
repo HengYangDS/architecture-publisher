@@ -90,6 +90,14 @@ test("holes are the empty squares of the page at least 240 px on a side", () => 
   assert.equal(balanceOf(around(200), LIVE).holes, 0);
 });
 
+test("ink wholly off the page covers no cell of it", () => {
+  // Left of the page in its first row of cells, and above the page.
+  const measured = balanceOf([text(-80, 0, 40, 6), text(LIVE.x, -40, 200, 20)], LIVE);
+  assert.equal(measured.emptyShare, 1);
+  assert.equal(measured.holes, 1);
+  assert.deepEqual(measured.centroid, [0, 0]);
+});
+
 test("the centre of gravity weighs each element by how dark it prints", () => {
   const half = LIVE.width / 4;
   const left = text(LIVE.x, LIVE.y, half, LIVE.height);
