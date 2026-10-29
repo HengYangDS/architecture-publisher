@@ -5,10 +5,10 @@ import test from "node:test";
 import {
   DIAGRAM_WIDTHS,
   archifyIds,
-  chooseDiagram,
   diagramCandidates,
   textUnits,
 } from "../packages/publisher/src/map/archify.mjs";
+import { chooseDiagram } from "../packages/publisher/src/map/choice.mjs";
 import {
   deliverExplainer,
   explainerDraft,
@@ -19,6 +19,8 @@ import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import {
   AIGW_MODEL,
   BIG_BANK_MODEL,
+  BROWSER_USE_MODEL,
+  CONTEXT_MODE_MODEL,
   graphModel,
   minimalModel,
   temporaryDirectory,
@@ -64,7 +66,7 @@ const shopInput = () =>
       {
         id: "web",
         label: "Web | front *end*",
-        details: { serves: "pages" },
+        details: { serves: "pages", owns: ["cart", "sessions"] },
         sources: ["secret", "main"],
       },
       { id: "store", label: "Store", sources: ["main"] },
@@ -93,7 +95,7 @@ test("text units count full-width characters twice", () => {
   assert.equal(textUnits("ＡＢ"), 4);
 });
 
-test("ids become valid and unique, relation labels are shared and sublabels are shortened", async () => {
+test("ids become valid and unique, relation labels are shared and a card shows only a whole detail", async () => {
   assert.deepEqual([...archifyIds(["1st", "a.b", "a_b"]).values()], ["n-1st", "a_b", "a_b-2"]);
   const model = validateModel(
     minimalModel({
@@ -101,7 +103,10 @@ test("ids become valid and unique, relation labels are shared and sublabels are 
         {
           id: "1st",
           label: "First",
-          details: { purpose: "a long explanation of what this component does for everyone" },
+          details: {
+            purpose: "a long explanation of what this component does for everyone",
+            role: "source",
+          },
         },
         { id: "a.b", label: "Dotted" },
         { id: "a_b", label: "Underscored" },
@@ -117,7 +122,10 @@ test("ids become valid and unique, relation labels are shared and sublabels are 
     document.components.map(({ id }) => id),
     ["n-1st", "a_b", "a_b-2"],
   );
-  assert.match(document.components[0].sublabel, / …$/u);
+  // The first detail is longer than the card holds, so the card shows the
+  // first one it holds whole; the page's steps carry both.
+  assert.equal(document.components[0].sublabel, "role: source");
+  assert.equal(document.components[1].sublabel, undefined);
   assert.deepEqual(
     document.connections.map(({ id, label }) => [id, label ?? null]),
     [
@@ -342,19 +350,34 @@ test("a relation that passes cards in its row leaves its sides to Archify as wel
 });
 
 test("Archify chooses every side when the grid's sides cross on its routes", async () => {
-  // Big Bank's tiered view crosses eight times when Archify routes the grid's
-  // sides around the e-mail system's reply to the customer.
+  const { model } = await loadModel(BROWSER_USE_MODEL);
+  const action = (await viewsOf(model)).find(({ id }) => id === "action");
+  const chosen = await chooseDiagram(model, /** @type {any} */ (action));
+  assert.equal(chosen.sides, "archify");
+  assert.deepEqual([chosen.metrics.crossings, chosen.metrics.tangles], [0, 0]);
+  assert.ok(chosen.candidates > diagramCandidates(model, /** @type {any} */ (action)).length);
+});
+
+test("a diagram whose routes run side by side is not chosen", async () => {
+  // On Archify's routes the Big Bank tiered candidate that crosses least runs
+  // the e-mail system's reply to the customer 2 px beside two other routes.
   const { model } = await loadModel(BIG_BANK_MODEL);
   const [tiered] = await viewsOf(model);
   const chosen = await chooseDiagram(model, tiered);
-  assert.equal(chosen.sides, "archify");
-  assert.ok(chosen.metrics.crossings <= 1, `${chosen.metrics.crossings} crossings`);
-  assert.ok(chosen.candidates > diagramCandidates(model, tiered).length);
+  assert.equal(chosen.metrics.tangles, 0);
+});
+
+test("the connections that cross take other sides when that clears their crossings", async () => {
+  const { model } = await loadModel(CONTEXT_MODE_MODEL);
+  const retrieval = (await viewsOf(model)).find(({ id }) => id === "retrieval");
+  const chosen = await chooseDiagram(model, /** @type {any} */ (retrieval));
+  assert.deepEqual([chosen.metrics.crossings, chosen.metrics.tangles], [0, 0]);
+  assert.ok(chosen.resided.length > 0);
 });
 
 test("a dense view is drawn with its crossings measured, not refused", async () => {
   // Three callers that each use the same three services: two rows of three
-  // cannot draw these nine relations with fewer than nine crossings.
+  // cannot draw these nine relations without crossings.
   const model = validateModel(
     graphModel(
       6,
@@ -363,7 +386,7 @@ test("a dense view is drawn with its crossings measured, not refused", async () 
   );
   const chosen = await chooseDiagram(model, await firstView(model));
   assert.deepEqual(chosen.rows, [3, 3]);
-  assert.ok(chosen.metrics.crossings >= 9, `${chosen.metrics.crossings} crossings`);
+  assert.ok(chosen.metrics.crossings > 0, `${chosen.metrics.crossings} crossings`);
 });
 
 test("the page draft answers the model's question view by view and cites sources at the revision", async () => {
@@ -373,7 +396,7 @@ test("the page draft answers the model's question view by view and cites sources
   const { draft, files, cited } = explainerDraft(model, views, diagrams, new Set(["secret"]));
   const steps = (view) => [
     `@steps id=steps-${view}`,
-    `| step-${view}-web | Web \\| front \\*end\\* | serves: pages[](source:source-main) | diagram-${view} | web |`,
+    `| step-${view}-web | Web \\| front \\*end\\* | serves: pages; owns: cart, sessions[](source:source-main) | diagram-${view} | web |`,
     `| step-${view}-store | Store | [](source:source-main) | diagram-${view} | store |`,
   ];
   assert.equal(

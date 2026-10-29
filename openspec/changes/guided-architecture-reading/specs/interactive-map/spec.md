@@ -44,12 +44,20 @@ in the manifest.
 
 ### Requirement: View diagrams
 
-Each view's diagram SHALL contain the view's components with their label and
-a first detail as sublabel, and its relations as labeled connections, dashed
-when planned or retired. Kinds SHALL map to Archify's
-seven native types as color families, with `person` drawn as `external`, and
-the legend SHALL name the model's kinds. Positions and sizes SHALL come from
-the grid layout with Archify's text metrics.
+Each view's diagram SHALL contain the view's components with their label and,
+as sublabel, the first of their details the card holds whole, and its
+relations as labeled connections, dashed when planned or retired. A card SHALL
+NOT show a cut detail. Kinds SHALL map to Archify's seven native types as color
+families, with `person` drawn as `external`, and the legend SHALL name the
+model's kinds. Positions and sizes SHALL come from the grid layout with
+Archify's text metrics.
+
+#### Scenario: A detail longer than its card
+
+- **WHEN** a component's first detail is longer than its card holds and a
+  later one fits
+- **THEN** the card shows the later detail whole
+- **AND** the component's step lists both details
 
 #### Scenario: Kinds become color families
 
@@ -81,6 +89,18 @@ with Archify's findings. The manifest SHALL record the choice and its metrics.
 - **WHEN** the AIGW overview is delivered
 - **THEN** its diagram has no route crossing and no route over two bends
 
+### Requirement: Routes side by side
+
+A candidate whose routes run side by side, two routes closer than 8 px along
+more than 16 px, SHALL NOT be chosen while a candidate that passes runs none.
+
+#### Scenario: Routes 2 px apart
+
+- **WHEN** the Big Bank tiered candidate that crosses least runs a route 2 px
+  beside two others on Archify's routes
+- **THEN** another candidate is chosen
+- **AND** the chosen diagram runs no routes side by side
+
 ### Requirement: Sides Archify plans
 
 Candidates SHALL keep the grid's connection sides. When no candidate that
@@ -91,9 +111,24 @@ diagram keeps.
 
 #### Scenario: Grid sides that cross
 
-- **WHEN** Big Bank's tiered view crosses eight times with the grid's sides
-- **THEN** its diagram is chosen with the sides Archify plans and crosses at
-  most once
+- **WHEN** browser-use's action view crosses once on Archify's routes with the
+  grid's sides
+- **THEN** its diagram is chosen with the sides Archify plans and does not cross
+
+### Requirement: Re-sided connections
+
+When the chosen diagram still crosses, the publisher SHALL change the sides of
+the connections whose routes Archify finds crossing, one connection at a time
+from the three best diagrams and within 64 measured changes for the view, and
+SHALL keep a change only when it ranks the diagram higher without running
+routes side by side. The manifest SHALL record the re-sided connections.
+
+#### Scenario: A crossing cleared by other sides
+
+- **WHEN** the best diagram of context-mode's retrieval view crosses on
+  Archify's routes
+- **THEN** the connections that cross take other sides
+- **AND** the chosen diagram does not cross
 
 ### Requirement: Diagram shape
 
@@ -111,7 +146,7 @@ with its measured shapes.
 
 A panel SHALL list the view's components as steps, in its diagram's reading
 order from the top row down and left to right, that light their node in the
-diagram, each with its first detail. When the model declares a repository,
+diagram, each with every one of its details. When the model declares a repository,
 each component's first source SHALL be a numbered page source pinned to the
 revision.
 

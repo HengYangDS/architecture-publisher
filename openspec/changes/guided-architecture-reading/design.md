@@ -401,13 +401,10 @@ The interactive medium is one Archify explainer page, chosen by the user on
 `archify finalize explainer` from a draft and one architecture document per
 view that archpub writes. It replaces the single full-model map.
 
-Archify was measured before this choice. Its schema accepts `meta.views`, but
-3.2.0 renders nothing from them, so the map's promised guided views never
-reached a reader. Its reader fits a map with a fixed viewBox at about 1346 px
-wide and scrolls the page, which made the 20-component ETHOS map a strip
-10,277 px tall; an automatic canvas fits the first screen only by dropping
-labels below 14 px, to 10.4 px for a five-by-four grid. Archify's own check
-reported ten crossovers and routes of up to eight bends on that map.
+Archify 3.2.0 renders nothing from `meta.views`, so the map's guided views
+never reached a reader, and its reader fits a fixed-viewBox map at about
+1346 px wide: the 20-component ETHOS map became a strip 10,277 px tall, while an
+automatic canvas fits the first screen only with labels below 14 px.
 
 The explainer page answers the model's question:
 
@@ -416,7 +413,7 @@ The explainer page answers the model's question:
 - each view is a panel titled with the view's question, or its title when it
   asks the model's own question, in the plan's order, with the view's native
   architecture diagram, which opens Archify's full interactive viewer, and
-  steps that light each component with its first detail, in the diagram's
+  steps that light each component with all of its details, in the diagram's
   reading order;
 - when the model declares a repository URL and revision, each component's
   first source is a numbered page source linked to the file at that revision;
@@ -439,8 +436,13 @@ routes over two bends, then the least stretch above 1.35, then the shape
 closest to 1.0 to 1.8 times as wide as high. The candidates keep the grid's
 connection sides; when none of them is free of crossings and routes over two
 bends, each is measured again with every side left to Archify, which plans all
-sides together, and the choice is made from both: on Big Bank's tiered view
-this reduced eight crossings to one. A view without a candidate that passes is
+sides together, and the choice is made from both. A candidate whose routes run
+side by side, closer than Archify's 8 px shortest segment along more than its
+16 px shortest interior segment, which Archify does not report, is not chosen
+while another passes without. When the choice still crosses, the connections
+Archify reports crossing take other sides, one at a time from the three best
+diagrams within 64 measured changes, wherever that ranks the diagram higher
+without running routes side by side. A view without a candidate that passes is
 refused with Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview

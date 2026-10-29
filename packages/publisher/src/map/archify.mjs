@@ -1,6 +1,4 @@
 import { execFile } from "node:child_process";
-import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { refuse } from "../refusal.mjs";
@@ -30,10 +28,6 @@ export const DIAGRAM_WIDTHS = Object.freeze([960, 840, 720]);
 const ROW_LIMITS = Object.freeze([5, 4, 3]);
 /** Archify narrows a reader canvas at or above this width-to-height ratio, which would shrink its labels. */
 const WIDE_RATIO = 1.54;
-/** The shapes a diagram should take, width over height, and the narrowest it may take. */
-const SHAPE = Object.freeze({ low: 1, high: 1.8, least: 0.7 });
-/** The stretch Archify suggests a route stay within: its length over the distance it spans. */
-const STRETCH = 1.35;
 const MARGIN = 40;
 /** Grid refusals a candidate answers by omitting the boundary, and then by giving way to another candidate. */
 const LAYOUT_REFUSALS = new Set([
@@ -49,8 +43,6 @@ const SUBLABEL_FONT = 9;
 const WIDTH_FACTOR = 0.6;
 const TEXT_PADDING = 8;
 const CARD = Object.freeze({ minWidth: 120, maxWidth: 200 });
-/** Candidates Archify measures at once. */
-const CONCURRENCY = 4;
 const TYPES = Object.freeze({
   person: "external",
   external: "external",
@@ -83,18 +75,16 @@ export function archifyIds(ids) {
   return out;
 }
 
-/** A first detail short enough for Archify's sublabel at its preferred size. */
+/**
+ * The first of a component's details that Archify's sublabel holds whole at its
+ * preferred size, or none: a card never shows a cut detail, and the page's
+ * steps carry every detail in full.
+ */
 function sublabel(component, width) {
-  const [first] = component.details;
-  if (!first) return undefined;
   const room = Math.floor((width - TEXT_PADDING) / (SUBLABEL_FONT * WIDTH_FACTOR));
-  const full = `${first[0]}: ${first[1].join(", ")}`;
-  if (textUnits(full) <= room) return full;
-  const words = full.split(" ");
-  while (words.length > 1 && textUnits(`${words.join(" ")} …`) > room) words.pop();
-  let text = words.join(" ").replace(/[,:]$/u, "");
-  while (textUnits(`${text} …`) > room) text = Array.from(text).slice(0, -1).join("");
-  return `${text} …`;
+  return component.details
+    .map(([key, values]) => `${key}: ${values.join(", ")}`)
+    .find((detail) => textUnits(detail) <= room);
 }
 
 /** The card width a label needs at Archify's 11-unit size. */
@@ -364,165 +354,5 @@ export async function runArchify(args) {
         },
       };
     }
-  }
-}
-
-/** Archify's showcase verdict and route metrics for one candidate document. */
-async function measure(file) {
-  const { answer } = await runArchify([
-    "validate",
-    "architecture",
-    file,
-    "--json",
-    "--quality",
-    "showcase",
-  ]);
-  const composition = answer.composition ?? {};
-  const metrics = composition.metrics ?? {};
-  return {
-    passes:
-      answer.ok === true &&
-      (answer.checks ?? []).every(({ ok }) => ok) &&
-      composition.status === "pass" &&
-      !composition.summary?.errors &&
-      !composition.summary?.warnings,
-    diagnostics: answer.diagnostics ?? composition.issues ?? [],
-    metrics: {
-      crossings: (metrics.properCrossings ?? 0) + (metrics.resolvedCrossovers ?? 0),
-      routesOverTwoBends: metrics.routesOverSuggestedBends ?? 0,
-      maxBends: metrics.maxBends ?? 0,
-      maxStretch: metrics.maxStretch ?? 1,
-      corridors: metrics.ambiguousCorridors ?? 0,
-    },
-  };
-}
-
-/** How far a shape lies outside the band a diagram should take; Infinity below the narrowest it may take. */
-function shapeDistance(width, height) {
-  const ratio = width / height;
-  if (ratio < SHAPE.least) return Infinity;
-  return Math.max(0, SHAPE.low - ratio, ratio - SHAPE.high);
-}
-
-/**
- * The document with every connection side left to Archify, which plans the
- * sides of all connections together and can order ports that a side fixed by
- * the grid would cross.
- */
-function archifySides(document) {
-  return {
-    ...document,
-    connections: document.connections.map((connection) =>
-      Object.fromEntries(
-        Object.entries(connection).filter(([key]) => key !== "fromSide" && key !== "toSide"),
-      ),
-    ),
-  };
-}
-
-/** Measure documents on Archify's routes, a few at a time, in a directory of the caller's. */
-async function measureAll(documents, directory, offset) {
-  const measured = new Array(documents.length);
-  let next = 0;
-  const worker = async () => {
-    while (next < documents.length) {
-      const index = next++;
-      const file = path.join(directory, `${offset + index}.architecture.json`);
-      await fs.writeFile(file, `${JSON.stringify(documents[index], null, 2)}\n`);
-      measured[index] = await measure(file);
-    }
-  };
-  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-  return measured;
-}
-
-const rank = ({ metrics, width, height, index }) => [
-  metrics.crossings,
-  metrics.routesOverTwoBends,
-  Math.max(0, metrics.maxStretch - STRETCH),
-  shapeDistance(width, height),
-  index,
-];
-
-/** The best of the measured candidates that pass, or none. */
-function best(measured) {
-  const [first] = measured
-    .filter(({ passes }) => passes)
-    .sort((a, b) => {
-      const [x, y] = [rank(a), rank(b)];
-      const at = x.findIndex((value, position) => value !== y[position]);
-      return at < 0 ? 0 : x[at] - y[at];
-    });
-  return first ?? null;
-}
-
-/**
- * Lay out a view's candidate diagrams, measure each on Archify's own routes and
- * choose: among those that pass Archify's showcase checks, the fewest
- * crossings, then the fewest routes over two bends, then the least stretch
- * above 1.35, then the shape nearest 1.0 to 1.8 times as wide as high. The
- * candidates keep the grid's connection sides; when none of them is free of
- * crossings and routes over two bends, each is measured again with every side
- * left to Archify, and the choice is made from both. A view with no candidate
- * inside the shape bounds, or none that passes, is refused.
- */
-export async function chooseDiagram(model, view) {
-  const candidates = diagramCandidates(model, view).filter(
-    ({ width, height }) => shapeDistance(width, height) !== Infinity,
-  );
-  if (!candidates.length)
-    refuse(
-      "map_shape_refused",
-      `View ${view.id} has no diagram at least ${SHAPE.least} times as wide as it is high. ` +
-        "Split the view or declare fewer tiers.",
-    );
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-diagrams-"));
-  try {
-    const sided = (
-      await measureAll(
-        candidates.map(({ document }) => document),
-        directory,
-        0,
-      )
-    ).map((result, index) => ({ ...candidates[index], ...result, sides: "grid", index }));
-    let chosen = best(sided);
-    let measured = sided;
-    if (!chosen || chosen.metrics.crossings > 0 || chosen.metrics.routesOverTwoBends > 0) {
-      const documents = candidates.map(({ document }) => archifySides(document));
-      const freed = (await measureAll(documents, directory, candidates.length)).map(
-        (result, index) => ({
-          ...candidates[index],
-          document: documents[index],
-          ...result,
-          sides: "archify",
-          index: candidates.length + index,
-        }),
-      );
-      measured = [...sided, ...freed];
-      chosen = best(measured);
-    }
-    if (!chosen)
-      return refuse(
-        "map_refused",
-        `View ${view.id} has no diagram that passes Archify's showcase checks.`,
-        sided[0].diagnostics.slice(0, 20).map((issue) => ({
-          code: String(issue.code ?? "archify"),
-          path: `/views/${view.id}`,
-          message: String(issue.message ?? "").slice(0, 400),
-        })),
-      );
-    return {
-      view: view.id,
-      nodes: chosen.nodes,
-      document: chosen.document,
-      width: chosen.width,
-      height: chosen.document.meta.viewBox[1],
-      rows: chosen.rows,
-      sides: chosen.sides,
-      metrics: chosen.metrics,
-      candidates: measured.length,
-    };
-  } finally {
-    await fs.rm(directory, { recursive: true, force: true });
   }
 }

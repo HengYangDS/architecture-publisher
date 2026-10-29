@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { archifyIds, chooseDiagram, runArchify } from "./archify.mjs";
+import { archifyIds, runArchify } from "./archify.mjs";
+import { chooseDiagram } from "./choice.mjs";
 
 /**
  * The interactive page: one native Archify explainer that answers the model's
@@ -91,12 +92,13 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   };
   const panels = views.map((view, index) => {
     const diagram = diagrams[index];
-    const steps = readingOrder(view, diagram).map((component) => {
-      const [first] = component.details;
-      return `| ${id(`step-${view.id}-${component.id}`)} | ${text(component.label)} | ${
-        first ? text(detailText(first)) : ""
-      }${cite(component)} | ${id(`diagram-${view.id}`)} | ${diagram.nodes.get(component.id)} |`;
-    });
+    // A step carries every detail of its component; the card shows at most one.
+    const steps = readingOrder(view, diagram).map(
+      (component) =>
+        `| ${id(`step-${view.id}-${component.id}`)} | ${text(component.label)} | ${text(
+          component.details.map(detailText).join("; "),
+        )}${cite(component)} | ${id(`diagram-${view.id}`)} | ${diagram.nodes.get(component.id)} |`,
+    );
     return [
       `## ${text(heading(view))} {#${id(`view-${view.id}`)}}`,
       "",

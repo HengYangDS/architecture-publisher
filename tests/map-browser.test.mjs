@@ -64,6 +64,12 @@ test("delivered pages fit every preview and set component labels at 13.25 px the
         previews.map((preview) => /** @type {HTMLElement} */ (preview).dataset.diagramFit),
       );
       assert.deepEqual(new Set(fits), new Set(["fit"]), file);
+      // A card shows a detail whole or not at all, and the steps carry every detail.
+      const cut = await page.$$eval(
+        ".diagram-preview text",
+        (texts) => texts.filter((text) => text.textContent?.includes("…")).length,
+      );
+      assert.equal(cut, 0, `${file} cuts text in a preview`);
       const notices = await page.$$eval(
         ".diagram-fit-status",
         (statuses) =>

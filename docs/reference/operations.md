@@ -94,8 +94,8 @@ and its scope the model's scope, limits and attribution. Each view is a panel
 titled with the view's question, or its title when it asks the model's own
 question, in the plan's order, holding the view's native architecture diagram,
 which opens Archify's full interactive viewer, and one step per component, in
-the diagram's reading order, that lights the component and gives its first
-detail. A model therefore declares at most four views, the diagrams one page
+the diagram's reading order, that lights the component and gives every one of
+its details; a card shows the first detail it holds whole, or none. A model therefore declares at most four views, the diagrams one page
 holds.
 
 A view's diagram is laid out by the same grid with Archify's text metrics, at
@@ -111,8 +111,13 @@ that pass, the fewest crossings, then the fewest routes over two bends, then the
 least route stretch, then the shape nearest 1.0 to 1.8 times as wide as high.
 When every candidate crosses or bends a route more than twice, each is measured
 again with every connection side left to Archify, and the choice is made from
-both. A view without a candidate that passes refuses the build with Archify's
-findings; a diagram never drops a component or relation to fit.
+both. A candidate whose routes run side by side, two routes closer than 8 units
+along more than 16, is not chosen while another passes without. When the choice
+still crosses, the connections Archify reports crossing take other sides, one at
+a time from the three best diagrams and within 64 measured changes, wherever
+that ranks the diagram higher without running routes side by side. A view
+without a candidate that passes refuses the build with Archify's findings; a
+diagram never drops a component or relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
 component's first source as a numbered page source at that revision; the
@@ -139,7 +144,8 @@ version, the declared repository, every source with its declared and observed
 digest, the digest of each bundled supply, each view with its tiers, members
 and page, each page with its views, composition and measures, including every
 gate it misses, the explainer page's quality profile and gates, each view
-diagram's width, height, rows, sides and Archify route measures, the sources
+diagram's width, height, rows, sides, re-sided connections and Archify route
+measures, the sources
 the page withholds, the details, status and sources of every component and
 relation, and the SHA-256 of every artifact. It contains no time, host
 path or user name, so building the same model with the same version reproduces
