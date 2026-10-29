@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { CATEGORIES, loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
+import {
+  CATEGORIES,
+  MAXIMUM_VIEWS,
+  loadModel,
+  validateModel,
+} from "../packages/publisher/src/model/load.mjs";
 import { AIGW_MODEL, minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 
 /** The refusal's problems as `code path` lines. */
@@ -201,6 +206,16 @@ test("views declare tiers or members, at most four", () => {
   ]);
 });
 
+test("the published schema allows the views the loader admits", async () => {
+  const schema = JSON.parse(
+    await fs.readFile(
+      new URL("../packages/publisher/src/model/schema.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.equal(schema.properties.views.maxItems, MAXIMUM_VIEWS);
+});
+
 test("a component may sit in only one tier of a view", () => {
   const problems = problemsOf(
     minimalModel({
@@ -209,6 +224,24 @@ test("a component may sit in only one tier of a view", () => {
     }),
   );
   assert.deepEqual(problems, ["model_tier_overlap /views/0/tiers/1"]);
+  // A tier overlap is reported with the model's other problems, in one refusal.
+  assert.deepEqual(
+    problemsOf(
+      minimalModel({
+        extra: true,
+        groups: [{ id: "g", label: "G", members: ["a"] }],
+        views: [
+          { id: "v", tiers: ["g", { id: "t", label: "T", members: ["a", "b"] }] },
+          { id: "w", tiers: ["missing"] },
+        ],
+      }),
+    ),
+    [
+      "model_field_unknown /extra",
+      "model_reference_unknown /views/1/tiers/0",
+      "model_tier_overlap /views/0/tiers/1",
+    ],
+  );
 });
 
 test("declared views resolve their tiers", () => {

@@ -109,8 +109,9 @@ test("sources verified against the checkout are cited on the page at the model's
   assert.deepEqual(manifest.evidence.components[0].sources, ["main"]);
   const page = await fs.readFile(path.join(out, "index.html"), "utf8");
   assert.ok(page.includes(`"repository":{"url":"${url}","revision":"${revision}"}`));
+  // A page source is listed under the label of the first component that cites it.
   assert.ok(
-    page.includes('"sources":[{"id":"source-main","title":"src/main.mjs","path":"src/main.mjs"}'),
+    page.includes('"sources":[{"id":"source-main","title":"Customer","path":"src/main.mjs"}'),
   );
 });
 

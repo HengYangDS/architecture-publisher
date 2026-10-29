@@ -6,9 +6,10 @@ import { diagramCandidates, runArchify } from "./archify.mjs";
 
 /**
  * The choice of each view's diagram on Archify's own routes. Archify validates
- * and measures every candidate; the routes it resolves are also measured for
- * routes that run side by side, which Archify does not report, and the
- * connections of a choice that still crosses take other sides.
+ * and measures every candidate; the routes it lays out are measured as well for
+ * what a reader misreads and Archify does not report: two routes that read as
+ * one, a route along an edge and route ends crowded on one side of a card. The
+ * connections of a choice that still crosses or misreads take other sides.
  */
 
 /** The shapes a diagram should take, width over height, and the narrowest it may take. */
@@ -18,11 +19,43 @@ const STRETCH = 1.35;
 /** Archify's shortest route segment and shortest interior segment, in px. */
 const SEGMENT = Object.freeze({ micro: 8, interior: 16 });
 /**
- * A crossing repair: the diagrams it starts from, the rounds it takes from each
- * and the most re-sided diagrams it measures for one view.
+ * Where routes stop reading as Archify draws them apart, in px. Archify spaces
+ * the ends on one side of a card 14 px apart and runs a route between two cards
+ * about 22 px from each. Two routes on one line with less than two interior
+ * segments between them read as one route; a route nearer an edge than one and
+ * a half shortest segments reads as a second outline; two ends on one side of a
+ * card nearer than one and a half interior segments read as one doubled or
+ * two-way arrow.
  */
-const REPAIR = Object.freeze({ starts: 3, rounds: 2, budget: 64 });
+const DEFECT = Object.freeze({
+  join: 2 * SEGMENT.interior,
+  along: 1.5 * SEGMENT.micro,
+  crowd: 1.5 * SEGMENT.interior,
+});
+/**
+ * A repair: the diagrams it starts from, the rounds it takes from each and the
+ * most re-sided diagrams it measures for one view.
+ */
+const REPAIR = Object.freeze({ starts: 3, rounds: 2, budget: 96 });
 const OUTWARD = Object.freeze({ top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] });
+/**
+ * Archify's reader at a 1440 px viewport sets a panel's preview beside its
+ * steps only when the preview, cropped to its drawing with 6 px around it and
+ * drawn wide enough for its smallest text to reach the 10.875 px reading
+ * floor, leaves the steps 320 px of the 1246 px panel body and the 36 px gap
+ * between them. Stacked above its steps instead, a preview leaves the steps a
+ * narrow column under it and most of the panel blank. Its smallest text is a
+ * 9-unit sublabel, or else the 11-unit label: a relation's 8-unit label counts
+ * at 0.7 of its size, as Archify counts it.
+ */
+const BESIDE = Object.freeze({ floor: 10.875, room: 890, crop: 12, sublabel: 9, label: 11 });
+
+/** Whether Archify's reader sets a diagram's preview beside its steps at 1440 px. */
+export function besideSteps(drawing) {
+  const smallest = drawing.sublabels ? BESIDE.sublabel : BESIDE.label;
+  return Math.ceil(((drawing.width + BESIDE.crop) * BESIDE.floor) / smallest) + 2 <= BESIDE.room;
+}
+
 /** Candidates Archify measures at once. */
 const CONCURRENCY = 4;
 /** The route measures the choice ranks by; an Archify answer that passes carries each one. */
@@ -59,18 +92,133 @@ export function routeMetrics(composition) {
 }
 
 /**
- * Archify's showcase verdict and route metrics for one candidate document, and
- * the pairs of connections whose routes cross.
+ * What a reader misreads in Archify's routes of one diagram, and the
+ * connections involved. Two routes read as one when they run side by side,
+ * closer than Archify's shortest segment for longer than its shortest interior
+ * segment, or when they line up on one line, sharing a stretch of it or ending
+ * less than two interior segments apart with no card between them and no end
+ * in common. A route runs along an edge when it keeps beside a card's or the
+ * boundary's edge for longer than an interior segment. Two route ends crowd
+ * when they meet one side of a card close together.
+ * @param {any} layout Archify's layout of the diagram
+ * @param {string[]} ids the diagram's connection ids, in Archify's order
  */
-async function measure(file) {
-  const { answer } = await runArchify([
-    "validate",
-    "architecture",
-    file,
-    "--json",
-    "--quality",
-    "showcase",
+export function routeDefects(layout, ids) {
+  /** @type {number[][][]} */
+  const routes = layout.connections.map(({ points }) => points);
+  const segments = routes.flatMap((points, owner) =>
+    points.slice(1).map((point, index) => ({ owner, a: points[index], b: point })),
+  );
+  // The axis a segment keeps: 0 for a vertical one, 1 for a horizontal one.
+  const axisOf = ({ a, b }) => [0, 1].find((axis) => Math.abs(a[axis] - b[axis]) < 0.5);
+  const span = ({ a, b }, axis) => [a[axis], b[axis]].sort((p, q) => p - q);
+  const same = (p, q) => Math.abs(p[0] - q[0]) < 0.5 && Math.abs(p[1] - q[1]) < 0.5;
+  const ends = (owner) => [routes[owner][0], routes[owner][routes[owner].length - 1]];
+  const shareEnd = (s, u) => ends(s).some((p) => ends(u).some((q) => same(p, q)));
+  const cards = layout.components;
+  // Whether a card stands on the line `at` between `from` and `to` along it.
+  const cardBetween = (axis, at, from, to) =>
+    cards.some(({ x, y, width, height }) => {
+      const [across, along] =
+        axis === 0
+          ? [
+              [x, x + width],
+              [y, y + height],
+            ]
+          : [
+              [y, y + height],
+              [x, x + width],
+            ];
+      return at > across[0] && at < across[1] && along[0] < to && along[1] > from;
+    });
+  /** @type {Set<number>} */
+  const misread = new Set();
+  let [tangles, joins] = [0, 0];
+  for (let i = 0; i < segments.length; i += 1)
+    for (let j = i + 1; j < segments.length; j += 1) {
+      const [s, u] = [segments[i], segments[j]];
+      const axis = axisOf(s);
+      if (s.owner === u.owner || axis === undefined || axisOf(u) !== axis) continue;
+      const apart = Math.abs(s.a[axis] - u.a[axis]);
+      const [p, q] = [span(s, 1 - axis), span(u, 1 - axis)];
+      const overlap = Math.min(p[1], q[1]) - Math.max(p[0], q[0]);
+      const side = apart >= 0.5 && apart < SEGMENT.micro && overlap > SEGMENT.interior;
+      const lined =
+        apart < 0.5 &&
+        !shareEnd(s.owner, u.owner) &&
+        (overlap > 0.5 ||
+          (-overlap < DEFECT.join &&
+            !cardBetween(axis, s.a[axis], Math.min(p[1], q[1]), Math.max(p[0], q[0]))));
+      if (side) tangles += 1;
+      if (lined) joins += 1;
+      if (side || lined) misread.add(s.owner).add(u.owner);
+    }
+  const edges = [...cards, ...(layout.boundaries ?? [])].flatMap(({ x, y, width, height }) => [
+    { axis: 1, at: y, from: x, to: x + width },
+    { axis: 1, at: y + height, from: x, to: x + width },
+    { axis: 0, at: x, from: y, to: y + height },
+    { axis: 0, at: x + width, from: y, to: y + height },
   ]);
+  /** @type {Set<number>} */
+  const along = new Set();
+  let hugs = 0;
+  for (const segment of segments) {
+    const axis = axisOf(segment);
+    if (axis === undefined) continue;
+    const [low, high] = span(segment, 1 - axis);
+    for (const edge of edges)
+      if (
+        edge.axis === axis &&
+        Math.abs(segment.a[axis] - edge.at) < DEFECT.along &&
+        Math.min(high, edge.to) - Math.max(low, edge.from) > SEGMENT.interior
+      ) {
+        hugs += 1;
+        along.add(segment.owner);
+      }
+  }
+  /** @type {Map<string, Array<{ owner: number, at: number }>>} */
+  const sides = new Map();
+  routes.forEach((_, owner) => {
+    for (const [px, py] of ends(owner))
+      for (const { id, x, y, width, height } of cards) {
+        const across = px >= x && px <= x + width;
+        const down = py >= y && py <= y + height;
+        const side =
+          (across && Math.abs(py - y) < 0.5 && "top") ||
+          (across && Math.abs(py - y - height) < 0.5 && "bottom") ||
+          (down && Math.abs(px - x) < 0.5 && "left") ||
+          (down && Math.abs(px - x - width) < 0.5 && "right");
+        if (!side) continue;
+        const key = `${id}:${side}`;
+        sides.set(key, [
+          ...(sides.get(key) ?? []),
+          { owner, at: side === "top" || side === "bottom" ? px : py },
+        ]);
+      }
+  });
+  let crowded = 0;
+  for (const list of sides.values())
+    for (let i = 0; i < list.length; i += 1)
+      for (let j = i + 1; j < list.length; j += 1) {
+        const spacing = Math.abs(list[i].at - list[j].at);
+        if (list[i].owner !== list[j].owner && spacing >= 0.5 && spacing < DEFECT.crowd)
+          crowded += 1;
+      }
+  const named = (owners) => [...owners].sort((a, b) => a - b).map((owner) => ids[owner]);
+  return { tangles, joins, hugs, crowded, misread: named(misread), along: named(along) };
+}
+
+/**
+ * Archify's showcase verdict and route metrics for one candidate document, with
+ * the route defects it does not report, and the connections a repair re-sides:
+ * those whose routes cross, then those a reader misreads, then those along an
+ * edge.
+ * @param {string} file
+ * @param {string[]} ids the document's connection ids
+ */
+async function measure(file, ids) {
+  const validate = ["validate", "architecture", file, "--json", "--quality", "showcase"];
+  const { answer } = await runArchify(validate);
   const composition = answer.composition ?? {};
   const passes =
     answer.ok === true &&
@@ -78,56 +226,29 @@ async function measure(file) {
     composition.status === "pass" &&
     !composition.summary?.errors &&
     !composition.summary?.warnings;
-  return {
-    file,
-    passes,
-    diagnostics: answer.diagnostics ?? composition.issues ?? [],
-    pairs: (composition.routeReview?.crossings ?? []).map(({ left, right }) => [left.id, right.id]),
-    // Only a candidate that passes is ranked.
-    metrics: passes ? routeMetrics(composition) : null,
-  };
-}
-
-/**
- * Pairs of route segments that run side by side closer than Archify's shortest
- * segment for longer than its shortest interior segment, which a reader takes
- * for one route. Archify measures crossings and shared corridors, not this.
- */
-async function tangles(file) {
-  const { answer } = await runArchify([
-    "validate",
-    "architecture",
-    file,
-    "--json",
-    "--quality",
-    "showcase",
-    "--layout-json",
-  ]);
-  if (!Array.isArray(answer.connections))
+  const diagnostics = answer.diagnostics ?? composition.issues ?? [];
+  // Only a candidate that passes is ranked.
+  if (!passes) return { file, passes, diagnostics, faults: [], metrics: null };
+  const metrics = routeMetrics(composition);
+  const { answer: layout } = await runArchify([...validate, "--layout-json"]);
+  if (!Array.isArray(layout.connections) || layout.connections.length !== ids.length)
     refuse(
       "page_measures_missing",
       "Archify's layout lacks the routes of its connections; " +
         "the vendored Archify does not match this publisher.",
     );
-  const segments = answer.connections.flatMap(({ points }, owner) =>
-    points.slice(1).map((point, index) => ({ owner, a: points[index], b: point })),
-  );
-  const along = (segment, axis) => [segment.a[axis], segment.b[axis]].sort((p, q) => p - q);
-  let found = 0;
-  for (let i = 0; i < segments.length; i += 1)
-    for (let j = i + 1; j < segments.length; j += 1) {
-      const [s, u] = [segments[i], segments[j]];
-      // The axis both segments keep: x for vertical segments, y for horizontal ones.
-      const axis = [0, 1].find((index) =>
-        [s, u].every(({ a, b }) => Math.abs(a[index] - b[index]) < 0.5),
-      );
-      if (s.owner === u.owner || axis === undefined) continue;
-      const apart = Math.abs(s.a[axis] - u.a[axis]);
-      const [p, q] = [along(s, 1 - axis), along(u, 1 - axis)];
-      const overlap = Math.min(p[1], q[1]) - Math.max(p[0], q[0]);
-      if (apart >= 0.5 && apart < SEGMENT.micro && overlap > SEGMENT.interior) found += 1;
-    }
-  return found;
+  const { misread, along, ...defects } = routeDefects(layout, ids);
+  const crossing = (composition.routeReview?.crossings ?? []).flatMap(({ left, right }) => [
+    left.id,
+    right.id,
+  ]);
+  return {
+    file,
+    passes,
+    diagnostics,
+    faults: [...new Set([...crossing, ...misread, ...along])],
+    metrics: { ...metrics, ...defects },
+  };
 }
 
 /** How far a shape lies outside the band a diagram should take; Infinity below the narrowest it may take. */
@@ -199,7 +320,8 @@ function measurer(directory) {
       while (next < documents.length) {
         const index = next++;
         await fs.writeFile(files[index], `${JSON.stringify(documents[index], null, 2)}\n`);
-        measured[index] = await measure(files[index]);
+        const ids = documents[index].connections.map(({ id }) => id);
+        measured[index] = await measure(files[index], ids);
       }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
@@ -207,8 +329,17 @@ function measurer(directory) {
   };
 }
 
-const rank = ({ metrics, width, height, index }) => [
+// Routes a reader takes for one state a relation the model does not, so they
+// outrank a crossing, which a reader sees as one. A route along an edge reads as
+// a second outline and outranks a preview stacked above its steps, which leaves
+// most of its panel blank; both outrank crowded route ends and a route's third
+// bend.
+const rank = ({ metrics, width, height, drawing, index }) => [
+  metrics.tangles + metrics.joins,
   metrics.crossings,
+  metrics.hugs,
+  besideSteps(drawing) ? 0 : 1,
+  metrics.crowded,
   metrics.routesOverTwoBends,
   Math.max(0, metrics.maxStretch - STRETCH),
   shapeDistance(width, height),
@@ -222,25 +353,10 @@ function compare(a, b) {
 }
 
 /**
- * Up to `count` of the measured diagrams that pass, in rank order, leaving out
- * any whose routes run side by side; when every one does, the first of them.
- */
-async function untangled(measured, count) {
-  const ranked = measured.filter(({ passes }) => passes).sort(compare);
-  const kept = [];
-  for (const diagram of ranked) {
-    if (kept.length === count) break;
-    diagram.tangles ??= await tangles(diagram.file);
-    if (!diagram.tangles) kept.push(diagram);
-  }
-  return kept.length ? kept : ranked.slice(0, 1);
-}
-
-/**
- * Change the sides of connections whose routes Archify finds crossing. From
- * each diagram, each round measures every crossing connection with each other
- * pair of sides it can take, and keeps the best change that ranks higher and
- * runs no routes side by side, until no change helps or the budget is spent.
+ * Change the sides of the connections whose routes cross, read as one or run
+ * along an edge. From each diagram, each round measures every such connection
+ * with each other pair of sides it can take, and keeps the best change when it
+ * ranks the diagram higher, until no change helps or the budget is spent.
  * @param {any[]} starts
  * @param {(documents: any[]) => Promise<any[]>} measureAll
  */
@@ -249,8 +365,8 @@ async function repair(starts, measureAll) {
   const repaired = [];
   for (const start of starts) {
     let current = start;
-    for (let round = 0; round < REPAIR.rounds && current.metrics.crossings && budget; round += 1) {
-      const changes = [...new Set(current.pairs.flat())]
+    for (let round = 0; round < REPAIR.rounds && current.faults.length && budget; round += 1) {
+      const changes = current.faults
         .flatMap((id) => resided(current.document, id).map((document) => ({ id, document })))
         .slice(0, budget);
       budget -= changes.length;
@@ -260,19 +376,10 @@ async function repair(starts, measureAll) {
           ...result,
           document: changes[index].document,
           resided: [...new Set([...current.resided, changes[index].id])],
-          tangles: undefined,
         }),
       );
-      let next = null;
-      for (const diagram of measured.filter(({ passes }) => passes).sort(compare)) {
-        if (compare(diagram, current) >= 0) break;
-        diagram.tangles = await tangles(diagram.file);
-        if (!diagram.tangles) {
-          next = diagram;
-          break;
-        }
-      }
-      if (!next) break;
+      const [next] = measured.filter(({ passes }) => passes).sort(compare);
+      if (!next || compare(next, current) >= 0) break;
       current = next;
     }
     repaired.push(current);
@@ -281,16 +388,17 @@ async function repair(starts, measureAll) {
 }
 
 /**
- * Lay out a view's candidate diagrams, measure each on Archify's own routes and
- * choose: among those that pass Archify's showcase checks and run no routes
- * side by side, the fewest crossings, then the fewest routes over two bends,
- * then the least stretch above 1.35, then the shape nearest 1.0 to 1.8 times as
- * wide as high. The candidates keep the grid's connection sides; when none of
- * them is free of crossings and routes over two bends, each is measured again
- * with every side left to Archify, and the choice is made from both. When the
- * choice still crosses, the best few are repaired by changing the sides of the
- * connections that cross. A view with no candidate inside the shape bounds, or
- * none that passes, is refused.
+ * Lay out a view's candidate diagrams, measure each on Archify's own routes,
+ * once with the grid's connection sides and once with every side left to
+ * Archify, and choose among those that pass Archify's showcase checks: the
+ * fewest routes a reader takes for one, then the fewest crossings, routes along
+ * an edge, one the reader sets beside its steps, the fewest crowded route ends,
+ * routes over two bends, the least stretch above 1.35 and the shape nearest 1.0
+ * to 1.8 times as wide as high. When the choice still crosses, misreads, runs
+ * along an edge or stands above its steps, the best few, and the best few
+ * beside their steps, are repaired by changing the sides of the connections
+ * involved. A view with no candidate inside the shape bounds, or none that
+ * passes, is refused.
  */
 export async function chooseDiagram(model, view) {
   const candidates = diagramCandidates(model, view).filter(
@@ -305,43 +413,46 @@ export async function chooseDiagram(model, view) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-diagrams-"));
   try {
     const measureAll = measurer(directory);
-    const sided = (await measureAll(candidates.map(({ document }) => document))).map(
-      (result, index) => ({ ...candidates[index], ...result, sides: "grid", resided: [], index }),
-    );
-    let measured = sided;
-    let [chosen] = await untangled(measured, 1);
-    if (!chosen || chosen.metrics.crossings > 0 || chosen.metrics.routesOverTwoBends > 0) {
-      const documents = candidates.map(({ document }) => archifySides(document));
-      const freed = (await measureAll(documents)).map((result, index) => ({
-        ...candidates[index],
-        document: documents[index],
+    // Archify plans the sides of all connections together and can order ports
+    // that a side fixed by the grid would cross, so each candidate is measured
+    // both ways.
+    const documents = [
+      ...candidates.map(({ document }) => ({ document, sides: "grid" })),
+      ...candidates.map(({ document }) => ({ document: archifySides(document), sides: "archify" })),
+    ];
+    const measured = (await measureAll(documents.map(({ document }) => document))).map(
+      (result, index) => ({
+        ...candidates[index % candidates.length],
+        document: documents[index].document,
         ...result,
-        sides: "archify",
+        sides: documents[index].sides,
         resided: [],
-        index: candidates.length + index,
-      }));
-      measured = [...sided, ...freed];
-      [chosen] = await untangled(measured, 1);
-    }
-    if (!chosen)
+        index,
+      }),
+    );
+    const passing = measured.filter(({ passes }) => passes).sort(compare);
+    if (!passing.length)
       return refuse(
         "page_diagram_refused",
         `View ${view.id} has no diagram that passes Archify's showcase checks.`,
-        sided[0].diagnostics.slice(0, 20).map((issue) => ({
+        measured[0].diagnostics.slice(0, 20).map((issue) => ({
           code: String(issue.code ?? "archify"),
           path: `/views/${view.id}`,
           message: String(issue.message ?? "").slice(0, 400),
         })),
       );
+    let [chosen] = passing;
     let tried = measured.length;
-    if (chosen.metrics.crossings > 0) {
-      const starts = await untangled(measured, REPAIR.starts);
-      const repaired = await repair(starts, async (documents) => {
-        tried += documents.length;
-        return measureAll(documents);
+    if (chosen.faults.length || !besideSteps(chosen.drawing)) {
+      const beside = passing.filter(({ drawing }) => besideSteps(drawing));
+      const starts = [
+        ...new Set([...passing.slice(0, REPAIR.starts), ...beside.slice(0, REPAIR.starts)]),
+      ];
+      const repaired = await repair(starts, async (changed) => {
+        tried += changed.length;
+        return measureAll(changed);
       });
-      // A repaired diagram runs no routes side by side; the choice may, when every candidate did.
-      [chosen] = [chosen, ...repaired].sort((a, b) => a.tangles - b.tangles || compare(a, b));
+      [chosen] = [chosen, ...repaired].sort(compare);
     }
     return {
       view: view.id,
@@ -352,7 +463,7 @@ export async function chooseDiagram(model, view) {
       rows: chosen.rows,
       sides: chosen.sides,
       resided: chosen.resided,
-      metrics: { ...chosen.metrics, tangles: chosen.tangles },
+      metrics: chosen.metrics,
       candidates: tried,
     };
   } finally {

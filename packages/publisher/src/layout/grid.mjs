@@ -87,9 +87,9 @@ export function layoutView(view, metrics, options = {}) {
   const drawn = drawLayout(view, metrics, rows, placement, options.boundaryName);
   if (!metrics.lanes || !drawn.measures.crossings || !placement.relations.long.length) return drawn;
   const { spacing } = metrics;
-  // A lane keeps two wires' separation from the outermost card or boundary
-  // and its clearance from the content's edge.
-  const lane = spacing.clear + spacing.separation + spacing.boundaryPad;
+  // A lane keeps twice two wires' separation from the outermost card or
+  // boundary and its clearance from the content's edge.
+  const lane = spacing.clear + 2 * spacing.separation + spacing.boundaryPad;
   const laned = { ...metrics, spacing: { ...spacing, inset: Math.max(spacing.inset, lane) } };
   try {
     const around = drawLayout(
@@ -213,9 +213,13 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
   });
   // A one-row view's U wires run in a trailing channel below the row, inside the boundary.
   const trailing = wiring.channels.length === rows.length;
-  for (const channel of wiring.channels)
+  const cardsOf = (index) =>
+    (order[index] ?? []).map((id) => ({ id, .../** @type {any} */ (box.get(id)) }));
+  for (const channel of wiring.channels) {
     channel.edges =
       frame && ((channel.index >= first && channel.index < last) || trailing) ? frame : [];
+    channel.beside = { upper: cardsOf(channel.index), lower: cardsOf(channel.index + 1) };
+  }
   spreadPorts(wiring.sides, box, spacing, spacing.portSpacing);
   straighten(wiring.wires, wiring.sides, box, spacing);
   const solutions = wiring.channels.map((channel) =>

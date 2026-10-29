@@ -143,7 +143,6 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
   );
   /** @type {Array<"all" | "inside">} */
   const centrings = outside ? ["all", "inside"] : ["all"];
-  const context = { model, typefaces, icons, boundaryName };
   const outcome = () => {
     const passed = candidates.filter(({ fails }) => fails.length === 0);
     return {
@@ -151,23 +150,36 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
       closest: candidates.length ? nearest(candidates) : null,
     };
   };
-  for (const skeleton of skeletons)
-    for (const centring of centrings) {
-      const made = candidate(input, skeleton, centring, context);
-      if (made) candidates.push({ ...made, views });
-    }
-  // Centring a row may move it rather than bend a wire, never rather than
-  // cross one, and placement weighs it so. But placement sees only the wires
-  // between neighbouring rows: a relation that skips rows turns in the last
-  // channel it enters and can cross wires placement never weighed. When the
-  // best page still crosses, or no page passes, its plates are laid out
-  // uncentred as well, and the page is chosen again from what both measure.
-  const { chosen: leading, closest } = outcome();
-  if (closest && (!leading || faultsOf(leading).some(Boolean)))
-    for (const skeleton of skeletons) {
-      const made = candidate(input, skeleton, null, context);
-      if (made) candidates.push({ ...made, views });
-    }
+  /** @param {"column" | "edges"} tierLabels */
+  const compose = (tierLabels) => {
+    const context = { model, typefaces, icons, boundaryName, tierLabels };
+    for (const skeleton of skeletons)
+      for (const centring of centrings) {
+        const made = candidate(input, skeleton, centring, context);
+        if (made) candidates.push({ ...made, views });
+      }
+    // Centring a row may move it rather than bend a wire, never rather than
+    // cross one, and placement weighs it so. But placement sees only the wires
+    // between neighbouring rows: a relation that skips rows turns in the last
+    // channel it enters and can cross wires placement never weighed. When the
+    // best page still crosses, or no page passes, its plates are laid out
+    // uncentred as well, and the page is chosen again from what both measure.
+    const { chosen: leading, closest } = outcome();
+    if (closest && (!leading || faultsOf(leading).some(Boolean)))
+      for (const skeleton of skeletons) {
+        const made = candidate(input, skeleton, null, context);
+        if (made) candidates.push({ ...made, views });
+      }
+  };
+  // Tier labels stand in one column, so their numbers read down one line. A
+  // figure whose tiers start at different edges can leave paper blank between
+  // that column and the tiers that start further in; when no page with one
+  // column balances, each label stands before the edge its tier starts at.
+  compose("column");
+  const tiered = views.some((view) =>
+    viewRows(view, ROW_LIMIT, () => false).some(({ label }) => label),
+  );
+  if (tiered && !outcome().chosen) compose("edges");
   return outcome();
 }
 
@@ -181,7 +193,7 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
  * @param {any} context
  */
 function candidate(input, skeleton, centring, context) {
-  const { model, typefaces, icons, boundaryName } = context;
+  const { model, typefaces, icons, boundaryName, tierLabels } = context;
   const gutters = input.views.map((view) =>
     gutterFor(
       typefaces,
@@ -211,7 +223,7 @@ function candidate(input, skeleton, centring, context) {
   });
   if (!page) return null;
   const options = page.plates.map((plate) =>
-    platesOf({ model, typefaces, icons, boundaryName, centring }, plate),
+    platesOf({ model, typefaces, icons, boundaryName, centring, tierLabels }, plate),
   );
   if (options.some((list) => !list.length)) return null;
   const pairs = pairings(options);
@@ -289,6 +301,7 @@ function candidate(input, skeleton, centring, context) {
       notes: skeleton.notes ? "floating" : drawn.archetype === "column" ? "rail" : "footer",
       bands: skeleton.bands ?? drawn.plates.map(() => 1),
       centring,
+      tierLabels,
       plates: drawn.plates.map((plate, order) => ({
         view: plate.view.id,
         step: made[order].step,

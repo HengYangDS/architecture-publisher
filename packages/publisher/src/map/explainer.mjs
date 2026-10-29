@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { archifyIds, runArchify } from "./archify.mjs";
+import { archifyIds, runArchify, viewCaption } from "./archify.mjs";
 import { chooseDiagram } from "./choice.mjs";
 
 /**
@@ -29,6 +29,8 @@ const text = (value) =>
     .trim()
     .replace(/[\\`*<>[\]|]/gu, "\\$&");
 const quoted = (value) => JSON.stringify(text(value));
+/** Model text for an argument Archify sets as plain text, such as a source's title. */
+const plain = (value) => JSON.stringify(String(value).replace(/\s+/gu, " ").trim());
 
 /** One detail as a step reads it. */
 const detailText = ([name, values]) => `${name}: ${values.join(", ")}`;
@@ -81,28 +83,45 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   // A view that asks the model's own question, as an overview often does, is
   // titled with its title, so that the panel does not repeat the page heading.
   const heading = (view) => (view.question === model.question ? view.title : view.question);
+  /** @type {string[]} */
   const cited = [];
-  const cite = (component) => {
+  // A source is listed under the name of the first component that cites it;
+  // its path follows from the repository position.
+  const names = new Map();
+  const sourceOf = (component) => {
     const [first] = repository
       ? (component.sources ?? []).filter((source) => !withheld.has(source))
       : [];
-    if (!first) return "";
-    if (!cited.includes(first)) cited.push(first);
-    return `[](source:${id(`source-${first}`)})`;
+    if (first && !cited.includes(first)) {
+      cited.push(first);
+      names.set(first, component.label);
+    }
+    return first;
+  };
+  // A step carries every detail of its component, the card at most one. A
+  // component without details names the file it is cited from instead, so its
+  // step never shows a citation mark alone.
+  const stepText = (component) => {
+    const details = text(component.details.map(detailText).join("; "));
+    const source = sourceOf(component);
+    if (!source) return details;
+    const link = `source:${id(`source-${source}`)}`;
+    if (details) return `${details}[](${link})`;
+    const { path: file } = model.sources.find((entry) => entry.id === source);
+    return `[${text(file)}](${link})`;
   };
   const panels = views.map((view, index) => {
     const diagram = diagrams[index];
-    // A step carries every detail of its component; the card shows at most one.
     const steps = readingOrder(view, diagram).map(
       (component) =>
-        `| ${id(`step-${view.id}-${component.id}`)} | ${text(component.label)} | ${text(
-          component.details.map(detailText).join("; "),
-        )}${cite(component)} | ${id(`diagram-${view.id}`)} | ${diagram.nodes.get(component.id)} |`,
+        `| ${id(`step-${view.id}-${component.id}`)} | ${text(component.label)} | ${stepText(
+          component,
+        )} | ${id(`diagram-${view.id}`)} | ${diagram.nodes.get(component.id)} |`,
     );
     return [
       `## ${text(heading(view))} {#${id(`view-${view.id}`)}}`,
       "",
-      `@diagram architecture id=${id(`diagram-${view.id}`)} source=${diagramFile(id(`diagram-${view.id}`))} title=${quoted(view.title)}`,
+      `@diagram architecture id=${id(`diagram-${view.id}`)} source=${diagramFile(id(`diagram-${view.id}`))} title=${quoted(viewCaption(model, view))}`,
       "",
       `@steps id=${id(`steps-${view.id}`)}`,
       ...steps,
@@ -118,13 +137,20 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
     .join(" ");
   const sources = cited.map((sourceId) => {
     const source = model.sources.find((entry) => entry.id === sourceId);
-    return `@source ${id(`source-${sourceId}`)} title=${quoted(source.path)} path=${JSON.stringify(source.path)}`;
+    return `@source ${id(`source-${sourceId}`)} title=${plain(names.get(sourceId))} path=${JSON.stringify(source.path)}`;
   });
+  // Beside the conclusion, a page of several views lists the questions its
+  // panels answer, numbered as the panels are, each a way into its panel.
+  const contents =
+    views.length > 1
+      ? [...views.map((view) => `- [${text(heading(view))}](block:${id(`view-${view.id}`)})`), ""]
+      : [];
   const draft = [
     `# ${text(model.question)} {#${id(`page-${model.id}`)}}`,
     "",
     text(model.summary ?? `${model.title} in ${views.length} views.`),
     "",
+    ...contents,
     ...(scope ? [`@answer scope=${quoted(scope)}`] : []),
     `@meta locale=en${
       repository

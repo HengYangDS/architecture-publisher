@@ -22,12 +22,11 @@ Archify, replace its fonts, routing or reader, or post-process its output.
 
 The page SHALL be titled with the model's question and open with its summary
 as the conclusion and its scope, limits and attribution as the page scope, each
-ended as a sentence.
-Each view SHALL be one panel, in the plan's order, titled with the view's
-question, or with its title when its question is the model's own, and holding
-that view's native architecture diagram. The page SHALL
-NOT print digests, verification records or complete source lists; they stay
-in the manifest.
+ended as a sentence. Each view SHALL be one panel, in the plan's order, titled
+with the view's question, or with its title when its question is the model's
+own, and holding that view's native architecture diagram. The page SHALL NOT
+print digests, verification records or complete source lists; they stay in
+the manifest.
 
 #### Scenario: Four views
 
@@ -42,15 +41,24 @@ in the manifest.
 - **THEN** its panel is titled with the overview's title and the question
   appears once on the page
 
+### Requirement: Panels beside the conclusion
+
+A page of several views SHALL list beside its conclusion each panel's title,
+numbered as the panels are and linked to its panel.
+
+#### Scenario: The panels beside the conclusion
+
+- **WHEN** a model declares three views
+- **THEN** the conclusion is followed by the three panels' titles, numbered 1
+  to 3, each a link to its panel
+
 ### Requirement: View diagrams
 
-Each view's diagram SHALL contain the view's components with their label and,
-as sublabel, the first of their details the card holds whole, and its
-relations as labeled connections, dashed when planned or retired. A card SHALL
-NOT show a cut detail. Kinds SHALL map to Archify's seven native types as color
-families, with `person` drawn as `external`, and the legend SHALL name the
-model's kinds. Positions and sizes SHALL come from the grid layout with
-Archify's text metrics.
+Each view's diagram SHALL contain its components with their label and, as
+sublabel, the first detail the card holds whole, and its relations as
+connections, dashed when planned or retired and labelled once among relations
+sharing a source, label, details and status. A card SHALL NOT show a cut
+detail. Positions and sizes SHALL come from the grid layout.
 
 #### Scenario: A detail longer than its card
 
@@ -59,11 +67,31 @@ Archify's text metrics.
 - **THEN** the card shows the later detail whole
 - **AND** the component's step lists both details
 
+#### Scenario: Relations that share a label
+
+- **WHEN** two relations from one component share a label, details and status
+- **THEN** only the first of their connections carries the label
+
+### Requirement: Kind colors
+
+Kinds SHALL map to Archify's seven native types as color families, with
+`person` drawn as `external`, and the legend SHALL name the model's kinds.
+
 #### Scenario: Kinds become color families
 
 - **WHEN** a view shows a `database` kind and a `person` kind
 - **THEN** their components use Archify's database and external types
 - **AND** the legend names the model's kind labels
+
+### Requirement: Diagram names
+
+A view's diagram and its full viewer SHALL be named by the view's title when
+the view has one of its own, otherwise by its question.
+
+#### Scenario: A view without a title of its own
+
+- **WHEN** a view declares a question but no title
+- **THEN** its diagram and its full viewer are named by that question
 
 ### Requirement: Candidate diagrams
 
@@ -78,16 +106,25 @@ from Archify's own layout.
 
 ### Requirement: Chosen diagram
 
-The publisher SHALL choose the candidate with the fewest route crossings, then
-the fewest routes over two bends, then the smallest stretch above 1.35, then
-the shape closest to the landscape band. The chosen diagram SHALL pass
-Archify's showcase checks; a view with no passing candidate SHALL be refused
-with Archify's findings. The manifest SHALL record the choice and its metrics.
+Among candidates that pass Archify's showcase checks, the publisher SHALL
+choose the one with the fewest routes that read as one, then the fewest route
+crossings, routes along an edge, one Archify's reader sets beside its steps at
+a 1440 px viewport, crowded route ends, routes over two bends, stretch above
+1.35, then the shape closest to the landscape band. A view with no passing
+candidate SHALL be refused with Archify's findings. The manifest SHALL record
+the choice and its metrics.
 
 #### Scenario: A clean view diagram
 
 - **WHEN** the AIGW overview is delivered
 - **THEN** its diagram has no route crossing and no route over two bends
+
+#### Scenario: A preview beside its steps
+
+- **WHEN** two candidates of a view are free of crossings, of routes that read
+  as one and of routes along an edge, and only the narrower one leaves its steps
+  room beside it
+- **THEN** the narrower one is chosen
 
 ### Requirement: Archify's route measures
 
@@ -100,25 +137,47 @@ the measure as zero.
 - **WHEN** Archify passes a candidate without its maximum stretch
 - **THEN** the view is refused with `page_measures_missing`
 
-### Requirement: Routes side by side
+### Requirement: Routes that read as one
 
-A candidate whose routes run side by side, two routes closer than 8 px along
-more than 16 px, SHALL NOT be chosen while a candidate that passes runs none.
+Two routes SHALL read as one when, on Archify's layout, they run side by side,
+closer than 8 px along more than 16 px, or line up on one line, sharing a
+stretch of it or ending less than 32 px apart with no card between them and no
+end in common. A candidate with such routes SHALL NOT be chosen while a
+candidate that passes has none.
 
 #### Scenario: Routes 2 px apart
 
 - **WHEN** the Big Bank tiered candidate that crosses least runs a route 2 px
   beside two others on Archify's routes
 - **THEN** another candidate is chosen
-- **AND** the chosen diagram runs no routes side by side
+- **AND** the chosen diagram has no routes that read as one
+
+#### Scenario: Routes on one line
+
+- **WHEN** a context-mode sandbox candidate runs "fetches pages" along the line
+  on which "checks deny rules" enters Security policy
+- **THEN** that candidate is not chosen
+- **AND** the chosen diagram has no routes that read as one
+
+### Requirement: Routes along an edge
+
+A route SHALL run along an edge when it keeps parallel to a card's or the
+boundary's edge closer than 12 px for more than 16 px. Two route ends SHALL
+crowd when they meet one side of a card less than 24 px apart. The manifest
+SHALL record both counts with the chosen diagram's metrics.
+
+#### Scenario: A route under the boundary's edge
+
+- **WHEN** two candidates differ only in that one runs a route 4 px under the
+  boundary's edge
+- **THEN** the other is chosen
 
 ### Requirement: Sides Archify plans
 
-Candidates SHALL keep the grid's connection sides. When no candidate that
-passes is free of crossings and of routes over two bends, every candidate SHALL
-also be measured with all its connection sides left to Archify, and the choice
-SHALL be made from both sets; the manifest SHALL record which sides the chosen
-diagram keeps.
+Every candidate SHALL be measured with the grid's connection sides and again
+with all its connection sides left to Archify, and the choice SHALL be made
+from both sets; the manifest SHALL record which sides the chosen diagram
+keeps.
 
 #### Scenario: Grid sides that cross
 
@@ -128,11 +187,12 @@ diagram keeps.
 
 ### Requirement: Re-sided connections
 
-When the chosen diagram still crosses, the publisher SHALL change the sides of
-the connections whose routes Archify finds crossing, one connection at a time
-from the three best diagrams and within 64 measured changes for the view, and
-SHALL keep a change only when it ranks the diagram higher without running
-routes side by side. The manifest SHALL record the re-sided connections.
+When the chosen diagram crosses, has routes that read as one or along an edge,
+or stands above its steps, the publisher SHALL change the sides of the
+connections involved, one at a time from the three best diagrams and the three
+best beside their steps, within 96 measured changes for the view, keeping a
+change only when it ranks the diagram higher. The manifest SHALL record the
+re-sided connections.
 
 #### Scenario: A crossing cleared by other sides
 
@@ -143,29 +203,51 @@ routes side by side. The manifest SHALL record the re-sided connections.
 
 ### Requirement: Diagram shape
 
-Each view diagram SHALL be between 1.0 and 1.8 times as wide as high when a
-candidate allows it, and never wider than 1.8 or narrower than 0.7 times its
-height. A view whose every candidate is outside that range SHALL be refused
-with its measured shapes.
+Each view diagram SHALL be at least 0.7 times as wide as high, and among
+candidates equal in every measure the choice ranks before shape, the one whose
+shape lies nearest 1.0 to 1.8 times as wide as high SHALL be chosen. The
+delivered canvas SHALL be at most 1.54 times as wide as high. A view whose
+every candidate is narrower than 0.7 times its height SHALL be refused with
+`page_shape_refused`.
 
 #### Scenario: A three-card view
 
 - **WHEN** a view of three cards in two rows is delivered
 - **THEN** its diagram is between 1.0 and 1.8 times as wide as high
 
+#### Scenario: Every candidate too tall
+
+- **WHEN** every candidate of a view is narrower than 0.7 times its height
+- **THEN** the build refuses with `page_shape_refused`
+
 ### Requirement: Steps and sources
 
 A panel SHALL list the view's components as steps, in its diagram's reading
 order from the top row down and left to right, that light their node in the
-diagram, each with every one of its details. When the model declares a repository,
-each component's first source SHALL be a numbered page source pinned to the
-revision.
+diagram, each with every one of its details.
 
 #### Scenario: Stepping through a view
 
 - **WHEN** a reader steps through a panel
 - **THEN** each step lights its component in that panel's diagram
 - **AND** the steps walk the diagram's rows from the top, left to right
+
+### Requirement: Page sources
+
+When the model declares a repository URL and revision, each component's first
+source that the page does not withhold SHALL be a numbered page source pinned
+to the revision, listed under the label of the first component that cites it;
+a component without details SHALL name that source's file in its step.
+
+#### Scenario: A repository without a URL
+
+- **WHEN** the model declares a repository name and revision but no URL
+- **THEN** no step cites a source
+
+#### Scenario: A component without details
+
+- **WHEN** a component declares no details and cites `src/cli/main.mjs`
+- **THEN** its step reads that path followed by its source number
 
 ### Requirement: Withheld sources
 

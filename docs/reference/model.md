@@ -22,6 +22,12 @@ one pass and builds nothing.
 
 ## A minimal model
 
+This is the smallest model the schema accepts. It validates, but a view of
+three components is too sparse to fill a balanced page, so `archpub check`
+refuses it with `poster_unbalanced`; the repository's own
+[`editions/self/model.json`](../../editions/self/model.json) is a complete model
+that builds.
+
 ```json
 {
   "format": "architecture-publisher.model",
@@ -48,24 +54,24 @@ one pass and builds nothing.
 
 ## Top-level fields
 
-| Field         | Required | Meaning                                                                          |
-| ------------- | -------- | -------------------------------------------------------------------------------- |
-| `format`      | yes      | Always `architecture-publisher.model`.                                           |
-| `version`     | yes      | Always `1`.                                                                      |
-| `id`          | yes      | Model id; names the published directory.                                         |
-| `title`       | yes      | Poster title, and the title of any view without its own.                         |
-| `question`    | yes      | The question the model answers: under the poster title and heading the page.     |
-| `summary`     | no       | A short answer printed under the question; the page's conclusion.                |
-| `scope`       | no       | What the model covers and leaves out; in the poster footnote and the page scope. |
-| `limits`      | no       | Known limits of the description, each one text; printed with the scope.          |
-| `attribution` | no       | Who wrote the model; printed with the scope.                                     |
-| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`. |
-| `kinds`       | no       | Kind catalog keyed by kind id.                                                   |
-| `sources`     | no       | Source file catalog keyed by source id.                                          |
-| `components`  | yes      | At least one component.                                                          |
-| `relations`   | yes      | Relations between components; may be empty.                                      |
-| `groups`      | no       | Named sets of components.                                                        |
-| `views`       | no       | At most four views; without them the publisher plans the views itself.           |
+| Field         | Required | Meaning                                                                               |
+| ------------- | -------- | ------------------------------------------------------------------------------------- |
+| `format`      | yes      | Always `architecture-publisher.model`.                                                |
+| `version`     | yes      | Always `1`.                                                                           |
+| `id`          | yes      | Model id; names the published directory.                                              |
+| `title`       | yes      | Poster title, and the title of any view without its own.                              |
+| `question`    | yes      | The question the model answers: under the first poster's title and heading the page.  |
+| `summary`     | no       | A short answer printed under the question on the first poster; the page's conclusion. |
+| `scope`       | no       | What the model covers and leaves out; in the poster notes and the page scope.         |
+| `limits`      | no       | Known limits of the description, each one text; printed with the scope.               |
+| `attribution` | no       | Who wrote the model; printed with the scope.                                          |
+| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`.      |
+| `kinds`       | no       | Kind catalog keyed by kind id.                                                        |
+| `sources`     | no       | Source file catalog keyed by source id.                                               |
+| `components`  | yes      | At least one component.                                                               |
+| `relations`   | yes      | Relations between components; may be empty.                                           |
+| `groups`      | no       | Named sets of components.                                                             |
+| `views`       | no       | At most four views; without them the publisher plans the views itself.                |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -81,11 +87,13 @@ may not connect a component to itself.
 - `details` maps a short name to text or a list of texts, such as
   `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. Names are at most
   64 characters, contain no colon and are not plain numbers. A component's
-  details are printed on its poster card, and the first one on its page diagram
-  card and step; a relation's details are printed under its label. The
-  manifest's evidence lists every detail.
-- `status` is `implemented`, `planned` or `retired`. Planned and retired
-  relations are drawn dashed.
+  details are printed on its poster card; on the page, its diagram card shows
+  the first detail it holds whole, or none, and its step lists every detail. A
+  relation's details are printed under its label. The manifest's evidence lists
+  every detail.
+- `status` is `implemented`, `planned` or `retired`. On posters, planned
+  components and relations are drawn dashed and retired ones dotted and muted;
+  on the page, planned and retired relations are dashed.
 - `sources` lists source ids from the catalog that support the statement.
 
 ## Kinds
@@ -147,6 +155,10 @@ panel of the page, with its own diagram. It has an `id`, an optional `title`,
   one tier of a view, and a row holds at most five cards.
 - `members`: component ids whose rows follow their relations, holding at most
   six cards per row.
+
+The page names a view's diagram by its title, or by its question when it has
+no title of its own; a later poster of one view leads with its title, or with
+the model's.
 
 Relations between the shown components are always drawn; neither form selects
 relations. Rows that follow relations are chosen deterministically: every

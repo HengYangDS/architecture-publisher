@@ -356,7 +356,8 @@ test("the page draft answers the model's question view by view and cites sources
   const steps = (view) => [
     `@steps id=steps-${view}`,
     `| step-${view}-web | Web \\| front \\*end\\* | serves: pages; owns: cart, sessions[](source:source-main) | diagram-${view} | web |`,
-    `| step-${view}-store | Store | [](source:source-main) | diagram-${view} | store |`,
+    // A component without details names the file it is cited from.
+    `| step-${view}-store | Store | [src/main.go](source:source-main) | diagram-${view} | store |`,
   ];
   assert.equal(
     draft,
@@ -365,13 +366,18 @@ test("the page draft answers the model's question view by view and cites sources
       "",
       "Orders flow from the web to the store.",
       "",
+      "- [What does the web do?](block:view-web)",
+      "- [Where do orders go?](block:view-store)",
+      "",
       '@answer scope="Checkout only. Payments are out of scope. 不含退款。 Model by the shop team."',
       `@meta locale=en repo_url="https://example.invalid/shop.git" repo_revision=${"a".repeat(40)}`,
-      '@source source-main title="src/main.go" path="src/main.go"',
+      // A source is listed under the first component that cites it.
+      '@source source-main title="Web | front *end*" path="src/main.go"',
       "",
       "## What does the web do? {#view-web}",
       "",
-      '@diagram architecture id=diagram-web source=diagram-web.architecture.json title="Minimal"',
+      // A view without a title of its own is named by its question.
+      '@diagram architecture id=diagram-web source=diagram-web.architecture.json title="What does the web do?"',
       "",
       ...steps("web"),
       "",

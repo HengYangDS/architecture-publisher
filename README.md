@@ -17,10 +17,14 @@ archpub publish build/my-repository --to ~/Documents/Architecture
 ```
 
 `check` validates the model, verifies each declared source at the pinned
-revision and lays out every view without writing anything. `build` writes the
-delivery. A person accepts it, and only an accepted delivery is published.
+revision, composes every poster page and checks every diagram and the page with
+Archify, without writing a delivery. `build` writes the delivery. A person
+accepts it, and only an accepted delivery is published.
 
-A minimal model:
+A minimal model validates as below, but a view of three components is too
+sparse for a balanced page, so `check` refuses it with `poster_unbalanced`;
+[`editions/self/model.json`](editions/self/model.json) is a complete model that
+builds:
 
 ```json
 {
@@ -61,13 +65,14 @@ their icons, details, statuses, sources, groups and up to four views.
 - **Manifest:** `manifest.json`, the digest of the model, every source, every
   bundled supply and every artifact, each page's measures, each diagram's route
   measures and the details, statuses and sources of every component and
-  relation. Building the same model with the same version reproduces every
-  byte.
+  relation. Building the same model with the same version on one platform
+  reproduces every byte.
 
-Layout is a grid: cards of one size on shared row lines, wires that are only
-horizontal or vertical, and no shared segment, wire through a card or touching
-label. A view that cannot be drawn that way is refused with the relations
-concerned, never shrunk or cropped.
+Layout is a grid: cards on shared row lines of one column lattice, each poster
+card as wide as its text, wires that are only horizontal or vertical, and no
+shared segment, wire through a card or touching label. A layout that breaks
+this is never drawn; a view no layout draws, or no balanced page holds, is
+refused, never shrunk or cropped.
 
 ## Install
 

@@ -21,16 +21,16 @@ exact repository content.
   person, or imported from LikeC4.
 - **BREAKING** Replace selection, scene programs, layout candidates and the
   Candidate with a Reading Plan: at most four views per model, chosen
-  explicitly or derived automatically, each admitted only when its poster
-  passes the composition gates in one 2400 × 1350 px (16:9) format with no
-  text below 14 px.
-- Lay out every view with one deterministic grid engine: equal cards on one
-  column lattice, orthogonal wires and labels in the channels between rows,
-  and a measured neatness gate that refuses overlaps instead of drawing them.
-- Compose posters format first: one fixed page, one page grid with two
-  archetypes, a solver that fits each figure to its field, and measured
-  balance, type and line gates; bundled fonts, Lucide icons and outlined
-  text; evidence leaves the poster for the page and the manifest.
+  explicitly or derived automatically, each admitted when a page of its own
+  lays it out in one 2400 × 1350 px (16:9) format with no text below 14 px,
+  and refused when no page that passes the balance gates holds it.
+- Lay out every view with one deterministic grid engine: cards on one column
+  lattice, orthogonal wires and labels in the channels between rows, and a
+  measured neatness check that rejects overlaps instead of drawing them.
+- Compose posters format first: one fixed page of one to three views, one page
+  grid with three archetypes, a solver that fits each figure to its field, and
+  measured balance gates; bundled fonts, Lucide icons and outlined text;
+  evidence leaves the poster for the page and the manifest.
 - Deliver the interactive medium as one unmodified native Archify explainer
   page: the model's question and conclusion first, one panel per view with a
   native architecture diagram chosen on Archify's own routes, steps and
@@ -53,9 +53,9 @@ exact repository content.
   preservation and LikeC4 import.
 - `source-binding`: read-only content-digest binding of declared sources at a
   pinned repository revision.
-- `reading-plan`: explicit and automatic views, rows from relations and the
-  poster frame admission.
-- `grid-layout`: equal cards on one lattice, optimal placement, channel
+- `reading-plan`: explicit and automatic views, rows from relations and
+  poster admission.
+- `grid-layout`: cards on one lattice, optimal placement, channel
   routing, the system boundary and measured neatness, shared by both media.
 - `poster-composition`: the graph-first static poster and its portable raster
   outputs.

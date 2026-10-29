@@ -1,22 +1,24 @@
 ## Purpose
 
-Choose the views a model is read through, explicitly or automatically, and admit
-only posters that fit their frame at the reading floor.
+Choose the views a model is read through, explicitly or automatically, and
+admit only views a poster page can lay out at the reading floor.
 
 ## ADDED Requirements
 
 ### Requirement: Explicit views
 
-A model SHALL declare at most four views, the diagrams one page holds. Each view SHALL name either ordered
-tiers, which are group ids or inline groups drawn as rows in that order, or
-members, which are component ids whose rows follow their relations. Each view
-SHALL produce one poster and one panel of the explainer page. Groups SHALL be drawn
-as rows only when a view names them as tiers.
+A model SHALL declare at most four views, the diagrams one page holds. Each
+view SHALL name either ordered tiers, which are group ids or inline groups
+drawn as rows in that order, or members, which are component ids whose rows
+follow their relations. Each view SHALL be printed as one plate on one poster
+page and SHALL be one panel of the explainer page. Groups SHALL be drawn as
+rows only when a view names them as tiers.
 
 #### Scenario: A tiered view
 
 - **WHEN** a view names three groups as tiers
-- **THEN** its poster draws three rows in that order with their members
+- **THEN** its plate draws them in that order, each as one row or, when wider
+  than a row, as consecutive rows
 
 #### Scenario: Too many views
 
@@ -25,9 +27,9 @@ as rows only when a view names them as tiers.
 
 ### Requirement: Rows from relations
 
-For a view that names members, the publisher SHALL reverse the relations that close cycles, draw
-every relation downward or within one row, and choose deterministically the
-rows of least cost.
+For a view that names members, the publisher SHALL reverse the relations that
+close cycles, draw every relation downward or within one row, and choose
+deterministically the rows of least cost.
 
 #### Scenario: A cycle
 
@@ -79,8 +81,8 @@ When the automatic single view is not admitted and the model has groups, the
 plan SHALL be an overview with one node per group and one aggregated relation
 per ordered group pair, followed by one view per group containing its members
 and their direct neighbors. When the model has no groups, or this plan exceeds
-four views, the build SHALL refuse with the measured size, or with the layout's
-problems when the full view cannot be laid out, and the remedy.
+four views, the build SHALL refuse with the full view's component and relation
+counts, the page size or the refusal that ruled it out, and the remedy.
 
 #### Scenario: A large grouped model
 
@@ -98,25 +100,32 @@ problems when the full view cannot be laid out, and the remedy.
 #### Scenario: A large model without groups
 
 - **WHEN** a model without views or groups is not admitted as one view
-- **THEN** the build refuses, reports the measured poster size and asks for
-  groups or views
+- **THEN** the build refuses with the view's component and relation counts and
+  the 2400 × 1350 px page size, and asks for groups or views
 
 ### Requirement: Poster admission
 
-A view SHALL be admitted when its poster has a composition that passes every
-composition gate in the 2400 × 1350 px format with no text smaller than
-14 px. Admission SHALL try the poster's finite candidate compositions and no
-other parameters. A view without a passing composition SHALL be refused with
-its id, its component and relation counts and every failing gate's measured
-value and limit. The publisher SHALL NOT shrink text, crop or change the
-format.
+A view SHALL be admitted when some candidate composition lays it out alone on
+a 2400 × 1350 px page with no text smaller than 14 px; whether its page passes
+the balance gates SHALL be decided when the edition is grouped. Admission
+SHALL try the finite candidate compositions and no other parameters. A view no
+candidate lays out SHALL be refused with its id, its component and relation
+counts and the page size. The publisher SHALL NOT shrink text, crop or change
+the format.
 
 #### Scenario: An oversized view
 
-- **WHEN** a declared view's cards cannot fit the figure field at 14 px in any
-  candidate composition
-- **THEN** the build refuses with that view id, its counts and the measured
-  size against the field
+- **WHEN** a declared view's cards cannot be laid out at 14 px in any candidate
+  composition
+- **THEN** the build refuses with `plan_not_admitted`, that view id, its counts
+  and the 2400 × 1350 px page size
+
+#### Scenario: A sparse view is admitted
+
+- **WHEN** a declared view can be laid out but fills no balanced page alone
+- **THEN** the plan admits it
+- **AND** the edition prints it beside a neighbour or refuses it with
+  `poster_unbalanced`
 
 #### Scenario: A deterministic plan
 
@@ -125,14 +134,15 @@ format.
 
 ### Requirement: Named view refusals
 
-A view whose layout is refused SHALL be refused with its id and the layout's
-problems under that view's path. Admission SHALL report every view it refuses,
-under the code of the first.
+A view whose admission is refused SHALL be refused with its id, and the
+refusal's problems SHALL be listed under that view's path. Admission SHALL
+report every view it refuses, under the code of the first.
 
 #### Scenario: Two refused views
 
-- **WHEN** the grid cannot wire the second of three declared views and the
-  third does not fit
-- **THEN** the refusal names the second view with its layout code
-- **AND** its problems list the second view's layout problems and the third
-  view's measured size under their `/views/<id>` paths
+- **WHEN** the second of three declared views has a summary no page can set
+  and the third cannot be laid out on any page
+- **THEN** the refusal has the code `poster_summary_too_long` and names the
+  second view
+- **AND** its problems list the third view's `view_not_admitted` problem under
+  `/views/<id>`

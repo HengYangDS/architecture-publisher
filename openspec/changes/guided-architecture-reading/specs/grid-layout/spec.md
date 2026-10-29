@@ -1,18 +1,19 @@
 ## Purpose
 
-Lay out every view on one grid of equal cards with orthogonal wires and labels
-in the channels between rows, deterministically and measurably neat, for each
+Lay out every view on one lattice of cards with orthogonal wires and labels in
+the channels between rows, deterministically and measurably neat, for each
 medium's own metrics.
 
 ## ADDED Requirements
 
 ### Requirement: Cards on one lattice
 
-Every card of a view SHALL have the same width, the one the composition chose
-within the medium's bounds, and every card of a row the same height, the one
-that fits the row's tallest content at that width. Card positions SHALL be whole
-or half columns of one pitch, and every card of a row SHALL share its top and
-bottom edges.
+Cards SHALL stand on one lattice of equal slots chosen within the medium's
+bounds. A medium that sizes cards by their text SHALL draw each card as wide as
+its text within its slot and every card of one lattice column as wide as the
+widest of them; otherwise every card SHALL fill its slot. Every card of a row
+SHALL be as tall as the row's tallest content and share its top and bottom
+edges, and card positions SHALL be whole or half columns of one pitch.
 
 #### Scenario: Cards with different amounts of text
 
@@ -30,6 +31,13 @@ bottom edges.
 - **WHEN** one component calls two components placed in adjacent columns
 - **THEN** it may sit on the half column between them
 
+#### Scenario: Cards of one column on a poster
+
+- **WHEN** a poster's lattice column holds a card with a short label above one
+  with a long label
+- **THEN** both cards take the long label's width
+- **AND** a card with a short label in another column stays narrower
+
 ### Requirement: Column gaps for compact cards
 
 When the cards are narrower than the field divides into, the column gap MAY
@@ -44,15 +52,18 @@ against the alignment it buys.
 
 ### Requirement: Deterministic optimal placement
 
-Rows SHALL be placed by an exact search over row orders and lattice positions
-that minimizes one fixed cost: crossings between adjacent rows weigh most,
-then bends, off-center bus hubs, room for same-row arrows, row centering,
-half-column use and departures from model order. The same model and medium
-SHALL always produce the same positions.
+Rows SHALL be placed by an exact search over row orders and lattice positions,
+within a fixed state budget, that minimizes one fixed cost: crossings between
+adjacent rows weigh most, then same-row relations without room for a straight
+arrow; row centring where the medium asks for it, cards narrowed below their
+text, bends, spare columns, off-centre bus hubs, half-column use and departures
+from model order weigh less. The same model and medium SHALL always produce
+the same positions.
 
 #### Scenario: Straight wires are preferred
 
-- **WHEN** a component's only caller sits in the row above
+- **WHEN** a component's only caller sits in the row above and the medium does
+  not centre rows
 - **THEN** the component is placed directly below its caller when no crossing
   or collision results
 
@@ -67,7 +78,7 @@ When a view shows components of the described system together with
 components whose kind category is `person` or `external`, the internal
 components of every internal row SHALL occupy one shared column interval with
 the others outside it, and the layout SHALL return one boundary rectangle
-named after the repository.
+named after the repository, or after the model's title when it declares none.
 
 #### Scenario: External clients below the system
 
@@ -78,7 +89,7 @@ named after the repository.
 ### Requirement: Unplaceable boundary
 
 When no column interval can keep every outside component outside the
-boundary, the view SHALL be refused with the rows that mix inside and outside
+boundary, the layout SHALL be refused with the rows that mix inside and outside
 components and the remedy of giving outside components their own tier.
 
 #### Scenario: No column beside the boundary
@@ -90,17 +101,23 @@ components and the remedy of giving outside components their own tier.
 
 ### Requirement: Channel routing
 
-Wires and relation labels SHALL lie in the channels between rows, except
-straight arrows between neighbors of one row and corridor segments of
-relations that skip rows. A relation between adjacent rows SHALL leave its
-source vertically, make at most one horizontal jog and enter its target
-vertically. Ports on one card side SHALL be spread symmetrically in the order
-of their far ends.
+Wires and relation labels SHALL lie in the channels between rows, or below a
+view's only row, except straight arrows between neighbors of one row and the
+corridor segments of relations that skip rows. A relation between adjacent
+rows SHALL leave its source vertically, make at most one horizontal jog and
+enter its target vertically. Ports on one card side SHALL keep the order of
+their far ends, each as near its far end as the port spacing allows.
 
 #### Scenario: A single jog
 
 - **WHEN** a relation connects cards in adjacent rows and different columns
 - **THEN** its wire has two bends inside the channel between those rows
+
+#### Scenario: A wire straight across
+
+- **WHEN** two cards in adjacent rows overlap across and each has one port
+  facing the other
+- **THEN** their wire runs as one vertical
 
 ### Requirement: Fewest crossings per channel
 
@@ -113,12 +130,47 @@ spacing and up to three label rows, then the lowest channel.
   labels do not fit side by side in one label row without crossing
 - **THEN** the channel takes a second label row and its wires do not cross
 
-### Requirement: Buses and corridors
+### Requirement: Turns clear of other cards
 
-Relations sharing a source, label, details and target row SHALL form one bus
-with one label, as SHALL relations sharing a target, label, details and
-source row. A relation that skips rows SHALL pass every intermediate row
-through a column gap or an empty cell.
+Among a channel's routings with equally few label rows, the publisher SHALL
+count against a routing each vertical that turns in the band just under a card
+of the row above, or just over a card of the row below, that is not its own
+end, so that a turn on a label row is preferred where it crosses nothing; a
+reader takes such a vertical for that card's wire.
+
+#### Scenario: A target under another card
+
+- **WHEN** a relation's target lies under another card of the row above and a
+  label row holds its jog without a crossing
+- **THEN** its wire turns on the label row, not just under that card
+
+### Requirement: Route clearances
+
+Each medium SHALL set a least distance between parallel wires of different
+relations and between a relation label and another relation's wire, and the
+channel routing SHALL keep them between tracks, jogs, corridors and ports
+wherever the cards leave room. On posters the distances SHALL be at least
+24 px and 16 px.
+
+#### Scenario: Two jogs on one label row
+
+- **WHEN** a poster channel sets two relations' jogs on one label row
+- **THEN** they are at least 24 px apart
+
+#### Scenario: A label between two verticals
+
+- **WHEN** a poster channel sets a relation's label in a gap between two other
+  relations' verticals
+- **THEN** the label keeps at least 16 px from each
+
+### Requirement: Buses, corridors and lanes
+
+Relations sharing a source, label, details, status and target row SHALL form
+one bus with one label, as SHALL relations sharing a target, label, details,
+status and source row, unless the bus would pass another wire leaving its hub
+on the same side. A relation that skips rows SHALL pass every row between
+through a column gap, an empty cell or a lane beyond the outermost cards,
+taking the free one that crosses the fewest wires and then runs shortest.
 
 #### Scenario: A fan-out bus
 
@@ -132,14 +184,34 @@ through a column gap or an empty cell.
 - **WHEN** a relation connects the first and third rows
 - **THEN** its wire passes the second row outside every card
 
+#### Scenario: A lane around the figure
+
+- **WHEN** every column gap and empty cell a relation that skips rows could
+  pass would cross a wire
+- **THEN** it runs in a lane beyond the outermost cards
+
+### Requirement: Lanes beyond the cards
+
+A medium that draws its own wires SHALL, when a layout crosses and has
+relations that skip rows, lay the view out again with room for a lane beyond
+the cards on each side, and keep the layout with fewer crossings. A lane SHALL
+keep twice the least distance between parallel wires from the outermost cards
+and the system boundary.
+
+#### Scenario: A skipping relation that crosses
+
+- **WHEN** a poster figure crosses a wire and holds a relation that skips rows
+- **THEN** the figure is also laid out with a lane on each side
+- **AND** the layout with fewer crossings is drawn
+
 ### Requirement: Measured neatness
 
 Each laid-out view SHALL be measured for non-orthogonal segments, segments
-shared by different relations, wires through cards, label boxes intersecting
-cards, other labels or other relations' wires, text below the medium's floor
-and content outside the frame. Any of these SHALL refuse the layout with the
-offending relation, card or label. Crossings SHALL be minimized, reported and
-drawn only as perpendicular crossings away from bends, ports and labels.
+shared by different relations, wires through cards, and label boxes that
+overlap cards, other labels, other relations' wires or the system boundary's
+edge. Any of these SHALL refuse that layout with the offending relation, card
+or label. Crossings SHALL be minimized and reported, never refused, and drawn
+only as perpendicular crossings away from bends and ports.
 
 #### Scenario: A clean view
 
@@ -154,25 +226,40 @@ drawn only as perpendicular crossings away from bends, ports and labels.
 - **THEN** the view is laid out with nine crossings, the minimum for two rows
 - **AND** the measurements report that number without refusing
 
-### Requirement: Route limits
+### Requirement: Route shape and route defects
 
-A relation SHALL have at most two bends, or four when it skips rows, and no
-segment shorter than 16 px; these are Archify's suggested limits, so both
-media are judged alike. A layout outside them SHALL be refused with the
-relation and its measure.
+A relation between adjacent rows SHALL have at most two bends, and one that
+skips rows at most four. Each layout SHALL also count route defects a reader
+misreads although no wire crosses: parallel wires of different relations
+closer than 24 px, a wire stopping less than 24 px short of another in line
+with it, two arrowheads closer than two arrowhead lengths and a relation label
+within 16 px of another relation's wire. Route defects SHALL be reported, not
+refused.
 
 #### Scenario: A relation between adjacent rows
 
 - **WHEN** a relation connects two adjacent rows
 - **THEN** its wire has at most two bends
 
+#### Scenario: Two wires close together
+
+- **WHEN** two relations' verticals run 12 px apart along 100 px
+- **THEN** the layout reports one route defect naming both relations
+- **AND** the layout is not refused
+
 ### Requirement: Layout bounds
 
-A row SHALL hold at most six cards, or five when rows carry labels. A view
+A row SHALL hold at most six cards, or five when rows carry labels. A layout
 with a wider row, or a channel without a clean routing, SHALL be refused with
-the row or channel, its relations and a remedy naming more tiers or views.
+the row or channel, its relations and a remedy naming more tiers or views;
+each medium SHALL wrap a wider tier into consecutive rows before layout.
 
 #### Scenario: A row that is too wide
 
+- **WHEN** the layout is given a row of seven cards
+- **THEN** it refuses that layout with the row's members and the six-card limit
+
+#### Scenario: A tier of seven components
+
 - **WHEN** a view declares a tier of seven components
-- **THEN** the view is refused with that row's members and the six-card limit
+- **THEN** each medium draws it as consecutive rows within its row limit

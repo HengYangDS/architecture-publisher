@@ -12,7 +12,9 @@ import { refuse } from "../refusal.mjs";
  * @typedef {{ id: string | null, x: number, arrow: boolean, wire: Wire, toward: number }} End
  * @typedef {{ order: number, channel: number, type: string, relations: any[], label: LabelBox | null,
  *   corridor?: number, top: End[], bottom: End[] }} Wire
- * @typedef {{ index: number, wires: Wire[], edges?: number[] }} Channel
+ * @typedef {{ id: string, x: number, width: number }} Beside
+ * @typedef {{ index: number, wires: Wire[], edges?: number[],
+ *   beside?: { upper: Beside[], lower: Beside[] } }} Channel
  */
 
 /**
@@ -203,15 +205,16 @@ function corridor(input, first, last, x1, x2, taken, wired) {
       candidates.push(gridLeft + column * pitch - gap / 2 + offset);
   for (let position = 0; position < slots; position += 1)
     candidates.push(gridLeft + (position / 2) * pitch + cardWidth / 2);
-  // A lane beyond the outermost cards and the boundary, as far from them as
-  // two parallel wires: where every gap a corridor could pass is crossed, it
-  // runs around the figure instead.
+  // A lane beyond the outermost cards and the boundary, twice as far from them
+  // as two parallel wires: where every gap a corridor could pass is crossed, it
+  // runs around the figure instead. At one separation from the boundary it read
+  // as a second, solid edge.
   const cards = [...box.values()];
   const [left, right] = frame ?? [
     Math.min(...cards.map((card) => card.x)),
     Math.max(...cards.map((card) => card.x + card.width)),
   ];
-  candidates.push(left - spacing.separation, right + spacing.separation);
+  candidates.push(left - 2 * spacing.separation, right + 2 * spacing.separation);
   const inside = (x) => x >= spacing.clear && x <= input.contentWidth - spacing.clear;
   const free = (x) =>
     inside(x) &&

@@ -13,13 +13,20 @@ model SHALL declare components and relations and MAY declare a repository,
 sources, kinds, groups, views, scope, limits and attribution. The publisher
 SHALL NOT infer components or relations from repository contents.
 
-#### Scenario: A minimal model builds
+#### Scenario: A minimal model validates
 
-- **WHEN** a model declares only an id, a title, a question, components with an
-  id and a label, and relations with an id, endpoints and a label
-- **THEN** the build succeeds with default kinds, statuses and views
-- **AND** every declared component and relation appears in the poster and the
-  page
+- **WHEN** a model declares only its format, version, id, title and question,
+  components with an id and a label, and relations with an id, endpoints and
+  a label
+- **THEN** it validates with default kinds, statuses and views
+
+#### Scenario: A minimal model that fills a page builds
+
+- **WHEN** such a model shows enough components for a page that passes every
+  balance gate
+- **THEN** the build succeeds
+- **AND** every declared component and relation appears on its posters and
+  the page
 
 #### Scenario: No model is supplied
 
@@ -49,12 +56,12 @@ it SHALL report every problem with its JSON path in one result.
 
 ### Requirement: Identity and meaning are preserved
 
-The publisher SHALL carry every component, relation, group, view and source
-identifier, every label, kind, detail and status, and the scope, limits and
-attribution into the manifest unchanged. Presentation SHALL NOT rename, merge,
-reorder the details of or invent model elements; sharing one label among
-relations with the same source, label and details SHALL keep each relation
-and its own route.
+The manifest SHALL carry, unchanged, every component's and relation's id,
+label, details, status and sources, each component's kind and each relation's
+endpoints, every view's id, members and relations, and every source's id and
+path, and SHALL bind the rest of the model by its digest. Presentation SHALL
+NOT rename, merge, reorder the details of or invent model elements; relations
+that share one label on a bus SHALL each keep their own end at their target.
 
 #### Scenario: Details survive into every medium
 
@@ -123,8 +130,9 @@ location and SHALL NOT drop one silently.
 
 - **WHEN** a LikeC4 workspace with nested elements, relationships and one view
   is imported and then built
-- **THEN** the model validates and the build produces that view's poster and
-  panel
+- **THEN** the model validates and planning admits that view
+- **AND** the build delivers the view's plate and panel, or refuses it by name
+  with `poster_unbalanced` when it is too sparse for a balanced page
 
 #### Scenario: A view that shows a parent
 

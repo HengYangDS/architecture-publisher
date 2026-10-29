@@ -95,6 +95,49 @@ test("the publisher's own model prints each view on a balanced page with clean w
     assert.equal(poster.measures.routes, 0, poster.view);
     assertBalanced(poster);
   }
+  // The overview's five tiers start at different columns; their numbered
+  // labels still stand in one straight column.
+  const numbers = [...pages[0].svg.matchAll(/<circle cx="([\d.]+)" cy="[\d.]+" r="14"/gu)].map(
+    ([, cx]) => cx,
+  );
+  assert.equal(numbers.length, 5);
+  assert.equal(new Set(numbers).size, 1);
+});
+
+test("tier labels stand before the edge their tier starts at when one column cannot balance a page", async () => {
+  // Big Bank's data tier starts at the mainframe, far left of the boundary its
+  // front and back ends start at: one label column left the paper between it
+  // and the boundary blank, and no page with it balanced.
+  const { model } = await loadModel(BIG_BANK_MODEL);
+  const [page] = await edition(model);
+  assertBalanced(page);
+  assert.equal(page.composition.tierLabels, "edges");
+  const numbers = [...page.svg.matchAll(/<circle cx="([\d.]+)" cy="[\d.]+" r="14"/gu)].map(
+    ([, cx]) => Number(cx),
+  );
+  assert.equal(numbers.length, 4);
+  assert.equal(numbers[1], numbers[2]);
+  assert.equal(new Set(numbers).size, 3);
+});
+
+test("a tier label centred on several rows stands beside a bracket that spans them", async () => {
+  const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
+  const pages = await edition(model);
+  const authority = pages.find(({ views }) => views.includes("authority"));
+  const brackets = [
+    ...(authority?.svg ?? "").matchAll(
+      /<path d="M[\d.]+,([\d.]+) H[\d.]+ V([\d.]+) H[\d.]+" fill="none"/gu,
+    ),
+  ].map(([, top, bottom]) => [Number(top), Number(bottom)]);
+  assert.equal(brackets.length, 1);
+  const [[top, bottom]] = brackets;
+  const [first] = [
+    ...(authority?.svg ?? "").matchAll(/<circle cx="[\d.]+" cy="([\d.]+)" r="14"/gu),
+  ];
+  const label = Number(first[1]);
+  // The label stands between the rows its bracket spans, which are taller than one card row.
+  assert.ok(top < label && label < bottom, `label at ${label}, bracket ${top}–${bottom}`);
+  assert.ok(bottom - top > 300, `bracket ${bottom - top} px`);
 });
 
 test("statuses and the boundary appear in the drawing, and the source note names the revision", async () => {

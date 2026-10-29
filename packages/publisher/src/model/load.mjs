@@ -271,7 +271,8 @@ export function validateModel(model, options = {}) {
   const groupIds = new Set(groups.map(({ id }) => id));
   const views =
     value.views === undefined ? null : checkViews(problems, value.views, componentIds, groupIds);
-  if (problems.items.length) refuse("model_invalid", "The model is invalid.", problems.items);
+  // Tiers are resolved in the same pass, so a tier overlap is reported with
+  // every other problem rather than only once those are fixed.
   const groupMap = new Map(groups.map((group) => [group.id, group]));
   const resolved = views?.map((view, index) => ({
     ...view,
@@ -346,9 +347,16 @@ function checkTiers(problems, tiers, path, componentIds, groupIds) {
 
 /** Resolve each tier to `{ id, label, members }` and refuse a component placed in two tiers. */
 function resolveTiers(problems, view, groups, index) {
+  if (!Array.isArray(view.tiers)) return null;
   const placed = new Map();
   const tiers = view.tiers.map((tier) => (typeof tier === "string" ? groups.get(tier) : tier));
-  tiers.forEach((tier, position) =>
+  // A tier that names no group, lists no members or repeats an earlier tier is
+  // already a problem of its own.
+  const whole = tiers.every((tier) => isRecord(tier) && Array.isArray(tier.members));
+  const seen = new Set();
+  tiers.forEach((tier, position) => {
+    if (!isRecord(tier) || !Array.isArray(tier.members) || seen.has(tier.id)) return;
+    seen.add(tier.id);
     tier.members.forEach((member) => {
       if (placed.has(member))
         problems.add(
@@ -357,9 +365,11 @@ function resolveTiers(problems, view, groups, index) {
           `places ${member} in a second tier`,
         );
       placed.set(member, tier.id);
-    }),
-  );
-  return tiers.map(({ id, label, members }) => ({ id, label, members: [...members] }));
+    });
+  });
+  return whole
+    ? tiers.map(({ id, label, members }) => ({ id, label, members: [...members] }))
+    : null;
 }
 
 const detailList = (details) =>

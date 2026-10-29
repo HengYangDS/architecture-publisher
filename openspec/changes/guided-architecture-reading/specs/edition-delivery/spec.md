@@ -8,9 +8,10 @@ publish accepted deliveries as immutable versions.
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: an SVG and PNGs at 2400 and 6000 px for each poster page, the explainer page
-`index.html` and `manifest.json`. It SHALL stage the delivery and move it into place only after
-every artifact succeeds, so a refused or failed build leaves no output.
+exist: an SVG and PNGs at 2400 and 6000 px for each poster page, the explainer
+page `index.html` and `manifest.json`. It SHALL stage the delivery and move it
+into place only after every artifact succeeds, so a refused or failed build
+leaves no output.
 
 #### Scenario: An existing output directory
 
@@ -25,16 +26,24 @@ every artifact succeeds, so a refused or failed build leaves no output.
 
 ### Requirement: Deterministic manifest
 
-The manifest SHALL record the model digest, the publisher version, the digests
-of the bundled fonts and the layout, raster and Archify supplies, the plan, the
-digest of every artifact and every source record with its verification state.
-It SHALL contain no timestamps, host paths or user names, so the same model
-built with the same version yields the same manifest.
+The manifest SHALL record its format and version; the publisher's name and
+version; the model's id, title, SHA-256 and size; the declared repository;
+every source record with its state and digests; the digests of the bundled
+font, icon, raster and Archify supplies; the plan; and every artifact's path,
+size and digest. It SHALL contain no timestamps, host paths or user names, so
+the same model built with the same version on one platform yields the same
+manifest.
 
 #### Scenario: Two builds
 
-- **WHEN** a model is built twice with the same version
+- **WHEN** a model is built twice with the same version on one platform
 - **THEN** both manifests are byte-identical
+
+#### Scenario: Identity fields
+
+- **WHEN** a model is built
+- **THEN** its manifest names the delivery format and version, the publisher's
+  name and version and the model's id, title, digest and size
 
 ### Requirement: Measures and evidence in the manifest
 
@@ -49,8 +58,8 @@ details, statuses and sources of every component and relation.
 
 ### Requirement: Check without output
 
-`archpub check` SHALL run validation, source binding, planning, frame
-admission and the page's Archify checks and SHALL report the result without
+`archpub check` SHALL run validation, source binding, planning, poster
+composition and the page's Archify checks and SHALL report the result without
 writing a delivery; what Archify measures is written to a temporary directory
 and removed.
 

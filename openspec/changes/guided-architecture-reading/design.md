@@ -20,8 +20,8 @@ starts from what a reader needs and what the user decided:
 - The interactive medium is an Archify explainer page; primary labels read at
   13.25 px or more in its previews and 14 px or more in the full viewer, and
   relation labels keep Archify's native size.
-- Boxes of one view share one size and align on one grid; the user rejected
-  the ELK composition because its boxes differed in size and height.
+- Boxes align on one grid, each column's cards one width and each row's one
+  height; the user rejected ELK's boxes, which differed in size and height.
 - Deliver AIGW, self and ETHOS media, the Documents delivery and a signed
   release by 2026-10-31.
 - The product must draw any repository, not only ETHOS, AIGW and itself.
@@ -35,12 +35,12 @@ starts from what a reader needs and what the user decided:
 - Three media with distinct jobs: the poster explains one question at a
   glance, the page answers the model's question view by view, and the manifest binds
   both to exact content.
-- Neatness is measured, not judged: cards of one width on one grid, orthogonal wires,
-  no overlapping lines or labels, and text never below 14 px.
-- Identical inputs produce identical bytes; each layout is the exact optimum of
-  one published cost, with no candidates, retries or randomness.
-- Each poster fits its frame at its type scale, or the build refuses with the
-  view, its measured size and the remedy.
+- Neatness is measured, not judged: cards on one grid, orthogonal wires, no
+  overlapping lines or labels, and text never below 14 px.
+- Identical inputs on one platform give identical bytes; each choice takes the
+  best of a finite, ordered candidate set, with no randomness.
+- Each poster page passes its balance gates at its type scale, or the build
+  refuses with the view, its closest page's measures and the remedy.
 - The page is produced by unmodified native Archify.
 - Trust is minimal and real: content digests at a pinned revision, one
   acceptance record and immutable versioned publication.
@@ -111,8 +111,8 @@ archpub reads each path at `repository.revision` through `git cat-file`
 (`--no-replace-objects`, no lazy fetch), computes SHA-256 and compares it with
 any declared digest. A missing revision, a missing path or a digest mismatch
 refuses the build and names the source id, path and both digests. Without
-`--repo`, sources are recorded as declared and unverified, and the poster
-footnote says so.
+`--repo`, the manifest records sources as declared and unverified; posters
+and the page state no verification.
 
 Content digests, not remote names, are the identity anchor: none of the three
 current repositories has an `origin` remote, and a checkout's working tree may
@@ -122,9 +122,9 @@ repository evidence, which requires an `origin`, is not used.
 
 ### 5. Reading Plan and rows
 
-A view is a poster and a panel of the page. A model declares at most four
-views, the diagrams one Archify explainer page holds. Each view has an
-`id`, an optional `title`, `question` and `summary`, and either:
+A view is a plate on a poster page and a panel of the page. A model declares
+at most four views, the diagrams one Archify explainer page holds. Each view
+has an `id`, an optional `title`, `question` and `summary`, and either:
 
 - `tiers`: ordered group ids, or inline groups, drawn as rows in that order,
   used when groups are architectural layers; or
@@ -150,33 +150,33 @@ Without declared views, the plan is derived deterministically:
 2. otherwise, when the model has groups: an overview with one node per group
    and one aggregated relation per ordered group pair, followed by one view per
    group with its members and their direct neighbors as context;
-3. otherwise, or when more than four views would result, a refusal that names
-   the measured size and asks for groups or views.
+3. otherwise, or when more than four views would result, a refusal that
+   names the view's counts and the page size and asks for groups or views.
 
-Admission composes the poster once and measures it (decision 8). Nothing is
-retried with other parameters.
+A view is admitted when some page of its own lays it out (decision 8); whether
+its page balances is decided when the edition is grouped.
 
 ### 6. Grid layout
 
 Both media use one layout engine. Each medium supplies its own metrics: card
 width bounds, text measurement, label sizes and spacing.
 
-- **Cards.** Every card of a view has one width, and every card of a row one
-  height. The width is the largest that lets the widest row fit the frame,
-  capped by the medium; the height of a row fits its tallest card content at
-  that width. When the medium caps the width below what the frame divides
-  into, the column gaps may widen up to the medium's spread, and a column
-  count that narrows every card below the medium's cap costs placement more
-  than the alignment it buys.
+- **Cards.** The lattice gives every card one slot, the widest that lets the
+  widest row fit the frame, capped by the medium. A medium that sizes cards by
+  their text draws each as wide as its text within the slot, and the cards of
+  one column take the widest of them; every card of a row is as tall as its
+  tallest content. Column gaps may widen up to the medium's spread, and a
+  column count that narrows every card below the medium's cap costs placement
+  more than the alignment it buys.
 - **Lattice.** Card positions are whole or half columns of one pitch (card
   width plus column gap); half columns center a card between two others.
 - **Placement.** Rows are placed by exact dynamic programming over every row
-  order and lattice position. The cost counts, in decreasing weight, crossings
-  between adjacent rows, bends of wires between adjacent rows, an off-center
-  bus hub, room for same-row arrows, row centering, half-column use and
-  departures from model order. The minimum is unique for a given enumeration
-  order, so the result is deterministic. Long relations are placed in a second
-  pass that keeps their endpoints near the first optimum's corridor.
+  order and lattice position, or contiguous positions past a state budget. The
+  cost weighs a crossing between adjacent rows most, then a same-row relation
+  with no room for a straight arrow, and adds row centring where the medium
+  asks for it, cards narrowed below their text, bends, spare columns, an
+  off-centre bus hub, half columns and departures from model order. A second
+  pass keeps long relations' endpoints near the first optimum's corridors.
 - **Boundary.** When a view shows elements of the described system together
   with `person` or `external` elements, the internal cards of every internal
   row occupy one shared column interval and the others lie outside it, so the
@@ -188,42 +188,43 @@ width bounds, text measurement, label sizes and spacing.
   row form a bus with one label; so do relations into one target. A same-row
   relation between neighbors is a straight arrow when its label fits between
   them, otherwise it turns through the channel below. A relation that skips
-  rows runs down a corridor, a column gap or empty cell free in every row it
-  passes.
-- **Channel routing.** Each channel is solved exactly: every label position
-  (on the jog, beside the source or beside the target), up to three label
-  rows and every track order are tried, and the clean solution with the fewest
-  tracks, crossings and label rows wins. Ports on a card side are spread
-  symmetrically in the order of their far ends, and wider spacings are tried
-  as well.
-- **Bounds.** A row holds at most six cards, or five beside row labels. A
-  wider row, or a channel without a clean solution, refuses the view with the
-  row or channel and its relations, and asks for more tiers or views.
+  rows runs down the free column gap, empty cell or lane beyond the outermost
+  cards that crosses the fewest wires, then runs shortest.
+- **Channel routing.** Each channel is solved exactly at the fewest label rows
+  that route it cleanly, over every label position (on the jog, beside the
+  source or the target) and track order, keeping each medium's clearances, on
+  posters 24 px between wires and 16 px from a label to another wire; a lane
+  keeps twice the wire distance from the cards and the boundary. Wider port
+  spacings and up to three label rows are tried while they cross less. Ports
+  keep their far ends' order, each as near its target as spacing allows. A
+  vertical turning just under or over a card other than its own end costs
+  more, as a reader takes it for that card's wire.
+- **Bounds.** A row holds at most six cards, or five beside row labels. A wider
+  row or a channel without a clean solution refuses that layout; each medium
+  then tries its other wrappings and refuses a view only when none lays it out.
 
 ELK, Graphviz, D2 (including TALA), PlantUML C4, LikeC4's own layout and
-libavoid were measured on the AIGW overview. None keeps equal card sizes, tier
-order and labels clear of other wires together, because their objective is
-edge length and crossings rather than a grid; libavoid routes but places no
-labels. The previous custom band layout was rejected because it handled only
-edges between adjacent bands; corridors, automatic rows and cycle reversal
-remove that limit.
+libavoid, measured on the AIGW overview, optimise edge length and crossings,
+not a grid: none keeps aligned cards, tier order and clear labels together, and
+libavoid places no labels. The previous band layout handled only edges between
+adjacent bands.
 
 ### 7. Measured neatness
 
-Every laid-out view is measured before any output, and the manifest records
-the measurements. The build refuses a view with any of:
+Every laid-out view is measured before any output. A layout is rejected,
+never drawn, with any of:
 
 - a wire segment that is neither horizontal nor vertical;
 - two wires of different relations sharing a segment;
 - a wire through a card;
-- a label box intersecting a card, another label or another relation's wire;
-- more than two bends on a relation, or four when it skips rows, a segment
-  shorter than 16 px, or a route longer than 1.35 times its shortest
-  orthogonal route;
-- text below 14 px, or content outside the frame.
+- a label box overlapping a card, another label, another relation's wire or
+  the system boundary's edge.
 
-These limits are Archify's own suggested limits, so the poster and the page
-are judged by the same rules.
+Route defects are counted, not refused: parallel wires closer than 24 px, a
+wire stopping within 24 px of another in line with it, arrowheads closer than
+two heads and a label within 16 px of another wire. Posters rank by crossings,
+then route defects, and record both; the page's diagrams are judged on
+Archify's own routes (decision 10).
 
 Crossings are minimized by placement and channel routing and reported, not
 refused: some relation sets, such as three components each calling the same
@@ -234,13 +235,10 @@ perpendicular and never at a bend, a port or a label.
 
 The user rejected the first grid posters on 2026-10-28: large blank areas, a
 centre of mass off the page, text set apart from the figure and page shapes
-that followed the content. Measured on all twelve posters, the largest empty
-rectangle covered 9 to 31 percent of the live area, blank bands reached
-330 px, the ink centroid sat up to 14 percent left of centre and the emptiest
-ninth of a figure held 0.6 percent of its ink. The cause was the order of
-operations: the figure was laid out without knowing the page, then scaled by
-at most 1.4 and centred between a header and a footer that were stacked
-blocks with their own spacing. Nothing measured the result.
+that followed the content. Measured, the largest empty rectangle covered up to
+31 percent of the live area and blank bands reached 330 px. The figure had been
+laid out without knowing the page, then scaled and centred between stacked
+blocks, and nothing measured the result.
 
 The poster is now composed format first:
 
@@ -251,30 +249,28 @@ The poster is now composed format first:
   margins, a baseline and a type scale (14, 16, 18, 20, 24, 28, 32, 36 and
   48 px).
   Every block starts on a column line and a baseline; text keeps a measure of
-  at most 80 characters. Three archetypes share the grid: a masthead (head,
-  summary and legend across the top, figure across twelve columns), a sidebar
-  (all text in the left columns, figure over the full height of the rest) and,
-  for a page of one view, a corner page (figure across the full width, head,
-  summary, legend and optionally the notes set in the corners it leaves free).
+  at most 80 characters. Three archetypes share the grid: a masthead (text
+  across the top, figure across twelve columns), a sidebar (text down three to
+  five left columns or also a right flank, figure between) and, for one view,
+  a corner page (figure across the full width, head and summary at the top
+  left, legend and optionally the notes in corners the figure leaves free).
 - **Solver.** For each view the publisher enumerates archetype, a row wrapping
   that splits a wide tier into consecutive rows of one band, and a figure type
   step. It lays out every candidate with the grid engine at the cards' own size,
   then justifies it to the field: row channels deepen within a token bound and
   the rest is centred, instead of scaling the figure or stretching its cards.
-  Among candidates that pass the gates it takes the best figure, then the
-  smallest empty-rectangle share, then the centroid offset. The candidate set is
-  finite and ordered, so the choice is deterministic.
-- **Gates.** The same measures decide and verify: balance (largest empty
-  rectangle at most 12 percent of the live area, reach of at least 90 percent
-  of its width and height, centroid within 6 percent of the figure fields'
-  centre), type (scale sizes only, 14 px floor, measure, no broken label) and
-  line (two bends, or four for a relation that skips rows; 16 px segments; no
-  wire across a card or label). The emptiest ninths of the figure field are
-  recorded but not gated: a tree's corners are empty by its shape, and the
-  corner page fills them with text instead. The user also requires that any
-  repository can be drawn, so a page with no passing candidate is printed as
-  the closest the search found, and its manifest entry records every gate it
-  misses with the measured value and the limit.
+  Among pages that pass every gate it takes the fewest crossings, route defects
+  and bends, then the least area in holes and blank, then the centroid offset;
+  the candidate set is finite and ordered, so the choice is deterministic.
+- **Gates.** Every drawn page passes four balance gates, measured over its live
+  area from the ink it draws: the largest blank rectangle covers at most 12
+  percent of it; no band 96 px or taller runs blank across it, wires and rules
+  not counting; at most 40 percent of it lies in holes, empty squares of 240 px
+  or more; and its darkness-weighted centroid lies within 12 percent of the
+  centre across and down. Type holds by construction: scale sizes only, a 14 px
+  floor, the measure and no word broken on a card. An edition no grouping prints
+  on passing pages is refused, naming each view no passing page holds with its
+  closest page's measured values and limits.
 
 Composing the AIGW, self and ETHOS views against these gates showed that one
 view per page cannot work for every view: a view of three to five components
@@ -282,15 +278,14 @@ has a natural figure of 300 to 450 px, a third of the page, and no
 justification within the token bounds fills the rest. The page, not the view,
 became the unit:
 
-- **Pages of plates.** A page carries one to three consecutive views as plates,
-  each with its question as a heading. A band holds one plate or several side
-  by side, each taking a share of the band's width in proportion to the width
-  its figure needs, so three short plates may set two side by side over the
-  third. The grouping is chosen for the whole edition by an exact search over
-  consecutive groupings, minimising the pages that miss a gate, then the page
-  count, then the empty share; a greedy packer stranded the last sparse view
-  alone, and counting passing pages instead preferred splitting a passing page
-  in two.
+- **Pages of plates.** A page carries one to three consecutive views that share
+  no component as plates; on a page of several, each plate is headed by its
+  own question. A band holds one plate or several side by side, each taking a
+  share of the band's width in proportion to the width its figure needs, so
+  three short plates may set two side by side over the third. The grouping is
+  chosen for the whole edition by an exact search over consecutive groupings of
+  pages that pass every gate, minimising the page count, then the area in
+  holes; a greedy packer stranded the last sparse view alone.
 - **Bands from natural heights.** Each plate's band is its figure's natural
   height at the densest step plus a share of the surplus in proportion to it.
   Equal bands overflowed the tall plate and left the short one blank.
@@ -298,13 +293,13 @@ became the unit:
   a band's slack, and counted a card's surface as ink. Its pages passed the
   gates with cards several times taller and wider than their text: a page of
   paper in boxes, the blank the gates exist to forbid, moved inside the cards.
-  A card is now as wide as its longest label and detail need within card
-  measures of 16 and 24 ems, every card of a row as tall as the row's tallest
-  text, with the details directly under the label, and no card grows. A label
-  that would break inside a word still rejects its wrapping.
-- **Rail and masthead.** The sidebar rail is three or four columns and spaces
-  its blocks, including the notes, over the full height, because a rail of
-  500 px of text against 1222 px of column left the void the gates measure.
+  A card is now as wide as its label and longest detail need within measures
+  of 16 and 24 ems, and as its column's widest card; every card of a row is as
+  tall as the row's tallest text, details directly under the label. A word that
+  would break inside a card label or detail rejects its wrapping.
+- **Rail and masthead.** The sidebar rail is three to five columns, or three
+  with the legend and notes down a right flank of three; its blocks stand up to
+  a column gap apart and centred, as 500 px of text atop 1222 px left a void.
   The masthead splits its twelve columns among head, summary and legend, and
   sets the legend in up to three sub-columns, choosing the shallowest band and
   then the most level columns: a fixed five-three-four split left a legend
@@ -314,12 +309,12 @@ became the unit:
   showed that a tree, narrow at its root and wide at its leaves, fails in every
   band-based archetype: the paper beside its narrow rows is the largest blank,
   and its ink sits low. The corner page draws such a figure across the full
-  width and only then sets the head at the top-left corner and the summary and
-  legend in whichever corners and widths, from two columns up, leave the page
-  least empty, each 40 px clear of every card, wire and label and 24 px clear of
-  the boundary frame. A corner page may also set its notes as one floating
-  block in a bottom corner or along the foot instead of in a footer, so a
-  compact figure's lower corners hold the fine print.
+  width and only then sets the head, its summary under its question, at the
+  top-left corner and the legend in whichever corner and width, from two
+  columns up, passes the gates and leaves the least blank, each 40 px clear of
+  every card, wire and label and 24 px of the frame. A corner page may also set
+  its notes as one block in a bottom corner or along the foot instead of in a
+  footer, so a compact figure's lower corners hold the fine print.
   The page tries its plate's compositions best first, because the figure that
   fills its band most can leave no corner for the head, and it may reserve a
   strip above the figure for the head when the figure's first row fills its
@@ -328,11 +323,11 @@ became the unit:
   question, summary, legend entry or plate heading is not used.
 - **Plates judged as figures.** With cards no longer stretched, a plate chosen
   by how much of its band it covers split rows that fit, to make a looser
-  figure reach further. A plate now keeps, at each step, only the widest
-  wrapping of its layered rows and of its flatter rows that fits with the
-  fewest crossings, and prefers the fewest crossings, then the largest step,
-  then layered rows, then the centred figure. Filling the page is the page's
-  work: grouping, band arrangement, corner text and type size.
+  figure reach further. A plate now offers every wrapping in order: the fewest
+  crossings and route defects, then the largest step, then the widest rows,
+  layered before flatter, then the centred figure; a page takes a narrower
+  wrapping only when wider ones fail a gate or wire worse. Filling the page is
+  the page's work: grouping, band arrangement, corner text and type size.
 - **Sparse views set larger.** A view of five to seven components still leaves
   a page half empty at 24 px, and no neighbour can share its page. Shown both,
   the user chose on 2026-10-28 to set such figures larger rather than keep the
@@ -340,39 +335,42 @@ became the unit:
   gaps and wires with their text, up to 1.8 times the densest step. The view
   heading rises to 36 px so that no card label outranks it, and every plate of
   a page uses one step, so a page never pairs a large figure with a small one.
-  Card text never breaks between two letters; a detail path breaks after a
-  slash or hyphen.
+  Card text breaks only at spaces: a card too narrow for a word, path or
+  identifier rejects its wrapping.
 - **Summaries set once.** The scope note carried the views' summaries after
   the model's scope, so an overview printed its summary twice. A page of one
-  view now sets that view's summary, or the model's; a page of several sets the
-  model's and each plate's own under its heading; the scope note carries the
-  scope only.
+  view now sets that view's summary, or on the first page the model's; a page
+  of several sets the model's only on the first page and each plate's own under
+  its heading; the scope note carries the scope only.
 - **Ink-centred figures and contained wires.** The layout centres the span of
   its cards, which leaves a figure with off-centre single-card rows heavy to one
   side; the drawn figure moves just far enough to bring its ink within 2.5
   percent of the centre line. A long relation's corridor could fall past the
   last used column and run off the page; corridors are now bounded by the
-  content width, and a plate that draws anything outside its field is
-  rejected.
+  content width, and a plate that draws anything outside its field and tier
+  column is rejected.
 - **Centred rows and measured regions.** Placement carries a row-centring cost
   above one bend and below one crossing, taken over all of a row's cards or
-  only those inside the boundary, and the page tries both. The empty rectangle
-  and the reach are measured over the whole page; the centroid over the
-  figures' own fields, so a rail of text beside a centred figure is not read as
-  an off-centre figure.
-- **Crossings before height.** Reviewing the pages for acceptance found wires
-  crossing on two that measured clean otherwise. A channel took its fewest
-  label rows first, so two relations into one card whose labels did not fit
-  side by side crossed rather than take a second row; a channel now takes the
-  fewest crossings over every port spacing and label row, then the lowest. And
-  placement weighs only the wires between neighbouring rows, so centring could
-  turn a relation that skips rows across the wires above its target; when a
-  page's best candidate still crosses, its plates are also laid out uncentred
-  and the page is chosen from both.
+  only those inside the boundary, and the page tries both. Every balance gate
+  is measured over the live area with the page's text, and the centroid weighs
+  each mark by how dark it prints.
+- **Crossings before height.** Review found wires crossing on two pages that
+  measured clean. A channel took its fewest label rows first, so two relations
+  into one card whose labels did not fit side by side crossed; it now takes the
+  fewest crossings over every port spacing and label row, then the lowest. When
+  a page's best candidate still crosses or has a route defect, or none passes,
+  its plates are also laid out uncentred and the page is chosen from both.
+- **One column of tier labels.** A blind review on 2026-10-29 read the rule
+  under each row as a stray wire and labels beside each row's first card as a
+  zigzag. The rules are gone, the labels stand in one column before the figure,
+  and the boundary keeps 20 px of paper on every side, the most at which every
+  edition still balances. Where one column balances no page, as Big Bank's data
+  tier starting far left of its boundary shows, tiers that start at one edge
+  share a column before it. A label centred on two rows read as a relation
+  label between them, so a bracket spans its rows.
 
-The figure keeps decision 6's lattice and channels. Relation labels use a
-lighter ink than card labels, and
-tier bands span their members rather than the page. `planned` is dashed and
+The figure keeps decision 6's lattice and channels. Relation details use a
+lighter ink than their labels. `planned` is dashed and
 `retired` is dotted and muted. Claim records, digest lists, status tables and
 reading indexes are not printed. The poster is written as SVG with text
 converted to glyph outlines and as PNG at 2400 and 6000 px through the
@@ -408,16 +406,18 @@ automatic canvas fits the first screen only with labels below 14 px.
 
 The explainer page answers the model's question:
 
-- the page title is the model's question, its conclusion the model's summary
-  and its scope the model's scope, limits and attribution;
+- the page title is the model's question, its conclusion the model's summary,
+  with each panel's title listed beside it as a link, and its scope the model's
+  scope, limits and attribution;
 - each view is a panel titled with the view's question, or its title when it
   asks the model's own question, in the plan's order, with the view's native
-  architecture diagram, which opens Archify's full interactive viewer, and
-  steps that light each component with all of its details, in the diagram's
-  reading order;
+  architecture diagram, named by its own title or else its question, which
+  opens Archify's full interactive viewer, and steps that light each component
+  with all of its details, in the diagram's reading order;
 - when the model declares a repository URL and revision, each component's
-  first source is a numbered page source linked to the file at that revision;
-  digests and verification states stay in the manifest.
+  first source is a numbered page source linked to the file at that revision,
+  listed under the first citing component's name; a component without details
+  names that file in its step. Digests and verification stay in the manifest.
 
 An explainer page holds at most four diagrams, so a model declares at most
 four views (decision 5). A page has one quality profile: every diagram is
@@ -426,24 +426,23 @@ rather than lowering the whole page.
 
 Each view diagram is laid out by the grid engine with Archify's text metrics
 for a finite set of candidates: the plan's rows wrapped at five, four and
-three cards, at content widths of 960, 840 and 720 px, which a preview
+three cards, at diagram widths of 960, 840 and 720 px, which a preview
 spanning its panel at 1440 px shows at Archify's full 1.25 times enlargement.
 A card is at least as wide as the view's longest label needs, so the grid gives
 up a spare column rather than narrow a card below its label. Archify validates
-every candidate at showcase quality and measures its routes; among the
-candidates that pass, archpub takes the fewest crossings, then the fewest
-routes over two bends, then the least stretch above 1.35, then the shape
-closest to 1.0 to 1.8 times as wide as high. The candidates keep the grid's
-connection sides; when none of them is free of crossings and routes over two
-bends, each is measured again with every side left to Archify, which plans all
-sides together, and the choice is made from both. A candidate whose routes run
-side by side, closer than Archify's 8 px shortest segment along more than its
-16 px shortest interior segment, which Archify does not report, is not chosen
-while another passes without. When the choice still crosses, the connections
-Archify reports crossing take other sides, one at a time from the three best
-diagrams within 64 measured changes, wherever that ranks the diagram higher
-without running routes side by side. A view without a candidate that passes is
-refused with Archify's findings.
+every candidate at showcase quality, with the grid's sides and with every side
+left to Archify, and lays out its routes. A blind review found misread what
+Archify does not report: routes on one line 14 px apart read as a relation the
+model lacks, a route 3 px from an edge as a second outline, ends 14 px apart on
+one side of a card as one doubled arrow. archpub measures them against
+Archify's 8 px shortest and 16 px interior segments and takes the fewest routes
+that read as one, since a crossing still reads as two, then crossings, routes
+along an edge, a preview beside its steps, crowded ends, routes over two bends,
+stretch above 1.35 and the shape closest to 1.0 to 1.8. A choice with a defect
+above its placement, or stacked above its steps, has the connections involved
+re-sided from the three best diagrams and the three best beside their steps,
+within 96 measured changes. A view without a passing candidate is refused with
+Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit
@@ -474,15 +473,15 @@ rule.
 `archpub build <model> --out <dir>` writes, into a directory that must not
 exist, an SVG and PNGs at 2400 and 6000 px for each poster page, named after
 its views, `index.html` and `manifest.json`. Output is staged and moved into place, so a
-failed build leaves nothing behind. The manifest records the model digest, the
-archpub version, the digests of the font, icon, resvg and Archify supplies,
-the plan, each poster's composition and gate measurements, the page's quality
-and gates, each view diagram's Archify metrics, the sources the page withholds,
-every artifact digest and source record, and the details, statuses and sources
-of every component and relation. It has no timestamps; rebuilding the same
-model with the same version reproduces every byte. `archpub check` runs
-validation, binding, planning, admission and the page's Archify checks, and
-writes only to a temporary directory that it removes.
+failed build leaves nothing behind. The manifest records its format and
+version, the publisher's name and version, the model's id, title, digest and
+size, the repository, the font, icon, resvg and Archify digests, the plan,
+each poster's composition and measures, the page's quality and gates, each
+diagram's Archify metrics and re-sided connections, the withheld sources,
+every artifact digest and source record, and the evidence of every component
+and relation. It has no timestamps; a rebuild of the same model and version
+on one platform reproduces every byte. `archpub check` does all but write the
+delivery: its Archify work stays in a temporary directory it removes.
 
 `archpub accept <dir> --reviewer <name>` verifies every artifact against the
 manifest and writes `acceptance.json` with the reviewer, an optional note and
@@ -498,10 +497,10 @@ filesystem facts and never ran a check of their own.
 
 ### 12. Command surface
 
-`archpub` offers `build`, `check`, `import likec4`, `accept` and `publish`.
-Every command accepts `--json` and then prints one result object with
-`ok`, the outputs or the diagnostics; exit status 0 means success, 1 a refused
-input and 2 a usage error. There are no aliases or compatibility commands.
+`archpub` offers `build`, `check`, `import likec4`, `accept` and `publish`, and
+no aliases. With `--json`, each prints one object with `ok` and its outputs or
+diagnostics. Exit status 0 means success, 1 a refused input, 2 a usage error
+and 3 any other failure, reported as `internal_error`.
 
 ### 13. Retained and removed modules
 
@@ -536,9 +535,9 @@ import.
 End-to-end journeys build the converted AIGW model; the C4 Big Bank example
 with tiers and without them; models with a cycle, a relation skipping rows, a
 six-way bus, three components each calling the same three others, and CJK
-labels; and models that must be refused for a seven-card row and an oversized
-view. One model is rebuilt to compare bytes. The composition gates are
-tested against posters that must pass and posters that must fail them, and
+labels; and refusals of a seven-card layout row, a model too sparse to balance
+a page and a view no page lays out. One model is rebuilt to compare bytes, on
+one platform. The balance gates are tested on pages that must pass or fail, and
 Chromium measures the page's label floor and that no preview shows Archify's
 fit notice. The repository's existing format, lint, type, import, dead-code,
 Markdown, OpenSpec, coverage (at least 95 percent per dimension) and package
@@ -552,11 +551,11 @@ gates stay in force. The user accepts the artwork; tests do not.
 - [Exact placement grows with row width and lattice size] → Rows are limited
   to six cards and the lattice to two spare columns; the AIGW and Big Bank
   views lay out in under a second.
-- [Some views have no clean channel routing] → The build refuses with the
-  channel and its relations instead of drawing overlaps; the editor reorders
-  tiers or splits the view.
-- [Straight wires can leave a row off-center] → Placement prefers fewer bends
-  over symmetry; row centering only breaks ties of equal straightness.
+- [Some views have no clean channel routing] → That layout is rejected and the
+  next wrapping, width or step tried; a view none lays out is refused, and the
+  editor reorders tiers or splits the view.
+- [Centred rows can bend wires] → Row centring outweighs one bend but never a
+  crossing, and a page that still crosses also tries its rows uncentred.
 - [The bundled fonts add about 32 MB] → One family covers Latin and CJK
   without host fonts; a subset would be a modified font to maintain.
 - [Archify 3.2.0 renders no guided views, enlarges page previews at most
@@ -565,10 +564,10 @@ gates stay in force. The user accepts the artwork; tests do not.
   or more; candidates are compared on Archify's own routes, and a view without a
   candidate that passes its showcase checks refuses the build with its
   findings, because a page has one quality profile.
-- [A view whose every composition leaves the page unbalanced] → The build
-  prints the closest page and records each gate it misses, with the measured
-  value and limit, in the manifest; the author can split or regroup the view;
-  the format and the type floor never change.
+- [A view no balanced page holds, alone or with a neighbour] → The build is
+  refused with `poster_unbalanced`, naming the view and each gate its closest
+  page misses with the measured value and limit; the author adds to, merges or
+  splits the view; the format and the type floor never change.
 - [Previous inputs stop working] → The three real inputs are converted or
   rewritten; earlier releases and delivered artifacts are unchanged.
 

@@ -44,15 +44,17 @@ A model may live anywhere, including in a separate publications repository.
 2. **Bind sources** at the pinned revision when a checkout is given.
 3. **Plan views**: the declared views, at most four, or one view of every
    component when it fits, or an overview of the groups and one view per group.
-4. **Lay out** each view as rows of equal cards on one column lattice, with an
-   exact placement and routing that refuses any overlap.
+4. **Lay out** each view as rows of cards on one column lattice, as wide as
+   their text on posters, with an exact placement and routing that never draws
+   an overlap.
 5. **Compose** the views onto 2400 × 1350 px poster pages and rasterize them;
    **explain** the model on one page of the vendored Archify with one native
    diagram per view.
 6. **Deliver** the artifacts and the manifest into a new directory, staged and
    renamed into place only when complete.
 
-The same model, sources and publisher version always produce the same bytes.
+The same model, sources and publisher version produce the same bytes on one
+platform.
 
 ## Outputs
 
@@ -64,29 +66,33 @@ fields.
 A poster page holds one to three views. It shows the title, the question and
 summary, each view's figure with each component's icon and details and each
 relation's label and details, one legend of the kinds, boundary and statuses
-present, and notes with the scope, limits, attribution, repository revision and
-source verification state. It prints no digests, claim records or tables.
+present, and notes with the scope, limits, attribution and the repository and
+revision. It prints no digests, verification states, claim records or tables.
 
-The page heads with the model's question and its summary as the conclusion.
-Each view is a panel with its native Archify diagram, which opens Archify's
-full interactive viewer, and one step per component with its first detail and,
-when the model names its repository, its first source at the pinned revision.
-The manifest keeps every detail, status, source path, digest and verification
-state.
+The page heads with the model's question and its summary as the conclusion,
+beside the list of its panels. Each view is a panel with its native Archify
+diagram, which opens Archify's full interactive viewer, and one step per
+component with every one of its details and, when the model names its
+repository URL and revision, its first source that Archify will cite, at that
+revision. The manifest keeps every detail, status, source path, digest and
+verification state.
 
 ## Quality floor
 
-- Every poster page is 2400 × 1350 px, and no text is smaller than 14 px. A
-  page is composed so that its figure fills it: its largest empty area, fill
-  and centre of mass are measured, and a page that no composition balances is
-  printed with each gate it misses recorded in the manifest. A view that no page
-  can lay out is refused; text is never shrunk and nothing is cropped.
-- Cards in a view have one width, cards of a row one height, and all sit on
-  shared row lines. Wires are
-  horizontal and vertical only; no segment is shared by two relations, no wire
-  crosses a card and no label touches a card, a label or another wire. A view
-  that cannot meet this is refused with the relations concerned. Crossings the
-  relations force are allowed and counted.
+- Every poster page is 2400 × 1350 px, and no text is smaller than 14 px. Every
+  page passes the balance gates for its largest blank rectangle, blank bands,
+  holes and centre of mass, and a view that no balanced page holds, alone or
+  with a neighbour, is refused with its closest page's measures and limits. A
+  view that no page can lay out is refused; text is never shrunk and nothing is
+  cropped.
+- On posters each card is as wide as its text, the cards of one lattice column
+  share one width and the cards of a row one height, and all sit on shared row
+  lines; the page's diagram cards share one width. Wires are horizontal and
+  vertical only; no segment is shared by two relations, no wire crosses a card
+  and no label touches a card, a label, another wire or the system boundary. A
+  layout that cannot meet this is never drawn, and a view no layout draws is
+  refused. Crossings the relations force are allowed and counted, as are route
+  defects, and each poster page prefers the fewest of both.
 - Archify delivers the page at its showcase quality profile, and every view
   diagram passes Archify's showcase checks, or the build is refused with
   Archify's findings. In a 1440 × 900 window every preview fits its panel,

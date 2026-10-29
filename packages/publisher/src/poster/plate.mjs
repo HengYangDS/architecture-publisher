@@ -236,6 +236,7 @@ function attempt(input) {
       typefaces: input.typefaces,
       field: input.field,
       labelColumn: input.labelColumn ?? null,
+      tierLabels: input.tierLabels ?? "column",
       offset,
       cardText: input.metrics.cardText,
     });
@@ -469,6 +470,7 @@ export function platesOf(input, plate) {
         key: `${index}|${order}|${plate.field.width}|${centring}`,
         field: plate.field,
         labelColumn: plate.labelColumn,
+        tierLabels: input.tierLabels,
         boundaryName: input.boundaryName,
         figureMetrics: metrics,
         metrics: {

@@ -527,7 +527,7 @@
   "views": [
     {
       "id": "overview",
-      "title": "Architecture Publisher",
+      "title": "Overview",
       "question": "Which parts does one build pass through, from the editor to an accepted, published delivery?",
       "tiers": [
         {

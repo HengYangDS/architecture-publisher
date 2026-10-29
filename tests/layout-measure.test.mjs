@@ -75,3 +75,33 @@ test("labels may not overlap labels, cards, other wires or the boundary edge", (
   ]);
   assert.equal(measured.defects[1].card, "card");
 });
+
+test("route defects are counted, not refused", () => {
+  const measured = measureLayout(
+    geometry({
+      paths: [
+        path("near-a", [0, 0], [0, 100]),
+        path("near-b", [12, 0], [12, 100]),
+        path("end-a", [200, 0], [200, 50]),
+        path("end-b", [200, 60], [200, 120]),
+        path("labelled", [400, 0], [400, 100]),
+      ],
+      labels: [label("other", 410, 40)],
+      arrows: [
+        { relations: relation("head-a"), x: 600, y: 100 },
+        { relations: relation("head-b"), x: 610, y: 100 },
+      ],
+      arrow: 9,
+    }),
+  );
+  assert.deepEqual(measured.defects, []);
+  assert.deepEqual(
+    measured.routes.map(({ code, relations }) => `${code} ${relations}`),
+    [
+      "route_wires_close near-a near-b",
+      "route_wire_continued end-a end-b",
+      "route_arrows_close head-a head-b",
+      "route_label_near_wire other labelled",
+    ],
+  );
+});

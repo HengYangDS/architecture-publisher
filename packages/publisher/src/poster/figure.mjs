@@ -77,18 +77,25 @@ function iconMarkup(icons, name, x, y, size, color) {
 
 /** The paper kept between a tier label and the first card of its tier. */
 const TIER_GAP = 24;
+/** A tier bracket stands this far before its label's marker and turns in this far at each end. */
+const BRACKET = Object.freeze({ gap: 6, tick: 8 });
 
 const touches = (a, b) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
 /**
- * Set each tier's numbered label beside the first card of its tier, centred on
- * the rows the tier was wrapped into, so a label stands with the row it names.
- * A tier whose rows the boundary encloses has its label outside the boundary,
- * beside its edge, so the labels of the tiers inside it stand in one line. A
- * label that would touch a card, a wire, a relation label or the boundary's
- * edge there, or that has no room before the card, sits in the plate's tier
- * column instead, which nothing else enters.
+ * Set the tiers' numbered labels before the figure, each centred on the rows
+ * its tier was wrapped into, so each label names the rows beside it. A tier
+ * starts at its leftmost card, or at the boundary's edge when the boundary
+ * encloses it. With `column`, every label shares one column one gap before the
+ * leftmost start, so the numbers stand in one straight line; with `edges`, the
+ * labels of tiers that start at one edge share a column before that edge, so
+ * no label stands apart from its rows across paper the others leave blank. A
+ * label centred on several rows stands level with the relation labels between
+ * them, so a bracket before it spans its rows. When a label or its bracket in a
+ * column would touch a card, a wire, a relation label or the boundary's edge,
+ * every label of that column sits in the plate's tier column instead, which
+ * nothing else enters.
  * @param {any} layout the justified layout
  * @param {any} input the figure's input, with its tier column
  * @param {{ at: (x: number) => number, down: (y: number) => number,
@@ -142,27 +149,54 @@ function tierLabels(layout, input, draw) {
       pad({ x: at(x + width), y: down(y), width: 0, height }),
     );
   }
-  let number = 0;
-  for (const { label, rows } of tiers) {
-    if (!label) continue;
-    number += 1;
-    const members = rows.flatMap((row) => row.members.map((id) => layout.cards.get(id)));
-    const last = rows[rows.length - 1];
-    const frame = layout.boundary;
-    const enclosed =
-      frame && rows[0].top < frame.y + frame.height && last.top + last.height > frame.y;
-    const first = Math.min(...members.map(({ x }) => at(x)), enclosed ? at(frame.x) : Infinity);
-    const lines = typefaces.wrap(label, labelWidth, styles.tier);
-    const width = 42 + Math.max(...lines.map((line) => typefaces.measure(line, styles.tier)));
-    const height = lines.length * styles.tier.line;
-    const top = down((rows[0].top + last.top + last.height - height) / 2);
-    const box = (x) => ({ x: x + 4, y: top - 4, width, height: height + 8 });
-    const beside = Math.max(column.x, first - TIER_GAP - width);
-    const x = obstacles.some((other) => touches(box(beside), other)) ? column.x : beside;
+  const frame = layout.boundary;
+  const placed = tiers
+    .filter(({ label }) => label)
+    .map(({ label, rows }) => {
+      const members = rows.flatMap((row) => row.members.map((id) => layout.cards.get(id)));
+      const last = rows[rows.length - 1];
+      const enclosed =
+        frame && rows[0].top < frame.y + frame.height && last.top + last.height > frame.y;
+      const first = Math.min(...members.map(({ x }) => at(x)), enclosed ? at(frame.x) : Infinity);
+      const lines = typefaces.wrap(label, labelWidth, styles.tier);
+      const width = 42 + Math.max(...lines.map((line) => typefaces.measure(line, styles.tier)));
+      const height = lines.length * styles.tier.line;
+      const top = down((rows[0].top + last.top + last.height - height) / 2);
+      const span = rows.length > 1 ? [down(rows[0].top), down(last.top + last.height)] : null;
+      return { first, lines, width, height, top, span };
+    });
+  if (!placed.length) return;
+  const box = (x, { width, height, top }) => ({ x: x + 4, y: top - 4, width, height: height + 8 });
+  const bracket = (x, { span }) =>
+    span && { x: x - BRACKET.gap, y: span[0], width: BRACKET.tick, height: span[1] - span[0] };
+  /** @type {Map<number, typeof placed>} */
+  const columns = new Map();
+  for (const label of placed) {
+    const edge = input.tierLabels === "edges" ? label.first : 0;
+    columns.set(edge, [...(columns.get(edge) ?? []), label]);
+  }
+  /** @type {Map<any, number>} */
+  const xs = new Map();
+  for (const labels of columns.values()) {
+    const beside = Math.max(
+      column.x,
+      Math.min(...labels.map(({ first, width }) => first - TIER_GAP - width)),
+    );
+    const clear = labels.every((label) => {
+      const marks = [box(beside, label)];
+      const spanned = bracket(beside, label);
+      if (spanned) marks.push(spanned);
+      return !marks.some((mark) => obstacles.some((other) => touches(mark, other)));
+    });
+    for (const label of labels) xs.set(label, clear ? beside : column.x);
+  }
+  placed.forEach((label, index) => {
+    const { lines, top } = label;
+    const x = /** @type {number} */ (xs.get(label));
     shapes.push(
       `<circle cx="${fixed(x + 18)}" cy="${fixed(top + styles.tier.line / 2)}" r="14" fill="none" stroke="${C.muted}" stroke-width="1.4"/>`,
     );
-    const digits = String(number);
+    const digits = String(index + 1);
     text(
       "figure",
       digits,
@@ -173,8 +207,15 @@ function tierLabels(layout, input, draw) {
     );
     let y = top;
     for (const line of lines) y = text("figure", line, x + 42, y, styles.tier, C.muted);
-    rects.push({ ...box(x), ...MASS, tier: true });
-  }
+    rects.push({ ...box(x, label), ...MASS, tier: true });
+    const mark = bracket(x, label);
+    if (!mark) return;
+    const [from, to] = [mark.x + mark.width, mark.x];
+    shapes.push(
+      `<path d="M${fixed(from)},${fixed(mark.y)} H${fixed(to)} V${fixed(mark.y + mark.height)} H${fixed(from)}" fill="none" stroke="${C.muted}" stroke-width="1.4"/>`,
+    );
+    rects.push({ ...mark, ...stroke(C.muted), tier: true });
+  });
 }
 
 /**
@@ -182,6 +223,7 @@ function tierLabels(layout, input, draw) {
  * @param {{ model: any, view: any, styles: any, metrics: any, icons: any,
  *   typefaces: any, field: { x: number, y: number, width: number, height: number },
  *   labelColumn?: { x: number, y: number, width: number, height: number } | null,
+ *   tierLabels?: "column" | "edges",
  *   offset?: number,
  *   cardText: (component: any, width: number) => { name: string[], details: string[] } }} input
  *   `offset` moves the figure across its field; its tier labels follow their rows.
@@ -207,24 +249,11 @@ export function drawFigure(layout, input) {
   // Every plate that interrupts a wire is paper, so it reads as a gap in the line.
   const fillAt = () => C.paper;
 
-  // A tier is bound by its own label and a rule under its members' extent, not by a
-  // full-width tint: a background wash would cover the field and make every page
-  // measure as full, which would hide exactly the blank bands this page forbids.
-  if (layout.labelled) {
-    layout.rows.forEach((row) => {
-      const members = row.members.map((id) => /** @type {any} */ (layout.cards.get(id)));
-      if (!members.length) return;
-      const left = Math.min(...members.map(({ x }) => at(x)));
-      const right = Math.max(...members.map(({ x, width }) => at(x) + width));
-      const ruleY = down(row.top + row.height + 8);
-      shapes.push(
-        `<line x1="${fixed(left)}" y1="${fixed(ruleY)}" x2="${fixed(right)}" y2="${fixed(ruleY)}" ` +
-          `stroke="${C.rule}" stroke-width="1.5"/>`,
-      );
-      rects.push({ x: left, y: ruleY - 1, width: right - left, height: 2, ...stroke(C.rule) });
-    });
-    if (input.labelColumn) tierLabels(layout, input, { at, down, text, shapes, rects });
-  }
+  // A tier is named by its numbered label alone. A rule under each row read as
+  // one more wire, and a full-width tint would cover the field and make every
+  // page measure as full, hiding exactly the blank bands this page forbids.
+  if (layout.labelled && input.labelColumn)
+    tierLabels(layout, input, { at, down, text, shapes, rects });
 
   const boundary = layout.boundary;
   /** @type {{ x: number, y: number, width: number, height: number } | null} */

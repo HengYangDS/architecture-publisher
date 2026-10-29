@@ -88,6 +88,16 @@ function sublabel(component, width) {
     .find((detail) => textUnits(detail) <= room);
 }
 
+/**
+ * A view's own name on its diagram and in the full viewer: its title when it
+ * has one apart from the model's, otherwise the question it asks, and the
+ * model's title for a view that asks the model's own question.
+ */
+export function viewCaption(model, view) {
+  if (view.title !== model.title) return view.title;
+  return view.question && view.question !== model.question ? view.question : model.title;
+}
+
 /** The card width a label needs at Archify's 11-unit size. */
 const labelWidth = (label) =>
   Math.ceil(textUnits(label) * LABEL_FONT * WIDTH_FACTOR + TEXT_PADDING);
@@ -239,14 +249,20 @@ function diagramDocument(model, view, layout, width) {
     [...kinds].map(([type, labels]) => [type, { label: labels.join(" / ").slice(0, 80) }]),
   );
   const natural = Math.ceil(layout.height + MARGIN + LEGEND_BAND);
+  // The extent Archify's reader crops a preview to: the cards and the boundary.
+  const boxes = [...layout.cards.values()];
+  if (layout.boundary && internal.length) boxes.push(layout.boundary);
+  const left = Math.min(...boxes.map(({ x }) => x));
+  const right = Math.max(...boxes.map(({ x, width }) => x + width));
   return {
     nodes: ids,
     height: natural,
+    drawing: { width: right - left, sublabels: components.some((item) => "sublabel" in item) },
     document: {
       schema_version: 1,
       diagram_type: "architecture",
       meta: {
-        title: view.title,
+        title: viewCaption(model, view),
         output: `${archifyIds([view.id]).get(view.id)}.html`,
         quality_profile: "showcase",
         viewBox: [width, Math.max(natural, Math.ceil(width / WIDE_RATIO))],

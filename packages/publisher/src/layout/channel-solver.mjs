@@ -35,6 +35,15 @@ function slides(channel, made, low, high, own, spacing) {
   return [...new Set(out.map((x) => Math.round(x * 2) / 2))];
 }
 
+/**
+ * What an option costs for each of its verticals that turns in a band beside
+ * another card than its own: one rising from the lower row into the upper band
+ * under a card of the upper row, or one falling from the upper row into the
+ * lower band over a card of the lower row. A reader takes such a vertical for a
+ * wire of that card, so a turn on a label row, clear of both rows, wins over it.
+ */
+const BORROWED_END = 2;
+
 function options(channel, made, spacing) {
   const width = made.label?.width ?? 0;
   const clearOfEdges = (option) =>
@@ -42,7 +51,26 @@ function options(channel, made, spacing) {
     (channel.edges ?? []).every(
       (edge) => Math.abs(edge - option.label) > width / 2 + spacing.labelClear,
     );
-  return candidates(channel, made, spacing).filter(clearOfEdges);
+  const own = (ends) => new Set(ends.map(({ id }) => id).filter(Boolean));
+  const [tops, bottoms] = [own(made.top), own(made.bottom)];
+  const under = (cards, x, mine) =>
+    cards.some(
+      (card) =>
+        !mine.has(card.id) && x > card.x - spacing.clear && x < card.x + card.width + spacing.clear,
+    );
+  const borrowed = (vertical) =>
+    (vertical.from === "bottom" &&
+      vertical.turn === "upper" &&
+      under(channel.beside?.upper ?? [], vertical.x, tops)) ||
+    (vertical.from === "top" &&
+      vertical.turn === "lower" &&
+      under(channel.beside?.lower ?? [], vertical.x, bottoms));
+  return candidates(channel, made, spacing)
+    .filter(clearOfEdges)
+    .map((option) => ({
+      ...option,
+      preference: option.preference + BORROWED_END * option.verticals.filter(borrowed).length,
+    }));
 }
 
 function candidates(channel, made, spacing) {

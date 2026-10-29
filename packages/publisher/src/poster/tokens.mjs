@@ -87,9 +87,15 @@ export const POSTER = Object.freeze({
     clear: 14,
     minChannel: 64,
     rowPad: 16,
-    boundaryPad: 16,
-    boundaryBottom: 16,
-    boundaryHead: 20,
+    /**
+     * The paper between the boundary and the cards it encloses, on every side;
+     * above them it also clears the boundary's name tab, which reaches 14 px
+     * under the edge. Narrower, the edge crowded the cards as a second outline;
+     * wider, a figure that fits a page at 20 px no longer did.
+     */
+    boundaryPad: 20,
+    boundaryBottom: 20,
+    boundaryHead: 14,
     /** The gap between two plates on one page. */
     plateGap: 40,
   }),

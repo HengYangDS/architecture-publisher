@@ -32,17 +32,17 @@ both digests.
 - **THEN** the manifest records the computed digest and marks it verified at
   the revision
 
-### Requirement: Unverified sources are disclosed
+### Requirement: Unverified sources are recorded
 
-Without a repository checkout, the publisher SHALL record every source as
-declared and unverified, and every poster footnote SHALL state that sources
-were not verified.
+Without a repository checkout, the publisher SHALL record every source in the
+manifest as declared and unverified, with its declared digest and no computed
+one. No poster or page SHALL state whether its sources were verified.
 
 #### Scenario: A build without a checkout
 
 - **WHEN** a model with sources is built without a repository
-- **THEN** the manifest marks every source unverified
-- **AND** each poster footnote says the sources were not verified
+- **THEN** the manifest marks every source unverified with no computed digest
+- **AND** no poster note or page text states a verification state
 
 ### Requirement: Source repositories are read-only
 
