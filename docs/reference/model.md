@@ -22,11 +22,11 @@ one pass and builds nothing.
 
 ## A minimal model
 
-This is the smallest model the schema accepts. It validates, but a view of
-three components is too sparse to fill a balanced page, so `archpub check`
-refuses it with `poster_unbalanced`; the repository's own
+This is the smallest model the schema accepts. It builds, but three components
+cannot fill a 16:9 page, so its poster is a sparse page and the manifest
+records the balance gates it misses; the repository's own
 [`editions/self/model.json`](../../editions/self/model.json) is a complete model
-that builds.
+whose pages are balanced.
 
 ```json
 {
@@ -54,28 +54,42 @@ that builds.
 
 ## Top-level fields
 
-| Field         | Required | Meaning                                                                               |
-| ------------- | -------- | ------------------------------------------------------------------------------------- |
-| `format`      | yes      | Always `architecture-publisher.model`.                                                |
-| `version`     | yes      | Always `1`.                                                                           |
-| `id`          | yes      | Model id; names the published directory.                                              |
-| `title`       | yes      | Poster title, and the title of any view without its own.                              |
-| `question`    | yes      | The question the model answers: under the first poster's title and heading the page.  |
-| `summary`     | no       | A short answer printed under the question on the first poster; the page's conclusion. |
-| `scope`       | no       | What the model covers and leaves out; in the poster notes and the page scope.         |
-| `limits`      | no       | Known limits of the description, each one text; printed with the scope.               |
-| `attribution` | no       | Who wrote the model; printed with the scope.                                          |
-| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`.      |
-| `kinds`       | no       | Kind catalog keyed by kind id.                                                        |
-| `sources`     | no       | Source file catalog keyed by source id.                                               |
-| `components`  | yes      | At least one component.                                                               |
-| `relations`   | yes      | Relations between components; may be empty.                                           |
-| `groups`      | no       | Named sets of components.                                                             |
-| `views`       | no       | At most four views; without them the publisher plans the views itself.                |
+| Field         | Required | Meaning                                                                                      |
+| ------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `format`      | yes      | Always `architecture-publisher.model`.                                                       |
+| `version`     | yes      | Always `1`.                                                                                  |
+| `id`          | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused. |
+| `locale`      | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.          |
+| `title`       | yes      | Poster title, and the title of any view without its own.                                     |
+| `question`    | yes      | The question the model answers: under the first poster's title and heading the page.         |
+| `summary`     | no       | A short answer printed under the question on the first poster; the page's conclusion.        |
+| `scope`       | no       | What the model covers and leaves out; in the poster notes and the page scope.                |
+| `limits`      | no       | Known limits of the description, each one text; printed with the scope.                      |
+| `attribution` | no       | Who wrote the model; printed with the scope.                                                 |
+| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`.             |
+| `kinds`       | no       | Kind catalog keyed by kind id.                                                               |
+| `sources`     | no       | Source file catalog keyed by source id.                                                      |
+| `components`  | yes      | At least one component.                                                                      |
+| `relations`   | yes      | Relations between components; may be empty.                                                  |
+| `groups`      | no       | Named sets of components.                                                                    |
+| `views`       | no       | At most four views; without them the publisher plans the views itself.                       |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
 misspelt field never disappears silently.
+
+## Language
+
+`locale` names the language the model's own text is written in. The publisher
+sets the few words it writes itself in that language: the headings of a
+poster's notes, the legend's boundary and status entries, the details it
+derives for an overview, and how it joins details, lists and sentences. The
+page declares the language to Archify, whose controls and viewer then speak it.
+Text in Latin, Greek, Cyrillic, Han, Kana and Hangul can be set; text in a
+right-to-left or shaped script, such as Arabic, Hebrew or Devanagari, is
+refused with `script_unsupported`, since the posters outline glyph by glyph
+without shaping. Lines break at spaces, and between Han and Kana characters,
+with closing punctuation kept on the line before.
 
 ## Components and relations
 

@@ -6,7 +6,7 @@ import { deliverExplainer, explainerPage } from "./map/explainer.mjs";
 import { loadModel } from "./model/load.mjs";
 import { planViews } from "./plan/views.mjs";
 import { admitsView, composePosters } from "./poster/compose.mjs";
-import { rasterize } from "./poster/raster.mjs";
+import { MAXIMUM_WIDTH, rasterize } from "./poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { POSTER } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
@@ -14,10 +14,62 @@ import { bindSources } from "./sources/bind.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 3;
-/** The poster's own width and a large print width; the first is the default PNG. */
-const PNG_WIDTHS = Object.freeze([POSTER.width, 6000]);
+const DELIVERY_VERSION = 4;
+/** The media a delivery may carry: the poster pages and the interactive page. */
+const MEDIA = Object.freeze(["posters", "page"]);
+/** The quality profiles a build may hold its media to. */
+const QUALITIES = Object.freeze(["showcase", "standard"]);
+/** The PNG widths a poster page is rasterized at by default: its own width. */
+const PNG_WIDTHS = Object.freeze([POSTER.width]);
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+/**
+ * What a build produces and the quality it holds it to: the media to deliver,
+ * each poster page's PNG widths, and the profile both media are checked at.
+ * Showcase refuses a poster page that misses a gate, unless its model is too
+ * small to fill it, and a page diagram that misses Archify's showcase checks;
+ * standard delivers the closest pages as drafts that record what they miss.
+ * @typedef {{ repo?: string | null, media?: readonly string[], png?: readonly number[],
+ *   quality?: string }} BuildOptions
+ */
+
+/**
+ * The build options with their defaults, checked.
+ * @param {BuildOptions} options
+ */
+function buildOptions(options = {}) {
+  const requested = options.media ?? MEDIA;
+  const png = [...new Set(options.png ?? PNG_WIDTHS)].sort((a, b) => a - b);
+  const quality = options.quality ?? "showcase";
+  if (!requested.length || requested.some((name) => !MEDIA.includes(name)))
+    refuse("build_media_invalid", `Media must be one or more of ${MEDIA.join(", ")}.`);
+  const media = MEDIA.filter((name) => requested.includes(name));
+  if (
+    !png.length ||
+    png.some((width) => !Number.isInteger(width) || width < 1 || width > MAXIMUM_WIDTH)
+  )
+    refuse(
+      "build_png_invalid",
+      `PNG widths must be whole numbers from 1 to ${MAXIMUM_WIDTH} pixels.`,
+    );
+  if (!QUALITIES.includes(quality))
+    refuse("build_quality_invalid", `Quality must be one of ${QUALITIES.join(", ")}.`);
+  return {
+    repo: options.repo ?? null,
+    media,
+    png,
+    quality: /** @type {"showcase" | "standard"} */ (quality),
+  };
+}
+
+/** The files of one poster page: its SVG and one PNG per width, the page's own width unsuffixed. */
+const posterFiles = (page, widths) => ({
+  svg: `page-${page}.svg`,
+  png: widths.map((width) => ({
+    width,
+    file: width === POSTER.width ? `page-${page}.png` : `page-${page}-${width}.png`,
+  })),
+});
 
 /** The publisher's own version, recorded in every manifest. */
 async function publisherVersion() {
@@ -56,26 +108,32 @@ function drawnTexts(model) {
 }
 
 /**
- * Validate, bind, plan and compose without writing anything.
+ * Validate, bind, plan and compose without writing anything. Only the media
+ * the build delivers are composed.
  * @param {string} modelPath
- * @param {{ repo?: string | null }} [options]
+ * @param {ReturnType<typeof buildOptions>} options
  */
-async function prepare(modelPath, options = {}) {
+async function prepare(modelPath, options) {
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
   requireGlyphs(typefaces, drawnTexts(model));
-  const binding = bindSources(model, options.repo ?? null);
+  const binding = bindSources(model, options.repo);
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const { quality } = options;
   // Pages are composed for the edition as a whole: a sparse view shares a page
   // with its neighbour, so a poster is a page, not a view.
-  const posters = composePosters(model, views, typefaces, icons);
-  const page = await explainerPage(model, views);
+  const posters = options.media.includes("posters")
+    ? composePosters(model, views, typefaces, icons, { quality })
+    : [];
+  const page = options.media.includes("page")
+    ? await explainerPage(model, views, { quality })
+    : null;
   return { loaded, model, binding, views, posters, page, icons, typefaces };
 }
 
 function viewSummary(view, posters) {
-  const page = posters.findIndex((poster) => poster.views.includes(view.id));
+  const page = posters.find((poster) => poster.views.includes(view.id));
   return {
     id: view.id,
     title: view.title,
@@ -84,7 +142,7 @@ function viewSummary(view, posters) {
     tiers: view.tiers?.map(({ id }) => id) ?? null,
     components: view.components.map(({ id }) => id),
     relations: view.relations.map(({ id }) => id),
-    poster: page >= 0 ? posters[page].view : null,
+    poster: page?.page ?? null,
   };
 }
 
@@ -130,11 +188,14 @@ function evidenceOf(model) {
   };
 }
 
-/** One page's composition and the measures it passed, for the manifest. */
-function posterSummary(poster) {
+/** One poster page's files, composition and measures, and the gates it misses, for the manifest. */
+function posterSummary(poster, widths) {
   return {
-    id: poster.view,
+    page: poster.page,
+    ...posterFiles(poster.page, widths),
     views: poster.views,
+    admission: poster.admission,
+    ...(poster.misses.length ? { misses: poster.misses } : {}),
     composition: poster.composition,
     measures: poster.measures,
   };
@@ -143,16 +204,18 @@ function posterSummary(poster) {
 /**
  * Check a model end to end without writing: validation, sources, plan, layout and admission.
  * @param {string} modelPath
- * @param {{ repo?: string | null }} [options]
+ * @param {BuildOptions} [options]
  */
 export async function checkModel(modelPath, options = {}) {
-  const prepared = await prepare(modelPath, options);
+  const chosen = buildOptions(options);
+  const prepared = await prepare(modelPath, chosen);
   return {
     model: { id: prepared.model.id, sha256: prepared.loaded.sha256 },
+    quality: chosen.quality,
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
     views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
-    posters: prepared.posters.map(posterSummary),
-    diagrams: prepared.page.diagrams.map(diagramSummary),
+    posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
+    diagrams: prepared.page?.diagrams.map(diagramSummary) ?? [],
   };
 }
 
@@ -189,28 +252,28 @@ export async function digestTree(root, skip = new Set()) {
  * and moved into place only when complete.
  * @param {string} modelPath
  * @param {string} out
- * @param {{ repo?: string | null }} [options]
+ * @param {BuildOptions} [options]
  */
 export async function buildDelivery(modelPath, out, options = {}) {
+  const chosen = buildOptions(options);
   const target = path.resolve(out);
   if (await exists(target))
     refuse("delivery_exists", `The output ${target} already exists; choose a new directory.`);
-  const prepared = await prepare(modelPath, options);
+  const prepared = await prepare(modelPath, chosen);
   const parent = path.dirname(target);
   await fs.mkdir(parent, { recursive: true });
   const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
   try {
     for (const poster of prepared.posters) {
-      await fs.writeFile(path.join(staging, `${poster.view}.svg`), poster.svg);
-      for (const width of PNG_WIDTHS) {
-        const name = width === POSTER.width ? `${poster.view}.png` : `${poster.view}-${width}.png`;
+      const files = posterFiles(poster.page, chosen.png);
+      await fs.writeFile(path.join(staging, files.svg), poster.svg);
+      for (const { width, file } of files.png)
         await fs.writeFile(
-          path.join(staging, name),
+          path.join(staging, file),
           await rasterize(poster.svg, width, poster.height, poster.width),
         );
-      }
     }
-    const page = await deliverExplainer(prepared.page, staging);
+    const page = prepared.page ? await deliverExplainer(prepared.page, staging) : null;
     const [fonts, resvg] = await Promise.all([verifySupply("fonts"), verifySupply("resvg")]);
     const manifest = {
       format: DELIVERY_FORMAT,
@@ -219,25 +282,31 @@ export async function buildDelivery(modelPath, out, options = {}) {
       model: {
         id: prepared.model.id,
         title: prepared.model.title,
+        locale: prepared.model.locale,
         sha256: prepared.loaded.sha256,
         bytes: prepared.loaded.bytes,
       },
       repository: prepared.model.repository,
+      quality: chosen.quality,
+      media: chosen.media,
       sources: { state: prepared.binding.state, records: prepared.binding.records },
       supplies: {
         fonts: fonts.sha256,
         icons: prepared.icons.supplySha256,
         resvg: resvg.sha256,
-        archify: page.supplySha256,
+        ...(page ? { archify: page.supplySha256 } : {}),
       },
       views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
-      posters: prepared.posters.map(posterSummary),
-      page: {
-        quality: page.receipt.quality,
-        gates: page.receipt.gates,
-        diagrams: prepared.page.diagrams.map(diagramSummary),
-        withheld: prepared.page.withheld,
-      },
+      posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
+      page:
+        page && prepared.page
+          ? {
+              quality: page.receipt.quality,
+              gates: page.receipt.gates,
+              diagrams: prepared.page.diagrams.map(diagramSummary),
+              withheld: prepared.page.withheld,
+            }
+          : null,
       evidence: evidenceOf(prepared.model),
       artifacts: await digestTree(staging),
     };
@@ -249,7 +318,9 @@ export async function buildDelivery(modelPath, out, options = {}) {
     return {
       out: target,
       model: manifest.model,
+      media: chosen.media,
       views: manifest.views.map(({ id }) => id),
+      posters: manifest.posters.length,
       artifacts: manifest.artifacts.length,
     };
   } catch (error) {

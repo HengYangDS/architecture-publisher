@@ -24,7 +24,10 @@ is true or decide whether a figure is good enough to publish. The model's author
 owns its meaning, and a named reviewer owns acceptance.
 
 The product is general. Nothing in it is specific to one repository, language
-or framework; the same rules apply to every model.
+or framework, and nothing in it names where a delivery goes: the caller chooses
+the media, their sizes and quality and the directory a delivery is published
+to. The same rules apply to every model, in any of the languages its page
+speaks: English, Simplified and Traditional Chinese, Spanish and Korean.
 
 ## Inputs
 
@@ -58,16 +61,18 @@ platform.
 
 ## Outputs
 
-A delivery holds each poster page as SVG and as PNG at 2400 and 6000 px; the
-interactive page as one standalone `index.html`; and `manifest.json`. The
-[operations reference](reference/operations.md#the-delivery) lists the manifest
-fields.
+A delivery holds each poster page as `page-<n>.svg` and as PNG at 2400 px or
+the widths the caller names; the interactive page as one standalone
+`index.html`; and `manifest.json`. A build may deliver the posters or the page
+alone. The [operations reference](reference/operations.md#the-delivery) lists
+the manifest fields.
 
 A poster page holds one to three views. It shows the title, the question and
 summary, each view's figure with each component's icon and details and each
 relation's label and details, one legend of the kinds, boundary and statuses
 present, and notes with the scope, limits, attribution and the repository and
 revision. It prints no digests, verification states, claim records or tables.
+The words the publisher sets itself are in the model's language.
 
 The page heads with the model's question and its summary as the conclusion,
 beside the list of its panels. Each view is a panel with its native Archify
@@ -79,12 +84,18 @@ verification state.
 
 ## Quality floor
 
-- Every poster page is 2400 × 1350 px, and no text is smaller than 14 px. Every
+- Every poster page is 2400 × 1350 px, and no text is smaller than 14 px. A
   page passes the balance gates for its largest blank rectangle, blank bands,
-  holes and centre of mass, and a view that no balanced page holds, alone or
-  with a neighbour, is refused with its closest page's measures and limits. A
-  view that no page can lay out is refused; text is never shrunk and nothing is
+  holes and centre of mass, or, when its figures already stand at the largest
+  type step, is printed as sparse: the model has too little to fill it. Any
+  other view no admitted page holds is refused with its closest page's measures
+  and limits, unless the build asks for standard quality, which prints that page
+  as a draft. The manifest records every page's admission and misses. A view
+  that no page can lay out is refused; text is never shrunk and nothing is
   cropped.
+- Text is set in the bundled faces, and lines break where the text's writing
+  system allows. Text in a right-to-left or shaped script, or with a character
+  no bundled face draws, is refused rather than drawn wrong.
 - On posters each card is as wide as its text, the cards of one lattice column
   share one width and the cards of a row one height, and all sit on shared row
   lines; the page's diagram cards share one width. Wires are horizontal and
@@ -93,9 +104,9 @@ verification state.
   layout that cannot meet this is never drawn, and a view no layout draws is
   refused. Crossings the relations force are allowed and counted, as are route
   defects, and each poster page prefers the fewest of both.
-- Archify delivers the page at its showcase quality profile, and every view
-  diagram passes Archify's showcase checks, or the build is refused with
-  Archify's findings. In a 1440 × 900 window every preview fits its panel,
+- Archify delivers the page at the build's quality profile, showcase unless the
+  build asks for standard, and every view diagram passes Archify's checks at
+  that profile, or the build is refused with Archify's findings. In a 1440 × 900 window every preview fits its panel,
   primary labels render at no less than 13.25 CSS px in the previews and 14 CSS
   px in the full viewer. Each diagram draws every component and relation of its
   view, and the manifest records its route measures.

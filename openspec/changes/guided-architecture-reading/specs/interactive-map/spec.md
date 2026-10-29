@@ -18,6 +18,20 @@ Archify, replace its fonts, routing or reader, or post-process its output.
 - **WHEN** a page is delivered
 - **THEN** the Archify supply's digest matches its recorded release archive
 
+### Requirement: Page language
+
+The page SHALL declare the model's language to Archify, and every diagram of a
+model that is not English SHALL name it too, so that Archify's controls, the
+page's language tag and the full viewer speak it. The publisher's own words on
+the page, the attribution, a missing summary and the joining of details,
+lists and sentences, SHALL be in that language.
+
+#### Scenario: A Traditional Chinese page
+
+- **WHEN** a model declares `locale: zh-TW`
+- **THEN** the page declares `zh-TW` and every diagram names `zh-TW`
+- **AND** a step joins two details with the fullwidth semicolon `；`
+
 ### Requirement: Question-led page
 
 The page SHALL be titled with the model's question and open with its summary
@@ -72,6 +86,19 @@ detail. Positions and sizes SHALL come from the grid layout.
 - **WHEN** two relations from one component share a label, details and status
 - **THEN** only the first of their connections carries the label
 
+### Requirement: Card widths
+
+A card SHALL be at least as wide as its view's longest label needs at Archify's
+label size, at least 120 and at most 200 wide unless that label needs more. A
+view with a label wider than the narrowest diagram's content, 640 units, SHALL
+be refused with `page_label_too_long`.
+
+#### Scenario: A label wider than a standard card
+
+- **WHEN** a view's labels need 365 units each
+- **THEN** every card is at least that wide
+- **AND** the view is drawn at most two cards to a row
+
 ### Requirement: Kind colors
 
 Kinds SHALL map to Archify's seven native types as color families, with
@@ -96,9 +123,11 @@ the view has one of its own, otherwise by its question.
 ### Requirement: Candidate diagrams
 
 For each view the publisher SHALL lay out a finite set of candidate diagrams,
-each a row wrapping and a content width, and obtain every candidate's routes
-from Archify's own layout. A view with no candidate that passes Archify's
-showcase checks SHALL be refused with Archify's findings.
+each a row wrapping of at most five, four or three cards, or of two or one when
+none of those lays out, and a content width, and obtain every candidate's
+routes from Archify's own layout. Every candidate SHALL be checked at the
+build's quality: showcase unless the build asks for standard. A view with no
+candidate that passes those checks SHALL be refused with Archify's findings.
 
 #### Scenario: Routes from Archify
 
@@ -107,7 +136,7 @@ showcase checks SHALL be refused with Archify's findings.
 
 ### Requirement: Chosen diagram
 
-Among candidates that pass Archify's showcase checks, the publisher SHALL
+Among candidates that pass Archify's checks, the publisher SHALL
 choose the one with the fewest routes that read as one or run along an edge,
 then crossings, then one Archify's reader sets beside its steps at a 1440 px
 viewport, then the fewest labels read as another's, doubled routes, routes
@@ -155,7 +184,7 @@ rather than read the measure as zero.
 ### Requirement: Routes that read as one
 
 Two routes SHALL read as one when, on Archify's layout, they run side by side,
-closer than 8 px along more than 16 px, or line up within 8 px of one line,
+closer than 8 px along more than 16 px, line up within 8 px of one line,
 sharing a stretch of it or ending less than 32 px apart with no card between
 them, or end at one point, unless they leave one card at that point and at
 most one of them carries a label: those fan out as one labelled relation. A

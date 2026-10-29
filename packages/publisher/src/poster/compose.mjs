@@ -47,6 +47,18 @@ const GATES = Object.freeze({
   centroid: Object.freeze([0.12, 0.12]),
 });
 
+/** The largest figure type step: a figure set at it cannot grow any further. */
+const LARGEST = POSTER.steps.length - 1;
+
+/**
+ * How a drawn page stands against the gates: it passes them all; it misses some
+ * with every figure already at the largest type step, so the model has too
+ * little to fill and balance the page, which no composition can change; or it
+ * is a standard-quality draft whose figures could be set larger but whose
+ * every composition misses a gate.
+ * @typedef {"balanced" | "sparse" | "draft"} Admission
+ */
+
 /** Plates tried on one page, fewest first. */
 const PLATES = Object.freeze([1, 2, 3]);
 /**
@@ -108,15 +120,20 @@ function measure(page, made, typefaces, measured) {
 
 /**
  * Compose one page of `views`. Returns the best page that passes every gate, or
- * null, and the closest page drawn at all, which names what a grouping misses
- * when none passes; both are null when the grouping cannot be laid out, or when
- * two of its views share a component the page would then draw twice.
+ * null; the closest sparse page, whose figures are all set at the largest step;
+ * and the closest page drawn at all, which names what a grouping misses when
+ * none passes. All are null when the grouping cannot be laid out, or when two
+ * of its views share a component the page would then draw twice.
  */
 function sheet(model, views, first, typefaces, icons, boundaryName) {
   const candidates = [...pageCandidates(model, views, first, typefaces, icons, boundaryName)];
   const passed = candidates.filter(({ fails }) => fails.length === 0);
+  const sparse = candidates.filter(({ composition }) =>
+    composition.plates.every(({ step }) => step === LARGEST),
+  );
   return {
     chosen: passed.length ? best(passed) : null,
+    sparse: sparse.length ? nearest(sparse) : null,
     closest: candidates.length ? nearest(candidates) : null,
   };
 }
@@ -397,18 +414,22 @@ function withText(page, extra) {
  * views, and the grouping is chosen for the edition as a whole, not page by page:
  * a greedy packer that takes a passing page whenever it sees one strands the last
  * view alone, and a view of three components cannot fill a 16:9 page by itself.
- * Every page passes every gate; among the groupings that do, the search takes
- * the fewest pages, then the least of their area lying in holes. An edition no
- * grouping can print on balanced pages is refused, naming the views no passing
- * page holds and what their closest pages miss.
+ * The search takes the fewest pages that do not pass every gate, then the
+ * fewest pages, then the least of their area lying in holes. A page that does
+ * not pass is admitted only as a sparse page, which a model too small to fill
+ * it cannot avoid, or at standard quality as a draft that records what it
+ * misses. An edition no grouping can print on admitted pages is refused, naming
+ * the views no admitted page holds and what their closest pages miss.
  * @param {any} model
  * @param {import("../plan/views.mjs").View[]} views
  * @param {any} typefaces
  * @param {any} icons
+ * @param {{ quality?: "showcase" | "standard" }} [options]
  */
-export function composeEdition(model, views, typefaces, icons) {
+export function composeEdition(model, views, typefaces, icons, options = {}) {
+  const quality = options.quality ?? "showcase";
   const boundaryName = model.repository?.name ?? model.title;
-  /** @type {Map<string, { chosen: any, closest: any }>} */
+  /** @type {Map<string, { chosen: any, sparse: any, closest: any }>} */
   const tried = new Map();
   const at = (index, count) => {
     const key = `${index}:${count}`;
@@ -424,50 +445,63 @@ export function composeEdition(model, views, typefaces, icons) {
           boundaryName,
         ),
       );
-    return /** @type {{ chosen: any, closest: any }} */ (tried.get(key));
+    return /** @type {{ chosen: any, sparse: any, closest: any }} */ (tried.get(key));
+  };
+  /** The page a grouping is admitted on, and how, or null when none is. */
+  const admitted = (index, size) => {
+    const { chosen, sparse, closest } = at(index, size);
+    if (chosen) return { made: chosen, admission: /** @type {Admission} */ ("balanced") };
+    if (sparse) return { made: sparse, admission: /** @type {Admission} */ ("sparse") };
+    if (quality === "standard" && closest)
+      return { made: closest, admission: /** @type {Admission} */ ("draft") };
+    return null;
   };
 
   const count = views.length;
   /** @type {Array<any>} */
   const plan = new Array(count + 1).fill(null);
-  plan[count] = { pages: 0, holes: 0, next: count, made: null };
+  plan[count] = { unbalanced: 0, pages: 0, holes: 0, next: count, page: null };
   for (let index = count - 1; index >= 0; index -= 1) {
     /** @type {any} */
     let chosen = null;
     for (const size of PLATES) {
       if (index + size > count) continue;
       const rest = plan[index + size];
-      const made = at(index, size).chosen;
-      // A grouping no balanced page can hold is not a page.
-      if (!rest || !made) continue;
+      const page = admitted(index, size);
+      // A grouping no admitted page can hold is not a page.
+      if (!rest || !page) continue;
       const total = {
+        unbalanced: (page.admission === "balanced" ? 0 : 1) + rest.unbalanced,
         pages: 1 + rest.pages,
-        holes: made.balance.holes + rest.holes,
+        holes: page.made.balance.holes + rest.holes,
         next: index + size,
-        made,
+        page,
       };
       if (!chosen || betterPlan(total, chosen)) chosen = total;
     }
     plan[index] = chosen;
   }
-  if (!plan[0]) refuseEdition(views, at);
+  if (!plan[0]) refuseEdition(views, at, admitted);
 
   const pages = [];
-  for (let index = 0; index < count; index = plan[index].next) pages.push(plan[index].made);
-  pages.forEach((made, order) => (made.position = { index: order, count: pages.length }));
-  return pages;
+  for (let index = 0; index < count; index = plan[index].next) pages.push(plan[index].page);
+  return pages.map(({ made, admission }, order) => ({
+    ...made,
+    admission,
+    position: { index: order, count: pages.length },
+  }));
 }
 
 /**
- * Refuse an edition no grouping prints on balanced pages. The views to name are
- * those no passing page holds, alone or with a neighbour; each is reported with
+ * Refuse an edition no grouping prints on admitted pages. The views to name are
+ * those no admitted page holds, alone or with a neighbour; each is reported with
  * the gates its own closest page misses, or as impossible to lay out at all.
  */
-function refuseEdition(views, at) {
+function refuseEdition(views, at, admitted) {
   const holds = (view) =>
     PLATES.some((size) =>
       Array.from({ length: size }, (_, offset) => view - offset).some(
-        (index) => index >= 0 && index + size <= views.length && at(index, size).chosen,
+        (index) => index >= 0 && index + size <= views.length && admitted(index, size),
       ),
     );
   const lost = views.flatMap((view, index) => (holds(index) ? [] : [{ view, index }]));
@@ -492,13 +526,15 @@ function refuseEdition(views, at) {
           "at any type step or row wrapping. Split the view or shorten its labels."
       : `View ${named.map(({ view }) => view.id).join(", ")} cannot be printed on a balanced ` +
           `${POSTER.width} × ${POSTER.height} page, alone or with a neighbouring view. ` +
-          "Give the view more of the model to show, merge it with a neighbour, or split it.",
+          "Give the view more of the model to show, merge it with a neighbour, or split it; " +
+          "a standard-quality build delivers the closest pages as drafts that record what they miss.",
     problems,
   );
 }
 
-/** Fewer pages first, then the least area in holes. */
+/** Fewer pages that miss a gate first, then fewer pages, then the least area in holes. */
 function betterPlan(a, b) {
+  if (a.unbalanced !== b.unbalanced) return a.unbalanced < b.unbalanced;
   if (a.pages !== b.pages) return a.pages < b.pages;
   return a.holes < b.holes;
 }
@@ -624,13 +660,15 @@ function renderSheet(model, typefaces, icons, chosen) {
     "",
   ].join("\n");
   return {
-    view: chosen.views.map(({ id }) => id).join("-"),
+    page: chosen.position.index + 1,
     views: chosen.views.map(({ id }) => id),
     title: chosen.views.length === 1 ? chosen.views[0].title : model.title,
     width: POSTER.width,
     height: POSTER.height,
     fits: true,
     position: chosen.position,
+    admission: chosen.admission,
+    misses: chosen.fails,
     composition: chosen.composition,
     measures: {
       crossings: crossingsOf(chosen),
@@ -646,9 +684,12 @@ function renderSheet(model, typefaces, icons, chosen) {
   };
 }
 
-/** Compose and draw every page of a model. */
-export function composePosters(model, views, typefaces, icons) {
-  return composeEdition(model, views, typefaces, icons).map((chosen) =>
+/**
+ * Compose and draw every page of a model.
+ * @param {{ quality?: "showcase" | "standard" }} [options]
+ */
+export function composePosters(model, views, typefaces, icons, options = {}) {
+  return composeEdition(model, views, typefaces, icons, options).map((chosen) =>
     renderSheet(model, typefaces, icons, chosen),
   );
 }

@@ -6,6 +6,7 @@ import { refuse } from "../refusal.mjs";
 import { layoutView } from "../layout/grid.mjs";
 import { viewRows, wrapRows } from "../layout/rows.mjs";
 import { presentation } from "../kinds.mjs";
+import { DEFAULT_LOCALE, detailText, wordsOf } from "../locale.mjs";
 import { verifySupply } from "../supply.mjs";
 
 const run = promisify(execFile);
@@ -27,6 +28,8 @@ const run = promisify(execFile);
 export const DIAGRAM_WIDTHS = Object.freeze([960, 840, 720]);
 /** Row limits a view's rows are wrapped at; five cards fit the widest diagram at the minimum card width. */
 const ROW_LIMITS = Object.freeze([5, 4, 3]);
+/** Row limits tried when no row of three lays out, as when a label needs a card of its own width. */
+const NARROW_LIMITS = Object.freeze([2, 1]);
 /** Archify narrows a reader canvas at or above this width-to-height ratio, which would shrink its labels. */
 const WIDE_RATIO = 1.54;
 const MARGIN = 40;
@@ -43,7 +46,13 @@ const LABEL_FONT = 11;
 const SUBLABEL_FONT = 9;
 const WIDTH_FACTOR = 0.6;
 const TEXT_PADDING = 8;
+/**
+ * Card widths: a card is at least as wide as its view's longest label needs and
+ * at most 200 wide, unless that label needs more; a label wider than the
+ * narrowest diagram's content cannot be drawn on one line.
+ */
 const CARD = Object.freeze({ minWidth: 120, maxWidth: 200 });
+const WIDEST_CARD = Math.min(...DIAGRAM_WIDTHS) - 2 * MARGIN;
 const TYPES = Object.freeze({
   person: "external",
   external: "external",
@@ -81,10 +90,10 @@ export function archifyIds(ids) {
  * preferred size, or none: a card never shows a cut detail, and the page's
  * steps carry every detail in full.
  */
-function sublabel(component, width) {
+function sublabel(words, component, width) {
   const room = Math.floor((width - TEXT_PADDING) / (SUBLABEL_FONT * WIDTH_FACTOR));
   return component.details
-    .map(([key, values]) => `${key}: ${values.join(", ")}`)
+    .map(([key, values]) => detailText(words, key, values))
     .find((detail) => textUnits(detail) <= room);
 }
 
@@ -109,11 +118,12 @@ const labelWidth = (label) =>
  */
 function diagramMetrics(model, view, bounded, width) {
   const widest = Math.max(...view.components.map(({ label }) => labelWidth(label)));
+  const maxWidth = Math.max(CARD.maxWidth, widest);
   return {
     contentWidth: () => width - 2 * MARGIN,
     card: {
-      minWidth: Math.min(CARD.maxWidth, Math.max(CARD.minWidth, widest)),
-      maxWidth: CARD.maxWidth,
+      minWidth: Math.min(maxWidth, Math.max(CARD.minWidth, widest)),
+      maxWidth,
       height: () => 64,
     },
     label: (relation) => ({
@@ -178,17 +188,18 @@ function candidateLayout(model, view, width) {
  * relation that skips rows or passes cards in its row names no sides, so
  * Archify routes it around the cards between.
  */
-function diagramDocument(model, view, layout, width) {
+function diagramDocument(model, view, layout, width, quality) {
   const ids = archifyIds(view.components.map(({ id }) => id));
   const relationIds = archifyIds(view.relations.map(({ id }) => id));
   const rowOf = new Map(layout.rows.flatMap((row, index) => row.members.map((id) => [id, index])));
+  const words = wordsOf(model.locale);
   const kinds = new Map();
   const components = view.components.map((component) => {
     const card = /** @type {any} */ (layout.cards.get(component.id));
     const style = presentation(model, component);
     const type = TYPES[/** @type {keyof typeof TYPES} */ (style.category)];
     kinds.set(type, [...new Set([...(kinds.get(type) ?? []), style.label])]);
-    const text = sublabel(component, card.width);
+    const text = sublabel(words, component, card.width);
     return {
       id: ids.get(component.id),
       type,
@@ -257,8 +268,10 @@ function diagramDocument(model, view, layout, width) {
       diagram_type: "architecture",
       meta: {
         title: viewCaption(model, view),
+        // Archify's viewer speaks English unless a diagram names its language.
+        ...(model.locale && model.locale !== DEFAULT_LOCALE ? { locale: model.locale } : {}),
         output: `${archifyIds([view.id]).get(view.id)}.html`,
-        quality_profile: "showcase",
+        quality_profile: quality,
         viewBox: [width, Math.max(natural, Math.ceil(width / WIDE_RATIO))],
         legend: { entries },
       },
@@ -281,17 +294,21 @@ function diagramDocument(model, view, layout, width) {
 
 /**
  * Every candidate diagram of a view: each width with each row wrapping, the
- * widest first. A label longer than the widest card refuses the view; a
- * candidate the grid cannot lay out is left out, and when none remains, the
- * first refusal is the view's.
+ * widest first, and narrower rows when no row of three lays out. A label longer
+ * than the narrowest diagram's content refuses the view; a candidate the grid
+ * cannot lay out is left out, and when none remains, the first refusal is the
+ * view's. Each document is checked at the build's quality.
+ * @param {any} model
+ * @param {any} view
+ * @param {"showcase" | "standard"} [quality]
  */
-export function diagramCandidates(model, view) {
-  const long = view.components.filter(({ label }) => labelWidth(label) > CARD.maxWidth);
+export function diagramCandidates(model, view, quality = "showcase") {
+  const long = view.components.filter(({ label }) => labelWidth(label) > WIDEST_CARD);
   if (long.length)
     refuse(
       "page_label_too_long",
       `View ${view.id}: some component labels are longer than the widest diagram card, ` +
-        `${CARD.maxWidth} units at Archify's label size. Shorten them.`,
+        `${WIDEST_CARD} units at Archify's label size. Shorten them.`,
       long.map(({ id, label }) => ({
         code: "page_label_too_long",
         path: `/components/${id}`,
@@ -304,26 +321,28 @@ export function diagramCandidates(model, view) {
   const out = [];
   /** @type {any} */
   let refusal = null;
-  for (const width of DIAGRAM_WIDTHS)
-    for (const limit of ROW_LIMITS) {
-      const rows = wrapRows(viewRows(view, limit, outside), limit);
-      const key = JSON.stringify([width, rows.map(({ members }) => members)]);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const tiered = {
-        ...view,
-        // Diagram rows carry no labels: the panel's steps name the components instead.
-        tiers: rows.map(({ id, members }) => ({ id, label: "", members })),
-      };
-      const made = candidateLayout(model, tiered, width);
-      if (!made.layout) {
-        refusal ??= made.refusal;
-        continue;
+  for (const limits of [ROW_LIMITS, NARROW_LIMITS]) {
+    for (const width of DIAGRAM_WIDTHS)
+      for (const limit of limits) {
+        const rows = wrapRows(viewRows(view, limit, outside), limit);
+        const key = JSON.stringify([width, rows.map(({ members }) => members)]);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const tiered = {
+          ...view,
+          // Diagram rows carry no labels: the panel's steps name the components instead.
+          tiers: rows.map(({ id, members }) => ({ id, label: "", members })),
+        };
+        const made = candidateLayout(model, tiered, width);
+        if (!made.layout) {
+          refusal ??= made.refusal;
+          continue;
+        }
+        const diagram = diagramDocument(model, view, made.layout, width, quality);
+        out.push({ width, rows: rows.map(({ members }) => members.length), ...diagram });
       }
-      const diagram = diagramDocument(model, view, made.layout, width);
-      out.push({ width, rows: rows.map(({ members }) => members.length), ...diagram });
-    }
-  if (out.length) return out;
+    if (out.length) return out;
+  }
   return refuse(
     "page_layout_refused",
     `View ${view.id} cannot be drawn in a diagram without overlaps at its 14 px floor. ` +

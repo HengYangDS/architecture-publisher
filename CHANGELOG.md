@@ -9,6 +9,20 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [0.4.0] - 2026-10-27
 
+### Added
+
+- A model may name its language: English, the default, Simplified or Traditional Chinese, Spanish or Korean. The
+  words the publisher writes itself, its note headings, legend, derived details and summaries, and how it punctuates
+  a list or a sentence, follow it, and the page and its diagrams speak it. `archpub import likec4 --locale` sets it.
+- Lines break where the text's writing system allows: at spaces, and between Han and Kana characters, with closing
+  marks kept at the end of a line and opening marks at the start of the next.
+- Noto Sans 2.015 follows Noto Sans CJK SC for the Latin, Greek and Cyrillic letters the CJK face lacks. Text in a
+  right-to-left or shaped script is refused with `script_unsupported` rather than drawn unjoined.
+- `archpub build` and `check` take `--media` to deliver the posters, the page or both, `--png` for the poster PNG
+  widths, from 1 to 6000 px, and `--quality standard` to deliver the closest pages as drafts. `archpub --help` and
+  `--version` print the usage and the version.
+- Architecture Publisher is released under the MIT License.
+
 ### Changed
 
 - **Breaking:** Architecture Publisher is now a general model-to-media publisher. One Architecture Model, a JSON file
@@ -22,27 +36,29 @@ remain pre-release contracts and may contain incompatible changes.
   run as buses, corridors, lanes and straight arrows through the channels between rows, and a layout with a diagonal,
   a shared segment, a wire through a card or a touching label is never drawn: a view that no layout draws is refused.
   A refusal names every view it refuses. Rows that a view does not declare minimize the rows their relations skip.
-- **Breaking:** Posters are 16:9 pages of 2400 × 1350 px with no text below 14 px, rasterized at 2400 and 6000 px. A
-  page holds one to three views as plates under a masthead, beside a rail of text, or with its text set in the corners
-  its figure leaves free. Cards are as large as their text, a sparse view is set at a larger type step of up to 1.8
-  times, tier labels stand in one column before the figure, or before the edge each tier starts at when no page with
-  one column balances, a tier that wraps has its label level with its first row beside a bracket over its rows, and
-  the edition is grouped into the fewest pages that pass the balance gates for the largest empty area, blank bands,
-  holes and centre of mass, each preferring the composition with the fewest crossings and route defects; a view no
-  passing page holds is refused with `poster_unbalanced` and its closest page's measures. Per-relation evidence moves
-  to the manifest.
-- **Breaking:** The interactive medium is one vendored, unmodified Archify 3.2.0 explainer page that answers the
-  model's question view by view: its conclusion beside a list of its panels, then one panel per view with its native
+- **Breaking:** Posters are 16:9 pages of 2400 × 1350 px with no text below 14 px, delivered as `page-<n>.svg` and as
+  PNG at 2400 px or the widths a build names. A page holds one to three views as plates under a masthead, beside a rail
+  of text, or with its text set in the corners its figure leaves free. Cards are as large as their text, a sparse view
+  is set at a larger type step of up to 1.8 times, tier labels stand in one column before the figure, or before the edge
+  each tier starts at when no page with one column balances, a tier that wraps has its label level with its first row
+  beside a bracket over its rows, and the edition is grouped into the fewest pages that pass the balance gates for the
+  largest empty area, blank bands, holes and centre of mass, each preferring the composition with the fewest crossings
+  and route defects. A page whose figures already stand at the largest type step is delivered as sparse, since its model
+  has too little to fill it; a build at standard quality delivers any other closest page as a draft; otherwise a view no
+  passing page holds is refused with `poster_unbalanced` and its closest page's measures. The manifest records every
+  page's admission and misses, and per-relation evidence moves to it.
+- **Breaking:** The interactive medium is one vendored, unmodified Archify 3.2.0 explainer page that answers the model's
+  question view by view: its conclusion beside a list of its panels, then one panel per view with its native
   architecture diagram, named by the view, which opens Archify's full viewer, and steps that light each component and
   cite its first source at the pinned revision. Each diagram is chosen on Archify's own routes from three widths and
   three row wrappings, with the grid's connection sides and with Archify's own side planning. It never takes routes a
-  reader reads as one, side by side or lined up end to end, or a route along a card's or the boundary's edge, while
-  another passes without; then it takes the fewest crossings, a preview beside its steps, the fewest labels a reader
-  takes for another route's, a card's or another label's, routes doubled into one line, routes over two bends, crowded
-  labels and crowded route ends. The connections involved take other sides while that improves the diagram, and a
-  label still misplaced is pinned clear beside its own route. A card shows a detail whole or not at all, and the steps
-  carry every detail.
-  The diagram passes Archify's showcase checks, or the build is refused with a `page_*` code and Archify's findings.
+  reader reads as one, side by side, lined up end to end or two cards' routes into one point, or a route along a card's
+  or the boundary's edge, while another passes without; then it takes the fewest crossings, a preview beside its steps,
+  the fewest labels a reader takes for another route's, a card's or another label's, routes doubled into one line,
+  routes over two bends, crowded labels and crowded route ends. The connections involved take other sides while that
+  improves the diagram, and a label still misplaced is pinned on or beside its own route. A card shows a detail whole or
+  not at all, and the steps carry every detail. The diagram passes Archify's checks at the build's quality profile,
+  showcase unless the build asks for standard, or the build is refused with a `page_*` code and Archify's findings.
   Sources Archify will not cite, such as files under a secrets directory, are withheld and recorded in the manifest.
 - A failure that is not a refusal or usage error exits with status 3 and an `internal_error` JSON body. Git and
   Archify run with only the caller's path, home and temporary-directory variables, and `SystemRoot` on Windows.

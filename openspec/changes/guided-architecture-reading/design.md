@@ -1,14 +1,12 @@
 ## Context
 
 Architecture Publisher (archpub) turns an explicit description of a software
-architecture into media people can read and verify. Its previous design served
-three known inputs and failed its readers: posters printed every claim, status
-and relation as text cards around a small graph; layout searched up to nine ELK
-candidates across many canvas widths and still refused the public AIGW frame;
-the interactive medium replaced Archify's fonts, routing and inspection with
-about 3,200 lines of its own code; and qualification, publication and custody
-planes recorded hand-written decisions that no check produced. The redesign
-starts from what a reader needs and what the user decided:
+architecture into media people can read and verify. Its previous design failed
+its readers: posters printed every claim as text cards around a small graph,
+ELK layout refused the public AIGW frame, the interactive medium replaced
+Archify's fonts, routing and inspection with its own code, and qualification
+and custody planes recorded decisions no check produced. The redesign starts
+from what a reader needs and what the user decided:
 
 - Rewrite the rendering layer and delete code without a consumer, keeping the
   LikeC4 import.
@@ -22,9 +20,10 @@ starts from what a reader needs and what the user decided:
   relation labels keep Archify's native size.
 - Boxes align on one grid, each column's cards one width and each row's one
   height; the user rejected ELK's boxes, which differed in size and height.
-- Deliver AIGW, self and ETHOS media, the Documents delivery and a signed
-  release by 2026-10-31.
-- The product must draw any repository, not only ETHOS, AIGW and itself.
+- Deliver AIGW, self and ETHOS media to the publication root the user chose
+  and a signed release.
+- The product must draw any repository, not only ETHOS, AIGW and itself, in
+  any language its bundled faces set, with no deployment written into it.
 
 ## Goals / Non-Goals
 
@@ -39,8 +38,10 @@ starts from what a reader needs and what the user decided:
   overlapping lines or labels, and text never below 14 px.
 - Identical inputs on one platform give identical bytes; each choice takes the
   best of a finite, ordered candidate set, with no randomness.
-- Each poster page passes its balance gates at its type scale, or the build
-  refuses with the view, its closest page's measures and the remedy.
+- Each poster page passes its balance gates, or is recorded as sparse when its
+  figures are already at the largest step; any other miss refuses a showcase
+  build with the view, its closest page's measures and the remedy, and a
+  standard build delivers the page as a recorded draft.
 - The page is produced by unmodified native Archify.
 - Trust is minimal and real: content digests at a pinned revision, one
   acceptance record and immutable versioned publication.
@@ -67,7 +68,7 @@ receive no drawing files, dependencies, configuration or CI obligations.
 
 The model (`format: "architecture-publisher.model"`, `version: 1`) declares:
 
-- `id`, `title`, `question`, optional `summary` and `attribution`;
+- `id`, `title`, `question`, optional `locale`, `summary` and `attribution`;
 - optional `repository` (`name`, `url`, `revision`), `scope` and `limits`;
 - `sources`: a map from source id to `path`, optional `sha256` and `note`;
 - `components`: `id`, `label`, optional `kind`, `details`, `status`, `sources`;
@@ -87,7 +88,14 @@ qualifiers a reader needs, such as `owns: account tokens`. `status` is
 `implemented`, `planned` or `retired`; absence means not stated. A relation
 connects two different components. A JSON Schema shipped with the package
 defines the format; validation reports every problem with its JSON path before
-any output.
+any output. The model's id names its published directory, so a Windows device
+name or a trailing dot is refused.
+
+`locale` is one of the languages Archify's page speaks: `en`, the default,
+`zh-CN`, `zh-TW`, `es` and `ko`. The words the publisher writes itself, the
+notes' headings, legend entries, derived details, the import's relation label
+and question, and how details, lists and sentences are punctuated, live in one
+table keyed by it; everything else a reader sees is the model's own text.
 
 This replaces the Claim Model, Edition project, Build Request and Provider.
 Claims, predicates, planes, selections, questions per selection and Candidate
@@ -235,12 +243,10 @@ perpendicular and never at a bend, a port or a label.
 
 ### 8. Format-first poster composition
 
-The user rejected the first grid posters on 2026-10-28: large blank areas, a
-centre of mass off the page, text set apart from the figure and page shapes
-that followed the content. Measured, the largest empty rectangle covered up to
-31 percent of the live area and blank bands reached 330 px. The figure had been
-laid out without knowing the page, then scaled and centred between stacked
-blocks, and nothing measured the result.
+The user rejected the first grid posters on 2026-10-28 for large blank areas,
+an off-page centre of mass, text apart from the figure and page shapes that
+followed the content: the figure was laid out without knowing the page, then
+scaled and centred, and nothing measured the result.
 
 The poster is now composed format first:
 
@@ -270,15 +276,13 @@ The poster is now composed format first:
   not counting; at most 40 percent of it lies in holes, empty squares of 240 px
   or more; and its darkness-weighted centroid lies within 12 percent of the
   centre across and down. Type holds by construction: scale sizes only, a 14 px
-  floor, the measure and no word broken on a card. An edition no grouping prints
-  on passing pages is refused, naming each view no passing page holds with its
-  closest page's measured values and limits.
+  floor, the measure and no word broken on a card. A grouping no passing page
+  holds prints on a sparse page when its figures already stand at the largest
+  step; otherwise showcase refuses it, naming each view with its closest page's
+  measured values and limits, and standard records it as a draft.
 
-Composing the AIGW, self and ETHOS views against these gates showed that one
-view per page cannot work for every view: a view of three to five components
-has a natural figure of 300 to 450 px, a third of the page, and no
-justification within the token bounds fills the rest. The page, not the view,
-became the unit:
+A view of three to five components has a figure a third of the page tall, which
+no justification fills, so the page, not the view, became the unit:
 
 - **Pages of plates.** A page carries one to three consecutive views that share
   no component as plates; on a page of several, each plate is headed by its
@@ -291,22 +295,17 @@ became the unit:
 - **Bands from natural heights.** Each plate's band is its figure's natural
   height at the densest step plus a share of the surplus in proportion to it.
   Equal bands overflowed the tall plate and left the short one blank.
-- **Cards as large as their text.** An earlier solver let cards grow to take
-  a band's slack, and counted a card's surface as ink. Its pages passed the
-  gates with cards several times taller and wider than their text: a page of
-  paper in boxes, the blank the gates exist to forbid, moved inside the cards.
-  A card is now as wide as its label and longest detail need within measures
-  of 16 and 24 ems, and as its column's widest card; every card of a row is as
-  tall as the row's tallest text, details directly under the label. A word that
-  would break inside a card label or detail rejects its wrapping.
+- **Cards as large as their text.** Cards grown into a band's slack passed the
+  gates as paper in boxes, so a card is as wide as its label and longest detail
+  need within measures of 16 and 24 ems, and as its column's widest card; every
+  card of a row is as tall as the row's tallest text, details directly under
+  the label. A word that would break inside a card rejects its wrapping.
 - **Rail and masthead.** The sidebar rail is three to five columns, or three
   with the legend and notes down a right flank of three; its blocks stand up to
-  a column gap apart and centred, as 500 px of text atop 1222 px left a void.
-  The masthead splits its twelve columns among head, summary and legend, and
-  sets the legend in up to three sub-columns, choosing the shallowest band and
-  then the most level columns: a fixed five-three-four split left a legend
-  column taller than the title beside it, and the paper under the title was
-  the largest blank on the page.
+  a column gap apart and centred. The masthead splits its twelve columns among
+  head, summary and legend, and sets the legend in up to three sub-columns,
+  choosing the shallowest band and then the most level columns, so no legend
+  column stands taller than the title beside it.
 - **Text set with the figure.** Composing models of unrelated repositories
   showed that a tree, narrow at its root and wide at its leaves, fails in every
   band-based archetype: the paper beside its narrow rows is the largest blank,
@@ -351,12 +350,10 @@ became the unit:
   only those inside the boundary, and the page tries both. Every balance gate
   is measured over the live area with the page's text, and the centroid weighs
   each mark by how dark it prints.
-- **Crossings before height.** Review found wires crossing on two pages that
-  measured clean. A channel took its fewest label rows first, so two relations
-  into one card whose labels did not fit side by side crossed; it now takes the
-  fewest crossings over every port spacing and label row, then the lowest. When
-  a page's best candidate still crosses or has a route defect, or none passes,
-  its plates are also laid out uncentred and the page is chosen from both.
+- **Crossings before height.** A channel takes the fewest crossings over every
+  port spacing and label row, then the lowest. When a page's best candidate
+  still crosses or has a route defect, or none passes, its plates are also laid
+  out uncentred and the page is chosen from both.
 - **One column of tier labels.** A blind review on 2026-10-29 read the rule
   under each row as a stray wire and labels beside each row's first card as a
   zigzag. The rules are gone, the labels stand in one column before the figure,
@@ -370,18 +367,23 @@ The figure keeps decision 6's lattice and channels. Relation details use a
 lighter ink than their labels. `planned` is dashed and
 `retired` is dotted and muted. Claim records, digest lists, status tables and
 reading indexes are not printed. The poster is written as SVG with text
-converted to glyph outlines and as PNG at 2400 and 6000 px through the
-vendored resvg.
+converted to glyph outlines and as PNG through the vendored resvg.
 
-Scaling a laid-out figure into a fixed stage was rejected because it
-equalizes nothing: a two-row view stays a strip in the middle of the page.
-Free-form ratios were rejected by the user.
+Scaling a laid-out figure into a fixed stage leaves a two-row view a strip in
+the middle of the page; the user rejected it and free-form ratios.
 
 ### 9. Bundled fonts and icons
 
-Noto Sans CJK SC 2.004 Regular and Bold (SIL Open Font License 1.1) are
-bundled unmodified with their license and SHA-256 digests. They cover Latin
-and CJK labels with one family. Host fonts are never discovered. The
+Noto Sans CJK SC 2.004 and Noto Sans 2.015, Regular and Bold (SIL Open Font
+License 1.1), are bundled unmodified with their licenses and SHA-256 digests.
+Each text is set in the first face of its weight that draws it whole, CJK
+first, so text the CJK face covers keeps its glyphs and Latin, Greek and
+Cyrillic letters it lacks come from Noto Sans. Outlines are drawn glyph by
+glyph without shaping, so right-to-left and shaped scripts are refused. Lines
+break where the writing system allows: at spaces, and between Han and Kana
+characters with closing marks kept back and opening marks forward; the rules
+read characters only, so every host breaks alike. Host fonts are never
+discovered. The
 JetBrains Mono supply and the interactive font substitution are removed; the
 page keeps Archify's native typography.
 
@@ -471,8 +473,9 @@ rule.
 ### 11. Deterministic delivery and minimal trust
 
 `archpub build <model> --out <dir>` writes, into a directory that must not
-exist, an SVG and PNGs at 2400 and 6000 px for each poster page, named after
-its views, `index.html` and `manifest.json`. Output is staged and moved into place, so a
+exist, `page-<n>.svg` and PNGs at 2400 px, or the widths `--png` names, for
+each poster page, `index.html` and `manifest.json`; `--media` builds the
+posters or the page alone, and only what it delivers is composed. Output is staged and moved into place, so a
 failed build leaves nothing behind. The manifest records its format and
 version, the publisher's name and version, the model's id, title, digest and
 size, the repository, the font, icon, resvg and Archify digests, the plan,
@@ -497,34 +500,31 @@ filesystem facts and never ran a check of their own.
 
 ### 12. Command surface
 
-`archpub` offers `build`, `check`, `import likec4`, `accept` and `publish`, and
-no aliases. With `--json`, each prints one object with `ok` and its outputs or
-diagnostics. Exit status 0 means success, 1 a refused input, 2 a usage error
+`archpub` offers `build`, `check`, `import likec4`, `accept`, `publish`,
+`--help` and `--version`, and no aliases. `--quality standard` delivers drafts
+instead of refusing; showcase stays the default. With `--json`, each prints one
+object with `ok` and its outputs or diagnostics. Exit status 0 means success, 1 a refused input, 2 a usage error
 and 3 any other failure, reported as `internal_error`.
 
 ### 13. Retained and removed modules
 
-Retained: the LikeC4 parser supply, the font, icon, resvg and Archify supplies
-with their verification tools, the release and CI tooling, and the
-repository's quality gates. Removed: the Provider, the Claim Model and Edition
-generations, source bundles and locks, scene programs, authored routes,
-occurrences and statements, the custom interactive renderer and SVG figure
-renderer, the ELK, libavoid and dagre supplies, the JetBrains Mono supply,
-qualification, publication, the browser-evidence harness and every test that
-only exercised them. The self edition becomes a model file in
-`editions/self` without code.
+Retained: the LikeC4 parser, font, icon, resvg and Archify supplies with their
+verification tools, the release and CI tooling and the quality gates. Removed:
+the Provider, the Claim Model and Edition generations, source bundles, scene
+programs, authored routes, the custom renderers, the ELK, libavoid, dagre and
+JetBrains Mono supplies, qualification, publication, the browser-evidence
+harness and their tests. The self edition is a model file in `editions/self`,
+and Markdown size is the ETHOS paradigm's ceiling, not a rule of this
+repository.
 
 ### 14. Edition content
 
 AIGW and ETHOS models live in `architecture-publications`, owned by their
 editor; the self model lives in this repository. The AIGW conversion keeps
 every entity, relation and source id, label, kind, qualifier, limit and
-attribution. Its fourteen source digests match `aigw-cli` revision
-`68876f0632acf6b0c66493800757ea70ecaef84d` once the `source/` bundle prefix is
-removed from each locator. Every AIGW claim is implemented, affirmed and
-complete, so each relation keeps `status: implemented` and claim records are
-not copied. The self and ETHOS models are written from their repositories at
-pinned revisions as an overview plus mechanism views.
+attribution, with its sources pinned to an `aigw-cli` revision. The self and
+ETHOS models are written from their repositories at pinned revisions as an
+overview plus mechanism views.
 
 ### 15. Verification
 
@@ -535,8 +535,9 @@ import.
 End-to-end journeys build the converted AIGW model; the C4 Big Bank example
 with tiers and without them; models with a cycle, a relation skipping rows, a
 six-way bus, three components each calling the same three others, and CJK
-labels; and refusals of a seven-card layout row, a model too sparse to balance
-a page and a view no page lays out. One model is rebuilt to compare bytes, on
+labels; a sparse page for a model too small to fill one, a tall view refused at
+showcase and drafted at standard, and refusals of a seven-card layout row and a
+view no page lays out. One model is rebuilt to compare bytes, on
 one platform. The balance gates are tested on pages that must pass or fail, and
 Chromium measures the page's label floor and that no preview shows Archify's
 fit notice. The repository's existing format, lint, type, import, dead-code,
@@ -556,18 +557,20 @@ gates stay in force. The user accepts the artwork; tests do not.
   editor reorders tiers or splits the view.
 - [Centred rows can bend wires] → Row centring outweighs one bend but never a
   crossing, and a page that still crosses also tries its rows uncentred.
-- [The bundled fonts add about 32 MB] → One family covers Latin and CJK
-  without host fonts; a subset would be a modified font to maintain.
+- [The bundled fonts add about 33 MB] → Two families cover Latin, Greek,
+  Cyrillic and CJK without host fonts; a subset would be a modified font to
+  maintain.
 - [Archify 3.2.0 renders no guided views, enlarges page previews at most
   1.25 times and routes every connection itself] → Each view is its own panel
   and diagram; previews read at 13.25 px or more and the full viewer at 14 px
   or more; candidates are compared on Archify's own routes, and a view without a
   candidate that passes its showcase checks refuses the build with its
   findings, because a page has one quality profile.
-- [A view no balanced page holds, alone or with a neighbour] → The build is
+- [A view no balanced page holds, alone or with a neighbour] → A model too
+  small to fill it prints on a sparse page; otherwise a showcase build is
   refused with `poster_unbalanced`, naming the view and each gate its closest
-  page misses with the measured value and limit; the author adds to, merges or
-  splits the view; the format and the type floor never change.
+  page misses, and a standard build records it as a draft; the format and the
+  type floor never change.
 - [Previous inputs stop working] → The three real inputs are converted or
   rewritten; earlier releases and delivered artifacts are unchanged.
 
@@ -578,13 +581,11 @@ gates stay in force. The user accepts the artwork; tests do not.
 2. Convert AIGW, rewrite the self model and author the ETHOS model.
 3. Rewrite the README, product contract and references.
 4. Pass the quality gates, obtain the user's acceptance of the artwork,
-   deliver to Documents and publish a signed breaking release.
+   publish to the user's publication root and a signed breaking release.
 
 Rollback is the previous signed release; its tags, packages and delivered
 artifacts are not modified.
 
 ## Open Questions
 
-None block implementation. Whether a view that cannot pass Archify's showcase
-checks should instead be delivered on a page of standard quality is the user's
-product decision; this change refuses the build.
+None. A build is held to showcase quality unless it asks for standard.

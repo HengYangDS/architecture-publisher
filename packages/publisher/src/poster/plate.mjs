@@ -1,6 +1,8 @@
 import { layoutView, placementOf } from "../layout/grid.mjs";
 import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
+import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
+import { detailText, wordsOf } from "../locale.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
 import { measureWidth } from "./blocks.mjs";
@@ -89,12 +91,13 @@ function layoutFor(view, rows, metrics, key, boundaryName) {
  * of its details on one line, within the card measures, and no wider. A card as
  * wide as its field divides into is a panel of paper around a short line; a
  * card as wide as its text reads as a card.
+ * @param {import("../locale.mjs").Words} words
  * @param {any} component
  * @param {any} typefaces
  * @param {any} styles
  * @param {any} card the card metrics at this step
  */
-function cardWidthOf(component, typefaces, styles, card) {
+function cardWidthOf(words, component, typefaces, styles, card) {
   const name = POSTER.cardMeasure.name * styles.name.size;
   const detail = POSTER.cardMeasure.detail * styles.detail.size;
   const width = Math.max(
@@ -105,7 +108,7 @@ function cardWidthOf(component, typefaces, styles, card) {
       2 * card.pad,
     ...component.details.map(
       ([key, values]) =>
-        Math.min(typefaces.measure(`${key}: ${values.join(", ")}`, styles.detail), detail) +
+        Math.min(typefaces.measure(detailText(words, key, values), styles.detail), detail) +
         2 * card.pad,
     ),
   );
@@ -113,10 +116,10 @@ function cardWidthOf(component, typefaces, styles, card) {
 }
 
 /** How wide a view's widest card is at one type step. */
-function naturalWidth(view, typefaces, styles, card) {
+function naturalWidth(words, view, typefaces, styles, card) {
   return Math.max(
     card.minimumWidth,
-    ...view.components.map((component) => cardWidthOf(component, typefaces, styles, card)),
+    ...view.components.map((component) => cardWidthOf(words, component, typefaces, styles, card)),
   );
 }
 
@@ -128,6 +131,7 @@ function naturalWidth(view, typefaces, styles, card) {
 function candidateMetrics(input) {
   const { model, view, typefaces, styles, metrics, field } = input;
   const { card, wire, spacing } = metrics;
+  const words = wordsOf(model.locale);
   const cardText = (component, width) => ({
     name: typefaces.wrap(
       component.label,
@@ -139,6 +143,7 @@ function candidateMetrics(input) {
     ),
     details: component.details.flatMap(([key, values]) =>
       typefaces.detailLines(
+        words,
         key,
         values,
         Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail)),
@@ -154,9 +159,9 @@ function candidateMetrics(input) {
       maxWidth: Math.min(
         card.maximumWidth,
         field.width - 2 * spacing.inset,
-        naturalWidth(view, typefaces, styles, card),
+        naturalWidth(words, view, typefaces, styles, card),
       ),
-      natural: (component) => cardWidthOf(component, typefaces, styles, card),
+      natural: (component) => cardWidthOf(words, component, typefaces, styles, card),
       height: (component, width) => {
         const { name, details } = cardText(component, width);
         return (
@@ -175,7 +180,7 @@ function candidateMetrics(input) {
           .map((text) => ({ text, role: "label" })),
         ...relation.details.flatMap(([key, values]) =>
           typefaces
-            .detailLines(key, values, width, styles.edgeDetail)
+            .detailLines(words, key, values, width, styles.edgeDetail)
             .map((text) => ({ text, role: "detail" })),
         ),
       ];
@@ -325,9 +330,9 @@ function labelsClear(rects) {
 }
 
 /**
- * The first word of a card's label or details wider than the line it is set
- * on at that card's width, or null when every one fits. Card text wraps between
- * words only, so every word of a card must fit the card.
+ * The first atom of a card's label or details wider than the line it is set
+ * on at that card's width, or null when every one fits. Card text wraps only
+ * where its writing system breaks a line, so every atom of a card must fit it.
  * @param {any} input
  * @param {any} layout the layout, with every card's width
  * @returns {{ reason: string, id: string, width: number, room: number } | null}
@@ -335,7 +340,8 @@ function labelsClear(rects) {
 function brokenText(input, layout) {
   const { card } = input.figureMetrics;
   const { typefaces, styles } = input;
-  const words = (text) => String(text).split(/\s+/u).filter(Boolean);
+  const words = wordsOf(input.model.locale);
+  const units = (text) => atoms(text).map(({ text: unit }) => unit);
   for (const component of input.view.components) {
     const width = layout.cards.get(component.id)?.width ?? layout.card.width;
     const nameRoom = Math.min(
@@ -343,7 +349,7 @@ function brokenText(input, layout) {
       measureWidth(typefaces, styles.name),
     );
     const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
-    for (const word of words(component.label)) {
+    for (const word of units(component.label)) {
       const measured = typefaces.measure(word, styles.name);
       if (measured > nameRoom)
         return {
@@ -354,7 +360,7 @@ function brokenText(input, layout) {
         };
     }
     for (const [key, values] of component.details)
-      for (const word of words(`${key}: ${values.join(", ")}`)) {
+      for (const word of units(detailText(words, key, values))) {
         const measured = typefaces.measure(word, styles.detail);
         if (measured > detailRoom)
           return {

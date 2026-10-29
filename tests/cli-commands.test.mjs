@@ -23,6 +23,10 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
     [["check", "model.json", "--repo"], "--repo needs a value."],
     [["build", "model.json"], "--out is required."],
     [["check"], "Name exactly one model."],
+    [
+      ["check", "model.json", "--png", "2400,wide"],
+      "--png takes whole pixel widths separated by commas.",
+    ],
   ]) {
     const { exitCode, body } = await json(args);
     assert.equal(exitCode, 2, args.join(" "));
@@ -31,6 +35,29 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
   const text = await runCli(["draw"]);
   assert.equal(text.exitCode, 2);
   assert.equal(text.output, `Unknown command draw.\n\n${USAGE}`);
+});
+
+test("help and version answer without a command", async () => {
+  for (const flag of ["--help", "-h", "help"])
+    assert.deepEqual(await runCli([flag]), { exitCode: 0, output: USAGE });
+  assert.deepEqual((await json(["--help"])).body, { ok: true, usage: USAGE });
+  const manifest = JSON.parse(
+    await fs.readFile(new URL("../packages/publisher/package.json", import.meta.url), "utf8"),
+  );
+  assert.deepEqual(await runCli(["--version"]), { exitCode: 0, output: `${manifest.version}\n` });
+  assert.deepEqual((await json(["--version"])).body, { ok: true, version: manifest.version });
+});
+
+test("build options outside their range are refused before anything is read", async () => {
+  for (const [args, code] of [
+    [["--media", "posters,video"], "build_media_invalid"],
+    [["--png", "0"], "build_png_invalid"],
+    [["--png", "6001"], "build_png_invalid"],
+    [["--quality", "draft"], "build_quality_invalid"],
+  ]) {
+    const { exitCode, body } = await json(["check", "missing.json", ...args]);
+    assert.deepEqual([exitCode, body.code], [1, code], args.join(" "));
+  }
 });
 
 test("refusals exit with status 1 and list each problem", async (t) => {
@@ -78,7 +105,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   const out = path.join(root, "delivery");
   assert.match(
     (await runCli(["build", model, "--out", out])).output,
-    /^Built 1 views and the page into /u,
+    /^Built 1 view as 1 poster page and the page into /u,
   );
   const accepted = await json(["accept", out, "--reviewer", "Reviewer", "--note", "fine"]);
   assert.equal(accepted.body.reviewer, "Reviewer");
@@ -111,15 +138,23 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(JSON.parse(await fs.readFile(imported, "utf8")).id, "shop");
   const again = await json(["import", "likec4", SHOP, "--out", imported, "--id", "shop"]);
   assert.deepEqual([again.exitCode, again.body.code], [1, "import_output_exists"]);
-  // Six components cannot fill a balanced 16:9 page: the build refuses, names
-  // each view with what its closest page misses, and writes nothing.
-  const built = await json(["build", imported, "--out", path.join(root, "shop")]);
-  assert.deepEqual([built.exitCode, built.body.code], [1, "poster_unbalanced"]);
+  // Six components cannot fill a 16:9 page even at the largest type step: the
+  // build delivers each page as sparse and records the gates it misses.
+  const shop = path.join(root, "shop");
+  const built = await json(["build", imported, "--out", shop, "--media", "posters"]);
+  assert.equal(built.exitCode, 0);
+  assert.deepEqual([built.body.media, built.body.posters], [["posters"], 2]);
+  const manifest = JSON.parse(await fs.readFile(path.join(shop, "manifest.json"), "utf8"));
   assert.deepEqual(
-    built.body.problems.map((problem) => problem.path),
-    ["/views/index", "/views/internals"],
+    manifest.posters.map(({ admission, views }) => [admission, views]),
+    [
+      ["sparse", ["index"]],
+      ["sparse", ["internals"]],
+    ],
   );
-  await assert.rejects(fs.access(path.join(root, "shop")));
+  assert.ok(manifest.posters.every(({ misses }) => misses.length));
+  assert.equal(manifest.page, null);
+  await assert.rejects(fs.access(path.join(shop, "index.html")));
 });
 
 test("the archpub executable prints one result and sets its exit status", async (t) => {

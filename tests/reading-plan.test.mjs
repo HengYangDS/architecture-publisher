@@ -138,6 +138,38 @@ test("an oversized model with groups becomes an overview plus one view per group
   assert.equal(core.summary, null);
 });
 
+test("an overview takes an id no group's own view takes", async () => {
+  const model = validateModel(
+    graphModel(
+      4,
+      [
+        [1, 2],
+        [2, 3],
+        [3, 4],
+      ],
+      {
+        groups: [
+          { id: "overview", label: "Overview", members: ["c1", "c2"] },
+          { id: "overview-2", label: "Second", members: ["c3", "c4"] },
+        ],
+      },
+    ),
+  );
+  const views = await planViews(model, async (view) => ({
+    fits: view.id !== "architecture",
+    width: 1,
+    height: 1,
+  }));
+  assert.deepEqual(
+    views.map(({ id, origin }) => [id, origin]),
+    [
+      ["overview-3", "overview"],
+      ["overview", "group"],
+      ["overview-2", "group"],
+    ],
+  );
+});
+
 test("planning refuses oversized views it cannot split", async () => {
   await assert.rejects(planViews(validateModel(minimalModel()), tooTall), {
     code: "plan_requires_structure",

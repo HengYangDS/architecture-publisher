@@ -4,7 +4,8 @@ import { pathToFileURL } from "node:url";
 import { verifySupply } from "../supply.mjs";
 import { refuse } from "../refusal.mjs";
 
-const MAXIMUM_WIDTH = 6000;
+/** The widest PNG a page is rendered at, and the most pixels it may hold. */
+export const MAXIMUM_WIDTH = 6000;
 const MAXIMUM_PIXELS = 6000 * 6000;
 
 let renderer;

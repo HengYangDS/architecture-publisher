@@ -107,6 +107,11 @@ test("top-level fields, repository and limits are validated", () => {
   assert.deepEqual(problemsOf(minimalModel({ limits: ["ok", ""] })), [
     "model_text_invalid /limits/1",
   ]);
+  // A model's id names its directory when it is published, on any file system.
+  for (const id of ["con", "nul.json", "lpt1", "shop."])
+    assert.deepEqual(problemsOf(minimalModel({ id })), ["model_id_unportable /id"], id);
+  for (const id of ["console", "auxiliary", "com", "shop.v2"])
+    assert.equal(validateModel(minimalModel({ id })).id, id);
 });
 
 test("kinds, sources, details, statuses and references are validated", () => {

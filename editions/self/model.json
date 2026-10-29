@@ -274,8 +274,8 @@
       }
     },
     {
-      "id": "documents",
-      "label": "Documents",
+      "id": "publication-root",
+      "label": "Publication root",
       "kind": "store",
       "details": {
         "keeps": "versions"
@@ -454,7 +454,7 @@
     {
       "id": "copies",
       "from": "acceptance",
-      "to": "documents",
+      "to": "publication-root",
       "label": "copies accepted deliveries"
     },
     {
@@ -553,7 +553,7 @@
         {
           "id": "outside",
           "label": "Outside the package",
-          "members": ["repository", "documents"]
+          "members": ["repository", "publication-root"]
         }
       ]
     },

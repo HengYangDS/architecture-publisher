@@ -16,6 +16,10 @@
     "id": {
       "$ref": "#/$defs/id"
     },
+    "locale": {
+      "description": "The language the model is written in; the publisher sets its own words in it. Defaults to en.",
+      "enum": ["en", "zh-CN", "zh-TW", "es", "ko"]
+    },
     "title": {
       "$ref": "#/$defs/text"
     },

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { DEFAULT_LOCALE, detailText, sentences, wordsOf } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
 import { archifyIds, runArchify, viewCaption } from "./archify.mjs";
 import { chooseDiagram } from "./choice.mjs";
@@ -32,16 +33,6 @@ const quoted = (value) => JSON.stringify(text(value));
 /** Model text for an argument Archify sets as plain text, such as a source's title. */
 const plain = (value) => JSON.stringify(String(value).replace(/\s+/gu, " ").trim());
 
-/** One detail as a step reads it. */
-const detailText = ([name, values]) => `${name}: ${values.join(", ")}`;
-
-/** A text ended as a sentence, so that the parts of one scope read apart. */
-const sentence = (value) => {
-  const trimmed = String(value).trim();
-  if (/[.!?。！？]$/u.test(trimmed)) return trimmed;
-  return /\p{Script=Han}$/u.test(trimmed) ? `${trimmed}。` : `${trimmed}.`;
-};
-
 /**
  * A view's components in its diagram's reading order, row by row from the top
  * and left to right, so that stepping through a panel walks its diagram.
@@ -66,6 +57,7 @@ function readingOrder(view, diagram) {
  * @param {Set<string>} [withheld] sources the page may not cite
  */
 export function explainerDraft(model, views, diagrams, withheld = new Set()) {
+  const words = wordsOf(model.locale);
   const raw = [
     `page-${model.id}`,
     ...views.flatMap((view) => [
@@ -102,7 +94,11 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   // component without details names the file it is cited from instead, so its
   // step never shows a citation mark alone.
   const stepText = (component) => {
-    const details = text(component.details.map(detailText).join("; "));
+    const details = text(
+      component.details
+        .map(([name, values]) => detailText(words, name, values))
+        .join(words.semicolon),
+    );
     const source = sourceOf(component);
     if (!source) return details;
     const link = `source:${id(`source-${source}`)}`;
@@ -127,14 +123,12 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
       ...steps,
     ].join("\n");
   });
-  const scope = [
-    model.scope,
-    ...model.limits,
-    model.attribution ? `Model by ${model.attribution}` : null,
-  ]
-    .filter(Boolean)
-    .map(sentence)
-    .join(" ");
+  const scope = sentences(
+    words,
+    [model.scope, ...model.limits, model.attribution ? words.attribution(model.attribution) : null]
+      .filter(Boolean)
+      .map(String),
+  );
   const sources = cited.map((sourceId) => {
     const source = model.sources.find((entry) => entry.id === sourceId);
     return `@source ${id(`source-${sourceId}`)} title=${plain(names.get(sourceId))} path=${JSON.stringify(source.path)}`;
@@ -148,11 +142,11 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   const draft = [
     `# ${text(model.question)} {#${id(`page-${model.id}`)}}`,
     "",
-    text(model.summary ?? `${model.title} in ${views.length} views.`),
+    text(model.summary ?? words.overview(model.title, views.length)),
     "",
     ...contents,
     ...(scope ? [`@answer scope=${quoted(scope)}`] : []),
-    `@meta locale=en${
+    `@meta locale=${model.locale ?? DEFAULT_LOCALE}${
       repository
         ? ` repo_url=${JSON.stringify(repository.url)} repo_revision=${repository.revision}`
         : ""
@@ -179,16 +173,19 @@ async function writePage(page, directory) {
 
 /**
  * Choose every view's diagram on Archify's own routes, write the page's draft
- * and validate it with Archify. Archify will not cite a source in a sensitive
- * file class, such as a file under a `secrets` directory, on a page; such a
- * source is withheld from the page and stays in the manifest, and a component
- * that cites it cites its next source. Any other refusal is the page's.
+ * and validate it with Archify at the build's quality. Archify will not cite a
+ * source in a sensitive file class, such as a file under a `secrets`
+ * directory, on a page; such a source is withheld from the page and stays in
+ * the manifest, and a component that cites it cites its next source. Any other
+ * refusal is the page's.
  * @param {any} model
  * @param {any[]} views
+ * @param {{ quality?: "showcase" | "standard" }} [options]
  */
-export async function explainerPage(model, views) {
+export async function explainerPage(model, views, options = {}) {
+  const quality = options.quality ?? "showcase";
   const diagrams = [];
-  for (const view of views) diagrams.push(await chooseDiagram(model, view));
+  for (const view of views) diagrams.push(await chooseDiagram(model, view, quality));
   const withheld = new Set();
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-page-"));
   try {
@@ -204,11 +201,11 @@ export async function explainerPage(model, views) {
         await writePage(page, directory),
         "--json",
         "--quality",
-        "showcase",
+        quality,
         "--writing",
         "off",
       ]);
-      if (answer.ok === true) return { ...page, withheld: [...withheld].sort() };
+      if (answer.ok === true) return { ...page, quality, withheld: [...withheld].sort() };
       // Each pass withholds at least one more source or refuses, so the loop ends.
       const sensitive = sensitiveSources(answer, cited).filter((source) => !withheld.has(source));
       if (!sensitive.length) refusePage(answer);
@@ -244,10 +241,10 @@ function refusePage(answer) {
 
 /**
  * Deliver the page through the vendored Archify CLI: validated, written and
- * checked at showcase quality, with Archify's own writing checks off because
+ * checked at the page's quality, with Archify's own writing checks off because
  * the prose is the model's. Its sources and Archify's receipts stay out of the
  * delivery.
- * @param {{ draft: string, diagrams: Array<{ file: string, document: any }> }} page
+ * @param {{ draft: string, quality?: string, diagrams: Array<{ file: string, document: any }> }} page
  * @param {string} directory a staging directory that receives `index.html`
  */
 export async function deliverExplainer(page, directory) {
@@ -269,7 +266,7 @@ export async function deliverExplainer(page, directory) {
       output,
       "--json",
       "--quality",
-      "showcase",
+      page.quality ?? "showcase",
       "--writing",
       "off",
       "--out-dir",

@@ -22,8 +22,8 @@ exact repository content.
 - **BREAKING** Replace selection, scene programs, layout candidates and the
   Candidate with a Reading Plan: at most four views per model, chosen
   explicitly or derived automatically, each admitted when a page of its own
-  lays it out in one 2400 × 1350 px (16:9) format with no text below 14 px,
-  and refused when no page that passes the balance gates holds it.
+  lays it out in one 2400 × 1350 px (16:9) format with no text below 14 px;
+  a model too small to fill a balanced page prints on a sparse one.
 - Lay out every view with one deterministic grid engine: cards on one column
   lattice, orthogonal wires and labels in the channels between rows, and a
   measured neatness check that rejects overlaps instead of drawing them.
@@ -37,6 +37,10 @@ exact repository content.
   pinned sources.
 - Bind sources by content digest at a pinned revision, read-only, without
   checkouts, network access or source-repository changes.
+- Draw any repository in its own language: a model names one of Archify's
+  languages, lines break by writing system, a second bundled face sets the
+  letters the CJK face lacks, and the media, PNG widths, quality profile and
+  publication root are the caller's choice.
 - **BREAKING** Replace qualification, publication journals and custody with one
   acceptance record and immutable versioned publication.
 - Remove Providers, dual model generations, custom routing, ELK, libavoid,

@@ -56,11 +56,20 @@
 - [ ] 8.15 Register the vendored explainer files as Archify source contracts; the full ETHOS proof passes at the lane head.
 - [ ] 8.16 Rebuild the AIGW, self and ETHOS deliveries; an independent blind visual review finds no blocker, and every major finding is fixed or carries the user's decision.
 - [ ] 8.17 Pass `npm run check` and the hosted Linux, macOS and Windows jobs at the lane head.
+- [x] 8.18 Add the model `locale` and one table of the publisher's own words for both media and the import; an English model's text is unchanged and a Chinese model's notes, legend, details, page language and diagram viewers are Chinese. `tests/locale.test.mjs` passes in `npm run check`.
+- [x] 8.19 Break lines by writing system, at spaces and between Han and Kana characters with closing and opening marks kept, in poster wrapping, details and the whole-word check; a Chinese-labelled model composes without a broken label. `tests/text-breaks.test.mjs` passes in `npm run check`.
+- [x] 8.20 Bundle Noto Sans 2.015 after Noto Sans CJK SC and set each text in the first face that draws it whole; Polish, Czech, Turkish, Ukrainian and Greek text draws, and Arabic and Devanagari text is refused with `script_unsupported`. `tests/text-breaks.test.mjs` passes in `npm run check`.
+- [x] 8.21 Print a grouping whose figures are already at the largest step on a sparse page, and at `--quality standard` any other unbalanced grouping as a draft, recording each miss in the manifest; a two-card model and the LikeC4 shop build, and an eight-tier view is refused at showcase and drafted at standard. `tests/poster-compose.test.mjs` and `tests/cli-commands.test.mjs` pass in `npm run check`.
+- [x] 8.22 Name poster files by page number and add `--media`, `--png` and `--quality` to `build` and `check`, manifest version 4, `--help` and `--version`; a posters-only build runs no Archify and every invalid option is refused. `tests/cli-commands.test.mjs` and `tests/delivery.test.mjs` pass in `npm run check`.
+- [x] 8.23 Widen page cards to their longest label up to the narrowest diagram's content, with rows of two or one when three do not lay out, keep the overview's id unique and refuse unportable model ids. `tests/map-archify.test.mjs`, `tests/reading-plan.test.mjs` and `tests/model-input.test.mjs` pass in `npm run check`.
+- [ ] 8.24 Release the product under MIT as the ETHOS license obligation requires and retire the Markdown budget rule that restated the paradigm's ceiling; the repository paradigm reports no gap.
+- [x] 8.25 Describe the product without the maintainer's deployment: the README and package README name a publication root, and the self model's store is the publication root. The README, the package README and `editions/self/model.json` name a publication root.
+- [x] 8.26 Read two cards' routes into one point as one route on the page, crowd a label within 16 px or two and a half times its route's distance, pin a label read as another's alone and on its own segment, and keep two relations' marks on one poster label row or band 48 px apart; the route measures count each case. `tests/map-choice.test.mjs` passes in `npm run check`.
 
 ## 9. Acceptance and release
 
 - [ ] 9.1 Record the user's acceptance of the AIGW, self and ETHOS posters and pages with `archpub accept`.
-- [ ] 9.2 Publish the accepted deliveries to Documents with `archpub publish` and verify every copied digest.
+- [ ] 9.2 Publish the accepted deliveries with `archpub publish` to the publication root the user chose and verify every copied digest.
 - [ ] 9.3 Publish a signed breaking SemVer release with a Keep a Changelog entry; verify the tag, assets and remote convergence on every reachable Forge.
 
 ## 10. Deferred work

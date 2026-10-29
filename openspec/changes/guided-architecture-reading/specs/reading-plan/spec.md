@@ -97,6 +97,18 @@ counts, the page size or the refusal that ruled it out, and the remedy.
   view
 - **THEN** the plan is the overview followed by the group views
 
+### Requirement: Overview id
+
+Each group's view SHALL take the group's id, and the overview SHALL take
+`overview`, or the first of `overview-2`, `overview-3` and so on that no group
+takes.
+
+#### Scenario: A group named overview
+
+- **WHEN** a model's groups are named `overview` and `overview-2`
+- **THEN** the overview's id is `overview-3` and each group view keeps its
+  group's id
+
 #### Scenario: A large model without groups
 
 - **WHEN** a model without views or groups is not admitted as one view
@@ -124,8 +136,8 @@ the format.
 
 - **WHEN** a declared view can be laid out but fills no balanced page alone
 - **THEN** the plan admits it
-- **AND** the edition prints it beside a neighbour or refuses it with
-  `poster_unbalanced`
+- **AND** the edition prints it beside a neighbour, on a sparse page, or
+  refuses it with `poster_unbalanced`
 
 #### Scenario: A deterministic plan
 

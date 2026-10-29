@@ -35,11 +35,12 @@ they read or decide.
 ## Commands
 
 ```text
-archpub check <model.json> [--repo <checkout>] [--json]
-archpub build <model.json> --out <directory> [--repo <checkout>] [--json]
-archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--json]
+archpub check <model.json> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
+archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
+archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
 archpub publish <delivery> --to <root> [--version <name>] [--json]
+archpub --help | --version [--json]
 ```
 
 - `check` validates the model, verifies its sources when `--repo` names a
@@ -49,11 +50,21 @@ archpub publish <delivery> --to <root> [--version <name>] [--json]
 - `build` does the same and writes a new delivery directory. `--out` must not
   exist; the delivery is staged beside it and renamed into place only when
   every artifact is written, so a refused build leaves nothing behind.
+- `--media` names the media to deliver, `posters`, `page` or both, the
+  default; a build composes only what it delivers, so `--media posters` runs no
+  Archify. `--png` names the poster PNG widths, comma-separated, from 1 to
+  6000 px, by default 2400. `--quality` is `showcase`, the default, or
+  `standard`, which delivers drafts instead of refusing a poster page or a
+  page diagram that misses its checks. An invalid value is refused before the
+  model is read.
 - `import likec4` writes a model from a LikeC4 workspace and lists, with its
-  file and line, every construct the model cannot represent. It refuses to
+  file and line, every construct the model cannot represent. `--locale` names
+  the model's language; the import's own words, an unnamed relation's label and
+  a missing question, are set in it. It names no attribution and refuses to
   overwrite an existing file.
 - `accept` records a named reviewer's acceptance of an unchanged delivery.
-- `publish` copies an accepted delivery to `<root>/<model id>/<version>/`.
+- `publish` copies an accepted delivery to `<root>/<model id>/<version>/`, in
+  any directory the caller names.
 
 Exit status 0 means success, 1 a refused input, 2 a usage error and 3 an
 internal error, any other failure, such as a file the command cannot read or
@@ -108,12 +119,19 @@ bracket that spans them all. Every page passes four balance gates over its live
 area: its largest blank rectangle covers at most 12 percent of it, no blank band
 96 px or taller runs across it, at most 40 percent of it lies in empty squares
 of 240 px or more, and its centre of mass lies within 12 percent of the centre
-across and down. The edition is grouped into the fewest such pages, then the
-least area in those holes, and each page prefers the fewest crossings and route
-defects. A view that no passing page holds, alone or with a neighbour, is
-refused with `poster_unbalanced` and its closest page's measures and limits.
-Text is outlined from the bundled Noto Sans CJK SC fonts, and each kind draws
-its Lucide icon. Each page is written as SVG and as PNG at 2400 and 6000 px.
+across and down. The edition is grouped into the fewest pages that miss a gate,
+then the fewest pages, then the least area in those holes, and each page
+prefers the fewest crossings and route defects. A grouping no passing page
+holds is printed on a sparse page when its figures already stand at the
+largest step: the model has too little to fill the page. Otherwise, a view
+that no admitted page holds, alone or with a neighbour, is refused with
+`poster_unbalanced` and its closest page's measures and limits, unless
+`--quality standard` prints that page as a draft. Text is outlined from the
+bundled faces, Noto Sans CJK SC and then Noto Sans for the Latin, Greek and
+Cyrillic letters the first lacks; lines break at spaces, and between Han and
+Kana characters, keeping closing punctuation on the line before. Each kind
+draws its Lucide icon. Each page is written as SVG and as PNG at 2400 px or
+the widths `--png` names.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
 Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
@@ -181,20 +199,22 @@ in the full viewer.
 
 ## The delivery
 
-| File              | Content                                         |
-| ----------------- | ----------------------------------------------- |
-| `<page>.svg`      | Each poster page, named by its views.           |
-| `<page>.png`      | The page rasterized at 2400 px wide.            |
-| `<page>-6000.png` | The page rasterized at 6000 px wide.            |
-| `index.html`      | The standalone interactive explainer page.      |
-| `manifest.json`   | The build record.                               |
-| `acceptance.json` | Written by `archpub accept`; absent until then. |
+| File                   | Content                                                     |
+| ---------------------- | ----------------------------------------------------------- |
+| `page-<n>.svg`         | Poster page `n`, numbered from 1 in reading order.          |
+| `page-<n>.png`         | The page rasterized at 2400 px wide.                        |
+| `page-<n>-<width>.png` | The page rasterized at each other width `--png` names.      |
+| `index.html`           | The standalone interactive explainer page, unless excluded. |
+| `manifest.json`        | The build record.                                           |
+| `acceptance.json`      | Written by `archpub accept`; absent until then.             |
 
-The manifest records its format and version, the publisher's name and version,
-the model id, title, digest and size, the declared repository, every source
-with its state and declared and observed digest, the digest of each bundled
-supply, each view with its tiers, members and page, each page with its views,
-composition and measures, the explainer page's quality profile and gates, each
+The manifest records its format and version 4, the publisher's name and
+version, the model id, title, language, digest and size, the declared
+repository, the build's quality and media, every source with its state and
+declared and observed digest, the digest of each bundled supply, each view with
+its tiers, members and page number, each page with its number, files, views,
+admission, the gates it misses, composition and measures, the explainer page's
+quality profile and gates, each
 view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
 the sources the page withholds, the details,
@@ -229,7 +249,8 @@ or Archify reported.
 | `usage`                                                                               | Unknown command or option, or a missing value.                                              |
 | `model_invalid`                                                                       | The model breaks the schema; each problem has its own `model_*` code.                       |
 | `model_unreadable`, `model_json_invalid`, `model_too_large`                           | The file cannot be read, is not JSON or exceeds 4 MiB.                                      |
-| `glyphs_missing`                                                                      | Text uses characters the bundled fonts lack.                                                |
+| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                   | A build option is outside its values.                                                       |
+| `glyphs_missing`                                                                      | Text uses characters the bundled fonts lack or a script they do not set.                    |
 | `source_revision_missing`, `source_revision_unknown`                                  | `--repo` needs `repository.revision`, and the checkout must contain it.                     |
 | `sources_unverified`                                                                  | A source is missing at the revision or differs from its declared digest.                    |
 | `source_git_unavailable`, `source_read_failed`                                        | Git cannot be run or cannot read the sources.                                               |
@@ -237,9 +258,9 @@ or Archify reported.
 | `plan_not_admitted`                                                                   | No page of its own lays a view out; each problem gives the view's counts and the page size. |
 | `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.                           |
 | `poster_unfittable`                                                                   | A view cannot be laid out on any page at any type step or row wrapping.                     |
-| `poster_unbalanced`                                                                   | No page holding a view, alone or with a neighbour, passes the balance gates.                |
+| `poster_unbalanced`                                                                   | No admitted page holds a view, alone or with a neighbour.                                   |
 | `page_label_too_long`, `page_shape_refused`                                           | A label exceeds the widest diagram card, or no diagram has a usable shape.                  |
-| `page_layout_refused`, `page_diagram_refused`                                         | A view's diagram cannot be wired, or none passes Archify's showcase checks.                 |
+| `page_layout_refused`, `page_diagram_refused`                                         | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.   |
 | `page_measures_missing`                                                               | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.   |
 | `page_refused`                                                                        | Archify did not validate or deliver the page.                                               |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.                           |

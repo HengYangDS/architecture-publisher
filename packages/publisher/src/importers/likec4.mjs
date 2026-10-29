@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { wordsOf } from "../locale.mjs";
 import { MODEL_FORMAT, MODEL_VERSION, MAXIMUM_VIEWS, validateModel } from "../model/load.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
@@ -115,10 +116,13 @@ const where = (location) => (location ? `${location.file}:${location.line}` : "w
 /**
  * Convert a LikeC4 workspace into a model. Leaf elements become components,
  * parents of leaves become groups and element views become member views.
+ * The words the import supplies itself, such as an unnamed relation's label
+ * and a missing question, are set in the model's language.
  * @param {string} workspace
- * @param {{ id: string, title?: string, question?: string }} identity
+ * @param {{ id: string, title?: string, question?: string, locale?: string }} identity
  */
 export async function importLikeC4(workspace, identity) {
+  const words = wordsOf(identity.locale);
   const files = await readWorkspace(workspace);
   const { reply, supplySha256 } = await parse(files);
   const warnings = [];
@@ -189,7 +193,7 @@ export async function importLikeC4(workspace, identity) {
       id: relationId(`${from}-${to}`),
       from,
       to,
-      label: relation.title ?? "uses",
+      label: relation.title ?? words.uses,
       ...(relation.technology ? { details: { technology: relation.technology } } : {}),
     });
   }
@@ -227,9 +231,9 @@ export async function importLikeC4(workspace, identity) {
     format: MODEL_FORMAT,
     version: MODEL_VERSION,
     id: identity.id,
+    ...(identity.locale ? { locale: identity.locale } : {}),
     title: identity.title ?? identity.id,
-    question: identity.question ?? `How is ${identity.title ?? identity.id} structured?`,
-    attribution: "imported from LikeC4",
+    question: identity.question ?? words.question(identity.title ?? identity.id),
     ...(Object.keys(kinds).length ? { kinds } : {}),
     components,
     relations,

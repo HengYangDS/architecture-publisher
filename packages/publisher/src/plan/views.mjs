@@ -1,4 +1,5 @@
 import { Refusal, refuse } from "../refusal.mjs";
+import { wordsOf } from "../locale.mjs";
 import { MAXIMUM_VIEWS } from "../model/load.mjs";
 
 /**
@@ -49,8 +50,16 @@ function declaredViews(model) {
   });
 }
 
-/** One node per group plus ungrouped components; one aggregated relation per ordered pair. */
+/**
+ * One node per group plus ungrouped components; one aggregated relation per
+ * ordered pair. The overview takes the id `overview`, or the first numbered one
+ * no group takes, since each group's own view takes the group's id.
+ */
 function overviewView(model) {
+  const words = wordsOf(model.locale);
+  const taken = new Set(model.groups.map(({ id }) => id));
+  let id = "overview";
+  for (let suffix = 2; taken.has(id); suffix += 1) id = `overview-${suffix}`;
   const owner = new Map();
   for (const group of model.groups) for (const member of group.members) owner.set(member, group.id);
   const components = byIds(model.components);
@@ -59,7 +68,7 @@ function overviewView(model) {
       id: group.id,
       label: group.label,
       kind: null,
-      details: [["includes", group.members.map((id) => components.get(id).label)]],
+      details: [[words.includes, group.members.map((id) => components.get(id).label)]],
       status: null,
       sources: [],
       group: true,
@@ -82,13 +91,13 @@ function overviewView(model) {
     from: pair.from,
     to: pair.to,
     label: pair.labels.join(" / "),
-    details: pair.relations.length > 1 ? [["relations", [String(pair.relations.length)]]] : [],
+    details: pair.relations.length > 1 ? [[words.relations, [String(pair.relations.length)]]] : [],
     status: null,
     sources: [],
     relations: pair.relations,
   }));
   return {
-    id: "overview",
+    id,
     title: model.title,
     question: model.question,
     summary: model.summary,

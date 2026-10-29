@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
 import { loadIcons } from "../packages/publisher/src/icons.mjs";
+import { wordsOf } from "../packages/publisher/src/locale.mjs";
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import { notesOf } from "../packages/publisher/src/poster/blocks.mjs";
@@ -35,8 +36,9 @@ function assertBalanced(poster) {
   assert.deepEqual(
     gateFailures({ emptyShare, band: { height: blankBand }, holes, centroid }),
     [],
-    poster.view,
+    `page ${poster.page}`,
   );
+  assert.deepEqual([poster.admission, poster.misses], ["balanced", []], `page ${poster.page}`);
 }
 
 test("every page style is on the type scale and at least the 14 px floor", () => {
@@ -91,10 +93,15 @@ test("the publisher's own model prints each view on a balanced page with clean w
     [["overview"], ["layout"], ["media"]],
   );
   for (const poster of pages) {
-    assert.equal(poster.measures.crossings, 0, poster.view);
-    assert.equal(poster.measures.routes, 0, poster.view);
+    assert.equal(poster.measures.crossings, 0, `page ${poster.page}`);
+    assert.equal(poster.measures.routes, 0, `page ${poster.page}`);
     assertBalanced(poster);
   }
+  // Pages are numbered in reading order.
+  assert.deepEqual(
+    pages.map(({ page }) => page),
+    [1, 2, 3],
+  );
   // The overview's five tiers start at different columns; their numbered
   // labels still stand in one straight column.
   const numbers = [...pages[0].svg.matchAll(/<circle cx="([\d.]+)" cy="[\d.]+" r="14"/gu)].map(
@@ -163,18 +170,47 @@ test("statuses and the boundary appear in the drawing, and the source note names
   assert.ok(notesOf(model).every(({ text }) => !/verif|SHA-256|digest/iu.test(text)));
 });
 
-test("a model too sparse to balance a page is refused with what its closest page misses", async () => {
-  // One relation between two cards: no page of this format can hold it without
-  // a blank band, so the build names the view and the gates its closest page
-  // misses, with their measured values and limits, instead of printing it.
+test("a model too small to fill a page is printed on a sparse page that records what it misses", async () => {
+  // One relation between two cards: no page of this format holds them without
+  // blank paper, and no composition can change that, since their figure is
+  // already set at the largest type step. The page is printed as sparse, and
+  // the gates it misses are recorded with their measured values and limits.
   const model = validateModel(graphModel(2, [[1, 2]]));
-  await assert.rejects(edition(model), (error) => {
-    assert.equal(error.code, "poster_unbalanced");
-    assert.equal(error.problems.length, 1);
-    assert.equal(error.problems[0].code, "poster_unbalanced");
-    assert.match(error.problems[0].message, /\(limit \d/u);
-    return true;
-  });
+  const [page, ...rest] = await edition(model);
+  assert.equal(rest.length, 0);
+  assert.equal(page.admission, "sparse");
+  assert.ok(page.misses.length);
+  for (const miss of page.misses)
+    assert.ok(Math.abs(miss.value) > miss.limit || miss.measure === "blankBand", miss.measure);
+  assert.ok(page.composition.plates.every(({ step }) => step === POSTER.steps.length - 1));
+});
+
+test("a page whose figure could grow but balances in no composition is refused, or drafted at standard quality", async () => {
+  // Eight tiers of one card each: the figure is as tall as the page at the
+  // densest step and leaves its sides blank, which the author can change by
+  // setting fewer tiers. Showcase quality refuses it; standard quality prints
+  // it as a draft that records what it misses.
+  const tiers = Array.from({ length: 8 }, (_, index) => ({
+    id: `t${index + 1}`,
+    label: `Tier ${index + 1}`,
+    members: [`c${index + 1}`],
+  }));
+  const model = validateModel(
+    graphModel(
+      8,
+      Array.from({ length: 7 }, (_, index) => [index + 1, index + 2]),
+      { views: [{ id: "tall", tiers }] },
+    ),
+  );
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  assert.throws(
+    () => composePosters(model, views, typefaces, icons),
+    (error) => error.code === "poster_unbalanced" && /standard-quality/u.test(error.message),
+  );
+  const [page] = composePosters(model, views, typefaces, icons, { quality: "standard" });
+  assert.equal(page.admission, "draft");
+  assert.ok(page.misses.length);
+  assert.ok(page.composition.plates.some(({ step }) => step < POSTER.steps.length - 1));
 });
 
 test("a page lays its rows out uncentred when centring crosses a relation that skips a row", async () => {
@@ -234,8 +270,9 @@ test("text wraps at spaces, splits only oversized words and keeps detail items w
   const pieces = typefaces.wrap("a".repeat(80), 120, style);
   assert.ok(pieces.length > 1);
   assert.equal(pieces.join(""), "a".repeat(80));
-  assert.deepEqual(typefaces.detailLines("owns", ["x", "y"], 400, style), ["owns: x, y"]);
-  const narrow = typefaces.detailLines("owns", ["first item", "second item"], 110, style);
+  const en = wordsOf("en");
+  assert.deepEqual(typefaces.detailLines(en, "owns", ["x", "y"], 400, style), ["owns: x, y"]);
+  const narrow = typefaces.detailLines(en, "owns", ["first item", "second item"], 110, style);
   assert.ok(narrow.length >= 2);
   assert.match(typefaces.outline("Ag", 0, 10, style), /^M/u);
 });

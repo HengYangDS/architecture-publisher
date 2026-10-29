@@ -9,9 +9,9 @@ meaning in every output.
 ### Requirement: One explicit model input
 
 The publisher SHALL accept one Architecture Model file as its only input. The
-model SHALL declare components and relations and MAY declare a repository,
-sources, kinds, groups, views, scope, limits and attribution. The publisher
-SHALL NOT infer components or relations from repository contents.
+model SHALL declare components and relations and MAY declare its language, a
+repository, sources, kinds, groups, views, scope, limits and attribution. The
+publisher SHALL NOT infer components or relations from repository contents.
 
 #### Scenario: A minimal model validates
 
@@ -20,11 +20,11 @@ SHALL NOT infer components or relations from repository contents.
   a label
 - **THEN** it validates with default kinds, statuses and views
 
-#### Scenario: A minimal model that fills a page builds
+#### Scenario: A minimal model builds
 
-- **WHEN** such a model shows enough components for a page that passes every
-  balance gate
-- **THEN** the build succeeds
+- **WHEN** such a model is built
+- **THEN** the build succeeds, on sparse pages when its components cannot fill
+  a balanced one
 - **AND** every declared component and relation appears on its posters and
   the page
 
@@ -90,6 +90,37 @@ deterministically: labels from kind names, order from first appearance, the
   names as labels
 - **AND** a rebuild assigns the same icons and color families
 
+### Requirement: Model language
+
+A model MAY name the language it is written in as `locale`: `en`, `zh-CN`,
+`zh-TW`, `es` or `ko`, each a language Archify's page speaks; a model that
+names none is English. The publisher SHALL set the words it writes itself in
+that language on both media and SHALL refuse any other value with
+`model_locale_unsupported`.
+
+#### Scenario: A Chinese model
+
+- **WHEN** a model declares `locale: zh-CN` and groups that need an overview
+- **THEN** the overview's group details are named 包含 and its aggregated
+  relations 关系数
+- **AND** the page declares the language `zh-CN`
+
+#### Scenario: An unsupported language
+
+- **WHEN** a model declares `locale: fr`
+- **THEN** validation refuses it at `/locale` and lists the supported languages
+
+### Requirement: Portable model id
+
+A model's id names its directory when a delivery is published, so validation
+SHALL refuse an id that is a Windows device name, alone or before an
+extension, or that ends with a dot, with `model_id_unportable`.
+
+#### Scenario: A device name
+
+- **WHEN** a model's id is `con`
+- **THEN** validation refuses it at `/id` with `model_id_unportable`
+
 ### Requirement: Kind categories and icons
 
 A kind MAY declare one of the categories `person`, `external`, `frontend`,
@@ -131,13 +162,27 @@ location and SHALL NOT drop one silently.
 - **WHEN** a LikeC4 workspace with nested elements, relationships and one view
   is imported and then built
 - **THEN** the model validates and planning admits that view
-- **AND** the build delivers the view's plate and panel, or refuses it by name
-  with `poster_unbalanced` when it is too sparse for a balanced page
+- **AND** the build delivers the view's plate and panel, on a sparse page when
+  it is too small to fill a balanced one
 
 #### Scenario: A view that shows a parent
 
 - **WHEN** a LikeC4 view includes a parent element
 - **THEN** the imported view shows the components inside that parent
+
+### Requirement: Words an import supplies
+
+The words the LikeC4 import supplies itself, an unnamed relation's label and a
+missing question, SHALL be in the language `--locale` names, which the model
+then declares, and the import SHALL NOT supply an attribution.
+
+#### Scenario: An import in Chinese
+
+- **WHEN** a workspace with an unnamed relation is imported with
+  `--locale zh-CN` and no question
+- **THEN** the relation is labelled 使用 and the question asks how the title is
+  structured in Chinese
+- **AND** the model declares `locale: zh-CN` and no attribution
 
 #### Scenario: An unsupported construct
 

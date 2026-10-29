@@ -13,18 +13,19 @@ inputs.
 archpub check model.json --repo ../my-repository
 archpub build model.json --repo ../my-repository --out build/my-repository
 archpub accept build/my-repository --reviewer "Your Name"
-archpub publish build/my-repository --to ~/Documents/Architecture
+archpub publish build/my-repository --to <publication-root>
 ```
 
 `check` validates the model, verifies each declared source at the pinned
 revision, composes every poster page and checks every diagram and the page with
 Archify, without writing a delivery. `build` writes the delivery. A person
-accepts it, and only an accepted delivery is published.
+accepts it, and only an accepted delivery is published, under
+`<publication-root>/<model id>/<version>/` in any directory you choose.
 
-A minimal model validates as below, but a view of three components is too
-sparse for a balanced page, so `check` refuses it with `poster_unbalanced`;
-[`editions/self/model.json`](editions/self/model.json) is a complete model that
-builds:
+A minimal model looks like the one below. Three components cannot fill a 16:9
+page, so its poster is printed as a sparse page and the manifest records the
+balance gates it misses; [`editions/self/model.json`](editions/self/model.json)
+is a complete model whose pages are balanced:
 
 ```json
 {
@@ -49,30 +50,39 @@ builds:
 }
 ```
 
-The [model reference](docs/reference/model.md) describes every field: kinds and
-their icons, details, statuses, sources, groups and up to four views.
+The [model reference](docs/reference/model.md) describes every field: the
+language the model is written in, kinds and their icons, details, statuses,
+sources, groups and up to four views.
 
 ## What a delivery contains
 
 - **Posters:** 16:9 pages of 2400 × 1350 px, each holding one to three views,
-  as SVG and as PNG at 2400 and 6000 px, with no text below 14 px: title,
-  question, summary, the figures, one legend and notes with the scope and
-  source revision. Each page is composed so that its figure fills it.
+  as `page-<n>.svg` and as PNG at 2400 px, or at the widths `--png` names,
+  with no text below 14 px: title, question, summary, the figures, one legend
+  and notes with the scope and source revision. Each page is composed so that
+  its figure fills it.
 - **Page:** `index.html`, a standalone native Archify explainer that answers the
   model's question with one panel per view: the view's diagram, which opens
   Archify's full viewer, and steps that light each component and cite its
   source at the pinned revision.
 - **Manifest:** `manifest.json`, the digest of the model, every source, every
-  bundled supply and every artifact, each page's measures, each diagram's route
-  measures and the details, statuses and sources of every component and
-  relation. Building the same model with the same version on one platform
-  reproduces every byte.
+  bundled supply and every artifact, each page's measures and the gates it
+  misses, each diagram's route measures and the details, statuses and sources
+  of every component and relation. Building the same model with the same
+  version on one platform reproduces every byte.
+
+`--media posters` or `--media page` builds one medium alone. The publisher sets
+its own words, such as the notes' headings and the legend, in the model's
+language: English, Simplified or Traditional Chinese, Spanish or Korean.
 
 Layout is a grid: cards on shared row lines of one column lattice, each poster
 card as wide as its text, wires that are only horizontal or vertical, and no
 shared segment, wire through a card or touching label. A layout that breaks
-this is never drawn; a view no layout draws, or no balanced page holds, is
-refused, never shrunk or cropped.
+this is never drawn, and a view no layout draws is refused, never shrunk or
+cropped. A page whose figures are set at the largest type step and still leave
+it partly blank is printed as sparse; any other page that misses a balance
+gate is refused, unless `--quality standard` asks for drafts that record what
+they miss.
 
 ## Install
 

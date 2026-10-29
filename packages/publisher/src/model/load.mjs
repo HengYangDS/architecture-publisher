@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { DEFAULT_LOCALE, LOCALES } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
@@ -20,6 +21,12 @@ export const CATEGORIES = Object.freeze([
 const ICON = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
 const ID = /^[a-z0-9][a-z0-9._-]{0,127}$/u;
+/**
+ * Names Windows reserves for devices, alone or before an extension. A model's
+ * id names its directory when a delivery is published, so it is a name every
+ * file system can hold.
+ */
+const DEVICE = /^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\.|$)/u;
 const DIGEST = /^[0-9a-f]{64}$/u;
 const REVISION = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
 const DETAIL_NAME = /^(?![0-9]+$)[^:\n]{1,64}$/u;
@@ -27,7 +34,8 @@ const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
 
 const TOP = {
   required: ["format", "version", "id", "title", "question", "components", "relations"],
-  optional: ["summary", "attribution", "scope", "limits", "repository", "kinds", "sources"].concat([
+  optional: ["locale", "summary", "attribution", "scope", "limits", "repository", "kinds"].concat([
+    "sources",
     "groups",
     "views",
   ]),
@@ -120,6 +128,14 @@ function checkTop(problems, model) {
   if (model.version !== MODEL_VERSION)
     problems.add("model_version_unsupported", "/version", `supported version is ${MODEL_VERSION}`);
   problems.id(model.id, "/id");
+  if (typeof model.id === "string" && (DEVICE.test(model.id) || model.id.endsWith(".")))
+    problems.add(
+      "model_id_unportable",
+      "/id",
+      "must not be a reserved device name or end with a dot",
+    );
+  if (model.locale !== undefined && !LOCALES.includes(model.locale))
+    problems.add("model_locale_unsupported", "/locale", `must be one of ${LOCALES.join(", ")}`);
   for (const key of ["title", "question"]) problems.text(model[key], `/${key}`);
   for (const key of ["summary", "attribution", "scope"]) problems.text(model[key], `/${key}`, true);
   if (model.limits !== undefined) {
@@ -401,6 +417,7 @@ function normalize(value, parts) {
   });
   return deepFreeze({
     id: value.id,
+    locale: value.locale ?? DEFAULT_LOCALE,
     title: value.title,
     question: value.question,
     summary: value.summary ?? null,

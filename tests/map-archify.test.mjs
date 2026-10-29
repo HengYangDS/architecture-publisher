@@ -198,12 +198,12 @@ test("cards are as wide as the longest label needs, so a long label takes a spar
       for (const { size } of document.components) assert.ok(size[0] >= 173, `${size[0]}`);
 });
 
-test("labels longer than the widest card are refused", async () => {
+test("labels longer than the narrowest diagram's content are refused", async () => {
   const model = validateModel(
     graphModel(6, [[1, 2]], {
       components: Array.from({ length: 6 }, (_, index) => ({
         id: `c${index + 1}`,
-        label: `${"Extraordinarily ".repeat(3)}Long Component ${index + 1}`,
+        label: `${"Extraordinarily ".repeat(6)}Long Component ${index + 1}`,
       })),
       views: [{ id: "row", members: ["c1", "c2", "c3", "c4", "c5", "c6"] }],
     }),
@@ -211,8 +211,38 @@ test("labels longer than the widest card are refused", async () => {
   const view = await firstView(model);
   assert.throws(
     () => diagramCandidates(model, view),
-    (error) => error.code === "page_label_too_long" && error.problems.length === 6,
+    (error) =>
+      error.code === "page_label_too_long" &&
+      error.problems.length === 6 &&
+      /640 units/u.test(error.message),
   );
+});
+
+test("a label wider than a standard card gets a card as wide as it needs, in narrower rows", async () => {
+  // Three labels of 60 characters each need cards over twice the standard
+  // width: no row of three holds them, so the view is drawn two or one a row.
+  const model = validateModel(
+    graphModel(
+      3,
+      [
+        [1, 2],
+        [2, 3],
+      ],
+      {
+        components: Array.from({ length: 3 }, (_, index) => ({
+          id: `c${index + 1}`,
+          label: `${"Extraordinarily ".repeat(3)}Long ${index + 1}`,
+        })),
+      },
+    ),
+  );
+  const candidates = diagramCandidates(model, await firstView(model));
+  assert.ok(candidates.length);
+  const need = Math.ceil(textUnits(model.components[0].label) * 11 * 0.6 + 8);
+  for (const { rows, document } of candidates) {
+    assert.ok(Math.max(...rows) <= 2, JSON.stringify(rows));
+    for (const component of document.components) assert.ok(component.size[0] >= need);
+  }
 });
 
 test("rows hold at most five and are also wrapped at four and three, the widest diagram first", async () => {

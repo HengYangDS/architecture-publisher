@@ -1,4 +1,5 @@
 import { presentation } from "../kinds.mjs";
+import { sentence, sentences, wordsOf } from "../locale.mjs";
 import { PAGE, POSTER } from "./tokens.mjs";
 
 /**
@@ -46,6 +47,7 @@ function linesWithin(typefaces, text, width, style, most) {
  * one — some component outside it and some inside — and the statuses present.
  */
 function legendOf(model, views, boundary) {
+  const words = wordsOf(model.locale);
   const kinds = [];
   const components = views.flatMap((view) => view.components);
   const outside = components.filter((component) => presentation(model, component).outside);
@@ -64,12 +66,13 @@ function legendOf(model, views, boundary) {
   const rest = [];
   if (boundary && bounded)
     rest.push(
-      { shape: "boundary", label: `inside ${boundary}` },
-      { shape: "outside", label: "outside it" },
+      { shape: "boundary", label: words.inside(boundary) },
+      { shape: "outside", label: words.outside },
     );
   const shown = views.flatMap((view) => [...view.components, ...view.relations]);
   for (const status of /** @type {const} */ (["planned", "retired"]))
-    if (shown.some((item) => item.status === status)) rest.push({ shape: status, label: status });
+    if (shown.some((item) => item.status === status))
+      rest.push({ shape: status, label: words[status] });
   return { kinds, rest };
 }
 
@@ -117,17 +120,18 @@ export function leadOf(model, views, first) {
  * manifest keeps.
  */
 export function notesOf(model) {
-  const sentence = (text) => (/[.!?。]$/u.test(text) ? text : `${text}.`);
+  const words = wordsOf(model.locale);
   /** @type {Array<{ label: string, text: string }>} */
   const blocks = [];
-  if (model.scope) blocks.push({ label: "Scope", text: sentence(model.scope) });
+  if (model.scope) blocks.push({ label: words.scope, text: sentence(words, model.scope) });
   const limits = [...new Set(model.limits)].filter(Boolean);
-  if (limits.length) blocks.push({ label: "Limits", text: limits.map(sentence).join(" ") });
+  if (limits.length) blocks.push({ label: words.limits, text: sentences(words, limits) });
   const origin = [];
   if (model.repository)
-    origin.push(`Source ${model.repository.name} at ${model.repository.revision.slice(0, 12)}`);
-  if (model.attribution) origin.push(`Model by ${model.attribution}`);
-  if (origin.length) blocks.push({ label: "Source", text: `${origin.join("; ")}.` });
+    origin.push(words.revision(model.repository.name, model.repository.revision.slice(0, 12)));
+  if (model.attribution) origin.push(words.attribution(model.attribution));
+  if (origin.length)
+    blocks.push({ label: words.source, text: sentence(words, origin.join(words.semicolon)) });
   return blocks;
 }
 

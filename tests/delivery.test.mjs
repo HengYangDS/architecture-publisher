@@ -24,25 +24,34 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   assert.deepEqual(built.views, ["containers-tiers", "containers-automatic"]);
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
-  assert.equal(manifest.version, 3);
+  assert.equal(manifest.version, 4);
+  assert.deepEqual([manifest.quality, manifest.media], ["showcase", ["posters", "page"]]);
+  assert.equal(manifest.model.locale, "en");
   assert.equal(manifest.model.id, "big-bank");
   assert.equal(manifest.sources.state, "none");
   assert.deepEqual(Object.keys(manifest.supplies), ["fonts", "icons", "resvg", "archify"]);
   assert.deepEqual(
     manifest.artifacts.map(({ path: file }) => file),
-    [
-      "containers-automatic-6000.png",
-      "containers-automatic.png",
-      "containers-automatic.svg",
-      "containers-tiers-6000.png",
-      "containers-tiers.png",
-      "containers-tiers.svg",
-      "index.html",
-    ],
+    ["index.html", "page-1.png", "page-1.svg", "page-2.png", "page-2.svg"],
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
-  assert.equal(manifest.views[0].poster, manifest.posters[0].id);
-  for (const poster of manifest.posters) assert.equal(poster.measures.crossings, 0, poster.id);
+  // Poster files are named by page number, and each page lists its files and views.
+  assert.deepEqual(
+    manifest.posters.map(({ page, svg, png, views }) => [page, svg, png, views]),
+    [
+      [1, "page-1.svg", [{ width: 2400, file: "page-1.png" }], ["containers-tiers"]],
+      [2, "page-2.svg", [{ width: 2400, file: "page-2.png" }], ["containers-automatic"]],
+    ],
+  );
+  assert.deepEqual(
+    manifest.views.map(({ poster }) => poster),
+    [1, 2],
+  );
+  for (const poster of manifest.posters) {
+    assert.equal(poster.measures.crossings, 0, poster.svg);
+    assert.equal(poster.admission, "balanced", poster.svg);
+    assert.equal(poster.misses, undefined, poster.svg);
+  }
   assert.equal(manifest.page.quality, "showcase");
   assert.deepEqual(
     manifest.page.diagrams.map(({ view }) => view),
@@ -66,7 +75,7 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   assert.equal(customer.kind, "person");
   assert.equal(typeof customer.details, "object");
   assert.equal(manifest.evidence.relations.length, 10);
-  assert.equal(built.artifacts, 7);
+  assert.equal(built.artifacts, 5);
   const second = path.join(root, "second");
   await buildDelivery(BIG_BANK_MODEL, second);
   assert.ok(
@@ -151,12 +160,11 @@ test("acceptance and publication require an unchanged delivery", async (t) => {
     code: "publish_conflict",
   });
 
-  await fs.writeFile(path.join(out, "architecture.svg"), "<svg/>");
+  await fs.writeFile(path.join(out, "page-1.svg"), "<svg/>");
   await assert.rejects(
     acceptDelivery(out, { reviewer: "Reviewer" }),
     (error) =>
-      error.code === "delivery_changed" &&
-      /architecture\.svg changed/u.test(error.problems[0].message),
+      error.code === "delivery_changed" && /page-1\.svg changed/u.test(error.problems[0].message),
   );
   await fs.writeFile(path.join(out, "stray.txt"), "stray");
   await fs.rm(path.join(out, "index.html"));

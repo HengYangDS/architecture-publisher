@@ -8,10 +8,12 @@ publish accepted deliveries as immutable versions.
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: an SVG and PNGs at 2400 and 6000 px for each poster page, the explainer
-page `index.html` and `manifest.json`. It SHALL stage the delivery and move it
-into place only after every artifact succeeds, so a refused or failed build
-leaves no output.
+exist: for each poster page, `page-<n>.svg` and one PNG per width, named
+`page-<n>.png` at the page's own 2400 px and `page-<n>-<width>.png` at any
+other; the explainer page `index.html`; and `manifest.json`. Pages are
+numbered from 1 in reading order, so no two files share a name. It SHALL
+stage the delivery and move it into place only after every artifact succeeds,
+so a refused or failed build leaves no output.
 
 #### Scenario: An existing output directory
 
@@ -24,14 +26,31 @@ leaves no output.
 - **THEN** the build refuses and neither the output directory nor the staging
   area remains
 
+### Requirement: Build options
+
+`archpub build` and `archpub check` SHALL accept `--media` with `posters`,
+`page` or both, the default; `--png` with comma-separated PNG widths from 1 to
+6000 px, by default 2400; and `--quality` with `showcase`, the default, or
+`standard`. A build SHALL compose only the media it delivers, and SHALL refuse
+an option outside these values with `build_media_invalid`,
+`build_png_invalid` or `build_quality_invalid` before reading the model.
+
+#### Scenario: Posters alone at two widths
+
+- **WHEN** a model is built with `--media posters --png 2400,6000`
+- **THEN** the delivery holds `page-1.svg`, `page-1.png` and
+  `page-1-6000.png` and no `index.html`
+- **AND** its manifest records no page and no Archify supply
+
+#### Scenario: An unknown medium
+
+- **WHEN** a build names `--media video`
+- **THEN** it refuses with `build_media_invalid` and writes nothing
+
 ### Requirement: Deterministic manifest
 
-The manifest SHALL record its format and version; the publisher's name and
-version; the model's id, title, SHA-256 and size; the declared repository;
-every source record with its state and digests; the digests of the bundled
-font, icon, raster and Archify supplies; the plan; and every artifact's path,
-size and digest. It SHALL contain no timestamps, host paths or user names, so
-the same model built with the same version on one platform yields the same
+The manifest SHALL contain no timestamps, host paths or user names, so the
+same model built with the same version on one platform yields the same
 manifest.
 
 #### Scenario: Two builds
@@ -39,11 +58,20 @@ manifest.
 - **WHEN** a model is built twice with the same version on one platform
 - **THEN** both manifests are byte-identical
 
+### Requirement: Manifest records
+
+The manifest SHALL record its format and version 4; the publisher's name and
+version; the model's id, title, language, SHA-256 and size; the declared
+repository; the build's quality and media; every source record with its state
+and digests; the digests of the bundled font, icon and raster supplies and,
+when it delivers the page, Archify's; the plan, each view naming the number of
+its poster page; and every artifact's path, size and digest.
+
 #### Scenario: Identity fields
 
 - **WHEN** a model is built
 - **THEN** its manifest names the delivery format and version, the publisher's
-  name and version and the model's id, title, digest and size
+  name and version and the model's id, title, language, digest and size
 
 ### Requirement: Measures and evidence in the manifest
 
@@ -75,6 +103,8 @@ Every command SHALL accept `--json` and then print exactly one JSON object with
 `ok` and either its outputs or its diagnostics. The exit status SHALL be 0 on
 success, 1 for a refused input, 2 for a usage error and 3 for any other
 failure, whose JSON object SHALL carry the code `internal_error` and a message.
+`archpub --help` SHALL print the usage and `archpub --version` the package
+version, each with status 0.
 
 #### Scenario: A refused build with JSON output
 
@@ -89,6 +119,12 @@ failure, whose JSON object SHALL carry the code `internal_error` and a message.
 - **THEN** standard output holds one JSON object with `ok: false` and the code
   `internal_error`
 - **AND** the exit status is 3
+
+#### Scenario: The version
+
+- **WHEN** `archpub --version --json` runs
+- **THEN** standard output holds one JSON object with `ok: true` and the
+  package version
 
 ### Requirement: The caller's environment
 

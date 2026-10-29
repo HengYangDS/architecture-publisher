@@ -163,8 +163,8 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
   );
   // A poster the current publisher composes: outlined text, icons, cards and wires.
   const delivery = path.join(work, "poster delivery Δ");
-  await buildDelivery(AIGW_MODEL, delivery);
-  const authored = await fs.readFile(path.join(delivery, "overview.svg"));
+  await buildDelivery(AIGW_MODEL, delivery, { media: ["posters"] });
+  const authored = await fs.readFile(path.join(delivery, "page-1.svg"));
   const [svgWidth, svgHeight] = /** @type {RegExpMatchArray} */ (
     authored.toString("utf8").match(/^<svg [^>]*width="(\d+)" height="(\d+)"/u)
   )
@@ -183,7 +183,7 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
       for (const font of selectedFonts) renderer.addFont(font.bytes);
       for (const font of selectedFonts) {
         const text = Buffer.from(
-          `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="64"><text id="architecture-measure-0" x="12" y="40" font-family="${fonts.family}" font-size="24" font-weight="${font.weight}">Architecture to outcome Δ</text></svg>`,
+          `<svg xmlns="http://www.w3.org/2000/svg" width="420" height="64"><text id="architecture-measure-0" x="12" y="40" font-family="${font.family}" font-size="24" font-weight="${font.weight}">Architecture to outcome Δ</text></svg>`,
         );
         const measured = [...renderer.measureText(text, 1)];
         assert.equal(measured.length, 4);

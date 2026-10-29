@@ -1,6 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { atoms } from "../breaks.mjs";
+import { detailPieces } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -8,7 +10,12 @@ import { verifySupply } from "../supply.mjs";
 
 let loaded;
 
-/** Load the bundled typefaces once; text is measured and outlined with the same faces. */
+/**
+ * Load the bundled typefaces once; text is measured and outlined with the same
+ * faces. Each weight is a chain of faces in the order the supply lists its
+ * families: CJK first, whose Latin the posters have always been set in, then a
+ * Latin, Greek and Cyrillic face for the letters it lacks.
+ */
 export async function loadTypefaces() {
   if (loaded) return loaded;
   const fonts = await verifySupply("fonts");
@@ -16,17 +23,27 @@ export async function loadTypefaces() {
   const opentype = await import(
     pathToFileURL(path.join(resvg.root, "opentype", "opentype.mjs")).href
   );
-  const faces = new Map();
-  for (const file of fonts.manifest.files.filter(({ weight }) => weight)) {
-    const bytes = await fs.readFile(path.join(fonts.root, file.path));
-    faces.set(
-      file.weight,
-      opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)),
-    );
-  }
-  loaded = createTypefaces(faces, fonts.sha256);
+  /** @type {Map<number, any[]>} */
+  const chains = new Map();
+  for (const { family } of fonts.manifest.families)
+    for (const file of fonts.manifest.files.filter((entry) => entry.family === family)) {
+      const bytes = await fs.readFile(path.join(fonts.root, file.path));
+      const face = opentype.parse(
+        bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+      );
+      chains.set(file.weight, [...(chains.get(file.weight) ?? []), face]);
+    }
+  loaded = createTypefaces(chains, fonts.sha256);
   return loaded;
 }
+
+/**
+ * Scripts written right to left or shaped into joined or reordered glyphs.
+ * Outlined glyph by glyph, they would read wrong, so their text is refused
+ * rather than drawn.
+ */
+const SHAPED =
+  /[\p{Script=Arabic}\p{Script=Hebrew}\p{Script=Syriac}\p{Script=Thaana}\p{Script=Nko}\p{Script=Devanagari}\p{Script=Bengali}\p{Script=Gurmukhi}\p{Script=Gujarati}\p{Script=Oriya}\p{Script=Tamil}\p{Script=Telugu}\p{Script=Kannada}\p{Script=Malayalam}\p{Script=Sinhala}\p{Script=Thai}\p{Script=Lao}\p{Script=Tibetan}\p{Script=Myanmar}\p{Script=Khmer}\p{Script=Mongolian}]/u;
 
 /**
  * A word cut after each slash, hyphen, underscore, dot or colon, the places a
@@ -37,9 +54,47 @@ function softSegments(word) {
   return word.match(/[^/\-_.:]+[/\-_.:]*|[/\-_.:]+/gu) ?? [word];
 }
 
-/** @param {Map<number, any>} faces */
-function createTypefaces(faces, supplySha256) {
-  const face = (style) => faces.get(style.weight >= 600 ? 700 : 400);
+/** @param {Map<number, any[]>} chains each weight's faces, in fallback order */
+function createTypefaces(chains, supplySha256) {
+  const weightOf = (style) => (style.weight >= 600 ? 700 : 400);
+  const draws = (face, character) =>
+    /\s/u.test(character) || face.charToGlyphIndex(character) !== 0;
+  const drawsAll = (face, text) => Array.from(text).every((character) => draws(face, character));
+
+  /**
+   * The runs a text is set in at one weight, each with its face. A text one
+   * face draws whole is set in the first such face; otherwise each word is, and
+   * a word no face draws whole is set character by character in the first face
+   * that draws each one. Adjacent runs in one face are joined.
+   */
+  const runsKnown = new Map();
+  /** @returns {Array<{ text: string, face: any }>} */
+  const runsOf = (text, style) => {
+    const key = `${weightOf(style)}\u0000${text}`;
+    let runs = runsKnown.get(key);
+    if (runs) return runs;
+    const chain = /** @type {any[]} */ (chains.get(weightOf(style)));
+    const whole = chain.find((face) => drawsAll(face, text));
+    runs = [];
+    const pieces = whole
+      ? [{ text, face: whole }]
+      : (text.match(/\S+\s*|\s+/gu) ?? []).flatMap((word) => {
+          const face = chain.find((each) => drawsAll(each, word));
+          return face
+            ? [{ text: word, face }]
+            : Array.from(word, (character) => ({
+                text: character,
+                face: chain.find((each) => draws(each, character)) ?? chain[0],
+              }));
+        });
+    for (const piece of pieces) {
+      const last = runs.at(-1);
+      if (last && last.face === piece.face) last.text += piece.text;
+      else runs.push({ ...piece });
+    }
+    runsKnown.set(key, runs);
+    return runs;
+  };
 
   // Shaping a string is the costliest step of a layout, and a composition
   // measures the same words and lines thousands of times while it tries its
@@ -47,34 +102,46 @@ function createTypefaces(faces, supplySha256) {
   const advances = new Map();
   /** @param {string} text @param {TextStyle} style */
   const measure = (text, style) => {
-    const key = `${style.weight >= 600 ? 700 : 400}\u0000${style.size}\u0000${text}`;
+    const key = `${weightOf(style)}\u0000${style.size}\u0000${text}`;
     let width = advances.get(key);
     if (width === undefined) {
-      width = face(style).getAdvanceWidth(text, style.size, { kerning: true });
+      width = runsOf(text, style).reduce(
+        (sum, run) => sum + run.face.getAdvanceWidth(run.text, style.size, { kerning: true }),
+        0,
+      );
       advances.set(key, width);
     }
     return width;
   };
 
-  /** Characters the bundled faces cannot draw. @param {string} text */
+  /**
+   * Characters the bundled faces cannot draw, and those of scripts the
+   * publisher does not set.
+   * @param {string} text
+   */
   function missing(text) {
+    const chain = /** @type {any[]} */ (chains.get(400));
     const absent = new Set();
     for (const character of text)
-      if (!/\s/u.test(character) && face({ weight: 400 }).charToGlyphIndex(character) === 0)
+      if (SHAPED.test(character) || !chain.some((face) => draws(face, character)))
         absent.add(character);
     return [...absent];
   }
 
-  /** Break text into lines at spaces, and inside words only when one word is wider than the line. */
-  function wrap(text, width, style) {
+  /**
+   * Set pieces on lines greedily: each piece follows the line's last after its
+   * gap while the line fits, and starts the next line otherwise.
+   * @param {Array<{ text: string, gap: string }>} pieces
+   */
+  function fill(pieces, width, style) {
     const lines = [];
     let line = "";
-    for (const word of breakable(String(text), width, style)) {
-      const candidate = line ? `${line} ${word}` : word;
+    for (const { text: piece, gap } of pieces) {
+      const candidate = line ? `${line}${gap}${piece}` : piece;
       if (!line || measure(candidate, style) <= width) line = candidate;
       else {
         lines.push(line);
-        line = word;
+        line = piece;
       }
     }
     if (line) lines.push(line);
@@ -82,62 +149,58 @@ function createTypefaces(faces, supplySha256) {
   }
 
   /**
-   * Words, with any word wider than the line split into pieces that fit. A
+   * Break text into lines between its atoms, where its writing system allows
+   * a break, and inside an atom only when it is wider than the line.
+   */
+  const wrap = (text, width, style) => fill(breakable(String(text), width, style), width, style);
+
+  /**
+   * Atoms, with any atom wider than the line split into pieces that fit. A
    * long word breaks first after a slash, hyphen, underscore, dot or colon, so
    * a path or an identifier breaks where a reader expects it to; only a piece
    * still wider than the line is split between characters.
    */
   function breakable(text, width, style) {
-    return text
-      .split(/\s+/u)
-      .filter(Boolean)
-      .flatMap((word) => {
-        if (measure(word, style) <= width) return [word];
-        const pieces = [];
-        let piece = "";
-        for (const segment of softSegments(word)) {
-          if (piece && measure(piece + segment, style) <= width) {
-            piece += segment;
-            continue;
-          }
-          if (piece) pieces.push(piece);
-          piece = "";
-          if (measure(segment, style) <= width) {
-            piece = segment;
-            continue;
-          }
-          for (const character of segment) {
-            if (piece && measure(piece + character, style) > width) {
-              pieces.push(piece);
-              piece = "";
-            }
-            piece += character;
-          }
+    return atoms(text).flatMap((atom) => {
+      if (measure(atom.text, style) <= width) return [atom];
+      const pieces = [];
+      let piece = "";
+      for (const segment of softSegments(atom.text)) {
+        if (piece && measure(piece + segment, style) <= width) {
+          piece += segment;
+          continue;
         }
-        return piece ? [...pieces, piece] : pieces;
-      });
+        if (piece) pieces.push(piece);
+        piece = "";
+        if (measure(segment, style) <= width) {
+          piece = segment;
+          continue;
+        }
+        for (const character of segment) {
+          if (piece && measure(piece + character, style) > width) {
+            pieces.push(piece);
+            piece = "";
+          }
+          piece += character;
+        }
+      }
+      if (piece) pieces.push(piece);
+      return pieces.map((text, index) => ({ text, gap: index ? "" : atom.gap }));
+    });
   }
 
-  /** Wrap one named detail, keeping list items whole and separated by commas. */
-  function detailLines(name, values, width, style) {
-    const tokens = values.map(
-      (value, index) =>
-        `${index ? "" : `${name}: `}${value}${index < values.length - 1 ? "," : ""}`,
-    );
-    const lines = [];
-    let line = "";
-    for (const token of tokens) {
-      const candidate = line ? `${line} ${token}` : token;
-      if (!line || measure(candidate, style) <= width) line = candidate;
-      else {
-        lines.push(line);
-        line = token;
-      }
-    }
-    if (line) lines.push(line);
-    return lines.flatMap((text) =>
-      measure(text, style) > width ? wrap(text, width, style) : [text],
-    );
+  /**
+   * Wrap one named detail in the model's language, keeping list items whole
+   * and separated by the language's list mark.
+   * @param {import("../locale.mjs").Words} words
+   */
+  function detailLines(words, name, values, width, style) {
+    const { pieces, gap } = detailPieces(words, name, values);
+    return fill(
+      pieces.map((text) => ({ text, gap })),
+      width,
+      style,
+    ).flatMap((text) => (measure(text, style) > width ? wrap(text, width, style) : [text]));
   }
 
   /**
@@ -145,8 +208,15 @@ function createTypefaces(faces, supplySha256) {
    * commands are serialized here: opentype.js 2.0.0 `toPathData` rounds through
    * string exponents and emits NaN for fractions such as 1.4e-14.
    */
-  const outline = (text, x, y, style) =>
-    pathData(face(style).getPath(text, x, y, style.size, { kerning: true }).commands);
+  const outline = (text, x, y, style) => {
+    let d = "";
+    let at = x;
+    for (const run of runsOf(text, style)) {
+      d += pathData(run.face.getPath(run.text, at, y, style.size, { kerning: true }).commands);
+      at += run.face.getAdvanceWidth(run.text, style.size, { kerning: true });
+    }
+    return d;
+  };
 
   /** Top of a line box to its alphabetic baseline. */
   const baseline = (top, style) => top + (style.line - style.size) / 2 + style.size * 0.88;
@@ -177,22 +247,36 @@ function pathData(commands) {
 }
 
 /**
- * Refuse text the bundled faces cannot draw instead of painting replacement glyphs.
+ * Refuse text the bundled faces cannot draw, or in a script the publisher does
+ * not set, instead of painting replacement glyphs or unjoined letters.
  * @param {{ missing: (text: string) => string[] }} typefaces
  * @param {Array<{ path: string, text: string }>} texts
  */
 export function requireGlyphs(typefaces, texts) {
   const problems = texts.flatMap(({ path: where, text }) => {
     const absent = typefaces.missing(text);
-    return absent.length
-      ? [
-          {
-            code: "glyph_missing",
-            path: where,
-            message: `has characters the bundled fonts cannot draw: ${absent.join(" ")}`,
-          },
-        ]
-      : [];
+    const shaped = absent.filter((character) => SHAPED.test(character));
+    const undrawn = absent.filter((character) => !SHAPED.test(character));
+    return [
+      ...(shaped.length
+        ? [
+            {
+              code: "script_unsupported",
+              path: where,
+              message: `is written in a right-to-left or shaped script the posters cannot set: ${shaped.join(" ")}`,
+            },
+          ]
+        : []),
+      ...(undrawn.length
+        ? [
+            {
+              code: "glyph_missing",
+              path: where,
+              message: `has characters the bundled fonts cannot draw: ${undrawn.join(" ")}`,
+            },
+          ]
+        : []),
+    ];
   });
   if (problems.length)
     refuse("glyphs_missing", "Some text cannot be drawn with the bundled fonts.", problems);

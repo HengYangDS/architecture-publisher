@@ -6,20 +6,22 @@ import test from "node:test";
 const root = path.resolve(import.meta.dirname, "..");
 const source = path.join(root, "packages/publisher/src");
 
-/** Each unit of the publisher and the units it may import: input, plan, layout, media, delivery, command line. */
+/** Each unit of the publisher and the units it may import: language, input, plan, layout, media, delivery, command line. */
 const ALLOWED = Object.freeze({
   refusal: [],
   environment: [],
+  locale: [],
+  breaks: [],
   supply: ["refusal"],
   icons: ["supply"],
-  kinds: ["icons"],
-  model: ["refusal"],
+  kinds: ["icons", "locale"],
+  model: ["locale", "refusal"],
   sources: ["environment", "refusal"],
-  plan: ["model", "refusal"],
+  plan: ["locale", "model", "refusal"],
   layout: ["layout", "refusal"],
-  poster: ["kinds", "layout", "poster", "refusal", "supply"],
-  map: ["environment", "kinds", "layout", "map", "refusal", "supply"],
-  importers: ["model", "refusal", "supply"],
+  poster: ["breaks", "kinds", "layout", "locale", "poster", "refusal", "supply"],
+  map: ["environment", "kinds", "layout", "locale", "map", "refusal", "supply"],
+  importers: ["locale", "model", "refusal", "supply"],
   build: ["icons", "map", "model", "plan", "poster", "refusal", "sources", "supply"],
   delivery: ["build", "refusal"],
   cli: ["build", "cli", "delivery", "importers", "refusal"],

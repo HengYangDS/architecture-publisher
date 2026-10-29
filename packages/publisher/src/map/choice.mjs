@@ -135,7 +135,8 @@ export function routeLayout(layout, connections) {
  */
 async function measure(file, document) {
   const ids = document.connections.map(({ id }) => id);
-  const validate = ["validate", "architecture", file, "--json", "--quality", "showcase"];
+  const quality = document.meta.quality_profile;
+  const validate = ["validate", "architecture", file, "--json", "--quality", quality];
   const { answer } = await runArchify(validate);
   const composition = answer.composition ?? {};
   const passes =
@@ -335,10 +336,13 @@ async function repair(starts, measureAll) {
  * involved. When the choice still has a label read as another's or crowded,
  * the labels of the best few by their routes alone are pinned clear beside
  * their own routes. A view with no candidate inside the shape bounds, or none
- * that passes, is refused.
+ * that passes at the build's quality, is refused.
+ * @param {any} model
+ * @param {any} view
+ * @param {"showcase" | "standard"} [quality]
  */
-export async function chooseDiagram(model, view) {
-  const candidates = diagramCandidates(model, view).filter(
+export async function chooseDiagram(model, view, quality = "showcase") {
+  const candidates = diagramCandidates(model, view, quality).filter(
     ({ width, height }) => shapeDistance(width, height) !== Infinity,
   );
   if (!candidates.length)
@@ -372,7 +376,7 @@ export async function chooseDiagram(model, view) {
     if (!passing.length)
       return refuse(
         "page_diagram_refused",
-        `View ${view.id} has no diagram that passes Archify's showcase checks.`,
+        `View ${view.id} has no diagram that passes Archify's ${quality} checks.`,
         measured[0].diagnostics.slice(0, 20).map((issue) => ({
           code: String(issue.code ?? "archify"),
           path: `/views/${view.id}`,

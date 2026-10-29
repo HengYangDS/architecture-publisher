@@ -266,6 +266,18 @@ whether sources were verified.
 - **WHEN** the second page holds one view with its own title and question
 - **THEN** it leads with them under the model's title
 
+### Requirement: The publisher's words
+
+The words the publisher sets itself, the notes' headings, the boundary and
+status entries and the source and attribution phrases, SHALL be in the model's
+language, punctuated as that language punctuates details, lists and sentences.
+
+#### Scenario: Notes in the model's language
+
+- **WHEN** a model written in Simplified Chinese declares a scope and limits
+- **THEN** its notes are headed 范围, 局限 and 来源
+- **AND** their sentences end with the ideographic full stop
+
 ### Requirement: One summary per page
 
 A page of one view SHALL set that view's summary, or the model's on the first
@@ -346,7 +358,11 @@ route defects.
 ### Requirement: Whole-word card text
 
 A wrapping whose card width would break a card label or detail inside a word,
-path or identifier SHALL NOT be a candidate: card text breaks only at spaces.
+path or identifier SHALL NOT be a candidate. Text written with spaces breaks
+only at them; Han and Kana text, written without them, breaks between its
+characters, except that a closing mark stays with the character before it and
+an opening mark with the one after. The rules read the characters alone, so a
+text breaks the same way on every host.
 
 #### Scenario: A long word in a narrow column
 
@@ -360,6 +376,13 @@ path or identifier SHALL NOT be a candidate: card text breaks only at spaces.
   `refs/ethos/attestations-set`
 - **THEN** that wrapping is not a candidate
 - **AND** the drawn card sets the path whole on one line
+
+#### Scenario: A Chinese label in a narrow column
+
+- **WHEN** a card's label is 订单数据库，主库 and its column holds three of its
+  characters
+- **THEN** the label wraps between characters
+- **AND** no line begins with the comma
 
 ### Requirement: Natural-height bands
 
@@ -491,33 +514,69 @@ keep the first with which the page passes every gate.
 
 ### Requirement: Recorded composition
 
-The manifest SHALL record each page's views and composition: archetype, rail,
-flank, reserved head strip, notes placement, band arrangement, centring and
-tier-label arrangement, and each plate's view, type step, wrapping and row shape; and the page's
-measures: crossings, route defects, bends, empty share and rectangle, blank
-band, hole share and centroid. Every recorded page passes every gate.
+The manifest SHALL record each page's number, files, views and composition:
+archetype, rail, flank, reserved head strip, notes placement, band
+arrangement, centring and tier-label arrangement, and each plate's view, type
+step, wrapping and row shape; and the page's measures: crossings, route
+defects, bends, empty share and rectangle, blank band, hole share and
+centroid.
 
 #### Scenario: A page in the manifest
 
 - **WHEN** an edition is built
 - **THEN** its manifest records every page's composition and measures
-- **AND** no recorded page misses a gate
 
-### Requirement: Unbalanced views refused
+### Requirement: Recorded admission
 
-An edition that no grouping prints on pages passing every gate SHALL be
-refused with `poster_unbalanced`, naming each view that no passing page holds,
-alone or with a neighbour, with every gate its closest page misses, the
-measured value and the limit. A view that no page can lay out at any step or
-wrapping SHALL be refused with `poster_unfittable` and its id. No output SHALL
-be written.
+The manifest SHALL record each page's admission: balanced, when it passes
+every gate, or sparse or draft, with each gate it misses, the measured value
+and the limit.
 
-#### Scenario: A model too sparse for a balanced page
+#### Scenario: A balanced page in the manifest
+
+- **WHEN** a page passes every gate
+- **THEN** its manifest entry records it as balanced and lists no miss
+
+### Requirement: Sparse pages
+
+Each grouping SHALL be printed on its best page that passes every gate. When
+none passes, it SHALL be printed on its closest page that sets every figure at
+the largest type step, as a sparse page: the model has too little to fill and
+balance the page, which no composition changes.
+
+#### Scenario: A model too small to fill a page
 
 - **WHEN** a model of two components and one relation is built
-- **THEN** the build refuses with `poster_unbalanced`
-- **AND** the problem for its view gives each missed gate's measured value and
-  limit
+- **THEN** its view is printed on a sparse page
+- **AND** the manifest records the page as sparse with each missed gate's
+  measured value and limit
+
+### Requirement: Draft pages
+
+At standard quality, a grouping with neither a passing nor a sparse page SHALL
+be printed on its closest page as a draft. An edition SHALL take the fewest
+pages that are not balanced, then the fewest pages.
+
+#### Scenario: A figure that could grow but balances nowhere
+
+- **WHEN** a view of eight tiers of one component each is built
+- **THEN** at showcase quality the build refuses with `poster_unbalanced`
+- **AND** at standard quality its page is printed as a draft that records each
+  gate it misses
+
+### Requirement: Unadmitted editions refused
+
+An edition that no grouping prints on admitted pages SHALL be refused with
+`poster_unbalanced`, naming each view that no admitted page holds, alone or
+with a neighbour, with every gate its closest page misses, the measured value
+and the limit. A view that no page can lay out at any step or wrapping SHALL be
+refused with `poster_unfittable` and its id. A refused build SHALL write no
+output.
+
+#### Scenario: A view no page lays out
+
+- **WHEN** a component's label is one word wider than any card at every step
+- **THEN** the build refuses with `poster_unfittable` and the view's id
 - **AND** no output directory is created
 
 ### Requirement: Balance gate
@@ -615,10 +674,10 @@ explain each style present.
 ### Requirement: Portable deterministic output
 
 Each poster SHALL be written as SVG whose text is converted to glyph outlines
-and whose icons are inline paths, and as PNG at 2400 and 6000 px wide rendered
-from that SVG by the vendored renderer. The publisher SHALL NOT discover host
-fonts. Building the same model with the same publisher version on one platform
-SHALL reproduce identical bytes.
+and whose icons are inline paths, and as PNG at 2400 px wide, or at each width the
+build names up to 6000 px, rendered from that SVG by the vendored renderer.
+The publisher SHALL NOT discover host fonts. Building the same model with the
+same publisher version on one platform SHALL reproduce identical bytes.
 
 #### Scenario: Rendering without fonts
 
@@ -629,3 +688,21 @@ SHALL reproduce identical bytes.
 
 - **WHEN** a model is built twice into two directories on one platform
 - **THEN** every SVG and PNG in one equals the corresponding file in the other
+
+### Requirement: Bundled faces
+
+Text SHALL be set in the bundled faces, each text in the first face of its
+weight's chain that draws it whole: Noto Sans CJK SC, then Noto Sans. A text in
+a right-to-left or shaped script, or with a character no face draws, SHALL be
+refused.
+
+#### Scenario: Letters the CJK face lacks
+
+- **WHEN** a component label is `Łódź`
+- **THEN** the label is set in Noto Sans and the build is not refused
+
+#### Scenario: An Arabic title
+
+- **WHEN** a model's title is written in Arabic
+- **THEN** the build refuses with `glyphs_missing` and the problem
+  `script_unsupported` at `/title`
