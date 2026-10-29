@@ -96,6 +96,10 @@ integrity_gate = "source-integrity"
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/browser-check.mjs",
 ]
+"packages/publisher/renderers/archify/supply/explainer/charts.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/charts.mjs",
+]
 "packages/publisher/renderers/archify/supply/explainer/check.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/check.mjs",
@@ -103,6 +107,18 @@ integrity_gate = "source-integrity"
 "packages/publisher/renderers/archify/supply/explainer/diagrams.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/diagrams.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/diff.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/diff.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/inline.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/inline.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/layout.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/layout.mjs",
 ]
 "packages/publisher/renderers/archify/supply/explainer/page-bundle.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
@@ -112,9 +128,133 @@ integrity_gate = "source-integrity"
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/parse.mjs",
 ]
+"packages/publisher/renderers/archify/supply/explainer/patch.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/patch.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/prepare.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/prepare.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/reader.css" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/reader.css",
+]
+"packages/publisher/renderers/archify/supply/explainer/reader.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/reader.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/render.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/render.mjs",
+]
 "packages/publisher/renderers/archify/supply/explainer/revision.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/revision.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/sources.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/sources.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/validate.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/validate.mjs",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/LICENSE" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/LICENSE",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/README.md" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/README.md",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/3DKXF73K.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/3DKXF73K.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/42UTT654.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/42UTT654.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/DKTLEL5E.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/DKTLEL5E.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/EEIX5ZYH.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/EEIX5ZYH.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/EJ5KOXYD.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/EJ5KOXYD.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/GUJTEFZK.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/GUJTEFZK.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/IZOKQ2GT.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/IZOKQ2GT.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/L4LY553T.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/L4LY553T.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/MSKIJHB2.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/MSKIJHB2.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/RVARI57O.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/RVARI57O.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/UKSIWDDN.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/UKSIWDDN.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/UPTXNAXN.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/UPTXNAXN.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/XTDUIGUI.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/XTDUIGUI.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/YAYTP6L5.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/chunks/YAYTP6L5.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/core.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/core.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/pie.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/diagrams/pie.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/quadrantChart.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/diagrams/quadrantChart.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/radar.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/diagrams/radar.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/sankey.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/diagrams/sankey.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/venn.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/diagrams/venn.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/xychart.js" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/vendor/pele/diagrams/xychart.js",
+]
+"packages/publisher/renderers/archify/supply/explainer/writing.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/explainer/writing.mjs",
 ]
 "packages/publisher/renderers/archify/supply/locales/en.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
@@ -191,6 +331,10 @@ integrity_gate = "source-integrity"
 "packages/publisher/renderers/archify/supply/renderers/erd/render-erd.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/erd/render-erd.mjs",
+]
+"packages/publisher/renderers/archify/supply/renderers/explainer/render-explainer.mjs" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/renderers/explainer/render-explainer.mjs",
 ]
 "packages/publisher/renderers/archify/supply/renderers/lifecycle/render-lifecycle.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
@@ -355,6 +499,10 @@ integrity_gate = "source-integrity"
 "packages/publisher/renderers/archify/supply/schemas/erd.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/erd.schema.json",
+]
+"packages/publisher/renderers/archify/supply/schemas/explainer.schema.json" = [
+  "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
+  "archify/schemas/explainer.schema.json",
 ]
 "packages/publisher/renderers/archify/supply/schemas/lifecycle.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
