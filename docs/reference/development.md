@@ -162,8 +162,9 @@ child.
 ARM64 and Windows ARM64, and `node tools/ci/projection.mjs --write` generates the
 GitLab and GitHub configuration from it. GitLab and GitHub are equal optional
 peers; `npm run check:ci` verifies the projections without contacting either.
-Each job installs Chromium through Playwright, verifies the Raster source
-closure and runs `npm run check`.
+Each job installs Chromium through Playwright, admits it by opening the browser
+test's standalone page alone, verifies the Raster source closure and runs
+`npm run check`, whose suite measures the delivered pages in the browser once.
 
 Linux Docker jobs set `FF_USE_INIT_WITH_DOCKER_EXECUTOR=true` so an init process
 reaps orphaned children, use a registry-verified Playwright image with a non-root

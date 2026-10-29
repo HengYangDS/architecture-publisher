@@ -59,7 +59,7 @@ jobs:
       - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-timeout=300000 tests/map-browser.test.mjs
+          --test-name-pattern=standalone tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -138,7 +138,7 @@ jobs:
       - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-timeout=300000 tests/map-browser.test.mjs
+          --test-name-pattern=standalone tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -212,7 +212,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-timeout=300000 tests/map-browser.test.mjs
+          --test-name-pattern=standalone tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -271,7 +271,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-timeout=300000 tests/map-browser.test.mjs
+          --test-name-pattern=standalone tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -334,7 +334,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-timeout=300000 tests/map-browser.test.mjs
+          --test-name-pattern=standalone tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure
@@ -397,7 +397,7 @@ jobs:
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-          --test-timeout=300000 tests/map-browser.test.mjs
+          --test-name-pattern=standalone tests/map-browser.test.mjs
       - run: mise exec -- node -e
           "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
       - name: Retrieve exact Raster source closure

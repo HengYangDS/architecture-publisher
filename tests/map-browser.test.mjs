@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
@@ -25,6 +27,19 @@ const labelSizes = (/** @type {Element[]} */ labels) =>
     const matrix = /** @type {SVGGraphicsElement} */ (element).getScreenCTM();
     return (matrix?.a ?? 0) * Number.parseFloat(element.getAttribute("font-size") ?? "0");
   });
+
+// CI runs this test alone, right after installing the browser, to admit it
+// before the suite.
+test("the CI browser opens a standalone page", async (t) => {
+  const browser = await launch(t);
+  if (!browser) return;
+  t.after(() => browser.close());
+  const file = path.join(await temporaryDirectory(t, "archpub-browser-"), "index.html");
+  await fs.writeFile(file, "<!doctype html><title>archpub</title><p>ready</p>\n");
+  const page = await browser.newPage();
+  await page.goto(pathToFileURL(file).href);
+  assert.equal(await page.textContent("p"), "ready");
+});
 
 // Building two pages measures a few hundred candidate diagrams, each through
 // Archify's own command line in processes of its own; on a hosted Windows

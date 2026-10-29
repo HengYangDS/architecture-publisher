@@ -235,18 +235,38 @@ function resided(document, id) {
     }));
 }
 
+/**
+ * The measures of the documents measured in this process, by their content.
+ * The vendored Archify is verified and answers one document one way, so a
+ * candidate that another view, repair or build of this process has measured
+ * is not measured again.
+ */
+const KNOWN = new Map();
+
 /** Measure documents on Archify's routes, a few at a time, each in its own file under `directory`. */
 function measurer(directory) {
   let written = 0;
+  /** @param {any} document */
+  const measureOnce = (document) => {
+    const key = JSON.stringify(document);
+    if (!KNOWN.has(key)) {
+      const file = path.join(directory, `${written++}.architecture.json`);
+      KNOWN.set(
+        key,
+        fs
+          .writeFile(file, `${JSON.stringify(document, null, 2)}\n`)
+          .then(() => measure(file, document)),
+      );
+    }
+    return KNOWN.get(key);
+  };
   return async (documents) => {
-    const files = documents.map(() => path.join(directory, `${written++}.architecture.json`));
     const measured = new Array(documents.length);
     let next = 0;
     const worker = async () => {
       while (next < documents.length) {
         const index = next++;
-        await fs.writeFile(files[index], `${JSON.stringify(documents[index], null, 2)}\n`);
-        measured[index] = await measure(files[index], documents[index]);
+        measured[index] = await measureOnce(documents[index]);
       }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));

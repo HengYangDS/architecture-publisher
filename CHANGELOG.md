@@ -82,6 +82,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 - Posters render on Windows: the raster renderer and the typefaces load through file URLs.
 - LikeC4 errors name their file relative to the workspace on Windows too.
+- The page chooser measures each candidate diagram once per process, and CI admits the browser by opening one
+  standalone page instead of building the browser test's pages twice, which hosted Windows runs had spent their
+  time limit on.
 - The raster rebuild journey renders a poster the current publisher composes and extracts the frozen source where
   Windows tar can.
 - Locked CI Rust installation reconciles the required `cargo`, `rustc` and host standard library components in

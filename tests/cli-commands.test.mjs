@@ -158,7 +158,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
 });
 
 test("the archpub executable prints one result and sets its exit status", async (t) => {
-  const model = await writeModel(t, pageModel());
+  const model = await writeModel(t, minimalModel());
   const passed = spawnSync(process.execPath, [MAIN, "check", model, "--json"], {
     encoding: "utf8",
   });
