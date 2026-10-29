@@ -15,7 +15,7 @@
     "supplies/",
     "README.md"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=22.13"
   }

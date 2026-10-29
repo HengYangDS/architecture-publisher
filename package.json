@@ -24,7 +24,7 @@
     "check:ci": "node tools/ci/projection.mjs --check",
     "format": "prettier --config .config/checks/prettier/prettier.toml --ignore-path .gitignore --ignore-path .config/checks/prettier/prettierignore --write . && taplo format --config .config/checks/taplo/taplo.toml"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@fission-ai/openspec": "1.15.0",

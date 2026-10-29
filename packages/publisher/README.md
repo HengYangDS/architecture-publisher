@@ -29,4 +29,5 @@ other failure.
 
 The package needs Node.js 22.13 or later and has no runtime npm dependencies;
 fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
-with their licenses and digests.
+with their licenses and digests. Architecture Publisher itself is released
+under the [MIT License](LICENSE).

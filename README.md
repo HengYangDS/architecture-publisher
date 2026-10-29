@@ -110,3 +110,9 @@ Markdown, OpenSpec, the test suite with coverage of at least 95 percent in
 every dimension and package validation. `VERSION` is the only maintained
 product version; after changing it, run `node tools/release/version.mjs --write`.
 The [changelog](CHANGELOG.md) records each release.
+
+## License
+
+Architecture Publisher is released under the [MIT License](LICENSE). The
+bundled fonts, icons, renderer, Archify and LikeC4 parser keep their own
+licenses, which ship beside them.
