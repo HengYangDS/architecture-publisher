@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 
 const MAXIMUM_SOURCE_BYTES = 64 * 1024 * 1024;
@@ -18,7 +19,7 @@ function git(repo, args, input) {
   const result = spawnSync("git", ["--no-replace-objects", "-C", repo, ...args], {
     input,
     maxBuffer: MAXIMUM_SOURCE_BYTES * 2,
-    env: { ...process.env, ...GIT_ENVIRONMENT },
+    env: childEnvironment(GIT_ENVIRONMENT),
   });
   if (result.error) refuse("source_git_unavailable", `Cannot run Git: ${result.error.message}`);
   return result;

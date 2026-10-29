@@ -25,16 +25,20 @@ remain pre-release contracts and may contain incompatible changes.
 - **Breaking:** Posters are 16:9 pages of 2400 × 1350 px with no text below 14 px, rasterized at 2400 and 6000 px.
   A page holds one to three views as plates under a masthead, beside a rail of text, or with its text set in the
   corners its figure leaves free. Cards are as large as their text, a sparse view is set at a larger type step of up
-  to 1.8 times, and the edition is grouped into the fewest pages that miss the balance gates for the largest empty
-  area, fill and centre of mass; a page that misses one is still printed and records the miss. Channels take the
-  routing with the fewest crossings. Per-relation evidence moves to the manifest.
+  to 1.8 times, and the edition is grouped into the fewest pages that pass the balance gates for the largest empty
+  area, empty bands, fill and centre of mass and draw their wires without a crossing or a route defect; a view no
+  such page holds is refused with `poster_unbalanced` and its closest page's measures. Per-relation evidence moves to
+  the manifest.
 - **Breaking:** The interactive medium is one vendored, unmodified Archify 3.2.0 explainer page that answers the
   model's question view by view: one panel per view with its native architecture diagram, which opens Archify's full
   viewer, and steps that light each component and cite its first source at the pinned revision. Each diagram is
-  chosen on Archify's own routes from three widths and three row wrappings, with Archify planning every connection
-  side when the grid's sides cross, and passes Archify's showcase checks, or the build is refused with `map_refused`
-  and Archify's findings. Sources Archify will not cite, such as files under a secrets directory, are withheld and
+  chosen on Archify's own routes from three widths and three row wrappings, never one whose routes run side by side;
+  when the grid's sides cross, Archify plans every connection side, and connections that still cross take other
+  sides. A card shows a detail whole or not at all, and the steps carry every detail. The diagram passes Archify's
+  showcase checks, or the build is refused with a `page_*` code and Archify's findings. Sources Archify will not cite, such as files under a secrets directory, are withheld and
   recorded in the manifest.
+- A failure that is not a refusal or usage error exits with status 3 and an `internal_error` JSON body. Git and
+  Archify run with only the caller's path, home and temporary-directory variables.
 - Deliveries are staged and byte-reproducible. The manifest keeps each poster page's measures, each diagram's route
   measures and the details, statuses and sources of every component and relation. `archpub accept` records a reviewer against the manifest digest, and
   `archpub publish` copies only an accepted delivery and never replaces a different published one.

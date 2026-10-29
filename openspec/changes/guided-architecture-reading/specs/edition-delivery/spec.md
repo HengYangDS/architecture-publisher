@@ -64,7 +64,8 @@ and removed.
 
 Every command SHALL accept `--json` and then print exactly one JSON object with
 `ok` and either its outputs or its diagnostics. The exit status SHALL be 0 on
-success, 1 for a refused input and 2 for a usage error.
+success, 1 for a refused input, 2 for a usage error and 3 for any other
+failure, whose JSON object SHALL carry the code `internal_error` and a message.
 
 #### Scenario: A refused build with JSON output
 
@@ -72,6 +73,26 @@ success, 1 for a refused input and 2 for a usage error.
 - **THEN** standard output holds one JSON object with `ok: false` and the
   diagnostics
 - **AND** the exit status is 1
+
+#### Scenario: A manifest that cannot be read
+
+- **WHEN** `archpub accept --json` meets a `manifest.json` that is a directory
+- **THEN** standard output holds one JSON object with `ok: false` and the code
+  `internal_error`
+- **AND** the exit status is 3
+
+### Requirement: The caller's environment
+
+Git and Archify SHALL run with only the caller's `PATH`, `PATHEXT`, `HOME`,
+`USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot` variables, so that no
+other variable of the caller changes what they read or decide.
+
+#### Scenario: A caller's Git and Archify variables
+
+- **WHEN** the caller sets `GIT_DIR` to another repository and
+  `ARCHIFY_EXPLAINER_PREPARED` to a missing file
+- **THEN** sources are read from the checkout `--repo` names
+- **AND** the page is delivered byte for byte as without those variables
 
 ### Requirement: One acceptance record
 

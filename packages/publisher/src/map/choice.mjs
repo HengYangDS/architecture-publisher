@@ -25,6 +25,38 @@ const REPAIR = Object.freeze({ starts: 3, rounds: 2, budget: 64 });
 const OUTWARD = Object.freeze({ top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] });
 /** Candidates Archify measures at once. */
 const CONCURRENCY = 4;
+/** The route measures the choice ranks by; an Archify answer that passes carries each one. */
+const MEASURES = Object.freeze([
+  "properCrossings",
+  "resolvedCrossovers",
+  "routesOverSuggestedBends",
+  "maxBends",
+  "maxStretch",
+  "ambiguousCorridors",
+]);
+
+/**
+ * The route measures of a candidate that Archify passed. A measure Archify no
+ * longer reports refuses the view, so it is never read as zero.
+ * @param {any} composition Archify's composition verdict
+ */
+export function routeMetrics(composition) {
+  const metrics = composition.metrics ?? {};
+  const missing = MEASURES.filter((name) => typeof metrics[name] !== "number");
+  if (missing.length)
+    refuse(
+      "page_measures_missing",
+      `Archify's answer lacks the route measures ${missing.join(", ")}; ` +
+        "the vendored Archify does not match this publisher.",
+    );
+  return {
+    crossings: metrics.properCrossings + metrics.resolvedCrossovers,
+    routesOverTwoBends: metrics.routesOverSuggestedBends,
+    maxBends: metrics.maxBends,
+    maxStretch: metrics.maxStretch,
+    corridors: metrics.ambiguousCorridors,
+  };
+}
 
 /**
  * Archify's showcase verdict and route metrics for one candidate document, and
@@ -40,24 +72,19 @@ async function measure(file) {
     "showcase",
   ]);
   const composition = answer.composition ?? {};
-  const metrics = composition.metrics ?? {};
+  const passes =
+    answer.ok === true &&
+    (answer.checks ?? []).every(({ ok }) => ok) &&
+    composition.status === "pass" &&
+    !composition.summary?.errors &&
+    !composition.summary?.warnings;
   return {
     file,
-    passes:
-      answer.ok === true &&
-      (answer.checks ?? []).every(({ ok }) => ok) &&
-      composition.status === "pass" &&
-      !composition.summary?.errors &&
-      !composition.summary?.warnings,
+    passes,
     diagnostics: answer.diagnostics ?? composition.issues ?? [],
     pairs: (composition.routeReview?.crossings ?? []).map(({ left, right }) => [left.id, right.id]),
-    metrics: {
-      crossings: (metrics.properCrossings ?? 0) + (metrics.resolvedCrossovers ?? 0),
-      routesOverTwoBends: metrics.routesOverSuggestedBends ?? 0,
-      maxBends: metrics.maxBends ?? 0,
-      maxStretch: metrics.maxStretch ?? 1,
-      corridors: metrics.ambiguousCorridors ?? 0,
-    },
+    // Only a candidate that passes is ranked.
+    metrics: passes ? routeMetrics(composition) : null,
   };
 }
 
@@ -76,7 +103,13 @@ async function tangles(file) {
     "showcase",
     "--layout-json",
   ]);
-  const segments = (answer.connections ?? []).flatMap(({ points }, owner) =>
+  if (!Array.isArray(answer.connections))
+    refuse(
+      "page_measures_missing",
+      "Archify's layout lacks the routes of its connections; " +
+        "the vendored Archify does not match this publisher.",
+    );
+  const segments = answer.connections.flatMap(({ points }, owner) =>
     points.slice(1).map((point, index) => ({ owner, a: points[index], b: point })),
   );
   const along = (segment, axis) => [segment.a[axis], segment.b[axis]].sort((p, q) => p - q);
@@ -265,7 +298,7 @@ export async function chooseDiagram(model, view) {
   );
   if (!candidates.length)
     refuse(
-      "map_shape_refused",
+      "page_shape_refused",
       `View ${view.id} has no diagram at least ${SHAPE.least} times as wide as it is high. ` +
         "Split the view or declare fewer tiers.",
     );
@@ -292,7 +325,7 @@ export async function chooseDiagram(model, view) {
     }
     if (!chosen)
       return refuse(
-        "map_refused",
+        "page_diagram_refused",
         `View ${view.id} has no diagram that passes Archify's showcase checks.`,
         sided[0].diagnostics.slice(0, 20).map((issue) => ({
           code: String(issue.code ?? "archify"),

@@ -49,6 +49,20 @@ test("refusals exit with status 1 and list each problem", async () => {
   assert.match(text.output, /\n {2}\/relations\/0 /u);
 });
 
+test("a failure that is not a refusal exits with status 3 and a JSON body", async (t) => {
+  // A manifest that is a directory cannot be read, which is not a missing manifest.
+  const root = await temporaryDirectory("archpub-cli-");
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  await fs.mkdir(path.join(root, "manifest.json"));
+  const { exitCode, body } = await json(["accept", root, "--reviewer", "Reviewer"]);
+  assert.equal(exitCode, 3);
+  assert.deepEqual([body.ok, body.code], [false, "internal_error"]);
+  assert.match(body.message, /EISDIR/u);
+  const text = await runCli(["accept", root, "--reviewer", "Reviewer"]);
+  assert.equal(text.exitCode, 3);
+  assert.match(text.output, /^Internal error: /u);
+});
+
 test("check, build, accept, publish and import run end to end", async (t) => {
   const root = await temporaryDirectory("archpub-cli-");
   t.after(() => fs.rm(root, { recursive: true, force: true }));

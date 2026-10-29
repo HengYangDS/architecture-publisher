@@ -183,18 +183,29 @@ export async function explainerPage(model, views) {
         "off",
       ]);
       if (answer.ok === true) return { ...page, withheld: [...withheld].sort() };
-      const sensitive = (answer.diagnostics ?? []).flatMap(({ code, subject }) => {
-        const index = /^\/sources\/(\d+)\//u.exec(subject?.path ?? "")?.[1];
-        return code === "explainer/secret-path" && index !== undefined
-          ? [cited[Number(index)]]
-          : [];
-      });
+      // Each pass withholds at least one more source or refuses, so the loop ends.
+      const sensitive = sensitiveSources(answer, cited).filter((source) => !withheld.has(source));
       if (!sensitive.length) refusePage(answer);
       for (const source of sensitive) withheld.add(source);
     }
   } finally {
     await fs.rm(directory, { recursive: true, force: true });
   }
+}
+
+/**
+ * The sources a page cites that Archify will not cite, named by its findings
+ * through their position among the cited sources. A finding past the cited
+ * sources names none.
+ * @param {any} answer Archify's validation answer
+ * @param {string[]} cited the page's cited source ids, in citation order
+ */
+export function sensitiveSources(answer, cited) {
+  return (answer.diagnostics ?? []).flatMap(({ code, subject }) => {
+    const index = /^\/sources\/(\d+)\//u.exec(subject?.path ?? "")?.[1];
+    const source = index === undefined ? undefined : cited[Number(index)];
+    return code === "explainer/secret-path" && source !== undefined ? [source] : [];
+  });
 }
 
 /** Refuse a page with Archify's diagnostics. */

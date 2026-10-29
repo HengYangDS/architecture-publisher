@@ -13,14 +13,13 @@ import {
   deliverExplainer,
   explainerDraft,
   explainerPage,
+  sensitiveSources,
 } from "../packages/publisher/src/map/explainer.mjs";
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import {
   AIGW_MODEL,
   BIG_BANK_MODEL,
-  BROWSER_USE_MODEL,
-  CONTEXT_MODE_MODEL,
   graphModel,
   minimalModel,
   temporaryDirectory,
@@ -212,7 +211,7 @@ test("labels longer than the widest card are refused", async () => {
   const view = await firstView(model);
   assert.throws(
     () => diagramCandidates(model, view),
-    (error) => error.code === "map_label_too_long" && error.problems.length === 6,
+    (error) => error.code === "page_label_too_long" && error.problems.length === 6,
   );
 });
 
@@ -274,7 +273,7 @@ test("a view whose relations the grid cannot wire is refused as the view's layou
   assert.throws(
     () => diagramCandidates(model, view),
     (error) =>
-      error.code === "map_layout_refused" &&
+      error.code === "page_layout_refused" &&
       error.problems.length === 16 &&
       error.problems.every(({ code }) => code === "layout_channel_unroutable"),
   );
@@ -347,46 +346,6 @@ test("a relation that passes cards in its row leaves its sides to Archify as wel
   });
   const chosen = await chooseDiagram(model, view);
   assert.deepEqual([chosen.metrics.crossings, chosen.metrics.corridors], [0, 0]);
-});
-
-test("Archify chooses every side when the grid's sides cross on its routes", async () => {
-  const { model } = await loadModel(BROWSER_USE_MODEL);
-  const action = (await viewsOf(model)).find(({ id }) => id === "action");
-  const chosen = await chooseDiagram(model, /** @type {any} */ (action));
-  assert.equal(chosen.sides, "archify");
-  assert.deepEqual([chosen.metrics.crossings, chosen.metrics.tangles], [0, 0]);
-  assert.ok(chosen.candidates > diagramCandidates(model, /** @type {any} */ (action)).length);
-});
-
-test("a diagram whose routes run side by side is not chosen", async () => {
-  // On Archify's routes the Big Bank tiered candidate that crosses least runs
-  // the e-mail system's reply to the customer 2 px beside two other routes.
-  const { model } = await loadModel(BIG_BANK_MODEL);
-  const [tiered] = await viewsOf(model);
-  const chosen = await chooseDiagram(model, tiered);
-  assert.equal(chosen.metrics.tangles, 0);
-});
-
-test("the connections that cross take other sides when that clears their crossings", async () => {
-  const { model } = await loadModel(CONTEXT_MODE_MODEL);
-  const retrieval = (await viewsOf(model)).find(({ id }) => id === "retrieval");
-  const chosen = await chooseDiagram(model, /** @type {any} */ (retrieval));
-  assert.deepEqual([chosen.metrics.crossings, chosen.metrics.tangles], [0, 0]);
-  assert.ok(chosen.resided.length > 0);
-});
-
-test("a dense view is drawn with its crossings measured, not refused", async () => {
-  // Three callers that each use the same three services: two rows of three
-  // cannot draw these nine relations without crossings.
-  const model = validateModel(
-    graphModel(
-      6,
-      [1, 2, 3].flatMap((from) => [4, 5, 6].map((to) => [from, to])),
-    ),
-  );
-  const chosen = await chooseDiagram(model, await firstView(model));
-  assert.deepEqual(chosen.rows, [3, 3]);
-  assert.ok(chosen.metrics.crossings > 0, `${chosen.metrics.crossings} crossings`);
 });
 
 test("the page draft answers the model's question view by view and cites sources at the revision", async () => {
@@ -482,13 +441,35 @@ test("a page withholds a source Archify will not cite and cites the component's 
   );
 });
 
+test("only a finding that names a source the draft cites withholds it", () => {
+  const finding = (index) => ({
+    code: "explainer/secret-path",
+    subject: { path: `/sources/${index}/path` },
+  });
+  const other = { code: "explainer/other", subject: { path: "/sources/0/path" } };
+  assert.deepEqual(sensitiveSources({ diagnostics: [finding(0), finding(5), other] }, ["secret"]), [
+    "secret",
+  ]);
+  // A finding past the cited sources names none, so the page is refused rather than retried.
+  assert.deepEqual(sensitiveSources({ diagnostics: [finding(5)] }, ["secret"]), []);
+});
+
 test("native Archify delivers the page deterministically and leaves only index.html", async (t) => {
   const { page } = await shopPageOnce();
   const outputs = [];
-  for (let attempt = 0; attempt < 2; attempt += 1) {
+  // The second delivery runs under the caller's Archify variables, which would
+  // hand Archify a prepared page that does not exist and another quality.
+  const callers = [
+    {},
+    { ARCHIFY_EXPLAINER_PREPARED: "missing.json", ARCHIFY_QUALITY_PROFILE: "standard" },
+  ];
+  for (const variables of callers) {
     const directory = await temporaryDirectory("archpub-page-");
     t.after(() => fs.rm(directory, { recursive: true, force: true }));
-    const delivered = await deliverExplainer(page, directory);
+    Object.assign(process.env, variables);
+    const delivered = await deliverExplainer(page, directory).finally(() => {
+      for (const name of Object.keys(variables)) delete process.env[name];
+    });
     assert.equal(delivered.output, path.join(directory, "index.html"));
     assert.match(delivered.supplySha256, /^[0-9a-f]{64}$/u);
     assert.equal(delivered.receipt.quality, "showcase");

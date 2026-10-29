@@ -104,3 +104,17 @@ test("verification needs a known revision and a working Git", async (t) => {
     process.env.PATH = saved;
   }
 });
+
+test("the caller's Git variables cannot point binding at another repository", async (t) => {
+  const { root, revision } = await repository(t);
+  const elsewhere = await repository(t);
+  const model = sourcedModel(revision, { main: { path: "src/main.mjs", sha256: sha256(MAIN) } });
+  const saved = process.env.GIT_DIR;
+  process.env.GIT_DIR = path.join(elsewhere.root, ".git");
+  try {
+    assert.equal(bindSources(model, root).state, "verified");
+  } finally {
+    if (saved === undefined) delete process.env.GIT_DIR;
+    else process.env.GIT_DIR = saved;
+  }
+});

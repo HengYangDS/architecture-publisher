@@ -13,11 +13,17 @@ async function verifyDelivery(directory) {
   let bytes;
   try {
     bytes = await fs.readFile(path.join(directory, MANIFEST));
-  } catch {
+  } catch (error) {
+    if (/** @type {any} */ (error).code !== "ENOENT") throw error;
     refuse("delivery_manifest_missing", `${directory} has no ${MANIFEST}.`);
   }
-  const manifest = JSON.parse(bytes.toString("utf8"));
-  if (manifest.format !== DELIVERY_FORMAT)
+  let manifest;
+  try {
+    manifest = JSON.parse(bytes.toString("utf8"));
+  } catch {
+    refuse("delivery_manifest_invalid", `${MANIFEST} is not JSON.`);
+  }
+  if (manifest?.format !== DELIVERY_FORMAT)
     refuse("delivery_manifest_invalid", `${MANIFEST} is not an Architecture Publisher delivery.`);
   const present = await digestTree(directory, new Set([MANIFEST, ACCEPTANCE]));
   if (JSON.stringify(present) !== JSON.stringify(manifest.artifacts))
@@ -63,7 +69,8 @@ export async function acceptDelivery(directory, { reviewer, note = null }) {
   };
   try {
     await fs.writeFile(file, `${JSON.stringify(record, null, 2)}\n`, { flag: "wx" });
-  } catch {
+  } catch (error) {
+    if (/** @type {any} */ (error).code !== "EEXIST") throw error;
     refuse("acceptance_exists", `${file} already exists.`);
   }
   return { directory: path.resolve(directory), manifest: manifestSha256, reviewer };
@@ -78,14 +85,21 @@ export async function acceptDelivery(directory, { reviewer, note = null }) {
  */
 export async function publishDelivery(directory, root, options = {}) {
   const { manifest, manifestSha256 } = await verifyDelivery(directory);
-  let acceptance;
+  let text;
   try {
-    acceptance = JSON.parse(await fs.readFile(path.join(directory, ACCEPTANCE), "utf8"));
-  } catch {
+    text = await fs.readFile(path.join(directory, ACCEPTANCE), "utf8");
+  } catch (error) {
+    if (/** @type {any} */ (error).code !== "ENOENT") throw error;
     refuse(
       "publish_unaccepted",
       "The delivery has no acceptance record; run archpub accept first.",
     );
+  }
+  let acceptance;
+  try {
+    acceptance = JSON.parse(text);
+  } catch {
+    refuse("publish_unaccepted", `${ACCEPTANCE} is not JSON.`);
   }
   if (acceptance.manifest !== manifestSha256)
     refuse("publish_unaccepted", "The acceptance record names another manifest.");
@@ -101,7 +115,8 @@ export async function publishDelivery(directory, root, options = {}) {
       refuse("publish_conflict", `${target} already holds a different delivery.`);
     return { target, version, copied: false };
   } catch (error) {
-    if (/** @type {any} */ (error).code === "publish_conflict") throw error;
+    // Only a version that does not exist yet is copied.
+    if (/** @type {any} */ (error).code !== "ENOENT") throw error;
   }
   await fs.mkdir(path.dirname(target), { recursive: true });
   const staging = await fs.mkdtemp(path.join(path.dirname(target), `.${version}.partial-`));

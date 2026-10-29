@@ -27,7 +27,10 @@ npm install --global --ignore-scripts build/artifacts/architecture-publisher-<ve
 The package needs Node.js 22.13 or later and has no runtime npm dependencies:
 fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
 with their digests, so a build downloads nothing. Git is needed only to verify
-sources with `--repo`.
+sources with `--repo`. Git and Archify run with only the caller's `PATH`,
+`PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`, so
+no other variable, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what
+they read or decide.
 
 ## Commands
 
@@ -50,10 +53,12 @@ archpub publish <delivery> --to <root> [--version <name>] [--json]
 - `accept` records a named reviewer's acceptance of an unchanged delivery.
 - `publish` copies an accepted delivery to `<root>/<model id>/<version>/`.
 
-Exit status 0 means success, 1 a refused input and 2 a usage error. With
-`--json`, the command prints one JSON object: `{ "ok": true, ... }` with the
-result, or `{ "ok": false, "code", "message", "problems" }`, where each problem
-has a `code`, a JSON `path` into the model and a `message`. Without `--json`,
+Exit status 0 means success, 1 a refused input, 2 a usage error and 3 an
+internal error, any other failure, such as a file the command cannot read or
+write. With `--json`, the command prints one JSON object: `{ "ok": true, ... }`
+with the result, `{ "ok": false, "code", "message", "problems" }` for a
+refusal, where each problem has a `code`, a JSON `path` into the model and a
+`message`, or `{ "ok": false, "code": "internal_error", "message" }`. Without `--json`,
 the same result is one line of text, and a refusal lists each problem on its own
 line.
 
@@ -187,8 +192,10 @@ refused view carry paths under `/views/<id>`.
 | `layout_channel_unroutable`, `layout_untidy`                                          | Relations between two rows cannot be drawn without an overlap.              |
 | `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.           |
 | `poster_unfittable`                                                                   | A view cannot be laid out on any page at any type step or row wrapping.     |
-| `map_label_too_long`, `map_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.  |
-| `map_layout_refused`, `map_refused`                                                   | A view's diagram cannot be wired, or none passes Archify's showcase checks. |
+| `poster_unbalanced`                                                                   | No page holding a view passes the balance and route gates.                  |
+| `page_label_too_long`, `page_shape_refused`                                           | A label exceeds the widest diagram card, or no diagram has a usable shape.  |
+| `page_layout_refused`, `page_diagram_refused`                                         | A view's diagram cannot be wired, or none passes Archify's showcase checks. |
+| `page_measures_missing`                                                               | Archify's answer lacks a route measure; the bundled Archify is unexpected.  |
 | `page_refused`                                                                        | Archify did not validate or deliver the page.                               |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.           |
 | `delivery_exists`                                                                     | `--out` already exists.                                                     |

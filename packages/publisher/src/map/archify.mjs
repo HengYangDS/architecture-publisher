@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
+import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 import { layoutView } from "../layout/grid.mjs";
 import { viewRows, wrapRows } from "../layout/rows.mjs";
@@ -278,11 +279,11 @@ export function diagramCandidates(model, view) {
   const long = view.components.filter(({ label }) => labelWidth(label) > CARD.maxWidth);
   if (long.length)
     refuse(
-      "map_label_too_long",
+      "page_label_too_long",
       `View ${view.id}: some component labels are longer than the widest diagram card, ` +
         `${CARD.maxWidth} units at Archify's label size. Shorten them.`,
       long.map(({ id, label }) => ({
-        code: "map_label_too_long",
+        code: "page_label_too_long",
         path: `/components/${id}`,
         message: label,
       })),
@@ -314,7 +315,7 @@ export function diagramCandidates(model, view) {
     }
   if (out.length) return out;
   return refuse(
-    "map_layout_refused",
+    "page_layout_refused",
     `View ${view.id} cannot be drawn in a diagram without overlaps at its 14 px floor. ` +
       "Group the components so that related ones share adjacent rows, or shorten the relation labels concerned.",
     refusal.problems ?? [],
@@ -333,7 +334,7 @@ export async function runArchify(args) {
       process.execPath,
       [path.join(supply.root, "bin", "archify.mjs"), ...args],
       {
-        env: { ...process.env, ARCHIFY_UPDATE_CHECK_DISABLED: "1" },
+        env: childEnvironment({ ARCHIFY_UPDATE_CHECK_DISABLED: "1" }),
         maxBuffer: 16 * 1024 * 1024,
         timeout: 300_000,
       },

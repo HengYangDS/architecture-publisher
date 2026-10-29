@@ -88,7 +88,8 @@ const COMMANDS = {
       });
       const { writeFile } = await import("node:fs/promises");
       await writeFile(out, `${JSON.stringify(result.model, null, 2)}\n`, { flag: "wx" }).catch(
-        () => {
+        (error) => {
+          if (error.code !== "EEXIST") throw error;
           throw new Refusal("import_output_exists", `${out} already exists.`);
         },
       );
@@ -105,7 +106,9 @@ const COMMANDS = {
 };
 
 /**
- * Run one command. Exit status 0 means success, 1 a refused input, 2 a usage error.
+ * Run one command. Exit status 0 means success, 1 a refused input, 2 a usage
+ * error and 3 an internal error, any other failure, such as a file the command
+ * cannot read or write.
  * @param {string[]} args
  * @returns {Promise<{ exitCode: number, output: string }>}
  */
@@ -142,6 +145,12 @@ export async function runCli(args) {
       const text = `${error.message}\n${error.problems.map((problem) => `  ${problem.path ?? ""} ${problem.message}`.trimEnd() + "\n").join("")}`;
       return { exitCode: 1, output: json ? `${JSON.stringify(body)}\n` : text };
     }
-    throw error;
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      exitCode: 3,
+      output: json
+        ? `${JSON.stringify({ ok: false, code: "internal_error", message })}\n`
+        : `Internal error: ${message}\n`,
+    };
   }
 }

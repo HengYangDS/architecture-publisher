@@ -54,7 +54,8 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   );
   for (const diagram of manifest.page.diagrams) {
     assert.ok(["grid", "archify"].includes(diagram.sides), diagram.view);
-    assert.equal(diagram.metrics.corridors, 0, diagram.view);
+    assert.ok(Array.isArray(diagram.resided), diagram.view);
+    assert.deepEqual([diagram.metrics.corridors, diagram.metrics.tangles], [0, 0], diagram.view);
   }
   assert.deepEqual(manifest.page.withheld, []);
   // The evidence the drawings leave out stays in the manifest.
@@ -167,6 +168,10 @@ test("deliveries need their own manifest, acceptance and plain files", async (t)
   const root = await workspace(t);
   await assert.rejects(acceptDelivery(root, { reviewer: "Reviewer" }), {
     code: "delivery_manifest_missing",
+  });
+  await fs.writeFile(path.join(root, "manifest.json"), "{");
+  await assert.rejects(acceptDelivery(root, { reviewer: "Reviewer" }), {
+    code: "delivery_manifest_invalid",
   });
   await fs.writeFile(path.join(root, "manifest.json"), JSON.stringify({ format: "other" }));
   await assert.rejects(acceptDelivery(root, { reviewer: "Reviewer" }), {

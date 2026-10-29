@@ -89,6 +89,17 @@ with Archify's findings. The manifest SHALL record the choice and its metrics.
 - **WHEN** the AIGW overview is delivered
 - **THEN** its diagram has no route crossing and no route over two bends
 
+### Requirement: Archify's route measures
+
+A candidate that passes Archify's checks SHALL carry each route measure the
+choice ranks by; an answer without one SHALL refuse the view rather than read
+the measure as zero.
+
+#### Scenario: A renamed measure
+
+- **WHEN** Archify passes a candidate without its maximum stretch
+- **THEN** the view is refused with `page_measures_missing`
+
 ### Requirement: Routes side by side
 
 A candidate whose routes run side by side, two routes closer than 8 px along
@@ -160,13 +171,21 @@ revision.
 
 A source that Archify will not cite on a page, such as a file under a
 `secrets` directory, SHALL be withheld from the page and recorded as withheld
-in the manifest, and a component that cites it SHALL cite its next source.
+in the manifest, and a component that cites it SHALL cite its next source. A
+page whose Archify findings name no further source to withhold SHALL be refused
+with those findings.
 
 #### Scenario: A source in a sensitive file class
 
 - **WHEN** a component's first source lies under `internal/secrets/`
 - **THEN** the page cites the component's next source, or none
 - **AND** the manifest lists the first source as withheld
+
+#### Scenario: A finding that names no cited source
+
+- **WHEN** Archify's finding names a source position past the sources the page
+  cites
+- **THEN** no source is withheld and the page is refused with the finding
 
 ### Requirement: Desktop reading floor
 
