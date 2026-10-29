@@ -11,8 +11,6 @@ ignores:
   - tests/fixtures/**
   - "**/supply/**"
   - packages/publisher/supplies/**
-customRules:
-  - ../../../tools/checks/markdown-budget.mjs
 noInlineConfig: true
 config:
   default: true

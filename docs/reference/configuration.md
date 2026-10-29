@@ -21,28 +21,30 @@ roles, not a duplicate quality or formatting implementation.
 | `.config/checks/markdownlint-cli2/.markdownlint-cli2.yaml`   | `npm run check:docs`                                                 |
 | `.config/checks/prettier/prettier.toml` and `prettierignore` | `npm run format` and `npm run check:format`                          |
 | `.config/checks/taplo/taplo.toml`                            | Native TOML formatting in the same fix and check commands            |
-| `.config/checks/file-budget/policy.toml`                     | Native lint and the owned Markdown budget rule                       |
+| `.config/checks/file-budget/policy.toml`                     | Native lint's code file budget                                       |
 | `.config/checks/format-selection/policy.toml`                | Native ETHOS carrier selection for three immutable research captures |
 | `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                                |
 | `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                      |
 
-The file budget is 512 counted lines. ESLint excludes blank and comment-only
-lines; the existing Markdown budget rule counts nonempty physical lines.
-Neither rule owns Markdown spacing: the original Prettier formatter does.
+The code file budget is 512 counted lines; ESLint excludes blank and
+comment-only lines. The Markdown ceiling of 512 nonempty lines is the ETHOS
+repository paradigm's, which `ethos status` measures in every governed
+repository; no binding here restates it. Neither owns Markdown spacing: the
+original Prettier formatter does.
 
 Policy moves must qualify their actual consumers. Knip, c8 and Markdownlint
-file selection remains repository-relative. Markdownlint loads its owned rule
-relative to its configuration file. Prettier ignore paths are relative to its
-ignore carrier, so relocation updates them without widening input selection.
+file selection remains repository-relative. Prettier ignore paths are relative
+to its ignore carrier, so relocation updates them without widening input
+selection.
 No forwarding file, private parser or host-specific path is needed.
 
 The format-selection policy declares three dated research SVG captures under
 `docs/research/evidence/` as immutable carriers that no formatter rewrites. They
 are history, not product fixtures. No wildcard excludes future figures.
 
-Knip's native Markdownlint plugin selects the same relocated configuration and
-resolves its custom rule. Its default analysis covers development tools; strict
-production analysis selects the shipped workspaces, not the private root workspace.
+Knip's native Markdownlint plugin selects the same relocated configuration. Its
+default analysis covers development tools; strict production analysis selects
+the shipped workspaces, not the private root workspace.
 Non-npm binaries listed by Knip are selected and checked through the native Mise
 toolchain. Module-direction checks inventory configuration separately as resources:
 check tools may read check policy, while production modules cannot acquire it.
