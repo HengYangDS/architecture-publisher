@@ -15,9 +15,10 @@ remain pre-release contracts and may contain incompatible changes.
   than 400 px apart across a third relation's wire, read as one line unless both leave or both enter one card, and
   two wires closer than 40 px that each turn inside the other's length hook past each other; both are route defects
   the channels avoid. A card's one port stands 40 px off its centre where that centre lines up with a wire into the
-  card across the channel that its own wire does not enter. The ETHOS overview, intent and hook posters, the
-  context-mode retrieval poster and the self model's grid layout poster change; the grid layout prints its five
-  mechanisms in one row on a sparse page.
+  card across the channel that its own wire does not enter, and a figure whose channels turn no wire beside another
+  card than its own wins a tie in route defects. The ETHOS overview, intent and hook posters, the context-mode
+  retrieval poster and the self model's grid layout poster change; the grid layout prints its five mechanisms in one
+  row on a sparse page.
 
 ### Fixed
 

@@ -114,7 +114,7 @@ wire, unless both leave or enter one card, and two wires closer than 40 px that
 each turn inside the other's length are counted in each poster page's measures.
 Each row wrapping is also laid out with channels that take more label rows so
 that no wire turns in a band beside another card than its own; a page takes that
-taller figure when it holds it and it has fewer route defects.
+taller figure when it holds it and it has no more route defects.
 
 Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
 one to three consecutive views that share no component as plates, in bands of

@@ -8,6 +8,7 @@ import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import { notesOf } from "../packages/publisher/src/poster/blocks.mjs";
 import {
   admitsView,
+  composeEdition,
   composePosters,
   gateFailures,
 } from "../packages/publisher/src/poster/compose.mjs";
@@ -110,6 +111,15 @@ test("the publisher's own model prints each view without crossings, the grid lay
   assert.deepEqual(
     pages.map(({ measures }) => measures.routes),
     [2, 0, 1],
+  );
+  // The overview's channels that keep its turns clear of the stage cards wire
+  // no worse than those that turn "loads" and "writes the page" just under
+  // LikeC4 importer and Publication, so the page takes them.
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const [overview] = composeEdition(model, views.slice(0, 1), typefaces, icons);
+  assert.deepEqual(
+    overview.made[0].layout.measures.routeDefects.map(({ code }) => code),
+    ["route_wires_alongside", "route_wires_alongside"],
   );
   // Pages are numbered in reading order.
   assert.deepEqual(

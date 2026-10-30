@@ -273,12 +273,19 @@ that card's span, SHALL count as a route defect, and so SHALL two wires closer
 than 40 px for more than 96 px. Each wrapping SHALL also be laid out with
 channels that take more label rows so that no wire turns beside another card
 than its own in a band, and a page that holds that taller figure SHALL take it
-when it has fewer route defects.
+when it has no more route defects.
 
 #### Scenario: A turn under another card
 
 - **WHEN** a wire turns 30 px under a card it does not connect
 - **THEN** the page's measures count a route defect
+
+#### Scenario: Turns kept clear on a tie
+
+- **WHEN** the self model's overview wires as many route defects with "loads"
+  and "writes the page" turning just under LikeC4 importer and Publication as
+  with them turning on a label row clear of both
+- **THEN** the poster takes the label-row turns
 
 #### Scenario: A turn moved onto a label row
 

@@ -510,7 +510,7 @@ export function platesOf(input, plate) {
             made.layout.measures.routes,
             -index,
             order,
-            clearTurns ? 1 : 0,
+            clearTurns ? 0 : 1,
             offCenter(made.figure.rects, plate.field),
           ],
           plate: { step: index, limit, flat, ...made },
@@ -524,10 +524,11 @@ export function platesOf(input, plate) {
   // the largest type step, because
   // the same figure set larger reads from further away; then the widest rows,
   // layered before flatter ones, so the page splits a row only when the figure
-  // its widest rows make leaves the page unbalanced; then the centroid nearest
-  // the field's centre. Filling the page is the page's work: it sets larger
-  // type, takes a narrower wrapping, groups views and sets its text beside the
-  // figure.
+  // its widest rows make leaves the page unbalanced; then the channels that
+  // turn no wire beside another card than its own, where they wire no worse;
+  // then the centroid nearest the field's centre. Filling the page is the
+  // page's work: it sets larger type, takes a narrower wrapping, groups views
+  // and sets its text beside the figure.
   found.sort((a, b) => compare(a.rank, b.rank));
   return found.map(({ plate: one }) => one);
 }
