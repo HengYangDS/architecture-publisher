@@ -8,7 +8,7 @@ local_installation_command = "node --test tests/installed-cli.test.mjs"
 [[publication.peers]]
 id = "gitlab"
 provider = "gitlab"
-role = "private_source_projection"
+role = "organization_collaboration"
 git_remote = "gitlab"
 capabilities = ["repository", "ci_cd", "publication"]
 ci_surface = ".gitlab-ci.yml"
@@ -16,7 +16,7 @@ ci_surface = ".gitlab-ci.yml"
 [[publication.peers]]
 id = "github"
 provider = "github"
-role = "private_source_projection"
+role = "public_distribution"
 git_remote = "github"
 capabilities = ["repository", "ci_cd", "publication"]
 ci_surface = ".github/workflows/verify.yml"
