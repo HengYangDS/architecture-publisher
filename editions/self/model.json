@@ -13,7 +13,7 @@
   "repository": {
     "name": "architecture-publisher",
     "url": "https://github.com/HengYangDS/architecture-publisher",
-    "revision": "2347fb76266871bed9b615573bdbf8e63280cbee"
+    "revision": "3bf75fdd078164c45437a0252f26b5e98e643677"
   },
   "kinds": {
     "person": {
@@ -101,7 +101,7 @@
     },
     "grid": {
       "path": "packages/publisher/src/layout/grid.mjs",
-      "sha256": "bbfadeaaa636a9505734d4944d957b904f60581b462226af4af8d77af1170e89"
+      "sha256": "132063c65b3f0d9cd0bd487cf472a32b041350ecb4e7b42f4f05f2933b7bbb4b"
     },
     "rows": {
       "path": "packages/publisher/src/layout/rows.mjs",
@@ -117,11 +117,11 @@
     },
     "solver": {
       "path": "packages/publisher/src/layout/channel-solver.mjs",
-      "sha256": "3b3d0c6865233f5af6d9d88b8da99de3d9ea3a9cc90e34afbb48fc59df936ec5"
+      "sha256": "4019dd9125175d9fb28834b48b2c3dc3e96a178a416b8a3837fc796365776923"
     },
     "measure": {
       "path": "packages/publisher/src/layout/measure.mjs",
-      "sha256": "cb1a40c3a9de3830b496d18d9723736630c1d7a483a87e51c3f99042979108ab"
+      "sha256": "06099b27d7fba1baed928be98045cc3bd628ce19eedaae5a871a911265ec830d"
     },
     "poster": {
       "path": "packages/publisher/src/poster/compose.mjs",
@@ -133,7 +133,7 @@
     },
     "text": {
       "path": "packages/publisher/src/poster/text.mjs",
-      "sha256": "ddcbf656a5ee2e096c2f7578e3ece75711cd4d2ba5919650206dd71f9c781a84"
+      "sha256": "41e9ab5351bb895b145d59366e1a2cfa0b2c28c57b2e5d2836821b993dd25fb4"
     },
     "raster": {
       "path": "packages/publisher/src/poster/raster.mjs",
@@ -141,7 +141,7 @@
     },
     "explainer": {
       "path": "packages/publisher/src/map/explainer.mjs",
-      "sha256": "b089688e4d917703912537582646df424f8acfb7759d344a3edcc5742a12693d"
+      "sha256": "e7ef49aca5cb0500d409fc67ba1b50a16408a673a673427878cf2937ae4c4312"
     },
     "map": {
       "path": "packages/publisher/src/map/archify.mjs",
@@ -161,15 +161,15 @@
     },
     "breaks": {
       "path": "packages/publisher/src/breaks.mjs",
-      "sha256": "cf24db6037eb011d62d187e8f5df897a2513e6d66b9e10c82b2d05151db7a001"
+      "sha256": "4c3fd461401879ef0171406e9093472cba8dc3d8bd48a4db85aef6742332081a"
     },
     "choice": {
       "path": "packages/publisher/src/map/choice.mjs",
-      "sha256": "7d4330135a94634abd90b7aa42e7b90df219d98368d81c98cd9b014a908e7460"
+      "sha256": "8b568d37fcc8cbf0daad054440b7f1c4682fb70b8f2af54a3ba25429820b686d"
     },
     "routes": {
       "path": "packages/publisher/src/map/routes.mjs",
-      "sha256": "f9984c7782143b763248c188ac0f6d338f19db44edfae98e8ebeb51869d1f35f"
+      "sha256": "a65397c965facba7e026c53964507c95a90496c50e5fe54c35f0efabe2cd7f75"
     }
   },
   "components": [
@@ -539,7 +539,7 @@
   "views": [
     {
       "id": "overview",
-      "title": "Overview",
+      "title": "One build, end to end",
       "question": "Which parts does one build pass through, from the editor to an accepted, published delivery?",
       "tiers": [
         {

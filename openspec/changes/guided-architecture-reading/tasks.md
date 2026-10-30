@@ -67,6 +67,7 @@
 - [x] 8.26 Read two cards' routes into one point as one route on the page, crowd a label within 16 px or two and a half times its route's distance, pin a label read as another's alone and on its own segment, and keep two relations' marks on one poster label row or band 48 px apart; the route measures count each case. `tests/map-choice.test.mjs` passes in `npm run check`.
 - [x] 8.27 Pin a label by an offset from where Archify anchors it, which keeps its route's ends spread, and keep the words beside a no-break space on one line on the posters and the page. `tests/map-choice.test.mjs` and `tests/text-breaks.test.mjs` pass in `npm run check`.
 - [x] 8.28 Count a poster wire that turns within 48 px beside a card it does not connect, and two wires within 40 px for more than 96 px, as route defects, and lay each wrapping out also with channels that turn such wires on label rows instead; context-mode's retrieval poster counts none. `tests/layout-measure.test.mjs`, `tests/poster-compose.test.mjs` and `tests/unrelated-models.test.mjs` pass in `npm run check`.
+- [x] 8.29 Name the self, browser-use and context-mode overview views by what they show instead of "Overview"; their page panels and viewers carry the new names. Each built page names its first view six times and "Overview" nowhere.
 
 ## 9. Acceptance and release
 

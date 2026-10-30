@@ -409,7 +409,7 @@
   "views": [
     {
       "id": "overview",
-      "title": "Overview",
+      "title": "From task to CDP commands",
       "question": "How does an Agent turn a developer's task into CDP commands?",
       "members": [
         "developer",

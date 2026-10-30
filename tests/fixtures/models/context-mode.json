@@ -419,7 +419,7 @@
   "views": [
     {
       "id": "overview",
-      "title": "Overview",
+      "title": "Out of context, found again",
       "question": "Which parts keep bulky tool output out of the agent's context, and how is it found again?",
       "members": [
         "agent-host",
