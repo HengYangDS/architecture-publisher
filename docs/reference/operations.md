@@ -96,19 +96,21 @@ different relations, a wire through a card or a label touching a card, another
 label, another wire or the system boundary rejects that layout, and a view is
 refused only when no row wrapping, width or type step lays it out. Each channel
 takes the routing with the fewest crossings, even when that needs another label
-row, and on posters keeps parallel wires 24 px apart and a label 16 px from
-another relation's wire wherever the cards leave room. Two relations' jogs and
-labels on one label row, and the tracks of one band, keep 48 px apart, or the
-row reads as one labelled bus; a lane keeps at least 48 px from the cards and
-the system boundary. Crossings that the relations force are allowed; they and
-the route defects, wires closer than those distances or closer than 40 px for
-more than 96, arrowheads closer than two heads, a wire that stops less than
-48 px short of another in line with it, so seems to continue it, and a wire
-that turns less than 48 px beside a card it does not connect, so seems to leave
-that card, are counted in each poster page's measures. Each row wrapping is
-also laid out with channels that take more label rows so that no wire turns in
-a band beside another card than its own; a page takes that taller figure when
-it holds it and it has fewer route defects.
+row, and on posters then the one whose own wires make the fewest route defects;
+it keeps parallel wires 24 px apart and a label 16 px from another relation's
+wire wherever the cards leave room, and a wire that turns on a label row within
+the span of a card it does not connect turns 48 px from it. Two relations' jogs
+and labels on one label row, and the tracks of one band, keep 48 px apart, or
+the row reads as one labelled bus; a lane keeps at least 48 px from the cards
+and the system boundary. Crossings that the relations force are allowed; they
+and the route defects, wires closer than those distances or closer than 40 px
+for more than 96, arrowheads closer than two heads, a wire that stops less than
+48 px short of another in line with it, so seems to continue it, and a wire that
+turns less than 48 px beside a card it does not connect, so seems to leave that
+card, are counted in each poster page's measures. Each row wrapping is also laid
+out with channels that take more label rows so that no wire turns in a band
+beside another card than its own; a page takes that taller figure when it holds
+it and it has fewer route defects.
 
 Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
 one to three consecutive views that share no component as plates, in bands of
@@ -131,7 +133,9 @@ least area in those holes, and each page prefers the fewest crossings and
 route defects. A grouping no passing page holds is printed on a sparse page
 when its figures already stand at the largest step, or at the largest step
 they fit at with only its largest blank rectangle or a blank band over its
-gate: the model has too little to fill the page. Otherwise, a view
+gate: the model has too little to fill the page. A grouping is also printed on
+such a sparse page when it wires fewer crossings or route defects than every
+page of the grouping that passes. Otherwise, a view
 that no admitted page holds, alone or with a neighbour, is refused with
 `poster_unbalanced` and its closest page's measures and limits, unless
 `--quality standard` prints that page as a draft. Text is outlined from the

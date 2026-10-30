@@ -546,11 +546,11 @@ and the limit.
 
 ### Requirement: Sparse pages
 
-Each grouping SHALL be printed on its best page that passes every gate. When
-none passes, it SHALL be printed as a sparse page on its closest page that sets
-every figure at the largest type step, or at the largest step they fit at with
-only its largest blank rectangle or a blank band over the gate: the model has
-too little to fill and balance the page, which no composition changes.
+A grouping that no page passing every gate holds SHALL be printed as a sparse
+page on its closest page that sets every figure at the largest type step, or at
+the largest step they fit at with only its largest blank rectangle or a blank
+band over the gate: the model has too little to fill and balance the page,
+which no composition changes.
 
 #### Scenario: A model too small to fill a page
 
@@ -558,6 +558,20 @@ too little to fill and balance the page, which no composition changes.
 - **THEN** its view is printed on a sparse page
 - **AND** the manifest records the page as sparse with each missed gate's
   measured value and limit
+
+### Requirement: Sparse pages that wire cleaner
+
+A grouping SHALL be printed on its best page that passes every gate, unless a
+page it could print as sparse wires fewer crossings or route defects; then it
+SHALL be printed on the sparse page that wires fewest, and of those on the one
+closest to passing.
+
+#### Scenario: A sparse page that wires cleaner
+
+- **WHEN** ETHOS's proof plane balances alone only in rows of four, with a wire
+  turning under Mutation admission, and wires cleanly in rows of six with one
+  blank area over its gate
+- **THEN** it is printed in rows of six on a sparse page
 
 ### Requirement: Draft pages
 
@@ -649,45 +663,6 @@ bends SHALL be recorded in the page's measures and SHALL NOT refuse a page.
 
 - **WHEN** a page that passes every gate draws a crossing
 - **THEN** the build delivers it and its manifest entry records the crossing
-
-### Requirement: Marks a reader joins
-
-Two relations' jogs and labels on one label row of a poster, and the tracks of
-one band, SHALL keep 48 px apart, or twice the step's wire separation when that
-is more; closer, a reader continues one into the other and reads the row as
-one labelled bus. A wire that stops less than 48 px short of another in line
-with it SHALL count as a route defect. A corridor outside the system boundary
-SHALL keep two wire separations from its edge.
-
-#### Scenario: Two labels on one row
-
-- **WHEN** two relations' labels share one label row of a channel
-- **THEN** they stand at least 48 px apart
-
-#### Scenario: A wire that stops short of another
-
-- **WHEN** a wire stops 40 px short of another in line with it
-- **THEN** the page's measures count a route defect
-
-### Requirement: Wires a reader gives to the wrong card
-
-A wire that turns less than 48 px beside a card it does not connect, within
-that card's span, SHALL count as a route defect, and so SHALL two wires closer
-than 40 px for more than 96 px. Each wrapping SHALL also be laid out with
-channels that take more label rows so that no wire turns beside another card
-than its own in a band, and a page that holds that taller figure SHALL take it
-when it has fewer route defects.
-
-#### Scenario: A turn under another card
-
-- **WHEN** a wire turns 30 px under a card it does not connect
-- **THEN** the page's measures count a route defect
-
-#### Scenario: A turn moved onto a label row
-
-- **WHEN** context-mode's retrieval poster can wire "builds snapshot" without
-  turning under Event extractor by taking another track
-- **THEN** the poster draws it that way and counts no route defect
 
 ### Requirement: Status styles
 

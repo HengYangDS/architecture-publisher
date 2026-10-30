@@ -150,6 +150,15 @@ export function measureLayout(geometry) {
 }
 
 /**
+ * Route defects of part of a layout, such as one channel and the cards beside
+ * it, by the same measure as the whole.
+ * @param {Parameters<typeof routeDefects>[0]} geometry
+ */
+export function measureRoutes(geometry) {
+  return routeDefects(geometry, segmentsOf(geometry.paths));
+}
+
+/**
  * The spacing below which wiring misreads although no two wires cross: two
  * parallel wires closer than `parallel` read as one, and so do two closer than
  * `alongside` for longer than `run`; a wire that stops less than `join` short

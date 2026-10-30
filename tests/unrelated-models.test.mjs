@@ -6,11 +6,11 @@ import { BROWSER_USE_MODEL, CONTEXT_MODE_MODEL } from "./fixtures/models.mjs";
 
 // Models of two repositories unrelated to this one, written outside them, keep the publisher
 // general: every view is admitted and printed on a balanced page whose wires do not cross.
-// browser-use's perception and action pages still turn a wire beside a card it does not
-// connect, and its action page runs two wires alongside.
+// browser-use's action page still turns one wire beside a card it does not connect: the
+// relation runs around the figure, and its label leaves no room for a turn on a label row.
 for (const [file, views, routes] of [
   [CONTEXT_MODE_MODEL, ["overview", "sandbox", "retrieval"], [0, 0, 0]],
-  [BROWSER_USE_MODEL, ["overview", "perception", "action"], [0, 1, 3]],
+  [BROWSER_USE_MODEL, ["overview", "perception", "action"], [0, 0, 1]],
 ]) {
   test(`the ${path.basename(file, ".json")} model is admitted in every view`, async () => {
     const checked = await checkModel(file);

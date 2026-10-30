@@ -210,6 +210,13 @@ test("a view that wires cleanly only on a page of its own is printed alone, spar
     [proof.admission, proof.measures.crossings, proof.measures.routes],
     ["sparse", 0, 0],
   );
+  // On the overview, "selects proof" and "records proof" enter Attestation set
+  // from one side on two label rows rather than on adjacent tracks of one band,
+  // and no wire turns on a label row beside a card it does not connect.
+  assert.deepEqual(
+    pages.map(({ measures }) => measures.routes),
+    [0, 0, 0, 0],
+  );
   assert.ok(proof.composition.plates.every(({ step }) => step < POSTER.steps.length - 1));
   assert.ok(proof.misses.length);
   for (const { measure } of proof.misses)

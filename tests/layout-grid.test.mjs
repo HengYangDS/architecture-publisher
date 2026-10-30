@@ -185,6 +185,35 @@ test("two relations into one card take a second label row rather than cross", ()
   assert.equal(made.channels[2].labelRows.length, 2);
 });
 
+test("a wire that turns on a label row keeps 48 px from the cards it does not connect", () => {
+  // "reads" jogs from c1 to c6 on the channel's only label row and turns over
+  // c4 and under c3, which it does not connect: closer than 48 px, a reader
+  // takes each turn for one of their wires, so the channel deepens around the row.
+  const model = validateModel(
+    graphModel(6, [
+      [1, 4, "runs"],
+      [2, 5, "runs"],
+      [3, 6, "runs"],
+      [1, 6, "reads"],
+    ]),
+  );
+  const made = layoutView(
+    wholeView(model, [
+      ["c1", "c2", "c3"],
+      ["c4", "c5", "c6"],
+    ]),
+    { ...simpleMetrics(model), centring: "all" },
+    { boundaryName: "System" },
+  );
+  assertTidy(made);
+  const reads = /** @type {any} */ (made.paths.find(({ relations }) => relations[0].id === "r4"));
+  const [above, below] = [made.cards.get("c3"), made.cards.get("c4")];
+  const turn = reads.points[1][1];
+  assert.ok(turn - (above.y + above.height) >= 48, `${turn} under c3`);
+  assert.ok(below.y - turn >= 48, `${turn} over c4`);
+  assert.equal(made.measures.routes, 0);
+});
+
 test("a tier of seven cards is refused with the row and its members", () => {
   assert.throws(
     () =>

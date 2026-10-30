@@ -1,3 +1,5 @@
+import { channelGeometry } from "./channels.mjs";
+import { measureRoutes } from "./measure.mjs";
 import { permutations } from "./permutations.mjs";
 
 /**
@@ -10,6 +12,15 @@ import { permutations } from "./permutations.mjs";
 
 const SEARCH_BUDGET = 60_000;
 export const MAXIMUM_LABEL_ROWS = 3;
+
+/**
+ * What an assignment costs for each route defect the channel's own wires make,
+ * measured on the channel drawn: as much as a borrowed end, which predicts one.
+ */
+const ROUTE_DEFECT = 8;
+
+/** Far enough above and below a channel to stand for the cards beside it. */
+const FAR = 1e4;
 
 /**
  * Label centers along a horizontal: its middle and the middles of gaps between
@@ -404,11 +415,35 @@ function rowCrossings(chosen, rows) {
 }
 
 /**
+ * Route defects of one assignment, measured on the channel drawn between the
+ * cards beside it.
+ */
+function routesOf(channel, assignment, rows, spacing) {
+  const solution = finish(channel, assignment, rows, spacing);
+  const { paths, labels } = channelGeometry(channel, solution, 0, solution.height, 0, spacing);
+  /** @returns {Array<[string, any]>} */
+  const beside = (cards = [], y) => cards.map((card) => [card.id, { ...card, y, height: FAR }]);
+  const cards = new Map([
+    ...beside(channel.beside?.upper, -FAR),
+    ...beside(channel.beside?.lower, solution.height),
+  ]);
+  return measureRoutes({ cards, paths, labels }).length;
+}
+
+/**
  * Solve one channel exactly within a search budget: the clean assignment with
  * the fewest label rows from `minimumRows`, then the fewest tracks and
- * crossings. Returns null when none exists.
+ * crossings. Where the medium draws the channel's wires, `measured`, the
+ * assignment also makes the fewest route defects. Returns null when none
+ * exists.
  */
-export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS, minimumRows = 1) {
+export function solveChannel(
+  channel,
+  spacing,
+  maximumRows = MAXIMUM_LABEL_ROWS,
+  minimumRows = 1,
+  measured = false,
+) {
   const wires = channel.wires;
   const choices = wires.map((made) => options(channel, made, spacing));
   // Many assignments differ only in label positions, so band tracks are solved once per band content.
@@ -444,18 +479,20 @@ export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS,
         const low = tracksFor(lower, crossers("lower"));
         if (!up || !low) return;
         const crossings = up.crossings + low.crossings + rowCrossings(chosen, rows);
-        const score = preference + (up.tracks + low.tracks) * 3 + crossings * 10;
-        if (!best || score < best.score)
-          best = {
-            score,
-            crossings,
-            borrowed: chosen.reduce((sum, [, option]) => sum + option.borrowed, 0),
-            chosen: chosen.map(([i, option]) => [i, option]),
-            upper,
-            lower,
-            up,
-            low,
-          };
+        const unmeasured = preference + (up.tracks + low.tracks) * 3 + crossings * 10;
+        if (best && unmeasured >= best.score) return;
+        const assignment = {
+          crossings,
+          borrowed: chosen.reduce((sum, [, option]) => sum + option.borrowed, 0),
+          chosen: chosen.map(([i, option]) => [i, option]),
+          upper,
+          lower,
+          up,
+          low,
+        };
+        const routes = measured ? routesOf(channel, assignment, rows, spacing) : 0;
+        const score = unmeasured + routes * ROUTE_DEFECT;
+        if (!best || score < best.score) best = { ...assignment, score, routes };
         return;
       }
       for (const option of choices[index]) {
@@ -492,6 +529,32 @@ function finish(channel, best, rows, spacing) {
   const rowsHeight =
     labelHeights.reduce((sum, height) => sum + height, 0) +
     spacing.labelRowGap * Math.max(0, used - 1);
+  // A row's centre, from the top of the label rows.
+  const centre = (row) =>
+    labelHeights
+      .slice(0, row)
+      .reduce((sum, height) => sum + (height ? height + spacing.labelRowGap : 0), 0) +
+    labelHeights[row] / 2;
+  // A wire that turns on a label row within the span of a card above or below
+  // that it does not connect keeps `turnClear` from that card, or a reader takes
+  // the turn for one of that card's wires: the rows move down from the cards
+  // above, and the channel deepens under them.
+  const turnClear = spacing.turnClear ?? 0;
+  let fromAbove = 0;
+  let toBelow = 0;
+  combo.forEach((option, i) => {
+    const made = channel.wires[i];
+    const own = new Set([...made.top, ...made.bottom].map(({ id }) => id).filter(Boolean));
+    const beside = (cards, x) =>
+      cards.some((card) => !own.has(card.id) && x > card.x + 0.5 && x < card.x + card.width - 0.5);
+    for (const vertical of option.verticals) {
+      if (vertical.turn !== "row") continue;
+      if (vertical.from === "bottom" && beside(channel.beside?.upper ?? [], vertical.x))
+        fromAbove = Math.max(fromAbove, turnClear - centre(option.row));
+      if (vertical.from === "top" && beside(channel.beside?.lower ?? [], vertical.x))
+        toBelow = Math.max(toBelow, centre(option.row) + turnClear);
+    }
+  });
   // From the channel top: a stub, the upper band, the label rows, the lower
   // band and an arrow stub. Label rows keep `labelClear` from a track on
   // either side, and the bands keep a track apart where no row parts them.
@@ -501,9 +564,7 @@ function finish(channel, best, rows, spacing) {
   const upperEnd = upperTop + band(upper);
   const rowsTop = !rowsHeight
     ? upperEnd
-    : upper
-      ? upperEnd + spacing.labelClear
-      : upperTop + spacing.bandGap;
+    : Math.max(fromAbove, upper ? upperEnd + spacing.labelClear : upperTop + spacing.bandGap);
   const rowsEnd = rowsTop + rowsHeight;
   const lowerTop = rowsHeight
     ? rowsEnd + spacing.labelClear
@@ -511,12 +572,17 @@ function finish(channel, best, rows, spacing) {
       ? upperEnd + spacing.track
       : upperTop;
   const end = lower ? lowerTop + band(lower) : rowsHeight ? rowsEnd : upperEnd;
-  const height = Math.max(spacing.minChannel, end + spacing.bandGap + spacing.arrowStub);
+  const height = Math.max(
+    spacing.minChannel,
+    end + spacing.bandGap + spacing.arrowStub,
+    rowsHeight ? rowsTop + toBelow : 0,
+  );
   return {
     combo,
     score: best.score,
     crossings: best.crossings,
     borrowed: best.borrowed,
+    routes: best.routes ?? 0,
     labelHeights,
     rowsHeight,
     upperTop,

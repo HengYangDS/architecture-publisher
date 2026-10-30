@@ -7,7 +7,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
-## [0.4.0] - 2026-10-27
+## [0.4.0] - 2026-10-30
 
 ### Added
 
@@ -95,6 +95,10 @@ remain pre-release contracts and may contain incompatible changes.
 - A poster wire no longer turns just beside a card it does not connect when a channel can take another label row
   instead, so it does not read as that card's; such turns, and two wires within 40 px of each other for more than
   96 px, are counted as route defects.
+- A poster channel takes the routing whose own wires make the fewest route defects, measured as the page measures
+  them: two wires into one card from one side turn on two label rows instead of running side by side on adjacent
+  tracks, and a wire that turns on a label row keeps 48 px from a card it does not connect. A view is printed on a
+  sparse page when that wires fewer faults than every balanced page of it.
 - The raster rebuild journey renders a poster the current publisher composes and extracts the frozen source where
   Windows tar can.
 - Locked CI Rust installation reconciles the required `cargo`, `rustc` and host standard library components in

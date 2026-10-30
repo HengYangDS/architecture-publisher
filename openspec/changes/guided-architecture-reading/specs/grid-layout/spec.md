@@ -231,7 +231,7 @@ only as perpendicular crossings away from bends and ports.
 A relation between adjacent rows SHALL have at most two bends, and one that
 skips rows at most four. Each layout SHALL also count route defects a reader
 misreads although no wire crosses: parallel wires of different relations
-closer than 24 px, a wire stopping less than 24 px short of another in line
+closer than 24 px, a wire stopping less than 48 px short of another in line
 with it, two arrowheads closer than two arrowhead lengths and a relation label
 within 16 px of another relation's wire. Route defects SHALL be reported, not
 refused.
@@ -246,6 +246,66 @@ refused.
 - **WHEN** two relations' verticals run 12 px apart along 100 px
 - **THEN** the layout reports one route defect naming both relations
 - **AND** the layout is not refused
+
+### Requirement: Marks a reader joins
+
+Two relations' jogs and labels on one label row of a poster, and the tracks of
+one band, SHALL keep 48 px apart, or twice the step's wire separation when that
+is more; closer, a reader continues one into the other and reads the row as
+one labelled bus. A wire that stops less than 48 px short of another in line
+with it SHALL count as a route defect. A corridor outside the system boundary
+SHALL keep two wire separations from its edge.
+
+#### Scenario: Two labels on one row
+
+- **WHEN** two relations' labels share one label row of a channel
+- **THEN** they stand at least 48 px apart
+
+#### Scenario: A wire that stops short of another
+
+- **WHEN** a wire stops 40 px short of another in line with it
+- **THEN** the page's measures count a route defect
+
+### Requirement: Wires a reader gives to the wrong card
+
+A wire that turns less than 48 px beside a card it does not connect, within
+that card's span, SHALL count as a route defect, and so SHALL two wires closer
+than 40 px for more than 96 px. Each wrapping SHALL also be laid out with
+channels that take more label rows so that no wire turns beside another card
+than its own in a band, and a page that holds that taller figure SHALL take it
+when it has fewer route defects.
+
+#### Scenario: A turn under another card
+
+- **WHEN** a wire turns 30 px under a card it does not connect
+- **THEN** the page's measures count a route defect
+
+#### Scenario: A turn moved onto a label row
+
+- **WHEN** context-mode's retrieval poster can wire "builds snapshot" without
+  turning under Event extractor by taking another track
+- **THEN** the poster draws it that way and counts no route defect
+
+### Requirement: Channels routed by their route defects
+
+Each poster channel SHALL take, after the fewest crossings, the routing whose
+own wires make the fewest route defects as the page measures them. A wire that
+turns on a label row within the span of a card above or below that it does not
+connect SHALL turn at least 48 px from that card.
+
+#### Scenario: Two wires into one card from one side
+
+- **WHEN** ETHOS's overview poster wires "selects proof" and "records proof"
+  from two cards into Attestation set
+- **THEN** the two wires turn on two label rows instead of adjacent tracks of
+  one band
+- **AND** the page's measures count no route defect
+
+#### Scenario: A turn on a label row over another card
+
+- **WHEN** a wire turns on a channel's only label row within the span of a card
+  below that it does not connect
+- **THEN** the turn stands at least 48 px above that card
 
 ### Requirement: Layout bounds
 

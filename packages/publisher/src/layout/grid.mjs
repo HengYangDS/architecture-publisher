@@ -30,7 +30,8 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
  *     arrowStub: number, labelGap: number, labelRowGap: number, portSpacing: number, portMargin: number,
  *     separation: number, labelClear: number, minJog: number, clear: number, minChannel: number,
- *     rowPad: number, boundaryPad: number, boundaryBottom: number, boundaryHead: number, join?: number }
+ *     rowPad: number, boundaryPad: number, boundaryBottom: number, boundaryHead: number, join?: number,
+ *     turnClear?: number }
  * }} Metrics
  */
 
@@ -39,8 +40,9 @@ const PORT_GAPS = [null, 64, 96, 140];
 /** A crossing outranks any difference in channel height or routing score. */
 const CROSSING_RANK = 1e6;
 /**
- * A wire that turns beside another card than its own reads as that card's, so
- * it outranks any difference in channel height as well, though not a crossing.
+ * A wire that turns beside another card than its own reads as that card's, and
+ * two wires a reader takes for one read as neither, so each outranks any
+ * difference in channel height as well, though not a crossing.
  */
 const BORROWED_RANK = 1e4;
 /** Row states and pair costs already derived, per planned view. */
@@ -234,7 +236,15 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
   spreadPorts(wiring.sides, box, spacing, spacing.portSpacing);
   straighten(wiring.wires, wiring.sides, box, spacing);
   const solutions = wiring.channels.map((channel) =>
-    routeChannel(channel, wiring, box, cardWidth, spacing, Boolean(metrics.clearTurns)),
+    routeChannel(
+      channel,
+      wiring,
+      box,
+      cardWidth,
+      spacing,
+      Boolean(metrics.clearTurns),
+      Boolean(metrics.lanes),
+    ),
   );
 
   // Rows and channels from top to bottom; the boundary edge adds its padding to the channel it crosses.
@@ -393,11 +403,13 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
 
 /**
  * Solve one channel, widening port spacing only when the default leaves no
- * clean routing. With `clearTurns` the channel also takes more label rows to
- * turn no wire beside another card than its own; a page that cannot hold the
- * taller channel takes the channel without them.
+ * clean routing. Where the medium draws the wires, `lanes`, the channel's own
+ * route defects count with its borrowed ends. With `clearTurns` the channel
+ * also takes more label rows to turn no wire beside another card than its own
+ * and to part wires that run together; a page that cannot hold the taller
+ * channel takes the channel without them.
  */
-function routeChannel(channel, wiring, box, cardWidth, spacing, clearTurns) {
+function routeChannel(channel, wiring, box, cardWidth, spacing, clearTurns, lanes) {
   const keys = [
     ...new Set(
       channel.wires.flatMap((made) => [
@@ -417,11 +429,17 @@ function routeChannel(channel, wiring, box, cardWidth, spacing, clearTurns) {
     // no wire beside another card than its own comes next. While the best
     // still has either, a wider spacing may take more label rows; once one
     // routes clean, a wider spacing is worth searching only for no more rows.
-    const solution = solveChannel(channel, spacing, best?.clean ? best.rows : undefined);
+    const solution = solveChannel(
+      channel,
+      spacing,
+      best?.clean ? best.rows : undefined,
+      undefined,
+      lanes,
+    );
     if (!solution) continue;
     const rank =
       solution.crossings * CROSSING_RANK +
-      solution.borrowed * BORROWED_RANK +
+      (solution.borrowed + solution.routes) * BORROWED_RANK +
       solution.height * 10 +
       solution.score +
       (gap ?? 0) / 100;
@@ -430,7 +448,7 @@ function routeChannel(channel, wiring, box, cardWidth, spacing, clearTurns) {
         rank,
         gap,
         rows: solution.labelHeights.length,
-        clean: !solution.crossings && !solution.borrowed,
+        clean: !solution.crossings && !solution.borrowed && !solution.routes,
         solution,
       };
   }
@@ -451,17 +469,18 @@ function routeChannel(channel, wiring, box, cardWidth, spacing, clearTurns) {
   // Wires that still cross may uncross with their labels on another row, as
   // two relations into one card can when their labels do not fit side by
   // side, and a wire that turns beside another card may turn on a label row
-  // instead: more label rows are tried while each removes some of what fewer
-  // rows left. A taller channel costs less than either.
+  // instead, and wires that run together may part on another row: more label
+  // rows are tried while each removes some of what fewer rows left. A taller
+  // channel costs less than any of them.
   let solution = best.solution;
-  const faults = ({ crossings, borrowed }) =>
-    crossings * CROSSING_RANK + (clearTurns ? borrowed : 0);
+  const faults = ({ crossings, borrowed, routes }) =>
+    crossings * CROSSING_RANK + (clearTurns ? borrowed + routes : 0);
   for (
     let rows = solution.labelHeights.length + 1;
     faults(solution) > 0 && rows <= MAXIMUM_LABEL_ROWS;
     rows += 1
   ) {
-    const more = solveChannel(channel, spacing, rows, rows);
+    const more = solveChannel(channel, spacing, rows, rows, lanes);
     if (!more || faults(more) >= faults(solution)) break;
     solution = more;
   }

@@ -89,6 +89,12 @@ export const POSTER = Object.freeze({
      * labels and jogs reads as one labelled bus.
      */
     join: ROUTE.join,
+    /**
+     * The least distance between a wire's turn on a label row and a card of
+     * the row above or below that the wire does not connect: closer, a reader
+     * takes the turn for one of that card's wires.
+     */
+    turnClear: ROUTE.join,
     minJog: 56,
     clear: 14,
     minChannel: 64,

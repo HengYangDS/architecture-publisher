@@ -202,11 +202,11 @@ width bounds, text measurement, label sizes and spacing.
   that route it cleanly, over every label position (on the jog, beside the
   source or the target) and track order, keeping each medium's clearances, on
   posters 24 px between wires and 16 px from a label to another wire; a lane
-  keeps twice the wire distance from the cards and the boundary. Wider port
-  spacings and up to three label rows are tried while they cross less. Ports
-  keep their far ends' order, each as near its target as spacing allows. A
-  vertical turning just under or over a card other than its own end costs
-  more, as a reader takes it for that card's wire.
+  keeps twice that from cards and boundary. Wider port spacings and up to three
+  label rows are tried while they cross less. Ports keep their far ends' order,
+  near their targets. A turn by a card other than its own end costs more, as a
+  reader takes it for that card's wire; a poster channel scores its own route
+  defects, and a label-row turn keeps 48 px from such a card.
 - **Bounds.** A row holds at most six cards, or five beside row labels. A wider
   row or a channel without a clean solution refuses that layout; each medium
   then tries its other wrappings and refuses a view only when none lays it out.
@@ -277,12 +277,12 @@ The poster is now composed format first:
   not counting; at most 40 percent of it lies in holes, empty squares of 240 px
   or more; and its darkness-weighted centroid lies within 12 percent of the
   centre across and down. Type holds by construction: scale sizes only, a 14 px
-  floor, the measure and no word broken on a card. A grouping no passing page
-  holds prints on a sparse page when its figures already stand at the largest
-  step, or at the largest step they fit the page at with only one blank area
-  over its gate; otherwise showcase refuses it, naming each view with its
-  closest page's measured values and limits, and standard records it as a
-  draft.
+  floor, the measure and no word broken on a card. A grouping prints on a
+  sparse page, its figures at the largest step or the largest they fit at with
+  only one blank area over its gate, when no passing page holds it or the
+  sparse page wires fewer faults; otherwise showcase refuses it, naming each
+  view with its closest page's measured values and limits, and standard
+  records it as a draft.
 
 A view of three to five components has a figure a third of the page tall, which
 no justification fills, so the page, not the view, became the unit:

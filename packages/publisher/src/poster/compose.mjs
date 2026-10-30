@@ -67,6 +67,11 @@ const BLANK = Object.freeze(["emptyShare", "blankBand"]);
  * @typedef {"balanced" | "sparse" | "draft"} Admission
  */
 
+/**
+ * A grouping's pages, as `sheet` composes them.
+ * @typedef {{ chosen: any, sparse: any, cleanest: any, closest: any }} Sheet
+ */
+
 /** Plates tried on one page, fewest first. */
 const PLATES = Object.freeze([1, 2, 3]);
 /**
@@ -130,7 +135,8 @@ function measure(page, made, typefaces, measured) {
  * Compose one page of `views`. Returns the best page that passes every gate, or
  * null; the closest sparse page, whose figures are all set at the largest step,
  * or at the largest step they fit the page at where it misses only the gates of
- * one blank area; and the closest page drawn at all, which names what a
+ * one blank area, and of the sparse pages the closest of those that wire the
+ * fewest faults; and the closest page drawn at all, which names what a
  * grouping misses when none passes. All are null when the grouping cannot be
  * laid out, or when two of its views share a component the page would then
  * draw twice.
@@ -146,9 +152,12 @@ function sheet(model, views, first, typefaces, icons, boundaryName) {
       (stepOf(candidate) === fitted &&
         candidate.fails.every(({ measure }) => BLANK.includes(measure))),
   );
+  const fewest = sparse.length ? faultsOf(best(sparse)) : [];
+  const cleanest = sparse.filter((page) => compareRanks(faultsOf(page), fewest) === 0);
   return {
     chosen: passed.length ? best(passed) : null,
     sparse: sparse.length ? nearest(sparse) : null,
+    cleanest: cleanest.length ? nearest(cleanest) : null,
     closest: candidates.length ? nearest(candidates) : null,
   };
 }
@@ -446,7 +455,7 @@ function withText(page, extra) {
 export function composeEdition(model, views, typefaces, icons, options = {}) {
   const quality = options.quality ?? "showcase";
   const boundaryName = model.repository?.name ?? model.title;
-  /** @type {Map<string, { chosen: any, sparse: any, closest: any }>} */
+  /** @type {Map<string, Sheet>} */
   const tried = new Map();
   const at = (index, count) => {
     const key = `${index}:${count}`;
@@ -462,16 +471,25 @@ export function composeEdition(model, views, typefaces, icons, options = {}) {
           boundaryName,
         ),
       );
-    return /** @type {{ chosen: any, sparse: any, closest: any }} */ (tried.get(key));
+    return /** @type {Sheet} */ (tried.get(key));
   };
-  /** The page a grouping is admitted on, and how, or null when none is. */
+  /**
+   * The pages a grouping may be admitted on, and how: its best page that
+   * passes every gate, and its sparse page where none passes or the sparse
+   * page wires fewer faults, for the plan to weigh as it weighs groupings; at
+   * standard quality its closest page as a draft where neither exists.
+   */
   const admitted = (index, size) => {
-    const { chosen, sparse, closest } = at(index, size);
-    if (chosen) return { made: chosen, admission: /** @type {Admission} */ ("balanced") };
-    if (sparse) return { made: sparse, admission: /** @type {Admission} */ ("sparse") };
-    if (quality === "standard" && closest)
-      return { made: closest, admission: /** @type {Admission} */ ("draft") };
-    return null;
+    const { chosen, sparse, cleanest, closest } = at(index, size);
+    /** @type {Array<{ made: any, admission: Admission }>} */
+    const pages = [];
+    if (chosen) pages.push({ made: chosen, admission: "balanced" });
+    const spare = chosen ? cleanest : sparse;
+    if (spare && (!chosen || compareRanks(faultsOf(spare), faultsOf(chosen)) < 0))
+      pages.push({ made: spare, admission: "sparse" });
+    if (!pages.length && quality === "standard" && closest)
+      pages.push({ made: closest, admission: "draft" });
+    return pages;
   };
 
   const count = views.length;
@@ -492,20 +510,21 @@ export function composeEdition(model, views, typefaces, icons, options = {}) {
     for (const size of PLATES) {
       if (index + size > count) continue;
       const rest = plan[index + size];
-      const page = admitted(index, size);
       // A grouping no admitted page can hold is not a page.
-      if (!rest || !page) continue;
-      const [crossings, routes] = faultsOf(page.made);
-      const total = {
-        crossings: crossings + rest.crossings,
-        routes: routes + rest.routes,
-        unbalanced: (page.admission === "balanced" ? 0 : 1) + rest.unbalanced,
-        pages: 1 + rest.pages,
-        holes: page.made.balance.holes + rest.holes,
-        next: index + size,
-        page,
-      };
-      if (!chosen || betterPlan(total, chosen)) chosen = total;
+      if (!rest) continue;
+      for (const page of admitted(index, size)) {
+        const [crossings, routes] = faultsOf(page.made);
+        const total = {
+          crossings: crossings + rest.crossings,
+          routes: routes + rest.routes,
+          unbalanced: (page.admission === "balanced" ? 0 : 1) + rest.unbalanced,
+          pages: 1 + rest.pages,
+          holes: page.made.balance.holes + rest.holes,
+          next: index + size,
+          page,
+        };
+        if (!chosen || betterPlan(total, chosen)) chosen = total;
+      }
     }
     plan[index] = chosen;
   }
@@ -529,7 +548,7 @@ function refuseEdition(views, at, admitted) {
   const holds = (view) =>
     PLATES.some((size) =>
       Array.from({ length: size }, (_, offset) => view - offset).some(
-        (index) => index >= 0 && index + size <= views.length && admitted(index, size),
+        (index) => index >= 0 && index + size <= views.length && admitted(index, size).length,
       ),
     );
   const lost = views.flatMap((view, index) => (holds(index) ? [] : [{ view, index }]));
