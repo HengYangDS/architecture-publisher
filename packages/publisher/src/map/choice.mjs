@@ -24,6 +24,8 @@ const STRETCH = 1.35;
  * most re-sided diagrams it measures for one view.
  */
 const REPAIR = Object.freeze({ starts: 3, rounds: 2, budget: 96 });
+/** The rounds of pins, each on the best few diagrams the round before pinned. */
+const PIN = Object.freeze({ rounds: 3 });
 const OUTWARD = Object.freeze({ top: [0, -1], bottom: [0, 1], left: [-1, 0], right: [1, 0] });
 /**
  * Archify's reader at a 1440 px viewport sets a panel's preview beside its
@@ -387,6 +389,24 @@ async function repair(starts, measureAll) {
 }
 
 /**
+ * The labels to pin on each diagram whose labels still read as another's or
+ * crowd, each set with the labels pinned on it before: those read as another's
+ * alone, when there are any, and with those that only crowd.
+ * @template {{ mislabelled: string[], relabel: string[], pinned: string[] }} Start
+ * @param {Start[]} starts
+ * @returns {Array<{ start: Start, owners: string[] }>}
+ */
+export function pinSets(starts) {
+  return starts
+    .filter(({ relabel }) => relabel.length)
+    .flatMap((start) =>
+      (start.mislabelled.length ? [start.mislabelled, start.relabel] : [start.relabel]).map(
+        (owners) => ({ start, owners: [...new Set([...start.pinned, ...owners])] }),
+      ),
+    );
+}
+
+/**
  * Lay out a view's candidate diagrams, measure each on Archify's own routes,
  * once with the grid's connection sides and once with every side left to
  * Archify, and choose among those that pass Archify's showcase checks: the
@@ -399,7 +419,9 @@ async function repair(starts, measureAll) {
  * beside their steps, are repaired by changing the sides of the connections
  * involved. When the choice still has a label read as another's or crowded,
  * the labels of the best few by their routes alone are pinned clear beside
- * their own routes, each by an offset from where Archify anchors it. A view
+ * their own routes, each by an offset from where Archify anchors it, in up to
+ * three rounds: each pins anew the labels the round before left read as
+ * another's or crowded, on the best few diagrams it pinned. A view
  * with no candidate inside the shape bounds, or none that passes at the
  * build's quality, is refused.
  * @param {any} model
@@ -462,20 +484,17 @@ export async function chooseDiagram(model, view, quality = "showcase") {
       pool = [...passing, ...repaired];
     }
     let [chosen] = [...pool].sort(compare);
-    if (chosen.relabel.length) {
-      // Archify can take another course for a route whose label has a place
-      // of its own, so each set of labels is pinned on the layout in which
-      // they stand where Archify anchors them; and Archify runs other routes
-      // around a pinned label, so the labels read as another's are pinned
-      // alone as well as with those that only crowd.
-      const sets = [...pool]
-        .sort(byRoutes)
-        .slice(0, REPAIR.starts)
-        .flatMap((start) =>
-          (start.mislabelled.length ? [start.mislabelled, start.relabel] : [start.relabel]).map(
-            (owners) => ({ start, owners }),
-          ),
-        );
+    // Archify can take another course for a route whose label has a place of
+    // its own, so each set of labels is pinned on the layout in which they
+    // stand where Archify anchors them; and Archify runs other routes around a
+    // pinned label, so the labels read as another's are pinned alone as well
+    // as with those that only crowd. A pin can leave another label read as
+    // another's or crowded, so each round pins those anew, with the labels
+    // pinned before, on the best few diagrams the last round pinned.
+    let starts = [...pool].sort(byRoutes).slice(0, REPAIR.starts);
+    const seen = new Set();
+    for (let round = 0; round < PIN.rounds && chosen.relabel.length; round += 1) {
+      const sets = pinSets(starts);
       const anchored = await layoutAll(
         sets.map(({ start, owners }) =>
           offsetLabels(
@@ -484,8 +503,7 @@ export async function chooseDiagram(model, view, quality = "showcase") {
           ),
         ),
       );
-      const seen = new Set();
-      const starts = sets.flatMap(({ start, owners }, index) => {
+      const documents = sets.flatMap(({ start, owners }, index) => {
         const layout = anchored[index];
         if (!layout) return [];
         const ids = start.document.connections.map(({ id }) => id);
@@ -501,16 +519,18 @@ export async function chooseDiagram(model, view, quality = "showcase") {
         seen.add(key);
         return [{ start, document, pinned: owners }];
       });
-      tried += starts.length;
-      const pinned = (await measureAll(starts.map(({ document }) => document))).map(
-        (result, index) => ({
-          ...starts[index].start,
+      if (!documents.length) break;
+      tried += documents.length;
+      const pinned = (await measureAll(documents.map(({ document }) => document)))
+        .map((result, index) => ({
+          ...documents[index].start,
           ...result,
-          document: starts[index].document,
-          pinned: starts[index].pinned,
-        }),
-      );
-      [chosen] = [chosen, ...pinned.filter(({ passes }) => passes)].sort(compare);
+          document: documents[index].document,
+          pinned: documents[index].pinned,
+        }))
+        .filter(({ passes }) => passes);
+      [chosen] = [chosen, ...pinned].sort(compare);
+      starts = pinned.sort(byRoutes).slice(0, REPAIR.starts);
     }
     return {
       view: view.id,

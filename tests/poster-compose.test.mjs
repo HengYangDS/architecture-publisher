@@ -17,6 +17,7 @@ import { PAGE, POSTER } from "../packages/publisher/src/poster/tokens.mjs";
 import {
   AIGW_MODEL,
   BIG_BANK_MODEL,
+  ETHOS_MODEL,
   SELF_MODEL,
   graphModel,
   minimalModel,
@@ -189,6 +190,30 @@ test("a model too small to fill a page is printed on a sparse page that records 
   for (const miss of page.misses)
     assert.ok(Math.abs(miss.value) > miss.limit || miss.measure === "blankBand", miss.measure);
   assert.ok(page.composition.plates.every(({ step }) => step === POSTER.steps.length - 1));
+});
+
+test("a view that wires cleanly only on a page of its own is printed alone, sparse at the largest step it fits", async () => {
+  // ETHOS's proof plane shares a page only with the hook binding, where both
+  // are set at the densest step and three of their wires run beside or turn
+  // under what they do not connect. Alone, the proof plane fits the page only
+  // below the largest step and leaves a larger blank area beside it than a
+  // balanced page may, but every wire reads as its own relation's: fewer
+  // wiring faults outrank fewer pages.
+  const { model } = await loadModel(ETHOS_MODEL, { icon: icons.has });
+  const pages = await edition(model);
+  assert.deepEqual(
+    pages.map(({ views }) => views),
+    [["overview"], ["intent"], ["proof"], ["hooks"]],
+  );
+  const proof = pages[2];
+  assert.deepEqual(
+    [proof.admission, proof.measures.crossings, proof.measures.routes],
+    ["sparse", 0, 0],
+  );
+  assert.ok(proof.composition.plates.every(({ step }) => step < POSTER.steps.length - 1));
+  assert.ok(proof.misses.length);
+  for (const { measure } of proof.misses)
+    assert.ok(["emptyShare", "blankBand"].includes(measure), measure);
 });
 
 test("a page whose figure could grow but balances in no composition is refused, or drafted at standard quality", async () => {

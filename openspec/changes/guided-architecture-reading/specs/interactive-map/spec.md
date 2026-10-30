@@ -239,14 +239,23 @@ count with the chosen diagram's metrics.
 A relation label SHALL read as another's when another route, a card or another
 label is no farther from it than its own route, or another label is nearer
 than 8 px. It SHALL crowd when anything else, a boundary's outline included,
-comes nearer than 16 px or than two and a half times its own route's distance.
-The manifest SHALL record both counts with the chosen diagram's metrics.
+comes nearer than 16 px or than two and a half times its own route's distance,
+or when another route's segment, carried 40 px on past its corner, runs within
+2 px of it. The manifest SHALL record both counts with the chosen diagram's
+metrics.
 
 #### Scenario: A label under another card
 
 - **WHEN** two candidates differ only in that one sets a relation's label 4 px
   under a card the relation does not connect
 - **THEN** the other is chosen
+
+#### Scenario: A label on another route's line
+
+- **WHEN** a label stands 20 px under the corner where another route turns off
+  a vertical, on that vertical's line
+- **THEN** it counts as crowded
+- **AND** a pin moves it off that line
 
 #### Scenario: Two labels stacked in one gap
 
@@ -324,6 +333,18 @@ at either end.
 
 - **WHEN** a label is pinned on one of its route's segments
 - **THEN** the segment runs on at least 8 px past the label at either end
+
+### Requirement: Pin rounds
+
+Pins SHALL take up to three rounds. Each round after the first SHALL pin anew,
+on the three best diagrams the round before pinned by their routes alone, the
+labels those pins left read as another's or crowded, with the labels pinned
+before, and the publisher SHALL choose again among every measured diagram.
+
+#### Scenario: A label a pin crowds
+
+- **WHEN** pinning one label leaves another read as another's or crowded
+- **THEN** the next round pins both labels anew
 
 ### Requirement: Diagram shape
 

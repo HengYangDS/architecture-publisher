@@ -5,6 +5,7 @@ import {
   besideSteps,
   chooseDiagram,
   drawingOf,
+  pinSets,
   routeLayout,
   routeMetrics,
 } from "../packages/publisher/src/map/choice.mjs";
@@ -230,6 +231,69 @@ test("a label read as another's is pinned beside a segment of its own route clea
   );
   // A label already clear of everything is left where Archify set it.
   assert.equal(clearLabels(moved, ["call"], ["call"]).size, 0);
+});
+
+test("a label another route's line runs into past its corner crowds and is pinned off that line", () => {
+  // Route a comes down to (100, 100) and turns right; a reader carries its
+  // vertical on past the corner. Route b's label stands 20 px under that
+  // corner and 6 px above b: clear of every route, card and label by more
+  // than 16 px, but on a's line, as if a ran on to it.
+  const label = labelAt("on a line", 100, 120);
+  const layout = {
+    viewBox: [400, 300],
+    components: [],
+    boundaries: [],
+    labels: [label],
+    connections: [
+      {
+        from: "p",
+        label: "turns",
+        points: [
+          [100, 0],
+          [100, 100],
+          [300, 100],
+        ],
+      },
+      {
+        from: "q",
+        label: "on a line",
+        points: [
+          [0, 140],
+          [200, 140],
+        ],
+        labelAt: label.labelAt,
+      },
+    ],
+  };
+  const ids = ["a", "b"];
+  const { mislabels, labels, owners } = routeDefects(layout, ids);
+  assert.deepEqual([mislabels, labels, owners.labelled], [0, 1, ["b"]]);
+  const pins = clearLabels(layout, ids, ["b"]);
+  assert.equal(pins.size, 1);
+  // Pinned under its route, off a's line, the label reads as b's alone.
+  const [dx, dy] = /** @type {number[]} */ (pins.get("b"));
+  const box = { ...label, x: label.x + dx, y: label.y + dy, labelAt: [100 + dx, 130 + dy] };
+  const moved = {
+    ...layout,
+    labels: [box],
+    connections: [layout.connections[0], { ...layout.connections[1], labelAt: box.labelAt }],
+  };
+  assert.deepEqual([routeDefects(moved, ids).mislabels, routeDefects(moved, ids).labels], [0, 0]);
+  assert.ok(box.y > 140, "the label stands under its route");
+});
+
+test("each pin round pins anew the labels left crowded, with the labels pinned before", () => {
+  const starts = [
+    { mislabelled: [], relabel: ["b"], pinned: ["a"] },
+    { mislabelled: [], relabel: [], pinned: ["c"] },
+    { mislabelled: ["d"], relabel: ["d", "e"], pinned: [] },
+  ];
+  // A diagram with nothing left to pin is not pinned again; labels read as
+  // another's are pinned alone as well as with those that only crowd.
+  assert.deepEqual(
+    pinSets(starts).map(({ owners }) => owners),
+    [["a", "b"], ["d"], ["d", "e"]],
+  );
 });
 
 test("a label on a route of one segment is pinned from above where the route starts", () => {

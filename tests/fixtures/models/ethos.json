@@ -1,0 +1,429 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 1,
+  "id": "ethos",
+  "title": "ETHOS",
+  "question": "How does ETHOS carry one repository change from official intent to a proven commit on the accepted branch?",
+  "summary": "ETHOS compiles an OpenSpec Change and Git facts into a TransitionPlan and admits each step by lease, prewrite check and recorded proof.",
+  "scope": "The implemented command plane in src/ethos and the stores and external tools it calls.",
+  "limits": [
+    "Leaves out the MCP server, lane handoff, signature and paradigm repair, and land --release.",
+    "Relations are imports and calls in the source, not runtime order or design intent."
+  ],
+  "kinds": {
+    "service": {
+      "label": "ETHOS module",
+      "category": "backend",
+      "icon": "workflow"
+    },
+    "admission": {
+      "label": "admission",
+      "category": "security",
+      "icon": "shield-check"
+    },
+    "store": {
+      "label": "Git-common store",
+      "category": "database",
+      "icon": "database"
+    },
+    "tool": {
+      "label": "external tool",
+      "category": "external",
+      "icon": "wrench"
+    },
+    "peer": {
+      "label": "Forge peer",
+      "category": "external",
+      "icon": "cloud"
+    }
+  },
+  "components": [
+    {
+      "id": "status-reader",
+      "label": "Status reader",
+      "kind": "service",
+      "details": {
+        "command": "ethos status",
+        "answers": "role, gaps and next action"
+      }
+    },
+    {
+      "id": "commitment",
+      "label": "Commitment",
+      "kind": "service",
+      "details": {
+        "compiles": "the current OpenSpec Change",
+        "resolves": "change, scope and authority"
+      }
+    },
+    {
+      "id": "transition-plan",
+      "label": "TransitionPlan",
+      "kind": "service",
+      "details": {
+        "command": "ethos plan",
+        "emits": "a digest-bound TransitionPlan"
+      }
+    },
+    {
+      "id": "gate-policy",
+      "label": "Gate policy",
+      "kind": "service",
+      "details": {
+        "selects": "gates from .ethos/profile.toml"
+      }
+    },
+    {
+      "id": "proof",
+      "label": "Proof",
+      "kind": "service",
+      "details": {
+        "command": "ethos prove",
+        "runs": "the gate graph, bounded parallel",
+        "issues": "proof:execution Attestation"
+      }
+    },
+    {
+      "id": "work-lane",
+      "label": "Work Lane",
+      "kind": "service",
+      "details": {
+        "commands": "lane start, lane retire",
+        "owns": ["start", "refresh", "archive-change", "retirement"]
+      }
+    },
+    {
+      "id": "prewrite-admission",
+      "label": "Prewrite admission",
+      "kind": "admission",
+      "details": {
+        "command": "ethos lane prewrite",
+        "admits": "exact tracked write paths"
+      }
+    },
+    {
+      "id": "lane-lease",
+      "label": "Lane lease",
+      "kind": "admission",
+      "details": {
+        "binds": "holder, generation and expiry",
+        "state": "ethos/state.sqlite in the Git common directory"
+      }
+    },
+    {
+      "id": "hook-admission",
+      "label": "Hook admission",
+      "kind": "admission",
+      "details": {
+        "guards": "commits, pushes and ref moves"
+      }
+    },
+    {
+      "id": "mutation-admission",
+      "label": "Mutation admission",
+      "kind": "admission",
+      "details": {
+        "requires": "a proof Attestation at HEAD"
+      }
+    },
+    {
+      "id": "land-closeout",
+      "label": "Land and closeout",
+      "kind": "service",
+      "details": {
+        "command": "ethos land",
+        "promotes": "candidate, then accepted branch"
+      }
+    },
+    {
+      "id": "git-effect-engine",
+      "label": "Git effect engine",
+      "kind": "service",
+      "details": {
+        "executes": "CAS update-ref with ref intents"
+      }
+    },
+    {
+      "id": "publication",
+      "label": "Peer publication",
+      "kind": "service",
+      "details": {
+        "command": "ethos publish",
+        "pushes": "exact refs to peer remotes"
+      }
+    },
+    {
+      "id": "runtime-installer",
+      "label": "Runtime installer",
+      "kind": "service",
+      "details": {
+        "command": "ethos hook install",
+        "activates": "runtime/CURRENT and hook launchers"
+      }
+    },
+    {
+      "id": "attestation-set",
+      "label": "Attestation set",
+      "kind": "store",
+      "details": {
+        "ref": "refs/ethos/attestations-set"
+      }
+    },
+    {
+      "id": "evidence-store",
+      "label": "Evidence store",
+      "kind": "store",
+      "details": {
+        "holds": "proof artifacts and custody"
+      }
+    },
+    {
+      "id": "git",
+      "label": "Git",
+      "kind": "tool",
+      "details": {
+        "owns": "objects, refs and worktrees"
+      }
+    },
+    {
+      "id": "openspec",
+      "label": "OpenSpec CLI",
+      "kind": "tool",
+      "details": {
+        "package": "@fission-ai/openspec"
+      }
+    },
+    {
+      "id": "forge-ci",
+      "label": "Forge and CI",
+      "kind": "peer",
+      "details": {
+        "peers": "GitLab and GitHub"
+      }
+    },
+    {
+      "id": "native-tools",
+      "label": "Repository tools",
+      "kind": "tool",
+      "details": {
+        "for example": "nox, ruff, gitleaks, mise"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "id": "status-reader-commitment",
+      "from": "status-reader",
+      "to": "commitment",
+      "label": "resolves scope"
+    },
+    {
+      "id": "transition-plan-commitment",
+      "from": "transition-plan",
+      "to": "commitment",
+      "label": "resolves change"
+    },
+    {
+      "id": "transition-plan-gate-policy",
+      "from": "transition-plan",
+      "to": "gate-policy",
+      "label": "resolves gates"
+    },
+    {
+      "id": "transition-plan-git",
+      "from": "transition-plan",
+      "to": "git",
+      "label": "reads refs"
+    },
+    {
+      "id": "commitment-openspec",
+      "from": "commitment",
+      "to": "openspec",
+      "label": "runs CLI"
+    },
+    {
+      "id": "commitment-attestation-set",
+      "from": "commitment",
+      "to": "attestation-set",
+      "label": "reads attestations"
+    },
+    {
+      "id": "proof-gate-policy",
+      "from": "proof",
+      "to": "gate-policy",
+      "label": "resolves gates"
+    },
+    {
+      "id": "proof-transition-plan",
+      "from": "proof",
+      "to": "transition-plan",
+      "label": "compiles plan"
+    },
+    {
+      "id": "proof-native-tools",
+      "from": "proof",
+      "to": "native-tools",
+      "label": "executes"
+    },
+    {
+      "id": "proof-evidence-store",
+      "from": "proof",
+      "to": "evidence-store",
+      "label": "writes artifact"
+    },
+    {
+      "id": "proof-attestation-set",
+      "from": "proof",
+      "to": "attestation-set",
+      "label": "records proof"
+    },
+    {
+      "id": "work-lane-lane-lease",
+      "from": "work-lane",
+      "to": "lane-lease",
+      "label": "acquires, revokes"
+    },
+    {
+      "id": "work-lane-git-effect-engine",
+      "from": "work-lane",
+      "to": "git-effect-engine",
+      "label": "creates, deletes ref"
+    },
+    {
+      "id": "prewrite-admission-lane-lease",
+      "from": "prewrite-admission",
+      "to": "lane-lease",
+      "label": "checks holder"
+    },
+    {
+      "id": "git-hook-admission",
+      "from": "git",
+      "to": "hook-admission",
+      "label": "runs hooks"
+    },
+    {
+      "id": "hook-admission-prewrite-admission",
+      "from": "hook-admission",
+      "to": "prewrite-admission",
+      "label": "re-admits staged"
+    },
+    {
+      "id": "hook-admission-git-effect-engine",
+      "from": "hook-admission",
+      "to": "git-effect-engine",
+      "label": "claims ref intent"
+    },
+    {
+      "id": "land-closeout-mutation-admission",
+      "from": "land-closeout",
+      "to": "mutation-admission",
+      "label": "admits land"
+    },
+    {
+      "id": "land-closeout-git-effect-engine",
+      "from": "land-closeout",
+      "to": "git-effect-engine",
+      "label": "moves refs by CAS"
+    },
+    {
+      "id": "mutation-admission-attestation-set",
+      "from": "mutation-admission",
+      "to": "attestation-set",
+      "label": "selects proof"
+    },
+    {
+      "id": "git-effect-engine-transition-plan",
+      "from": "git-effect-engine",
+      "to": "transition-plan",
+      "label": "compiles plan"
+    },
+    {
+      "id": "git-effect-engine-mutation-admission",
+      "from": "git-effect-engine",
+      "to": "mutation-admission",
+      "label": "re-checks proof"
+    },
+    {
+      "id": "git-effect-engine-git",
+      "from": "git-effect-engine",
+      "to": "git",
+      "label": "update-ref --stdin"
+    },
+    {
+      "id": "git-effect-engine-attestation-set",
+      "from": "git-effect-engine",
+      "to": "attestation-set",
+      "label": "attests effect"
+    },
+    {
+      "id": "publication-forge-ci",
+      "from": "publication",
+      "to": "forge-ci",
+      "label": "pushes refs"
+    },
+    {
+      "id": "runtime-installer-git",
+      "from": "runtime-installer",
+      "to": "git",
+      "label": "sets core.hooksPath"
+    }
+  ],
+  "views": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "members": [
+        "work-lane",
+        "prewrite-admission",
+        "lane-lease",
+        "proof",
+        "land-closeout",
+        "mutation-admission",
+        "git-effect-engine",
+        "attestation-set",
+        "git"
+      ]
+    },
+    {
+      "id": "intent",
+      "title": "Intent and plan",
+      "question": "How does ETHOS resolve the current change and compile it into a TransitionPlan?",
+      "members": [
+        "status-reader",
+        "transition-plan",
+        "commitment",
+        "gate-policy",
+        "attestation-set",
+        "openspec",
+        "git"
+      ]
+    },
+    {
+      "id": "proof",
+      "title": "Proof plane",
+      "question": "How is proof produced for one exact HEAD and recorded for later admission?",
+      "members": [
+        "proof",
+        "transition-plan",
+        "gate-policy",
+        "native-tools",
+        "evidence-store",
+        "attestation-set",
+        "mutation-admission"
+      ]
+    },
+    {
+      "id": "hooks",
+      "title": "Runtime and hook binding",
+      "question": "How does ethos hook install bind a runtime so that plain Git commits, pushes and ref moves are admitted?",
+      "members": [
+        "runtime-installer",
+        "git",
+        "hook-admission",
+        "prewrite-admission",
+        "git-effect-engine",
+        "lane-lease"
+      ]
+    }
+  ]
+}

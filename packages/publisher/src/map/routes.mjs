@@ -36,6 +36,12 @@ const LABEL = Object.freeze({ gap: 6, baseline: 10, rise: 10 });
  * than Archify's shortest interior segment.
  */
 const CLEAR = Object.freeze({ ratio: 2.5, least: SEGMENT.interior });
+/**
+ * How far a reader carries a route's segment on past its corner, two and a half
+ * interior segments, and how near that line a label lies on it: a label the
+ * line runs into reads as that route's, as if the route went on to it.
+ */
+const LINE = Object.freeze({ reach: 2.5 * SEGMENT.interior, slack: 2 });
 
 /** The gap between two boxes, 0 where they touch or overlap. */
 const gap = (a, b) =>
@@ -53,15 +59,46 @@ const boxOf = ({ a, b }) => ({
 });
 
 /**
+ * Whether two relations from one card share their label, which the diagram sets
+ * once, on one of them: they leave the card at one point and only one of them
+ * carries the label.
+ * @param {any} layout Archify's layout of the diagram
+ * @param {number} s
+ * @param {number} u
+ */
+function fan(layout, s, u) {
+  const [p, q] = [layout.connections[s], layout.connections[u]];
+  const [a, b] = [p.points[0], q.points[0]];
+  return (
+    p.from === q.from &&
+    (!p.label || !q.label) &&
+    Math.abs(a[0] - b[0]) < 0.5 &&
+    Math.abs(a[1] - b[1]) < 0.5
+  );
+}
+
+/**
  * What a relation label may be read with on Archify's layout: the segments of
- * every route, by the connection they belong to, each connection's label box
- * and the edges of every boundary.
+ * every route, by the connection they belong to, each segment carried on past
+ * its corners, each connection's label box and the edges of every boundary.
  * @param {any} layout Archify's layout of the diagram
  */
 function labelScene(layout) {
   /** @type {Array<{ owner: number, a: number[], b: number[] }>} */
   const segments = layout.connections.flatMap(({ points }, owner) =>
     points.slice(1).map((point, index) => ({ owner, a: points[index], b: point })),
+  );
+  /** @type {Array<{ owner: number, a: number[], b: number[] }>} */
+  const lines = layout.connections.flatMap(({ points }, owner) =>
+    points.slice(1, -1).flatMap((corner, index) =>
+      [points[index], points[index + 2]].flatMap((from) => {
+        const length = Math.hypot(corner[0] - from[0], corner[1] - from[1]);
+        if (!length) return [];
+        const on = LINE.reach / length;
+        const b = [corner[0] + on * (corner[0] - from[0]), corner[1] + on * (corner[1] - from[1])];
+        return [{ owner, a: corner, b }];
+      }),
+    ),
   );
   const anchor = ([x, y]) => `${x},${y}`;
   const byAnchor = new Map(layout.labels.map((label) => [anchor(label.labelAt), label]));
@@ -76,7 +113,8 @@ function labelScene(layout) {
   /**
    * How near a box for the label of connection `owner` comes to its own route;
    * to another route, card or label, which a reader may take it for; to another
-   * label alone; and to all of those and the outlines.
+   * label alone; and to all of those, the outlines and the lines other routes
+   * carry on past their corners, a box on such a line lying at none.
    * @param {number} owner
    * @param {{ x: number, y: number, width: number, height: number }} box
    */
@@ -88,11 +126,17 @@ function labelScene(layout) {
       nearest(segments.filter((segment) => segment.owner !== owner).map(boxOf)),
       nearest(layout.components),
     );
+    const online = lines.some(
+      (line) =>
+        line.owner !== owner &&
+        !fan(layout, owner, line.owner) &&
+        gap(box, boxOf(line)) < LINE.slack,
+    );
     return {
       own: nearest(segments.filter((segment) => segment.owner === owner).map(boxOf)),
       label,
       taken,
-      other: Math.min(taken, nearest(outlines)),
+      other: online ? 0 : Math.min(taken, nearest(outlines)),
     };
   };
   return { segments, labels, distances };
@@ -201,7 +245,8 @@ export function clearLabels(layout, ids, owners) {
  * by side, closer than one and a half interior segments, for longer than four.
  * A label crowds when anything but its own route, an outline included, comes
  * within two and a half times its own route's distance, or within the
- * shortest interior segment. Two route ends crowd when they meet one side of a
+ * shortest interior segment, or when another route's segment carried on past
+ * its corner runs into it. Two route ends crowd when they meet one side of a
  * card close together.
  * @param {any} layout Archify's layout of the diagram
  * @param {string[]} ids the diagram's connection ids, in Archify's order
@@ -213,13 +258,7 @@ export function routeDefects(layout, ids) {
   // The axis a segment keeps: 0 for a vertical one, 1 for a horizontal one.
   const axisOf = ({ a, b }) => [0, 1].find((axis) => Math.abs(a[axis] - b[axis]) < 0.5);
   const span = ({ a, b }, axis) => [a[axis], b[axis]].sort((p, q) => p - q);
-  const same = (p, q) => Math.abs(p[0] - q[0]) < 0.5 && Math.abs(p[1] - q[1]) < 0.5;
   const ends = (owner) => [routes[owner][0], routes[owner][routes[owner].length - 1]];
-  // Two relations of one label: one card's, the second without a label of its own.
-  const fan = (s, u) => {
-    const [p, q] = [layout.connections[s], layout.connections[u]];
-    return p.from === q.from && (!p.label || !q.label) && same(routes[s][0], routes[u][0]);
-  };
   const cards = layout.components;
   // Whether a card stands on the line `at` between `from` and `to` along it.
   const cardBetween = (axis, at, from, to) =>
@@ -255,7 +294,7 @@ export function routeDefects(layout, ids) {
       const lined =
         !side &&
         apart < SEGMENT.micro &&
-        !fan(s.owner, u.owner) &&
+        !fan(layout, s.owner, u.owner) &&
         ((apart < 0.5 && overlap > 0.5) ||
           (-overlap < DEFECT.join &&
             !cardBetween(axis, s.a[axis], Math.min(p[1], q[1]), Math.max(p[0], q[0]))));
@@ -322,7 +361,7 @@ export function routeDefects(layout, ids) {
         const spacing = Math.abs(list[i].at - list[j].at);
         if (spacing < 0.5) {
           // Two routes into one point read as one, unless one label fans out of it.
-          if (!fan(p, q) && !together.has(`${p}:${q}`)) {
+          if (!fan(layout, p, q) && !together.has(`${p}:${q}`)) {
             joins += 1;
             misread.add(p).add(q);
           }

@@ -68,6 +68,7 @@
 - [x] 8.27 Pin a label by an offset from where Archify anchors it, which keeps its route's ends spread, and keep the words beside a no-break space on one line on the posters and the page. `tests/map-choice.test.mjs` and `tests/text-breaks.test.mjs` pass in `npm run check`.
 - [x] 8.28 Count a poster wire that turns within 48 px beside a card it does not connect, and two wires within 40 px for more than 96 px, as route defects, and lay each wrapping out also with channels that turn such wires on label rows instead; context-mode's retrieval poster counts none. `tests/layout-measure.test.mjs`, `tests/poster-compose.test.mjs` and `tests/unrelated-models.test.mjs` pass in `npm run check`.
 - [x] 8.29 Name the self, browser-use and context-mode overview views by what they show instead of "Overview"; their page panels and viewers carry the new names. Each built page names its first view six times and "Overview" nowhere.
+- [x] 8.30 Group a poster edition by the fewest crossings and route defects before the fewest pages, print a view that fits only below the largest step with one blank area on a sparse page, count a label another route's line runs into past its corner as crowded and pin labels in up to three rounds; ETHOS's proof plane prints alone without a route defect. `tests/poster-compose.test.mjs` and `tests/map-choice.test.mjs` pass in `npm run check`.
 
 ## 9. Acceptance and release
 

@@ -124,11 +124,14 @@ bracket that spans them all. Every page passes four balance gates over its live
 area: its largest blank rectangle covers at most 12 percent of it, no blank band
 96 px or taller runs across it, at most 40 percent of it lies in empty squares
 of 240 px or more, and its centre of mass lies within 12 percent of the centre
-across and down. The edition is grouped into the fewest pages that miss a gate,
-then the fewest pages, then the least area in those holes, and each page
-prefers the fewest crossings and route defects. A grouping no passing page
-holds is printed on a sparse page when its figures already stand at the
-largest step: the model has too little to fill the page. Otherwise, a view
+across and down. The edition is grouped into the fewest crossings and then
+route defects over all its pages, since two views squeezed onto one page wire
+worse, then the fewest pages that miss a gate, then the fewest pages, then the
+least area in those holes, and each page prefers the fewest crossings and
+route defects. A grouping no passing page holds is printed on a sparse page
+when its figures already stand at the largest step, or at the largest step
+they fit at with only its largest blank rectangle or a blank band over its
+gate: the model has too little to fill the page. Otherwise, a view
 that no admitted page holds, alone or with a neighbour, is refused with
 `poster_unbalanced` and its closest page's measures and limits, unless
 `--quality standard` prints that page as a draft. Text is outlined from the
@@ -186,11 +189,13 @@ beside their steps, within 96 measured changes, wherever that ranks the diagram
 higher. A label still read as another's or crowded is then pinned, on the three
 best diagrams by their routes, inside the canvas on or beside the middle or a
 quarter of a segment of its own route where nothing else is taken for it, and
-the page chooses again. A pin is an offset from where Archify anchors the label:
-an anchor of its own would take the route's ends out of Archify's spreading, so
-that they could meet another route's. The pin is found on the layout with the
-label at that anchor, where its route already takes the course it keeps once
-pinned. Archify runs other routes around a pinned label, so a label read as
+the page chooses again, in up to three rounds that each pin anew what the
+round before left misplaced. A label that another route's line, carried 40
+units past its corner, runs into counts as crowded. A pin is an offset from
+where Archify anchors the label: an anchor of its own would take the route's
+ends out of Archify's spreading, so that they could meet another route's. The
+pin is found on the layout with the label at that anchor, where its route
+already takes the course it keeps once pinned. Archify runs other routes around a pinned label, so a label read as
 another's is also pinned alone, and a label pinned on a segment masks its
 route, which runs on at least 8 units past it at either end. A view without a
 candidate that passes refuses the build with Archify's findings; a diagram

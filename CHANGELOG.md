@@ -42,12 +42,13 @@ remain pre-release contracts and may contain incompatible changes.
   of text, or with its text set in the corners its figure leaves free. Cards are as large as their text, a sparse view
   is set at a larger type step of up to 1.8 times, tier labels stand in one column before the figure, or before the edge
   each tier starts at when no page with one column balances, a tier that wraps has its label level with its first row
-  beside a bracket over its rows, and the edition is grouped into the fewest pages that pass the balance gates for the
-  largest empty area, blank bands, holes and centre of mass, each preferring the composition with the fewest crossings
-  and route defects. A page whose figures already stand at the largest type step is delivered as sparse, since its model
-  has too little to fill it; a build at standard quality delivers any other closest page as a draft; otherwise a view no
-  passing page holds is refused with `poster_unbalanced` and its closest page's measures. The manifest records every
-  page's admission and misses, and per-relation evidence moves to it.
+  beside a bracket over its rows, and the edition is grouped into the fewest crossings and route defects, then the fewest
+  pages that miss the balance gates for the largest empty area, blank bands, holes and centre of mass, each page
+  preferring the composition with the fewest crossings and route defects. A page whose figures already stand at the
+  largest type step, or at the largest step they fit at with only its largest blank area or a blank band over the gate,
+  is delivered as sparse, since its model has too little to fill it; a build at standard quality delivers any other
+  closest page as a draft; otherwise a view no passing page holds is refused with `poster_unbalanced` and its closest
+  page's measures. The manifest records every page's admission and misses, and per-relation evidence moves to it.
 - **Breaking:** The interactive medium is one vendored, unmodified Archify 3.2.0 explainer page that answers the model's
   question view by view: its conclusion beside a list of its panels, then one panel per view with its native
   architecture diagram, named by the view, which opens Archify's full viewer, and steps that light each component and
@@ -57,10 +58,11 @@ remain pre-release contracts and may contain incompatible changes.
   or the boundary's edge, while another passes without; then it takes the fewest crossings, a preview beside its steps,
   the fewest labels a reader takes for another route's, a card's or another label's, routes doubled into one line,
   routes over two bends, crowded labels and crowded route ends. The connections involved take other sides while that
-  improves the diagram, and a label still misplaced is pinned on or beside its own route, by an offset from where
-  Archify anchors it, which keeps the route's ends spread. A card shows a detail whole or not at all, and the steps
-  carry every detail. The diagram passes Archify's checks at the build's quality profile, showcase unless the build
-  asks for standard, or the build is refused with a `page_*` code and Archify's findings.
+  improves the diagram, and a label still misplaced, or on another route's line past its corner, is pinned on or beside
+  its own route in up to three rounds, by an offset from where Archify anchors it, which keeps the route's ends spread.
+  A card shows a detail whole or not at all, and the steps carry every detail. The diagram passes Archify's checks at
+  the build's quality profile, showcase unless the build asks for standard, or the build is refused with a `page_*`
+  code and Archify's findings.
   Sources Archify will not cite, such as files under a secrets directory, are withheld and recorded in the manifest.
 - A failure that is not a refusal or usage error exits with status 3 and an `internal_error` JSON body. Git and
   Archify run with only the caller's path, home and temporary-directory variables, and `SystemRoot` on Windows.

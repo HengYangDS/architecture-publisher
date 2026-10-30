@@ -51,9 +51,10 @@ step.
 ### Requirement: Edition grouping
 
 The publisher SHALL choose the grouping for the whole edition rather than page
-by page, among groupings whose every page passes every gate, minimising first
-the page count and then the total share of the live area in holes, so that a
-view too sparse to fill a page alone shares one with its neighbour.
+by page, among groupings of admitted pages, minimising first crossings, then
+route defects, then pages not balanced, the page count and the live area in
+holes, so that a view too sparse to fill a page alone shares one with its
+neighbour unless sharing wires either view with more faults.
 
 #### Scenario: A sparse view shares a page
 
@@ -61,6 +62,12 @@ view too sparse to fill a page alone shares one with its neighbour.
   component with the view before it, and a page of both passes every gate
 - **THEN** that view shares a page with the view before it rather than
   printing as a band on a page of its own
+
+#### Scenario: A view that wires cleanly only alone
+
+- **WHEN** ETHOS's proof plane wires three faults on the one page it can share
+  and none alone, where it fits one step below the largest with a blank area
+- **THEN** it is printed alone on a sparse page
 
 ### Requirement: Page grid
 
@@ -540,9 +547,10 @@ and the limit.
 ### Requirement: Sparse pages
 
 Each grouping SHALL be printed on its best page that passes every gate. When
-none passes, it SHALL be printed on its closest page that sets every figure at
-the largest type step, as a sparse page: the model has too little to fill and
-balance the page, which no composition changes.
+none passes, it SHALL be printed as a sparse page on its closest page that sets
+every figure at the largest type step, or at the largest step they fit at with
+only its largest blank rectangle or a blank band over the gate: the model has
+too little to fill and balance the page, which no composition changes.
 
 #### Scenario: A model too small to fill a page
 
@@ -554,8 +562,9 @@ balance the page, which no composition changes.
 ### Requirement: Draft pages
 
 At standard quality, a grouping with neither a passing nor a sparse page SHALL
-be printed on its closest page as a draft. An edition SHALL take the fewest
-pages that are not balanced, then the fewest pages.
+be printed on its closest page as a draft. After the fewest wiring faults, an
+edition SHALL take the fewest pages that are not balanced, then the fewest
+pages.
 
 #### Scenario: A figure that could grow but balances nowhere
 

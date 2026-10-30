@@ -279,8 +279,10 @@ The poster is now composed format first:
   centre across and down. Type holds by construction: scale sizes only, a 14 px
   floor, the measure and no word broken on a card. A grouping no passing page
   holds prints on a sparse page when its figures already stand at the largest
-  step; otherwise showcase refuses it, naming each view with its closest page's
-  measured values and limits, and standard records it as a draft.
+  step, or at the largest step they fit the page at with only one blank area
+  over its gate; otherwise showcase refuses it, naming each view with its
+  closest page's measured values and limits, and standard records it as a
+  draft.
 
 A view of three to five components has a figure a third of the page tall, which
 no justification fills, so the page, not the view, became the unit:
@@ -291,8 +293,9 @@ no justification fills, so the page, not the view, became the unit:
   share of the band's width in proportion to the width its figure needs, so
   three short plates may set two side by side over the third. The grouping is
   chosen for the whole edition by an exact search over consecutive groupings of
-  pages that pass every gate, minimising the page count, then the area in
-  holes; a greedy packer stranded the last sparse view alone.
+  admitted pages, minimising crossings and route defects, which two views
+  squeezed onto one page multiply, then pages not balanced, the page count and
+  the area in holes; a greedy packer stranded the last sparse view alone.
 - **Bands from natural heights.** Each plate's band is its figure's natural
   height at the densest step plus a share of the surplus in proportion to it.
   Equal bands overflowed the tall plate and left the short one blank.
@@ -398,10 +401,8 @@ The interactive medium is one Archify explainer page, chosen by the user on
 `archify finalize explainer` from a draft and one architecture document per
 view that archpub writes. It replaces the single full-model map.
 
-Archify 3.2.0 renders nothing from `meta.views`, so the map's guided views
-never reached a reader, and its reader fits a fixed-viewBox map at about
-1346 px wide: the 20-component ETHOS map became a strip 10,277 px tall, while an
-automatic canvas fits the first screen only with labels below 14 px.
+Archify 3.2.0 renders nothing from `meta.views`, and its reader fit the
+20-component ETHOS map into a strip 10,277 px tall.
 
 The explainer page answers the model's question:
 
@@ -441,12 +442,13 @@ crossings, a preview beside its steps, labels read as another's, doubled
 routes, routes over two bends, crowded labels and ends, stretch above 1.35 and
 the shape closest to 1.0 to 1.8. A choice with a defect, or stacked above its
 steps, has the connections involved re-sided from the three best diagrams and
-the three best beside their steps, within 96 measured changes; a label still
-misplaced is then pinned inside the canvas, on or beside its own route, by an
-offset from where Archify anchors it, found on the layout with the label at
-that anchor, which keeps its route's course and ends; one read as another's is
-pinned alone as well, since Archify runs other routes around a pinned label.
-A view with no passing candidate is refused with Archify's findings.
+the three best beside their steps, within 96 measured changes. A label still
+misplaced, or on another route's line carried 40 px past its corner, is then
+pinned inside the canvas beside its own route, by an offset from Archify's
+anchor found on the layout with the label there, which keeps its route's course
+and ends; one read as another's is also pinned alone, since Archify runs other
+routes around a pinned label, and up to three rounds pin anew what the last
+left. A view with no passing candidate is refused with Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit
@@ -454,18 +456,16 @@ sublabel, reach Archify's reading floor, three quarters of the page's 14.5 px
 body text at a 1440 px viewport, which sets primary labels at 13.29 px or
 more. The full viewer draws them at 14 px or more.
 
-Components carry no kind tag. Archify's 7 px tag text would sit below that
-reading floor at any enlargement a panel allows, and Archify would mark the
-preview with its notice that the diagram cannot fit the page with readable
-text; the legend names the kinds by their colour instead.
+Components carry no kind tag: Archify's 7 px tag text falls below that floor at
+any enlargement a panel allows, so the legend names the kinds by their colour.
 
 Archify will not cite a source in a sensitive file class, such as a path with
 a `secrets` segment. Such a source is withheld from the page and recorded as
 withheld in the manifest, and a component that cites it cites its next source.
 
-The draft and the diagram documents are written into a fixed-name directory
-inside the staged delivery, because the page records their location relative
-to itself, and are removed with Archify's receipts once the page is written.
+The draft and diagram documents are written into a fixed-name directory of the
+staged delivery, where the page records them, and removed with Archify's
+receipts once it is written.
 
 A single full-model map was rejected because a large model cannot be both
 complete and readable in one diagram, and because its reading order was lost.
@@ -567,7 +567,8 @@ gates stay in force. The user accepts the artwork; tests do not.
   candidate that passes its showcase checks refuses the build with its
   findings, because a page has one quality profile.
 - [A view no balanced page holds, alone or with a neighbour] → A model too
-  small to fill it prints on a sparse page; otherwise a showcase build is
+  small to fill it, or a figure that fits only below the largest step with one
+  blank area beside it, prints on a sparse page; otherwise a showcase build is
   refused with `poster_unbalanced`, naming the view and each gate its closest
   page misses, and a standard build records it as a draft; the format and the
   type floor never change.

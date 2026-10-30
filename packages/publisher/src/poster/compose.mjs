@@ -49,13 +49,21 @@ const GATES = Object.freeze({
 
 /** The largest figure type step: a figure set at it cannot grow any further. */
 const LARGEST = POSTER.steps.length - 1;
+/**
+ * The gates of one blank area: the largest blank rectangle and a band blank
+ * across the page, which a figure that cannot grow leaves beside it. Holes
+ * between its ink are a fault of the composition, not of the figure's size.
+ */
+const BLANK = Object.freeze(["emptyShare", "blankBand"]);
 
 /**
  * How a drawn page stands against the gates: it passes them all; it misses some
- * with every figure already at the largest type step, so the model has too
- * little to fill and balance the page, which no composition can change; or it
- * is a standard-quality draft whose figures could be set larger but whose
- * every composition misses a gate.
+ * with every figure already at the largest type step, or misses only the gates
+ * of one blank area with every figure at the largest step it fits the page at,
+ * so the model has too little to fill and balance the page, which no
+ * composition can change; or it is a standard-quality draft whose figures
+ * could be set larger, or that holes or an off-centre figure unbalance, and
+ * whose every composition misses a gate.
  * @typedef {"balanced" | "sparse" | "draft"} Admission
  */
 
@@ -120,16 +128,23 @@ function measure(page, made, typefaces, measured) {
 
 /**
  * Compose one page of `views`. Returns the best page that passes every gate, or
- * null; the closest sparse page, whose figures are all set at the largest step;
- * and the closest page drawn at all, which names what a grouping misses when
- * none passes. All are null when the grouping cannot be laid out, or when two
- * of its views share a component the page would then draw twice.
+ * null; the closest sparse page, whose figures are all set at the largest step,
+ * or at the largest step they fit the page at where it misses only the gates of
+ * one blank area; and the closest page drawn at all, which names what a
+ * grouping misses when none passes. All are null when the grouping cannot be
+ * laid out, or when two of its views share a component the page would then
+ * draw twice.
  */
 function sheet(model, views, first, typefaces, icons, boundaryName) {
   const candidates = [...pageCandidates(model, views, first, typefaces, icons, boundaryName)];
   const passed = candidates.filter(({ fails }) => fails.length === 0);
-  const sparse = candidates.filter(({ composition }) =>
-    composition.plates.every(({ step }) => step === LARGEST),
+  const stepOf = ({ composition }) => Math.min(...composition.plates.map(({ step }) => step));
+  const fitted = Math.max(-1, ...candidates.map(stepOf));
+  const sparse = candidates.filter(
+    (candidate) =>
+      candidate.composition.plates.every(({ step }) => step === LARGEST) ||
+      (stepOf(candidate) === fitted &&
+        candidate.fails.every(({ measure }) => BLANK.includes(measure))),
   );
   return {
     chosen: passed.length ? best(passed) : null,
@@ -414,8 +429,10 @@ function withText(page, extra) {
  * views, and the grouping is chosen for the edition as a whole, not page by page:
  * a greedy packer that takes a passing page whenever it sees one strands the last
  * view alone, and a view of three components cannot fill a 16:9 page by itself.
- * The search takes the fewest pages that do not pass every gate, then the
- * fewest pages, then the least of their area lying in holes. A page that does
+ * The search takes the fewest wires that cross and then the fewest route
+ * defects over all pages, which a page that squeezes two views into one draws
+ * more of; then the fewest pages that do not pass every gate, then the fewest
+ * pages, then the least of their area lying in holes. A page that does
  * not pass is admitted only as a sparse page, which a model too small to fill
  * it cannot avoid, or at standard quality as a draft that records what it
  * misses. An edition no grouping can print on admitted pages is refused, naming
@@ -460,7 +477,15 @@ export function composeEdition(model, views, typefaces, icons, options = {}) {
   const count = views.length;
   /** @type {Array<any>} */
   const plan = new Array(count + 1).fill(null);
-  plan[count] = { unbalanced: 0, pages: 0, holes: 0, next: count, page: null };
+  plan[count] = {
+    crossings: 0,
+    routes: 0,
+    unbalanced: 0,
+    pages: 0,
+    holes: 0,
+    next: count,
+    page: null,
+  };
   for (let index = count - 1; index >= 0; index -= 1) {
     /** @type {any} */
     let chosen = null;
@@ -470,7 +495,10 @@ export function composeEdition(model, views, typefaces, icons, options = {}) {
       const page = admitted(index, size);
       // A grouping no admitted page can hold is not a page.
       if (!rest || !page) continue;
+      const [crossings, routes] = faultsOf(page.made);
       const total = {
+        crossings: crossings + rest.crossings,
+        routes: routes + rest.routes,
         unbalanced: (page.admission === "balanced" ? 0 : 1) + rest.unbalanced,
         pages: 1 + rest.pages,
         holes: page.made.balance.holes + rest.holes,
@@ -532,8 +560,13 @@ function refuseEdition(views, at, admitted) {
   );
 }
 
-/** Fewer pages that miss a gate first, then fewer pages, then the least area in holes. */
+/**
+ * Fewer wires that cross and then fewer route defects first, then fewer pages
+ * that miss a gate, then fewer pages, then the least area in holes.
+ */
 function betterPlan(a, b) {
+  if (a.crossings !== b.crossings) return a.crossings < b.crossings;
+  if (a.routes !== b.routes) return a.routes < b.routes;
   if (a.unbalanced !== b.unbalanced) return a.unbalanced < b.unbalanced;
   if (a.pages !== b.pages) return a.pages < b.pages;
   return a.holes < b.holes;
