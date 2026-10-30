@@ -95,6 +95,12 @@ export const POSTER = Object.freeze({
      * takes the turn for one of that card's wires.
      */
     turnClear: ROUTE.join,
+    /**
+     * How far a card's one port moves off its centre when that centre lines
+     * its wire up with another card's wire through that card: in line, a
+     * reader follows one wire on through the card it does not enter.
+     */
+    axisClear: 40,
     minJog: 56,
     clear: 14,
     minChannel: 64,

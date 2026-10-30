@@ -214,6 +214,33 @@ test("a wire that turns on a label row keeps 48 px from the cards it does not co
   assert.equal(made.measures.routes, 0);
 });
 
+test("a card's one port leaves the line of a wire into the card across the channel that it does not enter", () => {
+  // "enters" runs straight down into c3, and "runs" turns into c4 under it: at
+  // c4's centre the two would line up through c3, and a reader would follow
+  // one wire on through a card that "runs" never enters.
+  const model = validateModel(
+    graphModel(5, [
+      [1, 3, "enters"],
+      [5, 4, "runs"],
+    ]),
+  );
+  const made = layoutView(
+    wholeView(model, [["c1", "c2", "c5"], ["c3"], ["c4"]]),
+    { ...simpleMetrics(model), centring: "all" },
+    { boundaryName: "System" },
+  );
+  assertTidy(made);
+  const at = (id) =>
+    /** @type {any} */ (made.paths.find(({ relations }) => relations[0].id === id));
+  const [above, below] = [made.cards.get("c3"), made.cards.get("c4")];
+  const enters = at("r1").points[0][0];
+  const runs = made.paths
+    .filter(({ relations }) => relations[0].id === "r2")
+    .find(({ points }) => points.at(-1)[1] === below.y);
+  assert.equal(enters, above.x + above.width / 2);
+  assert.equal(/** @type {any} */ (runs).points.at(-1)[0], below.x + below.width / 2 + 40);
+});
+
 test("a tier of seven cards is refused with the row and its members", () => {
   assert.throws(
     () =>

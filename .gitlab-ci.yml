@@ -42,7 +42,8 @@ stages:
     - mise exec -- npm run check:ci
     - mise exec -- node node_modules/playwright-core/cli.js install chromium
     - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-      --test-name-pattern=standalone tests/map-browser.test.mjs
+      --test-force-exit --test-name-pattern=standalone
+      tests/map-browser.test.mjs
     - mise exec -- node -e
       "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
     - mise exec -- node tools/raster/resvg/verify.mjs --registry-url >
@@ -81,7 +82,8 @@ stages:
     - mise exec -- npm run check:ci
     - mise exec -- node node_modules/playwright-core/cli.js install chromium
     - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-      --test-name-pattern=standalone tests/map-browser.test.mjs
+      --test-force-exit --test-name-pattern=standalone
+      tests/map-browser.test.mjs
     - mise exec -- node -e
       "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
     - mise exec -- node tools/raster/resvg/verify.mjs --registry-url >

@@ -86,20 +86,27 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
   }
 });
 
-test("the publisher's own model prints each view on a balanced page without crossings", async () => {
+test("the publisher's own model prints each view without crossings, the grid layout on a sparse page", async () => {
   const { model } = await loadModel(SELF_MODEL, { icon: icons.has });
   const pages = await edition(model);
   assert.deepEqual(
     pages.map(({ views }) => views),
     [["overview"], ["layout"], ["media"]],
   );
-  for (const poster of pages) {
-    assert.equal(poster.measures.crossings, 0, `page ${poster.page}`);
-    assertBalanced(poster);
-  }
+  for (const poster of pages) assert.equal(poster.measures.crossings, 0, `page ${poster.page}`);
+  // The grid layout's five mechanisms balance a page only in rows that hook
+  // two pairs of wires past each other; in one row they wire cleanly and leave
+  // one blank area over its gate.
+  assert.deepEqual(
+    pages.map(({ admission }) => admission),
+    ["balanced", "sparse", "balanced"],
+  );
+  for (const poster of [pages[0], pages[2]]) assertBalanced(poster);
+  for (const { measure } of pages[1].misses)
+    assert.ok(["emptyShare", "blankBand"].includes(measure), measure);
   // Five wires leave Delivery builder 37 px apart and two pairs of them run
-  // alongside for longer than 96 px; on the media page one wire still turns
-  // beside a card it does not connect.
+  // alongside for longer than 96 px; on the media page two wires into Supplies
+  // run alongside.
   assert.deepEqual(
     pages.map(({ measures }) => measures.routes),
     [2, 0, 1],

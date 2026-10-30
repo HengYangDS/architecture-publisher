@@ -9,7 +9,7 @@ function segmentsOf(paths) {
   return paths.flatMap(({ relations, points }) =>
     points
       .slice(1)
-      .map((point, index) => ({ owner: owner(relations), a: points[index], b: point })),
+      .map((point, index) => ({ owner: owner(relations), relations, a: points[index], b: point })),
   );
 }
 
@@ -161,22 +161,33 @@ export function measureRoutes(geometry) {
 /**
  * The spacing below which wiring misreads although no two wires cross: two
  * parallel wires closer than `parallel` read as one, and so do two closer than
- * `alongside` for longer than `run`; a wire that stops less than `join` short
- * of another in line with it reads as continuing it, and one that turns less
- * than `join` beside a card it does not connect reads as leaving that card;
- * two arrowheads closer than two heads read as one, and a relation label
- * closer than `label` to another relation's wire reads as that wire's label.
- * Layout spacing keeps them, so the measure only finds what the spacing could
- * not.
+ * `alongside` for longer than `run` or that hook past each other; a wire that
+ * stops less than `join` short of another in line with it reads as continuing
+ * it, and so does a run that stops less than `jump` short of another's where a
+ * third relation's wire crosses the line between them, as one line jumping
+ * that wire; one that turns less than `join` beside a card it does not connect
+ * reads as leaving that card; two arrowheads closer than two heads read as
+ * one, and a relation label closer than `label` to another relation's wire
+ * reads as that wire's label. Layout spacing keeps them, so the measure only
+ * finds what the spacing could not.
  */
 export const ROUTE = Object.freeze({
   parallel: 24,
   alongside: 40,
   run: 96,
   join: 48,
+  jump: 400,
   label: 16,
   heads: 2,
 });
+
+/**
+ * Two overlapping spans that each start inside the other: wires that hook
+ * past each other, as opposed to one running inside the other's length.
+ */
+const staggered = ([a1, a2, b1, b2]) =>
+  (a1 < b1 - 0.5 && b1 < a2 - 0.5 && a2 < b2 - 0.5) ||
+  (b1 < a1 - 0.5 && a1 < b2 - 0.5 && b2 < a2 - 0.5);
 
 /**
  * Route defects of one layout: wires a reader takes for one, a wire that seems
@@ -195,6 +206,24 @@ export const ROUTE = Object.freeze({
  */
 function routeDefects(geometry, segments) {
   const found = [];
+  // Two relations from one card or into one card read as its fan when in line.
+  const fan = (s, u) =>
+    s.relations.some((p) =>
+      u.relations.some((q) => (p.to && p.to === q.to) || (p.from && p.from === q.from)),
+    );
+  // A third relation's vertical across the line between two horizontals in
+  // line, within the gap between them, where the two are no fan: read as one
+  // line, they join cards that no relation joins.
+  const bridged = (s, u, a, b) =>
+    horizontal(s) &&
+    !fan(s, u) &&
+    segments.some((w) => {
+      if (w.owner === s.owner || w.owner === u.owner || !vertical(w)) return false;
+      const c = span(w);
+      return (
+        c.x1 > Math.min(a.x2, b.x2) && c.x1 < Math.max(a.x1, b.x1) && c.y1 < a.y1 && c.y2 > a.y1
+      );
+    });
   for (let i = 0; i < segments.length; i += 1)
     for (let j = i + 1; j < segments.length; j += 1) {
       const [s, u] = [segments[i], segments[j]];
@@ -213,8 +242,17 @@ function routeDefects(geometry, segments) {
         found.push({ code: "route_wires_close", relations, at });
       else if (apart < 0.5 && along <= 0.5 && along > -ROUTE.join)
         found.push({ code: "route_wire_continued", relations, at });
+      else if (apart < 0.5 && along > -ROUTE.jump && bridged(s, u, a, b))
+        found.push({ code: "route_wire_jumps", relations, at });
       else if (apart >= 0.5 && apart < ROUTE.alongside && along > ROUTE.run)
         found.push({ code: "route_wires_alongside", relations, at });
+      else if (
+        apart >= 0.5 &&
+        apart < ROUTE.alongside &&
+        along > 0.5 &&
+        staggered(vertical(s) ? [a.y1, a.y2, b.y1, b.y2] : [a.x1, a.x2, b.x1, b.x2])
+      )
+        found.push({ code: "route_wires_interlock", relations, at });
     }
   // A turn beside a card's edge, within its span, reads as the wire leaving
   // that card when the wire does not connect it.

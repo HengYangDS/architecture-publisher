@@ -99,18 +99,22 @@ takes the routing with the fewest crossings, even when that needs another label
 row, and on posters then the one whose own wires make the fewest route defects;
 it keeps parallel wires 24 px apart and a label 16 px from another relation's
 wire wherever the cards leave room, and a wire that turns on a label row within
-the span of a card it does not connect turns 48 px from it. Two relations' jogs
-and labels on one label row, and the tracks of one band, keep 48 px apart, or
-the row reads as one labelled bus; a lane keeps at least 48 px from the cards
-and the system boundary. Crossings that the relations force are allowed; they
-and the route defects, wires closer than those distances or closer than 40 px
-for more than 96, arrowheads closer than two heads, a wire that stops less than
-48 px short of another in line with it, so seems to continue it, and a wire that
-turns less than 48 px beside a card it does not connect, so seems to leave that
-card, are counted in each poster page's measures. Each row wrapping is also laid
-out with channels that take more label rows so that no wire turns in a band
-beside another card than its own; a page takes that taller figure when it holds
-it and it has fewer route defects.
+the span of a card it does not connect turns 48 px from it. A card's one port
+stands 40 px off its centre when that centre lines up with a wire into the card
+across the channel that its own wire does not enter. Two relations' jogs and
+labels on one label row, and the tracks of one band, keep 48 px apart, or the
+row reads as one labelled bus; a lane keeps at least 48 px from the cards and
+the system boundary. Crossings that the relations force are allowed; they and
+the route defects, wires closer than those distances or closer than 40 px for
+more than 96, arrowheads closer than two heads, a wire that stops less than 48
+px short of another in line with it, so seems to continue it, a wire that turns
+less than 48 px beside a card it does not connect, so seems to leave that card,
+two relations' runs in line less than 400 px apart across a third relation's
+wire, unless both leave or enter one card, and two wires closer than 40 px that
+each turn inside the other's length are counted in each poster page's measures.
+Each row wrapping is also laid out with channels that take more label rows so
+that no wire turns in a band beside another card than its own; a page takes that
+taller figure when it holds it and it has fewer route defects.
 
 Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
 one to three consecutive views that share no component as plates, in bands of

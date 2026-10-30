@@ -307,6 +307,44 @@ connect SHALL turn at least 48 px from that card.
   below that it does not connect
 - **THEN** the turn stands at least 48 px above that card
 
+### Requirement: Runs a reader joins across a wire
+
+Two relations' horizontal runs in line, less than 400 px apart, with a third
+relation's wire crossing their line between them, SHALL count as a route defect
+unless both relations leave one card or both enter one, and so SHALL two
+parallel wires of different relations less than 40 px apart that each turn
+inside the other's length.
+
+#### Scenario: Two runs on one row across a third wire
+
+- **WHEN** two relations between four cards jog on one label row 150 px apart
+  and a third relation's wire crosses the row between them
+- **THEN** the page's measures count a route defect
+
+#### Scenario: One card's fan in line
+
+- **WHEN** two relations out of one card jog on one row in line, across a third
+  relation's wire
+- **THEN** the page's measures count no route defect for them
+
+#### Scenario: Wires that hook past each other
+
+- **WHEN** context-mode's retrieval poster can draw "queries events" and
+  "builds snapshot" without one turning inside the other's length 24 px away
+- **THEN** it draws them that way
+
+### Requirement: Ports off another card's line
+
+On posters, a card side's one port SHALL stand 40 px from its centre toward
+where its wire goes when that centre lines up with the one port on the far side
+of the card across the channel that the wire does not connect.
+
+#### Scenario: A wire into the card under another
+
+- **WHEN** ETHOS's intent poster wires "runs CLI" into OpenSpec CLI under Git,
+  whose top port "reads refs" enters at the same centre
+- **THEN** "runs CLI" enters OpenSpec CLI 40 px from that line
+
 ### Requirement: Layout bounds
 
 A row SHALL hold at most six cards, or five when rows carry labels. A layout

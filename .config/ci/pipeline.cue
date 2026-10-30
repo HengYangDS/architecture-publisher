@@ -53,7 +53,7 @@ shared: {
 	]
 	"readerPreparation": [
 		"mise exec -- node node_modules/playwright-core/cli.js install chromium",
-		"mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-name-pattern=standalone tests/map-browser.test.mjs",
+		"mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test --test-force-exit --test-name-pattern=standalone tests/map-browser.test.mjs",
 	]
 	"preparation": list.Concat([shared.toolPreparation, shared.readerPreparation])
 	"acceptance": [

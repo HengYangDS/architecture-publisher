@@ -85,4 +85,13 @@
 - [ ] 10.2 Converge implementation-grounded research at the ETHOS owner with bound implementations, evidence and revisit triggers. Deferred past 2026-10-31 by the user; formerly 8.1.
 - [ ] 10.3 Prove source and asset recovery from simulated local loss through GitLab. Deferred past 2026-10-31 by the user; formerly 9.2.
 - [ ] 10.4 Converge the GitLab peer to `dev`, `main` and `v0.4.0` once its maximum push size admits a push of more than 20 MiB. Deferred on 2026-10-30 by the decision the user delegated.
-- [ ] 10.5 Keep two relations' runs on one poster label row from reading as one bus, enter a card off the centre line of a card the wire does not connect, and remove the interlock on context-mode's retrieval poster and the detour on browser-use's action poster: the majors of review 11. Deferred on 2026-10-30 by the decision the user delegated.
+- [ ] 10.5 Keep two relations' runs on one poster label row from reading as one bus, enter a card off the centre line of a card the wire does not connect, and remove the interlock on context-mode's retrieval poster: the majors of review 11 that 11.1 fixes. Deferred on 2026-10-30 by the decision the user delegated.
+- [ ] 10.6 Route browser-use's "connects, navigates" through the figure rather than around it: its corridor takes the lane round the boundary, about 2,110 px, because every gap it could pass crosses a straight arrow. Deferred on 2026-10-31 by the decision the user delegated: weighing a crossing against a detour is a corridor policy of its own.
+
+## 11. Wiring and test follow-up
+
+- [x] 11.1 Count two relations' runs in line across a third relation's wire, unless both leave or enter one card, and two close wires that hook past each other as route defects, and stand a card's one port off the line of a wire into the card across the channel; ETHOS's overview, intent and hook posters and context-mode's retrieval poster draw none of review 11's majors. `tests/layout-measure.test.mjs`, `tests/layout-grid.test.mjs` and `tests/poster-compose.test.mjs` pass in `npm run check`.
+- [x] 11.2 Fail a browser test after two minutes while the browser starts, opens the standalone page or closes, and end every test file when its tests end. `tests/map-browser.test.mjs` passes in `npm run check` and the hosted jobs.
+- [ ] 11.3 Rebuild the five deliveries at the 0.5.0 head; an independent blind visual review finds no blocker, and every major finding is fixed or carries a decision.
+- [ ] 11.4 Accept the AIGW, self and ETHOS deliveries with `archpub accept` and publish them as version 0.5.0 under the publication root, verifying every copied digest.
+- [ ] 11.5 Publish the signed v0.5.0 release with its Keep a Changelog entry on GitHub and verify the tag, assets and remote convergence there.

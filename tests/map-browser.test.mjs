@@ -9,11 +9,27 @@ import { loadModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import { AIGW_MODEL, BIG_BANK_MODEL, temporaryDirectory } from "./fixtures/models.mjs";
 
-/** The CI browser, or Playwright's own headless build; a developer machine without one skips. */
+/**
+ * How long the browser may take to start, to open the standalone page or to
+ * close: past it the test fails instead of holding its runner until the job's
+ * time limit, as one hosted Windows run did.
+ */
+const BROWSER = 2 * 60 * 1000;
+
+/**
+ * The CI browser, or Playwright's own headless build, closed after the test; a
+ * developer machine without one skips.
+ */
 async function launch(t) {
   const executablePath = process.env.ARCHPUB_BROWSER_EXECUTABLE;
   try {
-    return await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
+    const browser = await chromium.launch({
+      headless: true,
+      timeout: BROWSER,
+      ...(executablePath ? { executablePath } : {}),
+    });
+    t.after(() => browser.close(), { timeout: BROWSER });
+    return browser;
   } catch (error) {
     if (executablePath || process.env.CI === "true") throw error;
     t.skip(`no browser: ${String(/** @type {Error} */ (error).message).split("\n")[0]}`);
@@ -30,10 +46,9 @@ const labelSizes = (/** @type {Element[]} */ labels) =>
 
 // CI runs this test alone, right after installing the browser, to admit it
 // before the suite.
-test("the CI browser opens a standalone page", async (t) => {
+test("the CI browser opens a standalone page", { timeout: BROWSER }, async (t) => {
   const browser = await launch(t);
   if (!browser) return;
-  t.after(() => browser.close());
   const file = path.join(await temporaryDirectory(t, "archpub-browser-"), "index.html");
   await fs.writeFile(file, "<!doctype html><title>archpub</title><p>ready</p>\n");
   const page = await browser.newPage();
@@ -52,7 +67,6 @@ test(
   async (t) => {
     const browser = await launch(t);
     if (browser) {
-      t.after(() => browser.close());
       for (const file of [AIGW_MODEL, BIG_BANK_MODEL]) {
         const { model } = await loadModel(file);
         const views = await planViews(model, async () => ({ fits: true, width: 1, height: 1 }));

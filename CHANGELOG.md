@@ -7,6 +7,24 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-31
+
+### Changed
+
+- **Breaking:** Posters of an unchanged model are drawn differently. Two relations' runs in line on one row, less
+  than 400 px apart across a third relation's wire, read as one line unless both leave or both enter one card, and
+  two wires closer than 40 px that each turn inside the other's length hook past each other; both are route defects
+  the channels avoid. A card's one port stands 40 px off its centre where that centre lines up with a wire into the
+  card across the channel that its own wire does not enter. The ETHOS overview, intent and hook posters, the
+  context-mode retrieval poster and the self model's grid layout poster change; the grid layout prints its five
+  mechanisms in one row on a sparse page.
+
+### Fixed
+
+- A browser test fails after two minutes instead of hanging while the browser starts, opens the standalone page or
+  closes, and every test file exits when its tests end; one hosted Windows run had spent its time limit on a hung
+  browser test.
+
 ## [0.4.0] - 2026-10-30
 
 ### Added
@@ -622,6 +640,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.5.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.5.0
 [0.4.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.4.0
 [0.3.0-alpha.15]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.15
 [0.3.0-alpha.14]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.14

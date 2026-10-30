@@ -229,14 +229,14 @@ never drawn, with any of:
   the system boundary's edge.
 
 Route defects are counted, not refused: parallel wires closer than 24 px, or
-closer than 40 px for more than 96, a wire stopping within 48 px of another in
-line with it or turning within 48 px beside a card it does not connect,
-arrowheads closer than two heads and a label within 16 px of another wire.
-Jogs and labels on one label row, and one band's tracks, keep 48 px apart, or
-the row reads as one labelled bus. Each wrapping is also laid out with channels
-that take label rows to turn no wire beside another card, which a page takes
-when it holds them. Posters rank by crossings, then route defects, and record
-both; the page's diagrams are judged on Archify's own routes (decision 10).
+than 40 px for more than 96 or hooking past each other, a wire stopping within
+48 px of another in line, or 400 px across a third wire unless the two are one
+card's fan, a turn within 48 px beside a card it does not connect, arrowheads
+closer than two heads and a label within 16 px of another wire. Jogs and labels
+on one row and one band's tracks keep 48 px apart; a card's one port leaves a
+line through the card across. Wrappings also take label rows to turn no wire
+beside another card where a page holds them. Posters rank by crossings, then
+route defects; page diagrams are judged on Archify's routes (decision 10).
 
 Crossings are minimized by placement and channel routing and reported, not
 refused: some relation sets, such as three components each calling the same

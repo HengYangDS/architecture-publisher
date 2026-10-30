@@ -115,3 +115,30 @@ test("route defects are counted, not refused", () => {
     ],
   );
 });
+
+test("runs in line across another wire and wires that hook past each other are route defects", () => {
+  const between = (id, from, to, ...points) => ({ relations: [{ id, from, to }], points });
+  const measured = measureLayout(
+    geometry({
+      paths: [
+        // Two runs in line on one row, 150 apart, with a third relation's wire
+        // crossing between them: read as one line that jumps it.
+        between("left", "a", "b", [0, 0], [0, 50], [200, 50], [200, 100]),
+        between("right", "c", "d", [350, 0], [350, 50], [600, 50], [600, 100]),
+        between("down", "e", "f", [275, 0], [275, 100]),
+        // The same runs out of one card are its fan, which reads true in line.
+        between("fan-a", "g", "h", [0, 300], [0, 350], [200, 350], [200, 400]),
+        between("fan-b", "g", "i", [350, 300], [350, 350], [600, 350], [600, 400]),
+        between("fan-c", "j", "k", [275, 300], [275, 400]),
+        // 24 apart, each turning inside the other's length: they hook past each other.
+        between("hook-a", "l", "m", [890, 584], [996, 584], [996, 640]),
+        between("hook-b", "n", "o", [1020, 480], [1020, 608], [1356, 608]),
+      ],
+    }),
+  );
+  assert.deepEqual(measured.defects, []);
+  assert.deepEqual(
+    measured.routes.map(({ code, relations }) => `${code} ${relations}`),
+    ["route_wire_jumps left right", "route_wires_interlock hook-a hook-b"],
+  );
+});

@@ -326,10 +326,43 @@ function settle(targets, apart, low, high) {
 }
 
 /**
+ * Where a side's one port stands instead of its card's centre, or null: a
+ * centre in line with the one port on the far side of the card across the
+ * channel, which the port's wire does not connect, would carry that card's wire
+ * on through it, so where the medium keeps `axisClear` the port moves that far
+ * toward where its wire goes, within its port margins.
+ */
+function offAxis(sides, key, card, point, spacing) {
+  if (!spacing.axisClear) return null;
+  const top = key.endsWith(":top");
+  const own = key.slice(0, key.lastIndexOf(":"));
+  const connected = new Set(point.wire.relations.flatMap(({ from, to }) => [from, to]));
+  const across = top ? point.wire.channel - 1 : point.wire.channel + 1;
+  const lined = [...sides].some(([other, ends]) => {
+    const id = other.slice(0, other.lastIndexOf(":"));
+    return (
+      id !== own &&
+      !connected.has(id) &&
+      other.endsWith(top ? ":top" : ":bottom") &&
+      ends.length === 1 &&
+      ends[0].wire.channel === across &&
+      Math.abs(ends[0].x - card.cx) < 0.5
+    );
+  });
+  if (!lined) return null;
+  const x = card.cx + (point.toward < card.cx ? -1 : 1) * spacing.axisClear;
+  return Math.min(
+    card.x + card.width - spacing.portMargin,
+    Math.max(card.x + spacing.portMargin, x),
+  );
+}
+
+/**
  * Set the ports of each card side, ordered by where their wires go. A side's
- * one port takes its centre; several ports each move toward where their wire
- * goes, at least `gap` apart where the card has room, so a wire to the card
- * straight across runs straight and the others fan out to either side.
+ * one port takes its centre, unless that lines a wire up with another card's
+ * through it; several ports each move toward where their wire goes, at least
+ * `gap` apart where the card has room, so a wire to the card straight across
+ * runs straight and the others fan out to either side.
  */
 export function spreadPorts(sides, box, spacing, gap, keys = [...sides.keys()]) {
   for (const key of keys) {
@@ -338,7 +371,7 @@ export function spreadPorts(sides, box, spacing, gap, keys = [...sides.keys()]) 
     const card = box.get(key.slice(0, key.lastIndexOf(":")));
     ends.sort((a, b) => a.toward - b.toward || a.wire.order - b.wire.order);
     if (ends.length === 1) {
-      ends[0].x = card.cx;
+      ends[0].x = offAxis(sides, key, card, ends[0], spacing) ?? card.cx;
       continue;
     }
     const [low, high] = [card.x + spacing.portMargin, card.x + card.width - spacing.portMargin];
