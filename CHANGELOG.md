@@ -7,6 +7,18 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-31
+
+### Changed
+
+- **Breaking:** Posters of an unchanged model are drawn differently. A relation label on its own run less than 48 px
+  above or below another relation's turn reads as that wire's label, and is a route defect the channels avoid. A
+  poster wire that passes a row through a gap where every offset runs as short takes the middle of the gap, and tier
+  labels stand at least three gutters from the rail's text beside them. When the best page with one column of tier
+  labels wires a crossing or a route defect, the labels are also tried before the edges their tiers start at. The
+  AIGW overview, the self model's overview and grid layout, the browser-use overview and the context-mode sandbox
+  posters change; the grid layout prints its five mechanisms in rows of two on a balanced page.
+
 ## [0.5.0] - 2026-10-31
 
 ### Changed
@@ -641,6 +653,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.6.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.6.0
 [0.5.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.5.0
 [0.4.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.4.0
 [0.3.0-alpha.15]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.15

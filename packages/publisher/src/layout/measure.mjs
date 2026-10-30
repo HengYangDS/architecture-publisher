@@ -319,5 +319,40 @@ function routeDefects(geometry, segments) {
       }
     }
   }
+  // A label on its own wire's horizontal run, set just above or below another
+  // relation's turn and over it, reads as the label of the wire that turns
+  // there.
+  for (const label of geometry.labels) {
+    const name = owner(label.relations);
+    const inside = (y) => y > label.y && y < label.y + label.height;
+    const jog = segments.some(
+      (segment) =>
+        segment.owner === name &&
+        horizontal(segment) &&
+        inside(segment.a[1]) &&
+        Math.min(segment.a[0], segment.b[0]) < label.x + label.width &&
+        Math.max(segment.a[0], segment.b[0]) > label.x,
+    );
+    if (!jog) continue;
+    const turn = geometry.paths.find(
+      ({ relations, points }) =>
+        owner(relations) !== name &&
+        points.slice(1, -1).some(([x, y]) => {
+          const across = Math.max(label.y - y, y - label.y - label.height);
+          return (
+            x > label.x - ROUTE.label &&
+            x < label.x + label.width + ROUTE.label &&
+            across > 0 &&
+            across < ROUTE.join
+          );
+        }),
+    );
+    if (turn)
+      found.push({
+        code: "route_label_over_turn",
+        relations: `${name} ${owner(turn.relations)}`,
+        at: [label.x + label.width / 2, label.y + label.height / 2],
+      });
+  }
   return found;
 }

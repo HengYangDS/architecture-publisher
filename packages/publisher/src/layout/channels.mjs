@@ -263,10 +263,23 @@ function corridor(input, first, last, x1, x2, taken, wired) {
         count += 1;
     return count;
   };
+  // Where the medium draws the wire, of corridors that cross as few and run as
+  // short, the one with the most paper beside the cards of the rows it passes
+  // comes first: a wire close to one card's side reads as that card's edge.
+  const passed = order.slice(first + 1, last).flat();
+  const clearance = (x) =>
+    input.lanes
+      ? Math.min(
+          ...passed.map((id) => Math.max(box.get(id).x - x, x - box.get(id).x - box.get(id).width)),
+        )
+      : 0;
   const ranked = candidates
     .filter(free)
-    .map((x) => ({ x, crossings: crossings(x), cost: cost(x) }))
-    .sort((a, b) => a.crossings - b.crossings || a.cost - b.cost || a.x - b.x);
+    .map((x) => ({ x, crossings: crossings(x), cost: cost(x), clearance: clearance(x) }))
+    .sort(
+      (a, b) =>
+        a.crossings - b.crossings || a.cost - b.cost || b.clearance - a.clearance || a.x - b.x,
+    );
   const chosen = ranked[0]?.x;
   if (chosen === undefined)
     refuse(

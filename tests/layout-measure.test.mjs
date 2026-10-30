@@ -142,3 +142,27 @@ test("runs in line across another wire and wires that hook past each other are r
     ["route_wire_jumps left right", "route_wires_interlock hook-a hook-b"],
   );
 });
+
+test("a label on its own run just over another relation's turn is a route defect", () => {
+  const measured = measureLayout(
+    geometry({
+      paths: [
+        // A label on its own jog, 30 above another relation's turn under it.
+        path("jog", [0, 0], [0, 100], [300, 100], [300, 200]),
+        path("turn", [150, 300], [150, 140], [-200, 140]),
+        // The same 60 above the turn: clear of it.
+        path("clear", [1000, 0], [1000, 100], [1300, 100], [1300, 200]),
+        path("far", [1150, 300], [1150, 170], [1250, 170]),
+        // A label on a straight wire reads as that wire's, however near a turn.
+        path("straight", [600, 0], [600, 300]),
+        path("under", [630, 160], [630, 140], [900, 140]),
+      ],
+      labels: [label("jog", 130, 90), label("clear", 1130, 90), label("straight", 580, 90)],
+    }),
+  );
+  assert.deepEqual(measured.defects, []);
+  assert.deepEqual(
+    measured.routes.map(({ code, relations }) => `${code} ${relations}`),
+    ["route_label_over_turn jog turn"],
+  );
+});

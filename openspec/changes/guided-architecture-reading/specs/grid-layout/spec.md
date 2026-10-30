@@ -169,8 +169,7 @@ Relations sharing a source, label, details, status and target row SHALL form
 one bus with one label, as SHALL relations sharing a target, label, details,
 status and source row, unless the bus would pass another wire leaving its hub
 on the same side. A relation that skips rows SHALL pass every row between
-through a column gap, an empty cell or a lane beyond the outermost cards,
-taking the free one that crosses the fewest wires and then runs shortest.
+through a column gap, an empty cell or a lane beyond the outermost cards.
 
 #### Scenario: A fan-out bus
 
@@ -184,11 +183,27 @@ taking the free one that crosses the fewest wires and then runs shortest.
 - **WHEN** a relation connects the first and third rows
 - **THEN** its wire passes the second row outside every card
 
+### Requirement: Corridor choice
+
+A relation that skips rows SHALL take the free column gap, empty cell or lane
+that crosses the fewest wires and then runs shortest, and on a poster then the
+one that leaves the most paper beside the cards of the rows it passes.
+
+#### Scenario: A poster wire through the middle of a gap
+
+- **WHEN** context-mode's sandbox poster passes "checks deny rules" through
+  the 64 px gap between Routing rules and Polyglot executor, where every offset
+  runs as short
+- **THEN** the wire runs in the middle of the gap, 32 px from each card
+
 #### Scenario: A lane around the figure
 
 - **WHEN** every column gap and empty cell a relation that skips rows could
   pass would cross a wire
 - **THEN** it runs in a lane beyond the outermost cards
+- **AND** it runs there however much longer the lane is, as browser-use's
+  "connects, navigates" runs round the action poster rather than cross a
+  straight arrow of its watchdog row
 
 ### Requirement: Lanes beyond the cards
 
@@ -339,6 +354,20 @@ inside the other's length.
 - **WHEN** context-mode's retrieval poster can draw "queries events" and
   "builds snapshot" without one turning inside the other's length 24 px away
 - **THEN** it draws them that way
+
+### Requirement: Labels over another wire's turn
+
+A relation label on its own wire's horizontal run SHALL count as a route
+defect when it stands less than 48 px above or below another relation's turn
+that lies within 16 px of its span: a reader takes it for the label of the wire
+that turns there.
+
+#### Scenario: Labels clear of the turns under them
+
+- **WHEN** the self model's overview can set "loads" and "writes the page" on
+  their runs just above the turns of "binds sources" and "composes posters", or
+  clear of both
+- **THEN** the poster sets them clear of both turns
 
 ### Requirement: Ports off another card's line
 

@@ -89,7 +89,9 @@ have the fewest relations within a row, then the fewest rows. The placement of
 cards within their rows is exact: it minimizes a weighted count of crossings,
 bends and unused columns over the whole lattice. Relations run through the
 channels between rows as buses, corridors, lanes beyond the outermost cards and
-straight arrows.
+straight arrows. A relation that skips rows takes the free column gap, empty
+cell or lane that crosses the fewest wires, then runs shortest, and on posters
+then leaves the most paper beside the cards it passes.
 
 The layout never draws an overlap. A diagonal segment, a segment shared by
 different relations, a wire through a card or a label touching a card, another
@@ -110,8 +112,10 @@ more than 96, arrowheads closer than two heads, a wire that stops less than 48
 px short of another in line with it, so seems to continue it, a wire that turns
 less than 48 px beside a card it does not connect, so seems to leave that card,
 two relations' runs in line less than 400 px apart across a third relation's
-wire, unless both leave or enter one card, and two wires closer than 40 px that
-each turn inside the other's length are counted in each poster page's measures.
+wire, unless both leave or enter one card, two wires closer than 40 px that
+each turn inside the other's length, and a relation label on its own run less
+than 48 px above or below another relation's turn, so seems to label that wire,
+are counted in each poster page's measures.
 Each row wrapping is also laid out with channels that take more label rows so
 that no wire turns in a band beside another card than its own; a page takes that
 taller figure when it holds it and it has no more route defects.
@@ -122,9 +126,11 @@ one or more plates under a masthead, beside a rail of text, or, for one view,
 with its text set in the corners its figure leaves free. Cards are as large as
 their text and never stretch; a sparse view is instead set at a larger type
 step, up to 32 px labels and 24 px details, and every plate of a page uses one
-step. The numbered tier labels stand in one column before the figure; when no
-page with them in one column balances, the labels of tiers that start at one
-edge share a column before that edge, and the manifest records which. A tier
+step. The numbered tier labels stand in one column before the figure, at least
+three gutters from a rail's text; when no page with them in one column
+balances, or the best that does wires a crossing or a route defect, the labels
+of tiers that start at one edge are also tried in a column before that edge,
+and the manifest records which the page takes. A tier
 wrapped into several rows has its label level with its first row, beside a
 bracket that spans them all. Every page passes four balance gates over its live
 area: its largest blank rectangle covers at most 12 percent of it, no blank band

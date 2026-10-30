@@ -241,6 +241,39 @@ test("a card's one port leaves the line of a wire into the card across the chann
   assert.equal(/** @type {any} */ (runs).points.at(-1)[0], below.x + below.width / 2 + 40);
 });
 
+test("a poster wire that passes a row through a gap takes the middle of the gap", () => {
+  // "skips" runs from c2 down to c5 through the one gap of the middle row,
+  // where every offset runs as short. Off the middle, it runs closer to one
+  // card and reads as that card's edge.
+  const model = validateModel(
+    graphModel(6, [
+      [1, 3, "runs"],
+      [2, 4, "runs"],
+      [3, 5, "runs"],
+      [4, 6, "runs"],
+      [2, 5, "skips"],
+    ]),
+  );
+  const made = layoutView(
+    wholeView(model, [
+      ["c1", "c2"],
+      ["c3", "c4"],
+      ["c5", "c6"],
+    ]),
+    { ...simpleMetrics(model), centring: "all", lanes: true },
+    { boundaryName: "System" },
+  );
+  assertTidy(made);
+  const row = made.rows[1];
+  const [left, right] = row.members
+    .map((id) => /** @type {any} */ (made.cards.get(id)))
+    .sort((a, b) => a.x - b.x);
+  const passing = /** @type {any} */ (
+    made.paths.find(({ relations, points }) => relations[0].id === "r5" && points[0][1] === row.top)
+  );
+  assert.equal(passing.points[0][0], (left.x + left.width + right.x) / 2);
+});
+
 test("a tier of seven cards is refused with the row and its members", () => {
   assert.throws(
     () =>

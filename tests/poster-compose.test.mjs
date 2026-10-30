@@ -87,7 +87,7 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
   }
 });
 
-test("the publisher's own model prints each view without crossings, the grid layout on a sparse page", async () => {
+test("the publisher's own model prints each view without crossings on balanced pages", async () => {
   const { model } = await loadModel(SELF_MODEL, { icon: icons.has });
   const pages = await edition(model);
   assert.deepEqual(
@@ -95,16 +95,14 @@ test("the publisher's own model prints each view without crossings, the grid lay
     [["overview"], ["layout"], ["media"]],
   );
   for (const poster of pages) assert.equal(poster.measures.crossings, 0, `page ${poster.page}`);
-  // The grid layout's five mechanisms balance a page only in rows that hook
-  // two pairs of wires past each other; in one row they wire cleanly and leave
-  // one blank area over its gate.
+  // In one row of five, the grid layout's mechanisms leave a blank area over
+  // its gate; in rows of two beside the rail they fill the page and wire as
+  // cleanly.
   assert.deepEqual(
     pages.map(({ admission }) => admission),
-    ["balanced", "sparse", "balanced"],
+    ["balanced", "balanced", "balanced"],
   );
-  for (const poster of [pages[0], pages[2]]) assertBalanced(poster);
-  for (const { measure } of pages[1].misses)
-    assert.ok(["emptyShare", "blankBand"].includes(measure), measure);
+  for (const poster of pages) assertBalanced(poster);
   // Five wires leave Delivery builder 37 px apart and two pairs of them run
   // alongside for longer than 96 px; on the media page two wires into Supplies
   // run alongside.
@@ -135,10 +133,29 @@ test("the publisher's own model prints each view without crossings, the grid lay
   assert.equal(new Set(numbers).size, 1);
 });
 
-test("tier labels stand before the edge their tier starts at when one column cannot balance a page", async () => {
+test("tier labels stand three gutters clear of the rail text beside them", async () => {
+  // AIGW's overview summary ended 36 px from its tier labels, and a line of
+  // the summary read on into a tier's name.
+  const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const [overview] = composeEdition(model, views, typefaces, icons);
+  assert.equal(overview.composition.archetype, "column");
+  const right = Math.max(
+    ...overview.page.runs.map((run) => run.x + typefaces.measure(run.value, run.style)),
+  );
+  const labels = overview.made
+    .flatMap((one) => one.figure.rects)
+    .filter((rect) => rect.tier && rect.kind === "mass");
+  assert.ok(labels.length > 0, "the overview labels its tiers");
+  const left = Math.min(...labels.map((rect) => rect.x));
+  assert.ok(left - right >= 3 * POSTER.grid.gutter, `${left - right} px`);
+});
+
+test("tier labels stand before the edge their tier starts at when one column cannot balance a page cleanly", async () => {
   // Big Bank's data tier starts at the mainframe, far left of the boundary its
   // front and back ends start at: one label column left the paper between it
-  // and the boundary blank, and no page with it balanced.
+  // and the boundary blank, and the one page with it that balances wires four
+  // route defects.
   const { model } = await loadModel(BIG_BANK_MODEL);
   const [page] = await edition(model);
   assertBalanced(page);

@@ -232,11 +232,12 @@ Route defects are counted, not refused: parallel wires closer than 24 px, or
 than 40 px for more than 96 or hooking past each other, a wire stopping within
 48 px of another in line, or 400 px across a third wire unless the two are one
 card's fan, a turn within 48 px beside a card it does not connect, arrowheads
-closer than two heads and a label within 16 px of another wire. Jogs and labels
-on one row and one band's tracks keep 48 px apart; a card's one port leaves a
-line through the card across. Wrappings also take label rows to turn no wire
-beside another card where a page holds them. Posters rank by crossings, then
-route defects; page diagrams are judged on Archify's routes (decision 10).
+closer than two heads and a label within 16 px of another wire or 48 px over its
+turn. Jogs and labels on one row and one band's tracks keep 48 px apart; a
+card's one port leaves a line through the card across. Wrappings also take label
+rows to turn no wire beside another card where a page holds them. Posters rank
+by crossings, then route defects; page diagrams are judged on Archify's routes
+(decision 10).
 
 Crossings are minimized by placement and channel routing and reported, not
 refused: some relation sets, such as three components each calling the same
@@ -277,12 +278,11 @@ The poster is now composed format first:
   not counting; at most 40 percent of it lies in holes, empty squares of 240 px
   or more; and its darkness-weighted centroid lies within 12 percent of the
   centre across and down. Type holds by construction: scale sizes only, a 14 px
-  floor, the measure and no word broken on a card. A grouping prints on a
-  sparse page, its figures at the largest step or the largest they fit at with
-  only one blank area over its gate, when no passing page holds it or the
-  sparse page wires fewer faults; otherwise showcase refuses it, naming each
-  view with its closest page's measured values and limits, and standard
-  records it as a draft.
+  floor, the measure and no word broken on a card. A grouping prints on a sparse
+  page, its figures at the largest step or the largest they fit at with only one
+  blank area over its gate, when no passing page holds it or the sparse page
+  wires fewer faults; otherwise showcase refuses it, naming each view with its
+  closest page's measured values and limits, and standard records it as a draft.
 
 A view of three to five components has a figure a third of the page tall, which
 no justification fills, so the page, not the view, became the unit:
@@ -361,11 +361,12 @@ no justification fills, so the page, not the view, became the unit:
 - **One column of tier labels.** A blind review on 2026-10-29 read the rule
   under each row as a stray wire and labels beside each row's first card as a
   zigzag. The rules are gone, the labels stand in one column before the figure,
-  and the boundary keeps 20 px of paper on every side, the most at which every
-  edition still balances. Where one column balances no page, as Big Bank's data
-  tier starting far left of its boundary shows, tiers that start at one edge
-  share a column before it. A label centred on two rows read as a relation
-  label between them, so it stands level with the first, beside a bracket.
+  three gutters from any rail text, and the boundary keeps 20 px of paper on
+  every side, the most at which every edition still balances. Where one column
+  balances no page without a fault, as Big Bank's data tier starting far left of
+  its boundary shows, tiers that start at one edge share a column before it. A
+  label centred on two rows read as a relation label between them, so it stands
+  level with the first, beside a bracket.
 
 The figure keeps decision 6's lattice and channels. Relation details use a
 lighter ink than their labels. `planned` is dashed and
@@ -530,19 +531,18 @@ overview plus mechanism views.
 
 Tests cover model validation, source binding, the plan and automatic rows,
 placement and channel routing, the neatness measurements, layout determinism,
-poster admission, the page's diagrams and draft, the CLI and the LikeC4
-import.
-End-to-end journeys build the converted AIGW model; the C4 Big Bank example
-with tiers and without them; models with a cycle, a relation skipping rows, a
-six-way bus, three components each calling the same three others, and CJK
-labels; a sparse page for a model too small to fill one, a tall view refused at
-showcase and drafted at standard, and refusals of a seven-card layout row and a
-view no page lays out. One model is rebuilt to compare bytes, on
-one platform. The balance gates are tested on pages that must pass or fail, and
-Chromium measures the page's label floor and that no preview shows Archify's
-fit notice. The repository's existing format, lint, type, import, dead-code,
-Markdown, OpenSpec, coverage (at least 95 percent per dimension) and package
-gates stay in force. The user accepts the artwork; tests do not.
+poster admission, the page's diagrams and draft, the CLI and the LikeC4 import.
+End-to-end journeys build the converted AIGW model; the C4 Big Bank example with
+tiers and without them; models with a cycle, a relation skipping rows, a six-way
+bus, three components each calling the same three others, and CJK labels; a
+sparse page for a model too small to fill one, a tall view refused at showcase
+and drafted at standard, and refusals of a seven-card layout row and a view no
+page lays out. One model is rebuilt to compare bytes, on one platform. The
+balance gates are tested on pages that must pass or fail, and Chromium measures
+the page's label floor and that no preview shows Archify's fit notice. The
+repository's existing format, lint, type, import, dead-code, Markdown, OpenSpec,
+coverage (at least 95 percent per dimension) and package gates stay in force.
+The user accepts the artwork; tests do not.
 
 ## Risks / Trade-offs
 

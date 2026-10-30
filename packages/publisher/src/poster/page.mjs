@@ -219,13 +219,15 @@ export function planSheet(input, options = {}) {
     glyphs.push(...set.glyphs);
     // The figure's field starts a column gap after the rail's text, not after
     // the rail's last column: text that ends short of its columns would leave a
-    // strip of paper down the page between it and the figure.
+    // strip of paper down the page between it and the figure. Tier labels are
+    // text on the rail's lines, so they keep a third gutter from it.
     const x = Math.min(columnX(rail), LIVE.x + set.ink + 2 * GRID.gutter);
     region = {
       x,
       y: LIVE.y,
       width: columnX(12 - flank) - GRID.gutter - x,
       height: LIVE.height,
+      labels: LIVE.x + set.ink + 3 * GRID.gutter,
     };
   } else {
     // A corner page may set its notes beside its figure like the rest of its
@@ -353,7 +355,9 @@ function arrange(input, options, region, headless) {
       plates[order] = {
         view: views[order],
         field,
-        labelColumn: column ? { x, y: field.y, width: column, height: field.height } : null,
+        labelColumn: column
+          ? { x, y: field.y, width: column, height: field.height, floor: region.labels ?? x }
+          : null,
       };
     }
     top += offsets[band] + heights[band] + POSTER.spacing.plateGap;

@@ -246,12 +246,15 @@ function* pageCandidates(model, views, first, typefaces, icons, boundaryName) {
   // Tier labels stand in one column, so their numbers read down one line. A
   // figure whose tiers start at different edges can leave paper blank between
   // that column and the tiers that start further in; when no page with one
-  // column balances, each label stands before the edge its tier starts at.
+  // column balances, or the best that does still wires faults, each label also
+  // stands before the edge its tier starts at, and the page is chosen from
+  // what both measure.
   yield* compose("column");
   const tiered = views.some((view) =>
     viewRows(view, ROW_LIMIT, () => false).some(({ label }) => label),
   );
-  if (tiered && !outcome().chosen) yield* compose("edges");
+  const { chosen } = outcome();
+  if (tiered && (!chosen || faultsOf(chosen).some(Boolean))) yield* compose("edges");
 }
 
 /**
