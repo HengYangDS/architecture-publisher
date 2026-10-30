@@ -24,8 +24,12 @@ const DEFECT = Object.freeze({
   double: 4 * SEGMENT.interior,
 });
 
-/** How far Archify sets a relation label beside its route, and its baseline below the label's top, in px. */
-const LABEL = Object.freeze({ gap: 6, baseline: 10 });
+/**
+ * How far Archify sets a relation label beside its route, its baseline below
+ * the label's top, and how far above its route Archify anchors a label it is
+ * given no place for, in px.
+ */
+const LABEL = Object.freeze({ gap: 6, baseline: 10, rise: 10 });
 /**
  * How far everything but its own route keeps from a label that reads clearly
  * as its route's: two and a half times as far as its own route, and no nearer
@@ -101,21 +105,39 @@ const ALONG = Object.freeze([0.5, 0.25, 0.75]);
 const clear = ({ own, other }) => other >= Math.max(CLEAR.least, CLEAR.ratio * own);
 
 /**
+ * Where Archify anchors a label it is given no place for: above the middle of
+ * the route's second segment, or of a route of one segment at the height where
+ * it starts.
+ * @param {number[][]} points the route
+ */
+function defaultAnchor(points) {
+  const [a, b] = points.length === 2 ? points : points.slice(1, 3);
+  const y = points.length === 2 ? a[1] : (a[1] + b[1]) / 2;
+  return [(a[0] + b[0]) / 2, y - LABEL.rise];
+}
+
+/**
  * Where to pin the labels of `owners` so each reads as its own route's: on one
  * of the route's segments, or beside it at the distance Archify keeps, at its
- * middle or a quarter from either end, wherever it is not taken for anything
- * else and lies farthest from everything else, when that is better than where
- * Archify set it. On a segment the label masks its route, as Archify's own
+ * middle or a quarter from either end, inside the canvas, wherever it is not
+ * taken for anything else and lies farthest from everything else, when that is
+ * better than where Archify set it. On a segment the label masks its route, as Archify's own
  * labels do, where the segment runs on past the label by a shortest segment at
  * either end. A label pinned earlier counts where it is pinned, so labels that
- * crowd one gap stand at different heights.
+ * crowd one gap stand at different heights. A pin is an offset from the anchor
+ * Archify sets the label at by default, not an anchor of its own: Archify
+ * leaves the ends of a route whose label has its own anchor out of spreading
+ * the ends on one side of a card, so they can meet another route's.
  * @param {any} layout Archify's layout of the diagram
  * @param {string[]} ids the diagram's connection ids, in Archify's order
  * @param {string[]} owners the ids of the connections whose labels to move
- * @returns {Map<string, number[]>} each moved label's anchor, by connection id
+ * @returns {Map<string, number[]>} each moved label's offset, by connection id
  */
 export function clearLabels(layout, ids, owners) {
   const { segments, labels, distances } = labelScene(layout);
+  const [width, height] = layout.viewBox;
+  const inside = ({ x, y, width: wide, height: high }) =>
+    x >= 0 && y >= 0 && x + wide <= width && y + high <= height;
   /** @type {Map<string, number[]>} */
   const pins = new Map();
   for (const id of owners) {
@@ -147,15 +169,17 @@ export function clearLabels(layout, ids, owners) {
       });
       for (const [left, top] of corners) {
         const place = { x: left, y: top, width: box.width, height: box.height };
+        if (!inside(place)) continue;
         const value = score(place);
         if (better(value, best.score)) best = { score: value, place };
       }
     }
     if (best.place === box) continue;
     labels[owner] = best.place;
+    const [x, y] = defaultAnchor(layout.connections[owner].points);
     pins.set(id, [
-      Math.round(best.place.x + box.width / 2),
-      Math.round(best.place.y + LABEL.baseline),
+      Math.round(best.place.x + box.width / 2 - x),
+      Math.round(best.place.y + LABEL.baseline - y),
     ]);
   }
   return pins;

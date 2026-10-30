@@ -380,12 +380,11 @@ Each text is set in the first face of its weight that draws it whole, CJK
 first, so text the CJK face covers keeps its glyphs and Latin, Greek and
 Cyrillic letters it lacks come from Noto Sans. Outlines are drawn glyph by
 glyph without shaping, so right-to-left and shaped scripts are refused. Lines
-break where the writing system allows: at spaces, and between Han and Kana
-characters with closing marks kept back and opening marks forward; the rules
-read characters only, so every host breaks alike. Host fonts are never
-discovered. The
-JetBrains Mono supply and the interactive font substitution are removed; the
-page keeps Archify's native typography.
+break where the writing system allows: at spaces but not no-break spaces, and
+between Han and Kana characters with closing marks kept back and opening marks
+forward; the rules read characters only, so every host breaks alike. Host
+fonts are never discovered. The JetBrains Mono supply and the interactive font
+substitution are removed; the page keeps Archify's native typography.
 
 The existing icon supply, the complete Lucide 1.61.0 artwork (ISC) with its
 license and digests, is retained unmodified. Each category has a default icon,
@@ -442,9 +441,11 @@ routes, routes over two bends, crowded labels and ends, stretch above 1.35 and
 the shape closest to 1.0 to 1.8. A choice with a defect, or stacked above its
 steps, has the connections involved re-sided from the three best diagrams and
 the three best beside their steps, within 96 measured changes; a label still
-misplaced is then pinned on or beside its own route, one read as another's
-alone as well, since a pin moves Archify's routes. A view with no passing
-candidate is refused with Archify's findings.
+misplaced is then pinned inside the canvas, on or beside its own route, by an
+offset from where Archify anchors it, found on the layout with the label at
+that anchor, which keeps its route's course and ends; one read as another's is
+pinned alone as well, since Archify runs other routes around a pinned label.
+A view with no passing candidate is refused with Archify's findings.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit

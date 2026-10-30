@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { atoms } from "../breaks.mjs";
+import { SPACE, atoms } from "../breaks.mjs";
 import { detailPieces } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
@@ -57,8 +57,10 @@ function softSegments(word) {
 /** @param {Map<number, any[]>} chains each weight's faces, in fallback order */
 function createTypefaces(chains, supplySha256) {
   const weightOf = (style) => (style.weight >= 600 ? 700 : 400);
+  // A space between words draws nothing in any face; a no-break space is
+  // drawn only by a face with a glyph of its own for it.
   const draws = (face, character) =>
-    /\s/u.test(character) || face.charToGlyphIndex(character) !== 0;
+    SPACE.test(character) || face.charToGlyphIndex(character) !== 0;
   const drawsAll = (face, text) => Array.from(text).every((character) => draws(face, character));
 
   /**

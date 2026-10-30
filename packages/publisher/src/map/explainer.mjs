@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { SPACE } from "../breaks.mjs";
 import { DEFAULT_LOCALE, detailText, sentences, wordsOf } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
 import { archifyIds, runArchify, viewCaption } from "./archify.mjs";
@@ -23,15 +24,17 @@ const WORK = "explainer";
 const DRAFT = "page.archify.md";
 const PAGE = "index.html";
 
-/** Model text in the explainer's inline language: markup characters escaped, whitespace folded. */
+/** Spaces between words, folded into one; no-break spaces keep their words together on the page too. */
+const SPACES = new RegExp(`${SPACE.source}+`, "gu");
+/** Model text in the explainer's inline language: markup characters escaped, spaces folded. */
 const text = (value) =>
   String(value)
-    .replace(/\s+/gu, " ")
+    .replace(SPACES, " ")
     .trim()
     .replace(/[\\`*<>[\]|]/gu, "\\$&");
 const quoted = (value) => JSON.stringify(text(value));
 /** Model text for an argument Archify sets as plain text, such as a source's title. */
-const plain = (value) => JSON.stringify(String(value).replace(/\s+/gu, " ").trim());
+const plain = (value) => JSON.stringify(String(value).replace(SPACES, " ").trim());
 
 /**
  * A view's components in its diagram's reading order, row by row from the top

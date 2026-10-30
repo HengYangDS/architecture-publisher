@@ -253,7 +253,7 @@
       "label": "Unified search",
       "kind": "module",
       "details": {
-        "blocks": "the 9th search in 60 s",
+        "blocks": "the 9th search in 60\u00a0s",
         "returns": "at most 40 KB of snippets"
       },
       "sources": ["unified", "flood-guard"]

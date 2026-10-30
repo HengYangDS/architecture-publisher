@@ -15,7 +15,8 @@ remain pre-release contracts and may contain incompatible changes.
   words the publisher writes itself, its note headings, legend, derived details and summaries, and how it punctuates
   a list or a sentence, follow it, and the page and its diagrams speak it. `archpub import likec4 --locale` sets it.
 - Lines break where the text's writing system allows: at spaces, and between Han and Kana characters, with closing
-  marks kept at the end of a line and opening marks at the start of the next.
+  marks kept at the end of a line and opening marks at the start of the next. A no-break space keeps the words beside
+  it on one line, on the posters and the page.
 - Noto Sans 2.015 follows Noto Sans CJK SC for the Latin, Greek and Cyrillic letters the CJK face lacks. Text in a
   right-to-left or shaped script is refused with `script_unsupported` rather than drawn unjoined.
 - `archpub build` and `check` take `--media` to deliver the posters, the page or both, `--png` for the poster PNG
@@ -56,9 +57,10 @@ remain pre-release contracts and may contain incompatible changes.
   or the boundary's edge, while another passes without; then it takes the fewest crossings, a preview beside its steps,
   the fewest labels a reader takes for another route's, a card's or another label's, routes doubled into one line,
   routes over two bends, crowded labels and crowded route ends. The connections involved take other sides while that
-  improves the diagram, and a label still misplaced is pinned on or beside its own route. A card shows a detail whole or
-  not at all, and the steps carry every detail. The diagram passes Archify's checks at the build's quality profile,
-  showcase unless the build asks for standard, or the build is refused with a `page_*` code and Archify's findings.
+  improves the diagram, and a label still misplaced is pinned on or beside its own route, by an offset from where
+  Archify anchors it, which keeps the route's ends spread. A card shows a detail whole or not at all, and the steps
+  carry every detail. The diagram passes Archify's checks at the build's quality profile, showcase unless the build
+  asks for standard, or the build is refused with a `page_*` code and Archify's findings.
   Sources Archify will not cite, such as files under a secrets directory, are withheld and recorded in the manifest.
 - A failure that is not a refusal or usage error exits with status 3 and an `internal_error` JSON body. Git and
   Archify run with only the caller's path, home and temporary-directory variables, and `SystemRoot` on Windows.

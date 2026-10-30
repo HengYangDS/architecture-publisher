@@ -192,6 +192,7 @@ test("a label read as another's is pinned beside a segment of its own route clea
   // card; beside the route's long last segment nothing comes near it.
   const label = labelAt("routes the call", 54, 64);
   const layout = {
+    viewBox: [500, 400],
     components: [card("a", 0, 0), card("b", 300, 300)],
     boundaries: [],
     labels: [label],
@@ -209,8 +210,13 @@ test("a label read as another's is pinned beside a segment of its own route clea
   };
   const pins = clearLabels(layout, ["call"], ["call"]);
   // Above the horizontal segment a quarter from its far end, 6 px from it,
-  // where it lies farthest from both cards.
-  assert.deepEqual([...pins], [["call", [325, 110]]]);
+  // where it lies farthest from both cards: 75 px right of where Archify
+  // anchors it by default, 10 px above that segment's middle.
+  assert.deepEqual([...pins], [["call", [75, 0]]]);
+  // On a canvas 360 px wide that place would cross its right edge, so the
+  // label stands under the segment's middle instead.
+  const narrow = { ...layout, viewBox: [360, 400] };
+  assert.deepEqual([...clearLabels(narrow, ["call"], ["call"])], [["call", [0, 26]]]);
   assert.equal(routeDefects(layout, ["call"]).mislabels, 1);
   const pinned = { ...label, x: 285, y: 100, labelAt: [325, 110] };
   const moved = {
@@ -226,6 +232,31 @@ test("a label read as another's is pinned beside a segment of its own route clea
   assert.equal(clearLabels(moved, ["call"], ["call"]).size, 0);
 });
 
+test("a label on a route of one segment is pinned from above where the route starts", () => {
+  const card = (id, x, y) => ({ id, x, y, width: 100, height: 60 });
+  // Archify anchors the label 10 px above where the route leaves card a, on
+  // the card.
+  const label = labelAt("routes the call", 50, 40);
+  const layout = {
+    viewBox: [200, 400],
+    components: [card("a", 0, 0), card("b", 0, 300)],
+    boundaries: [],
+    labels: [label],
+    connections: [
+      {
+        points: [
+          [50, 60],
+          [50, 300],
+        ],
+        labelAt: label.labelAt,
+      },
+    ],
+  };
+  assert.equal(routeDefects(layout, ["call"]).mislabels, 1);
+  // On the middle of its route, its anchor at 183: 133 px below Archify's.
+  assert.deepEqual([...clearLabels(layout, ["call"], ["call"])], [["call", [0, 133]]]);
+});
+
 test("a route on the line another enters a card by takes other sides", async () => {
   // On the grid's sides context-mode's sandbox runs "fetches pages" along the
   // line on which "checks deny rules" enters Security policy, 3 px under it.
@@ -238,6 +269,10 @@ test("a route on the line another enters a card by takes other sides", async () 
   // its own route; the label is pinned where it reads as its route's.
   assert.equal(mislabels, 0);
   assert.ok(chosen.pinned.includes("runtimes-web"), String(chosen.pinned));
+  // The pin is an offset from Archify's anchor, which keeps the route's ends spread.
+  const pinned = chosen.document.connections.find(({ id }) => id === "runtimes-web");
+  assert.ok(Number.isInteger(pinned.labelDx) && Number.isInteger(pinned.labelDy));
+  assert.equal("labelAt" in pinned, false);
 });
 
 test("labels Archify stacks in one gap are each chosen clearly their own route's", async () => {
@@ -277,14 +312,21 @@ test("an Archify answer without a route measure the choice ranks by is refused, 
     Object.entries(metrics).filter(([name]) => name !== "maxStretch"),
   );
   assert.throws(() => routeMetrics({ metrics: renamed }), { code: "page_measures_missing" });
-  // The layout the route defects read needs its cards, boundaries, labels and
-  // the route of every connection.
-  const layout = { components: [], boundaries: [], connections: [{ points: [] }], labels: [] };
+  // The layout the route defects and the pins read needs its canvas, cards,
+  // boundaries, labels and the route of every connection.
+  const layout = {
+    viewBox: [840, 600],
+    components: [],
+    boundaries: [],
+    connections: [{ points: [] }],
+    labels: [],
+  };
   assert.equal(routeLayout(layout, 1), layout);
   assert.throws(() => routeLayout(layout, 2), { code: "page_measures_missing" });
-  assert.throws(() => routeLayout({ ...layout, labels: undefined }, 1), {
-    code: "page_measures_missing",
-  });
+  for (const part of ["viewBox", "labels"])
+    assert.throws(() => routeLayout({ ...layout, [part]: undefined }, 1), {
+      code: "page_measures_missing",
+    });
 });
 
 test("a dense view is drawn with its crossings measured, not refused", async () => {

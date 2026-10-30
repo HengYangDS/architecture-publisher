@@ -128,10 +128,10 @@ that no admitted page holds, alone or with a neighbour, is refused with
 `poster_unbalanced` and its closest page's measures and limits, unless
 `--quality standard` prints that page as a draft. Text is outlined from the
 bundled faces, Noto Sans CJK SC and then Noto Sans for the Latin, Greek and
-Cyrillic letters the first lacks; lines break at spaces, and between Han and
-Kana characters, keeping closing punctuation on the line before. Each kind
-draws its Lucide icon. Each page is written as SVG and as PNG at 2400 px or
-the widths `--png` names.
+Cyrillic letters the first lacks; lines break at spaces but not at no-break
+spaces, and between Han and Kana characters, keeping closing punctuation on the
+line before. Each kind draws its Lucide icon. Each page is written as SVG and
+as PNG at 2400 px or the widths `--png` names.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
 Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
@@ -179,12 +179,17 @@ as another's or crowded, or stands above its steps, the connections involved
 take other sides, one at a time from the three best diagrams and the three best
 beside their steps, within 96 measured changes, wherever that ranks the diagram
 higher. A label still read as another's or crowded is then pinned, on the three
-best diagrams by their routes, on or beside the middle or a quarter of a segment
-of its own route where nothing else is taken for it, and the page chooses again.
-A pin moves Archify's routes, so a label read as another's is also pinned alone,
-and a label pinned on a segment masks its route, which runs on at least 8 units
-past it at either end. A view without a candidate that passes refuses the build
-with Archify's findings; a diagram never drops a component or relation to fit.
+best diagrams by their routes, inside the canvas on or beside the middle or a
+quarter of a segment of its own route where nothing else is taken for it, and
+the page chooses again. A pin is an offset from where Archify anchors the label:
+an anchor of its own would take the route's ends out of Archify's spreading, so
+that they could meet another route's. The pin is found on the layout with the
+label at that anchor, where its route already takes the course it keeps once
+pinned. Archify runs other routes around a pinned label, so a label read as
+another's is also pinned alone, and a label pinned on a segment masks its
+route, which runs on at least 8 units past it at either end. A view without a
+candidate that passes refuses the build with Archify's findings; a diagram
+never drops a component or relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
 component's first source as a numbered page source at that revision, listed

@@ -65,6 +65,7 @@
 - [ ] 8.24 Release the product under MIT as the ETHOS license obligation requires and retire the Markdown budget rule that restated the paradigm's ceiling; the repository paradigm reports no gap.
 - [x] 8.25 Describe the product without the maintainer's deployment: the README and package README name a publication root, and the self model's store is the publication root. The README, the package README and `editions/self/model.json` name a publication root.
 - [x] 8.26 Read two cards' routes into one point as one route on the page, crowd a label within 16 px or two and a half times its route's distance, pin a label read as another's alone and on its own segment, and keep two relations' marks on one poster label row or band 48 px apart; the route measures count each case. `tests/map-choice.test.mjs` passes in `npm run check`.
+- [x] 8.27 Pin a label by an offset from where Archify anchors it, which keeps its route's ends spread, and keep the words beside a no-break space on one line on the posters and the page. `tests/map-choice.test.mjs` and `tests/text-breaks.test.mjs` pass in `npm run check`.
 
 ## 9. Acceptance and release
 

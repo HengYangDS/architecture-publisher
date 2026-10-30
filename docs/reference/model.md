@@ -89,7 +89,8 @@ Text in Latin, Greek, Cyrillic, Han, Kana and Hangul can be set; text in a
 right-to-left or shaped script, such as Arabic, Hebrew or Devanagari, is
 refused with `script_unsupported`, since the posters outline glyph by glyph
 without shaping. Lines break at spaces, and between Han and Kana characters,
-with closing punctuation kept on the line before.
+with closing punctuation kept on the line before. A no-break space, such as
+U+00A0 between `60` and `s`, keeps the words beside it on one line.
 
 ## Components and relations
 

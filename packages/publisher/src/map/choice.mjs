@@ -100,24 +100,25 @@ export function routeMetrics(composition) {
   };
 }
 
-/** The parts of Archify's layout the route defects and the drawing read. */
-const LAYOUT = Object.freeze(["components", "boundaries", "connections", "labels"]);
+/** The parts of Archify's layout the route defects, the pins and the drawing read. */
+const LAYOUT = Object.freeze(["viewBox", "components", "boundaries", "connections", "labels"]);
+
+/** Whether Archify's answer is a whole layout of a document of `connections` connections. */
+const laidOut = (layout, connections) =>
+  LAYOUT.every((part) => Array.isArray(layout[part])) && layout.connections.length === connections;
 
 /**
  * Archify's layout of a candidate that Archify passed. A layout without its
- * cards, boundaries, labels or the route of each connection refuses the view,
- * as a missing route measure does.
+ * canvas, cards, boundaries, labels or the route of each connection refuses
+ * the view, as a missing route measure does.
  * @param {any} layout Archify's layout answer
  * @param {number} connections the document's connection count
  */
 export function routeLayout(layout, connections) {
-  const complete =
-    LAYOUT.every((part) => Array.isArray(layout[part])) &&
-    layout.connections.length === connections;
-  if (!complete)
+  if (!laidOut(layout, connections))
     refuse(
       "page_measures_missing",
-      "Archify's layout lacks the cards, boundaries, labels or routes of its connections; " +
+      "Archify's layout lacks the canvas, cards, boundaries, labels or routes of its connections; " +
         "the vendored Archify does not match this publisher.",
     );
   return layout;
@@ -236,41 +237,84 @@ function resided(document, id) {
 }
 
 /**
- * The measures of the documents measured in this process, by their content.
- * The vendored Archify is verified and answers one document one way, so a
- * candidate that another view, repair or build of this process has measured
- * is not measured again.
+ * Archify's layout of a document whatever its verdict, or null when Archify
+ * lays none of it out. A label set where Archify anchors it may collide, which
+ * Archify reports and still lays out.
+ * @param {string} file
+ * @param {any} document the document written to `file`
  */
-const KNOWN = new Map();
+async function layoutOf(file, document) {
+  const quality = document.meta.quality_profile;
+  const validate = ["validate", "architecture", file, "--json", "--quality", quality];
+  const { answer } = await runArchify([...validate, "--layout-json"]);
+  return laidOut(answer, document.connections.length) ? answer : null;
+}
 
-/** Measure documents on Archify's routes, a few at a time, each in its own file under `directory`. */
+/**
+ * The answers to the documents measured or laid out in this process, by their
+ * content. The vendored Archify is verified and answers one document one way,
+ * so a candidate that another view, repair or build of this process has
+ * measured is not measured again.
+ */
+const KNOWN = Object.freeze({ measured: new Map(), laid: new Map() });
+
+/**
+ * Measure documents on Archify's routes, or only lay them out, a few at a
+ * time, each in its own file under `directory`.
+ * @param {string} directory
+ */
 function measurer(directory) {
   let written = 0;
-  /** @param {any} document */
-  const measureOnce = (document) => {
-    const key = JSON.stringify(document);
-    if (!KNOWN.has(key)) {
-      const file = path.join(directory, `${written++}.architecture.json`);
-      KNOWN.set(
-        key,
-        fs
-          .writeFile(file, `${JSON.stringify(document, null, 2)}\n`)
-          .then(() => measure(file, document)),
-      );
-    }
-    return KNOWN.get(key);
-  };
-  return async (documents) => {
-    const measured = new Array(documents.length);
-    let next = 0;
-    const worker = async () => {
-      while (next < documents.length) {
-        const index = next++;
-        measured[index] = await measureOnce(documents[index]);
+  /**
+   * @param {Map<string, Promise<any>>} known
+   * @param {(file: string, document: any) => Promise<any>} answer
+   * @returns {(documents: any[]) => Promise<any[]>}
+   */
+  const each = (known, answer) => {
+    /** @param {any} document */
+    const once = (document) => {
+      const key = JSON.stringify(document);
+      if (!known.has(key)) {
+        const file = path.join(directory, `${written++}.architecture.json`);
+        known.set(
+          key,
+          fs
+            .writeFile(file, `${JSON.stringify(document, null, 2)}\n`)
+            .then(() => answer(file, document)),
+        );
       }
+      return known.get(key);
     };
-    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-    return measured;
+    return async (documents) => {
+      const answers = new Array(documents.length);
+      let next = 0;
+      const worker = async () => {
+        while (next < documents.length) {
+          const index = next++;
+          answers[index] = await once(documents[index]);
+        }
+      };
+      await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+      return answers;
+    };
+  };
+  return { measureAll: each(KNOWN.measured, measure), layoutAll: each(KNOWN.laid, layoutOf) };
+}
+
+/**
+ * The document with the labels of the given connections moved by their
+ * offsets from where Archify anchors them.
+ * @param {any} document
+ * @param {Array<[string, number[]]>} offsets each label's offset, by connection id
+ */
+function offsetLabels(document, offsets) {
+  const byId = new Map(offsets);
+  return {
+    ...document,
+    connections: document.connections.map((item) => {
+      const offset = byId.get(item.id);
+      return offset ? { ...item, labelDx: offset[0], labelDy: offset[1] } : item;
+    }),
   };
 }
 
@@ -355,8 +399,9 @@ async function repair(starts, measureAll) {
  * beside their steps, are repaired by changing the sides of the connections
  * involved. When the choice still has a label read as another's or crowded,
  * the labels of the best few by their routes alone are pinned clear beside
- * their own routes. A view with no candidate inside the shape bounds, or none
- * that passes at the build's quality, is refused.
+ * their own routes, each by an offset from where Archify anchors it. A view
+ * with no candidate inside the shape bounds, or none that passes at the
+ * build's quality, is refused.
  * @param {any} model
  * @param {any} view
  * @param {"showcase" | "standard"} [quality]
@@ -373,7 +418,7 @@ export async function chooseDiagram(model, view, quality = "showcase") {
     );
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-diagrams-"));
   try {
-    const measureAll = measurer(directory);
+    const { measureAll, layoutAll } = measurer(directory);
     // Archify plans the sides of all connections together and can order ports
     // that a side fixed by the grid would cross, so each candidate is measured
     // both ways.
@@ -418,31 +463,44 @@ export async function chooseDiagram(model, view, quality = "showcase") {
     }
     let [chosen] = [...pool].sort(compare);
     if (chosen.relabel.length) {
-      // Pinning a label moves Archify's routes around it, so the labels read as
-      // another's are pinned alone as well as with those that only crowd.
-      const starts = [...pool]
+      // Archify can take another course for a route whose label has a place
+      // of its own, so each set of labels is pinned on the layout in which
+      // they stand where Archify anchors them; and Archify runs other routes
+      // around a pinned label, so the labels read as another's are pinned
+      // alone as well as with those that only crowd.
+      const sets = [...pool]
         .sort(byRoutes)
         .slice(0, REPAIR.starts)
-        .flatMap((start) => {
-          const ids = start.document.connections.map(({ id }) => id);
-          const sets = start.mislabelled.length
-            ? [start.mislabelled, start.relabel]
-            : [start.relabel];
-          const seen = new Set();
-          return sets.flatMap((owners) => {
-            const pins = clearLabels(start.layout, ids, owners);
-            const key = JSON.stringify([...pins]);
-            if (!pins.size || seen.has(key)) return [];
-            seen.add(key);
-            const document = {
-              ...start.document,
-              connections: start.document.connections.map((item) =>
-                pins.has(item.id) ? { ...item, labelAt: pins.get(item.id) } : item,
-              ),
-            };
-            return [{ start, document, pinned: [...pins.keys()] }];
-          });
-        });
+        .flatMap((start) =>
+          (start.mislabelled.length ? [start.mislabelled, start.relabel] : [start.relabel]).map(
+            (owners) => ({ start, owners }),
+          ),
+        );
+      const anchored = await layoutAll(
+        sets.map(({ start, owners }) =>
+          offsetLabels(
+            start.document,
+            owners.map((id) => [id, [0, 0]]),
+          ),
+        ),
+      );
+      const seen = new Set();
+      const starts = sets.flatMap(({ start, owners }, index) => {
+        const layout = anchored[index];
+        if (!layout) return [];
+        const ids = start.document.connections.map(({ id }) => id);
+        const moved = clearLabels(layout, ids, owners);
+        if (!moved.size) return [];
+        // A label already clear where Archify anchors it is pinned there.
+        const document = offsetLabels(
+          start.document,
+          owners.map((id) => [id, moved.get(id) ?? [0, 0]]),
+        );
+        const key = JSON.stringify(document.connections);
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [{ start, document, pinned: owners }];
+      });
       tried += starts.length;
       const pinned = (await measureAll(starts.map(({ document }) => document))).map(
         (result, index) => ({

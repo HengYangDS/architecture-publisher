@@ -287,9 +287,9 @@ The manifest SHALL record the re-sided connections.
 
 When the chosen diagram still has a label read as another's or crowded, the
 publisher SHALL pin those labels on the three best diagrams by their routes
-alone, each on or beside the middle or a quarter of one of its own route's
-segments where it is not read as anything else, and choose again among every
-measured diagram. The manifest SHALL record the pinned labels.
+alone, each inside the canvas on or beside the middle or a quarter of one of its
+own route's segments where it is not read as anything else, and choose again
+among every measured diagram. The manifest SHALL record the pinned labels.
 
 #### Scenario: A label pinned clear
 
@@ -298,12 +298,21 @@ measured diagram. The manifest SHALL record the pinned labels.
 - **THEN** the chosen diagram pins that label where it reads as its route's
 - **AND** the manifest records the pin
 
-### Requirement: Pins that move routes
+### Requirement: Pins by offset
 
-A pin moves Archify's routes around its label, so the labels read as another's
-SHALL be pinned alone as well as with those that only crowd. A label pinned on
-a segment SHALL mask its route, which runs on at least 8 px past it at either
-end.
+A pin SHALL move a label by an offset from where Archify anchors it, never to an
+anchor of its own, which takes its route's ends out of Archify's spreading. The
+pins SHALL be found on the layout with those labels at Archify's anchors, where
+their routes take the course they keep once pinned. The labels read as
+another's SHALL be pinned alone as well as with those that only crowd. A label
+pinned on a segment SHALL mask its route, which runs on at least 8 px past it
+at either end.
+
+#### Scenario: A pin keeps its route's ends spread
+
+- **WHEN** the chosen diagram pins a label
+- **THEN** its connection carries the pin as `labelDx` and `labelDy` and no
+  `labelAt`
 
 #### Scenario: A label read as another's pinned alone
 

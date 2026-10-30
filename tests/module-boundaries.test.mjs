@@ -20,7 +20,7 @@ const ALLOWED = Object.freeze({
   plan: ["locale", "model", "refusal"],
   layout: ["layout", "refusal"],
   poster: ["breaks", "kinds", "layout", "locale", "poster", "refusal", "supply"],
-  map: ["environment", "kinds", "layout", "locale", "map", "refusal", "supply"],
+  map: ["breaks", "environment", "kinds", "layout", "locale", "map", "refusal", "supply"],
   importers: ["locale", "model", "refusal", "supply"],
   build: ["icons", "map", "model", "plan", "poster", "refusal", "sources", "supply"],
   delivery: ["build", "refusal"],

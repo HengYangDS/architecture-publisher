@@ -1,12 +1,21 @@
 /**
  * Where a line of a model's text may break, by the writing systems it is
  * written in. Words written with spaces, as Latin, Greek, Cyrillic and Hangul
- * text is, break at those spaces. Han and Kana text is written without them and
- * may break before and after each character, as Chinese and Japanese are set,
- * except that a closing mark stays with the character before it and an opening
- * mark with the one after it. The rules read the characters alone, so a text
- * breaks the same way on every host and in every runtime.
+ * text is, break at those spaces; a no-break space joins the words beside it.
+ * Han and Kana text is written without them and may break before and after
+ * each character, as Chinese and Japanese are set, except that a closing mark
+ * stays with the character before it and an opening mark with the one after
+ * it. The rules read the characters alone, so a text breaks the same way on
+ * every host and in every runtime.
  */
+
+/**
+ * White space between words, where a line may break: any but the no-break
+ * space, figure space, narrow no-break space and zero-width no-break space,
+ * which keep "60 s" written with one on one line.
+ */
+export const SPACE = /[^\S\u00A0\u2007\u202F\uFEFF]/u;
+const SPACES = new RegExp(`${SPACE.source}+`, "u");
 
 /**
  * Characters set without spaces between words: Han, Kana, the CJK symbols and
@@ -52,7 +61,7 @@ function unspacedUnits(word) {
  */
 export function atoms(text) {
   return String(text)
-    .split(/\s+/u)
+    .split(SPACES)
     .filter(Boolean)
     .flatMap((word, index) =>
       (UNSPACED.test(word) ? unspacedUnits(word) : [word]).map((unit, position) => ({

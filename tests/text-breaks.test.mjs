@@ -36,6 +36,25 @@ test("spaced writing breaks at its spaces and unspaced writing between its chara
     assert.equal(joined(atoms(text)), text.replace(/\s+/gu, " ").trim());
 });
 
+test("a no-break space keeps the words beside it on one line", () => {
+  for (const space of ["\u00A0", "\u2007", "\u202F", "\uFEFF"])
+    assert.deepEqual(units(`the 9th search in 60${space}s`), [
+      "the",
+      " 9th",
+      " search",
+      " in",
+      ` 60${space}s`,
+    ]);
+  // Where "s" would start a line alone after a space, "60 s" moves down whole.
+  const text = "the 9th search in 60\u00A0s";
+  const width = typefaces.measure("the 9th search in 60", style);
+  assert.deepEqual(typefaces.wrap(text, width, style), ["the 9th search in", "60\u00A0s"]);
+  assert.deepEqual(typefaces.wrap(text.replace("\u00A0", " "), width, style), [
+    "the 9th search in 60",
+    "s",
+  ]);
+});
+
 test("unspaced text wraps between characters and never starts a line with a closing mark", () => {
   const text = "认证服务调用订单数据库，然后返回结果。";
   const width = typefaces.measure("认证服务调用", style);
