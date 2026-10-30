@@ -432,21 +432,21 @@ A card is at least as wide as the view's longest label needs, so the grid gives
 up a spare column rather than narrow a card below its label. Archify validates
 every candidate at the build's quality, with the grid's sides and with every
 side left to Archify, and lays out its routes. Blind reviews found misread what
-Archify does not report: routes 1 px off one line, or two cards' routes into
-one point, read as a relation the model lacks, a route 3 px from an edge as a
-second outline, a label 4 px under a card as the card's, ends 14 px apart on
-one side of a card as one doubled arrow. archpub measures them against
-Archify's 8 px shortest and 16 px interior segments and takes the fewest routes
-that read as one or along an edge, since a crossing still reads as two, then
-crossings, a preview beside its steps, labels read as another's, doubled
-routes, routes over two bends, crowded labels and ends, stretch above 1.35 and
-the shape closest to 1.0 to 1.8. A choice with a defect, or stacked above its
-steps, has the connections involved re-sided from the three best diagrams and
-the three best beside their steps, within 96 measured changes. A label still
+Archify does not report: routes 1 px off one line, or two cards' routes into one
+point, read as a relation the model lacks, a route 3 px from an edge as a second
+outline, a label 4 px under a card as the card's, ends 14 px apart on one side
+of a card as one doubled arrow. archpub measures them against Archify's 8 px
+shortest and 16 px interior segments, a label against 1.5 times its route's
+distance, and takes the fewest routes that read as one or along an edge, since a
+crossing still reads as two, then crossings, labels read as another's, which
+name the wrong relation, a preview beside its steps, doubled routes, routes over
+two bends, crowded labels and ends, stretch above 1.35 and the shape closest to
+1.0 to 1.8. A choice with a defect, or stacked above its steps, is re-sided from
+the three best diagrams and the three best beside their steps. A label still
 misplaced, or on another route's line carried 40 px past its corner, is then
-pinned inside the canvas beside its own route, by an offset from Archify's
-anchor found on the layout with the label there, which keeps its route's course
-and ends; one read as another's is also pinned alone, since Archify runs other
+pinned beside its own route on the three best by their routes, by an offset from
+Archify's anchor found with the label there, which keeps its route's course and
+ends; one read as another's is also pinned alone, since Archify runs other
 routes around a pinned label, and up to three rounds pin anew what the last
 left. A view with no passing candidate is refused with Archify's findings.
 

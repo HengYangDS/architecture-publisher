@@ -9,10 +9,10 @@ import { clearLabels, routeDefects } from "./routes.mjs";
  * The choice of each view's diagram on Archify's own routes. Archify validates
  * and measures every candidate; the routes it lays out are measured as well for
  * what a reader misreads and Archify does not report: two routes that read as
- * one, a route along an edge, a label nearer something else than its own route,
- * two routes doubled side by side, a label set close to another route, card,
- * outline or label, and route ends crowded on one side of a card. The
- * connections of a choice that still has such a defect take other sides.
+ * one, a route along an edge, a label not clearly nearer its own route than
+ * something else, two routes doubled side by side, a label set close to another
+ * route, card, outline or label, and route ends crowded on one side of a card.
+ * The connections of a choice that still has such a defect take other sides.
  */
 
 /** The shapes a diagram should take, width over height, and the narrowest it may take. */
@@ -333,8 +333,8 @@ function offsetLabels(document, offsets) {
 const rank = ({ metrics, width, height, drawing, index }, labels = true) => [
   metrics.tangles + metrics.joins + metrics.hugs,
   metrics.crossings,
-  besideSteps(drawing) ? 0 : 1,
   labels ? metrics.mislabels : 0,
+  besideSteps(drawing) ? 0 : 1,
   metrics.doubles,
   metrics.routesOverTwoBends,
   labels ? metrics.labels : 0,
@@ -411,19 +411,18 @@ export function pinSets(starts) {
  * once with the grid's connection sides and once with every side left to
  * Archify, and choose among those that pass Archify's showcase checks: the
  * fewest routes a reader takes for one or that run along an edge, then the
- * fewest crossings, one the reader sets beside its steps, the fewest labels read
- * as another's, doubled routes and routes over two bends, crowded labels and
- * crowded route ends, the least stretch above
- * 1.35 and the shape nearest 1.0 to 1.8 times as wide as high. When the choice
- * still has a defect or stands above its steps, the best few, and the best few
- * beside their steps, are repaired by changing the sides of the connections
- * involved. When the choice still has a label read as another's or crowded,
- * the labels of the best few by their routes alone are pinned clear beside
- * their own routes, each by an offset from where Archify anchors it, in up to
- * three rounds: each pins anew the labels the round before left read as
- * another's or crowded, on the best few diagrams it pinned. A view
- * with no candidate inside the shape bounds, or none that passes at the
- * build's quality, is refused.
+ * fewest crossings, the fewest labels read as another's, one the reader sets
+ * beside its steps, the fewest doubled routes and routes over two bends,
+ * crowded labels and crowded route ends, the least stretch above 1.35 and the
+ * shape nearest 1.0 to 1.8 times as wide as high. When the choice still has a
+ * defect or stands above its steps, the best few, and the best few beside their
+ * steps, are repaired by changing the sides of the connections involved. When
+ * the choice still has a label read as another's or crowded, the labels of the
+ * best few by their routes alone are pinned clear beside their own routes, each
+ * by an offset from where Archify anchors it, in up to three rounds: each pins
+ * anew the labels the round before left read as another's or crowded, on the
+ * best few diagrams it pinned. A view with no candidate inside the shape
+ * bounds, or none that passes at the build's quality, is refused.
  * @param {any} model
  * @param {any} view
  * @param {"showcase" | "standard"} [quality]

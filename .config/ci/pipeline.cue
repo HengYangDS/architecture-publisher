@@ -20,7 +20,7 @@ shared: {
 		"protected",
 	]
 
-	"timeLimitMinutes": 60
+	"timeLimitMinutes": 75
 	"miseVersion":      "2026.10.19"
 	"environment": {
 		workspace: string

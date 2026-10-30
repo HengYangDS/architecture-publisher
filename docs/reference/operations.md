@@ -172,34 +172,35 @@ between them, or ending at one point, unless they leave one card there and at
 most one carries a label, as one labelled relation fans out; a route along a
 card's or the boundary's edge, closer than 12 units along more than 16; two
 routes doubled, 8 to 24 units apart along more than 64; a relation label read as
-another's, when another route, a card or another label is no farther from it
-than its own route, or another label is nearer than 8 units; a label that
+another's, when another route, a card or another label comes nearer it than 8
+units or than one and a half times its own route's distance; a label that
 crowds, when anything else, a boundary's outline included, comes nearer than 16
 units or than two and a half times its own route's distance; and two route ends
 less than 24 units apart on one side of a card. Among the candidates that pass,
 the page takes the fewest routes that read as one or run along an edge, then the
-fewest crossings, then one narrow enough for Archify's reader to set beside its
-steps at 1440 px, then the fewest labels read as another's, doubled routes,
-routes over two bends, crowded labels, crowded route ends and route stretch,
-then the shape nearest 1.0 to 1.8 times as wide as high. When the choice still
-crosses, reads two routes as one, runs a route along an edge, has a label read
-as another's or crowded, or stands above its steps, the connections involved
-take other sides, one at a time from the three best diagrams and the three best
-beside their steps, within 96 measured changes, wherever that ranks the diagram
-higher. A label still read as another's or crowded is then pinned, on the three
-best diagrams by their routes, inside the canvas on or beside the middle or a
-quarter of a segment of its own route where nothing else is taken for it, and
-the page chooses again, in up to three rounds that each pin anew what the
-round before left misplaced. A label that another route's line, carried 40
-units past its corner, runs into counts as crowded. A pin is an offset from
-where Archify anchors the label: an anchor of its own would take the route's
-ends out of Archify's spreading, so that they could meet another route's. The
-pin is found on the layout with the label at that anchor, where its route
-already takes the course it keeps once pinned. Archify runs other routes around a pinned label, so a label read as
-another's is also pinned alone, and a label pinned on a segment masks its
-route, which runs on at least 8 units past it at either end. A view without a
-candidate that passes refuses the build with Archify's findings; a diagram
-never drops a component or relation to fit.
+fewest crossings, then the fewest labels read as another's, then one narrow
+enough for Archify's reader to set beside its steps at 1440 px, then the fewest
+doubled routes, routes over two bends, crowded labels, crowded route ends and
+route stretch, then the shape nearest 1.0 to 1.8 times as wide as high. When the
+choice still crosses, reads two routes as one, runs a route along an edge, has a
+label read as another's or crowded, or stands above its steps, the connections
+involved take other sides, one at a time from the three best diagrams and the
+three best beside their steps, within 96 measured changes, wherever that ranks
+the diagram higher. A label still read as another's or crowded is then pinned,
+on the three best diagrams by their routes, inside the canvas on or beside the
+middle of a segment of its own route, or three eighths, a quarter or an eighth
+of the way from either end, where nothing else is taken for it, and the page
+chooses again, in up to three rounds that each pin anew what the round before
+left misplaced. A label that another route's line, carried 40 units past its
+corner, runs into counts as crowded. A pin is an offset from where Archify
+anchors the label: an anchor of its own would take the route's ends out of
+Archify's spreading, so that they could meet another route's. The pin is found
+on the layout with the label at that anchor, where its route already takes the
+course it keeps once pinned. Archify runs other routes around a pinned label, so
+a label read as another's is also pinned alone, and a label pinned on a segment
+masks its route, which runs on at least 8 units past it at either end. A view
+without a candidate that passes refuses the build with Archify's findings; a
+diagram never drops a component or relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
 component's first source as a numbered page source at that revision, listed

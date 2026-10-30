@@ -58,7 +58,7 @@ stages:
     - mise exec -- npm run check
   stage: verify
   interruptible: true
-  timeout: 60m
+  timeout: 75m
 .verify-linux:
   before_script:
     - curl --fail --silent --show-error --location --proto '=https'
@@ -136,7 +136,7 @@ stages:
   image: null
   resource_group: native-windows-verification
   interruptible: true
-  timeout: 60m
+  timeout: 75m
 verify:linux:review:
   extends: .verify-linux
   tags:

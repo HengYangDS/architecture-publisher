@@ -37,9 +37,15 @@ const LABEL = Object.freeze({ gap: 6, baseline: 10, rise: 10 });
  */
 const CLEAR = Object.freeze({ ratio: 2.5, least: SEGMENT.interior });
 /**
+ * How far everything else a reader may take a label for keeps from a label
+ * that reads as its own route's: one and a half times as far as its own route,
+ * and no nearer than Archify's shortest segment.
+ */
+const READ = Object.freeze({ ratio: 1.5, least: SEGMENT.micro });
+/**
  * How far a reader carries a route's segment on past its corner, two and a half
  * interior segments, and how near that line a label lies on it: a label the
- * line runs into reads as that route's, as if the route went on to it.
+ * line runs into is crowded, as if the route went on to the label.
  */
 const LINE = Object.freeze({ reach: 2.5 * SEGMENT.interior, slack: 2 });
 
@@ -112,17 +118,16 @@ function labelScene(layout) {
   ]);
   /**
    * How near a box for the label of connection `owner` comes to its own route;
-   * to another route, card or label, which a reader may take it for; to another
-   * label alone; and to all of those, the outlines and the lines other routes
-   * carry on past their corners, a box on such a line lying at none.
+   * to another route, card or label, which a reader may take it for; and to all
+   * of those, the outlines and the lines other routes carry on past their
+   * corners, a box on such a line lying at none.
    * @param {number} owner
    * @param {{ x: number, y: number, width: number, height: number }} box
    */
   const distances = (owner, box) => {
     const nearest = (items) => Math.min(Infinity, ...items.map((item) => gap(box, item)));
-    const label = nearest(labels.filter((item, index) => item && index !== owner));
     const taken = Math.min(
-      label,
+      nearest(labels.filter((item, index) => item && index !== owner)),
       nearest(segments.filter((segment) => segment.owner !== owner).map(boxOf)),
       nearest(layout.components),
     );
@@ -134,7 +139,6 @@ function labelScene(layout) {
     );
     return {
       own: nearest(segments.filter((segment) => segment.owner === owner).map(boxOf)),
-      label,
       taken,
       other: online ? 0 : Math.min(taken, nearest(outlines)),
     };
@@ -142,8 +146,19 @@ function labelScene(layout) {
   return { segments, labels, distances };
 }
 
-/** Where along a route segment a pinned label may stand: its middle first, then a quarter from either end. */
-const ALONG = Object.freeze([0.5, 0.25, 0.75]);
+/**
+ * Where along a route segment a pinned label may stand: its middle first, then
+ * three eighths, a quarter and an eighth of the way from either end.
+ */
+const ALONG = Object.freeze([0.5, 0.375, 0.625, 0.25, 0.75, 0.125, 0.875]);
+
+/**
+ * Whether a label reads as its own route's, by its distances: everything else a
+ * reader may take it for, another route, a card or another label, stands one
+ * and a half times as far as its own route, and no nearer than Archify's
+ * shortest segment.
+ */
+const reads = ({ own, taken }) => taken >= Math.max(READ.least, READ.ratio * own);
 
 /** Whether a label stands clear of everything but its own route, by its distances. */
 const clear = ({ own, other }) => other >= Math.max(CLEAR.least, CLEAR.ratio * own);
@@ -163,15 +178,16 @@ function defaultAnchor(points) {
 /**
  * Where to pin the labels of `owners` so each reads as its own route's: on one
  * of the route's segments, or beside it at the distance Archify keeps, at its
- * middle or a quarter from either end, inside the canvas, wherever it is not
- * taken for anything else and lies farthest from everything else, when that is
- * better than where Archify set it. On a segment the label masks its route, as Archify's own
- * labels do, where the segment runs on past the label by a shortest segment at
- * either end. A label pinned earlier counts where it is pinned, so labels that
- * crowd one gap stand at different heights. A pin is an offset from the anchor
- * Archify sets the label at by default, not an anchor of its own: Archify
- * leaves the ends of a route whose label has its own anchor out of spreading
- * the ends on one side of a card, so they can meet another route's.
+ * middle or three eighths, a quarter or an eighth of the way from either end,
+ * inside the canvas, wherever it is not taken for anything else and lies
+ * farthest from everything else, when that is better than where Archify set it.
+ * On a segment the label masks its route, as Archify's own labels do, where the
+ * segment runs on past the label by a shortest segment at either end. A label
+ * pinned earlier counts where it is pinned, so labels that crowd one gap stand
+ * at different heights. A pin is an offset from the anchor Archify sets the
+ * label at by default, not an anchor of its own: Archify leaves the ends of a
+ * route whose label has its own anchor out of spreading the ends on one side of
+ * a card, so they can meet another route's.
  * @param {any} layout Archify's layout of the diagram
  * @param {string[]} ids the diagram's connection ids, in Archify's order
  * @param {string[]} owners the ids of the connections whose labels to move
@@ -192,8 +208,7 @@ export function clearLabels(layout, ids, owners) {
     // when it stands clear, then the farther it lies from everything else.
     const score = (place) => {
       const distance = distances(owner, place);
-      const { own, label, taken, other } = distance;
-      return [taken > own && label >= SEGMENT.micro ? 1 : 0, clear(distance) ? 1 : 0, other];
+      return [reads(distance) ? 1 : 0, clear(distance) ? 1 : 0, distance.other];
     };
     const better = (x, y) => {
       const at = x.findIndex((value, index) => value !== y[index]);
@@ -240,7 +255,7 @@ export function clearLabels(layout, ids, owners) {
  * the diagram labels once. A route runs along an edge when it keeps beside a
  * card's or the boundary's edge for longer than an interior segment. A
  * relation label reads as another's when another route, a card or another
- * label is no farther from it than its own route, or another label is nearer
+ * label comes nearer it than one and a half times its own route's distance, or
  * than Archify's shortest segment. Two routes are doubled when they run side
  * by side, closer than one and a half interior segments, for longer than four.
  * A label crowds when anything but its own route, an outline included, comes
@@ -374,7 +389,7 @@ export function routeDefects(layout, ids) {
   labels.forEach((box, owner) => {
     if (!box) return;
     const distance = distances(owner, box);
-    if (distance.taken <= distance.own || distance.label < SEGMENT.micro) mislabelled.add(owner);
+    if (!reads(distance)) mislabelled.add(owner);
     else if (!clear(distance)) labelled.add(owner);
   });
   const named = (owners) => [...owners].sort((a, b) => a - b).map((owner) => ids[owner]);

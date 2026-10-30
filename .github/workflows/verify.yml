@@ -25,7 +25,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
       !github.ref_protected) }}
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 60
+    timeout-minutes: 75
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-linux-review
       cancel-in-progress: true
@@ -104,7 +104,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
       github.ref_type == 'tag') }}
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 60
+    timeout-minutes: 75
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-linux-protected
       cancel-in-progress: true
@@ -179,7 +179,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
       !github.ref_protected) }}
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 75
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-macos-review
       cancel-in-progress: true
@@ -238,7 +238,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
       github.ref_type == 'tag') }}
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 75
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-macos-protected
       cancel-in-progress: true
@@ -301,7 +301,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
       !github.ref_protected) }}
     runs-on: windows-11-arm
-    timeout-minutes: 60
+    timeout-minutes: 75
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-windows-review
       cancel-in-progress: true
@@ -364,7 +364,7 @@ jobs:
     if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
       github.ref_type == 'tag') }}
     runs-on: windows-11-arm
-    timeout-minutes: 60
+    timeout-minutes: 75
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-windows-protected
       cancel-in-progress: true

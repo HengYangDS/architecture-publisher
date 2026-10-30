@@ -138,8 +138,8 @@ candidate that passes those checks SHALL be refused with Archify's findings.
 
 Among candidates that pass Archify's checks, the publisher SHALL
 choose the one with the fewest routes that read as one or run along an edge,
-then crossings, then one Archify's reader sets beside its steps at a 1440 px
-viewport, then the fewest labels read as another's, doubled routes, routes
+then crossings, then labels read as another's, then one Archify's reader sets
+beside its steps at a 1440 px viewport, then the fewest doubled routes, routes
 over two bends, crowded labels, crowded route ends and stretch above 1.35, then
 the shape closest to the landscape band. The manifest SHALL record the choice
 and its metrics.
@@ -152,10 +152,17 @@ and its metrics.
 #### Scenario: A preview beside its steps
 
 - **WHEN** two candidates of a view are free of crossings, of routes that read
-  as one and of routes along an edge, and only the narrower one leaves its steps
-  room beside it
+  as one, of routes along an edge and of labels read as another's, and only the
+  narrower one leaves its steps room beside it
 - **THEN** the narrower one is chosen
 - **AND** the manifest records that its preview stands beside its steps
+
+#### Scenario: A misread label beside the steps
+
+- **WHEN** the best of AIGW's adapter candidates beside their steps sets
+  "realized by" on the corner of the card it points to, and the best above its
+  steps sets every label where it reads as its own route's
+- **THEN** the one above its steps is chosen
 
 #### Scenario: Routes past the cards
 
@@ -237,8 +244,8 @@ count with the chosen diagram's metrics.
 ### Requirement: Relation labels
 
 A relation label SHALL read as another's when another route, a card or another
-label is no farther from it than its own route, or another label is nearer
-than 8 px. It SHALL crowd when anything else, a boundary's outline included,
+label comes nearer it than 8 px or than one and a half times its own route's
+distance. It SHALL crowd when anything else, a boundary's outline included,
 comes nearer than 16 px or than two and a half times its own route's distance,
 or when another route's segment, carried 40 px on past its corner, runs within
 2 px of it. The manifest SHALL record both counts with the chosen diagram's
@@ -249,6 +256,12 @@ metrics.
 - **WHEN** two candidates differ only in that one sets a relation's label 4 px
   under a card the relation does not connect
 - **THEN** the other is chosen
+
+#### Scenario: A label nearly as near another route
+
+- **WHEN** a label stands 6 px beside its own route and 8 px from another
+- **THEN** it counts as read as another's
+- **AND** 9 px from the other route it counts as crowded instead
 
 #### Scenario: A label on another route's line
 
@@ -296,9 +309,10 @@ The manifest SHALL record the re-sided connections.
 
 When the chosen diagram still has a label read as another's or crowded, the
 publisher SHALL pin those labels on the three best diagrams by their routes
-alone, each inside the canvas on or beside the middle or a quarter of one of its
-own route's segments where it is not read as anything else, and choose again
-among every measured diagram. The manifest SHALL record the pinned labels.
+alone, each inside the canvas on or beside the middle of one of its own route's
+segments, or three eighths, a quarter or an eighth of the way from either end,
+where it is not read as anything else, and choose again among every measured
+diagram. The manifest SHALL record the pinned labels.
 
 #### Scenario: A label pinned clear
 

@@ -13,6 +13,7 @@ import { clearLabels, routeDefects } from "../packages/publisher/src/map/routes.
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import {
+  AIGW_MODEL,
   BIG_BANK_MODEL,
   BROWSER_USE_MODEL,
   CONTEXT_MODE_MODEL,
@@ -51,7 +52,7 @@ test("routes that read as one, run along an edge or crowd one side of a card are
       card("a", 0, 0),
       card("b", 200, 0),
       card("s", 40, 200, 20, 20),
-      card("c", 845, 20),
+      card("c", 848, 20),
       card("t", 1500, 100),
       card("w", 1800, 100),
     ],
@@ -78,7 +79,8 @@ test("routes that read as one, run along an edge or crowd one side of a card are
       // 3 px off one line and 14 px apart: still one route to a reader.
       route([700, 0], [700, 100]),
       route([703, 114], [703, 200]),
-      // A label 5 px from a card it does not connect.
+      // A label on its route 8 px from a card it does not connect: it reads as
+      // its route's, Archify's shortest segment from the card, but crowds.
       {
         points: [
           [800, 0],
@@ -164,6 +166,11 @@ test("labels read as another's, labels that crowd and doubled routes are counted
     labelAt("lower", 254, 319),
     // 6 px beside its route and 4 px inside the boundary's edge.
     labelAt("by the outline", 454, 304),
+    // 6 px beside its route and 8 px from another: less than one and a half
+    // times as far, so it reads as the other's.
+    labelAt("near another", 854, 300),
+    // 6 px beside its route and 9 px from another: its own, but crowded.
+    labelAt("far enough", 1054, 300),
   ];
   const layout = {
     components: [card("a", 0, 0), card("b", 0, 200)],
@@ -177,13 +184,28 @@ test("labels read as another's, labels that crowd and doubled routes are counted
       // Two routes 17 px apart along 120 px read as one doubled line.
       route(null, [700, 0], [700, 200]),
       route(null, [717, 40], [717, 160]),
+      route(labels[4].labelAt, [900, 250], [900, 400]),
+      route(null, [806, 250], [806, 400]),
+      route(labels[5].labelAt, [1100, 250], [1100, 400]),
+      route(null, [1005, 250], [1005, 400]),
     ],
   };
-  const ids = ["card", "upper", "lower", "outline", "double-a", "double-b"];
+  const ids = [
+    "card",
+    "upper",
+    "lower",
+    "outline",
+    "double-a",
+    "double-b",
+    "near",
+    "near-other",
+    "far",
+    "far-other",
+  ];
   const { mislabels, doubles, labels: crowding, owners } = routeDefects(layout, ids);
-  assert.deepEqual([mislabels, doubles, crowding], [3, 1, 1]);
-  assert.deepEqual(owners.mislabelled, ["card", "upper", "lower"]);
-  assert.deepEqual(owners.labelled, ["outline"]);
+  assert.deepEqual([mislabels, doubles, crowding], [4, 1, 2]);
+  assert.deepEqual(owners.mislabelled, ["card", "upper", "lower", "near"]);
+  assert.deepEqual(owners.labelled, ["outline", "far"]);
   assert.deepEqual(owners.doubled, ["double-a", "double-b"]);
 });
 
@@ -215,9 +237,9 @@ test("a label read as another's is pinned beside a segment of its own route clea
   // anchors it by default, 10 px above that segment's middle.
   assert.deepEqual([...pins], [["call", [75, 0]]]);
   // On a canvas 360 px wide that place would cross its right edge, so the
-  // label stands under the segment's middle instead.
+  // label stands under the segment three eighths from its far end instead.
   const narrow = { ...layout, viewBox: [360, 400] };
-  assert.deepEqual([...clearLabels(narrow, ["call"], ["call"])], [["call", [0, 26]]]);
+  assert.deepEqual([...clearLabels(narrow, ["call"], ["call"])], [["call", [38, 26]]]);
   assert.equal(routeDefects(layout, ["call"]).mislabels, 1);
   const pinned = { ...label, x: 285, y: 100, labelAt: [325, 110] };
   const moved = {
@@ -337,6 +359,18 @@ test("a route on the line another enters a card by takes other sides", async () 
   const pinned = chosen.document.connections.find(({ id }) => id === "runtimes-web");
   assert.ok(Number.isInteger(pinned.labelDx) && Number.isInteger(pinned.labelDy));
   assert.equal("labelAt" in pinned, false);
+});
+
+test("a label read as another's outranks a preview beside its steps", async () => {
+  // The best of AIGW's adapter diagrams that Archify's reader sets beside their
+  // steps sets "realized by" on the corner of Codex, the card it points to, and
+  // "guards" 2 px from the card it guards; the best above its steps sets every
+  // label where it reads as its own route's.
+  const { model } = await loadModel(AIGW_MODEL);
+  const adapters = (await viewsOf(model)).find(({ id }) => id === "adapters");
+  const chosen = await chooseDiagram(model, /** @type {any} */ (adapters));
+  assert.deepEqual([chosen.metrics.crossings, chosen.metrics.mislabels], [0, 0]);
+  assert.equal(chosen.beside, false);
 });
 
 test("labels Archify stacks in one gap are each chosen clearly their own route's", async () => {
