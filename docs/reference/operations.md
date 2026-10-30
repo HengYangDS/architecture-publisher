@@ -173,15 +173,19 @@ most one carries a label, as one labelled relation fans out; a route along a
 card's or the boundary's edge, closer than 12 units along more than 16; two
 routes doubled, 8 to 24 units apart along more than 64; a relation label read as
 another's, when another route, a card or another label comes nearer it than 8
-units or than one and a half times its own route's distance; a label that
-crowds, when anything else, a boundary's outline included, comes nearer than 16
-units or than two and a half times its own route's distance; and two route ends
-less than 24 units apart on one side of a card. Among the candidates that pass,
-the page takes the fewest routes that read as one or run along an edge, then the
-fewest crossings, then the fewest labels read as another's, then one narrow
-enough for Archify's reader to set beside its steps at 1440 px, then the fewest
-doubled routes, routes over two bends, crowded labels, crowded route ends and
-route stretch, then the shape nearest 1.0 to 1.8 times as wide as high. When the
+units or than one and a half times its own route's distance, or when a route
+running the same way past its other side stands less than one and a half times
+as far from its text, taken as five sixths as wide as Archify estimates it, as
+the route it is set beside; a label that crowds, when anything else, a
+boundary's outline included, comes nearer than 16 units or than two and a half
+times its own route's distance; and two route ends less than 24 units apart on
+one side of a card. Among the candidates that pass, the page takes the fewest
+routes that read as one or run along an edge, then the fewest crossings, then
+the fewest labels read as another's, then one narrow enough for Archify's reader
+to set beside its steps at 1440 px, then the fewest doubled routes, routes over
+two bends, crowded labels, crowded route ends and route stretch, then the shape
+nearest 1.0 to 1.8 times as wide as high. When the best stands above its steps,
+the view is also measured in rows of two at 720 and 600 units wide. When the
 choice still crosses, reads two routes as one, runs a route along an edge, has a
 label read as another's or crowded, or stands above its steps, the connections
 involved take other sides, one at a time from the three best diagrams and the

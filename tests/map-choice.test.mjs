@@ -169,11 +169,15 @@ test("labels read as another's, labels that crowd and doubled routes are counted
     // 6 px beside its route and 8 px from another: less than one and a half
     // times as far, so it reads as the other's.
     labelAt("near another", 854, 300),
-    // 6 px beside its route and 9 px from another: its own, but crowded.
+    // 6 px beside its route and 9 px under a card: its own, but crowded.
     labelAt("far enough", 1054, 300),
+    // 6 px left of its route and 14 px right of another running the same way:
+    // the text, 11 px inside the box, stands less than one and a half times as
+    // far from the other route, so it reads as the other's.
+    labelAt("between two", 1254, 300),
   ];
   const layout = {
-    components: [card("a", 0, 0), card("b", 0, 200)],
+    components: [card("a", 0, 0), card("b", 0, 200), card("above", 1010, 231, 70, 60)],
     boundaries: [{ x: 410, y: 250, width: 200, height: 200 }],
     labels,
     connections: [
@@ -187,7 +191,8 @@ test("labels read as another's, labels that crowd and doubled routes are counted
       route(labels[4].labelAt, [900, 250], [900, 400]),
       route(null, [806, 250], [806, 400]),
       route(labels[5].labelAt, [1100, 250], [1100, 400]),
-      route(null, [1005, 250], [1005, 400]),
+      route(labels[6].labelAt, [1300, 250], [1300, 400]),
+      route(null, [1200, 250], [1200, 400]),
     ],
   };
   const ids = [
@@ -200,11 +205,12 @@ test("labels read as another's, labels that crowd and doubled routes are counted
     "near",
     "near-other",
     "far",
-    "far-other",
+    "between",
+    "between-other",
   ];
   const { mislabels, doubles, labels: crowding, owners } = routeDefects(layout, ids);
-  assert.deepEqual([mislabels, doubles, crowding], [4, 1, 2]);
-  assert.deepEqual(owners.mislabelled, ["card", "upper", "lower", "near"]);
+  assert.deepEqual([mislabels, doubles, crowding], [5, 1, 2]);
+  assert.deepEqual(owners.mislabelled, ["card", "upper", "lower", "near", "between"]);
   assert.deepEqual(owners.labelled, ["outline", "far"]);
   assert.deepEqual(owners.doubled, ["double-a", "double-b"]);
 });
@@ -343,22 +349,31 @@ test("a label on a route of one segment is pinned from above where the route sta
   assert.deepEqual([...clearLabels(layout, ["call"], ["call"])], [["call", [0, 133]]]);
 });
 
-test("a route on the line another enters a card by takes other sides", async () => {
-  // On the grid's sides context-mode's sandbox runs "fetches pages" along the
-  // line on which "checks deny rules" enters Security policy, 3 px under it.
+test("a view that stands above its steps at every width takes rows of two beside them", async () => {
+  // In rows of three every diagram of context-mode's sandbox stands above its
+  // steps or misreads a route or a label; at 600 px in rows of two it stands
+  // beside them and misreads none.
   const { model } = await loadModel(CONTEXT_MODE_MODEL);
   const sandbox = (await viewsOf(model)).find(({ id }) => id === "sandbox");
   const chosen = await chooseDiagram(model, /** @type {any} */ (sandbox));
   const { crossings, tangles, joins, hugs, mislabels } = chosen.metrics;
-  assert.deepEqual([crossings, tangles, joins, hugs], [0, 0, 0, 0]);
-  // Archify then sets "fetches pages" 4 px under Security policy and 6 px from
-  // its own route; the label is pinned where it reads as its route's.
-  assert.equal(mislabels, 0);
-  assert.ok(chosen.pinned.includes("runtimes-web"), String(chosen.pinned));
+  assert.deepEqual([crossings, tangles, joins, hugs, mislabels], [0, 0, 0, 0, 0]);
+  assert.equal(chosen.beside, true);
+  assert.ok(Math.max(...chosen.rows) <= 2, String(chosen.rows));
+});
+
+test("a pinned label carries an offset from Archify's anchor, not an anchor of its own", async () => {
+  const { model } = await loadModel(BROWSER_USE_MODEL);
+  const perception = (await viewsOf(model)).find(({ id }) => id === "perception");
+  const chosen = await chooseDiagram(model, /** @type {any} */ (perception));
+  assert.equal(chosen.metrics.mislabels, 0);
+  assert.ok(chosen.pinned.length > 0, "the view pins a label");
   // The pin is an offset from Archify's anchor, which keeps the route's ends spread.
-  const pinned = chosen.document.connections.find(({ id }) => id === "runtimes-web");
-  assert.ok(Number.isInteger(pinned.labelDx) && Number.isInteger(pinned.labelDy));
-  assert.equal("labelAt" in pinned, false);
+  for (const id of chosen.pinned) {
+    const pinned = chosen.document.connections.find((connection) => connection.id === id);
+    assert.ok(Number.isInteger(pinned.labelDx) && Number.isInteger(pinned.labelDy), id);
+    assert.equal("labelAt" in pinned, false, id);
+  }
 });
 
 test("a label read as another's outranks a preview beside its steps", async () => {

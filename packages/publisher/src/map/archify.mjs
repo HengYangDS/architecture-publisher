@@ -30,6 +30,11 @@ export const DIAGRAM_WIDTHS = Object.freeze([960, 840, 720]);
 const ROW_LIMITS = Object.freeze([5, 4, 3]);
 /** Row limits tried when no row of three lays out, as when a label needs a card of its own width. */
 const NARROW_LIMITS = Object.freeze([2, 1]);
+/**
+ * Widths and row limits tried as well when every other candidate stands above
+ * its steps: rows of two, narrow enough for Archify's reader to set beside them.
+ */
+const BESIDE = Object.freeze({ widths: [720, 600], limits: [2] });
 /** Archify narrows a reader canvas at or above this width-to-height ratio, which would shrink its labels. */
 const WIDE_RATIO = 1.54;
 const MARGIN = 40;
@@ -297,12 +302,15 @@ function diagramDocument(model, view, layout, width, quality) {
  * widest first, and narrower rows when no row of three lays out. A label longer
  * than the narrowest diagram's content refuses the view; a candidate the grid
  * cannot lay out is left out, and when none remains, the first refusal is the
- * view's. Each document is checked at the build's quality.
+ * view's. Each document is checked at the build's quality. With `beside`, only
+ * the rows of two narrow enough to stand beside the steps, and none when they
+ * do not lay out.
  * @param {any} model
  * @param {any} view
  * @param {"showcase" | "standard"} [quality]
+ * @param {{ beside?: boolean }} [options]
  */
-export function diagramCandidates(model, view, quality = "showcase") {
+export function diagramCandidates(model, view, quality = "showcase", { beside = false } = {}) {
   const long = view.components.filter(({ label }) => labelWidth(label) > WIDEST_CARD);
   if (long.length)
     refuse(
@@ -321,8 +329,14 @@ export function diagramCandidates(model, view, quality = "showcase") {
   const out = [];
   /** @type {any} */
   let refusal = null;
-  for (const limits of [ROW_LIMITS, NARROW_LIMITS]) {
-    for (const width of DIAGRAM_WIDTHS)
+  const passes = beside
+    ? [[BESIDE.limits, BESIDE.widths]]
+    : [
+        [ROW_LIMITS, DIAGRAM_WIDTHS],
+        [NARROW_LIMITS, DIAGRAM_WIDTHS],
+      ];
+  for (const [limits, widths] of passes) {
+    for (const width of widths)
       for (const limit of limits) {
         const rows = wrapRows(viewRows(view, limit, outside), limit);
         const key = JSON.stringify([width, rows.map(({ members }) => members)]);
@@ -341,7 +355,7 @@ export function diagramCandidates(model, view, quality = "showcase") {
         const diagram = diagramDocument(model, view, made.layout, width, quality);
         out.push({ width, rows: rows.map(({ members }) => members.length), ...diagram });
       }
-    if (out.length) return out;
+    if (out.length || beside) return out;
   }
   return refuse(
     "page_layout_refused",

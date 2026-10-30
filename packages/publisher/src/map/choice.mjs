@@ -414,15 +414,17 @@ export function pinSets(starts) {
  * fewest crossings, the fewest labels read as another's, one the reader sets
  * beside its steps, the fewest doubled routes and routes over two bends,
  * crowded labels and crowded route ends, the least stretch above 1.35 and the
- * shape nearest 1.0 to 1.8 times as wide as high. When the choice still has a
- * defect or stands above its steps, the best few, and the best few beside their
- * steps, are repaired by changing the sides of the connections involved. When
- * the choice still has a label read as another's or crowded, the labels of the
- * best few by their routes alone are pinned clear beside their own routes, each
- * by an offset from where Archify anchors it, in up to three rounds: each pins
- * anew the labels the round before left read as another's or crowded, on the
- * best few diagrams it pinned. A view with no candidate inside the shape
- * bounds, or none that passes at the build's quality, is refused.
+ * shape nearest 1.0 to 1.8 times as wide as high. When the best stands above
+ * its steps, rows of two narrow enough to stand beside them are measured as
+ * well. When the choice still has a defect or stands above its steps, the best
+ * few, and the best few beside their steps, are repaired by changing the sides
+ * of the connections involved. When the choice still has a label read as
+ * another's or crowded, the labels of the best few by their routes alone are
+ * pinned clear beside their own routes, each by an offset from where Archify
+ * anchors it, in up to three rounds: each pins anew the labels the round before
+ * left read as another's or crowded, on the best few diagrams it pinned. A view
+ * with no candidate inside the shape bounds, or none that passes at the build's
+ * quality, is refused.
  * @param {any} model
  * @param {any} view
  * @param {"showcase" | "standard"} [quality]
@@ -459,6 +461,30 @@ export async function chooseDiagram(model, view, quality = "showcase") {
       }),
     );
     const passing = measured.filter(({ passes }) => passes).sort(compare);
+    // When the best diagram stands above its steps, rows of two narrow enough to
+    // stand beside them are measured as well.
+    if (passing.length && !besideSteps(passing[0].drawing)) {
+      const narrow = diagramCandidates(model, view, quality, { beside: true }).filter(
+        ({ width, height }) => shapeDistance(width, height) !== Infinity,
+      );
+      const more = [
+        ...narrow.map(({ document }) => ({ document, sides: "grid" })),
+        ...narrow.map(({ document }) => ({ document: archifySides(document), sides: "archify" })),
+      ];
+      const results = await measureAll(more.map(({ document }) => document));
+      measured.push(
+        ...results.map((result, index) => ({
+          ...narrow[index % narrow.length],
+          document: more[index].document,
+          ...result,
+          sides: more[index].sides,
+          resided: [],
+          pinned: [],
+          index: measured.length + index,
+        })),
+      );
+      passing.splice(0, passing.length, ...measured.filter(({ passes }) => passes).sort(compare));
+    }
     if (!passing.length)
       return refuse(
         "page_diagram_refused",

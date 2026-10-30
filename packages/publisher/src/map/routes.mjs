@@ -31,6 +31,14 @@ const DEFECT = Object.freeze({
  */
 const LABEL = Object.freeze({ gap: 6, baseline: 10, rise: 10 });
 /**
+ * Where a relation label's text stands inside its box, across the route it is
+ * set beside: Archify sizes the box 5 px wider at either side than text 0.6 em a
+ * character, and a reader's sans serif runs nearer 0.5 em, five sixths of that,
+ * so beside a vertical route the text stands further in; beside a horizontal
+ * one the 8 px text stands 3 px inside the 14 px box.
+ */
+const TEXT = Object.freeze({ pad: 5, glyph: 5 / 6, rise: 3 });
+/**
  * How far everything but its own route keeps from a label that reads clearly
  * as its route's: two and a half times as far as its own route, and no nearer
  * than Archify's shortest interior segment.
@@ -118,9 +126,11 @@ function labelScene(layout) {
   ]);
   /**
    * How near a box for the label of connection `owner` comes to its own route;
-   * to another route, card or label, which a reader may take it for; and to all
-   * of those, the outlines and the lines other routes carry on past their
-   * corners, a box on such a line lying at none.
+   * to another route, card or label, which a reader may take it for; to all of
+   * those, the outlines and the lines other routes carry on past their corners,
+   * a box on such a line lying at none; and how near its text, by which a reader
+   * goes, stands to the route segment it is set beside and to the nearest other
+   * route running the same way past its other side.
    * @param {number} owner
    * @param {{ x: number, y: number, width: number, height: number }} box
    */
@@ -141,7 +151,44 @@ function labelScene(layout) {
       own: nearest(segments.filter((segment) => segment.owner === owner).map(boxOf)),
       taken,
       other: online ? 0 : Math.min(taken, nearest(outlines)),
+      flank: flanking(owner, box),
     };
+  };
+  /**
+   * How near the text of a label in `box` stands to the route segment it is
+   * set beside, and to the nearest other route running the same way past its
+   * other side; nothing stands past it when the label is set on its route.
+   * @param {number} owner
+   * @param {{ x: number, y: number, width: number, height: number }} box
+   */
+  const flanking = (owner, box) => {
+    const [beside] = segments
+      .filter((segment) => segment.owner === owner)
+      .map((segment) => ({ segment, apart: gap(box, boxOf(segment)) }))
+      .sort((p, q) => p.apart - q.apart);
+    const none = { own: 0, other: Infinity };
+    if (!beside || beside.apart < 0.5) return none;
+    // Across a vertical segment the axis is x, across a horizontal one y.
+    const vertical = Math.abs(beside.segment.a[0] - beside.segment.b[0]) < 0.5;
+    const [across, along] = vertical ? [0, 1] : [1, 0];
+    const [low, high] = vertical ? [box.x, box.x + box.width] : [box.y, box.y + box.height];
+    const at = beside.segment.a[across];
+    // A label beyond a segment's end, not beside it, has no other side.
+    if (at > low && at < high) return none;
+    const [start, end] = vertical ? [box.y, box.y + box.height] : [box.x, box.x + box.width];
+    const inset = vertical
+      ? (box.width - Math.max(0, box.width - 2 * TEXT.pad) * TEXT.glyph) / 2
+      : TEXT.rise;
+    let other = Infinity;
+    for (const segment of segments) {
+      if (segment.owner === owner || fan(layout, owner, segment.owner)) continue;
+      if (Math.abs(segment.a[0] - segment.b[0]) < 0.5 !== vertical) continue;
+      const [from, to] = [segment.a[along], segment.b[along]].sort((p, q) => p - q);
+      if (to <= start || from >= end) continue;
+      const apart = at >= high ? low - segment.a[across] : segment.a[across] - high;
+      if (apart >= 0) other = Math.min(other, apart);
+    }
+    return { own: beside.apart + inset, other: other + inset };
   };
   return { segments, labels, distances };
 }
@@ -156,9 +203,11 @@ const ALONG = Object.freeze([0.5, 0.375, 0.625, 0.25, 0.75, 0.125, 0.875]);
  * Whether a label reads as its own route's, by its distances: everything else a
  * reader may take it for, another route, a card or another label, stands one
  * and a half times as far as its own route, and no nearer than Archify's
- * shortest segment.
+ * shortest segment; and a route running past its other side stands one and a
+ * half times as far from its text as the route it is set beside.
  */
-const reads = ({ own, taken }) => taken >= Math.max(READ.least, READ.ratio * own);
+const reads = ({ own, taken, flank }) =>
+  taken >= Math.max(READ.least, READ.ratio * own) && flank.other >= READ.ratio * flank.own;
 
 /** Whether a label stands clear of everything but its own route, by its distances. */
 const clear = ({ own, other }) => other >= Math.max(CLEAR.least, CLEAR.ratio * own);
@@ -256,8 +305,10 @@ export function clearLabels(layout, ids, owners) {
  * card's or the boundary's edge for longer than an interior segment. A
  * relation label reads as another's when another route, a card or another
  * label comes nearer it than one and a half times its own route's distance, or
- * than Archify's shortest segment. Two routes are doubled when they run side
- * by side, closer than one and a half interior segments, for longer than four.
+ * than Archify's shortest segment, or when a route running the same way past
+ * its other side stands less than one and a half times as far from its text as
+ * the route it is set beside. Two routes are doubled when they run side by
+ * side, closer than one and a half interior segments, for longer than four.
  * A label crowds when anything but its own route, an outline included, comes
  * within two and a half times its own route's distance, or within the
  * shortest interior segment, or when another route's segment carried on past

@@ -261,7 +261,7 @@ metrics.
 
 - **WHEN** a label stands 6 px beside its own route and 8 px from another
 - **THEN** it counts as read as another's
-- **AND** 9 px from the other route it counts as crowded instead
+- **AND** 9 px under a card it counts as crowded instead
 
 #### Scenario: A label on another route's line
 
@@ -275,6 +275,32 @@ metrics.
 - **WHEN** context-mode's overview sets two relation labels 5 px apart between
   their routes
 - **THEN** the chosen diagram has no label read as another's
+
+### Requirement: Labels between two routes
+
+A relation label SHALL also read as another's when a route running the same way
+past its other side stands less than one and a half times as far from its text
+as the route it is set beside, its text taken as five sixths as wide as
+Archify estimates it, as a reader's sans serif runs.
+
+#### Scenario: A label between two routes
+
+- **WHEN** context-mode's sandbox sets "checks deny rules" 6 px left of its own
+  route and 9 px right of "runs code"'s, as Archify sets it in rows of three
+- **THEN** it counts as read as another's
+
+### Requirement: Rows of two beside the steps
+
+When the best candidate stands above its steps, the publisher SHALL also
+measure the view in rows of two at 720 and 600 px wide and choose among every
+measured candidate.
+
+#### Scenario: Rows of two beside the steps
+
+- **WHEN** every candidate of context-mode's sandbox in rows of three stands
+  above its steps or misreads a route or a label
+- **THEN** its view is drawn in rows of two beside its steps without a crossing
+  or a label read as another's
 
 ### Requirement: Sides Archify plans
 
@@ -316,9 +342,9 @@ diagram. The manifest SHALL record the pinned labels.
 
 #### Scenario: A label pinned clear
 
-- **WHEN** context-mode's sandbox sets "fetches pages" 4 px under Security
-  policy and 6 px from its own route
-- **THEN** the chosen diagram pins that label where it reads as its route's
+- **WHEN** a diagram sets a label 6 px beside its own route and 4 px under a
+  card the route does not connect
+- **THEN** the publisher pins that label where it reads as its route's
 - **AND** the manifest records the pin
 
 ### Requirement: Pins by offset

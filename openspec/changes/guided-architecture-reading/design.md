@@ -434,21 +434,21 @@ every candidate at the build's quality, with the grid's sides and with every
 side left to Archify, and lays out its routes. Blind reviews found misread what
 Archify does not report: routes 1 px off one line, or two cards' routes into one
 point, read as a relation the model lacks, a route 3 px from an edge as a second
-outline, a label 4 px under a card as the card's, ends 14 px apart on one side
-of a card as one doubled arrow. archpub measures them against Archify's 8 px
-shortest and 16 px interior segments, a label against 1.5 times its route's
-distance, and takes the fewest routes that read as one or along an edge, since a
-crossing still reads as two, then crossings, labels read as another's, which
-name the wrong relation, a preview beside its steps, doubled routes, routes over
-two bends, crowded labels and ends, stretch above 1.35 and the shape closest to
-1.0 to 1.8. A choice with a defect, or stacked above its steps, is re-sided from
-the three best diagrams and the three best beside their steps. A label still
-misplaced, or on another route's line carried 40 px past its corner, is then
-pinned beside its own route on the three best by their routes, by an offset from
-Archify's anchor found with the label there, which keeps its route's course and
-ends; one read as another's is also pinned alone, since Archify runs other
-routes around a pinned label, and up to three rounds pin anew what the last
-left. A view with no passing candidate is refused with Archify's findings.
+outline, a label 4 px under a card as the card's, or between two routes as the
+nearer to its text, ends 14 px apart on one side of a card as one doubled arrow.
+archpub measures them against Archify's 8 px shortest and 16 px interior
+segments, a label against 1.5 times its route's distance, and takes the fewest
+routes that read as one or along an edge, then crossings, labels read as
+another's, a preview beside its steps, doubled routes, routes over two bends,
+crowded labels and ends, stretch above 1.35 and the shape closest to 1.0 to 1.8.
+A view stacked above its steps is also tried in rows of two at 720 and 600 px. A
+choice with a defect, or stacked, is re-sided from the three best and the three
+best beside their steps. A label still misplaced, or on another route's line
+carried 40 px past its corner, is then pinned beside its route on the three best
+by their routes, by an offset from Archify's anchor found with the label there,
+which keeps its route's course and ends; one read as another's is also pinned
+alone, since Archify runs other routes around a pinned label, and up to three
+rounds pin anew what the last left.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit

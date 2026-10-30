@@ -57,10 +57,12 @@ remain pre-release contracts and may contain incompatible changes.
   reader reads as one, side by side, lined up end to end or two cards' routes into one point, or a route along a card's
   or the boundary's edge, while another passes without; then it takes the fewest crossings, the fewest labels a reader
   takes for another route's, a card's or another label's, one of which comes nearer than 8 px or than one and a half
-  times the label's own route, then a preview beside its steps, routes doubled into one line, routes over two bends,
-  crowded labels and crowded route ends. The connections involved take other sides while that improves the diagram,
-  and a label still misplaced, or on another route's line past its corner, is pinned on or beside its own route in up
-  to three rounds, by an offset from where Archify anchors it, which keeps the route's ends spread.
+  times the label's own route, or set between two routes with its text not clearly nearer its own, then a preview
+  beside its steps, routes doubled into one line, routes over two bends, crowded labels and crowded route ends. A view
+  that stands above its steps is also tried in rows of two, narrow enough to stand beside them. The connections
+  involved take other sides while that improves the diagram, and a label still misplaced, or on another route's line
+  past its corner, is pinned on or beside its own route in up to three rounds, by an offset from where Archify anchors
+  it, which keeps the route's ends spread.
   A card shows a detail whole or not at all, and the steps carry every detail. The diagram passes Archify's checks at
   the build's quality profile, showcase unless the build asks for standard, or the build is refused with a `page_*`
   code and Archify's findings.
