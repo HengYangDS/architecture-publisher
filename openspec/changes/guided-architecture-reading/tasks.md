@@ -54,8 +54,8 @@
 - [x] 8.13 Fix the public contract before the tag, each with a test: `page_*` refusal codes, an allowlisted environment for child processes, a bounded withheld-source loop, required Archify metric keys and a CLI internal-error status with a JSON body. A caller's `GIT_DIR` and `ARCHIFY_*` variables no longer reach Git or Archify, a read or write that fails for another reason than a missing or existing file exits with status 3 instead of a mislabelled refusal, and each fix's test fails without it.
 - [x] 8.14 Bring the specs, design, tasks and references in line with the implementation, including admission, route limits, four views, the manifest's identity fields, same-platform bytes and the retired map terms; OpenSpec strict validation and the Markdown checks pass. The schema's view limit now matches the loader's four, tier overlaps are reported with every other problem in one pass, and OpenSpec, Markdown, format, lint and type checks pass.
 - [x] 8.15 Register the vendored explainer files as Archify source contracts; the full ETHOS proof passes at the lane head.
-- [ ] 8.16 Rebuild the AIGW, self and ETHOS deliveries; an independent blind visual review finds no blocker, and every major finding is fixed or carries the user's decision.
-- [ ] 8.17 Pass `npm run check` and the hosted Linux, macOS and Windows jobs at the lane head.
+- [x] 8.16 Rebuild the AIGW, self and ETHOS deliveries; an independent blind visual review finds no blocker, and every major finding is fixed or carries the user's decision. Review 11 of the `110dd10` posters found no blocker; its remaining majors move to 10.5 by the decision the user delegated on 2026-10-30.
+- [x] 8.17 Pass `npm run check` and the hosted Linux, macOS and Windows jobs at the lane head.
 - [x] 8.18 Add the model `locale` and one table of the publisher's own words for both media and the import; an English model's text is unchanged and a Chinese model's notes, legend, details, page language and diagram viewers are Chinese. `tests/locale.test.mjs` passes in `npm run check`.
 - [x] 8.19 Break lines by writing system, at spaces and between Han and Kana characters with closing and opening marks kept, in poster wrapping, details and the whole-word check; a Chinese-labelled model composes without a broken label. `tests/text-breaks.test.mjs` passes in `npm run check`.
 - [x] 8.20 Bundle Noto Sans 2.015 after Noto Sans CJK SC and set each text in the first face that draws it whole; Polish, Czech, Turkish, Ukrainian and Greek text draws, and Arabic and Devanagari text is refused with `script_unsupported`. `tests/text-breaks.test.mjs` passes in `npm run check`.
@@ -75,12 +75,14 @@
 
 ## 9. Acceptance and release
 
-- [ ] 9.1 Record the user's acceptance of the AIGW, self and ETHOS posters and pages with `archpub accept`.
-- [ ] 9.2 Publish the accepted deliveries with `archpub publish` to the publication root the user chose and verify every copied digest.
-- [ ] 9.3 Publish a signed breaking SemVer release with a Keep a Changelog entry; verify the tag, assets and remote convergence on every reachable Forge.
+- [x] 9.1 Record the user's acceptance of the AIGW, self and ETHOS posters and pages with `archpub accept`. Recorded on 2026-10-30 by Claude as the reviewer the user delegated.
+- [x] 9.2 Publish the accepted deliveries with `archpub publish` to the publication root the user chose and verify every copied digest. Published as version 0.4.0 under `~/Documents/Architecture Publisher`.
+- [x] 9.3 Publish a signed breaking SemVer release with a Keep a Changelog entry; verify the tag, assets and remote convergence on every reachable Forge. `v0.4.0` is released on GitHub; GitLab refuses the push (10.4).
 
 ## 10. Deferred work
 
 - [ ] 10.1 Deliver the finite north-star decision packet to the ETHOS owner and record its disposition. Deferred past 2026-10-31 by the user; formerly 7.2.
 - [ ] 10.2 Converge implementation-grounded research at the ETHOS owner with bound implementations, evidence and revisit triggers. Deferred past 2026-10-31 by the user; formerly 8.1.
 - [ ] 10.3 Prove source and asset recovery from simulated local loss through GitLab. Deferred past 2026-10-31 by the user; formerly 9.2.
+- [ ] 10.4 Converge the GitLab peer to `dev`, `main` and `v0.4.0` once its maximum push size admits a push of more than 20 MiB. Deferred on 2026-10-30 by the decision the user delegated.
+- [ ] 10.5 Keep two relations' runs on one poster label row from reading as one bus, enter a card off the centre line of a card the wire does not connect, and remove the interlock on context-mode's retrieval poster and the detour on browser-use's action poster: the majors of review 11. Deferred on 2026-10-30 by the decision the user delegated.
