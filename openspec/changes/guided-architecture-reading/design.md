@@ -228,13 +228,15 @@ never drawn, with any of:
 - a label box overlapping a card, another label, another relation's wire or
   the system boundary's edge.
 
-Route defects are counted, not refused: parallel wires closer than 24 px, a
-wire stopping within 48 px of another in line with it, arrowheads closer than
-two heads and a label within 16 px of another wire. Two relations' jogs and
-labels on one label row, and the tracks of one band, keep 48 px apart, or the
-row reads as one labelled bus. Posters rank by crossings, then route defects,
-and record both; the page's diagrams are judged on Archify's own routes
-(decision 10).
+Route defects are counted, not refused: parallel wires closer than 24 px, or
+closer than 40 px for more than 96, a wire stopping within 48 px of another in
+line with it or turning within 48 px beside a card it does not connect,
+arrowheads closer than two heads and a label within 16 px of another wire.
+Jogs and labels on one label row, and one band's tracks, keep 48 px apart, or
+the row reads as one labelled bus. Each wrapping is also laid out with channels
+that take label rows to turn no wire beside another card, which a page takes
+when it holds them. Posters rank by crossings, then route defects, and record
+both; the page's diagrams are judged on Archify's own routes (decision 10).
 
 Crossings are minimized by placement and channel routing and reported, not
 refused: some relation sets, such as three components each calling the same
@@ -255,12 +257,11 @@ The poster is now composed format first:
   in it is refused.
 - **Grid.** Design tokens own an 8 px unit, twelve columns between fixed
   margins, a baseline and a type scale (14, 16, 18, 20, 24, 28, 32, 36 and
-  48 px).
-  Every block starts on a column line and a baseline; text keeps a measure of
-  at most 80 characters. Three archetypes share the grid: a masthead (text
-  across the top, figure across twelve columns), a sidebar (text down three to
-  five left columns or also a right flank, figure between) and, for one view,
-  a corner page (figure across the full width, head and summary at the top
+  48 px). Every block starts on a column line and a baseline; text keeps a
+  measure of at most 80 characters. Three archetypes share the grid: a masthead
+  (text across the top, figure across twelve columns), a sidebar (text down
+  three to five left columns or also a right flank, figure between) and, for
+  one view, a corner page (figure across the full width, head and summary top
   left, legend and optionally the notes in corners the figure leaves free).
 - **Solver.** For each view the publisher enumerates archetype, a row wrapping
   that splits a wide tier into consecutive rows of one band, and a figure type
@@ -468,8 +469,7 @@ to itself, and are removed with Archify's receipts once the page is written.
 
 A single full-model map was rejected because a large model cannot be both
 complete and readable in one diagram, and because its reading order was lost.
-Patching Archify to render guided views was rejected by the official-source
-rule.
+Patching Archify to render guided views was rejected as a vendor change.
 
 ### 11. Deterministic delivery and minimal trust
 
@@ -491,9 +491,8 @@ write the delivery: its Archify work stays in a temporary directory it removes.
 manifest and writes `acceptance.json` with the reviewer, an optional note and
 the manifest digest. `archpub publish <dir> --to <root>` requires that
 record, copies the delivery to `<root>/<model id>/<version>/` (by default the
-first twelve hexadecimal digits of the manifest digest), verifies the copy,
-refuses to replace a different existing version and leaves other versions
-untouched.
+first twelve hexadecimal digits of the manifest digest), verifies the copy and
+refuses to replace a different existing version, leaving the others untouched.
 
 The Candidate, qualification records, publication plans, journals, recovery
 commands and custody manifests are removed. They duplicated Git, release and

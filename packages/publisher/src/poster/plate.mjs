@@ -466,45 +466,56 @@ export function platesOf(input, plate) {
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
       const { centring } = input;
-      const fields = {
-        model: input.model,
-        view: plate.view,
-        typefaces: input.typefaces,
-        icons: input.icons,
-        styles,
-        rows,
-        key: `${index}|${order}|${plate.field.width}|${centring}`,
-        field: plate.field,
-        labelColumn: plate.labelColumn,
-        tierLabels: input.tierLabels,
-        boundaryName: input.boundaryName,
-        figureMetrics: metrics,
-        metrics: {
-          ...candidateMetrics({
-            model: input.model,
-            view: plate.view,
-            typefaces: input.typefaces,
-            styles,
-            metrics,
-            field: plate.field,
-          }),
-          centring,
-        },
-      };
-      const { made } = attempt(fields);
-      if (!made) continue;
-      // Each plate is flat: the page needs its figure, and the manifest needs
-      // the step and wrapping that produced it.
-      found.push({
-        rank: [
-          made.layout.measures.crossings,
-          made.layout.measures.routes,
-          -index,
-          order,
-          offCenter(made.figure.rects, plate.field),
-        ],
-        plate: { step: index, limit, flat, ...made },
-      });
+      // Each wrapping is drawn once with channels that take more label rows to
+      // turn no wire beside another card than its own, and once without, for a
+      // page that cannot hold the taller channels.
+      const seen = new Set();
+      for (const clearTurns of [true, false]) {
+        const fields = {
+          model: input.model,
+          view: plate.view,
+          typefaces: input.typefaces,
+          icons: input.icons,
+          styles,
+          rows,
+          key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}`,
+          field: plate.field,
+          labelColumn: plate.labelColumn,
+          tierLabels: input.tierLabels,
+          boundaryName: input.boundaryName,
+          figureMetrics: metrics,
+          metrics: {
+            ...candidateMetrics({
+              model: input.model,
+              view: plate.view,
+              typefaces: input.typefaces,
+              styles,
+              metrics,
+              field: plate.field,
+            }),
+            centring,
+            clearTurns,
+          },
+        };
+        const { made } = attempt(fields);
+        if (!made) continue;
+        const drawn = JSON.stringify(made.layout.paths);
+        if (seen.has(drawn)) continue;
+        seen.add(drawn);
+        // Each plate is flat: the page needs its figure, and the manifest needs
+        // the step and wrapping that produced it.
+        found.push({
+          rank: [
+            made.layout.measures.crossings,
+            made.layout.measures.routes,
+            -index,
+            order,
+            clearTurns ? 1 : 0,
+            offCenter(made.figure.rects, plate.field),
+          ],
+          plate: { step: index, limit, flat, ...made },
+        });
+      }
     }
   }
   // A plate offers every wrapping it can draw, ordered as figures. Wires that

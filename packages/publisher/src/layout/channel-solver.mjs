@@ -40,9 +40,10 @@ function slides(channel, made, low, high, own, spacing) {
  * another card than its own: one rising from the lower row into the upper band
  * under a card of the upper row, or one falling from the upper row into the
  * lower band over a card of the lower row. A reader takes such a vertical for a
- * wire of that card, so a turn on a label row, clear of both rows, wins over it.
+ * wire of that card, so a turn on a label row, clear of both rows, wins over
+ * it, and so does a band with up to two more tracks, which costs only height.
  */
-const BORROWED_END = 2;
+const BORROWED_END = 8;
 
 function options(channel, made, spacing) {
   const width = made.label?.width ?? 0;
@@ -67,10 +68,10 @@ function options(channel, made, spacing) {
       under(channel.beside?.lower ?? [], vertical.x, bottoms));
   return candidates(channel, made, spacing)
     .filter(clearOfEdges)
-    .map((option) => ({
-      ...option,
-      preference: option.preference + BORROWED_END * option.verticals.filter(borrowed).length,
-    }));
+    .map((option) => {
+      const ends = option.verticals.filter(borrowed).length;
+      return { ...option, borrowed: ends, preference: option.preference + BORROWED_END * ends };
+    });
 }
 
 function candidates(channel, made, spacing) {
@@ -448,6 +449,7 @@ export function solveChannel(channel, spacing, maximumRows = MAXIMUM_LABEL_ROWS,
           best = {
             score,
             crossings,
+            borrowed: chosen.reduce((sum, [, option]) => sum + option.borrowed, 0),
             chosen: chosen.map(([i, option]) => [i, option]),
             upper,
             lower,
@@ -514,6 +516,7 @@ function finish(channel, best, rows, spacing) {
     combo,
     score: best.score,
     crossings: best.crossings,
+    borrowed: best.borrowed,
     labelHeights,
     rowsHeight,
     upperTop,

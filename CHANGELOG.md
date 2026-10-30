@@ -87,6 +87,9 @@ remain pre-release contracts and may contain incompatible changes.
 - The page chooser measures each candidate diagram once per process, and CI admits the browser by opening one
   standalone page instead of building the browser test's pages twice, which hosted Windows runs had spent their
   time limit on.
+- A poster wire no longer turns just beside a card it does not connect when a channel can take another label row
+  instead, so it does not read as that card's; such turns, and two wires within 40 px of each other for more than
+  96 px, are counted as route defects.
 - The raster rebuild journey renders a poster the current publisher composes and extracts the frozen source where
   Windows tar can.
 - Locked CI Rust installation reconciles the required `cargo`, `rustc` and host standard library components in

@@ -77,14 +77,22 @@ test("labels may not overlap labels, cards, other wires or the boundary edge", (
 });
 
 test("route defects are counted, not refused", () => {
+  const connecting = (id, from, ...points) => ({ relations: [{ id, from, to: "far" }], points });
   const measured = measureLayout(
     geometry({
+      cards: new Map([["beside", { x: 1000, y: 100, width: 100, height: 60 }]]),
       paths: [
         path("near-a", [0, 0], [0, 100]),
         path("near-b", [12, 0], [12, 100]),
         path("end-a", [200, 0], [200, 50]),
         path("end-b", [200, 60], [200, 120]),
         path("labelled", [400, 0], [400, 100]),
+        // 30 apart for 200: beyond the parallel spacing, but long enough to read as one.
+        path("bus-a", [800, 0], [800, 200]),
+        path("bus-b", [830, 0], [830, 200]),
+        // Each turns 30 above or below the card; only one connects it.
+        connecting("by-card", "near", [1050, 0], [1050, 70], [1200, 70]),
+        connecting("owned", "beside", [1080, 160], [1080, 190], [1200, 190]),
       ],
       labels: [label("other", 410, 40)],
       arrows: [
@@ -100,6 +108,8 @@ test("route defects are counted, not refused", () => {
     [
       "route_wires_close near-a near-b",
       "route_wire_continued end-a end-b",
+      "route_wires_alongside bus-a bus-b",
+      "route_turn_by_card by-card beside",
       "route_arrows_close head-a head-b",
       "route_label_near_wire other labelled",
     ],

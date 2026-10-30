@@ -660,6 +660,26 @@ SHALL keep two wire separations from its edge.
 - **WHEN** a wire stops 40 px short of another in line with it
 - **THEN** the page's measures count a route defect
 
+### Requirement: Wires a reader gives to the wrong card
+
+A wire that turns less than 48 px beside a card it does not connect, within
+that card's span, SHALL count as a route defect, and so SHALL two wires closer
+than 40 px for more than 96 px. Each wrapping SHALL also be laid out with
+channels that take more label rows so that no wire turns beside another card
+than its own in a band, and a page that holds that taller figure SHALL take it
+when it has fewer route defects.
+
+#### Scenario: A turn under another card
+
+- **WHEN** a wire turns 30 px under a card it does not connect
+- **THEN** the page's measures count a route defect
+
+#### Scenario: A turn moved onto a label row
+
+- **WHEN** context-mode's retrieval poster can wire "builds snapshot" without
+  turning under Event extractor by taking another track
+- **THEN** the poster draws it that way and counts no route defect
+
 ### Requirement: Status styles
 
 Relations and components with status `planned` SHALL be drawn dashed, and

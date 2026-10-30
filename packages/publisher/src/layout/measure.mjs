@@ -151,20 +151,31 @@ export function measureLayout(geometry) {
 
 /**
  * The spacing below which wiring misreads although no two wires cross: two
- * parallel wires closer than `parallel` read as one, a wire that stops less
- * than `join` short of another in line with it reads as continuing it, two
- * arrowheads closer than two heads read as one, and a relation label closer
- * than `label` to another relation's wire reads as that wire's label. Layout
- * spacing keeps them, so the measure only finds what the spacing could not.
+ * parallel wires closer than `parallel` read as one, and so do two closer than
+ * `alongside` for longer than `run`; a wire that stops less than `join` short
+ * of another in line with it reads as continuing it, and one that turns less
+ * than `join` beside a card it does not connect reads as leaving that card;
+ * two arrowheads closer than two heads read as one, and a relation label
+ * closer than `label` to another relation's wire reads as that wire's label.
+ * Layout spacing keeps them, so the measure only finds what the spacing could
+ * not.
  */
-export const ROUTE = Object.freeze({ parallel: 24, join: 48, label: 16, heads: 2 });
+export const ROUTE = Object.freeze({
+  parallel: 24,
+  alongside: 40,
+  run: 96,
+  join: 48,
+  label: 16,
+  heads: 2,
+});
 
 /**
  * Route defects of one layout: wires a reader takes for one, a wire that seems
- * to continue another, arrowheads that run together and labels set against
- * another relation's wire. A layout is chosen without them as it is without
- * crossings.
- * @param {{ paths: Array<{ relations: Array<{ id: string }>, points: number[][] }>,
+ * to continue another or to leave a card it does not connect, arrowheads that
+ * run together and labels set against another relation's wire. A layout is
+ * chosen without them as it is without crossings.
+ * @param {{ cards: Map<string, { x: number, y: number, width: number, height: number }>,
+ *   paths: Array<{ relations: Array<{ id: string, from?: string, to?: string }>, points: number[][] }>,
  *   labels: Array<{ relations: Array<{ id: string }>, x: number, y: number, width: number, height: number }>,
  *   arrows?: Array<{ relations: Array<{ id: string }>, x: number, y: number }>,
  *   arrow?: number }} geometry `arrow` is the length of one arrowhead
@@ -193,7 +204,30 @@ function routeDefects(geometry, segments) {
         found.push({ code: "route_wires_close", relations, at });
       else if (apart < 0.5 && along <= 0.5 && along > -ROUTE.join)
         found.push({ code: "route_wire_continued", relations, at });
+      else if (apart >= 0.5 && apart < ROUTE.alongside && along > ROUTE.run)
+        found.push({ code: "route_wires_alongside", relations, at });
     }
+  // A turn beside a card's edge, within its span, reads as the wire leaving
+  // that card when the wire does not connect it.
+  for (const { relations, points } of geometry.paths) {
+    const connected = new Set(relations.flatMap(({ from, to }) => [from, to]));
+    for (const [x, y] of points.slice(1, -1))
+      for (const [id, card] of geometry.cards) {
+        if (connected.has(id)) continue;
+        const across =
+          x > card.x + 0.5 && x < card.x + card.width - 0.5
+            ? Math.max(card.y - y, y - card.y - card.height)
+            : y > card.y + 0.5 && y < card.y + card.height - 0.5
+              ? Math.max(card.x - x, x - card.x - card.width)
+              : Infinity;
+        if (across > 0 && across < ROUTE.join)
+          found.push({
+            code: "route_turn_by_card",
+            relations: `${owner(relations)} ${id}`,
+            at: [x, y],
+          });
+      }
+  }
   const arrows = geometry.arrows ?? [];
   for (let i = 0; i < arrows.length; i += 1)
     for (let j = i + 1; j < arrows.length; j += 1) {
