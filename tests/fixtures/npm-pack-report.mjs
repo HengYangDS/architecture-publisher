@@ -1,17 +1,31 @@
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+
+const root = path.resolve(import.meta.dirname, "../..");
 
 /**
- * Invoke the npm that runs this test's script through its own entrypoint, without a
- * platform shell shim. Every test entrypoint runs under npm, which names its CLI in
- * `npm_execpath`; the npm package is not a development dependency, because its bundle
- * would carry advisories no override reaches.
+ * The CLI entrypoint of the npm the repository declares. npm names its own in
+ * `npm_execpath`; a runner that calls Node directly, as the ETHOS behavior gate does, names
+ * none, and Mise's installation of the declared npm carries the package. The npm package is
+ * not a development dependency: its bundle carries advisories no override reaches.
  */
+function npmCli() {
+  if (path.isAbsolute(process.env.npm_execpath ?? "")) return process.env.npm_execpath;
+  const where = spawnSync("mise", ["where", "npm:npm"], { cwd: root, encoding: "utf8" });
+  const installation = where.status === 0 ? where.stdout.trim() : "";
+  if (!path.isAbsolute(installation))
+    throw Error("npm_cli_unavailable: run the tests through npm or with Mise");
+  const manifest = createRequire(path.join(installation, "package.json")).resolve(
+    "npm/package.json",
+  );
+  return path.join(path.dirname(manifest), JSON.parse(readFileSync(manifest, "utf8")).bin.npm);
+}
+
+/** Invoke the declared npm through its own entrypoint, without a platform shell shim. */
 export function npmInvocation(args) {
-  const cli = process.env.npm_execpath ?? "";
-  if (!path.isAbsolute(cli))
-    throw Error("npm_execpath_unavailable: run the tests through npm, as `npm test` does");
-  return { command: process.execPath, args: [cli, ...args] };
+  return { command: process.execPath, args: [npmCli(), ...args] };
 }
 
 function npmSetupOptions(command, args, options) {
