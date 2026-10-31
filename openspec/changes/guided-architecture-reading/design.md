@@ -363,10 +363,10 @@ no justification fills, so the page, not the view, became the unit:
   zigzag. The rules are gone, the labels stand in one column before the figure,
   three gutters from any rail text, and the boundary keeps 20 px of paper on
   every side, the most at which every edition still balances. Where one column
-  balances no page without a fault, as Big Bank's data tier starting far left of
-  its boundary shows, tiers that start at one edge share a column before it. A
-  label centred on two rows read as a relation label between them, so it stands
-  level with the first, beside a bracket.
+  balances no page, as Big Bank's data tier starting far left of its boundary
+  shows, tiers that start at one edge share a column before it. A label centred
+  on two rows read as a relation label between them, so it stands level with the
+  first, beside a bracket.
 
 The figure keeps decision 6's lattice and channels. Relation details use a
 lighter ink than their labels. `planned` is dashed and

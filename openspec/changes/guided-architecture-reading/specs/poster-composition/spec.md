@@ -138,10 +138,9 @@ gap, and the plates SHALL take the full height between.
 
 ### Requirement: Tier labels beside a rail
 
-A plate's tier labels SHALL stand at least three gutters, 96 px, from the text
-of a rail beside them, wrapping within the label column beyond that line where
-they would reach nearer: closer, a line of the rail reads on into a tier's
-name.
+A plate whose tier labels would stand nearer than three gutters, 96 px, to the
+text of a rail beside them SHALL NOT be a candidate: closer, a line of the rail
+reads on into a tier's name.
 
 #### Scenario: Tier labels beside the rail
 
@@ -210,28 +209,22 @@ The numbered tier labels of a figure SHALL stand in one column before it, at
 one left edge, each centred on its tier's first row: one gap before the
 leftmost card a label names, outside the system boundary for a tier the
 boundary encloses. A tier SHALL be named by its label alone, with no rule
-under its rows.
+under its rows. When no page with the labels in one column passes every gate,
+the labels of tiers that start at one edge SHALL share one column before it.
 
 #### Scenario: Tiers that start at different columns
 
 - **WHEN** a view's tiers start at different lattice columns
 - **THEN** their numbered labels share one left edge before the figure
 
-### Requirement: Tier labels at their tiers' edges
-
-When no page with the labels in one column passes every gate, or the best that
-does wires a crossing or a route defect, pages SHALL also be composed with the
-labels of tiers that start at one edge sharing one column before it, and the
-page SHALL be chosen from both.
-
 #### Scenario: Tiers that start far apart
 
 - **WHEN** the Big Bank tiered view's data tier starts at the mainframe, far
-  left of the boundary its front and back ends start at, and the one page with
-  one label column that passes every gate wires four route defects
+  left of the boundary its front and back ends start at, and no page with one
+  label column passes every gate
 - **THEN** the front-end and back-end labels share one column before the
   boundary
-- **AND** the page passes every gate with no route defect
+- **AND** the page passes every gate
 
 ### Requirement: Tier brackets
 

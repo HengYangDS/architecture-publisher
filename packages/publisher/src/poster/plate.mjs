@@ -257,11 +257,16 @@ function attempt(input) {
   const left = column ? column.x : input.field.x;
   const right = input.field.x + input.field.width;
   const bottom = input.field.y + input.field.height;
+  // Tier labels are text on the lines of a rail beside the plate: nearer to
+  // its text than its floor, a line of the rail reads on into a tier's name.
+  const floor = column?.floor ?? left;
+  const nearText = (rects) =>
+    rects.some((rect) => rect.tier && rect.kind === "mass" && rect.x < floor);
   let figure = draw(0);
   const offset = balancingShift(figure.rects, { x: left, width: right - left });
   if (offset) {
     const moved = draw(offset);
-    if (labelsClear(moved.rects)) figure = moved;
+    if (labelsClear(moved.rects) && !nearText(moved.rects)) figure = moved;
     else {
       const within = balancingShift(
         figure.rects.filter((rect) => !rect.tier),
@@ -280,6 +285,7 @@ function attempt(input) {
       rect.y + rect.height > bottom + 2,
   );
   if (outside) return { rejected: { reason: "outside_field" } };
+  if (nearText(figure.rects)) return { rejected: { reason: "tier_label_near_text" } };
   return { made: { rows, layout, justified, figure } };
 }
 

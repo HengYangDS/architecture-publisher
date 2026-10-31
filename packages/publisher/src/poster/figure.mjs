@@ -105,6 +105,7 @@ function tierLabels(layout, input, draw) {
   const { styles, typefaces } = input;
   const column = input.labelColumn;
   const { at, down, text, shapes, rects } = draw;
+  const labelWidth = column.width - 64;
   /** @type {Array<{ tier: string, label: string | null, rows: any[] }>} */
   const tiers = [];
   for (const row of layout.rows) {
@@ -149,28 +150,21 @@ function tierLabels(layout, input, draw) {
     );
   }
   const frame = layout.boundary;
-  // A label keeps `floor` from the text beside the plate: where one would
-  // reach past it, the labels wrap within the column beyond it instead.
-  const floor = Math.max(column.x, column.floor ?? column.x);
-  const setLabels = (labelWidth) =>
-    tiers
-      .filter(({ label }) => label)
-      .map(({ label, rows }) => {
-        const members = rows.flatMap((row) => row.members.map((id) => layout.cards.get(id)));
-        const last = rows[rows.length - 1];
-        const enclosed =
-          frame && rows[0].top < frame.y + frame.height && last.top + last.height > frame.y;
-        const first = Math.min(...members.map(({ x }) => at(x)), enclosed ? at(frame.x) : Infinity);
-        const lines = typefaces.wrap(label, labelWidth, styles.tier);
-        const width = 42 + Math.max(...lines.map((line) => typefaces.measure(line, styles.tier)));
-        const height = lines.length * styles.tier.line;
-        const top = down((2 * rows[0].top + rows[0].height - height) / 2);
-        const span = rows.length > 1 ? [down(rows[0].top), down(last.top + last.height)] : null;
-        return { first, lines, width, height, top, span };
-      });
-  let placed = setLabels(column.width - 64);
-  if (placed.some(({ first, width }) => first - TIER_GAP - width < floor))
-    placed = setLabels(column.x + column.width - floor - 64);
+  const placed = tiers
+    .filter(({ label }) => label)
+    .map(({ label, rows }) => {
+      const members = rows.flatMap((row) => row.members.map((id) => layout.cards.get(id)));
+      const last = rows[rows.length - 1];
+      const enclosed =
+        frame && rows[0].top < frame.y + frame.height && last.top + last.height > frame.y;
+      const first = Math.min(...members.map(({ x }) => at(x)), enclosed ? at(frame.x) : Infinity);
+      const lines = typefaces.wrap(label, labelWidth, styles.tier);
+      const width = 42 + Math.max(...lines.map((line) => typefaces.measure(line, styles.tier)));
+      const height = lines.length * styles.tier.line;
+      const top = down((2 * rows[0].top + rows[0].height - height) / 2);
+      const span = rows.length > 1 ? [down(rows[0].top), down(last.top + last.height)] : null;
+      return { first, lines, width, height, top, span };
+    });
   if (!placed.length) return;
   const box = (x, { width, height, top }) => ({ x: x + 4, y: top - 4, width, height: height + 8 });
   const bracket = (x, { span }) =>
@@ -185,7 +179,7 @@ function tierLabels(layout, input, draw) {
   const xs = new Map();
   for (const labels of columns.values()) {
     const beside = Math.max(
-      floor,
+      column.x,
       Math.min(...labels.map(({ first, width }) => first - TIER_GAP - width)),
     );
     const clear = labels.every((label) => {
@@ -194,7 +188,7 @@ function tierLabels(layout, input, draw) {
       if (spanned) marks.push(spanned);
       return !marks.some((mark) => obstacles.some((other) => touches(mark, other)));
     });
-    for (const label of labels) xs.set(label, clear ? beside : floor);
+    for (const label of labels) xs.set(label, clear ? beside : column.x);
   }
   placed.forEach((label, index) => {
     const { lines, top } = label;

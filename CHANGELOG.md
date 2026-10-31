@@ -13,11 +13,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 - **Breaking:** Posters of an unchanged model are drawn differently. A relation label on its own run less than 48 px
   above or below another relation's turn reads as that wire's label, and is a route defect the channels avoid. A
-  poster wire that passes a row through a gap where every offset runs as short takes the middle of the gap, and tier
-  labels stand at least three gutters from the rail's text beside them. When the best page with one column of tier
-  labels wires a crossing or a route defect, the labels are also tried before the edges their tiers start at. The
-  AIGW overview, the self model's overview and grid layout, the browser-use overview and the context-mode sandbox
-  posters change; the grid layout prints its five mechanisms in rows of two on a balanced page.
+  poster wire that passes a row through a gap where every offset runs as short takes the middle of the gap, and a page
+  that would set its tier labels nearer than three gutters to the text of a rail beside them is not drawn. The AIGW
+  overview, the self model's overview and grid layout, the browser-use overview and the context-mode sandbox posters
+  change.
 
 ## [0.5.0] - 2026-10-31
 

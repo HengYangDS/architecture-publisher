@@ -126,11 +126,10 @@ one or more plates under a masthead, beside a rail of text, or, for one view,
 with its text set in the corners its figure leaves free. Cards are as large as
 their text and never stretch; a sparse view is instead set at a larger type
 step, up to 32 px labels and 24 px details, and every plate of a page uses one
-step. The numbered tier labels stand in one column before the figure, at least
-three gutters from a rail's text; when no page with them in one column
-balances, or the best that does wires a crossing or a route defect, the labels
-of tiers that start at one edge are also tried in a column before that edge,
-and the manifest records which the page takes. A tier
+step. The numbered tier labels stand in one column before the figure; a page
+that would set them nearer than three gutters to a rail's text is not drawn.
+When no page with them in one column balances, the labels of tiers that start at
+one edge share a column before that edge, and the manifest records which. A tier
 wrapped into several rows has its label level with its first row, beside a
 bracket that spans them all. Every page passes four balance gates over its live
 area: its largest blank rectangle covers at most 12 percent of it, no blank band

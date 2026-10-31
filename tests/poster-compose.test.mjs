@@ -87,7 +87,7 @@ test("AIGW composes into balanced, outlined, deterministic 16:9 pages", async ()
   }
 });
 
-test("the publisher's own model prints each view without crossings on balanced pages", async () => {
+test("the publisher's own model prints each view without crossings, the grid layout on a sparse page", async () => {
   const { model } = await loadModel(SELF_MODEL, { icon: icons.has });
   const pages = await edition(model);
   assert.deepEqual(
@@ -95,14 +95,16 @@ test("the publisher's own model prints each view without crossings on balanced p
     [["overview"], ["layout"], ["media"]],
   );
   for (const poster of pages) assert.equal(poster.measures.crossings, 0, `page ${poster.page}`);
-  // In one row of five, the grid layout's mechanisms leave a blank area over
-  // its gate; in rows of two beside the rail they fill the page and wire as
-  // cleanly.
+  // The grid layout's five mechanisms balance a page only in rows that hook
+  // two pairs of wires past each other; in one row they wire cleanly and leave
+  // one blank area over its gate.
   assert.deepEqual(
     pages.map(({ admission }) => admission),
-    ["balanced", "balanced", "balanced"],
+    ["balanced", "sparse", "balanced"],
   );
-  for (const poster of pages) assertBalanced(poster);
+  for (const poster of [pages[0], pages[2]]) assertBalanced(poster);
+  for (const { measure } of pages[1].misses)
+    assert.ok(["emptyShare", "blankBand"].includes(measure), measure);
   // Five wires leave Delivery builder 37 px apart and two pairs of them run
   // alongside for longer than 96 px; on the media page two wires into Supplies
   // run alongside.
@@ -151,11 +153,10 @@ test("tier labels stand three gutters clear of the rail text beside them", async
   assert.ok(left - right >= 3 * POSTER.grid.gutter, `${left - right} px`);
 });
 
-test("tier labels stand before the edge their tier starts at when one column cannot balance a page cleanly", async () => {
+test("tier labels stand before the edge their tier starts at when one column cannot balance a page", async () => {
   // Big Bank's data tier starts at the mainframe, far left of the boundary its
   // front and back ends start at: one label column left the paper between it
-  // and the boundary blank, and the one page with it that balances wires four
-  // route defects.
+  // and the boundary blank, and no page with it balanced.
   const { model } = await loadModel(BIG_BANK_MODEL);
   const [page] = await edition(model);
   assertBalanced(page);
