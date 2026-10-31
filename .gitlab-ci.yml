@@ -136,6 +136,8 @@ stages:
     GIT_CONFIG_KEY_0: core.longPaths
     GIT_CONFIG_VALUE_0: "true"
     MISE_WINDOWS_SHIM_MODE: file
+    MISE_RUSTUP_HOME: $CI_BUILDS_DIR/tool-cache/rustup
+    MISE_CARGO_HOME: $CI_BUILDS_DIR/tool-cache/cargo
   image: null
   resource_group: native-windows-verification
   interruptible: true

@@ -23,6 +23,9 @@ remain pre-release contracts and may contain incompatible changes.
 - The GitLab jobs run again. The Linux job extends its image's `PATH` in its script, because GitLab does not expand
   `$PATH` in a job variable and the job's shell then found no `rm`; the Windows job writes Mise shims as command
   files, because its runner refused Mise's copies of `mise-shim.exe`.
+- The protected GitLab Windows job links the raster renderer again. Under its build directory a Rust standard library
+  file in the workspace's tool cache took 260 characters, a path the MSVC linker cannot open, so the Windows jobs keep
+  the Rust toolchain under the runner's builds directory.
 
 ## [0.6.0] - 2026-10-31
 

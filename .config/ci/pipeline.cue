@@ -163,9 +163,15 @@ peers: gitlab: {
 				"$env:PATH = (Join-Path $env:ProgramFiles \"mise/bin\") + [IO.Path]::PathSeparator + $env:PATH",
 			]
 			// The runner refuses Mise's default copies of mise-shim.exe; the jobs
-			// run tools through `mise exec`, which needs no shim.
+			// run tools through `mise exec`, which needs no shim. The MSVC linker
+			// opens no path of 260 characters or more, and under the protected
+			// runner's build directory a Rust standard library file in the
+			// workspace's tool cache takes 260, so the Rust toolchain stays under
+			// the runner's builds directory.
 			"variables": {
 				"MISE_WINDOWS_SHIM_MODE": "file"
+				"MISE_RUSTUP_HOME":       "$CI_BUILDS_DIR/tool-cache/rustup"
+				"MISE_CARGO_HOME":        "$CI_BUILDS_DIR/tool-cache/cargo"
 			}
 			"image":          null
 			"resource_group": "native-windows-verification"

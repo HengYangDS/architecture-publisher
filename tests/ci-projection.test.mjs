@@ -93,6 +93,53 @@ test("the Windows job writes Mise shims as command files", async () => {
   assert.equal(pipeline[".verify-windows"].variables.MISE_WINDOWS_SHIM_MODE, "file");
 });
 
+test("the GitLab Windows jobs keep the Rust toolchain under the runner's builds directory", async (t) => {
+  // The MSVC linker opens no path of 260 characters or more, and under the
+  // protected runner's build directory a Rust standard library file in the
+  // workspace's tool cache takes 260; the runner's builds directory is short.
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  const { variables } = pipeline[".verify-windows"];
+  assert.equal(variables.MISE_RUSTUP_HOME, "$CI_BUILDS_DIR/tool-cache/rustup");
+  assert.equal(variables.MISE_CARGO_HOME, "$CI_BUILDS_DIR/tool-cache/cargo");
+  // Mise keeps a home the job sets, and falls back to the workspace's tool cache.
+  const base = path.join(root, "build/runtime/work");
+  await fs.mkdir(base, { recursive: true });
+  const scratch = await fs.mkdtemp(path.join(base, "mise-homes-"));
+  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
+  const configuration = path.join(scratch, ".config/mise");
+  await fs.mkdir(configuration, { recursive: true });
+  for (const name of ["config.toml", "mise.lock"])
+    await fs.copyFile(path.join(root, ".config/mise", name), path.join(configuration, name));
+  const homes = (overrides) => {
+    const env = {
+      ...process.env,
+      MISE_DATA_DIR: path.join(scratch, "data"),
+      MISE_CACHE_DIR: path.join(scratch, "cache"),
+      MISE_TRUSTED_CONFIG_PATHS: scratch,
+    };
+    delete env.MISE_RUSTUP_HOME;
+    delete env.MISE_CARGO_HOME;
+    const result = spawnSync("mise", ["env", "--json"], {
+      cwd: scratch,
+      encoding: "utf8",
+      timeout: 30_000,
+      env: { ...env, ...overrides },
+    });
+    assert.equal(result.error, undefined);
+    assert.equal(result.status, 0, result.stderr);
+    const environment = JSON.parse(result.stdout);
+    return [environment.MISE_RUSTUP_HOME, environment.MISE_CARGO_HOME];
+  };
+  const selected = path.join(scratch, "selected");
+  assert.deepEqual(
+    homes({ MISE_RUSTUP_HOME: `${selected}/rustup`, MISE_CARGO_HOME: `${selected}/cargo` }),
+    [`${selected}/rustup`, `${selected}/cargo`],
+  );
+  const [rustup, cargo] = homes({});
+  assert(rustup.endsWith("/build/runtime/tool-cache/rustup"), rustup);
+  assert(cargo.endsWith("/build/runtime/tool-cache/cargo"), cargo);
+});
+
 test("native Mise paths resolve before the locked tools are installed", async (t) => {
   const base = path.join(root, "build/runtime/work");
   await fs.mkdir(base, { recursive: true });

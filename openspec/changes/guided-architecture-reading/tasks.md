@@ -107,7 +107,7 @@
 
 ## 13. GitLab peer
 
-- [ ] 13.1 Run the GitLab jobs again: the Linux job extends its image's PATH in its script instead of a job variable GitLab does not expand, the Windows job writes Mise shims as command files its runner allows, and the current raster source is in GitLab's registry. The GitLab pipeline of the landed head passes on Linux, macOS and Windows; the `v0.4.0` to `v0.6.0` tag pipelines ran the defective definition and keep their failed Linux and Windows jobs. `tests/ci-projection.test.mjs` passes in `npm run check`.
+- [ ] 13.1 Run the GitLab jobs again: the Linux job extends its image's PATH in its script instead of a job variable GitLab does not expand, the Windows job writes Mise shims as command files its runner allows, the Windows jobs keep the Rust toolchain under the runner's builds directory, where the MSVC linker can open its 260-character standard library paths, and the current raster source is in GitLab's registry. The GitLab pipeline of the landed head passes on Linux, macOS and Windows; the `v0.4.0` to `v0.6.0` tag pipelines ran the defective definition and keep their failed Linux and Windows jobs. `tests/ci-projection.test.mjs` passes in `npm run check`.
 
 ## 14. Code ceiling
 
