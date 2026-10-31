@@ -65,7 +65,7 @@ stages:
     - curl --fail --silent --show-error --location --proto '=https'
       --proto-redir '=https' --connect-timeout 15 --max-time 180 --create-dirs
       --output build/runtime/tool-cache/mise/bootstrap/mise.download
-      https://github.com/jdx/mise/releases/download/v2026.10.19/mise-v2026.10.19-linux-arm64
+      https://github.com/jdx/mise/releases/download/v2026.10.24/mise-v2026.10.24-linux-arm64
     - sha256sum --strict --check .config/ci/linux/mise.sha256
     - install --mode=0755 build/runtime/tool-cache/mise/bootstrap/mise.download
       build/runtime/tool-cache/mise/bootstrap/mise

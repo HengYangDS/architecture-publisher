@@ -7,6 +7,14 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- The development and CI supply moves to the latest stable releases: Node 26.13.0, ESLint 10.14.0, Knip 6.44.0,
+  OpenSpec 1.16.0, `@types/node` 26.6.6, Mise 2026.10.24 and `jdx/mise-action` 5.2.4. Overrides take glob 14.0.3,
+  minimatch 11.0.3 and KaTeX 0.19.1 past their advisories, and the npm package, whose bundle carries advisories no
+  override reaches, is no longer a development dependency, so publint lints the package directory instead of packing
+  it; `npm audit` reports no advisory. The published package declares no dependency and is unchanged.
+
 ### Fixed
 
 - The GitLab jobs run again. The Linux job extends its image's `PATH` in its script, because GitLab does not expand

@@ -21,7 +21,7 @@ shared: {
 	]
 
 	"timeLimitMinutes": 75
-	"miseVersion":      "2026.10.19"
+	"miseVersion":      "2026.10.24"
 	"environment": {
 		workspace: string
 		variables: {
@@ -269,7 +269,7 @@ peers: github: {
 		}
 	}
 	bootstrap: {
-		uses: "jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e"
+		uses: "jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d"
 		with: {
 			version:           shared.miseVersion
 			install:           false

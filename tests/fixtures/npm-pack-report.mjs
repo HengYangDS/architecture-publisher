@@ -1,18 +1,17 @@
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 
-/** Invoke npm's selected or declared native entrypoint without a platform shell shim. */
+/**
+ * Invoke the npm that runs this test's script through its own entrypoint, without a
+ * platform shell shim. Every test entrypoint runs under npm, which names its CLI in
+ * `npm_execpath`; the npm package is not a development dependency, because its bundle
+ * would carry advisories no override reaches.
+ */
 export function npmInvocation(args) {
-  if (path.isAbsolute(process.env.npm_execpath ?? ""))
-    return { command: process.execPath, args: [process.env.npm_execpath, ...args] };
-  const manifestUrl = import.meta.resolve("npm/package.json");
-  const manifest = JSON.parse(readFileSync(fileURLToPath(manifestUrl), "utf8"));
-  return {
-    command: process.execPath,
-    args: [fileURLToPath(new URL(manifest.bin.npm, manifestUrl)), ...args],
-  };
+  const cli = process.env.npm_execpath ?? "";
+  if (!path.isAbsolute(cli))
+    throw Error("npm_execpath_unavailable: run the tests through npm, as `npm test` does");
+  return { command: process.execPath, args: [cli, ...args] };
 }
 
 function npmSetupOptions(command, args, options) {

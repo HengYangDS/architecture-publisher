@@ -425,31 +425,19 @@ four views (decision 5). A page has one quality profile: every diagram is
 checked at showcase quality, and a view that cannot pass refuses the build
 rather than lowering the whole page.
 
-Each view diagram is laid out by the grid engine with Archify's text metrics
-for a finite set of candidates: the plan's rows wrapped at five, four and
-three cards, at diagram widths of 960, 840 and 720 px, which a preview
-spanning its panel at 1440 px shows at Archify's full 1.25 times enlargement.
-A card is at least as wide as the view's longest label needs, so the grid gives
-up a spare column rather than narrow a card below its label. Archify validates
-every candidate at the build's quality, with the grid's sides and with every
-side left to Archify, and lays out its routes. Blind reviews found misread what
-Archify does not report: routes 1 px off one line, or two cards' routes into one
-point, read as a relation the model lacks, a route 3 px from an edge as a second
-outline, a label 4 px under a card as the card's, or between two routes as the
-nearer to its text, ends 14 px apart on one side of a card as one doubled arrow.
-archpub measures them against Archify's 8 px shortest and 16 px interior
-segments, a label against 1.5 times its route's distance, and takes the fewest
-routes that read as one or along an edge, then crossings, labels read as
-another's, a preview beside its steps, doubled routes, routes over two bends,
-crowded labels and ends, stretch above 1.35 and the shape closest to 1.0 to 1.8.
-A view stacked above its steps is also tried in rows of two at 720 and 600 px. A
-choice with a defect, or stacked, is re-sided from the three best and the three
-best beside their steps. A label still misplaced, or on another route's line
-carried 40 px past its corner, is then pinned beside its route on the three best
-by their routes, by an offset from Archify's anchor found with the label there,
-which keeps its route's course and ends; one read as another's is also pinned
-alone, since Archify runs other routes around a pinned label, and up to three
-rounds pin anew what the last left.
+Each view diagram is laid out by the grid engine with Archify's text metrics for
+a finite set of candidates: the plan's rows wrapped at five, four and three
+cards, at diagram widths of 960, 840 and 720 px, which a preview spanning its
+panel at 1440 px shows at Archify's full 1.25 times enlargement, with every card
+as wide as the view's longest label needs. Archify validates every candidate at
+the build's quality and lays out its routes. Blind reviews found misreadings
+Archify does not report: routes nearly on one line or into one point read as a
+relation the model lacks, a route beside an edge as a second outline, a label
+near a card or between two routes as the wrong one's, and close ends as one
+doubled arrow. archpub measures these on Archify's routes, takes the candidate
+with the fewest, re-sides the best and pins each label still read as another's
+beside its own route; the interactive-map spec sets the measures, the ranking
+and the rounds.
 
 A preview that spans its panel sets primary labels at 13.75 px. A preview
 beside its steps is drawn no narrower than lets its smallest text, the 9-unit

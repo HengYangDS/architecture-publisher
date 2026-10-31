@@ -175,30 +175,28 @@ archive and six listed peers, and G6 5.1.1 with eleven direct dependencies.
 These are supply-surface observations, not total installed sizes, security
 findings, or quality rankings.
 
-A disposable, standalone Cytoscape HTML probe used only two invented nodes
-and one relation. Headless Chrome at 1440×900 loaded its inlined JS without
-an external request or page exception; two reloads of the initial
-`breadthfirst` layout yielded identical node coordinates. The engine painted
-three canvas elements;
-the prototype supplied separate DOM buttons and visible question, relation,
-and limit text. The first attempt guessed an invalid layout direction and
-failed; using the runtime's reported `rightward` option corrected it. Its
+A disposable, standalone Cytoscape HTML probe used only two invented nodes and
+one relation. Headless Chrome at 1440×900 loaded its inlined JS without an
+external request or page exception; two reloads of the initial `breadthfirst`
+layout yielded identical node coordinates. The engine painted three canvas
+elements; the prototype supplied separate DOM buttons and visible question,
+relation, and limit text. The first attempt guessed an invalid layout direction
+and failed; using the runtime's reported `rightward` option corrected it. Its
 second screenshot was legible but retained conspicuous empty graph space.
 Neither keyboard operation, screen-reader experience, source coverage,
-cross-platform use, nor flagship aesthetics was qualified. The disposable
-probe was not a product artifact.
+cross-platform use, nor flagship aesthetics was qualified. The disposable probe
+was not a product artifact.
 
 **Conditional route:** Cytoscape is a credible neutral, dependency-light
 interactive graph backend because its data model did not require calling a
-source entity `backend` or `external`. Keep Archify available where an
-Editor's typed visual roles truthfully fit; its current finite component
-types must not be silently coerced into generic source meaning. Before
-selecting Cytoscape for the successor, require one digest-pinned offline
-supply, page-local scenes, a single standalone HTML without private source
-bytes, an accessible DOM companion to the canvas, deterministic rendering,
-installed/browser/visual qualification, and the frozen four-workload
-comparison. A failed condition rejects or narrows this backend rather than
-weakening the Edition and Candidate contract.
+source entity `backend` or `external`. Keep Archify available where an Editor's
+typed visual roles truthfully fit; its current finite component types must not
+be silently coerced into generic source meaning. Before selecting Cytoscape for
+the successor, require one digest-pinned offline supply, page-local scenes, a
+single standalone HTML without private source bytes, an accessible DOM companion
+to the canvas, deterministic rendering, installed/browser/visual qualification,
+and the frozen four-workload comparison. A failed condition rejects or narrows
+this backend rather than weakening the Edition and Candidate contract.
 
 ### AIGW neutral overview spatial-budget counterexample (2026-09-26)
 
@@ -304,10 +302,9 @@ bundled JetBrains Mono font passed that validator, but actual raster output
 [overflowed multiple node boxes](evidence/aigw-graphviz-font-mismatch.png).
 Setting the DOT font name to JetBrains Mono still overflowed: the Wasm layout
 did not use the exact bundled glyph advances. A local fixed-width probe using
-the bundled font's 600/1000-em advance removed that node overflow, but
-expanded the SVG to 1448pt wide; edge-label envelopes and target-viewport
-readability remain unqualified. Parser acceptance is not painted-geometry
-acceptance.
+the bundled font's 600/1000-em advance removed that node overflow, but expanded
+the SVG to 1448pt wide; edge-label envelopes and target-viewport readability
+remain unqualified. Parser acceptance is not painted-geometry acceptance.
 
 Graphviz remains a promising **replacement geometry owner**, not a drop-in
 renderer or selected product dependency. Compare exact font and edge-label
@@ -318,29 +315,27 @@ meaning merely to mask a backend limitation.
 
 The current full-product counterexample uses Publisher `d9d1ee7`, AIGW
 `6620f638`, Build Request SHA-256
-`d65efd045fc99b8eba39330bb5a5fc29a126c6f6007fe0878e11458b6ec39014`,
-and source-adjacent Candidate
-`f8d92190ebc0249da1392bc533b7047a464b2fe7c874516e1bb789bf216a1fbd`.
-At 1280×720, Chrome showed a tiny Boundary graph and shallow Selection and
-Delivery graph bands inside fixed stages. The static 3600×5041 overview was
-text-heavy and asked only `boundary`; the interactive Edition asked six
-questions. These are provisional agent observations, not AIGW acceptance.
-At Publisher `d9d1ee7`, the renderer granted full reading width only to
-graph pages without claim cards, although a claim-bearing page emitted its
-claim cards below the graph. A DOM-only probe widened Boundary, Selection and
-Delivery stages from 784 to 1190 CSS pixels. Claim presence was not a sound
-proxy for spatial need. A subsequent RED/GREEN removed that coupling. With the
-same AIGW request, the semantic lock and static PNG remained unchanged; the
-new provisional Candidate is
-`700f600273dfd9344efd30db9f2121c3cd2fae1a8a33288fb6be64b8d7191bd4`
-and its HTML SHA-256 is
-`90101b9228c1737f621869ff28c08812e393b517e3c4549e2f31118a37d73102`.
-At 1280×720, all graph pages used 1190×358 CSS-pixel stages with evidence
-below. Effective 16px node type still painted at 3.78px on Boundary, 8.84px
-on Selection, Effects and Delivery, and 15.95px on Credentials and
-Verification. The fixed stage also retained blank space. The code change
-repairs one false layout dependency, not reader adequacy; geometry, evidence
-placement and stage height still need a coherent, source-neutral solution.
+`d65efd045fc99b8eba39330bb5a5fc29a126c6f6007fe0878e11458b6ec39014`, and
+source-adjacent Candidate
+`f8d92190ebc0249da1392bc533b7047a464b2fe7c874516e1bb789bf216a1fbd`. At 1280×720,
+Chrome showed a tiny Boundary graph and shallow Selection and Delivery graph
+bands inside fixed stages. The static 3600×5041 overview was text-heavy and
+asked only `boundary`; the interactive Edition asked six questions. These are
+provisional agent observations, not AIGW acceptance. At Publisher `d9d1ee7`, the
+renderer granted full reading width only to graph pages without claim cards,
+although a claim-bearing page emitted its claim cards below the graph. A
+DOM-only probe widened Boundary, Selection and Delivery stages from 784 to 1190
+CSS pixels. Claim presence was not a sound proxy for spatial need. A subsequent
+RED/GREEN removed that coupling. With the same AIGW request, the semantic lock
+and static PNG remained unchanged; the new provisional Candidate is
+`700f600273dfd9344efd30db9f2121c3cd2fae1a8a33288fb6be64b8d7191bd4` and its HTML
+SHA-256 is `90101b9228c1737f621869ff28c08812e393b517e3c4549e2f31118a37d73102`.
+At 1280×720, all graph pages used 1190×358 CSS-pixel stages with evidence below.
+Effective 16px node type still painted at 3.78px on Boundary, 8.84px on
+Selection, Effects and Delivery, and 15.95px on Credentials and Verification.
+The fixed stage also retained blank space. The code change repairs one false
+layout dependency, not reader adequacy; geometry, evidence placement and stage
+height still need a coherent, source-neutral solution.
 
 On the same public Boundary nodes and six directed relations, Graphviz 16.1.0
 laid out the [direct DOT](evidence/aigw-product-boundary-dot.dot) at 1080×117pt;
@@ -477,19 +472,18 @@ views {
 
 The public `edition build` path reproduced both unqualified, dual-medium
 Candidates from direct Build Requests. The sidecar request SHA-256 is
-`bcf9101a9237c7eb9364111468d2cf5800d8b35642009f23903ff2b62e16e5f8`;
-its Edition SHA-256 is
-`1cc6dcc0e49940e8c874250cd409fa8e43fa298724e599f54c123f6b369d8366`;
+`bcf9101a9237c7eb9364111468d2cf5800d8b35642009f23903ff2b62e16e5f8`; its Edition
+SHA-256 is `1cc6dcc0e49940e8c874250cd409fa8e43fa298724e599f54c123f6b369d8366`;
 the sidecar SHA-256 is
-`cbc3856853778ce3322ceed88324c1b7d3964f1cdb6a4c51b5537902a71c563c`.
-The resulting Candidate identity is
-`1aab3ea02f8b11bba179e14a85a3c0e957efbe118b4f7ae648b6bea864daee44`;
-its static PNG and interactive HTML hashes are respectively
-`a4535459e916b8a04496a8a1500dbb16f66ebf631fc0333243e65dc8f77290d2`
-and `9ecd5cef07666806ef3e7c8ddc4578ba8be26a8a4b7e7bacfe3c4e3f8307b8f2`.
-The static SVG has exactly five distinct node and four relation carriers;
-the interactive accessibility tree lists the same five nodes and four
-relations. Neither Candidate has a qualification or acceptance record.
+`cbc3856853778ce3322ceed88324c1b7d3964f1cdb6a4c51b5537902a71c563c`. The
+resulting Candidate identity is
+`1aab3ea02f8b11bba179e14a85a3c0e957efbe118b4f7ae648b6bea864daee44`; its static
+PNG and interactive HTML hashes are respectively
+`a4535459e916b8a04496a8a1500dbb16f66ebf631fc0333243e65dc8f77290d2` and
+`9ecd5cef07666806ef3e7c8ddc4578ba8be26a8a4b7e7bacfe3c4e3f8307b8f2`. The static
+SVG has exactly five distinct node and four relation carriers; the interactive
+accessibility tree lists the same five nodes and four relations. Neither
+Candidate has a qualification or acceptance record.
 
 The Build Request attributes the three original files to the di-effect source
 model and the added view to `Architecture Publisher researcher`. Both media
@@ -520,26 +514,24 @@ by the installed four-workload matrix.
 
 At Publisher `feb0744`, a provisional `architecture-publisher` 0.3.0-alpha.3
 archive with SHA-256
-`be3394512e3e640abec2b02ebe8cd2943dc3be32a2c4266b7186858b2080f399`
-was packed from the generic package and installed offline outside all source
-repositories. The consumer received only the six pinned request, Edition, and
-LikeC4 files listed in
-`tests/conformance/evidence/di-effect-installed-probe.json` (removed in 0.4.0; last present at commit 919360a).
-The npm invocation used fresh user and global configuration files and a fresh
-HOME; installed `edition build` ran with empty `PATH`, `NODE_PATH`, and
-`NODE_OPTIONS`. The installed consumer was copied to a second location, its
-first location removed, and the same public command rebuilt into a fresh
-output directory.
+`be3394512e3e640abec2b02ebe8cd2943dc3be32a2c4266b7186858b2080f399` was packed
+from the generic package and installed offline outside all source repositories.
+The consumer received only the six pinned request, Edition, and LikeC4 files
+listed in `tests/conformance/evidence/di-effect-installed-probe.json` (removed
+in 0.4.0; last present at commit 919360a). The npm invocation used fresh user
+and global configuration files and a fresh HOME; installed `edition build` ran
+with empty `PATH`, `NODE_PATH`, and `NODE_OPTIONS`. The installed consumer was
+copied to a second location, its first location removed, and the same public
+command rebuilt into a fresh output directory.
 
-Candidate `bc4eed8ef6945d2d95b09d7856e2b819480378916befbf30843f6d0098b96a91`
-and all five Candidate files were byte-identical among source-adjacent,
-installed, and relocated builds. This establishes a bounded macOS/Node
-v26.10.0 package and relocation property for the researcher-authored
-di-effect Edition. Chrome 154 opened the relocated HTML at 1280×720: five
-nodes and four relations remained visible, effective node-font size was 13.55
-CSS pixels, and no horizontal overflow, console error, or external request
-occurred. axe-core 4.13.0 reported no WCAG 2/2.1 A/AA violations or
-incomplete checks. The Candidate remains
+Candidate `bc4eed8ef6945d2d95b09d7856e2b819480378916befbf30843f6d0098b96a91` and
+all five Candidate files were byte-identical among source-adjacent, installed,
+and relocated builds. This establishes a bounded macOS/Node v26.10.0 package and
+relocation property for the researcher-authored di-effect Edition. Chrome 154
+opened the relocated HTML at 1280×720: five nodes and four relations remained
+visible, effective node-font size was 13.55 CSS pixels, and no horizontal
+overflow, console error, or external request occurred. axe-core 4.13.0 reported
+no WCAG 2/2.1 A/AA violations or incomplete checks. The Candidate remains
 unqualified: these checks do not establish source-owner endorsement, human
 visual acceptance, publication/recovery, or any other workload's installed
 parity. The receipt is conformance evidence, not release authority.

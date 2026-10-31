@@ -20,25 +20,24 @@
     "check:docs": "markdownlint-cli2 --config .config/checks/markdownlint-cli2/.markdownlint-cli2.yaml",
     "check:spec": "openspec validate --all --strict --no-interactive",
     "test:coverage": "c8 --config .config/checks/c8/.c8rc.json npm test",
-    "check:package": "publint packages/publisher",
+    "check:package": "publint packages/publisher --pack false",
     "check:ci": "node tools/ci/projection.mjs --check",
     "format": "prettier --config .config/checks/prettier/prettier.toml --ignore-path .gitignore --ignore-path .config/checks/prettier/prettierignore --write . && taplo format --config .config/checks/taplo/taplo.toml"
   },
   "license": "MIT",
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@fission-ai/openspec": "1.15.0",
+    "@fission-ai/openspec": "1.16.0",
     "@likec4/language-services": "1.60.0",
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "bundle-require": "5.1.0",
     "c8": "12.0.0",
     "esbuild": "0.28.2",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "globals": "17.13.0",
-    "knip": "6.43.0",
+    "knip": "6.44.0",
     "lucide-static": "1.61.0",
     "markdownlint-cli2": "0.24.0",
-    "npm": "12.2.1",
     "opentype.js": "2.0.0",
     "playwright-core": "1.64.1",
     "prettier": "3.9.10",
@@ -50,16 +49,19 @@
     "yaml": "2.9.1"
   },
   "overrides": {
+    "glob": "14.0.3",
+    "katex": "0.19.1",
     "lodash-es": "4.18.1",
     "markdownlint": {
       "re2js": "2.8.8"
-    }
+    },
+    "minimatch": "11.0.3"
   },
   "packageManager": "npm@12.2.1",
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "26.12.1",
+      "version": "26.13.0",
       "onFail": "error"
     },
     "packageManager": {
