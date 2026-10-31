@@ -7,6 +7,12 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Fixed
+
+- The GitLab jobs run again. The Linux job extends its image's `PATH` in its script, because GitLab does not expand
+  `$PATH` in a job variable and the job's shell then found no `rm`; the Windows job writes Mise shims as command
+  files, because its runner refused Mise's copies of `mise-shim.exe`.
+
 ## [0.6.0] - 2026-10-31
 
 ### Changed

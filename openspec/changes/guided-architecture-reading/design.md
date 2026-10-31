@@ -52,8 +52,8 @@ from what a reader needs and what the user decided:
   publisher does not guess them.
 - Mobile layouts, PDF, PPTX, resident services, registries or catalogs.
 - Modifying Archify, resvg, the fonts, the icons or any other vendored supply.
-- The ETHOS north-star packet, the research settlement and the GitLab
-  simulated-loss recovery; they are deferred past 2026-10-31.
+- The ETHOS north-star packet and the research settlement: they belong to the
+  ETHOS owner, not to a model-to-media publisher.
 
 ## Decisions
 

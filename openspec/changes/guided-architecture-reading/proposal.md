@@ -46,8 +46,8 @@ exact repository content.
 - Remove Providers, dual model generations, custom routing, ELK, libavoid,
   dagre, the custom interactive renderer and every module or test without a
   consumer.
-- Defer the ETHOS north-star packet, the research settlement and the GitLab
-  simulated-loss recovery past 2026-10-31.
+- Leave the ETHOS north-star packet and the research settlement to the ETHOS
+  owner, and prove recovery from simulated local loss through GitLab.
 
 ## Capabilities
 

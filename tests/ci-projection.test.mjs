@@ -71,7 +71,11 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
     `curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 180 --create-dirs --output ${staged} https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-linux-arm64`,
     "sha256sum --strict --check .config/ci/linux/mise.sha256",
     `install --mode=0755 ${staged} ${executable}`,
+    'export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"',
   ]);
+  // A job variable cannot extend the image's PATH: GitLab does not expand $PATH
+  // there, and the job's shell then finds no `rm` or `hostname` to prepare with.
+  assert.equal(pipeline[".verify-linux"].variables.PATH, undefined);
   const checksum = await fs.readFile(path.join(root, ".config/ci/linux/mise.sha256"), "utf8");
   assert.match(checksum, new RegExp(`^[a-f0-9]{64}  ${staged.replaceAll(".", "\\.")}\\n$`, "u"));
   assert.equal(pipeline[".verify-linux"].script[0], "mise --version");
@@ -79,6 +83,14 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   await assert.rejects(fs.access(path.join(root, ".config/mise/generated.toml")), {
     code: "ENOENT",
   });
+});
+
+test("the Windows job writes Mise shims as command files", async () => {
+  // The Windows runner refuses the copies of mise-shim.exe that Mise's default
+  // shim mode makes for every executable a tool provides, such as npm's
+  // arborist; the jobs run tools through `mise exec`, which needs no shim.
+  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
+  assert.equal(pipeline[".verify-windows"].variables.MISE_WINDOWS_SHIM_MODE, "file");
 });
 
 test("native Mise paths resolve before the locked tools are installed", async (t) => {

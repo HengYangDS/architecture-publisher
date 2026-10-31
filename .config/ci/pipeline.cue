@@ -141,9 +141,11 @@ peers: gitlab: {
 				"curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 180 --create-dirs --output build/runtime/tool-cache/mise/bootstrap/mise.download https://github.com/jdx/mise/releases/download/v\(shared.miseVersion)/mise-v\(shared.miseVersion)-linux-arm64",
 				"sha256sum --strict --check .config/ci/linux/mise.sha256",
 				"install --mode=0755 build/runtime/tool-cache/mise/bootstrap/mise.download build/runtime/tool-cache/mise/bootstrap/mise",
+				// A job variable cannot extend the image's PATH: GitLab does not expand
+				// $PATH there, and the shell would then find no `rm` or `hostname`.
+				"export PATH=\"\(peers.gitlab.workspace)/build/runtime/tool-cache/mise/bootstrap:$PATH\"",
 			]
 			"variables": {
-				"PATH":                                 "\(peers.gitlab.workspace)/build/runtime/tool-cache/mise/bootstrap:$PATH"
 				"FF_USE_INIT_WITH_DOCKER_EXECUTOR":     "true"
 				"FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR": "true"
 				"PLAYWRIGHT_BROWSERS_PATH":             "/ms-playwright"
@@ -160,7 +162,11 @@ peers: gitlab: {
 				"git checkout-index --all --force",
 				"$env:PATH = (Join-Path $env:ProgramFiles \"mise/bin\") + [IO.Path]::PathSeparator + $env:PATH",
 			]
-			"variables": {}
+			// The runner refuses Mise's default copies of mise-shim.exe; the jobs
+			// run tools through `mise exec`, which needs no shim.
+			"variables": {
+				"MISE_WINDOWS_SHIM_MODE": "file"
+			}
 			"image":          null
 			"resource_group": "native-windows-verification"
 			"interruptible":  true

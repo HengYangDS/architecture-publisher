@@ -69,6 +69,7 @@ stages:
     - sha256sum --strict --check .config/ci/linux/mise.sha256
     - install --mode=0755 build/runtime/tool-cache/mise/bootstrap/mise.download
       build/runtime/tool-cache/mise/bootstrap/mise
+    - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"
   script:
     - mise --version
     - mise install
@@ -113,7 +114,6 @@ stages:
       .config/ci/linux/pixi.toml --executable npm run check
   extends: .verify-native
   variables:
-    PATH: $CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH
     FF_USE_INIT_WITH_DOCKER_EXECUTOR: "true"
     FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
     PIXI_HOME: $CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home
@@ -135,6 +135,7 @@ stages:
     GIT_CONFIG_COUNT: "1"
     GIT_CONFIG_KEY_0: core.longPaths
     GIT_CONFIG_VALUE_0: "true"
+    MISE_WINDOWS_SHIM_MODE: file
   image: null
   resource_group: native-windows-verification
   interruptible: true
