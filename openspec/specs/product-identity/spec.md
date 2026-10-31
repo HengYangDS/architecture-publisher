@@ -57,35 +57,36 @@ source closeout, with remote and path readback.
 
 ### Requirement: Edition identities remain subordinate
 
-Each Edition SHALL have a stable owner and identity distinct from the product,
-package, repository, renderer, and source project identities.
+Each Edition SHALL be an Architecture Model with a stable owner and identity
+distinct from the product, package, repository, renderer and source project
+identities, and SHALL be kept outside the core package.
 
 #### Scenario: ETHOS and Architecture Publisher editions coexist
 
-- **WHEN** both Edition packages are installed with the same compatible core
-- **THEN** neither Edition changes the product identity
-- **AND** their source, authoring, artifact, and qualification identities remain
-  independently selectable
+- **WHEN** both models are built with the same installed core
+- **THEN** neither model changes the product identity
+- **AND** their source, model and delivery identities remain independently
+  selectable
 
 ### Requirement: The core distribution is domain-neutral
 
 The `architecture-publisher` package and `archpub` command SHALL depend only on
-generic source, semantic, Edition, scene, renderer, qualification, and
-publication contracts. A concrete repository, source adapter, or Edition MAY be
-developed in the same monorepo, but SHALL be an independently installable
-downstream package and SHALL NOT be included in or required by the core package.
+the generic model, source-binding, reading-plan, poster, page and delivery
+contracts. A concrete repository or Edition MAY be developed in the same
+monorepo, but SHALL be a model outside the core package and SHALL NOT be
+included in or required by it.
 
 #### Scenario: A caller installs only the core package
 
-- **WHEN** all concrete Edition and adapter packages are absent
-- **THEN** the installed generic source, Edition-build, evolution, rendering,
-  qualification, and publication journeys remain available offline
+- **WHEN** no Edition model is present
+- **THEN** the installed build, check, import, accept and publish journeys
+  remain available offline
 - **AND** `archpub --help` contains no ETHOS, AIGW, repository-specific, or
   renderer-vendor command
 
 #### Scenario: A concrete Edition evolves
 
-- **WHEN** ETHOS, AIGW, or the Architecture Publisher self-Edition changes
-- **THEN** its package can be rebuilt and versioned without changing the generic
-  package unless a public contract itself changed
-- **AND** the dependency direction remains from the concrete package to the core
+- **WHEN** the ETHOS, AIGW or Architecture Publisher model changes
+- **THEN** it can be rebuilt without changing the core package unless a public
+  contract itself changed
+- **AND** the dependency direction remains from the model to the core
