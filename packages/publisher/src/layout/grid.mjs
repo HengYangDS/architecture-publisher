@@ -1,5 +1,5 @@
 import { Refusal, refuse } from "../refusal.mjs";
-import { MAXIMUM_LABEL_ROWS, solveChannel } from "./channel-solver.mjs";
+import { MAXIMUM_LABEL_ROWS, solveChannel } from "./channel-solver/search.mjs";
 import {
   buildWires,
   channelGeometry,

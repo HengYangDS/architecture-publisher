@@ -5,7 +5,8 @@ import { loadIcons } from "../packages/publisher/src/icons.mjs";
 import { wordsOf } from "../packages/publisher/src/locale.mjs";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { admitsView, composePosters } from "../packages/publisher/src/poster/compose.mjs";
+import { admitsView } from "../packages/publisher/src/poster/compose/candidates.mjs";
+import { composePosters } from "../packages/publisher/src/poster/compose/edition.mjs";
 import { loadTypefaces, requireGlyphs } from "../packages/publisher/src/poster/text.mjs";
 import { graphModel } from "./fixtures/models.mjs";
 

@@ -108,3 +108,7 @@
 ## 13. GitLab peer
 
 - [ ] 13.1 Run the GitLab jobs again: the Linux job extends its image's PATH in its script instead of a job variable GitLab does not expand, the Windows job writes Mise shims as command files its runner allows, and the current raster source is in GitLab's registry. The GitLab pipeline of the landed head passes on Linux, macOS and Windows; the `v0.4.0` to `v0.6.0` tag pipelines ran the defective definition and keep their failed Linux and Windows jobs. `tests/ci-projection.test.mjs` passes in `npm run check`.
+
+## 14. Code ceiling
+
+- [x] 14.1 Rebind to ETHOS alpha.23, whose 500-line ceiling now bounds code files: split `packages/publisher/src/layout/channel-solver.mjs` and `packages/publisher/src/poster/compose.mjs`, 511 effective lines each, by semantic ownership into subdirectories of modules, and retire the 512-line ESLint budget that restated the ceiling. Done on 2026-10-31: the channel solver's options, conflicts, tracks, search and solution and the composer's gates, ranking, page candidates, edition plan and drawing are each a module of at most 208 effective lines, the five editions' deliveries are byte-identical, and the repository is bound to alpha.23, under which the lane head proves.

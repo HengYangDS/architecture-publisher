@@ -14,6 +14,9 @@ remain pre-release contracts and may contain incompatible changes.
   minimatch 11.0.3 and KaTeX 0.19.1 past their advisories, and the npm package, whose bundle carries advisories no
   override reaches, is no longer a development dependency, so publint lints the package directory instead of packing
   it; `npm audit` reports no advisory. The published package declares no dependency and is unchanged.
+- The channel solver and the page composer are split by responsibility into modules under `layout/channel-solver/`
+  and `poster/compose/`, each within the 500-line code ceiling that ETHOS 0.2.0-alpha.23 sets, and the repository's
+  512-line ESLint budget, which restated that ceiling, is retired. Deliveries are byte-identical.
 
 ### Fixed
 

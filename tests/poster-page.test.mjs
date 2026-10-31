@@ -4,7 +4,7 @@ import { loadIcons } from "../packages/publisher/src/icons.mjs";
 import { validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import { leadOf } from "../packages/publisher/src/poster/blocks.mjs";
-import { composeEdition } from "../packages/publisher/src/poster/compose.mjs";
+import { composeEdition } from "../packages/publisher/src/poster/compose/edition.mjs";
 import { LIVE, gutterFor, planSheet } from "../packages/publisher/src/poster/page.mjs";
 import { loadTypefaces } from "../packages/publisher/src/poster/text.mjs";
 import { POSTER, figureStyles } from "../packages/publisher/src/poster/tokens.mjs";

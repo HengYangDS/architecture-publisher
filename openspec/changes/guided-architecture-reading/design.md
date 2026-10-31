@@ -503,8 +503,8 @@ the Provider, the Claim Model and Edition generations, source bundles, scene
 programs, authored routes, the custom renderers, the ELK, libavoid, dagre and
 JetBrains Mono supplies, qualification, publication, the browser-evidence
 harness and their tests. The self edition is a model file in `editions/self`,
-and Markdown size is the ETHOS paradigm's ceiling, not a rule of this
-repository.
+and code and Markdown size are the ETHOS paradigm's ceilings, not rules of
+this repository.
 
 ### 14. Edition content
 

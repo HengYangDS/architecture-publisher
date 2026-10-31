@@ -138,7 +138,7 @@ covers the model, source binding, reading plan, layout, posters, the page's
 diagrams and its delivery through the vendored Archify, deliveries, acceptance,
 publication, the
 LikeC4 importer, the command line, the packed and installed package, module
-boundaries, the version projection, the CI projection and the code file budget.
+boundaries, the version projection and the CI projection.
 
 Two tests need explicit selections and otherwise skip; a skip is not evidence:
 

@@ -6,12 +6,12 @@ import { wordsOf } from "../packages/publisher/src/locale.mjs";
 import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
 import { planViews } from "../packages/publisher/src/plan/views.mjs";
 import { notesOf } from "../packages/publisher/src/poster/blocks.mjs";
+import { admitsView } from "../packages/publisher/src/poster/compose/candidates.mjs";
 import {
-  admitsView,
   composeEdition,
   composePosters,
-  gateFailures,
-} from "../packages/publisher/src/poster/compose.mjs";
+} from "../packages/publisher/src/poster/compose/edition.mjs";
+import { gateFailures } from "../packages/publisher/src/poster/compose/gates.mjs";
 import { rasterize } from "../packages/publisher/src/poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "../packages/publisher/src/poster/text.mjs";
 import { PAGE, POSTER } from "../packages/publisher/src/poster/tokens.mjs";

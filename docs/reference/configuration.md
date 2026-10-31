@@ -21,16 +21,15 @@ roles, not a duplicate quality or formatting implementation.
 | `.config/checks/markdownlint-cli2/.markdownlint-cli2.yaml`   | `npm run check:docs`                                                 |
 | `.config/checks/prettier/prettier.toml` and `prettierignore` | `npm run format` and `npm run check:format`                          |
 | `.config/checks/taplo/taplo.toml`                            | Native TOML formatting in the same fix and check commands            |
-| `.config/checks/file-budget/policy.toml`                     | Native lint's code file budget                                       |
 | `.config/checks/format-selection/policy.toml`                | Native ETHOS carrier selection for three immutable research captures |
 | `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                                |
 | `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                      |
 
-The code file budget is 512 counted lines; ESLint excludes blank and
-comment-only lines. The Markdown ceiling of 512 nonempty lines is the ETHOS
-repository paradigm's, which `ethos status` measures in every governed
-repository; no binding here restates it. Neither owns Markdown spacing: the
-original Prettier formatter does.
+The size ceilings are the ETHOS repository paradigm's: 500 effective lines for
+each code file and 500 nonblank lines for each authored Markdown document,
+which `ethos status` measures in every governed repository; no binding here
+restates them. Neither owns Markdown spacing: the original Prettier formatter
+does.
 
 Policy moves must qualify their actual consumers. Knip, c8 and Markdownlint
 file selection remains repository-relative. Prettier ignore paths are relative

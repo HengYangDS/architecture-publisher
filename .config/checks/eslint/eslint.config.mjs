@@ -1,11 +1,5 @@
 import js from "@eslint/js";
 import globals from "globals";
-import fs from "node:fs";
-import { parse } from "smol-toml";
-
-const fileBudget = parse(
-  fs.readFileSync(new URL("../file-budget/policy.toml", import.meta.url), "utf8"),
-);
 
 export default [
   {
@@ -31,7 +25,6 @@ export default [
       complexity: ["error", 80],
       eqeqeq: ["error", "always"],
       "max-depth": ["error", 5],
-      "max-lines": ["error", { max: fileBudget.maximum, skipBlankLines: true, skipComments: true }],
       "no-duplicate-imports": "error",
       "no-var": "error",
       "object-shorthand": "error",
