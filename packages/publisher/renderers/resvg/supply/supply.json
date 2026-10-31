@@ -3,11 +3,11 @@
   "packages": [
     {
       "name": "resvg",
-      "version": "0.48.1",
-      "archive": "gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.48.1-f8fad322964f/source.tar.xz",
-      "integrity": "sha256-f8fad322964fb58fea53c442f8842d3fb491ec95dbd63c8709eb336fceda69b3",
-      "license": "MIT OR Apache-2.0",
-      "sourceCommit": "crates.io:resvg@0.48.1"
+      "version": "0.49.0",
+      "archive": "gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.49.0-3772b25b2c10/source.tar.xz",
+      "integrity": "sha256-3772b25b2c10a82da63972e8fa26e3f7f3f6dbeac6b29d1b4984dafe7dc85a63",
+      "license": "Apache-2.0 OR MIT",
+      "sourceCommit": "crates.io:resvg@0.49.0"
     },
     {
       "name": "sax",
@@ -29,15 +29,15 @@
   "files": [
     {
       "path": "resvg/index.mjs",
-      "source": "wasm-bindgen 0.2.128 generated glue from the pinned source closure",
-      "bytes": 4550,
-      "sha256": "7ce19569277c85ef2cca60c7b64de64b6264d6f3fc6b55531e272477f50c220c"
+      "source": "wasm-bindgen 0.2.130 generated glue from the pinned source closure",
+      "bytes": 4582,
+      "sha256": "9365b4375f8803f481ff2d41040679cdeedae07c278402fad46655bd361b2ef7"
     },
     {
       "path": "resvg/index_bg.wasm",
-      "source": "offline frozen Rust 1.98.1 build from the pinned source closure",
-      "bytes": 3358713,
-      "sha256": "5075385aaedca6b93a5f76bd5e4134ea739b331db5eba77a1e449784d222af6f"
+      "source": "offline frozen Rust 1.99.1 build from the pinned source closure",
+      "bytes": 3371673,
+      "sha256": "bd291706e19e58f58eda43f67e64512b44693f18896d479e2dc1dad274f9080b"
     },
     {
       "path": "resvg/package.json",
@@ -47,13 +47,13 @@
     },
     {
       "path": "resvg/LICENSE-MIT",
-      "source": "resvg 0.48.1 LICENSE-MIT",
+      "source": "resvg 0.49.0 LICENSE-MIT",
       "bytes": 1057,
       "sha256": "f5d934dc281b44e0003ee461ac740b18b6629a454decd872c774d34e4ee0b21d"
     },
     {
       "path": "resvg/LICENSE-APACHE",
-      "source": "resvg 0.48.1 LICENSE-APACHE",
+      "source": "resvg 0.49.0 LICENSE-APACHE",
       "bytes": 10173,
       "sha256": "a6cba85bc92e0cff7a450b1d873c0eaa2e9fc96bf472df0247a26bec77bf3ff9"
     },
@@ -61,13 +61,13 @@
       "path": "resvg/THIRD-PARTY-NOTICES.txt",
       "source": "license texts for every Cargo.lock package in the pinned source closure",
       "bytes": 173456,
-      "sha256": "1fa1f17b69a36c9946c39ed838a5420823283c60c2a3debe015fc1fb83f5a850"
+      "sha256": "0cfc294a592c925da9365c0ea8d14282c3a1313bca130765d9ec877b543e32f0"
     },
     {
       "path": "resvg/source.json",
       "source": "source, toolchain, build and output identity binding",
-      "bytes": 3936,
-      "sha256": "0d62535a75ba7eb9ebba1ead5206602d9d2b675f1c4ff5c0c72af66d7349a990"
+      "bytes": 2766,
+      "sha256": "bd253e1f816c13223de976e33787172d8db79898d8f8bf3bbea7a7e4fab736a7"
     },
     {
       "path": "sax/sax.cjs",

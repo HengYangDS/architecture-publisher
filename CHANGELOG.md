@@ -7,10 +7,17 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-31
+
 ### Changed
 
-- The development and CI supply moves to the latest stable releases: Node 26.13.0, ESLint 10.14.0, Knip 6.44.0,
-  OpenSpec 1.16.0, `@types/node` 26.6.6, Mise 2026.10.24 and `jdx/mise-action` 5.2.4. Overrides take glob 14.0.3,
+- The raster renderer is rebuilt from resvg 0.49.0 with `wasm-bindgen` 0.2.130 on Rust 1.99.1, and the icon supply carries
+  the complete Lucide 1.66.0 artwork. The source closure `0.49.0-3772b25b2c10` is in the GitLab package registry and a
+  GitHub release, the canonical renderer pair is held in Git custody, and its macOS native rebuild is an admitted
+  witness. The five editions' posters and pages are byte-identical to 0.6.0; their manifests name the new publisher
+  version and supply digests.
+- The development and CI supply moves to the latest stable releases: Node 26.13.0, ESLint 10.14.0, Knip 6.44.1,
+  OpenSpec 1.16.0, `@types/node` 26.6.6, Mise 2026.10.25 and `jdx/mise-action` 5.2.5. Overrides take glob 14.0.3,
   minimatch 11.0.3 and KaTeX 0.19.1 past their advisories, and the npm package, whose bundle carries advisories no
   override reaches, is no longer a development dependency, so publint lints the package directory instead of packing
   it; `npm audit` reports no advisory. The published package declares no dependency and is unchanged.
@@ -672,6 +679,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.7.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.7.0
 [0.6.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.6.0
 [0.5.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.5.0
 [0.4.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.4.0

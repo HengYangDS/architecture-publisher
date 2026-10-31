@@ -112,3 +112,9 @@
 ## 14. Code ceiling
 
 - [x] 14.1 Rebind to ETHOS alpha.23, whose 500-line ceiling now bounds code files: split `packages/publisher/src/layout/channel-solver.mjs` and `packages/publisher/src/poster/compose.mjs`, 511 effective lines each, by semantic ownership into subdirectories of modules, and retire the 512-line ESLint budget that restated the ceiling. Done on 2026-10-31: the channel solver's options, conflicts, tracks, search and solution and the composer's gates, ranking, page candidates, edition plan and drawing are each a module of at most 208 effective lines, the five editions' deliveries are byte-identical, and the repository is bound to alpha.23, under which the lane head proves.
+
+## 15. Latest stable supply
+
+- [ ] 15.1 Move the raster renderer to resvg 0.49.0 and `wasm-bindgen` 0.2.130 on Rust 1.99.1: relock and vendor its source closure, publish it to the GitLab package registry and as a GitHub release, hold the canonical pair in Git custody and admit the macOS, Linux and Windows ARM64 witnesses. The native raster journey passes on all three platforms on both forges.
+- [x] 15.2 Move the icon supply to Lucide 1.66.0 and the development and CI supply to Knip 6.44.1, Mise 2026.10.25 and `jdx/mise-action` 5.2.5. Done on 2026-10-31: `npm audit` reports none, and the five editions' posters and pages built on this supply are byte-identical to 0.6.0; only their manifests name the publisher version and supply digests.
+- [ ] 15.3 Accept and publish the 0.7.0 editions, release v0.7.0 on GitHub and GitLab with its package and checksums, and verify the tag, assets and both peers' convergence.

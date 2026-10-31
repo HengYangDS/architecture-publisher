@@ -1,5 +1,5 @@
 package = "lucide-static"
-version = "1.61.0"
+version = "1.66.0"
 license = "ISC"
-integrity = "sha512-yLAiQB3MWUJEstsEDAwenSA3m7vr1tdLvgnC16Q/XMxRRma0DWwMs8M2bWlvgShrIs1m2mWMJ+0AiahqQO4GrA=="
+integrity = "sha512-j8Bjf/f21PtlD8p0wx1lRxyOrs98WZ1QEImkWmfskuJ8mOCwTN7Dwc6EHUzJDSzh79aB+Bo7SWcoTCM2zEjnJg=="
 viewBox = [0, 0, 24, 24]

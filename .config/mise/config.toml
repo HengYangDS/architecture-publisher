@@ -13,7 +13,7 @@ run = [
 [tasks.raster-supply]
 description = "Restore the canonical prebuilt Raster pair from immutable Git custody"
 run = [
-  "git restore --source=758f0e33077ea9290be2d0ffd36aeef44a35a4ac --worktree -- packages/publisher/renderers/resvg/supply/resvg/index.mjs packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
+  "git restore --source=6eb45c85404e692a0ceeb708f5f07416820942ec --worktree -- packages/publisher/renderers/resvg/supply/resvg/index.mjs packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
   "node tools/raster/resvg/verify.mjs --stage",
 ]
 
@@ -46,13 +46,13 @@ rust = { version = "1.99.1", profile = "minimal", components = [
 ] }
 
 [tools."github:wasm-bindgen/wasm-bindgen"]
-version = "0.2.129"
+version = "0.2.130"
 matching_regex = "^wasm-bindgen-[0-9.]+-(aarch64-apple-darwin|aarch64-unknown-linux-gnu|x86_64-pc-windows-msvc)\\.tar\\.gz$"
 strip_components = 1
 
 [tools."github:wasm-bindgen/wasm-bindgen".platforms.windows-arm64]
-asset_pattern = "wasm-bindgen-0.2.129-x86_64-pc-windows-msvc.tar.gz"
-checksum = "sha256:79e348c169d0c10c0b287647f1e753d0985353ca96800bc29be8f4261baf13e6"
+asset_pattern = "wasm-bindgen-0.2.130-x86_64-pc-windows-msvc.tar.gz"
+checksum = "sha256:844d23f1b56097549b936dd2e0d561fadebc1e8c9e985d5068b6b919654104ad"
 
 [tools."github:tamasfe/taplo"]
 version = "0.10.0"

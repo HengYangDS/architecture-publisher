@@ -391,7 +391,7 @@ forward; the rules read characters only, so every host breaks alike. Host
 fonts are never discovered. The JetBrains Mono supply and the interactive font
 substitution are removed; the page keeps Archify's native typography.
 
-The existing icon supply, the complete Lucide 1.61.0 artwork (ISC) with its
+The existing icon supply, the complete Lucide 1.66.0 artwork (ISC) with its
 license and digests, is retained unmodified. Each category has a default icon,
 and a kind may name any Lucide icon; an unknown name is a validation problem.
 

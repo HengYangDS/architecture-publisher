@@ -128,7 +128,7 @@ without a kind is a `backend` component.
 | `messagebus` | Archify's message bus type.                           |
 | `security`   | Archify's security type.                              |
 
-`icon` names any icon in the bundled Lucide 1.61.0 artwork, such as `server` or
+`icon` names any icon in the bundled Lucide 1.66.0 artwork, such as `server` or
 `database`; each category has a default. An unknown icon is refused.
 
 ## Sources and the repository

@@ -2,23 +2,23 @@
   "schema": "architecture.raster-source/v1",
   "source": {
     "name": "linebender/resvg",
-    "version": "0.48.1",
+    "version": "0.49.0",
     "registry": {
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
-      "version": "0.48.1-06b5d64d0fcc",
+      "version": "0.49.0-3772b25b2c10",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "06b5d64d0fcc9005c48a854da778cf1c2cfa41dd93f3cfa53becc83a6fe36359"
+    "archiveSha256": "3772b25b2c10a82da63972e8fa26e3f7f3f6dbeac6b29d1b4984dafe7dc85a63"
   },
   "toolchain": {
     "rust": "1.99.1",
     "target": "wasm32-unknown-unknown",
-    "wasmBindgen": "0.2.129"
+    "wasmBindgen": "0.2.130"
   },
   "build": {
-    "cargoLockSha256": "3378975d184989640ea75f389e796a3d14ed83db8d1d9c22fcfce4850433a12e",
+    "cargoLockSha256": "fde501e4be4c0f6974b5c55407d816a7f80d2a6e0bacd4c3e061dabda4ca16ac",
     "network": "offline",
     "frozen": true,
     "pathRemap": "/workspace",
@@ -26,12 +26,12 @@
       {
         "path": "tools/raster/resvg/Cargo.toml",
         "bytes": 256,
-        "sha256": "a96f251dbb96d1786d01eada9e94bc4479e71c562a222beb1c23dede611a1bee"
+        "sha256": "7e616ae367dc32da1a45a4953b91955547f8536e2872772b6e196b580c8dc4a7"
       },
       {
         "path": "tools/raster/resvg/Cargo.lock",
-        "bytes": 14047,
-        "sha256": "3378975d184989640ea75f389e796a3d14ed83db8d1d9c22fcfce4850433a12e"
+        "bytes": 14033,
+        "sha256": "fde501e4be4c0f6974b5c55407d816a7f80d2a6e0bacd4c3e061dabda4ca16ac"
       },
       {
         "path": "tools/raster/resvg/rust-toolchain.toml",
@@ -62,49 +62,11 @@
             "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
             "host": "aarch64-apple-darwin"
           },
-          "wasmBindgen": "0.2.129"
+          "wasmBindgen": "0.2.130"
         },
         "wasm": {
-          "bytes": 3359112,
-          "sha256": "151979e3f19b632c8b2968b5c5ae8ff54bc8507040f518dccce94fb25b5d3d2c"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.99.1",
-            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "cargo": {
-            "release": "1.99.1",
-            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "wasmBindgen": "0.2.129"
-        },
-        "wasm": {
-          "bytes": 3357126,
-          "sha256": "277e3870eaf292987e12455f55303a0b4f05eb1aa0a85ad01d5c65bf466b707a"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.99.1",
-            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "cargo": {
-            "release": "1.99.1",
-            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "wasmBindgen": "0.2.129"
-        },
-        "wasm": {
-          "bytes": 3359131,
-          "sha256": "cbb61f7265a1954f462476ce616b7f1767645c12d6a9eca89305d812fd975f67"
+          "bytes": 3371673,
+          "sha256": "bd291706e19e58f58eda43f67e64512b44693f18896d479e2dc1dad274f9080b"
         }
       }
     ]
@@ -112,14 +74,14 @@
   "outputs": [
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index.mjs",
-      "bytes": 4550,
-      "sha256": "7ce19569277c85ef2cca60c7b64de64b6264d6f3fc6b55531e272477f50c220c",
+      "bytes": 4582,
+      "sha256": "9365b4375f8803f481ff2d41040679cdeedae07c278402fad46655bd361b2ef7",
       "nativeFile": "index_bg.js"
     },
     {
       "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
-      "bytes": 3358713,
-      "sha256": "5075385aaedca6b93a5f76bd5e4134ea739b331db5eba77a1e449784d222af6f",
+      "bytes": 3371673,
+      "sha256": "bd291706e19e58f58eda43f67e64512b44693f18896d479e2dc1dad274f9080b",
       "nativeFile": "index_bg.wasm"
     }
   ]
