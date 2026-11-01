@@ -18,6 +18,7 @@ tools/**/*.sh ethos-role=tooling
 packages/publisher/src/edition/generated/** ethos-role=generated
 packages/publisher/supplies/** ethos-role=snapshot
 packages/publisher/renderers/*/supply/** ethos-role=snapshot
+renderers/*/supply/** ethos-role=snapshot
 .config/mise/locks/** ethos-role=snapshot
 .config/ci/linux/pixi.lock ethos-role=snapshot
 
@@ -25,12 +26,14 @@ packages/publisher/renderers/*/supply/** ethos-role=snapshot
 packages/publisher/src/edition/generated/** linguist-generated
 packages/publisher/supplies/** linguist-vendored
 packages/publisher/renderers/*/supply/** linguist-vendored
+renderers/*/supply/** linguist-vendored
 tools/supply/licenses/** linguist-vendored
 
 # Generated and third-party supply retain their exact recorded bytes.
 packages/publisher/src/edition/generated/** -text
 packages/publisher/supplies/** -text
 packages/publisher/renderers/*/supply/** -text
+renderers/*/supply/** -text
 .config/mise/locks/** -text
 .config/ci/linux/pixi.lock -text
 
