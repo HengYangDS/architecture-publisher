@@ -9,6 +9,7 @@
 - [x] 2.3 Merge the package README into the root README and keep one license; verify the README keeps the command summary, model format, outputs, exit codes and Node requirement.
 - [x] 2.4 Repoint every reference to `packages/publisher/` in configuration, tools, tests, the CI source and its projections, `.gitattributes`, `.gitignore`, `.ethos/profile.toml` and the documentation; verify none remains outside archived Changes, model source paths and the research pages that the next Change in this lane retires.
 - [x] 2.5 Point `raster-supply` at the new custody commit and regenerate the Raster supply manifest for the moved source record; verify a fresh bootstrap restores the absent pair and `verify.mjs --stage` passes.
+- [x] 2.6 Add a root `CONTRIBUTING.md` for setup, verification, commits, landing and releases and link it from the README; verify formatting, Markdown, prose and strict OpenSpec checks pass.
 
 ## 3. Samples and corpus
 

@@ -122,6 +122,7 @@ command.
 - [Model reference](docs/reference/model.md): the Architecture Model format.
 - [Operations reference](docs/reference/operations.md): commands, layout, the delivery and refusals.
 - [Development and verification](docs/reference/development.md): toolchain, checks and supply.
+- [Contributing](CONTRIBUTING.md): set up, verify, commit, land and release.
 - Examples: the [Big Bank model](examples/big-bank/README.md) and the
   [LikeC4 shop workspace](examples/likec4-shop/README.md) to start from.
 

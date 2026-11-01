@@ -20,7 +20,8 @@ position:
 - The package moves to the repository root: `src/`, `renderers/` and
   `supplies/` beside `tests/`, `tools/` and `docs/`, with one `package.json`,
   one README and one license. The workspace shell is removed. The published
-  package keeps the same files; only `package.json` changes.
+  package keeps the same files; only `package.json`, the merged README and the
+  Raster source record with its supply digest change.
 - The canonical raster pair is held in custody at its new path, so bootstrap
   restores it there.
 - `examples/` holds the documented samples, the C4 Big Bank model and the LikeC4
@@ -32,8 +33,12 @@ position:
   copy.
 - `editions/self/` is removed; the model is the work `architecture-publisher`
   in architecture-publications.
+- A root `CONTRIBUTING.md` gives maintainers one entry for setup, verification,
+  commits, landing and releases, as ETHOS's root rules from 0.2.0-alpha.26
+  require of every governed repository.
 
-No poster or page changes: all five editions stay byte-identical.
+No poster or page changes: the published AIGW, ETHOS and former self works
+build byte-identical posters and pages.
 
 ## Capabilities
 
@@ -51,6 +56,6 @@ uses the official no-spec marker.
 Every path under `packages/publisher/`, the manifests and lock, the tool
 configuration under `.config/`, `.gitattributes`, `.gitignore`,
 `.ethos/profile.toml`, the CI source and its projections, `tools/`, `tests/`,
-`docs/reference/` and the README. Out of scope: the content of the moved model,
+`docs/reference/`, the README and the new `CONTRIBUTING.md`. Out of scope: the content of the moved model,
 shipping the Skill in the package, the stale research pages and the checks and
 records that the next Change in this lane corrects.
