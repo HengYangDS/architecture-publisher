@@ -18,40 +18,17 @@ async function read(name) {
   return { file, text, value: JSON.parse(text) };
 }
 
-const workspace = await read("package.json");
+const manifest = await read("package.json");
 const lock = await read("package-lock.json");
-const packages = await Promise.all(
-  workspace.value.workspaces.map(async (name) => ({
-    name,
-    ...(await read(`${name}/package.json`)),
-  })),
-);
-const names = new Set(packages.map(({ value }) => value.name));
+const locked = lock.value.packages[""];
+if (!locked || locked.name !== manifest.value.name || lock.value.name !== manifest.value.name)
+  throw Error("version_lock_invalid");
 
-function projectDependencies(value) {
-  for (const group of [
-    "dependencies",
-    "devDependencies",
-    "peerDependencies",
-    "optionalDependencies",
-  ])
-    for (const name of Object.keys(value[group] ?? {}))
-      if (names.has(name)) value[group][name] = version;
-}
+manifest.value.version = version;
+lock.value.version = version;
+locked.version = version;
 
-delete workspace.value.version;
-delete lock.value.version;
-delete lock.value.packages[""].version;
-for (const entry of packages) {
-  entry.value.version = version;
-  projectDependencies(entry.value);
-  const locked = lock.value.packages[entry.name];
-  if (!locked || locked.name !== entry.value.name) throw Error("version_workspace_lock_invalid");
-  locked.version = version;
-  projectDependencies(locked);
-}
-
-const changed = [workspace, ...packages, lock]
+const changed = [manifest, lock]
   .map((entry) => ({ ...entry, projected: `${JSON.stringify(entry.value, null, 2)}\n` }))
   .filter(({ text, projected }) => text !== projected);
 if (mode === "--check" && changed.length) throw Error("version_projection_drift");

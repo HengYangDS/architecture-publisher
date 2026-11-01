@@ -1,20 +1,17 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
-import { loadIcons } from "../packages/publisher/src/icons.mjs";
-import { wordsOf } from "../packages/publisher/src/locale.mjs";
-import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { notesOf } from "../packages/publisher/src/poster/blocks.mjs";
-import { admitsView } from "../packages/publisher/src/poster/compose/candidates.mjs";
-import {
-  composeEdition,
-  composePosters,
-} from "../packages/publisher/src/poster/compose/edition.mjs";
-import { gateFailures } from "../packages/publisher/src/poster/compose/gates.mjs";
-import { rasterize } from "../packages/publisher/src/poster/raster.mjs";
-import { loadTypefaces, requireGlyphs } from "../packages/publisher/src/poster/text.mjs";
-import { PAGE, POSTER } from "../packages/publisher/src/poster/tokens.mjs";
+import { loadIcons } from "../src/icons.mjs";
+import { wordsOf } from "../src/locale.mjs";
+import { loadModel, validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
+import { notesOf } from "../src/poster/blocks.mjs";
+import { admitsView } from "../src/poster/compose/candidates.mjs";
+import { composeEdition, composePosters } from "../src/poster/compose/edition.mjs";
+import { gateFailures } from "../src/poster/compose/gates.mjs";
+import { rasterize } from "../src/poster/raster.mjs";
+import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
+import { PAGE, POSTER } from "../src/poster/tokens.mjs";
 import {
   AIGW_MODEL,
   BIG_BANK_MODEL,

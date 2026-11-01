@@ -15,12 +15,11 @@ refusal.
 
 ## Installation
 
-The repository root is a private development workspace; the product is the
-`architecture-publisher` package under `packages/publisher`. Pack it and install
-the archive with npm:
+The repository is the `architecture-publisher` package. Pack it and install the
+archive with npm:
 
 ```sh
-npm pack --ignore-scripts --workspace architecture-publisher --pack-destination build/artifacts
+npm pack --ignore-scripts --pack-destination build/artifacts
 npm install --global --ignore-scripts build/artifacts/architecture-publisher-<version>.tgz
 ```
 

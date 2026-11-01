@@ -10,7 +10,7 @@ ignores:
   - openspec/changes/archive/**
   - tests/fixtures/**
   - "**/supply/**"
-  - packages/publisher/supplies/**
+  - supplies/**
 noInlineConfig: true
 config:
   default: true

@@ -1,7 +1,7 @@
 {
   "all": true,
   "merge-async": true,
-  "include": ["packages/publisher/src/**/*.mjs"],
+  "include": ["src/**/*.mjs"],
   "check-coverage": true,
   "statements": 95,
   "lines": 95,

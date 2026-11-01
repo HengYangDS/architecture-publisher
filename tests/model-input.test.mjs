@@ -2,12 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  CATEGORIES,
-  MAXIMUM_VIEWS,
-  loadModel,
-  validateModel,
-} from "../packages/publisher/src/model/load.mjs";
+import { CATEGORIES, MAXIMUM_VIEWS, loadModel, validateModel } from "../src/model/load.mjs";
 import { AIGW_MODEL, minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 
 /** The refusal's problems as `code path` lines. */
@@ -213,10 +208,7 @@ test("views declare tiers or members, at most four", () => {
 
 test("the published schema allows the views the loader admits", async () => {
   const schema = JSON.parse(
-    await fs.readFile(
-      new URL("../packages/publisher/src/model/schema.json", import.meta.url),
-      "utf8",
-    ),
+    await fs.readFile(new URL("../src/model/schema.json", import.meta.url), "utf8"),
   );
   assert.equal(schema.properties.views.maxItems, MAXIMUM_VIEWS);
 });

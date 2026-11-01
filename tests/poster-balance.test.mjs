@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
-import { DARKNESS, balanceOf, darkness } from "../packages/publisher/src/poster/balance.mjs";
-import { gateFailures } from "../packages/publisher/src/poster/compose/gates.mjs";
-import { LIVE } from "../packages/publisher/src/poster/page.mjs";
-import { POSTER } from "../packages/publisher/src/poster/tokens.mjs";
+import { DARKNESS, balanceOf, darkness } from "../src/poster/balance.mjs";
+import { gateFailures } from "../src/poster/compose/gates.mjs";
+import { LIVE } from "../src/poster/page.mjs";
+import { POSTER } from "../src/poster/tokens.mjs";
 
 const judged = JSON.parse(
   await fs.readFile(new URL("./fixtures/balance-pages.json", import.meta.url), "utf8"),

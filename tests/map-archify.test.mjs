@@ -2,21 +2,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  DIAGRAM_WIDTHS,
-  archifyIds,
-  diagramCandidates,
-  textUnits,
-} from "../packages/publisher/src/map/archify.mjs";
-import { chooseDiagram } from "../packages/publisher/src/map/choice.mjs";
+import { DIAGRAM_WIDTHS, archifyIds, diagramCandidates, textUnits } from "../src/map/archify.mjs";
+import { chooseDiagram } from "../src/map/choice.mjs";
 import {
   deliverExplainer,
   explainerDraft,
   explainerPage,
   sensitiveSources,
-} from "../packages/publisher/src/map/explainer.mjs";
-import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
+} from "../src/map/explainer.mjs";
+import { loadModel, validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
 import {
   AIGW_MODEL,
   BIG_BANK_MODEL,

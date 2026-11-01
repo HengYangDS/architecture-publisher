@@ -4,9 +4,9 @@ import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
-import { deliverExplainer, explainerPage } from "../packages/publisher/src/map/explainer.mjs";
-import { loadModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
+import { deliverExplainer, explainerPage } from "../src/map/explainer.mjs";
+import { loadModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
 import { AIGW_MODEL, BIG_BANK_MODEL, temporaryDirectory } from "./fixtures/models.mjs";
 
 /**

@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 const root = path.resolve(import.meta.dirname, "..");
-const files = ["package.json", "packages/publisher/package.json", "package-lock.json"];
+const files = ["package.json", "package-lock.json"];
 
 async function contents(directory) {
   return Promise.all(files.map((name) => fs.readFile(path.join(directory, name), "utf8")));
@@ -34,12 +34,10 @@ function run(directory, mode) {
 }
 
 function assertProjection(texts, version) {
-  const [workspace, product, lock] = texts.map((text) => JSON.parse(text));
-  assert.equal(Object.hasOwn(workspace, "version"), false);
-  assert.equal(product.version, version);
-  assert.equal(Object.hasOwn(lock, "version"), false);
-  assert.equal(Object.hasOwn(lock.packages[""], "version"), false);
-  assert.equal(lock.packages["packages/publisher"].version, version);
+  const [manifest, lock] = texts.map((text) => JSON.parse(text));
+  assert.equal(manifest.version, version);
+  assert.equal(lock.version, version);
+  assert.equal(lock.packages[""].version, version);
 }
 
 test("VERSION owns the repository version and npm manifests are checked projections", async () => {
@@ -61,11 +59,10 @@ test("version projection refuses drift without mutation and updates only owned v
   assert.equal(written.status, 0, written.stdout + written.stderr);
   const projected = await contents(directory);
   assertProjection(projected, "2.4.6");
-  const beforeLock = JSON.parse(before[2]),
-    afterLock = JSON.parse(projected[2]);
+  const beforeLock = JSON.parse(before[1]),
+    afterLock = JSON.parse(projected[1]);
   for (const [name, value] of Object.entries(beforeLock.packages))
-    if (!["", "packages/publisher"].includes(name))
-      assert.deepEqual(afterLock.packages[name], value, name);
+    if (name !== "") assert.deepEqual(afterLock.packages[name], value, name);
   assert.equal(run(directory, "--check").status, 0);
   assert.equal(run(directory, "--write").status, 0);
   assert.deepEqual(await contents(directory), projected);

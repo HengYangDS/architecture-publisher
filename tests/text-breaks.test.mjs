@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { atoms, joined } from "../packages/publisher/src/breaks.mjs";
-import { loadIcons } from "../packages/publisher/src/icons.mjs";
-import { wordsOf } from "../packages/publisher/src/locale.mjs";
-import { validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { admitsView } from "../packages/publisher/src/poster/compose/candidates.mjs";
-import { composePosters } from "../packages/publisher/src/poster/compose/edition.mjs";
-import { loadTypefaces, requireGlyphs } from "../packages/publisher/src/poster/text.mjs";
+import { atoms, joined } from "../src/breaks.mjs";
+import { loadIcons } from "../src/icons.mjs";
+import { wordsOf } from "../src/locale.mjs";
+import { validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
+import { admitsView } from "../src/poster/compose/candidates.mjs";
+import { composePosters } from "../src/poster/compose/edition.mjs";
+import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
 import { graphModel } from "./fixtures/models.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);

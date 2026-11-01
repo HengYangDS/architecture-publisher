@@ -11,7 +11,7 @@ const mode = process.argv[2];
 if (process.argv.length !== 3 || !["--check", "--write"].includes(mode))
   throw new Error("ci_projection_mode_required");
 const source = ".config/ci/pipeline.cue";
-const raster = "packages/publisher/renderers/resvg/supply/resvg/source.json";
+const raster = "renderers/resvg/supply/resvg/source.json";
 const options = {
   cwd: root,
   encoding: "utf8",

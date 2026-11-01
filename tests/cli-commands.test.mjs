@@ -4,11 +4,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { USAGE, runCli } from "../packages/publisher/src/cli/run.mjs";
+import { USAGE, runCli } from "../src/cli/run.mjs";
 import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 
-const MAIN = fileURLToPath(new URL("../packages/publisher/src/cli/main.mjs", import.meta.url));
-const SHOP = fileURLToPath(new URL("./fixtures/likec4/shop/", import.meta.url));
+const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
+const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
 const json = async (args) => {
   const { exitCode, output } = await runCli([...args, "--json"]);
   return { exitCode, body: JSON.parse(output) };
@@ -42,7 +42,7 @@ test("help and version answer without a command", async () => {
     assert.deepEqual(await runCli([flag]), { exitCode: 0, output: USAGE });
   assert.deepEqual((await json(["--help"])).body, { ok: true, usage: USAGE });
   const manifest = JSON.parse(
-    await fs.readFile(new URL("../packages/publisher/package.json", import.meta.url), "utf8"),
+    await fs.readFile(new URL("../package.json", import.meta.url), "utf8"),
   );
   assert.deepEqual(await runCli(["--version"]), { exitCode: 0, output: `${manifest.version}\n` });
   assert.deepEqual((await json(["--version"])).body, { ok: true, version: manifest.version });

@@ -16,6 +16,6 @@
   "typeAcquisition": {
     "enable": false
   },
-  "include": ["../../../packages/publisher/src/**/*.mjs"],
+  "include": ["../../../src/**/*.mjs"],
   "exclude": ["../../../build/**", "../../../node_modules/**"]
 }

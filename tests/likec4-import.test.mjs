@@ -4,14 +4,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { importLikeC4 } from "../packages/publisher/src/importers/likec4.mjs";
-import { verifySupply } from "../packages/publisher/src/supply.mjs";
+import { importLikeC4 } from "../src/importers/likec4.mjs";
+import { verifySupply } from "../src/supply.mjs";
 import { temporaryDirectory } from "./fixtures/models.mjs";
 
-const SHOP = fileURLToPath(new URL("./fixtures/likec4/shop/", import.meta.url));
-const WORKER = fileURLToPath(
-  new URL("../packages/publisher/src/importers/likec4-worker.mjs", import.meta.url),
-);
+const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
+const WORKER = fileURLToPath(new URL("../src/importers/likec4-worker.mjs", import.meta.url));
 
 async function workspace(t, files) {
   const root = await temporaryDirectory(t, "archpub-likec4-");

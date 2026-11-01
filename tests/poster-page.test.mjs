@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { loadIcons } from "../packages/publisher/src/icons.mjs";
-import { validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { leadOf } from "../packages/publisher/src/poster/blocks.mjs";
-import { composeEdition } from "../packages/publisher/src/poster/compose/edition.mjs";
-import { LIVE, gutterFor, planSheet } from "../packages/publisher/src/poster/page.mjs";
-import { loadTypefaces } from "../packages/publisher/src/poster/text.mjs";
-import { POSTER, figureStyles } from "../packages/publisher/src/poster/tokens.mjs";
+import { loadIcons } from "../src/icons.mjs";
+import { validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
+import { leadOf } from "../src/poster/blocks.mjs";
+import { composeEdition } from "../src/poster/compose/edition.mjs";
+import { LIVE, gutterFor, planSheet } from "../src/poster/page.mjs";
+import { loadTypefaces } from "../src/poster/text.mjs";
+import { POSTER, figureStyles } from "../src/poster/tokens.mjs";
 import { graphModel, pageModel } from "./fixtures/models.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);

@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { validateModel } from "../packages/publisher/src/model/load.mjs";
-import { bindSources } from "../packages/publisher/src/sources/bind.mjs";
+import { validateModel } from "../src/model/load.mjs";
+import { bindSources } from "../src/sources/bind.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { MAIN, README, repository } from "./fixtures/repository.mjs";
 

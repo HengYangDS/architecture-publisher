@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
-import { checkModel } from "../packages/publisher/src/build.mjs";
+import { checkModel } from "../src/build.mjs";
 import { BROWSER_USE_MODEL, CONTEXT_MODE_MODEL } from "./fixtures/models.mjs";
 
 // Models of two repositories unrelated to this one, written outside them, keep the publisher

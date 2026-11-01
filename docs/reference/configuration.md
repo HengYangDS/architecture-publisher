@@ -42,8 +42,8 @@ The format-selection policy declares three dated research SVG captures under
 are history, not product fixtures. No wildcard excludes future figures.
 
 Knip's native Markdownlint plugin selects the same relocated configuration. Its
-default analysis covers development tools; strict production analysis selects
-the shipped workspaces, not the private root workspace.
+default analysis covers development tools; strict production analysis starts
+from the package's `bin` command.
 Non-npm binaries listed by Knip are selected and checked through the native Mise
 toolchain. Module-direction checks inventory configuration separately as resources:
 check tools may read check policy, while production modules cannot acquire it.

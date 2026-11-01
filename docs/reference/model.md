@@ -16,7 +16,7 @@ publisher never infers architecture from code; the model is the only source of
 meaning.
 
 The machine-readable schema is
-[`packages/publisher/src/model/schema.json`](../../packages/publisher/src/model/schema.json).
+[`src/model/schema.json`](../../src/model/schema.json).
 `archpub check` validates a model, reports every problem with its JSON path in
 one pass and builds nothing.
 
@@ -24,9 +24,9 @@ one pass and builds nothing.
 
 This is the smallest model the schema accepts. It builds, but three components
 cannot fill a 16:9 page, so its poster is a sparse page and the manifest
-records the balance gates it misses; the repository's own
-[`editions/self/model.json`](../../editions/self/model.json) is a complete model
-whose pages are balanced.
+records the balance gates it misses. The
+[Big Bank example](../../examples/big-bank/README.md) is a larger model with
+kinds, details and views.
 
 ```json
 {

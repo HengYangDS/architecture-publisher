@@ -19,27 +19,27 @@ input_refs = [
 integrity_gate = "source-integrity"
 
 [proof.source_contracts.members]
-"packages/publisher/renderers/resvg/supply/sax/sax.cjs" = [
+"renderers/resvg/supply/sax/sax.cjs" = [
   "package-lock.json#packages/node_modules/sax",
   "package/lib/sax.js",
 ]
-"packages/publisher/renderers/resvg/supply/sax/LICENSE.md" = [
+"renderers/resvg/supply/sax/LICENSE.md" = [
   "package-lock.json#packages/node_modules/sax",
   "package/LICENSE.md",
 ]
-"packages/publisher/renderers/resvg/supply/sax/package.json" = [
+"renderers/resvg/supply/sax/package.json" = [
   "package-lock.json#packages/node_modules/sax",
   "package/package.json",
 ]
-"packages/publisher/renderers/resvg/supply/opentype/opentype.mjs" = [
+"renderers/resvg/supply/opentype/opentype.mjs" = [
   "package-lock.json#packages/node_modules/opentype.js",
   "package/dist/opentype.mjs",
 ]
-"packages/publisher/renderers/resvg/supply/opentype/LICENSE" = [
+"renderers/resvg/supply/opentype/LICENSE" = [
   "package-lock.json#packages/node_modules/opentype.js",
   "package/LICENSE",
 ]
-"packages/publisher/renderers/resvg/supply/opentype/package.json" = [
+"renderers/resvg/supply/opentype/package.json" = [
   "package-lock.json#packages/node_modules/opentype.js",
   "package/package.json",
 ]
@@ -52,483 +52,483 @@ input_refs = [
 integrity_gate = "source-integrity"
 
 [proof.source_contracts.members]
-"packages/publisher/renderers/archify/supply/LICENSE" = [
+"renderers/archify/supply/LICENSE" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/LICENSE",
 ]
-"packages/publisher/renderers/archify/supply/THIRD_PARTY_NOTICES.md" = [
+"renderers/archify/supply/THIRD_PARTY_NOTICES.md" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/THIRD_PARTY_NOTICES.md",
 ]
-"packages/publisher/renderers/archify/supply/assets/JetBrainsMono-OFL.txt" = [
+"renderers/archify/supply/assets/JetBrainsMono-OFL.txt" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/assets/JetBrainsMono-OFL.txt",
 ]
-"packages/publisher/renderers/archify/supply/assets/template.html" = [
+"renderers/archify/supply/assets/template.html" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/assets/template.html",
 ]
-"packages/publisher/renderers/archify/supply/bin/archify.mjs" = [
+"renderers/archify/supply/bin/archify.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/bin/archify.mjs",
 ]
-"packages/publisher/renderers/archify/supply/bin/delivery-update.mjs" = [
+"renderers/archify/supply/bin/delivery-update.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/bin/delivery-update.mjs",
 ]
-"packages/publisher/renderers/archify/supply/bin/finalize.mjs" = [
+"renderers/archify/supply/bin/finalize.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/bin/finalize.mjs",
 ]
-"packages/publisher/renderers/archify/supply/bin/open-artifact.mjs" = [
+"renderers/archify/supply/bin/open-artifact.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/bin/open-artifact.mjs",
 ]
-"packages/publisher/renderers/archify/supply/bin/preview.mjs" = [
+"renderers/archify/supply/bin/preview.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/bin/preview.mjs",
 ]
-"packages/publisher/renderers/archify/supply/bin/visual-check.mjs" = [
+"renderers/archify/supply/bin/visual-check.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/bin/visual-check.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/browser-check.mjs" = [
+"renderers/archify/supply/explainer/browser-check.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/browser-check.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/charts.mjs" = [
+"renderers/archify/supply/explainer/charts.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/charts.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/check.mjs" = [
+"renderers/archify/supply/explainer/check.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/check.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/diagrams.mjs" = [
+"renderers/archify/supply/explainer/diagrams.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/diagrams.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/diff.mjs" = [
+"renderers/archify/supply/explainer/diff.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/diff.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/inline.mjs" = [
+"renderers/archify/supply/explainer/inline.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/inline.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/layout.mjs" = [
+"renderers/archify/supply/explainer/layout.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/layout.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/page-bundle.mjs" = [
+"renderers/archify/supply/explainer/page-bundle.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/page-bundle.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/parse.mjs" = [
+"renderers/archify/supply/explainer/parse.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/parse.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/patch.mjs" = [
+"renderers/archify/supply/explainer/patch.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/patch.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/prepare.mjs" = [
+"renderers/archify/supply/explainer/prepare.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/prepare.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/reader.css" = [
+"renderers/archify/supply/explainer/reader.css" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/reader.css",
 ]
-"packages/publisher/renderers/archify/supply/explainer/reader.js" = [
+"renderers/archify/supply/explainer/reader.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/reader.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/render.mjs" = [
+"renderers/archify/supply/explainer/render.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/render.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/revision.mjs" = [
+"renderers/archify/supply/explainer/revision.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/revision.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/sources.mjs" = [
+"renderers/archify/supply/explainer/sources.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/sources.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/validate.mjs" = [
+"renderers/archify/supply/explainer/validate.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/validate.mjs",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/LICENSE" = [
+"renderers/archify/supply/explainer/vendor/pele/LICENSE" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/LICENSE",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/README.md" = [
+"renderers/archify/supply/explainer/vendor/pele/README.md" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/README.md",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/3DKXF73K.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/3DKXF73K.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/3DKXF73K.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/42UTT654.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/42UTT654.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/42UTT654.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/DKTLEL5E.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/DKTLEL5E.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/DKTLEL5E.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/EEIX5ZYH.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/EEIX5ZYH.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/EEIX5ZYH.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/EJ5KOXYD.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/EJ5KOXYD.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/EJ5KOXYD.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/GUJTEFZK.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/GUJTEFZK.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/GUJTEFZK.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/IZOKQ2GT.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/IZOKQ2GT.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/IZOKQ2GT.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/L4LY553T.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/L4LY553T.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/L4LY553T.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/MSKIJHB2.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/MSKIJHB2.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/MSKIJHB2.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/RVARI57O.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/RVARI57O.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/RVARI57O.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/UKSIWDDN.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/UKSIWDDN.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/UKSIWDDN.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/UPTXNAXN.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/UPTXNAXN.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/UPTXNAXN.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/XTDUIGUI.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/XTDUIGUI.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/XTDUIGUI.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/chunks/YAYTP6L5.js" = [
+"renderers/archify/supply/explainer/vendor/pele/chunks/YAYTP6L5.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/chunks/YAYTP6L5.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/core.js" = [
+"renderers/archify/supply/explainer/vendor/pele/core.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/core.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/pie.js" = [
+"renderers/archify/supply/explainer/vendor/pele/diagrams/pie.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/diagrams/pie.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/quadrantChart.js" = [
+"renderers/archify/supply/explainer/vendor/pele/diagrams/quadrantChart.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/diagrams/quadrantChart.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/radar.js" = [
+"renderers/archify/supply/explainer/vendor/pele/diagrams/radar.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/diagrams/radar.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/sankey.js" = [
+"renderers/archify/supply/explainer/vendor/pele/diagrams/sankey.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/diagrams/sankey.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/venn.js" = [
+"renderers/archify/supply/explainer/vendor/pele/diagrams/venn.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/diagrams/venn.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/vendor/pele/diagrams/xychart.js" = [
+"renderers/archify/supply/explainer/vendor/pele/diagrams/xychart.js" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/vendor/pele/diagrams/xychart.js",
 ]
-"packages/publisher/renderers/archify/supply/explainer/writing.mjs" = [
+"renderers/archify/supply/explainer/writing.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/explainer/writing.mjs",
 ]
-"packages/publisher/renderers/archify/supply/locales/en.json" = [
+"renderers/archify/supply/locales/en.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/locales/en.json",
 ]
-"packages/publisher/renderers/archify/supply/locales/es.json" = [
+"renderers/archify/supply/locales/es.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/locales/es.json",
 ]
-"packages/publisher/renderers/archify/supply/locales/ko.json" = [
+"renderers/archify/supply/locales/ko.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/locales/ko.json",
 ]
-"packages/publisher/renderers/archify/supply/locales/manifest.json" = [
+"renderers/archify/supply/locales/manifest.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/locales/manifest.json",
 ]
-"packages/publisher/renderers/archify/supply/locales/zh-CN.json" = [
+"renderers/archify/supply/locales/zh-CN.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/locales/zh-CN.json",
 ]
-"packages/publisher/renderers/archify/supply/locales/zh-TW.json" = [
+"renderers/archify/supply/locales/zh-TW.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/locales/zh-TW.json",
 ]
-"packages/publisher/renderers/archify/supply/migrations/workflow-v2.mjs" = [
+"renderers/archify/supply/migrations/workflow-v2.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/migrations/workflow-v2.mjs",
 ]
-"packages/publisher/renderers/archify/supply/package.json" = [
+"renderers/archify/supply/package.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/package.json",
 ]
-"packages/publisher/renderers/archify/supply/renderers/architecture/grid.mjs" = [
+"renderers/archify/supply/renderers/architecture/grid.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/architecture/grid.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/architecture/labels.mjs" = [
+"renderers/archify/supply/renderers/architecture/labels.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/architecture/labels.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/architecture/render-architecture.mjs" = [
+"renderers/archify/supply/renderers/architecture/render-architecture.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/architecture/render-architecture.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/architecture/routing.mjs" = [
+"renderers/archify/supply/renderers/architecture/routing.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/architecture/routing.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/class/render-class.mjs" = [
+"renderers/archify/supply/renderers/class/render-class.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/class/render-class.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/dataflow/dataflow-compiler.mjs" = [
+"renderers/archify/supply/renderers/dataflow/dataflow-compiler.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/dataflow/dataflow-compiler.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/dataflow/joint-label-routing.mjs" = [
+"renderers/archify/supply/renderers/dataflow/joint-label-routing.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/dataflow/joint-label-routing.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/dataflow/label-capacity.mjs" = [
+"renderers/archify/supply/renderers/dataflow/label-capacity.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/dataflow/label-capacity.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/dataflow/render-dataflow.mjs" = [
+"renderers/archify/supply/renderers/dataflow/render-dataflow.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/dataflow/render-dataflow.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/erd/grid.mjs" = [
+"renderers/archify/supply/renderers/erd/grid.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/erd/grid.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/erd/render-erd.mjs" = [
+"renderers/archify/supply/renderers/erd/render-erd.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/erd/render-erd.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/explainer/render-explainer.mjs" = [
+"renderers/archify/supply/renderers/explainer/render-explainer.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/explainer/render-explainer.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/lifecycle/render-lifecycle.mjs" = [
+"renderers/archify/supply/renderers/lifecycle/render-lifecycle.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/lifecycle/render-lifecycle.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/sequence/render-sequence.mjs" = [
+"renderers/archify/supply/renderers/sequence/render-sequence.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/sequence/render-sequence.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/atomic-output.mjs" = [
+"renderers/archify/supply/renderers/shared/atomic-output.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/atomic-output.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/automatic-labels.mjs" = [
+"renderers/archify/supply/renderers/shared/automatic-labels.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/automatic-labels.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/brand-marks.mjs" = [
+"renderers/archify/supply/renderers/shared/brand-marks.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/brand-marks.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/cli.mjs" = [
+"renderers/archify/supply/renderers/shared/cli.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/cli.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/desktop-readability.mjs" = [
+"renderers/archify/supply/renderers/shared/desktop-readability.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/desktop-readability.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/diagnostics.mjs" = [
+"renderers/archify/supply/renderers/shared/diagnostics.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/diagnostics.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/engineering-profiles.mjs" = [
+"renderers/archify/supply/renderers/shared/engineering-profiles.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/engineering-profiles.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/generated-brand-marks.mjs" = [
+"renderers/archify/supply/renderers/shared/generated-brand-marks.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/generated-brand-marks.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/generated-validators.mjs" = [
+"renderers/archify/supply/renderers/shared/generated-validators.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/generated-validators.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/geometry.mjs" = [
+"renderers/archify/supply/renderers/shared/geometry.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/geometry.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/i18n.mjs" = [
+"renderers/archify/supply/renderers/shared/i18n.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/i18n.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/layout-report.mjs" = [
+"renderers/archify/supply/renderers/shared/layout-report.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/layout-report.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/legend.mjs" = [
+"renderers/archify/supply/renderers/shared/legend.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/legend.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/node-card-style.mjs" = [
+"renderers/archify/supply/renderers/shared/node-card-style.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/node-card-style.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/output-path.mjs" = [
+"renderers/archify/supply/renderers/shared/output-path.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/output-path.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/owned-temp-directory.mjs" = [
+"renderers/archify/supply/renderers/shared/owned-temp-directory.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/owned-temp-directory.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/path-semantics.mjs" = [
+"renderers/archify/supply/renderers/shared/path-semantics.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/path-semantics.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/portable-path.mjs" = [
+"renderers/archify/supply/renderers/shared/portable-path.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/portable-path.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/repository-evidence.mjs" = [
+"renderers/archify/supply/renderers/shared/repository-evidence.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/repository-evidence.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/repository-location.mjs" = [
+"renderers/archify/supply/renderers/shared/repository-location.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/repository-location.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/route-quality.mjs" = [
+"renderers/archify/supply/renderers/shared/route-quality.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/route-quality.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/sidecar-path.mjs" = [
+"renderers/archify/supply/renderers/shared/sidecar-path.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/sidecar-path.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/spatial-grid.mjs" = [
+"renderers/archify/supply/renderers/shared/spatial-grid.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/spatial-grid.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/svg-path-analysis.mjs" = [
+"renderers/archify/supply/renderers/shared/svg-path-analysis.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/svg-path-analysis.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/text-fit.mjs" = [
+"renderers/archify/supply/renderers/shared/text-fit.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/text-fit.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/utils.mjs" = [
+"renderers/archify/supply/renderers/shared/utils.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/utils.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/shared/validator.mjs" = [
+"renderers/archify/supply/renderers/shared/validator.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/shared/validator.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/timeline/render-timeline.mjs" = [
+"renderers/archify/supply/renderers/timeline/render-timeline.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/timeline/render-timeline.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/tree/render-tree.mjs" = [
+"renderers/archify/supply/renderers/tree/render-tree.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/tree/render-tree.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/waterfall/render-waterfall.mjs" = [
+"renderers/archify/supply/renderers/waterfall/render-waterfall.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/waterfall/render-waterfall.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/workflow/render-workflow.mjs" = [
+"renderers/archify/supply/renderers/workflow/render-workflow.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/workflow/render-workflow.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/workflow/workflow-compiler.mjs" = [
+"renderers/archify/supply/renderers/workflow/workflow-compiler.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/workflow/workflow-compiler.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/workflow/workflow-migration-geometry.mjs" = [
+"renderers/archify/supply/renderers/workflow/workflow-migration-geometry.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/workflow/workflow-migration-geometry.mjs",
 ]
-"packages/publisher/renderers/archify/supply/renderers/workflow/workflow-placement-repair.mjs" = [
+"renderers/archify/supply/renderers/workflow/workflow-placement-repair.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/renderers/workflow/workflow-placement-repair.mjs",
 ]
-"packages/publisher/renderers/archify/supply/schemas/architecture.schema.json" = [
+"renderers/archify/supply/schemas/architecture.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/architecture.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/class.schema.json" = [
+"renderers/archify/supply/schemas/class.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/class.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/common.schema.json" = [
+"renderers/archify/supply/schemas/common.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/common.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/dataflow.schema.json" = [
+"renderers/archify/supply/schemas/dataflow.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/dataflow.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/erd.schema.json" = [
+"renderers/archify/supply/schemas/erd.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/erd.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/explainer.schema.json" = [
+"renderers/archify/supply/schemas/explainer.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/explainer.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/lifecycle.schema.json" = [
+"renderers/archify/supply/schemas/lifecycle.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/lifecycle.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/sequence.schema.json" = [
+"renderers/archify/supply/schemas/sequence.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/sequence.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/timeline.schema.json" = [
+"renderers/archify/supply/schemas/timeline.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/timeline.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/tree.schema.json" = [
+"renderers/archify/supply/schemas/tree.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/tree.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/waterfall.schema.json" = [
+"renderers/archify/supply/schemas/waterfall.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/waterfall.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/schemas/workflow.schema.json" = [
+"renderers/archify/supply/schemas/workflow.schema.json" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/schemas/workflow.schema.json",
 ]
-"packages/publisher/renderers/archify/supply/scripts/check-render-output.mjs" = [
+"renderers/archify/supply/scripts/check-render-output.mjs" = [
   "tools/supply/archives/archify-3.2.0.zip#sha256:70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
   "archify/scripts/check-render-output.mjs",
 ]

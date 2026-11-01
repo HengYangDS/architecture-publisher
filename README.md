@@ -22,10 +22,9 @@ Archify, without writing a delivery. `build` writes the delivery. A person
 accepts it, and only an accepted delivery is published, under
 `<publication-root>/<model id>/<version>/` in any directory you choose.
 
-A minimal model looks like the one below. Three components cannot fill a 16:9
-page, so its poster is printed as a sparse page and the manifest records the
-balance gates it misses; [`editions/self/model.json`](editions/self/model.json)
-is a complete model whose pages are balanced:
+A minimal model looks like the one below; the [examples](examples/) hold larger
+ones. Three components cannot fill a 16:9 page, so its poster is printed as a
+sparse page and the manifest records the balance gates it misses:
 
 ```json
 {
@@ -84,20 +83,37 @@ it partly blank is printed as sparse; any other page that misses a balance
 gate is refused, unless `--quality standard` asks for drafts that record what
 they miss.
 
+## Commands
+
+```sh
+archpub check model.json [--repo <checkout>]
+archpub build model.json --out <new-directory> [--repo <checkout>]
+  [--media posters,page] [--png 2400,6000] [--quality showcase|standard]
+archpub import likec4 <workspace> --out model.json --id <id> [--locale <tag>]
+archpub accept <delivery> --reviewer <name>
+archpub publish <delivery> --to <root>
+archpub --help | --version
+```
+
+Every command accepts `--json` and exits with 0 on success, 1 on a refused
+input, 2 on a usage error and 3 on any other failure. The
+[operations reference](docs/reference/operations.md) describes each command,
+the build and every refusal.
+
 ## Install
 
-The product is the `architecture-publisher` package in `packages/publisher`.
+This repository is the `architecture-publisher` package.
 It needs Node.js 22.13 or later and has no runtime npm dependencies. From a
 checkout, `mise run bootstrap` installs the locked inputs and prepares the
 bundled raster renderer and LikeC4 parser; then pack and install the package:
 
 ```sh
 mise run bootstrap
-npm pack --ignore-scripts --workspace architecture-publisher --pack-destination build/artifacts
+npm pack --ignore-scripts --pack-destination build/artifacts
 npm install --global --ignore-scripts build/artifacts/architecture-publisher-<version>.tgz
 ```
 
-In the checkout itself, `node packages/publisher/src/cli/main.mjs` runs the same
+In the checkout itself, `node src/cli/main.mjs` runs the same
 command.
 
 ## Documentation
@@ -106,7 +122,8 @@ command.
 - [Model reference](docs/reference/model.md): the Architecture Model format.
 - [Operations reference](docs/reference/operations.md): commands, layout, the delivery and refusals.
 - [Development and verification](docs/reference/development.md): toolchain, checks and supply.
-- [Self edition](editions/self/README.md): this repository described by its own model.
+- Examples: the [Big Bank model](examples/big-bank/README.md) and the
+  [LikeC4 shop workspace](examples/likec4-shop/README.md) to start from.
 
 ## Development
 

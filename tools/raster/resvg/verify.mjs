@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "../../..");
-const manifestPath = path.join(root, "packages/publisher/renderers/resvg/supply/resvg/source.json");
+const manifestPath = path.join(root, "renderers/resvg/supply/resvg/source.json");
 const modes = ["--archive", "--inputs", "--outputs", "--registry-url", "--stage"];
 
 async function check(file, selected, message) {

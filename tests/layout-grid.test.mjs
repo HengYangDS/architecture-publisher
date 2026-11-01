@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { layoutView } from "../packages/publisher/src/layout/grid.mjs";
-import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
+import { layoutView } from "../src/layout/grid.mjs";
+import { loadModel, validateModel } from "../src/model/load.mjs";
 import { simpleMetrics, wholeView } from "./fixtures/layout.mjs";
 import { BIG_BANK_MODEL, graphModel } from "./fixtures/models.mjs";
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { measureLayout } from "../packages/publisher/src/layout/measure.mjs";
+import { measureLayout } from "../src/layout/measure.mjs";
 
 const relation = (id) => [{ id }];
 const path = (id, ...points) => ({ relations: relation(id), points });

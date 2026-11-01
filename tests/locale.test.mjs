@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { importLikeC4 } from "../packages/publisher/src/importers/likec4.mjs";
-import { presentation } from "../packages/publisher/src/kinds.mjs";
+import { importLikeC4 } from "../src/importers/likec4.mjs";
+import { presentation } from "../src/kinds.mjs";
 import {
   DEFAULT_LOCALE,
   LOCALES,
@@ -12,30 +12,25 @@ import {
   sentence,
   sentences,
   wordsOf,
-} from "../packages/publisher/src/locale.mjs";
-import { diagramCandidates } from "../packages/publisher/src/map/archify.mjs";
-import { explainerDraft } from "../packages/publisher/src/map/explainer.mjs";
-import { validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { notesOf } from "../packages/publisher/src/poster/blocks.mjs";
+} from "../src/locale.mjs";
+import { diagramCandidates } from "../src/map/archify.mjs";
+import { explainerDraft } from "../src/map/explainer.mjs";
+import { validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
+import { notesOf } from "../src/poster/blocks.mjs";
 import { graphModel, minimalModel } from "./fixtures/models.mjs";
 
 const fits = async () => ({ fits: true, width: 2400, height: 1350 });
 const readJson = async (url) => JSON.parse(await fs.readFile(url, "utf8"));
-const SHOP = fileURLToPath(new URL("./fixtures/likec4/shop/", import.meta.url));
+const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
 
 test("every language a model may name is one Archify speaks, and the schema lists the same", async () => {
   const catalogs = await readJson(
-    new URL(
-      "../packages/publisher/renderers/archify/supply/locales/manifest.json",
-      import.meta.url,
-    ),
+    new URL("../renderers/archify/supply/locales/manifest.json", import.meta.url),
   );
   const spoken = new Set(catalogs.catalogs.map(({ locale }) => locale));
   for (const locale of LOCALES) assert.ok(spoken.has(locale), locale);
-  const schema = await readJson(
-    new URL("../packages/publisher/src/model/schema.json", import.meta.url),
-  );
+  const schema = await readJson(new URL("../src/model/schema.json", import.meta.url));
   assert.deepEqual(schema.properties.locale.enum, LOCALES);
   assert.equal(DEFAULT_LOCALE, LOCALES[0]);
 });

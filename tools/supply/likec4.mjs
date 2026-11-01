@@ -112,7 +112,7 @@ async function main() {
   if (!["--write", "--check"].includes(mode) || process.argv.length !== 3)
     throw Error("usage: likec4.mjs --write|--check");
   const files = await supplyFiles();
-  const destination = path.join(root, "packages/publisher/supplies/likec4");
+  const destination = path.join(root, "supplies/likec4");
   if (mode === "--write") {
     await fs.mkdir(destination, { recursive: true });
     await noSymlinkAncestors(destination);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { diagramCandidates } from "../packages/publisher/src/map/archify.mjs";
+import { diagramCandidates } from "../src/map/archify.mjs";
 import {
   besideSteps,
   chooseDiagram,
@@ -8,10 +8,10 @@ import {
   pinSets,
   routeLayout,
   routeMetrics,
-} from "../packages/publisher/src/map/choice.mjs";
-import { clearLabels, routeDefects } from "../packages/publisher/src/map/routes.mjs";
-import { loadModel, validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
+} from "../src/map/choice.mjs";
+import { clearLabels, routeDefects } from "../src/map/routes.mjs";
+import { loadModel, validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
 import {
   AIGW_MODEL,
   BIG_BANK_MODEL,

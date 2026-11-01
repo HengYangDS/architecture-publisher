@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
-import { buildDelivery } from "../../../../packages/publisher/src/build.mjs";
+import { buildDelivery } from "../../../../src/build.mjs";
 import { AIGW_MODEL } from "../../../fixtures/models.mjs";
 
 const root = path.resolve(import.meta.dirname, "../../../..");
@@ -17,9 +17,7 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
   assert(archive && path.isAbsolute(archive), "select an absolute frozen source archive");
   assert(bindgen && path.isAbsolute(bindgen), "select an absolute matching wasm-bindgen");
   const manifest = JSON.parse(
-    await fs.readFile(
-      path.join(root, "packages/publisher/renderers/resvg/supply/resvg/source.json"),
-    ),
+    await fs.readFile(path.join(root, "renderers/resvg/supply/resvg/source.json")),
   );
   const base = path.join(root, "build/test-work");
   await fs.mkdir(base, { recursive: true });
@@ -131,7 +129,7 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
   assert.equal(builds[0].inputsSha256, builds[1].inputsSha256);
   assert.deepEqual(builds[0].outputs, builds[1].outputs, "independent relocated outputs agree");
   invoke(process.execPath, [verifier, "--archive", archive]);
-  const canonical = path.join(root, "packages/publisher/renderers/resvg/supply/resvg");
+  const canonical = path.join(root, "renderers/resvg/supply/resvg");
   const modules = [];
   for (const directory of [canonical, ...builds.map((build) => build.output)]) {
     const binding = path.join(directory, "index.mjs");
@@ -149,7 +147,7 @@ test("native Cargo and wasm-bindgen reproduce the admitted raster witness", asyn
       },
     });
   }
-  const fontRoot = path.join(root, "packages/publisher/renderers/fonts/supply");
+  const fontRoot = path.join(root, "renderers/fonts/supply");
   const fonts = JSON.parse(await fs.readFile(path.join(fontRoot, "supply.json")));
   const selectedFonts = [];
   for (const font of fonts.files.filter((font) => font.weight)) {

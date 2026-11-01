@@ -26,7 +26,7 @@ export async function installPublisher(root, directory) {
   const packed = run(
     "npm",
     ["pack", "--json", "--ignore-scripts", "--pack-destination", directory],
-    path.join(root, "packages/publisher"),
+    root,
     cache,
   );
   const record = parseNpmPackRecord(packed.stdout);

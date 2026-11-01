@@ -1,4 +1,4 @@
-import { POSTER } from "../../packages/publisher/src/poster/tokens.mjs";
+import { POSTER } from "../../src/poster/tokens.mjs";
 
 const OUTSIDE = new Set(["person", "external"]);
 

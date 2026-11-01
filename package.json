@@ -1,10 +1,20 @@
 {
-  "name": "architecture-publisher-workspace",
-  "private": true,
-  "description": "Architecture Publisher product and first-party conformance workspace",
+  "name": "architecture-publisher",
+  "version": "0.7.0",
+  "description": "Publish a repository's architecture model as posters and an interactive page",
+  "license": "MIT",
   "type": "module",
-  "workspaces": [
-    "packages/publisher"
+  "bin": {
+    "archpub": "src/cli/main.mjs"
+  },
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/",
+    "renderers/",
+    "supplies/",
+    "README.md"
   ],
   "scripts": {
     "generate": "node tools/raster/resvg/verify.mjs --stage && node tools/supply/likec4.mjs --write",
@@ -16,15 +26,14 @@
     "check:lint": "eslint --config .config/checks/eslint/eslint.config.mjs . --max-warnings 0",
     "check:types": "tsc --project .config/checks/typescript/tsconfig.json --noEmit",
     "check:imports": "node --test tests/module-boundaries.test.mjs",
-    "check:dead-code": "knip --config .config/checks/knip/knip.toml && knip --config .config/checks/knip/knip.toml --production --strict --workspace \"!.\" --include files,unlisted,unresolved,cycles,exports,nsExports",
+    "check:dead-code": "knip --config .config/checks/knip/knip.toml && knip --config .config/checks/knip/knip.toml --production --strict --include files,unlisted,unresolved,cycles,exports,nsExports",
     "check:docs": "markdownlint-cli2 --config .config/checks/markdownlint-cli2/.markdownlint-cli2.yaml",
     "check:spec": "openspec validate --all --strict --no-interactive",
     "test:coverage": "c8 --config .config/checks/c8/.c8rc.json npm test",
-    "check:package": "publint packages/publisher --pack false",
+    "check:package": "publint --pack false",
     "check:ci": "node tools/ci/projection.mjs --check",
     "format": "prettier --config .config/checks/prettier/prettier.toml --ignore-path .gitignore --ignore-path .config/checks/prettier/prettierignore --write . && taplo format --config .config/checks/taplo/taplo.toml"
   },
-  "license": "MIT",
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@fission-ai/openspec": "1.16.0",
@@ -71,6 +80,6 @@
     }
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13"
   }
 }

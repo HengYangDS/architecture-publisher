@@ -71,7 +71,7 @@ has completed bootstrap.
 The installed raster renderer uses packaged Wasm; ordinary users need neither
 Rust nor a platform shell. Source rebuilding uses native archive extraction,
 Cargo and `wasm-bindgen`, with the exact toolchain and digests selected
-by `packages/publisher/renderers/resvg/supply/resvg/source.json`.
+by `renderers/resvg/supply/resvg/source.json`.
 
 In a caller-owned disposable directory:
 
@@ -132,7 +132,7 @@ passes its exact carrier. See [configuration ownership](configuration.md).
 
 ## Tests and coverage
 
-The coverage gate selects every `.mjs` module under `packages/publisher/src/`
+The coverage gate selects every `.mjs` module under `src/`
 and requires 95 percent of statements, lines, branches and functions. The suite
 covers the model, source binding, reading plan, layout, posters, the page's
 diagrams and its delivery through the vendored Archify, deliveries, acceptance,

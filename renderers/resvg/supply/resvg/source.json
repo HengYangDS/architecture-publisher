@@ -111,13 +111,13 @@
   },
   "outputs": [
     {
-      "path": "packages/publisher/renderers/resvg/supply/resvg/index.mjs",
+      "path": "renderers/resvg/supply/resvg/index.mjs",
       "bytes": 4582,
       "sha256": "9365b4375f8803f481ff2d41040679cdeedae07c278402fad46655bd361b2ef7",
       "nativeFile": "index_bg.js"
     },
     {
-      "path": "packages/publisher/renderers/resvg/supply/resvg/index_bg.wasm",
+      "path": "renderers/resvg/supply/resvg/index_bg.wasm",
       "bytes": 3371673,
       "sha256": "bd291706e19e58f58eda43f67e64512b44693f18896d479e2dc1dad274f9080b",
       "nativeFile": "index_bg.wasm"

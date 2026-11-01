@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ROW_LIMIT, viewRows } from "../packages/publisher/src/layout/rows.mjs";
-import { validateModel } from "../packages/publisher/src/model/load.mjs";
-import { planViews } from "../packages/publisher/src/plan/views.mjs";
-import { refuse } from "../packages/publisher/src/refusal.mjs";
+import { ROW_LIMIT, viewRows } from "../src/layout/rows.mjs";
+import { validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
+import { refuse } from "../src/refusal.mjs";
 import { graphModel, minimalModel } from "./fixtures/models.mjs";
 
 const fits = async () => ({ fits: true, width: 1800, height: 1000 });

@@ -64,7 +64,7 @@ const manifest = Buffer.from(
     2,
   ) + "\n",
 );
-const target = path.join(root, "packages/publisher/renderers/icons/supply");
+const target = path.join(root, "renderers/icons/supply");
 for (const [name, bytes] of [...files, ["supply.json", manifest]]) {
   if (mode === "--write") {
     await fs.mkdir(path.dirname(path.join(target, name)), { recursive: true });

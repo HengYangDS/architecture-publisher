@@ -8,7 +8,7 @@ const mode = process.argv[2];
 if (process.argv.length !== 3 || !["--check", "--write"].includes(mode))
   throw Error("raster_supply_mode_required");
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const supply = path.join(root, "packages/publisher/renderers/resvg/supply");
+const supply = path.join(root, "renderers/resvg/supply");
 const manifestPath = path.join(supply, "supply.json");
 const source = JSON.parse(await fs.readFile(path.join(supply, "resvg/source.json"), "utf8"));
 const noticesPath = path.join(supply, "resvg/THIRD-PARTY-NOTICES.txt");
@@ -64,9 +64,7 @@ for (const name of await fs.readdir(supply, { recursive: true })) {
 }
 if (selected.size) throw Error("raster_supply_inventory_invalid");
 for (const output of source.outputs) {
-  const member = files.find(
-    (file) => output.path === "packages/publisher/renderers/resvg/supply/" + file.path,
-  );
+  const member = files.find((file) => output.path === "renderers/resvg/supply/" + file.path);
   if (!member || member.bytes !== output.bytes || member.sha256 !== output.sha256)
     throw Error("raster_supply_output_drift");
 }

@@ -15,7 +15,7 @@ const owned = [
   ".config/checks/prettier/prettier.toml",
   ".gitlab-ci.yml",
   "tools/ci/projection.mjs",
-  "packages/publisher/renderers/resvg/supply/resvg/source.json",
+  "renderers/resvg/supply/resvg/source.json",
 ];
 
 const projections = [".gitlab-ci.yml", ".github/workflows/verify.yml"];

@@ -4,22 +4,17 @@ ignoreBinaries = ["cue", "mise", "taplo"]
 # Vendored or bundled by the supply tools, not imported by maintained modules.
 ignoreDependencies = ["sax", "opentype.js", "@likec4/language-services", "bundle-require"]
 
+entry = [
+  "src/importers/likec4-worker.mjs",
+  "tests/conformance/journeys/raster/rebuild.test.mjs",
+  "tools/raster/resvg/verify.mjs",
+  "tests/*.test.mjs",
+]
+project = ["src/**/*.mjs", "tools/**/*.mjs", "tests/**/*.mjs"]
+includeEntryExports = true
+
 [typescript]
 config = ".config/checks/typescript/tsconfig.json"
 
 [markdownlint]
 config = ".config/checks/markdownlint-cli2/.markdownlint-cli2.yaml"
-
-[workspaces."."]
-entry = [
-  "tests/conformance/journeys/raster/rebuild.test.mjs",
-  "tools/raster/resvg/verify.mjs",
-  "tests/*.test.mjs",
-]
-project = ["tools/**/*.mjs", "tests/**/*.mjs"]
-includeEntryExports = true
-
-[workspaces."packages/publisher"]
-entry = ["src/importers/likec4-worker.mjs"]
-project = ["src/**/*.mjs"]
-includeEntryExports = false

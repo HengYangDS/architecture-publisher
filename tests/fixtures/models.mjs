@@ -5,7 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const MODELS = fileURLToPath(new URL("./models/", import.meta.url));
 export const AIGW_MODEL = path.join(MODELS, "aigw.json");
-export const BIG_BANK_MODEL = path.join(MODELS, "big-bank.json");
+/** The Big Bank sample that the documentation offers readers. */
+export const BIG_BANK_MODEL = fileURLToPath(
+  new URL("../../examples/big-bank/model.json", import.meta.url),
+);
 /** Models of two repositories unrelated to this one, authored outside them. */
 export const BROWSER_USE_MODEL = path.join(MODELS, "browser-use.json");
 export const CONTEXT_MODE_MODEL = path.join(MODELS, "context-mode.json");
@@ -14,8 +17,8 @@ export const CONTEXT_MODE_MODEL = path.join(MODELS, "context-mode.json");
  * its proof plane wires cleanly only on a page of its own.
  */
 export const ETHOS_MODEL = path.join(MODELS, "ethos.json");
-/** This repository described by its own model. */
-export const SELF_MODEL = fileURLToPath(new URL("../../editions/self/model.json", import.meta.url));
+/** This repository's former self model, now the architecture-publisher work of architecture-publications. */
+export const SELF_MODEL = path.join(MODELS, "architecture-publisher.json");
 
 /** A minimal valid model; `extra` replaces or adds top-level fields. */
 export function minimalModel(extra = {}) {

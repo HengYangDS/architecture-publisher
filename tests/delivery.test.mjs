@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { buildDelivery, checkModel, digestTree } from "../packages/publisher/src/build.mjs";
-import { acceptDelivery, publishDelivery } from "../packages/publisher/src/delivery.mjs";
+import { buildDelivery, checkModel, digestTree } from "../src/build.mjs";
+import { acceptDelivery, publishDelivery } from "../src/delivery.mjs";
 import {
   BIG_BANK_MODEL,
   minimalModel,

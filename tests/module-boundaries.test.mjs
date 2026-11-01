@@ -4,7 +4,7 @@ import path from "node:path";
 import test from "node:test";
 
 const root = path.resolve(import.meta.dirname, "..");
-const source = path.join(root, "packages/publisher/src");
+const source = path.join(root, "src");
 
 /** Each unit of the publisher and the units it may import: language, input, plan, layout, media, delivery, command line. */
 const ALLOWED = Object.freeze({
@@ -110,7 +110,7 @@ test("repository tools stay independent of the product source", async () => {
   for (const file of await modules(path.join(root, "tools"))) {
     const text = await fs.readFile(file, "utf8");
     assert.ok(
-      !specifiers(text).some((specifier) => specifier.includes("packages/publisher/src")),
+      !specifiers(text).some((specifier) => specifier.includes("src")),
       path.relative(root, file),
     );
   }
