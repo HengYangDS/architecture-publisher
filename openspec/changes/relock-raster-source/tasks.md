@@ -5,10 +5,10 @@
 
 ## 2. Renderer
 
-- [x] 2.1 Build the canonical pair from the closure twice on macOS ARM64, hold it in custody and bind the source manifest, the supply and the notices; verify the archive, the inputs, the outputs and the macOS witness. Both relocated builds give the unchanged glue and wasm `bcc9648bb148`, 3,372,078 bytes, held in custody `0bba170`; the archive, the inputs, the outputs and the macOS witness verify.
+- [x] 2.1 Build the canonical pair from the closure twice on macOS ARM64, hold it in custody and bind the source manifest, the supply and the notices; verify the archive, the inputs, the outputs and the macOS witness. Both relocated builds give the unchanged glue and Wasm `bcc9648bb148`, 3,372,078 bytes, held in custody `0bba170`; the archive, the inputs, the outputs and the macOS witness verify.
 - [ ] 2.2 Admit the Linux and Windows ARM64 witnesses the proposal's CI reports; verify both Forges report the same bytes for each host.
 
 ## 3. Verification
 
-- [ ] 3.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 3.2 Build the corpus models; verify every poster and page is byte-identical to the published 0.7.0 deliveries.
+- [x] 3.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `98ce943` with 99.58% statements, 95.79% branches, 99.81% functions and 99.58% lines.
+- [x] 3.2 Build the corpus models; verify every poster and page is byte-identical to the published 0.7.0 deliveries. At `98ce943` every poster and page of the three works is byte-identical; each manifest differs only in the Raster supply digest.
