@@ -27,7 +27,7 @@ async function licenseText(packagePath, manifest) {
   const notices = entries
     .filter(({ name }) => /^(?:licen[cs]e|copying|notice)(?:[._-]|$)/iu.test(name))
     .sort((left, right) => compare(left.name, right.name));
-  if (!notices.length && manifest.name === "remeda" && manifest.version === "2.51.0") {
+  if (!notices.length && manifest.name === "remeda" && manifest.version === "2.58.0") {
     const bytes = await fs.readFile(new URL("./licenses/remeda-LICENSE", import.meta.url));
     if (sha(bytes) !== remedaLicenseSha256) throw Error("likec4_supply_license_drift");
     return bytes.toString("utf8");

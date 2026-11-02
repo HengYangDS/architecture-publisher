@@ -117,7 +117,7 @@ peers: gitlab: {
 		]
 	}
 	"image": {
-		"name": "hengyang2003/architecture-publisher-ci@sha256:d9a2c26c3e30a5966695a1acfd83cb9056747f3d89e739481b27b4819fa3a1c4"
+		"name": "hengyang2003/architecture-publisher-ci@sha256:2c7fb34278a83a3f8749776adad540588068c24a6119760d2635eb9a96d619a6"
 	}
 	"variables": {
 		"GIT_DEPTH":       "0"

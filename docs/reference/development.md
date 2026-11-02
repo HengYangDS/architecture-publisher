@@ -39,10 +39,9 @@ and `node tools/supply/resvg.mjs --check`. Archify's complete release archive
 is retained under `tools/supply/archives/`, and the fonts, the overview's house
 faces and the icons carry their licenses and digests in their `supply.json`.
 
-The LikeC4 parser supply is rebuilt from the npm lockfile. Chevrotain 11.0.3
-declares an older `lodash-es` exactly, so the workspace uses one npm
-`overrides` entry to select patched `lodash-es` 4.18.1 until upstream removes
-that constraint.
+The LikeC4 parser supply is rebuilt from the npm lockfile. npm `overrides`
+hold glob, KaTeX, minimatch and Markdownlint's `re2js` past their advisories;
+an override stays only while `npm audit` reports an advisory without it.
 
 On 2026-10-25 the lock audit reported six affected development-package entries,
 one high, one moderate and four low, from four distinct advisories in npm's

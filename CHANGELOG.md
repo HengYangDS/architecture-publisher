@@ -27,6 +27,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 - A page of more than four views lists no panels beside its conclusion, whose reasons Archify caps at four; its panels
   stay numbered in the plan's order.
+- The development and CI supply moves to the latest stable releases: `globals` 17.14.0, re2js 2.9.1 and minimatch 11.0.4
+  through their overrides, and 31 locked packages to the newest releases their ranges allow. The lodash-es override,
+  which no longer changed the lock, is retired. The LikeC4 parser supply is rebuilt from the refreshed lock. The Linux
+  CI image is rebuilt on the re-published Playwright 1.64.1 image. `npm audit` reports no advisory, and the published
+  package declares no dependency.
 
 ### Fixed
 

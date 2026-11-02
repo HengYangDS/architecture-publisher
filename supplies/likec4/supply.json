@@ -127,25 +127,25 @@
     {
       "lockPath": "node_modules/@ts-graphviz/ast",
       "name": "@ts-graphviz/ast",
-      "version": "3.0.6",
+      "version": "3.0.10",
       "license": "MIT",
-      "integrity": "sha512-9QOBQFanq0n7Ju9opTURHSvqXOqzHkplls3kkD6veWXNuJwaH8lzZUIEksU4i2gjAjRi+RafQWSWATZDKCCt8g==",
+      "integrity": "sha512-LZZLbMWGYQvjgxXFjXmwTAPoFF5KZJ6p36iTyCob483XQApLWpYvvwSH0cYXOvjtWbWV+iifyhlZoCG160k4nQ==",
       "noticeSha256": "7acb9604ac5f92ad223d0d4173e7835e6dc0a79026d474d5bc324dd8f6eb6dae"
     },
     {
       "lockPath": "node_modules/@ts-graphviz/common",
       "name": "@ts-graphviz/common",
-      "version": "3.0.5",
+      "version": "3.0.6",
       "license": "MIT",
-      "integrity": "sha512-CS7RMw2ywu0kqb05xD2n9dJMSEVae2MJagHkHh6u915UgW5ijDVhitNVwoVV6dKVeyf02ATm+autLKPwrNa86w==",
+      "integrity": "sha512-ZI4kAij1SjSRNPkO5TVYMDVucZs0jywjqL9EN2NMQJ/mWR5YsCxKxaJ6nOKWl4O727/YOW5cwTjQ1V9VfQ0GMw==",
       "noticeSha256": "7acb9604ac5f92ad223d0d4173e7835e6dc0a79026d474d5bc324dd8f6eb6dae"
     },
     {
       "lockPath": "node_modules/@ts-graphviz/core",
       "name": "@ts-graphviz/core",
-      "version": "3.0.7",
+      "version": "3.0.11",
       "license": "MIT",
-      "integrity": "sha512-Oyz9raPOihgC0CxOIJVE6iXy4AOd2X4N5DsxaRQeENhtgMBuyZMg+vSaR5q37vriWDgJeITkXeTJBrbSDddpQQ==",
+      "integrity": "sha512-3ielOeC0qs4EE8VRfjygwNJgW/0upCdHLbZ4ORYPr5ibPc1QppyVfK2rewqe+6tNmK4PJz+NzF+mroMQ9vOCAw==",
       "noticeSha256": "7acb9604ac5f92ad223d0d4173e7835e6dc0a79026d474d5bc324dd8f6eb6dae"
     },
     {
@@ -223,9 +223,9 @@
     {
       "lockPath": "node_modules/immer",
       "name": "immer",
-      "version": "11.1.21",
+      "version": "11.2.9",
       "license": "MIT",
-      "integrity": "sha512-bZSadeCPGdaY5/qRLgr6mDSH1ra21rD3rqpiWk7+QTr4ayYPTE9qZYdLh/NdPhMe0wSrTvHD/Lk8q5EwhUs0aw==",
+      "integrity": "sha512-IQ4UEtXjZjyefyWjtLEDXUSrF6T2hwjKPi6BIJl3bY/2XXW24d6cNGdXJSBOA/+KNnuiXkZY6DR0C3efolhitA==",
       "noticeSha256": "6768b01a4a41e5a49b80a34e0a52e25a00d69a1e4e99c457e579daccb3b4fecc"
     },
     {
@@ -367,9 +367,9 @@
     {
       "lockPath": "node_modules/remeda",
       "name": "remeda",
-      "version": "2.51.0",
+      "version": "2.58.0",
       "license": "MIT",
-      "integrity": "sha512-4X/oHoc10jkt1w1V8yG/8tS8jYYj7vaNZs3nrvuDVRE1+nDqRAnX/L0PbwL4wOKcXSLHnkXyOQOinSBGQdJ35A==",
+      "integrity": "sha512-uCy/WL+c+IF/oAb+sjgZ4Y7XPsW58wP8EWiYpIcqWQZBnNEcb8RnLh9PHsERA97ONpkebGw4S6qNcOtFQ+HG7A==",
       "noticeSha256": "acf30083045d768ce20640237313ee31a45d548d66ef76df5bb5fb0745479535"
     },
     {
@@ -399,9 +399,9 @@
     {
       "lockPath": "node_modules/ts-graphviz",
       "name": "ts-graphviz",
-      "version": "3.0.7",
+      "version": "3.0.13",
       "license": "MIT",
-      "integrity": "sha512-aGAjNs7IA+d3ZAflF9QluxWWtKCo8Ehrv0MziCY5Vi6hedugeZYfedq2cIIHX4be3ovGEDq+4D8/y9RrkdNFqw==",
+      "integrity": "sha512-SK1diXXpT7/2eA+lfve3pBBStOoWvPhhJnA+jUJc5NMIjfpFEWQ9CuakJeoGJP3Je2QIDLfrfvDoA0jB6wYWOw==",
       "noticeSha256": "7acb9604ac5f92ad223d0d4173e7835e6dc0a79026d474d5bc324dd8f6eb6dae"
     },
     {
@@ -504,13 +504,13 @@
   "files": [
     {
       "path": "parser.mjs",
-      "bytes": 5241651,
-      "sha256": "304d163c24cfce8c70b808931a00c77c9ddf4589999af1617662255e8846578e"
+      "bytes": 5262461,
+      "sha256": "ff131e280e6b8fb00f914fe313b1428436bf197efd314400b9a4e6076dce7877"
     },
     {
       "path": "THIRD-PARTY-NOTICES.txt",
-      "bytes": 136235,
-      "sha256": "ba21804c0d90b776330bf7d73fb53d884abe7abff05c1cdea621e27167a3670f"
+      "bytes": 136237,
+      "sha256": "e278a986d3dcc1d23cc03a3f61d49e88a04eb20859de159f42dba0ae786621a7"
     }
   ]
 }
