@@ -19,6 +19,6 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Run `npm run check`; verify it passes with the same coverage.
+- [x] 4.1 Run `npm run check`; verify it passes with the same coverage. Passed at `d9c9a84` on ETHOS 0.2.0-alpha.26, with coverage equal to dev CI.
 - [x] 4.2 Build the AIGW, ETHOS and former self models; verify every poster and page is byte-identical to the published 0.7.0 deliveries and each manifest differs only in the Raster supply digest.
 - [x] 4.3 Pack the package; verify it holds the same files as the 0.7.0 package, byte-identical except `package.json`, the merged README, the output paths in the Raster source record and that record's digest in the supply manifest.
