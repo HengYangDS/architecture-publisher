@@ -68,6 +68,44 @@
           "bytes": 3372078,
           "sha256": "bcc9648bb148fc3234ac3837dbd57d605944e16d456f133b5ec75c93d0eb2000"
         }
+      },
+      {
+        "tools": {
+          "rustc": {
+            "release": "1.99.1",
+            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+            "host": "aarch64-unknown-linux-gnu"
+          },
+          "cargo": {
+            "release": "1.99.1",
+            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
+            "host": "aarch64-unknown-linux-gnu"
+          },
+          "wasmBindgen": "0.2.130"
+        },
+        "wasm": {
+          "bytes": 3372360,
+          "sha256": "5b737c003141b6677b4494f191e949f1422395ceab6838a06275f83e72fa9eb2"
+        }
+      },
+      {
+        "tools": {
+          "rustc": {
+            "release": "1.99.1",
+            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
+            "host": "aarch64-pc-windows-msvc"
+          },
+          "cargo": {
+            "release": "1.99.1",
+            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
+            "host": "aarch64-pc-windows-msvc"
+          },
+          "wasmBindgen": "0.2.130"
+        },
+        "wasm": {
+          "bytes": 3371433,
+          "sha256": "45589097c411411f92729157cceee8f43e9f47dd1bbaab46b67b6db817c90058"
+        }
       }
     ]
   },

@@ -6,7 +6,7 @@
 ## 2. Renderer
 
 - [x] 2.1 Build the canonical pair from the closure twice on macOS ARM64, hold it in custody and bind the source manifest, the supply and the notices; verify the archive, the inputs, the outputs and the macOS witness. Both relocated builds give the unchanged glue and Wasm `bcc9648bb148`, 3,372,078 bytes, held in custody `0bba170`; the archive, the inputs, the outputs and the macOS witness verify.
-- [ ] 2.2 Admit the Linux and Windows ARM64 witnesses the proposal's CI reports; verify both Forges report the same bytes for each host.
+- [x] 2.2 Admit the Linux and Windows ARM64 witnesses the proposal's CI reports; verify both Forges report the same bytes for each host. Both Forges report Linux `5b737c003141`, 3372360 bytes, and Windows `45589097c411`, 3371433 bytes (GitHub run 41520028448, GitLab pipeline 13771).
 
 ## 3. Verification
 
