@@ -195,7 +195,6 @@
     "views": {
       "type": "array",
       "minItems": 1,
-      "maxItems": 4,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -252,6 +251,37 @@
           "members": {
             "$ref": "#/$defs/references",
             "minItems": 1
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "description": "The repository paths the model describes and those it leaves out, each with a reason; a path ending in a slash names a directory.",
+      "additionalProperties": false,
+      "properties": {
+        "include": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/path"
+          }
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "reason"],
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/path"
+              },
+              "reason": {
+                "$ref": "#/$defs/text"
+              }
+            }
           }
         }
       }

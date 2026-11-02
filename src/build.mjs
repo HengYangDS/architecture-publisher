@@ -4,7 +4,7 @@ import path from "node:path";
 import { loadIcons } from "./icons.mjs";
 import { deliverExplainer, explainerPage } from "./map/explainer.mjs";
 import { loadModel } from "./model/load.mjs";
-import { planViews } from "./plan/views.mjs";
+import { planViews, undrawnStatements } from "./plan/views.mjs";
 import { admitsView } from "./poster/compose/candidates.mjs";
 import { composePosters } from "./poster/compose/edition.mjs";
 import { MAXIMUM_WIDTH, rasterize } from "./poster/raster.mjs";
@@ -12,6 +12,7 @@ import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { POSTER } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
 import { bindSources } from "./sources/bind.mjs";
+import { measureCoverage, uncitedStatements } from "./sources/coverage.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
@@ -203,20 +204,34 @@ function posterSummary(poster, widths) {
 }
 
 /**
- * Check a model end to end without writing: validation, sources, plan, layout and admission.
+ * Check a model end to end without writing: validation, sources, plan, layout and admission,
+ * then what the plan leaves undrawn, what cites no source and, with a checkout, the model's
+ * coverage of it and, with `against`, its currency.
  * @param {string} modelPath
- * @param {BuildOptions} [options]
+ * @param {BuildOptions & { against?: string | null }} [options]
  */
 export async function checkModel(modelPath, options = {}) {
   const chosen = buildOptions(options);
+  const against = options.against ?? null;
+  if (against !== null && !chosen.repo)
+    refuse(
+      "coverage_repository_missing",
+      "Measuring currency needs the repository checkout that --repo names.",
+    );
   const prepared = await prepare(modelPath, chosen);
+  const { model } = prepared;
   return {
-    model: { id: prepared.model.id, sha256: prepared.loaded.sha256 },
+    model: { id: model.id, sha256: prepared.loaded.sha256 },
     quality: chosen.quality,
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
     views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
     posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
     diagrams: prepared.page?.diagrams.map(diagramSummary) ?? [],
+    statements: {
+      undrawn: undrawnStatements(model, prepared.views),
+      uncited: uncitedStatements(model),
+    },
+    coverage: chosen.repo ? measureCoverage(model, chosen.repo, { against }) : null,
   };
 }
 

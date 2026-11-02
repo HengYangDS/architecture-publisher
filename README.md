@@ -51,7 +51,7 @@ sparse page and the manifest records the balance gates it misses:
 
 The [model reference](docs/reference/model.md) describes every field: the
 language the model is written in, kinds and their icons, details, statuses,
-sources, groups and up to four views.
+sources, the coverage scope, groups and views.
 
 ## What a delivery contains
 

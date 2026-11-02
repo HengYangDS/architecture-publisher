@@ -72,7 +72,8 @@ kinds, details and views.
 | `components`  | yes      | At least one component.                                                                      |
 | `relations`   | yes      | Relations between components; may be empty.                                                  |
 | `groups`      | no       | Named sets of components.                                                                    |
-| `views`       | no       | At most four views; without them the publisher plans the views itself.                       |
+| `views`       | no       | Any number of views; without them the publisher plans the views itself.                      |
+| `coverage`    | no       | The repository paths the model describes and those it leaves out, for `archpub check`.       |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -149,6 +150,32 @@ the manifest.
 A revision cannot name the commit that contains it, so a model kept in the
 repository it describes pins an earlier commit.
 
+## Coverage
+
+`coverage` declares the part of the repository the model describes:
+
+```json
+"coverage": {
+  "include": ["src/"],
+  "exclude": [{ "path": "src/vendor/", "reason": "Vendored code, not this system's architecture." }]
+}
+```
+
+`include` lists repository paths; a path ending in `/` is a directory and any
+other path is one file. Without `include`, the scope is the whole repository.
+`exclude` lists paths the model leaves out, each with a reason. A path is
+relative, has no empty, `.` or `..` segment and appears once across both lists.
+
+With `--repo`, `archpub check` reads the files at `repository.revision` and
+reports how many of them, and how many of their bytes, are in the scope, cited
+by a source, uncovered or excluded; the files the model cites outside the
+scope; the declared paths that match no file; and the largest directories that
+hold uncovered files and no cited one. With `--against <revision>`, it also
+reports the first-parent commits since the model's revision and whether each
+cited file is unchanged, modified, moved, with its new path, or deleted, as
+Git's rename detection reads them. The report never refuses a model; deciding
+what to cite stays with its author.
+
 ## Groups
 
 A group has an `id`, a `label` and the component ids of its `members`. A
@@ -181,5 +208,8 @@ relation points down or stays within one row, rows skipped by relations are
 avoided first, then relations within one row, then extra rows. See
 [the layout](operations.md#layout-and-media) for how rows become a poster.
 
-Without `views`, the publisher draws one view of every component when it fits
-its poster, and otherwise the group overview described above.
+A model may declare any number of views; each is one poster plate and one
+panel of the page. Without `views`, the publisher draws one view of every
+component when it fits its poster, and otherwise the group overview described
+above, with one view for every group. `archpub check` lists the components and
+relations that no planned view draws.

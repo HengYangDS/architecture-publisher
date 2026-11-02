@@ -23,6 +23,8 @@ import { chooseDiagram } from "./choice.mjs";
 const WORK = "explainer";
 const DRAFT = "page.archify.md";
 const PAGE = "index.html";
+/** The most reasons an Archify explainer's conclusion holds: its schema's `/answer/reasons` maxItems. */
+const MAXIMUM_REASONS = 4;
 
 /** Spaces between words, folded into one; no-break spaces keep their words together on the page too. */
 const SPACES = new RegExp(`${SPACE.source}+`, "gu");
@@ -137,9 +139,11 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
     return `@source ${id(`source-${sourceId}`)} title=${plain(names.get(sourceId))} path=${JSON.stringify(source.path)}`;
   });
   // Beside the conclusion, a page of several views lists the questions its
-  // panels answer, numbered as the panels are, each a way into its panel.
+  // panels answer, numbered as the panels are, each a way into its panel. The
+  // list is the conclusion's reasons, which Archify caps, so a page of more
+  // views lists none and its numbered panels follow on their own.
   const contents =
-    views.length > 1
+    views.length > 1 && views.length <= MAXIMUM_REASONS
       ? [...views.map((view) => `- [${text(heading(view))}](block:${id(`view-${view.id}`)})`), ""]
       : [];
   const draft = [

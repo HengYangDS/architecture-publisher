@@ -7,6 +7,26 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- A model may declare `coverage`: the repository paths it describes and those it leaves out, each with a reason.
+- `archpub check` lists the components and relations that no planned view draws and those that cite no source. With
+  `--repo` it reports the model's coverage of the repository at its revision: files and bytes in scope, cited,
+  uncovered and excluded, and the largest directories that hold no cited file. With `--against <revision>` it reports
+  the commits since the model's revision and whether each cited file is unchanged, modified, moved or deleted. The
+  reports are counts and never refuse a model.
+
+### Changed
+
+- A page of more than four views lists no panels beside its conclusion, whose reasons Archify caps at four; its panels
+  stay numbered in the plan's order.
+
+### Removed
+
+- **Breaking:** the four-view limit. A model declares any number of views, and an automatic overview plans one view for
+  every group. The refusals `model_views_exceeded` and `plan_views_exceeded` and the LikeC4 import warning
+  `likec4_view_limit` no longer occur.
+
 ## [0.7.0] - 2026-10-31
 
 ### Changed

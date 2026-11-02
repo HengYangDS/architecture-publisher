@@ -1,29 +1,7 @@
-import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
-
-const MAXIMUM_SOURCE_BYTES = 64 * 1024 * 1024;
-
-// Reads must never fetch, prompt, follow replacement refs or refresh the index.
-const GIT_ENVIRONMENT = Object.freeze({
-  GIT_NO_LAZY_FETCH: "1",
-  GIT_ALLOW_PROTOCOL: "",
-  GIT_TERMINAL_PROMPT: "0",
-  GIT_OPTIONAL_LOCKS: "0",
-  GIT_CONFIG_NOSYSTEM: "1",
-});
-
-function git(repo, args, input) {
-  const result = spawnSync("git", ["--no-replace-objects", "-C", repo, ...args], {
-    input,
-    maxBuffer: MAXIMUM_SOURCE_BYTES * 2,
-    env: childEnvironment(GIT_ENVIRONMENT),
-  });
-  if (result.error) refuse("source_git_unavailable", `Cannot run Git: ${result.error.message}`);
-  return result;
-}
+import { commitOf, readGit } from "./git.mjs";
 
 /** Parse `git cat-file --batch` output into one record per requested object. */
 function parseBatch(output, count) {
@@ -71,11 +49,9 @@ export function bindSources(model, repo) {
     );
   const root = path.resolve(repo);
   const revision = model.repository.revision;
-  const commit = git(root, ["rev-parse", "--verify", "--quiet", `${revision}^{commit}`]);
-  if (commit.status !== 0)
-    refuse("source_revision_unknown", `The repository at ${root} has no commit ${revision}.`);
+  commitOf(root, revision, "source_revision_unknown");
   const requests = model.sources.map(({ path: file }) => `${revision}:${file}`);
-  const batch = git(root, ["cat-file", "--batch"], `${requests.join("\n")}\n`);
+  const batch = readGit(root, ["cat-file", "--batch"], `${requests.join("\n")}\n`);
   if (batch.status !== 0) refuse("source_read_failed", "Git could not read the declared sources.");
   const objects = parseBatch(batch.stdout, requests.length);
   const problems = [];

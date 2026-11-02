@@ -23,6 +23,8 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
     [["check", "model.json", "--repo"], "--repo needs a value."],
     [["build", "model.json"], "--out is required."],
     [["check"], "Name exactly one model."],
+    [["check", "model.json", "--against", "main"], "--against needs --repo."],
+    [["build", "model.json", "--out", "x", "--against", "main"], "Unknown option --against."],
     [
       ["check", "model.json", "--png", "2400,wide"],
       "--png takes whole pixel widths separated by commas.",
@@ -97,9 +99,17 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(checked.exitCode, 0);
   assert.equal(checked.body.ok, true);
   assert.equal(checked.body.model.id, "page");
+  assert.deepEqual(checked.body.statements, {
+    undrawn: { components: [], relations: [] },
+    uncited: {
+      components: checked.body.views[0].components,
+      relations: checked.body.views[0].relations,
+    },
+  });
+  assert.equal(checked.body.coverage, null);
   assert.match(
     (await runCli(["check", model])).output,
-    /^page: 1 views admitted; sources none\.\n$/u,
+    /^page: 1 views admitted; sources none\.\nUncited: \d+ components and \d+ relations\.\n$/u,
   );
 
   const out = path.join(root, "delivery");

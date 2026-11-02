@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ROW_LIMIT, viewRows } from "../src/layout/rows.mjs";
 import { validateModel } from "../src/model/load.mjs";
-import { planViews } from "../src/plan/views.mjs";
+import { planViews, undrawnStatements } from "../src/plan/views.mjs";
 import { refuse } from "../src/refusal.mjs";
 import { graphModel, minimalModel } from "./fixtures/models.mjs";
 
@@ -170,20 +170,46 @@ test("an overview takes an id no group's own view takes", async () => {
   );
 });
 
-test("planning refuses oversized views it cannot split", async () => {
-  await assert.rejects(planViews(validateModel(minimalModel()), tooTall), {
-    code: "plan_requires_structure",
-  });
-  // An overview and four group views are one view more than a page holds.
-  const groups = Array.from({ length: 4 }, (_, index) => ({
+test("an overview plans one view for every group, however many", async () => {
+  const groups = Array.from({ length: 5 }, (_, index) => ({
     id: `g${index}`,
     label: `G${index}`,
     members: [`c${index + 1}`],
   }));
-  await assert.rejects(
-    planViews(validateModel(graphModel(5, [[1, 2]], { groups })), tooTall),
-    (error) => error.code === "plan_views_exceeded" && /exceeds 4 views/u.test(error.message),
+  const model = validateModel(graphModel(5, [[1, 2]], { groups }));
+  const views = await planViews(model, async (view) =>
+    view.origin === "complete" ? tooTall() : fits(),
   );
+  assert.deepEqual(
+    views.map(({ id, origin }) => [id, origin]),
+    [["overview", "overview"], ...groups.map(({ id }) => [id, "group"])],
+  );
+  assert.deepEqual(undrawnStatements(model, views), { components: [], relations: [] });
+});
+
+test("statements that no planned view draws are listed", async () => {
+  const model = validateModel(
+    minimalModel({
+      components: [
+        { id: "a", label: "Alpha" },
+        { id: "b", label: "Beta" },
+        { id: "c", label: "Gamma" },
+      ],
+      relations: [
+        { id: "a-b", from: "a", to: "b", label: "calls" },
+        { id: "b-c", from: "b", to: "c", label: "feeds" },
+      ],
+      views: [{ id: "front", members: ["a", "b"] }],
+    }),
+  );
+  const views = await planViews(model, fits);
+  assert.deepEqual(undrawnStatements(model, views), { components: ["c"], relations: ["b-c"] });
+});
+
+test("planning refuses oversized views it cannot split", async () => {
+  await assert.rejects(planViews(validateModel(minimalModel()), tooTall), {
+    code: "plan_requires_structure",
+  });
   await assert.rejects(
     planViews(validateModel(minimalModel({ views: [{ id: "v", members: ["a", "b"] }] })), tooTall),
     (error) =>

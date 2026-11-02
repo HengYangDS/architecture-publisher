@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { CATEGORIES, MAXIMUM_VIEWS, loadModel, validateModel } from "../src/model/load.mjs";
+import { CATEGORIES, loadModel, validateModel } from "../src/model/load.mjs";
 import { AIGW_MODEL, minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 
 /** The refusal's problems as `code path` lines. */
@@ -172,13 +172,13 @@ test("groups may not overlap or reuse component ids", () => {
   ]);
 });
 
-test("views declare tiers or members, at most four", () => {
+test("views declare tiers or members, as many as the author wants", () => {
   const plain = (count) =>
     minimalModel({
       views: Array.from({ length: count }, (_, index) => ({ id: `v${index}`, members: ["a"] })),
     });
   assert.equal(validateModel(plain(4)).views.length, 4);
-  assert.deepEqual(problemsOf(plain(5)), ["model_views_exceeded /views"]);
+  assert.equal(validateModel(plain(9)).views.length, 9);
   const groups = [{ id: "g", label: "G", members: ["a", "b"] }];
   const problems = problemsOf(
     minimalModel({
@@ -194,7 +194,6 @@ test("views declare tiers or members, at most four", () => {
     }),
   );
   assert.deepEqual(problems, [
-    "model_views_exceeded /views",
     "model_view_shape_invalid /views/0",
     "model_view_shape_invalid /views/1",
     "model_references_invalid /views/2/tiers",
@@ -210,7 +209,44 @@ test("the published schema allows the views the loader admits", async () => {
   const schema = JSON.parse(
     await fs.readFile(new URL("../src/model/schema.json", import.meta.url), "utf8"),
   );
-  assert.equal(schema.properties.views.maxItems, MAXIMUM_VIEWS);
+  assert.equal(schema.properties.views.maxItems, undefined);
+  assert.deepEqual(Object.keys(schema.properties.coverage.properties), ["include", "exclude"]);
+});
+
+test("a coverage scope declares included paths and excluded paths with reasons", () => {
+  const coverage = {
+    include: ["src/", "README.md"],
+    exclude: [{ path: "src/vendor/", reason: "Vendored code." }],
+  };
+  assert.deepEqual(validateModel(minimalModel({ coverage })).coverage, coverage);
+  assert.equal(validateModel(minimalModel()).coverage, null);
+  assert.deepEqual(validateModel(minimalModel({ coverage: {} })).coverage, {
+    include: null,
+    exclude: [],
+  });
+  assert.deepEqual(
+    problemsOf(
+      minimalModel({
+        coverage: {
+          include: ["src/", "/etc/", "src/", "a//b/"],
+          exclude: [{ path: "src/vendor/" }, { path: "../up/", reason: "Up." }, "src/"],
+          scope: "all",
+        },
+      }),
+    ),
+    [
+      "model_field_unknown /coverage/scope",
+      "model_coverage_path_invalid /coverage/include/1",
+      "model_coverage_path_duplicate /coverage/include/2",
+      "model_coverage_path_invalid /coverage/include/3",
+      "model_field_required /coverage/exclude/0/reason",
+      "model_coverage_path_invalid /coverage/exclude/1/path",
+      "model_object_required /coverage/exclude/2",
+    ],
+  );
+  assert.deepEqual(problemsOf(minimalModel({ coverage: { include: [] } })), [
+    "model_coverage_invalid /coverage/include",
+  ]);
 });
 
 test("a component may sit in only one tier of a view", () => {

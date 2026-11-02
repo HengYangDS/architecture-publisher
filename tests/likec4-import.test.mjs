@@ -80,8 +80,7 @@ test("a LikeC4 workspace becomes a valid model and reports what it cannot carry"
   );
 });
 
-test("views beyond the limit are reported and identities stay unique", async (t) => {
-  // One view more than a page holds.
+test("every element view is imported and identities stay unique", async (t) => {
   const views = Array.from(
     { length: 5 },
     (_, index) => `  view v${index} {\n    include *\n  }\n`,
@@ -106,11 +105,8 @@ test("views beyond the limit are reported and identities stay unique", async (t)
     ["bus", "bus-2"],
   );
   assert.equal(model.kinds.queue.category, "messagebus");
-  assert.equal(model.views.length, 4);
-  assert.deepEqual(
-    warnings.map(({ code }) => code),
-    ["likec4_view_limit"],
-  );
+  assert.equal(model.views.length, 5);
+  assert.deepEqual(warnings, []);
 });
 
 test("workspaces without sources, with errors or too large are refused", async (t) => {

@@ -34,7 +34,7 @@ they read or decide.
 ## Commands
 
 ```text
-archpub check <model.json> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
+archpub check <model.json> [--repo <checkout>] [--against <revision>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
 archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
 archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
@@ -45,7 +45,11 @@ archpub --help | --version [--json]
 - `check` validates the model, verifies its sources when `--repo` names a
   checkout, plans the views, composes the poster pages and checks each diagram
   and the page with Archify, and writes no delivery; Archify's work files stay
-  in a temporary directory that it removes.
+  in a temporary directory that it removes. It lists the components and
+  relations that no planned view draws and those that cite no source. With
+  `--repo`, it reports the model's [coverage](model.md#coverage) of the
+  repository at its revision, and with `--against <revision>` how far the
+  repository has moved since; `--against` without `--repo` is a usage error.
 - `build` does the same and writes a new delivery directory. `--out` must not
   exist; the delivery is staged beside it and renamed into place only when
   every artifact is written, so a refused build leaves nothing behind.
@@ -72,7 +76,8 @@ with the result, `{ "ok": false, "code", "message", "problems" }` for a
 refusal, where each problem has a `code`, a JSON `path` into the model and a
 `message`, `{ "ok": false, "code": "usage", "message" }` for a usage error, or
 `{ "ok": false, "code": "internal_error", "message" }`. Without `--json`,
-the same result is one line of text, and a refusal lists each problem on its own
+the same result is one line of text, which `check` follows with a line for each
+report that has something to say, and a refusal lists each problem on its own
 line.
 
 ## Layout and media
@@ -155,15 +160,14 @@ as PNG at 2400 px or the widths `--png` names.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
 Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
-listed beside it the panels' titles, each a link to its panel, and its scope the
-model's scope, limits and attribution. Each view is a panel
+listed beside it the titles of up to four panels, each a link to its panel, and
+its scope the model's scope, limits and attribution. Each view is a panel
 titled with the view's question, or its title when it asks the model's own
 question, in the plan's order, holding the view's native architecture diagram,
 named by the view's own title or else its question, which opens Archify's full
 interactive viewer, and one step per component, in
 the diagram's reading order, that lights the component and gives every one of
-its details; a card shows the first detail it holds whole, or none. A model therefore declares at most four views, the diagrams one page
-holds.
+its details; a card shows the first detail it holds whole, or none.
 
 A view's diagram is laid out by the same grid with Archify's text metrics, at
 widths of 960, 840 and 720 units with its rows wrapped at five, four and three
@@ -276,31 +280,32 @@ A refused view is named in the message; the plan's and the posters' problems
 carry paths under `/views/<id>`, and a page refusal carries the paths the grid
 or Archify reported.
 
-| Code                                                                                  | Meaning                                                                                     |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `usage`                                                                               | Unknown command or option, or a missing value.                                              |
-| `model_invalid`                                                                       | The model breaks the schema; each problem has its own `model_*` code.                       |
-| `model_unreadable`, `model_json_invalid`, `model_too_large`                           | The file cannot be read, is not JSON or exceeds 4 MiB.                                      |
-| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                   | A build option is outside its values.                                                       |
-| `glyphs_missing`                                                                      | Text uses characters the bundled fonts lack or a script they do not set.                    |
-| `source_revision_missing`, `source_revision_unknown`                                  | `--repo` needs `repository.revision`, and the checkout must contain it.                     |
-| `sources_unverified`                                                                  | A source is missing at the revision or differs from its declared digest.                    |
-| `source_git_unavailable`, `source_read_failed`                                        | Git cannot be run or cannot read the sources.                                               |
-| `plan_requires_structure`, `plan_views_exceeded`                                      | An automatic plan needs groups or views, or would exceed four views.                        |
-| `plan_not_admitted`                                                                   | No page of its own lays a view out; each problem gives the view's counts and the page size. |
-| `poster_title_too_long`, `poster_summary_too_long`                                    | The title, question or summary does not fit any page composition.                           |
-| `poster_unfittable`                                                                   | A view cannot be laid out on any page at any type step or row wrapping.                     |
-| `poster_unbalanced`                                                                   | No admitted page holds a view, alone or with a neighbour.                                   |
-| `page_label_too_long`, `page_shape_refused`                                           | A label exceeds the widest diagram card, or no diagram has a usable shape.                  |
-| `page_layout_refused`, `page_diagram_refused`                                         | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.   |
-| `page_measures_missing`                                                               | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.   |
-| `page_refused`                                                                        | Archify did not validate or deliver the page.                                               |
-| `raster_failed`, `raster_size_invalid`, `supply_invalid`                              | A bundled supply failed its digest or the raster renderer failed.                           |
-| `delivery_exists`                                                                     | `--out` already exists.                                                                     |
-| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`    | The directory is not a delivery.                                                            |
-| `delivery_changed`                                                                    | An artifact differs from the manifest.                                                      |
-| `acceptance_reviewer_missing`, `acceptance_exists`                                    | Name a reviewer; a delivery is accepted once.                                               |
-| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                   | Accept first, use a valid version name, and never replace a published one.                  |
-| `publish_copy_invalid`                                                                | The copy differs from the delivery and was removed.                                         |
-| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large` | The workspace cannot be imported.                                                           |
-| `import_output_exists`                                                                | The output file exists.                                                                     |
+| Code                                                                                    | Meaning                                                                                     |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `usage`                                                                                 | Unknown command or option, or a missing value.                                              |
+| `model_invalid`                                                                         | The model breaks the schema; each problem has its own `model_*` code.                       |
+| `model_unreadable`, `model_json_invalid`, `model_too_large`                             | The file cannot be read, is not JSON or exceeds 4 MiB.                                      |
+| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                       |
+| `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                    |
+| `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                     |
+| `sources_unverified`                                                                    | A source is missing at the revision or differs from its declared digest.                    |
+| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the sources.                                               |
+| `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                    |
+| `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.     |
+| `plan_not_admitted`                                                                     | No page of its own lays a view out; each problem gives the view's counts and the page size. |
+| `poster_title_too_long`, `poster_summary_too_long`                                      | The title, question or summary does not fit any page composition.                           |
+| `poster_unfittable`                                                                     | A view cannot be laid out on any page at any type step or row wrapping.                     |
+| `poster_unbalanced`                                                                     | No admitted page holds a view, alone or with a neighbour.                                   |
+| `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                  |
+| `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.   |
+| `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.   |
+| `page_refused`                                                                          | Archify did not validate or deliver the page.                                               |
+| `raster_failed`, `raster_size_invalid`, `supply_invalid`                                | A bundled supply failed its digest or the raster renderer failed.                           |
+| `delivery_exists`                                                                       | `--out` already exists.                                                                     |
+| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                            |
+| `delivery_changed`                                                                      | An artifact differs from the manifest.                                                      |
+| `acceptance_reviewer_missing`, `acceptance_exists`                                      | Name a reviewer; a delivery is accepted once.                                               |
+| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                     | Accept first, use a valid version name, and never replace a published one.                  |
+| `publish_copy_invalid`                                                                  | The copy differs from the delivery and was removed.                                         |
+| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large`   | The workspace cannot be imported.                                                           |
+| `import_output_exists`                                                                  | The output file exists.                                                                     |

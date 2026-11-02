@@ -19,7 +19,7 @@ only draws and verifies what the model states.
    it there. Give components stable lowercase ids and short labels, relations
    verb labels such as `reads` or `publishes`, and each component one leading
    detail, which its card prints. Map kinds to the eight categories.
-4. Plan at most four views: usually an overview with `tiers` that name groups
+4. Plan the views: usually an overview with `tiers` that name groups
    in reading order, then views of the mechanisms the question needs. Give each
    view a short `title`, such as `Overview` or `Proof plane`, and its own
    `question`: the page names a view's diagram by its title, and a view without

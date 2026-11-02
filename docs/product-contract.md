@@ -45,7 +45,7 @@ A model may live anywhere, including in a separate publications repository.
 1. **Validate** the model against its schema and report every problem with its
    JSON path in one pass.
 2. **Bind sources** at the pinned revision when a checkout is given.
-3. **Plan views**: the declared views, at most four, or one view of every
+3. **Plan views**: the declared views, however many, or one view of every
    component when it fits, or an overview of the groups and one view per group.
 4. **Lay out** each view as rows of cards on one column lattice, as wide as
    their text on posters, with an exact placement and routing that never draws
@@ -125,7 +125,9 @@ published delivery. Tests and checks never stand in for that acceptance.
 
 - The publisher draws what the model states; it does not discover components,
   rank evidence or fill gaps.
-- One model has at most four views, the diagrams one Archify page holds.
+- `archpub check` reports what a model draws, cites and covers of its
+  repository, and how far the repository has moved since its revision. These
+  are counts for the author and the reviewer; they never refuse a model.
 - The media are the posters and the page. Slides, PDF and mobile layouts are
   not produced.
 - A build needs no network, account or credential. Publication copies files

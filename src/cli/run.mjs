@@ -7,7 +7,7 @@ import { Refusal } from "../refusal.mjs";
 
 export const USAGE = `Usage:
   archpub build <model.json> --out <directory> [build options] [--json]
-  archpub check <model.json> [build options] [--json]
+  archpub check <model.json> [build options] [--against <revision>] [--json]
   archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>]
     [--question <text>] [--locale <tag>] [--json]
   archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
@@ -19,12 +19,63 @@ Build options:
   --media <list>        Media to deliver: posters, page or both (default posters,page).
   --png <widths>        Poster PNG widths in pixels, comma-separated (default 2400).
   --quality <profile>   showcase (default) or standard, which delivers drafts.
+
+Check options:
+  --against <revision>  With --repo, compare the model's revision with this one.
 `;
 
 class UsageError extends Error {}
 
 /** "1 view", "2 views". */
 const count = (number, noun) => `${number} ${noun}${number === 1 ? "" : "s"}`;
+
+/** "a", "a and b", "a, b and c". */
+const series = (items) =>
+  items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+
+/** What a check found, as lines: admission, statements, coverage and currency. */
+function checkText(result) {
+  const lines = [
+    `${result.model.id}: ${result.views.length} views admitted; sources ${result.sources.state}.`,
+  ];
+  const statements = ({ components, relations }) =>
+    `${count(components.length, "component")} and ${count(relations.length, "relation")}`;
+  for (const [name, found] of Object.entries(result.statements))
+    if (found.components.length || found.relations.length)
+      lines.push(`${name[0].toUpperCase()}${name.slice(1)}: ${statements(found)}.`);
+  const { coverage } = result;
+  if (coverage) {
+    const { files } = coverage;
+    lines.push(
+      `Coverage at ${coverage.revision.slice(0, 7)}: ${files.cited} of ${files.scope} files cited, ` +
+        `${files.uncovered} uncovered, ${files.excluded} excluded.`,
+    );
+    if (coverage.largestUncovered.length)
+      lines.push(
+        `Largest uncovered: ${coverage.largestUncovered.map(({ path: directory, files: held }) => `${directory} (${count(held, "file")})`).join(", ")}.`,
+      );
+    const notes = [
+      ...(coverage.unmatched.length ? [`Matching no file: ${coverage.unmatched.join(", ")}.`] : []),
+      ...(coverage.citedOutsideScope.length
+        ? [`Cited outside the scope: ${count(coverage.citedOutsideScope.length, "file")}.`]
+        : []),
+    ];
+    if (notes.length) lines.push(notes.join(" "));
+    const { currency } = coverage;
+    if (currency) {
+      const states = ["unchanged", "modified", "moved", "deleted"].map((state, index) => {
+        const held = currency.sources.filter((source) => source.state === state).length;
+        return index ? `${held} ${state}` : `${count(held, "source")} ${state}`;
+      });
+      lines.push(
+        `Currency against ${currency.against.revision} at ${currency.against.commit.slice(0, 7)}: ` +
+          `${count(currency.commits, "commit")} since the pin` +
+          `${currency.ancestor ? "" : ", which is not its ancestor"}; ${series(states)}.`,
+      );
+    }
+  }
+  return `${lines.join("\n")}\n`;
+}
 
 /** A comma-separated option value as its items. */
 const list = (value) =>
@@ -95,11 +146,14 @@ const COMMANDS = {
     },
   },
   check: {
-    options: ["repo", "media", "png", "quality"],
-    run: ({ positionals, options }) =>
-      checkModel(one(positionals, "model"), buildArguments(options)),
-    text: (result) =>
-      `${result.model.id}: ${result.views.length} views admitted; sources ${result.sources.state}.\n`,
+    options: ["repo", "media", "png", "quality", "against"],
+    run: ({ positionals, options }) => {
+      const model = one(positionals, "model");
+      if (options.against !== undefined && options.repo === undefined)
+        throw new UsageError("--against needs --repo.");
+      return checkModel(model, { ...buildArguments(options), against: options.against ?? null });
+    },
+    text: checkText,
   },
   accept: {
     options: ["reviewer", "note"],

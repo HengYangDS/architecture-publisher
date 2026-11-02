@@ -373,6 +373,22 @@ test("a relation that passes cards in its row leaves its sides to Archify as wel
   assert.deepEqual([chosen.metrics.crossings, chosen.metrics.corridors], [0, 0]);
 });
 
+test("the page lists its panels beside the conclusion while Archify's reasons hold them", async () => {
+  const listed = async (count) => {
+    const views = Array.from({ length: count }, (_, index) => ({
+      id: `v${index + 1}`,
+      question: `What does view ${index + 1} show?`,
+      members: ["web", "store"],
+    }));
+    const model = validateModel({ ...shopInput(), views });
+    const planned = await viewsOf(model);
+    const diagrams = planned.map((view) => diagramCandidates(model, view)[0]);
+    return [...explainerDraft(model, planned, diagrams).draft.matchAll(/^- \[/gmu)].length;
+  };
+  assert.equal(await listed(4), 4);
+  assert.equal(await listed(5), 0);
+});
+
 test("the page draft answers the model's question view by view and cites sources at the revision", async () => {
   const model = shop();
   const views = await viewsOf(model);

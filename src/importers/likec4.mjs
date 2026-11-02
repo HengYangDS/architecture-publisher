@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { wordsOf } from "../locale.mjs";
-import { MODEL_FORMAT, MODEL_VERSION, MAXIMUM_VIEWS, validateModel } from "../model/load.mjs";
+import { MODEL_FORMAT, MODEL_VERSION, validateModel } from "../model/load.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -217,14 +217,6 @@ export async function importLikeC4(workspace, identity) {
     }
     const members = [...new Set(view.elements.flatMap((id) => (id ? inside(id) : [])))];
     if (!members.length) continue;
-    if (views.length === MAXIMUM_VIEWS) {
-      warnings.push({
-        code: "likec4_view_limit",
-        path: where(view.location),
-        message: `${view.id} exceeds the ${MAXIMUM_VIEWS}-view limit`,
-      });
-      continue;
-    }
     views.push({ id: idMaker()(view.id), ...(view.title ? { title: view.title } : {}), members });
   }
   const model = {

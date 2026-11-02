@@ -2,11 +2,10 @@ import fs from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { DEFAULT_LOCALE, LOCALES } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
+import { checkCoverage, isRelativePath, normalizeCoverage } from "./paths.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
 export const MODEL_VERSION = 1;
-/** An Archify explainer page holds at most four native diagrams, one per view. */
-export const MAXIMUM_VIEWS = 4;
 const STATUSES = Object.freeze(["implemented", "planned", "retired"]);
 export const CATEGORIES = Object.freeze([
   "person",
@@ -38,23 +37,13 @@ const TOP = {
     "sources",
     "groups",
     "views",
+    "coverage",
   ]),
 };
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) =>
   typeof value === "string" && value.length <= 2000 && /\S/u.test(value) && !/\0/u.test(value);
-
-function isRelativePath(value) {
-  return (
-    typeof value === "string" &&
-    value.length > 0 &&
-    value.length <= 1024 &&
-    !value.startsWith("/") &&
-    !/[\\\0\n\r]/u.test(value) &&
-    value.split("/").every((part) => part !== "" && part !== "." && part !== "..")
-  );
-}
 
 /** Collects every problem in one pass so authors fix them together. */
 class Problems {
@@ -285,6 +274,7 @@ export function validateModel(model, options = {}) {
     return true;
   });
   const groupIds = new Set(groups.map(({ id }) => id));
+  checkCoverage(problems, value.coverage);
   const views =
     value.views === undefined ? null : checkViews(problems, value.views, componentIds, groupIds);
   // Tiers are resolved in the same pass, so a tier overlap is reported with
@@ -306,8 +296,6 @@ export function validateModel(model, options = {}) {
 }
 
 function checkViews(problems, value, componentIds, groupIds) {
-  if (Array.isArray(value) && value.length > MAXIMUM_VIEWS)
-    problems.add("model_views_exceeded", "/views", `declares more than ${MAXIMUM_VIEWS} views`);
   return checkList(
     problems,
     value,
@@ -454,6 +442,7 @@ function normalize(value, parts) {
         tiers: view.tiers,
         members: view.members ? [...view.members] : null,
       })) ?? null,
+    coverage: normalizeCoverage(value.coverage),
   });
 }
 

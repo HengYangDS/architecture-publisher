@@ -1,6 +1,5 @@
 import { Refusal, refuse } from "../refusal.mjs";
 import { wordsOf } from "../locale.mjs";
-import { MAXIMUM_VIEWS } from "../model/load.mjs";
 
 /**
  * A view is the unit both media render: its components, its relations and
@@ -154,14 +153,28 @@ export async function planViews(model, admit) {
       measured.refusal ? viewProblems(complete, measured) : [],
     );
   const views = [overviewView(model), ...groupViews(model)];
-  if (views.length > MAXIMUM_VIEWS)
-    refuse(
-      "plan_views_exceeded",
-      `${unadmitted(complete, measured, "")}An overview plus ${model.groups.length} group views exceeds ` +
-        `${MAXIMUM_VIEWS} views. Declare at most ${MAXIMUM_VIEWS} views or use fewer groups.`,
-    );
   await admitAll(views, admit);
   return views;
+}
+
+/**
+ * The components no planned view draws as itself and the relations no planned view
+ * draws, alone or within an overview's aggregated relation.
+ * @param {any} model
+ * @param {View[]} views
+ */
+export function undrawnStatements(model, views) {
+  const components = new Set();
+  const relations = new Set();
+  for (const view of views) {
+    for (const component of view.components) if (!component.group) components.add(component.id);
+    for (const relation of view.relations)
+      for (const id of relation.relations ?? [relation.id]) relations.add(id);
+  }
+  return {
+    components: model.components.filter(({ id }) => !components.has(id)).map(({ id }) => id),
+    relations: model.relations.filter(({ id }) => !relations.has(id)).map(({ id }) => id),
+  };
 }
 
 /**

@@ -86,6 +86,30 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   await assert.rejects(buildDelivery(BIG_BANK_MODEL, out), { code: "delivery_exists" });
 });
 
+test("a model of five views delivers five posters and five page diagrams", async (t) => {
+  // Each view draws the whole page model, since fewer cards fill no poster page.
+  const members = pageModel().components.map(({ id }) => id);
+  const ids = ["first", "second", "third", "fourth", "fifth"];
+  const views = ids.map((id, index) => ({
+    id,
+    title: `View ${index + 1}`,
+    question: `What does view ${index + 1} show?`,
+    members,
+  }));
+  const out = path.join(await workspace(t), "five");
+  const built = await buildDelivery(await writeModel(t, pageModel({ views })), out, { png: [240] });
+  assert.deepEqual(built.views, ids);
+  const manifest = await readJson(path.join(out, "manifest.json"));
+  assert.deepEqual(
+    manifest.posters.map(({ views: shown }) => shown),
+    ids.map((id) => [id]),
+  );
+  assert.deepEqual(
+    manifest.page.diagrams.map(({ view }) => view),
+    ids,
+  );
+});
+
 test("check reports the plan without writing and invalid models leave no partial output", async (t) => {
   const root = await workspace(t);
   const checked = await checkModel(BIG_BANK_MODEL);
