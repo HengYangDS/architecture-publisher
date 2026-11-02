@@ -13,7 +13,7 @@ run = [
 [tasks.raster-supply]
 description = "Restore the canonical prebuilt Raster pair from immutable Git custody"
 run = [
-  "git restore --source=6af203e965372f6cdb96b11fa96073a1ae8e1d19 --worktree -- renderers/resvg/supply/resvg/index.mjs renderers/resvg/supply/resvg/index_bg.wasm",
+  "git restore --source=0bba1705e121e9e118e6b3cba4f8821a2a753f3e --worktree -- renderers/resvg/supply/resvg/index.mjs renderers/resvg/supply/resvg/index_bg.wasm",
   "node tools/raster/resvg/verify.mjs --stage",
 ]
 

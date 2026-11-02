@@ -67,7 +67,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-3772b25b2c10" --repo
+        run: gh release download "0.49.0-f55157d60abd" --repo
           HengYangDS/architecture-publisher --pattern source.tar.xz --dir
           build/runtime/tool-cache/raster
       - run: mise exec -- pixi run --locked --config-file
@@ -147,7 +147,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-3772b25b2c10" --repo
+        run: gh release download "0.49.0-f55157d60abd" --repo
           HengYangDS/architecture-publisher --pattern source.tar.xz --dir
           build/runtime/tool-cache/raster
       - run: mise exec -- pixi run --locked --config-file
@@ -222,7 +222,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-3772b25b2c10" --repo
+        run: gh release download "0.49.0-f55157d60abd" --repo
           HengYangDS/architecture-publisher --pattern source.tar.xz --dir
           build/runtime/tool-cache/raster
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
@@ -282,7 +282,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-3772b25b2c10" --repo
+        run: gh release download "0.49.0-f55157d60abd" --repo
           HengYangDS/architecture-publisher --pattern source.tar.xz --dir
           build/runtime/tool-cache/raster
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
@@ -346,7 +346,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-3772b25b2c10" --repo
+        run: gh release download "0.49.0-f55157d60abd" --repo
           HengYangDS/architecture-publisher --pattern source.tar.xz --dir
           build/runtime/tool-cache/raster
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
@@ -410,7 +410,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-3772b25b2c10" --repo
+        run: gh release download "0.49.0-f55157d60abd" --repo
           HengYangDS/architecture-publisher --pattern source.tar.xz --dir
           build/runtime/tool-cache/raster
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive

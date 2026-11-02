@@ -7,10 +7,10 @@
       "provider": "gitlab",
       "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
       "package": "architecture-raster-resvg-source",
-      "version": "0.49.0-3772b25b2c10",
+      "version": "0.49.0-f55157d60abd",
       "file": "source.tar.xz"
     },
-    "archiveSha256": "3772b25b2c10a82da63972e8fa26e3f7f3f6dbeac6b29d1b4984dafe7dc85a63"
+    "archiveSha256": "f55157d60abda143055b6b37287347775bcad7f25da4f4ffb145a75415c5e367"
   },
   "toolchain": {
     "rust": "1.99.1",
@@ -18,7 +18,7 @@
     "wasmBindgen": "0.2.130"
   },
   "build": {
-    "cargoLockSha256": "fde501e4be4c0f6974b5c55407d816a7f80d2a6e0bacd4c3e061dabda4ca16ac",
+    "cargoLockSha256": "9998427d07916056e6215acb058ce35b6241e342968bd895a1ccc9d07ea4805c",
     "network": "offline",
     "frozen": true,
     "pathRemap": "/workspace",
@@ -31,7 +31,7 @@
       {
         "path": "tools/raster/resvg/Cargo.lock",
         "bytes": 14033,
-        "sha256": "fde501e4be4c0f6974b5c55407d816a7f80d2a6e0bacd4c3e061dabda4ca16ac"
+        "sha256": "9998427d07916056e6215acb058ce35b6241e342968bd895a1ccc9d07ea4805c"
       },
       {
         "path": "tools/raster/resvg/rust-toolchain.toml",
@@ -65,46 +65,8 @@
           "wasmBindgen": "0.2.130"
         },
         "wasm": {
-          "bytes": 3371673,
-          "sha256": "bd291706e19e58f58eda43f67e64512b44693f18896d479e2dc1dad274f9080b"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.99.1",
-            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "cargo": {
-            "release": "1.99.1",
-            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
-            "host": "aarch64-unknown-linux-gnu"
-          },
-          "wasmBindgen": "0.2.130"
-        },
-        "wasm": {
-          "bytes": 3371995,
-          "sha256": "cd5e2dc2104f5c57939f585089041efa31ea4a3587a4188f289b6f0a48cf513b"
-        }
-      },
-      {
-        "tools": {
-          "rustc": {
-            "release": "1.99.1",
-            "commit": "58cf8f9c35b355199727627d07ae34a4e2846d67",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "cargo": {
-            "release": "1.99.1",
-            "commit": "5f94df4789f005f9a352888e8355ffc645b7ed0e",
-            "host": "aarch64-pc-windows-msvc"
-          },
-          "wasmBindgen": "0.2.130"
-        },
-        "wasm": {
-          "bytes": 3371692,
-          "sha256": "aae11ba820026e01a787a4636f92de0aa6a9828168ff0180971a004a80368a8b"
+          "bytes": 3372078,
+          "sha256": "bcc9648bb148fc3234ac3837dbd57d605944e16d456f133b5ec75c93d0eb2000"
         }
       }
     ]
@@ -118,8 +80,8 @@
     },
     {
       "path": "renderers/resvg/supply/resvg/index_bg.wasm",
-      "bytes": 3371673,
-      "sha256": "bd291706e19e58f58eda43f67e64512b44693f18896d479e2dc1dad274f9080b",
+      "bytes": 3372078,
+      "sha256": "bcc9648bb148fc3234ac3837dbd57d605944e16d456f133b5ec75c93d0eb2000",
       "nativeFile": "index_bg.wasm"
     }
   ]

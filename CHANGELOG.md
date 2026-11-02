@@ -32,6 +32,10 @@ remain pre-release contracts and may contain incompatible changes.
   which no longer changed the lock, is retired. The LikeC4 parser supply is rebuilt from the refreshed lock. The Linux
   CI image is rebuilt on the re-published Playwright 1.64.1 image. `npm audit` reports no advisory, and the published
   package declares no dependency.
+- The raster renderer is rebuilt from the relocked source closure `0.49.0-f55157d60abd`: crc32fast 1.5.4 and
+  unicode-script 0.5.9 within resvg 0.49.0 and `wasm-bindgen` 0.2.130. The closure is in the GitLab package registry and
+  a GitHub release, the canonical renderer pair is held in Git custody, and its macOS, Linux and Windows ARM64 native
+  rebuilds are admitted witnesses.
 
 ### Fixed
 
