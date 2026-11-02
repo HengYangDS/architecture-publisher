@@ -9,6 +9,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- The overview: a model may name a Typst composition, which the build typesets with the house class into
+  `overview.svg` and PNG at the `--png` widths. The house class sets one 16:9 page in Source Serif 4 and Source Sans 3
+  with Noto Sans CJK SC for Han characters, four type sizes and the house palette; its masthead and imprint name the
+  model, its revision and the revision's date. A page is refused when text leaves its area or lies over other text,
+  when a character no face draws, a component the model lacks, a package, a plugin or a size, face or colour of the
+  composition's own appears, or when Typst warns. Building an overview needs Typst 0.15.1; the other media do not.
+- Source Serif 4 4.005 and Source Sans 3 3.052, unmodified with their licences, as the house supply.
 - A model may declare `coverage`: the repository paths it describes and those it leaves out, each with a reason.
 - `archpub check` lists the components and relations that no planned view draws and those that cite no source. With
   `--repo` it reports the model's coverage of the repository at its revision: files and bytes in scope, cited,

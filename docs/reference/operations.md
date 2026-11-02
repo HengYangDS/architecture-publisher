@@ -26,7 +26,7 @@ npm install --global --ignore-scripts build/artifacts/architecture-publisher-<ve
 The package needs Node.js 22.13 or later and has no runtime npm dependencies:
 fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
 with their digests, so a build downloads nothing. Git is needed only to verify
-sources with `--repo`. Git and Archify run with only the caller's `PATH`,
+sources with `--repo`, and Typst 0.15.1 on the path only to build an overview. Git and Archify run with only the caller's `PATH`,
 `PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`, so
 no other variable, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what
 they read or decide.
@@ -53,10 +53,12 @@ archpub --help | --version [--json]
 - `build` does the same and writes a new delivery directory. `--out` must not
   exist; the delivery is staged beside it and renamed into place only when
   every artifact is written, so a refused build leaves nothing behind.
-- `--media` names the media to deliver, `posters`, `page` or both, the
-  default; a build composes only what it delivers, so `--media posters` runs no
-  Archify. `--png` names the poster PNG widths, comma-separated, from 1 to
-  6000 px, by default 2400. `--quality` is `showcase`, the default, or
+- `--media` names the media to deliver, any of `posters`, `page` and
+  `overview`; by default the posters and the page and, when the model names a
+  composition, the overview. A build composes only what it delivers, so
+  `--media posters` runs no Archify and no Typst. `--png` names the PNG widths
+  of the posters and the overview, comma-separated, from 1 to 6000 px, by
+  default 2400. `--quality` is `showcase`, the default, or
   `standard`, which delivers drafts instead of refusing a poster page or a
   page diagram that misses its checks. An invalid value is refused before the
   model is read.
@@ -233,6 +235,23 @@ its next source. In a 1440 × 900 window every preview fits its panel, primary
 labels render at 13.25 CSS px or more in the previews and at 14 CSS px or more
 in the full viewer.
 
+## The overview
+
+The overview is the work's composition, typeset by Typst 0.15.1 with the house
+class. The build stages the composition's Typst files, the class and the model
+in one root Typst may not leave, ignores system and embedded fonts, offers only
+the house faces, Source Serif 4 and Source Sans 3, and the bundled Noto Sans CJK
+SC, and points Typst's package directories at an empty temporary directory.
+Before typesetting it refuses a composition that imports a package, loads a
+plugin, or sets a size, face, colour or the page itself. Each text the class
+sets records its glyph box, which the build reads back: text must stay 48 pt
+from either side and 16 pt from the top and the bottom, and no text may lie
+over other text. A character no available face draws is refused, because Typst
+would draw an empty box without warning, and every Typst warning or error is
+refused at the composition's line. The overview is written as `overview.svg`
+and one PNG per width at width × 72 / 1600 pixels per inch, so the same inputs
+give the same bytes.
+
 ## The delivery
 
 | File                   | Content                                                     |
@@ -241,6 +260,9 @@ in the full viewer.
 | `page-<n>.png`         | The page rasterized at 2400 px wide.                        |
 | `page-<n>-<width>.png` | The page rasterized at each other width `--png` names.      |
 | `index.html`           | The standalone interactive explainer page, unless excluded. |
+| `overview.svg`         | The overview, when the build delivers it.                   |
+| `overview.png`         | The overview rasterized at 2400 px wide.                    |
+| `overview-<width>.png` | The overview at each other width `--png` names.             |
 | `manifest.json`        | The build record.                                           |
 | `acceptance.json`      | Written by `archpub accept`; absent until then.             |
 
@@ -253,7 +275,9 @@ admission, the gates it misses, composition and measures, the explainer page's
 quality profile and gates, each
 view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
-the sources the page withholds, the details,
+the sources the page withholds, with the overview its composition's path and
+digest, the house class's and the house supply's digests, the Typst version, the
+revision's date and the number of texts, the details,
 status and sources of every component and relation, and the path, size and
 SHA-256 of every artifact. It contains no time, host path or user name, so
 building the same model with the same version on one platform reproduces every
@@ -298,6 +322,12 @@ or Archify reported.
 | `poster_unbalanced`                                                                     | No admitted page holds a view, alone or with a neighbour.                                   |
 | `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                  |
 | `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.   |
+| `overview_composition_missing`, `overview_composition_invalid`                          | The overview is asked of a model without a composition, or its directory holds `archpub`.   |
+| `overview_typst_missing`, `overview_typst_version`                                      | Typst is not on the path or is not 0.15.1.                                                  |
+| `overview_import_refused`, `overview_style_refused`                                     | The composition imports a package or sets a size, face, colour or the page itself.          |
+| `overview_reference_unknown`                                                            | The composition names a component the model lacks.                                          |
+| `overview_text_outside`, `overview_text_overlap`                                        | Text leaves the page's area or lies over other text.                                        |
+| `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.          |
 | `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.   |
 | `page_refused`                                                                          | Archify did not validate or deliver the page.                                               |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                                | A bundled supply failed its digest or the raster renderer failed.                           |

@@ -64,13 +64,17 @@ sources, the coverage scope, groups and views.
   model's question with one panel per view: the view's diagram, which opens
   Archify's full viewer, and steps that light each component and cite its
   source at the pinned revision.
+- **Overview:** `overview.svg` and PNG, when the model names a composition: one
+  16:9 page its author sets with the house class in Typst 0.15.1, checked for
+  text outside its area, text over text and characters no face draws.
 - **Manifest:** `manifest.json`, the digest of the model, every source, every
   bundled supply and every artifact, each page's measures and the gates it
   misses, each diagram's route measures and the details, statuses and sources
   of every component and relation. Building the same model with the same
   version on one platform reproduces every byte.
 
-`--media posters` or `--media page` builds one medium alone. The publisher sets
+`--media posters`, `--media page` or `--media overview` builds one medium
+alone. The publisher sets
 its own words, such as the notes' headings and the legend, in the model's
 language: English, Simplified or Traditional Chinese, Spanish or Korean.
 

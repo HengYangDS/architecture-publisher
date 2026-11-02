@@ -21,8 +21,9 @@ const ALLOWED = Object.freeze({
   layout: ["layout", "refusal"],
   poster: ["breaks", "kinds", "layout", "locale", "poster", "refusal", "supply"],
   map: ["breaks", "environment", "kinds", "layout", "locale", "map", "refusal", "supply"],
+  overview: ["environment", "overview", "refusal", "supply"],
   importers: ["locale", "model", "refusal", "supply"],
-  build: ["icons", "map", "model", "plan", "poster", "refusal", "sources", "supply"],
+  build: ["icons", "map", "model", "overview", "plan", "poster", "refusal", "sources", "supply"],
   delivery: ["build", "refusal"],
   cli: ["build", "cli", "delivery", "importers", "refusal"],
 });

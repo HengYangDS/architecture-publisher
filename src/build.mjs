@@ -4,6 +4,7 @@ import path from "node:path";
 import { loadIcons } from "./icons.mjs";
 import { deliverExplainer, explainerPage } from "./map/explainer.mjs";
 import { loadModel } from "./model/load.mjs";
+import { typesetOverview } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
 import { admitsView } from "./poster/compose/candidates.mjs";
 import { composePosters } from "./poster/compose/edition.mjs";
@@ -13,12 +14,13 @@ import { POSTER } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
 import { bindSources } from "./sources/bind.mjs";
 import { measureCoverage, uncitedStatements } from "./sources/coverage.mjs";
+import { commitDate, commitOf } from "./sources/git.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
 const DELIVERY_VERSION = 4;
-/** The media a delivery may carry: the poster pages and the interactive page. */
-const MEDIA = Object.freeze(["posters", "page"]);
+/** The media a delivery may carry: the poster pages, the interactive page and the overview. */
+const MEDIA = Object.freeze(["posters", "page", "overview"]);
 /** The quality profiles a build may hold its media to. */
 const QUALITIES = Object.freeze(["showcase", "standard"]);
 /** The PNG widths a poster page is rasterized at by default: its own width. */
@@ -40,12 +42,13 @@ const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
  * @param {BuildOptions} options
  */
 function buildOptions(options = {}) {
-  const requested = options.media ?? MEDIA;
+  const requested = options.media ?? null;
   const png = [...new Set(options.png ?? PNG_WIDTHS)].sort((a, b) => a - b);
   const quality = options.quality ?? "showcase";
-  if (!requested.length || requested.some((name) => !MEDIA.includes(name)))
+  if (requested && (!requested.length || requested.some((name) => !MEDIA.includes(name))))
     refuse("build_media_invalid", `Media must be one or more of ${MEDIA.join(", ")}.`);
-  const media = MEDIA.filter((name) => requested.includes(name));
+  // Without --media, the model decides whether the overview is delivered.
+  const media = requested ? MEDIA.filter((name) => requested.includes(name)) : null;
   if (
     !png.length ||
     png.some((width) => !Number.isInteger(width) || width < 1 || width > MAXIMUM_WIDTH)
@@ -119,19 +122,50 @@ async function prepare(modelPath, options) {
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
+  const media = options.media ?? MEDIA.filter((name) => name !== "overview" || model.overview);
+  if (media.includes("overview") && !model.overview)
+    refuse(
+      "overview_composition_missing",
+      "The model names no overview composition; name one in `overview` or leave the overview out of --media.",
+    );
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
+  const overview = media.includes("overview")
+    ? await typesetOverview({
+        composition: path.resolve(path.dirname(modelPath), model.overview),
+        modelBytes: loaded.content,
+        revision: model.repository?.revision ?? null,
+        date: revisionDate(model, options.repo),
+        widths: options.png,
+      })
+    : null;
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
   const { quality } = options;
   // Pages are composed for the edition as a whole: a sparse view shares a page
   // with its neighbour, so a poster is a page, not a view.
-  const posters = options.media.includes("posters")
+  const posters = media.includes("posters")
     ? composePosters(model, views, typefaces, icons, { quality })
     : [];
-  const page = options.media.includes("page")
-    ? await explainerPage(model, views, { quality })
-    : null;
-  return { loaded, model, binding, views, posters, page, icons, typefaces };
+  const page = media.includes("page") ? await explainerPage(model, views, { quality }) : null;
+  return { loaded, model, binding, media, views, posters, page, overview, icons, typefaces };
+}
+
+/** The commit date of the model's revision in the checkout, or none without one. */
+function revisionDate(model, repo) {
+  if (!repo || !model.repository?.revision) return null;
+  const root = path.resolve(repo);
+  return commitDate(root, commitOf(root, model.repository.revision, "source_revision_unknown"));
+}
+
+/** The overview's inputs and Typst's reading of them, for the manifest and the check. */
+function overviewSummary(model, overview) {
+  return {
+    composition: { path: model.overview, sha256: overview.composition },
+    house: overview.house,
+    typst: overview.typst,
+    date: overview.date,
+    texts: overview.texts.length,
+  };
 }
 
 function viewSummary(view, posters) {
@@ -223,10 +257,12 @@ export async function checkModel(modelPath, options = {}) {
   return {
     model: { id: model.id, sha256: prepared.loaded.sha256 },
     quality: chosen.quality,
+    media: prepared.media,
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
     views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
     posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
     diagrams: prepared.page?.diagrams.map(diagramSummary) ?? [],
+    overview: prepared.overview ? overviewSummary(model, prepared.overview) : null,
     statements: {
       undrawn: undrawnStatements(model, prepared.views),
       uncited: uncitedStatements(model),
@@ -289,6 +325,12 @@ export async function buildDelivery(modelPath, out, options = {}) {
           await rasterize(poster.svg, width, poster.height, poster.width),
         );
     }
+    const { overview } = prepared;
+    if (overview) {
+      await fs.writeFile(path.join(staging, overview.files.svg), overview.svg);
+      for (const { file, bytes } of overview.png)
+        await fs.writeFile(path.join(staging, file), bytes);
+    }
     const page = prepared.page ? await deliverExplainer(prepared.page, staging) : null;
     const [fonts, resvg] = await Promise.all([verifySupply("fonts"), verifySupply("resvg")]);
     const manifest = {
@@ -304,13 +346,14 @@ export async function buildDelivery(modelPath, out, options = {}) {
       },
       repository: prepared.model.repository,
       quality: chosen.quality,
-      media: chosen.media,
+      media: prepared.media,
       sources: { state: prepared.binding.state, records: prepared.binding.records },
       supplies: {
         fonts: fonts.sha256,
         icons: prepared.icons.supplySha256,
         resvg: resvg.sha256,
         ...(page ? { archify: page.supplySha256 } : {}),
+        ...(overview ? { house: overview.supply } : {}),
       },
       views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
       posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
@@ -323,6 +366,9 @@ export async function buildDelivery(modelPath, out, options = {}) {
               withheld: prepared.page.withheld,
             }
           : null,
+      ...(overview
+        ? { overview: { ...overviewSummary(prepared.model, overview), ...overview.files } }
+        : {}),
       evidence: evidenceOf(prepared.model),
       artifacts: await digestTree(staging),
     };
@@ -334,7 +380,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
     return {
       out: target,
       model: manifest.model,
-      media: chosen.media,
+      media: prepared.media,
       views: manifest.views.map(({ id }) => id),
       posters: manifest.posters.length,
       artifacts: manifest.artifacts.length,

@@ -151,3 +151,26 @@ specifiers = ["1.99.1"]
 components = "cargo,rust-std,rustc"
 profile = "minimal"
 targets = "wasm32-unknown-unknown"
+
+[[tools.typst]]
+version = "0.15.1"
+backend = "aqua:typst/typst"
+specifiers = ["0.15.1"]
+
+[tools.typst."platforms.linux-arm64"]
+checksum = "sha256:5aa8d74a3d906e60ea12a66ac2f37f8eef1b14cbad7182a745e393a10c23dcee"
+checksum_source = "mise-versions"
+url = "https://github.com/typst/typst/releases/download/v0.15.1/typst-aarch64-unknown-linux-musl.tar.xz"
+url_api = "https://api.github.com/repos/typst/typst/releases/assets/480300408"
+
+[tools.typst."platforms.macos-arm64"]
+checksum = "sha256:48f62ed034aa3a7978309579ac6ca00045e2ef0da73114e8af27cfd8e74dc05a"
+checksum_source = "mise-versions"
+url = "https://github.com/typst/typst/releases/download/v0.15.1/typst-aarch64-apple-darwin.tar.xz"
+url_api = "https://api.github.com/repos/typst/typst/releases/assets/480299147"
+
+[tools.typst."platforms.windows-arm64"]
+checksum = "sha256:4ab28e1b71ec3184d38d580ab797f499b6770d952b6b19167be5cea5c2662e14"
+checksum_source = "mise-versions"
+url = "https://github.com/typst/typst/releases/download/v0.15.1/typst-aarch64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/typst/typst/releases/assets/480303574"

@@ -19,6 +19,9 @@ export function isRelativePath(value) {
   );
 }
 
+/** An overview composition: a relative path to a Typst file within the model's directory. */
+export const isCompositionPath = (value) => isRelativePath(value) && value.endsWith(".typ");
+
 /** A scope path: a relative file path, or a directory path ending in a slash. */
 const isScopePath = (value) =>
   typeof value === "string" && isRelativePath(value.endsWith("/") ? value.slice(0, -1) : value);

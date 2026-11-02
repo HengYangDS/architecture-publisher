@@ -26,7 +26,8 @@ bytes are verified by the supply checks and behavior tests.
 ## Toolchain and supply
 
 Development and CI use the exact Node.js and independently selected npm versions
-owned by `.config/mise/config.toml` and its lockfile, not Node's bundled npm.
+owned by `.config/mise/config.toml` and its lockfile, not Node's bundled npm,
+and the official Typst 0.15.1 that typesets the overview.
 Native `devEngines` admission rejects another development Node or npm before
 installation or scripts. Every CI job uses the same locked selection in its own
 ignored tool cache. The installed package itself needs only Node.js 22.13 or
@@ -35,8 +36,8 @@ later.
 The supply checks bind each bundled supply to its recorded identity:
 `node tools/supply/likec4.mjs --check`, `node tools/supply/icons.mjs --check`
 and `node tools/supply/resvg.mjs --check`. Archify's complete release archive
-is retained under `tools/supply/archives/`, and the fonts and icons carry their
-licenses and digests in their `supply.json`.
+is retained under `tools/supply/archives/`, and the fonts, the overview's house
+faces and the icons carry their licenses and digests in their `supply.json`.
 
 The LikeC4 parser supply is rebuilt from the npm lockfile. Chevrotain 11.0.3
 declares an older `lodash-es` exactly, so the workspace uses one npm

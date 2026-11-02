@@ -74,6 +74,7 @@ kinds, details and views.
 | `groups`      | no       | Named sets of components.                                                                    |
 | `views`       | no       | Any number of views; without them the publisher plans the views itself.                      |
 | `coverage`    | no       | The repository paths the model describes and those it leaves out, for `archpub check`.       |
+| `overview`    | no       | The overview composition: a Typst file beside the model that sets its work's overview page.  |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -175,6 +176,36 @@ reports the first-parent commits since the model's revision and whether each
 cited file is unchanged, modified, moved, with its new path, or deleted, as
 Git's rename detection reads them. The report never refuses a model; deciding
 what to cite stays with its author.
+
+## Overview
+
+`overview` names the work's overview composition: a Typst file, relative to the
+model and within its directory, that sets one 16:9 page with the publisher's
+house class. The page is designed for the work, as a document is written in a
+document class; the class owns the page, the faces, the four type sizes and the
+palette, and the composition places the work's own figure and text:
+
+```typst
+#import "/archpub/house.typ": *
+#show: overview
+
+#masthead([Shop], [Orders reach the store through one gateway], [How a request moves.])
+#head(48pt, 140pt, [The request path])
+#tx(48pt, 170pt, label-of("gateway"), weight: "semibold")
+#dl(48pt, 200pt, 90pt, 600pt, (([Gateway], [checks the session]), ([Store], [keeps the orders])))
+#imprint([Each element's source is in the interactive page.])
+```
+
+The class provides `masthead` and `imprint`, which print the model's title, its
+revision and, with `--repo`, the revision's commit date; `head`, `tx`, `txr` and
+`txc` for text at a baseline, `dl` for definition lists, and `seg`, `ring`,
+`disc`, `tick` and the arrowheads for lines and stations. Sizes are `title`,
+`head`, `text` and `small`; colours are the class's `ink`, `green`, `mid`,
+`soft`, `rule` and `ochre`. `label-of("<id>")` prints a component's label from
+the model and refuses an id the model lacks. A composition may not import a
+package, load a plugin, or set a size, face, colour or the page itself; the
+[operations reference](operations.md#the-overview) lists the checks on the
+typeset page.
 
 ## Groups
 

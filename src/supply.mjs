@@ -12,6 +12,7 @@ const verified = new Map();
 const SUPPLIES = Object.freeze({
   archify: "renderers/archify/supply",
   fonts: "renderers/fonts/supply",
+  house: "renderers/house/supply",
   icons: "renderers/icons/supply",
   likec4: "supplies/likec4",
   resvg: "renderers/resvg/supply",

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { DEFAULT_LOCALE, LOCALES } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
-import { checkCoverage, isRelativePath, normalizeCoverage } from "./paths.mjs";
+import { checkCoverage, isCompositionPath, isRelativePath, normalizeCoverage } from "./paths.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
 export const MODEL_VERSION = 1;
@@ -38,6 +38,7 @@ const TOP = {
     "groups",
     "views",
     "coverage",
+    "overview",
   ]),
 };
 
@@ -275,6 +276,12 @@ export function validateModel(model, options = {}) {
   });
   const groupIds = new Set(groups.map(({ id }) => id));
   checkCoverage(problems, value.coverage);
+  if (value.overview !== undefined && !isCompositionPath(value.overview))
+    problems.add(
+      "model_overview_invalid",
+      "/overview",
+      "must be a relative path to a .typ file within the model's directory",
+    );
   const views =
     value.views === undefined ? null : checkViews(problems, value.views, componentIds, groupIds);
   // Tiers are resolved in the same pass, so a tier overlap is reported with
@@ -443,6 +450,7 @@ function normalize(value, parts) {
         members: view.members ? [...view.members] : null,
       })) ?? null,
     coverage: normalizeCoverage(value.coverage),
+    overview: value.overview ?? null,
   });
 }
 
@@ -481,5 +489,6 @@ export async function loadModel(file, options = {}) {
     model: validateModel(parsed, options),
     sha256: createHash("sha256").update(bytes).digest("hex"),
     bytes: bytes.length,
+    content: bytes,
   };
 }

@@ -1,0 +1,71 @@
+{
+  "schema": "architecture.font-supply/v2",
+  "families": [
+    {
+      "family": "Source Serif 4",
+      "version": "4.005",
+      "license": "OFL-1.1",
+      "license_file": "source-serif-4/LICENSE.md",
+      "origin": "Unmodified members OTF/SourceSerif4-Regular.otf, OTF/SourceSerif4Subhead-Regular.otf and LICENSE.md of https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip (SHA-256 549fdb8f9a682bd06944298621404969f6de77c2e422ff3b8244a1dcd6a0c425)"
+    },
+    {
+      "family": "Source Sans 3",
+      "version": "3.052",
+      "license": "OFL-1.1",
+      "license_file": "source-sans-3/LICENSE.md",
+      "origin": "Unmodified members OTF/SourceSans3-Regular.otf, OTF/SourceSans3-It.otf and OTF/SourceSans3-Semibold.otf of https://github.com/adobe-fonts/source-sans/releases/download/3.052R/OTF-source-sans-3.052R.zip (SHA-256 a4ebbdea20b08ccbd7bf3665a9462454eefdd01d9a6307129d3b3d4672981074), with LICENSE.md of the repository at tag 3.052R, which the package does not include"
+    }
+  ],
+  "files": [
+    {
+      "path": "source-serif-4/SourceSerif4-Regular.otf",
+      "bytes": 241392,
+      "sha256": "edf160d0d584deee8a3bb2c3371b2a7624ca63580fbe02c57c1f4c91e84d8787",
+      "family": "Source Serif 4",
+      "weight": 400,
+      "style": "normal"
+    },
+    {
+      "path": "source-serif-4/SourceSerif4Subhead-Regular.otf",
+      "bytes": 272540,
+      "sha256": "28f0d716f1a8fbf81fc87c2ef04603b24be81721a8b32b9538fc8ea390454edd",
+      "family": "Source Serif 4 Subhead",
+      "weight": 400,
+      "style": "normal"
+    },
+    {
+      "path": "source-serif-4/LICENSE.md",
+      "bytes": 4492,
+      "sha256": "75784a295293a8992f5a8d99210566e0064a012e6dab6731305e3787f15896c7"
+    },
+    {
+      "path": "source-sans-3/SourceSans3-Regular.otf",
+      "bytes": 334924,
+      "sha256": "08df266400933d3178d081a45f94a08814c3e55b4b7dd2e0ff69cb1329f13ab6",
+      "family": "Source Sans 3",
+      "weight": 400,
+      "style": "normal"
+    },
+    {
+      "path": "source-sans-3/SourceSans3-It.otf",
+      "bytes": 239048,
+      "sha256": "430b9f0eb1170be0981706d14b6cf87122efba9d86c373bbdf69daf276421462",
+      "family": "Source Sans 3",
+      "weight": 400,
+      "style": "italic"
+    },
+    {
+      "path": "source-sans-3/SourceSans3-Semibold.otf",
+      "bytes": 339636,
+      "sha256": "36f1cd2c344aa3109e64429bce41a41e4b2b923beb2db19b8dbf9bb56f05a4f9",
+      "family": "Source Sans 3",
+      "weight": 600,
+      "style": "normal"
+    },
+    {
+      "path": "source-sans-3/LICENSE.md",
+      "bytes": 4579,
+      "sha256": "89ad2c4f66dd29127527493e729c31e731f111cf10faf5774c3db9275ed0c22c"
+    }
+  ]
+}

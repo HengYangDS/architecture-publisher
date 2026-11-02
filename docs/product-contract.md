@@ -13,8 +13,10 @@ relations:
 Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
 delivery: static posters of its views on fixed 16:9 pages, one interactive page
-that answers the model's question view by view, and a manifest that binds every
-artifact to its inputs and keeps the evidence the drawings leave out.
+that answers the model's question view by view, an overview page its author
+composes with the house class when the model names one, and a manifest that
+binds every artifact to its inputs and keeps the evidence the drawings leave
+out.
 
 The model says what the architecture is: components, relations, their details
 and the repository files that support them. Architecture Publisher owns how that
@@ -63,8 +65,8 @@ platform.
 
 A delivery holds each poster page as `page-<n>.svg` and as PNG at 2400 px or
 the widths the caller names; the interactive page as one standalone
-`index.html`; and `manifest.json`. A build may deliver the posters or the page
-alone. The [operations reference](reference/operations.md#the-delivery) lists
+`index.html`; the overview as `overview.svg` and PNG at the same widths; and
+`manifest.json`. A build may deliver any of the three media alone. The [operations reference](reference/operations.md#the-delivery) lists
 the manifest fields.
 
 A poster page holds one to three views. It shows the title, the question and

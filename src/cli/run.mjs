@@ -16,8 +16,10 @@ export const USAGE = `Usage:
 
 Build options:
   --repo <checkout>     Verify the model's sources against this Git checkout.
-  --media <list>        Media to deliver: posters, page or both (default posters,page).
-  --png <widths>        Poster PNG widths in pixels, comma-separated (default 2400).
+  --media <list>        Media to deliver: posters, page, overview (default posters,page
+                        and, when the model names a composition, overview).
+  --png <widths>        PNG widths of the posters and the overview, comma-separated
+                        (default 2400).
   --quality <profile>   showcase (default) or standard, which delivers drafts.
 
 Check options:
@@ -141,8 +143,9 @@ const COMMANDS = {
       const media = [
         ...(result.media.includes("posters") ? [count(result.posters, "poster page")] : []),
         ...(result.media.includes("page") ? ["the page"] : []),
+        ...(result.media.includes("overview") ? ["the overview"] : []),
       ];
-      return `Built ${count(result.views.length, "view")} as ${media.join(" and ")} into ${result.out}.\n`;
+      return `Built ${count(result.views.length, "view")} as ${series(media)} into ${result.out}.\n`;
     },
   },
   check: {

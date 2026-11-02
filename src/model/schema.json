@@ -285,6 +285,17 @@
           }
         }
       }
+    },
+    "overview": {
+      "description": "The overview composition: a Typst file relative to the model, within its directory.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/path"
+        },
+        {
+          "pattern": "\\.typ$"
+        }
+      ]
     }
   },
   "$defs": {

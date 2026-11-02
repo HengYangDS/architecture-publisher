@@ -31,6 +31,18 @@ export function readGit(repo, args, input) {
 }
 
 /**
+ * A commit's date as the committer recorded it, `YYYY-MM-DD`.
+ * @param {string} repo
+ * @param {string} commit
+ */
+export function commitDate(repo, commit) {
+  const result = readGit(repo, ["show", "-s", "--format=%cs", commit]);
+  if (result.status !== 0)
+    refuse("source_read_failed", `Git could not read the date of ${commit}.`);
+  return result.stdout.toString("utf8").trim();
+}
+
+/**
  * The commit a revision names in a repository, or a refusal with the given code.
  * @param {string} repo
  * @param {string} revision
