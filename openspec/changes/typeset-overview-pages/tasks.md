@@ -16,6 +16,6 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 4.2 Build the corpus models; verify every poster and page is byte-identical to the published 0.7.0 deliveries.
+- [x] 4.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `dd82239` with 99.58% statements, 95.78% branches, 99.81% functions and 99.58% lines.
+- [x] 4.2 Build the corpus models; verify every poster and page is byte-identical to the published 0.7.0 deliveries. At `dd82239` every poster and page of the three works is byte-identical; each manifest differs only in the Raster supply digest, as since the layout Change.
 - [x] 4.3 Record the fixture overview's SVG and PNG digests in the test every CI platform runs; verify the official and the Homebrew builds of Typst 0.15.1 both reproduce them here.
