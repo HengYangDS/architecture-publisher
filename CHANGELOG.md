@@ -28,6 +28,10 @@ remain pre-release contracts and may contain incompatible changes.
 - A page of more than four views lists no panels beside its conclusion, whose reasons Archify caps at four; its panels
   stay numbered in the plan's order.
 
+### Fixed
+
+- On Windows, an overview refusal names the composition's line instead of the temporary file Typst read.
+
 ### Removed
 
 - **Breaking:** the four-view limit. A model declares any number of views, and an automatic overview plans one view for

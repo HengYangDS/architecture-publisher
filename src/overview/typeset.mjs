@@ -115,18 +115,38 @@ async function stage(composition, modelBytes) {
 }
 
 /**
+ * A path Typst reports, relative to the staged root with forward slashes. Typst reports a
+ * staged file relative to its working directory on Linux and macOS, but on Windows by its
+ * absolute verbatim path, `\\?\C:\…`.
+ * @param {string} reported
+ * @param {readonly string[]} roots the staged root as created and as resolved
+ */
+function stagedPath(reported, roots) {
+  const slashed = (value) =>
+    value
+      .split("\\")
+      .join("/")
+      .replace(/^\/\/\?\//u, "");
+  const file = slashed(reported);
+  for (const root of roots.map(slashed))
+    if (file.startsWith(`${root}/`)) return file.slice(root.length + 1);
+  return file;
+}
+
+/**
  * Typst's diagnostics as problems. Each names the composition's line: the last place in the
  * trace outside the staged class, or the first place when the class alone is named.
- * @param {string} stderr Typst's human-readable diagnostics, with paths relative to the root
+ * @param {string} stderr Typst's human-readable diagnostics
+ * @param {readonly string[]} [roots] the staged root, to which every reported path is made relative
  */
-export function typstProblems(stderr) {
+export function typstProblems(stderr, roots = []) {
   const blocks = stderr
     .split(/\r?\n(?=(?:error|warning): )/u)
     .filter((block) => /^(error|warning): /u.test(block));
   return blocks.map((block) => {
     const [, level, message] = /^(error|warning): (.*)/u.exec(block) ?? [];
     const places = [...block.matchAll(/(?:┌─|\bat) (\S+?):(\d+):(\d+)/gu)].map((match) => ({
-      file: match[1].split("\\").join("/"),
+      file: stagedPath(match[1], roots),
       line: Number(match[2]),
     }));
     const own = places.filter(({ file }) => !file.startsWith(`${STAGED}/`)).at(-1) ?? places[0];
@@ -140,8 +160,8 @@ export function typstProblems(stderr) {
 }
 
 /** Refuse when Typst reported anything: an error, a warning or one of the class's own refusals. */
-function refuseDiagnostics(stderr) {
-  const problems = typstProblems(stderr);
+function refuseDiagnostics(stderr, roots) {
+  const problems = typstProblems(stderr, roots);
   if (problems.length)
     refuse(problems[0].code, "Typst did not typeset the overview cleanly.", problems);
 }
@@ -158,6 +178,7 @@ export async function typesetOverview(input) {
   const staged = await stage(input.composition, input.modelBytes);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-out-"));
   try {
+    const roots = [staged.root, await fs.realpath(staged.root)];
     const common = [
       "--root",
       staged.root,
@@ -186,10 +207,10 @@ export async function typesetOverview(input) {
       } catch (error) {
         const failure = /** @type {any} */ (error);
         if (typeof failure.stderr !== "string") throw error;
-        refuseDiagnostics(failure.stderr);
+        refuseDiagnostics(failure.stderr, roots);
         throw error;
       }
-      refuseDiagnostics(result.stderr);
+      refuseDiagnostics(result.stderr, roots);
       return result.stdout;
     };
     const entry = path.join(staged.root, staged.entry);

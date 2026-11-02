@@ -202,6 +202,24 @@ test("Typst's diagnostics name the composition's line, not the class's", () => {
   ]);
 });
 
+test("diagnostics name the composition's line wherever Typst reports the staged files", () => {
+  const stderr = (root, separator) =>
+    [
+      "error: panicked with: overview_reference_unknown: missing",
+      `   ┌─ ${[root, "archpub", "house.typ"].join(separator)}:39:24`,
+      `  while calling \`label-of\` at ${[root, "overview.typ"].join(separator)}:7:16`,
+    ].join("\n");
+  const own = (text, roots) => typstProblems(text, roots)[0].path;
+  // Windows: the absolute verbatim path of the staged files.
+  const windows = "C:\\CI\\tmp\\archpub-overview-x";
+  assert.equal(own(stderr(`\\\\?\\${windows}`, "\\"), [windows]), "overview.typ:7");
+  // A temporary directory reported by its resolved path.
+  const temporary = ["/var/t/archpub-overview-y", "/private/var/t/archpub-overview-y"];
+  assert.equal(own(stderr(temporary[1], "/"), temporary), "overview.typ:7");
+  // Linux and macOS: paths relative to Typst's working directory, the staged root.
+  assert.equal(own(stderr(".", "/").replaceAll("./", ""), temporary), "overview.typ:7");
+});
+
 test("the overview needs the pinned Typst", async () => {
   await assert.rejects(typstVersion(path.join("absent", "typst")), {
     code: "overview_typst_missing",
