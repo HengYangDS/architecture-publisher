@@ -16,5 +16,5 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 4.2 Build the corpus models; verify every poster and page is byte-identical to the published 0.7.0 deliveries.
+- [x] 4.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `1da9c4c` with 99.59% statements, 95.82% branches, 99.8% functions and 99.59% lines.
+- [x] 4.2 Build the corpus models; verify every poster and page is byte-identical to the published 0.7.0 deliveries. At `1da9c4c` every poster and page of the three works is byte-identical; each manifest differs only in the Raster supply digest, as since the layout Change.
