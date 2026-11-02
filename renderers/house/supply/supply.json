@@ -5,15 +5,15 @@
       "family": "Source Serif 4",
       "version": "4.005",
       "license": "OFL-1.1",
-      "license_file": "source-serif-4/LICENSE.md",
-      "origin": "Unmodified members OTF/SourceSerif4-Regular.otf, OTF/SourceSerif4Subhead-Regular.otf and LICENSE.md of https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip (SHA-256 549fdb8f9a682bd06944298621404969f6de77c2e422ff3b8244a1dcd6a0c425)"
+      "license_file": "source-serif-4/LICENSE",
+      "origin": "Unmodified members OTF/SourceSerif4-Regular.otf, OTF/SourceSerif4Subhead-Regular.otf and LICENSE.md of https://github.com/adobe-fonts/source-serif/releases/download/4.005R/source-serif-4.005_Desktop.zip (SHA-256 549fdb8f9a682bd06944298621404969f6de77c2e422ff3b8244a1dcd6a0c425); the licence is kept as LICENSE, its bytes unchanged"
     },
     {
       "family": "Source Sans 3",
       "version": "3.052",
       "license": "OFL-1.1",
-      "license_file": "source-sans-3/LICENSE.md",
-      "origin": "Unmodified members OTF/SourceSans3-Regular.otf, OTF/SourceSans3-It.otf and OTF/SourceSans3-Semibold.otf of https://github.com/adobe-fonts/source-sans/releases/download/3.052R/OTF-source-sans-3.052R.zip (SHA-256 a4ebbdea20b08ccbd7bf3665a9462454eefdd01d9a6307129d3b3d4672981074), with LICENSE.md of the repository at tag 3.052R, which the package does not include"
+      "license_file": "source-sans-3/LICENSE",
+      "origin": "Unmodified members OTF/SourceSans3-Regular.otf, OTF/SourceSans3-It.otf and OTF/SourceSans3-Semibold.otf of https://github.com/adobe-fonts/source-sans/releases/download/3.052R/OTF-source-sans-3.052R.zip (SHA-256 a4ebbdea20b08ccbd7bf3665a9462454eefdd01d9a6307129d3b3d4672981074), with LICENSE.md of the repository at tag 3.052R, which the package does not include; the licence is kept as LICENSE, its bytes unchanged"
     }
   ],
   "files": [
@@ -34,7 +34,7 @@
       "style": "normal"
     },
     {
-      "path": "source-serif-4/LICENSE.md",
+      "path": "source-serif-4/LICENSE",
       "bytes": 4492,
       "sha256": "75784a295293a8992f5a8d99210566e0064a012e6dab6731305e3787f15896c7"
     },
@@ -63,7 +63,7 @@
       "style": "normal"
     },
     {
-      "path": "source-sans-3/LICENSE.md",
+      "path": "source-sans-3/LICENSE",
       "bytes": 4579,
       "sha256": "89ad2c4f66dd29127527493e729c31e731f111cf10faf5774c3db9275ed0c22c"
     }
