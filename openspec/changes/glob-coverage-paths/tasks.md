@@ -7,5 +7,5 @@
 
 ## 2. Verification
 
-- [ ] 2.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 2.2 Check the AIGW work with `**/*_test.go` excluded; verify every production file in its scope is cited and none is uncovered.
+- [x] 2.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `6af8ada` with 99.58% statements, 95.76% branches, 99.81% functions and 99.58% lines.
+- [x] 2.2 Check the AIGW work with `**/*_test.go` excluded; verify every production file in its scope is cited and none is uncovered. At `6af8ada` with `**/*_test.go` excluded: 210 of 210 production files cited, 0 uncovered, 386 excluded.
