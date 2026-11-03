@@ -5,7 +5,7 @@
     "version": "0.49.0",
     "registry": {
       "provider": "gitlab",
-      "projectPath": "dig/research/human-agent-stewardship/architecture-publisher",
+      "projectPath": "dig/misc/tools/architecture/architecture-publisher",
       "package": "architecture-raster-resvg-source",
       "version": "0.49.0-f55157d60abd",
       "file": "source.tar.xz"

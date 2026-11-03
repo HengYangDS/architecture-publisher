@@ -79,7 +79,16 @@ const result = spawnSync(
 );
 if (result.error) throw result.error;
 if (result.status !== 0) throw Error(result.stderr.trim() || "raster_supply_source_invalid");
-const content = Buffer.from(JSON.stringify({ ...manifest, files }, null, 2) + "\n");
+// The source record is the closure's one location and digest; the manifest's package entry follows it.
+const closure = source.source.name.split("/").pop();
+const packages = manifest.packages.map((entry) =>
+  entry.name === closure && entry.version === source.source.version
+    ? { ...entry, archive: sourceLocation, integrity: `sha256-${source.source.archiveSha256}` }
+    : entry,
+);
+if (packages.filter((entry) => entry.name === closure).length !== 1)
+  throw Error("raster_supply_package_invalid");
+const content = Buffer.from(JSON.stringify({ ...manifest, packages, files }, null, 2) + "\n");
 if (mode === "--write") {
   if (!Buffer.from(noticesText).equals(notices)) await fs.writeFile(noticesPath, notices);
   await fs.writeFile(manifestPath, content);

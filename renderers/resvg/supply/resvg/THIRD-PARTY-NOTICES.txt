@@ -1,6 +1,6 @@
 Architecture Publisher raster renderer third-party notices
 
-Source closure: gitlab-generic://dig/research/human-agent-stewardship/architecture-publisher/architecture-raster-resvg-source/0.49.0-f55157d60abd/source.tar.xz
+Source closure: gitlab-generic://dig/misc/tools/architecture/architecture-publisher/architecture-raster-resvg-source/0.49.0-f55157d60abd/source.tar.xz
 Source archive SHA-256: f55157d60abda143055b6b37287347775bcad7f25da4f4ffb145a75415c5e367
 Cargo.lock SHA-256: 9998427d07916056e6215acb058ce35b6241e342968bd895a1ccc9d07ea4805c
 

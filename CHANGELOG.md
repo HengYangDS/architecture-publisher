@@ -41,6 +41,9 @@ remain pre-release contracts and may contain incompatible changes.
   rebuilds are admitted witnesses.
 - The development and CI supply moves to `semver` 7.8.6 and `jdx/mise-action` 5.2.6, which ends a step that hung for up to
   ten minutes when a cache restore failed.
+- The GitLab project moved to `dig/misc/tools/architecture/architecture-publisher`, beside the group's other tools.
+  The raster renderer's source record names the closure's package registry there, the supply manifest derives the
+  closure's location from that record, and the links to the early tags follow it.
 
 ### Fixed
 
@@ -728,28 +731,28 @@ remain pre-release contracts and may contain incompatible changes.
 [0.6.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.6.0
 [0.5.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.5.0
 [0.4.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.4.0
-[0.3.0-alpha.15]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.15
-[0.3.0-alpha.14]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.14
-[0.3.0-alpha.13]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.13
-[0.3.0-alpha.12]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.12
-[0.3.0-alpha.11]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.11
-[0.3.0-alpha.10]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.10
-[0.3.0-alpha.9]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.9
-[0.3.0-alpha.8]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.8
-[0.3.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.7
-[0.3.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.6
-[0.3.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.5
-[0.3.0-alpha.4]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.4
-[0.3.0-alpha.3]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.3
-[0.3.0-alpha.2]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.2
-[0.3.0-alpha.1]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.1
-[0.3.0-alpha.0]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.3.0-alpha.0
-[0.2.0-alpha.0]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.2.0-alpha.0
-[0.1.0-alpha.7]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.7
-[0.1.0-alpha.6]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.6
-[0.1.0-alpha.5]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.5
-[0.1.0-alpha.4]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.4
-[0.1.0-alpha.3]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.3
-[0.1.0-alpha.2]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.2
-[0.1.0-alpha.1]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.1
-[0.1.0-alpha.0]: http://192.168.64.101:18086/dig/research/human-agent-stewardship/architecture-publisher/-/tags/v0.1.0-alpha.0
+[0.3.0-alpha.15]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.15
+[0.3.0-alpha.14]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.14
+[0.3.0-alpha.13]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.13
+[0.3.0-alpha.12]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.12
+[0.3.0-alpha.11]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.11
+[0.3.0-alpha.10]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.10
+[0.3.0-alpha.9]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.9
+[0.3.0-alpha.8]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.8
+[0.3.0-alpha.7]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.7
+[0.3.0-alpha.6]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.6
+[0.3.0-alpha.5]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.5
+[0.3.0-alpha.4]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.4
+[0.3.0-alpha.3]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.3
+[0.3.0-alpha.2]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.2
+[0.3.0-alpha.1]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.1
+[0.3.0-alpha.0]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.3.0-alpha.0
+[0.2.0-alpha.0]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.2.0-alpha.0
+[0.1.0-alpha.7]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.7
+[0.1.0-alpha.6]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.6
+[0.1.0-alpha.5]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.5
+[0.1.0-alpha.4]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.4
+[0.1.0-alpha.3]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.3
+[0.1.0-alpha.2]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.2
+[0.1.0-alpha.1]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.1
+[0.1.0-alpha.0]: http://192.168.64.101:18086/dig/misc/tools/architecture/architecture-publisher/-/tags/v0.1.0-alpha.0
