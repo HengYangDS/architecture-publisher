@@ -31,7 +31,10 @@ only draws and verifies what the model states.
    page holds is refused with `poster_unbalanced` and each gate its closest page
    misses: give it more of the model to show or merge it with a neighbour. Never
    drop meaning to pass. A digest mismatch names the actual digest at the
-   revision.
+   revision. Declare `coverage` for the part of the repository the model
+   describes, leaving out with a reason what is not its architecture, such as
+   `**/*_test.go` beside Go code, and cite the largest uncovered directories the
+   report lists until what is left is outside the question's scope.
 6. Run `archpub build model.json --repo <checkout> --out <new-directory>` and
    look at every poster and at the page before showing them to the user.
 7. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with

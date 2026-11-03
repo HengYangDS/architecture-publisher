@@ -34,6 +34,50 @@ export async function repository(t) {
 }
 
 /**
+ * A one-commit repository of Go files with tests beside them, one test spelt in upper case, and a
+ * documentation file outside src/. The commit is built from Git objects, not a working tree, so
+ * names that differ only in case stay distinct on a case-insensitive file system.
+ */
+export async function globRepository(t, objectFormat = "sha1") {
+  const root = await temporaryDirectory(t, "archpub-glob-");
+  const files = [
+    "docs/x.md",
+    "src/A_TEST.GO",
+    "src/a.go",
+    "src/a_test.go",
+    "src/lib/b.go",
+    "src/lib/b_test.go",
+    "src/net/c.go",
+  ];
+  const git = (args, input) =>
+    execFileSync("git", ["-C", root, "-c", "core.hooksPath=/dev/null", ...args], {
+      encoding: "utf8",
+      input,
+      env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1" },
+    }).trim();
+  git(["init", "--quiet", "--initial-branch=main", `--object-format=${objectFormat}`]);
+  const blob = git(["hash-object", "-w", "--stdin"], "x\n");
+  const index = files.map((file) => `100644 blob ${blob}\t${file}`).join("\n");
+  git(["update-index", "--index-info"], `${index}\n`);
+  const tree = git(["write-tree"]);
+  const commit = git(
+    [
+      "-c",
+      "user.name=Test",
+      "-c",
+      "user.email=test@example.invalid",
+      "commit-tree",
+      tree,
+      "-m",
+      "initial",
+    ],
+    "",
+  );
+  git(["update-ref", "refs/heads/main", commit]);
+  return { root, pinned: commit };
+}
+
+/**
  * A repository whose first commit holds cited, uncited, vendored and documentation
  * files, followed by two commits that modify one cited file, move another and
  * delete a third.

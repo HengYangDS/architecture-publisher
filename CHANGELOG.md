@@ -16,7 +16,10 @@ remain pre-release contracts and may contain incompatible changes.
   when a character no face draws, a component the model lacks, a package, a plugin or a size, face or colour of the
   composition's own appears, or when Typst warns. Building an overview needs Typst 0.15.1; the other media do not.
 - Source Serif 4 4.005 and Source Sans 3 3.052, unmodified with their licences, as the house supply.
-- A model may declare `coverage`: the repository paths it describes and those it leaves out, each with a reason.
+- A model may declare `coverage`: the repository paths it describes and those it leaves out, each with a reason. A
+  path may be a glob, with `*` within one path segment, `**` across segments and `?` and `[…]` one character, so
+  `**/*_test.go` leaves out the tests beside the code; Git matches it at the model's revision, case-sensitively on
+  every platform.
 - `archpub check` lists the components and relations that no planned view draws and those that cite no source. With
   `--repo` it reports the model's coverage of the repository at its revision: files and bytes in scope, cited,
   uncovered and excluded, and the largest directories that hold no cited file. With `--against <revision>` it reports

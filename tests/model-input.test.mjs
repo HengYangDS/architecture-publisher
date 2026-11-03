@@ -249,6 +249,28 @@ test("a coverage scope declares included paths and excluded paths with reasons",
   ]);
 });
 
+test("a coverage path may be a glob within the repository", () => {
+  const coverage = {
+    include: ["internal/", "cmd/**/*.go"],
+    exclude: [
+      { path: "**/*_test.go", reason: "Tests beside the code." },
+      { path: "src/gen-?/[ab]*", reason: "Generated output." },
+    ],
+  };
+  assert.deepEqual(validateModel(minimalModel({ coverage })).coverage, coverage);
+  assert.deepEqual(
+    problemsOf(
+      minimalModel({ coverage: { include: ["/**/*.go", "../*.go", "a/**/../b/*", "**//*.go"] } }),
+    ),
+    [
+      "model_coverage_path_invalid /coverage/include/0",
+      "model_coverage_path_invalid /coverage/include/1",
+      "model_coverage_path_invalid /coverage/include/2",
+      "model_coverage_path_invalid /coverage/include/3",
+    ],
+  );
+});
+
 test("an overview names a Typst composition within the model's directory", async () => {
   assert.equal(validateModel(minimalModel({ overview: "overview.typ" })).overview, "overview.typ");
   assert.equal(validateModel(minimalModel({ overview: "pages/a.typ" })).overview, "pages/a.typ");

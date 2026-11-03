@@ -163,15 +163,26 @@ repository it describes pins an earlier commit.
 ```
 
 `include` lists repository paths; a path ending in `/` is a directory and any
-other path is one file. Without `include`, the scope is the whole repository.
-`exclude` lists paths the model leaves out, each with a reason. A path is
-relative, has no empty, `.` or `..` segment and appears once across both lists.
+other path is one file. A path holding `*`, `?` or `[` is a glob: `*` matches
+within one path segment, `**` any number of segments, and `?` and `[…]` one
+character, so `**/*_test.go` leaves out the tests that live beside the code.
+Without `include`, the scope is the whole repository. `exclude` lists paths the
+model leaves out, each with a reason. A path is relative, has no empty, `.` or
+`..` segment and appears once across both lists.
+
+```json
+"coverage": {
+  "include": ["cmd/", "internal/"],
+  "exclude": [{ "path": "**/*_test.go", "reason": "Tests beside the code." }]
+}
+```
 
 With `--repo`, `archpub check` reads the files at `repository.revision` and
 reports how many of them, and how many of their bytes, are in the scope, cited
 by a source, uncovered or excluded; the files the model cites outside the
 scope; the declared paths that match no file; and the largest directories that
-hold uncovered files and no cited one. With `--against <revision>`, it also
+hold uncovered files and no cited one. Git matches each glob at that revision,
+case-sensitively on every platform. With `--against <revision>`, it also
 reports the first-parent commits since the model's revision and whether each
 cited file is unchanged, modified, moved, with its new path, or deleted, as
 Git's rename detection reads them. The report never refuses a model; deciding

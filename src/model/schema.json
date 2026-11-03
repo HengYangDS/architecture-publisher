@@ -257,7 +257,7 @@
     },
     "coverage": {
       "type": "object",
-      "description": "The repository paths the model describes and those it leaves out, each with a reason; a path ending in a slash names a directory.",
+      "description": "The repository paths the model describes and those it leaves out, each with a reason; a path holding *, ? or [ is a glob, and any other path ending in a slash names a directory.",
       "additionalProperties": false,
       "properties": {
         "include": {

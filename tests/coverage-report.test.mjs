@@ -8,7 +8,7 @@ import { runCli } from "../src/cli/run.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { measureCoverage, uncitedStatements } from "../src/sources/coverage.mjs";
 import { minimalModel, writeModel } from "./fixtures/models.mjs";
-import { historyRepository } from "./fixtures/repository.mjs";
+import { globRepository, historyRepository } from "./fixtures/repository.mjs";
 
 const COVERAGE = {
   include: ["src/"],
@@ -75,6 +75,68 @@ test("coverage counts the declared scope at the pinned revision", async (t) => {
   assert.deepEqual(report.citedOutsideScope, ["README.md"]);
   assert.deepEqual(report.largestUncovered, [{ path: "src/tools/", files: 2, bytes: 40 }]);
   assert.equal(report.currency, null);
+});
+
+test("a glob path counts the files Git matches at the revision, case-sensitively", async (t) => {
+  const { root, pinned } = await globRepository(t);
+  const model = (coverage) =>
+    validateModel(
+      minimalModel({
+        repository: { name: "glob", revision: pinned },
+        sources: { a: { path: "src/a.go" } },
+        components: [
+          { id: "a", label: "Alpha", sources: ["a"] },
+          { id: "b", label: "Beta" },
+        ],
+        coverage,
+      }),
+    );
+  const tests = { path: "**/*_test.go", reason: "Tests beside the code." };
+  const report = measureCoverage(model({ include: ["src/"], exclude: [tests] }), root);
+  // src/A_TEST.GO stays in the scope: the glob is case-sensitive on every platform.
+  assert.deepEqual(report.files, { scope: 4, cited: 1, uncovered: 3, excluded: 2 });
+  assert.deepEqual(report.excluded, [{ ...tests, files: 2, bytes: 4 }]);
+  // The included glob holds no upper-case name, so src/A_TEST.GO is outside the scope.
+  const classes = measureCoverage(
+    model({
+      include: ["src/**/*.go", "src/[A-Z]*"],
+      exclude: [
+        { path: "src/lib/?.go", reason: "One-letter files." },
+        { path: "src/l*/", reason: "Directories whose name starts with l." },
+        { path: "**/*.rs", reason: "Matches nothing." },
+      ],
+    }),
+    root,
+  );
+  assert.deepEqual(
+    classes.excluded.map(({ path: declared, files }) => [declared, files]),
+    [
+      ["src/lib/?.go", 1],
+      ["src/l*/", 1],
+      ["**/*.rs", 0],
+    ],
+  );
+  assert.deepEqual(classes.files, { scope: 4, cited: 1, uncovered: 3, excluded: 2 });
+  assert.deepEqual(classes.unmatched, ["**/*.rs"]);
+  assert.deepEqual(
+    classes.largestUncovered.map(({ path: directory }) => directory),
+    ["src/net/"],
+  );
+});
+
+test("a glob matches in a repository of SHA-256 objects", async (t) => {
+  const { root, pinned } = await globRepository(t, "sha256");
+  assert.equal(pinned.length, 64);
+  const report = measureCoverage(
+    validateModel(
+      minimalModel({
+        repository: { name: "glob", revision: pinned },
+        coverage: { include: ["src/"], exclude: [{ path: "**/*_test.go", reason: "Tests." }] },
+      }),
+    ),
+    root,
+  );
+  assert.deepEqual(report.files, { scope: 4, cited: 0, uncovered: 4, excluded: 2 });
 });
 
 test("without a declared scope the whole repository is measured", async (t) => {

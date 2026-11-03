@@ -7,9 +7,67 @@ const LISTED_DIRECTORIES = 8;
 
 const byPath = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0);
 
-/** Whether a declared path holds a file: a directory ends in a slash, any other path is one file. */
-const holds = (declared, file) =>
-  declared.endsWith("/") ? file.startsWith(declared) : file === declared;
+/** Whether a declared path is a glob: it holds `*`, `?` or `[`, as the model validated it. */
+const isGlob = (declared) => /[*?[]/u.test(declared);
+
+/**
+ * The tree with no entries in the repository's object format, from which a diff names every file
+ * of a revision. Hashing it writes nothing.
+ */
+function emptyTree(root) {
+  const hashed = readGit(root, ["hash-object", "-t", "tree", "--stdin"], "");
+  if (hashed.status !== 0) refuse("source_read_failed", "Git could not hash the empty tree.");
+  return hashed.stdout.toString("utf8").trim();
+}
+
+/**
+ * The files of a revision that a glob matches, through Git's own top-anchored glob pathspec:
+ * `*` within one segment, `**` across segments, `?` and `[…]` one character, case-sensitive
+ * on every host, read from the object store alone.
+ */
+function globbed(root, commit, empty, glob) {
+  const listing = readGit(root, [
+    "diff-tree",
+    "-r",
+    "-z",
+    "--name-only",
+    "--no-commit-id",
+    "--no-renames",
+    empty,
+    commit,
+    "--",
+    // A glob ending in a slash names directories, as a plain path does; Git matches their files with `/**`.
+    `:(top,glob)${glob.endsWith("/") ? `${glob}**` : glob}`,
+  ]);
+  if (listing.status !== 0)
+    refuse("source_read_failed", `Git could not match ${glob} at ${commit}.`);
+  return new Set(listing.stdout.toString("utf8").split("\0").filter(Boolean));
+}
+
+/**
+ * A test of whether a declared path holds a file: a glob matches as Git matches it, a directory
+ * ends in a slash, and any other path is one file.
+ */
+function holder(root, commit) {
+  const matches = new Map();
+  /** @type {string | null} */
+  let empty = null;
+  return (declared, file) => {
+    if (!isGlob(declared))
+      return declared.endsWith("/") ? file.startsWith(declared) : file === declared;
+    empty ??= emptyTree(root);
+    if (!matches.has(declared)) matches.set(declared, globbed(root, commit, empty, declared));
+    return matches.get(declared).has(file);
+  };
+}
+
+/** The directory an included path names, or that a glob's characters begin within. */
+const fixedDirectory = (declared) =>
+  isGlob(declared)
+    ? declared.slice(0, declared.search(/[*?[]/u)).replace(/[^/]*$/u, "")
+    : declared.endsWith("/")
+      ? declared
+      : null;
 
 /** Every directory above a file, outermost first, each ending in a slash. */
 function directoriesOf(file) {
@@ -40,7 +98,10 @@ function largestUncovered(uncovered, cited, include) {
   const occupied = new Set([...cited].flatMap(directoriesOf));
   const inScope = (directory) =>
     !include ||
-    include.some((declared) => declared.endsWith("/") && directory.startsWith(declared));
+    include.some((declared) => {
+      const fixed = fixedDirectory(declared);
+      return fixed !== null && directory.startsWith(fixed);
+    });
   const sizes = new Map();
   for (const [file, bytes] of uncovered)
     for (const directory of directoriesOf(file)) {
@@ -73,6 +134,7 @@ function coverageAt(model, root, commit) {
     files: 0,
     bytes: 0,
   }));
+  const holds = holder(root, commit);
   const cited = new Set(model.sources.map(({ path: file }) => file));
   const tally = { files: { scope: 0, cited: 0, uncovered: 0, excluded: 0 } };
   tally.bytes = { ...tally.files };

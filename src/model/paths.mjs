@@ -22,7 +22,10 @@ export function isRelativePath(value) {
 /** An overview composition: a relative path to a Typst file within the model's directory. */
 export const isCompositionPath = (value) => isRelativePath(value) && value.endsWith(".typ");
 
-/** A scope path: a relative file path, or a directory path ending in a slash. */
+/**
+ * A scope path: a relative file path, or a directory path ending in a slash; either may be a
+ * glob.
+ */
 const isScopePath = (value) =>
   typeof value === "string" && isRelativePath(value.endsWith("/") ? value.slice(0, -1) : value);
 
@@ -41,7 +44,7 @@ export function checkCoverage(problems, value) {
       problems.add(
         "model_coverage_path_invalid",
         where,
-        "must be a relative file path or a directory path ending in a slash",
+        "must be a relative file path or a directory path ending in a slash, either of which may be a glob",
       );
     else if (seen.has(entry))
       problems.add("model_coverage_path_duplicate", where, `repeats ${entry}`);
