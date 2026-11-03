@@ -169,8 +169,18 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
 /** The file a diagram's document is written to beside the draft. */
 const diagramFile = (diagramId) => `${diagramId}.architecture.json`;
 
-/** Write a page's draft and diagrams into a directory, as Archify reads them. */
-async function writePage(page, directory) {
+/**
+ * Write a page into a directory, as Archify reads it: a guide's draft and the files it names, or
+ * the generated draft and its diagrams. Returns the draft's path.
+ * @param {any} page
+ * @param {string} directory
+ */
+export async function writePage(page, directory) {
+  if (page.kind === "guide") {
+    for (const { name, bytes } of page.entries)
+      await fs.writeFile(path.join(directory, name), bytes);
+    return path.join(directory, page.entries[0].name);
+  }
   const draft = path.join(directory, DRAFT);
   await fs.writeFile(draft, page.draft);
   for (const { file, document } of page.diagrams)
@@ -212,7 +222,13 @@ export async function explainerPage(model, views, options = {}) {
         "--writing",
         "off",
       ]);
-      if (answer.ok === true) return { ...page, quality, withheld: [...withheld].sort() };
+      if (answer.ok === true)
+        return {
+          kind: /** @type {const} */ ("generated"),
+          ...page,
+          quality,
+          withheld: [...withheld].sort(),
+        };
       // Each pass withholds at least one more source or refuses, so the loop ends.
       const sensitive = sensitiveSources(answer, cited).filter((source) => !withheld.has(source));
       if (!sensitive.length) refusePage(answer);
@@ -239,7 +255,7 @@ export function sensitiveSources(answer, cited) {
 }
 
 /** Refuse a page with Archify's diagnostics. */
-function refusePage(answer) {
+export function refusePage(answer) {
   refuse(
     "page_refused",
     `Archify did not deliver the page: ${JSON.stringify(answer.diagnostics ?? answer.error ?? answer).slice(0, 4000)}`,
@@ -248,13 +264,16 @@ function refusePage(answer) {
 
 /**
  * Deliver the page through the vendored Archify CLI: validated, written and
- * checked at the page's quality, with Archify's own writing checks off because
- * the prose is the model's. Its sources and Archify's receipts stay out of the
+ * checked at the page's quality and writing level. The generated page keeps
+ * Archify's writing checks off because its prose is the model's; a guide names
+ * its own level and, with a checkout, the repository root its sources are
+ * verified against. Its sources and Archify's receipts stay out of the
  * delivery.
- * @param {{ draft: string, quality?: string, diagrams: Array<{ file: string, document: any }> }} page
+ * @param {any} page
  * @param {string} directory a staging directory that receives `index.html`
+ * @param {{ repoRoot?: string | null }} [options]
  */
-export async function deliverExplainer(page, directory) {
+export async function deliverExplainer(page, directory, options = {}) {
   // Archify records where the draft lay relative to the page after resolving
   // symbolic links, so a directory reached through one, such as macOS's /tmp,
   // would record a path up and out of it; resolving them first keeps the record
@@ -275,9 +294,10 @@ export async function deliverExplainer(page, directory) {
       "--quality",
       page.quality ?? "showcase",
       "--writing",
-      "off",
+      page.writing ?? "off",
       "--out-dir",
       work,
+      ...(options.repoRoot ? ["--repo-root", options.repoRoot] : []),
     ]);
     if (answer.ok !== true || answer.status !== "pass") refusePage(answer);
     return {

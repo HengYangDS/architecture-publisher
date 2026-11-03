@@ -1,6 +1,6 @@
 ---
 name: architecture-publisher
-description: Use when drawing a repository's architecture as posters and an interactive page with the archpub command.
+description: Use when publishing a repository's architecture as posters, an overview and a guide page with the archpub command.
 ---
 
 # Architecture Publisher
@@ -35,9 +35,19 @@ only draws and verifies what the model states.
    describes, leaving out with a reason what is not its architecture, such as
    `**/*_test.go` beside Go code, and cite the largest uncovered directories the
    report lists until what is left is outside the question's scope.
-6. Run `archpub build model.json --repo <checkout> --out <new-directory>` and
-   look at every poster and at the page before showing them to the user.
-7. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
+6. Write the guide, the page that explains the system to its reader. Run
+   `archpub scaffold guide model.json --out guide` for a starting draft and name
+   `guide/guide.archify.md` in the model's `guide`. Then rewrite it: lead with
+   the conclusion and its reasons, answer one question per panel in the form
+   that fits it, such as a sequence for an exchange, a workflow for a process,
+   a table for a comparison or a code excerpt for a guarantee, cite each claim
+   with a line range at the revision, and keep to four native diagrams. Check it
+   with `archpub check model.json --repo <checkout>` until Archify's strict
+   writing checks and its repository checks pass.
+7. Run `archpub build model.json --repo <checkout> --out <new-directory>` and
+   look at every poster, the overview and the page before showing them to the
+   user.
+8. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
    the name the user gives, then `archpub publish <delivery> --to <root>` to the
    destination the user chose.
 

@@ -4,13 +4,16 @@ Architecture Publisher draws the architecture of any repository from an
 explicit model. Describe the components, the relations between them and the
 files that support them in one JSON model, or import a LikeC4 workspace, and
 `archpub` builds posters of its views, one interactive page that answers the
-model's question view by view, and a manifest that binds every byte to its
-inputs.
+model's question and a manifest that binds every byte to its inputs. The page
+is the guide the work's author writes, checked by the vendored Archify against
+the repository at the model's revision; a model without a guide gets a page
+that answers its question view by view.
 
 ## Quick start
 
 ```sh
 archpub check model.json --repo ../my-repository
+archpub scaffold guide model.json --out guide
 archpub build model.json --repo ../my-repository --out build/my-repository
 archpub accept build/my-repository --reviewer "Your Name"
 archpub publish build/my-repository --to <publication-root>

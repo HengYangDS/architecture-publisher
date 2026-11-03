@@ -22,6 +22,8 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
     [["check", "--color", "red"], "Unknown option --color."],
     [["check", "model.json", "--repo"], "--repo needs a value."],
     [["build", "model.json"], "--out is required."],
+    [["scaffold", "guide", "model.json"], "--out is required."],
+    [["scaffold", "page"], "Unknown command scaffold page."],
     [["check"], "Name exactly one model."],
     [["check", "model.json", "--against", "main"], "--against needs --repo."],
     [["build", "model.json", "--out", "x", "--against", "main"], "Unknown option --against."],
@@ -165,6 +167,16 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.ok(manifest.posters.every(({ misses }) => misses.length));
   assert.equal(manifest.page, null);
   await assert.rejects(fs.access(path.join(shop, "index.html")));
+});
+
+test("scaffold guide writes a starting guide and says where", async (t) => {
+  const model = await writeModel(t, minimalModel({ summary: "Alpha calls Beta." }));
+  const out = path.join(await temporaryDirectory(t, "archpub-cli-scaffold-"), "guide");
+  const { exitCode, output } = await runCli(["scaffold", "guide", model, "--out", out]);
+  assert.equal(exitCode, 0);
+  assert.equal(output, `Wrote guide.archify.md and 1 diagram into ${out}.\n`);
+  const again = await json(["scaffold", "guide", model, "--out", out]);
+  assert.deepEqual([again.exitCode, again.body.code], [1, "scaffold_output_exists"]);
 });
 
 test("the archpub executable prints one result and sets its exit status", async (t) => {

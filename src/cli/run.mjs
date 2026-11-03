@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { buildDelivery, checkModel } from "../build.mjs";
+import { buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
 import { acceptDelivery, publishDelivery } from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
 import { Refusal } from "../refusal.mjs";
@@ -10,6 +10,7 @@ export const USAGE = `Usage:
   archpub check <model.json> [build options] [--against <revision>] [--json]
   archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>]
     [--question <text>] [--locale <tag>] [--json]
+  archpub scaffold guide <model.json> --out <directory> [--json]
   archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
   archpub publish <delivery> --to <root> [--version <name>] [--json]
   archpub --help | --version
@@ -175,6 +176,13 @@ const COMMANDS = {
       }),
     text: (result) => `${result.copied ? "Published" : "Already published"} ${result.target}.\n`,
   },
+  "scaffold guide": {
+    options: ["out"],
+    run: ({ positionals, options }) =>
+      scaffoldGuide(one(positionals, "model"), required(options, "out")),
+    text: (result) =>
+      `Wrote ${result.draft} and ${count(result.files.length, "diagram")} into ${result.out}.\n`,
+  },
   "import likec4": {
     options: ["out", "id", "title", "question", "locale"],
     run: async ({ positionals, options }) => {
@@ -225,8 +233,10 @@ export async function runCli(args) {
       output: json ? `${JSON.stringify({ ok: true, version: current })}\n` : `${current}\n`,
     };
   }
-  const name = words[0] === "import" ? `import ${words[1] ?? ""}` : words[0];
-  const rest = words.slice(words[0] === "import" ? 2 : 1);
+  // `import` and `scaffold` name what they import or write as a second word.
+  const paired = ["import", "scaffold"].includes(words[0]);
+  const name = paired ? `${words[0]} ${words[1] ?? ""}` : words[0];
+  const rest = words.slice(paired ? 2 : 1);
   const command = COMMANDS[/** @type {keyof typeof COMMANDS} */ (name)];
   try {
     if (!command) throw new UsageError(name ? `Unknown command ${name}.` : "Name a command.");

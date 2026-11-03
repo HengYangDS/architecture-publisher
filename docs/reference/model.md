@@ -75,6 +75,7 @@ kinds, details and views.
 | `views`       | no       | Any number of views; without them the publisher plans the views itself.                      |
 | `coverage`    | no       | The repository paths the model describes and those it leaves out, for `archpub check`.       |
 | `overview`    | no       | The overview composition: a Typst file beside the model that sets its work's overview page.  |
+| `guide`       | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.        |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -204,7 +205,7 @@ palette, and the composition places the work's own figure and text:
 #head(48pt, 140pt, [The request path])
 #tx(48pt, 170pt, label-of("gateway"), weight: "semibold")
 #dl(48pt, 200pt, 90pt, 600pt, (([Gateway], [checks the session]), ([Store], [keeps the orders])))
-#imprint([Each element's source is in the interactive page.])
+#imprint([Every view, step by step, is in the interactive page.])
 ```
 
 The class provides `masthead` and `imprint`, which print the model's title, its
@@ -217,6 +218,46 @@ the model and refuses an id the model lacks. A composition may not import a
 package, load a plugin, or set a size, face, colour or the page itself; the
 [operations reference](operations.md#the-overview) lists the checks on the
 typeset page.
+
+## Guide
+
+`guide` names the work's guide: an Archify
+[explainer draft](https://github.com/tt-a1i/archify/blob/v3.2.0/archify/references/explainer-authoring.md), a Markdown file ending
+in `.archify.md`, relative to the model and within its directory. The page
+delivers the guide in place of the page the publisher generates. A guide is
+written for its work: a conclusion and its reasons, then one panel per question
+in the form that fits it, such as an architecture diagram, a sequence, steps
+that walk a diagram, a table, a chart, a callout, a checklist or an excerpt of
+the repository's code at the model's revision. Keep the guide and the files it
+names in a directory of their own:
+
+```text
+model.json
+guide/
+  guide.archify.md
+  parts.architecture.json
+```
+
+```md
+# How does an order reach the store? {#shop}
+
+The gateway checks the session and hands the order to the service.[](source:gateway)
+
+@meta locale=en
+@source gateway title="The gateway" path="src/gateway.js" lines=10:30
+
+## Which parts take part? {#parts}
+
+@diagram architecture id=parts-map source=parts.architecture.json title="The request path"
+```
+
+A draft names local files only in `@diagram source=`, `@chart data=` and
+`@image path=`, each a regular file in the draft's own directory. A draft's
+`@meta`, when it names `repo_url` or `repo_revision`, names the model's
+repository URL and revision. `archpub scaffold guide` writes the page the
+publisher generates as a starting guide, and the
+[operations reference](operations.md#the-guide) describes how a guide is checked
+and delivered.
 
 ## Groups
 

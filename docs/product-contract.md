@@ -13,10 +13,11 @@ relations:
 Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
 delivery: static posters of its views on fixed 16:9 pages, one interactive page
-that answers the model's question view by view, an overview page its author
-composes with the house class when the model names one, and a manifest that
-binds every artifact to its inputs and keeps the evidence the drawings leave
-out.
+that answers the model's question, an overview page its author composes with
+the house class when the model names one, and a manifest that binds every
+artifact to its inputs and keeps the evidence the drawings leave out. The page
+is the guide its author writes when the model names one, and otherwise answers
+the question view by view.
 
 The model says what the architecture is: components, relations, their details
 and the repository files that support them. Architecture Publisher owns how that
@@ -53,8 +54,8 @@ A model may live anywhere, including in a separate publications repository.
    their text on posters, with an exact placement and routing that never draws
    an overlap.
 5. **Compose** the views onto 2400 × 1350 px poster pages and rasterize them;
-   **explain** the model on one page of the vendored Archify with one native
-   diagram per view.
+   **explain** the model on one page of the vendored Archify: the guide the
+   model names, or one native diagram per view.
 6. **Deliver** the artifacts and the manifest into a new directory, staged and
    renamed into place only when complete.
 
@@ -76,7 +77,10 @@ present, and notes with the scope, limits, attribution and the repository and
 revision. It prints no digests, verification states, claim records or tables.
 The words the publisher sets itself are in the model's language.
 
-The page heads with the model's question and its summary as the conclusion,
+A guide is the page as its author wrote it, held by Archify to its checks at
+the build's quality, with strict writing at showcase; with a checkout, its
+repository sources and code excerpts are verified at the model's revision.
+Without a guide, the page heads with the model's question and its summary as the conclusion,
 beside the list of its panels. Each view is a panel with its native Archify
 diagram, which opens Archify's full interactive viewer, and one step per
 component with every one of its details and, when the model names its

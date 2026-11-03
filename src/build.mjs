@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { loadIcons } from "./icons.mjs";
-import { deliverExplainer, explainerPage } from "./map/explainer.mjs";
+import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs";
+import { deliverGuide, guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
 import { typesetOverview } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
@@ -146,7 +147,12 @@ async function prepare(modelPath, options) {
   const posters = media.includes("posters")
     ? composePosters(model, views, typefaces, icons, { quality })
     : [];
-  const page = media.includes("page") ? await explainerPage(model, views, { quality }) : null;
+  // The page is the work's guide when the model names one, and the generated page otherwise.
+  const page = !media.includes("page")
+    ? null
+    : model.guide
+      ? await guidePage(model, modelPath, { quality, repo: options.repo })
+      : await explainerPage(model, views, { quality });
   return { loaded, model, binding, media, views, posters, page, overview, icons, typefaces };
 }
 
@@ -261,7 +267,9 @@ export async function checkModel(modelPath, options = {}) {
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
     views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
     posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
-    diagrams: prepared.page?.diagrams.map(diagramSummary) ?? [],
+    diagrams:
+      prepared.page?.kind === "guide" ? [] : (prepared.page?.diagrams.map(diagramSummary) ?? []),
+    guide: prepared.page?.kind === "guide" ? guideSummary(prepared.page) : null,
     overview: prepared.overview ? overviewSummary(model, prepared.overview) : null,
     statements: {
       undrawn: undrawnStatements(model, prepared.views),
@@ -331,7 +339,11 @@ export async function buildDelivery(modelPath, out, options = {}) {
       for (const { file, bytes } of overview.png)
         await fs.writeFile(path.join(staging, file), bytes);
     }
-    const page = prepared.page ? await deliverExplainer(prepared.page, staging) : null;
+    const page = !prepared.page
+      ? null
+      : prepared.page.kind === "guide"
+        ? await deliverGuide(prepared.page, staging)
+        : await deliverExplainer(prepared.page, staging);
     const [fonts, resvg] = await Promise.all([verifySupply("fonts"), verifySupply("resvg")]);
     const manifest = {
       format: DELIVERY_FORMAT,
@@ -358,14 +370,20 @@ export async function buildDelivery(modelPath, out, options = {}) {
       views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
       posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
       page:
-        page && prepared.page
-          ? {
-              quality: page.receipt.quality,
-              gates: page.receipt.gates,
-              diagrams: prepared.page.diagrams.map(diagramSummary),
-              withheld: prepared.page.withheld,
-            }
-          : null,
+        !page || !prepared.page
+          ? null
+          : prepared.page.kind === "guide"
+            ? {
+                quality: page.receipt.quality,
+                gates: page.receipt.gates,
+                guide: guideSummary(prepared.page),
+              }
+            : {
+                quality: page.receipt.quality,
+                gates: page.receipt.gates,
+                diagrams: prepared.page.diagrams.map(diagramSummary),
+                withheld: prepared.page.withheld,
+              },
       ...(overview
         ? { overview: { ...overviewSummary(prepared.model, overview), ...overview.files } }
         : {}),
@@ -389,4 +407,39 @@ export async function buildDelivery(modelPath, out, options = {}) {
     await fs.rm(staging, { recursive: true, force: true });
     throw error;
   }
+}
+
+/** The draft a scaffold writes; the diagrams it names are written beside it. */
+const GUIDE_DRAFT = "guide.archify.md";
+
+/**
+ * Write the page the publisher generates for a model as a starting guide: its draft and one
+ * architecture document per view, into `out`, which must not exist. Its prose is the model's, which
+ * Archify's strict writing checks may hold to shorter sentences, each reported at its line. The
+ * output is staged beside it and moved into place only when complete.
+ * @param {string} modelPath
+ * @param {string} out
+ */
+export async function scaffoldGuide(modelPath, out) {
+  const target = path.resolve(out);
+  if (await exists(target))
+    refuse(
+      "scaffold_output_exists",
+      `The output ${target} already exists; choose a new directory.`,
+    );
+  const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
+  const { model } = await loadModel(modelPath, { icon: icons.has });
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const page = await explainerPage(model, views);
+  const parent = path.dirname(target);
+  await fs.mkdir(parent, { recursive: true });
+  const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
+  try {
+    await fs.rename(await writePage(page, staging), path.join(staging, GUIDE_DRAFT));
+    await fs.rename(staging, target);
+  } catch (error) {
+    await fs.rm(staging, { recursive: true, force: true });
+    throw error;
+  }
+  return { out: target, draft: GUIDE_DRAFT, files: page.diagrams.map(({ file }) => file) };
 }

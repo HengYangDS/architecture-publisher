@@ -37,6 +37,7 @@ they read or decide.
 archpub check <model.json> [--repo <checkout>] [--against <revision>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
 archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
 archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
+archpub scaffold guide <model.json> --out <directory> [--json]
 archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
 archpub publish <delivery> --to <root> [--version <name>] [--json]
 archpub --help | --version [--json]
@@ -67,6 +68,8 @@ archpub --help | --version [--json]
   the model's language; the import's own words, an unnamed relation's label and
   a missing question, are set in it. It names no attribution and refuses to
   overwrite an existing file.
+- `scaffold guide` writes the page the publisher generates for a model as a
+  starting [guide](#the-guide) into a new directory.
 - `accept` records a named reviewer's acceptance of an unchanged delivery.
 - `publish` copies an accepted delivery to `<root>/<model id>/<version>/`, in
   any directory the caller names.
@@ -252,6 +255,34 @@ refused at the composition's line. The overview is written as `overview.svg`
 and one PNG per width at width × 72 / 1600 pixels per inch, so the same inputs
 give the same bytes.
 
+## The guide
+
+When the model names a [guide](model.md#guide), the page is the guide. The
+build reads the draft and the files its `@diagram source=`, `@chart data=` and
+`@image path=` arguments name, each a regular file in the draft's own directory,
+and refuses a link, another path or a missing file. A draft whose `@meta` names
+a `repo_url` or `repo_revision` other than the model's repository URL and
+revision is refused. Archify validates and delivers the draft at the build's
+quality, with its writing checks strict at `showcase` and warnings at
+`standard`.
+
+With `--repo` and a model that names its repository URL and revision, the build
+hands Archify a temporary clone of the checkout that shares its objects, with
+`origin` at the model's repository URL and `HEAD` at the model's revision.
+Archify verifies every repository source and line range the guide cites against
+that commit and pins its code excerpts; the clone is removed once the page is
+written, and the checkout is only read. Archify recognizes repositories on
+`github.com`, `gitlab.com` and `gitee.com`; a guide whose repository is a
+self-hosted GitLab names `repo_provider=gitlab` in its `@meta`. Without
+`--repo`, the guide's sources are recorded as declared.
+
+`archpub scaffold guide` writes the page the publisher generates as a starting
+guide: `guide.archify.md` and one architecture document per view. Its prose is
+the model's, which the strict writing checks may hold to shorter sentences;
+Archify reports each one at its line. Archify 3.2.0 cuts a validation receipt
+longer than 64 KiB on macOS, which an 11-view page reaches; Archify's own
+guidance keeps a page to four native diagrams.
+
 ## The delivery
 
 | File                   | Content                                                     |
@@ -272,7 +303,8 @@ repository, the build's quality and media, every source with its state and
 declared and observed digest, the digest of each bundled supply, each view with
 its tiers, members and page number, each page with its number, files, views,
 admission, the gates it misses, composition and measures, the explainer page's
-quality profile and gates, each
+quality profile and gates, a guide's draft path and digest, each file it names,
+its writing level and whether its sources were verified, each
 view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
 the sources the page withholds, with the overview its composition's path and
@@ -330,6 +362,9 @@ or Archify reported.
 | `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.          |
 | `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.   |
 | `page_refused`                                                                          | Archify did not validate or deliver the page.                                               |
+| `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.       |
+| `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.           |
+| `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                      |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                                | A bundled supply failed its digest or the raster renderer failed.                           |
 | `delivery_exists`                                                                       | `--out` already exists.                                                                     |
 | `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                            |

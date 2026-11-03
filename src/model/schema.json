@@ -296,6 +296,17 @@
           "pattern": "\\.typ$"
         }
       ]
+    },
+    "guide": {
+      "description": "The guide composition: an Archify explainer draft relative to the model, within its directory, delivered as the page.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/path"
+        },
+        {
+          "pattern": "[^/]\\.archify\\.md$"
+        }
+      ]
     }
   },
   "$defs": {

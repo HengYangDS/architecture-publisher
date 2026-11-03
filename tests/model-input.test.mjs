@@ -286,6 +286,30 @@ test("an overview names a Typst composition within the model's directory", async
   ]);
 });
 
+test("a guide names an Archify explainer draft within the model's directory", async () => {
+  const guide = "guide/guide.archify.md";
+  assert.equal(validateModel(minimalModel({ guide })).guide, guide);
+  assert.equal(validateModel(minimalModel({ guide: "a.archify.md" })).guide, "a.archify.md");
+  assert.equal(validateModel(minimalModel()).guide, null);
+  for (const value of [
+    "/a.archify.md",
+    "../a.archify.md",
+    "a/../b.archify.md",
+    "guide.md",
+    ".archify.md",
+    "",
+    3,
+  ])
+    assert.deepEqual(problemsOf(minimalModel({ guide: value })), ["model_guide_invalid /guide"]);
+  const schema = JSON.parse(
+    await fs.readFile(new URL("../src/model/schema.json", import.meta.url), "utf8"),
+  );
+  assert.deepEqual(schema.properties.guide.allOf, [
+    { $ref: "#/$defs/path" },
+    { pattern: "[^/]\\.archify\\.md$" },
+  ]);
+});
+
 test("a component may sit in only one tier of a view", () => {
   const problems = problemsOf(
     minimalModel({

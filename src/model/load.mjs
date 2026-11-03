@@ -2,7 +2,13 @@ import fs from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { DEFAULT_LOCALE, LOCALES } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
-import { checkCoverage, isCompositionPath, isRelativePath, normalizeCoverage } from "./paths.mjs";
+import {
+  checkCoverage,
+  isCompositionPath,
+  isGuidePath,
+  isRelativePath,
+  normalizeCoverage,
+} from "./paths.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
 export const MODEL_VERSION = 1;
@@ -39,6 +45,7 @@ const TOP = {
     "views",
     "coverage",
     "overview",
+    "guide",
   ]),
 };
 
@@ -282,6 +289,12 @@ export function validateModel(model, options = {}) {
       "/overview",
       "must be a relative path to a .typ file within the model's directory",
     );
+  if (value.guide !== undefined && !isGuidePath(value.guide))
+    problems.add(
+      "model_guide_invalid",
+      "/guide",
+      "must be a relative path to a .archify.md draft within the model's directory",
+    );
   const views =
     value.views === undefined ? null : checkViews(problems, value.views, componentIds, groupIds);
   // Tiers are resolved in the same pass, so a tier overlap is reported with
@@ -451,6 +464,7 @@ function normalize(value, parts) {
       })) ?? null,
     coverage: normalizeCoverage(value.coverage),
     overview: value.overview ?? null,
+    guide: value.guide ?? null,
   });
 }
 

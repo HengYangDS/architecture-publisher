@@ -9,6 +9,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- The guide: a model may name an Archify explainer draft as `guide`, and the page is that guide. The build stages the
+  draft and the local files it names and refuses a link, another path, a missing file or a draft for another
+  repository. With `--repo` it has Archify verify every repository source the guide cites at the model's revision,
+  through a temporary clone of the checkout, and pin its code excerpts. Archify's writing checks are strict at
+  `showcase` and warnings at `standard`. The manifest records the draft's and each file's digest, the writing level
+  and whether the sources were verified. `archpub scaffold guide` writes the generated page as a starting guide; a
+  model without a guide keeps its generated page.
 - The overview: a model may name a Typst composition, which the build typesets with the house class into
   `overview.svg` and PNG at the `--png` widths. The house class sets one 16:9 page in Source Serif 4 and Source Sans 3
   with Noto Sans CJK SC for Han characters, four type sizes and the house palette; its masthead and imprint name the
