@@ -36,7 +36,7 @@ remain pre-release contracts and may contain incompatible changes.
   unicode-script 0.5.9 within resvg 0.49.0 and `wasm-bindgen` 0.2.130. The closure is in the GitLab package registry and
   a GitHub release, the canonical renderer pair is held in Git custody, and its macOS, Linux and Windows ARM64 native
   rebuilds are admitted witnesses.
-- The development and CI supply moves to semver 7.8.6 and `jdx/mise-action` 5.2.6, which ends a step that hung for up to
+- The development and CI supply moves to `semver` 7.8.6 and `jdx/mise-action` 5.2.6, which ends a step that hung for up to
   ten minutes when a cache restore failed.
 
 ### Fixed
