@@ -274,11 +274,11 @@ the view has its own; on a later page of several views, the model's title
 alone, each plate asking its own question. Each poster SHALL show one legend
 of the kinds, the system boundary and the statuses present, and notes with the
 scope, limits, repository and revision and attribution, and SHALL NOT state
-whether sources were verified.
+whether its files were verified.
 
 #### Scenario: Evidence stays off the poster
 
-- **WHEN** a model declares source digests for every component
+- **WHEN** a build verifies the digest of every file the model cites
 - **THEN** the poster's notes name the repository and its revision
 - **AND** the poster prints no digest and no verification state
 
