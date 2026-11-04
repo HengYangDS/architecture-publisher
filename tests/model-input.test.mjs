@@ -27,7 +27,7 @@ test("a minimal model normalizes with defaults", () => {
     label: "Alpha",
     details: [],
     status: null,
-    sources: [],
+    files: [],
     kind: null,
   });
   assert.equal(model.views, null);
@@ -85,7 +85,7 @@ test("top-level fields, repository and limits are validated", () => {
   const problems = problemsOf({
     ...minimalModel(),
     format: "other",
-    version: 2,
+    version: 3,
     id: "Bad Id",
     limits: "none",
     repository: { name: "x", revision: "abc", extra: 1 },
@@ -109,11 +109,10 @@ test("top-level fields, repository and limits are validated", () => {
     assert.equal(validateModel(minimalModel({ id })).id, id);
 });
 
-test("kinds, sources, details, statuses and references are validated", () => {
+test("kinds, details, statuses and references are validated", () => {
   const problems = problemsOf(
     minimalModel({
       kinds: { k: { category: "planet", icon: "no-such-icon", size: 1 }, "Bad Kind": {} },
-      sources: { s: { path: "../outside", sha256: "XYZ", note: "" }, t: "text" },
       components: [
         {
           id: "a",
@@ -121,7 +120,6 @@ test("kinds, sources, details, statuses and references are validated", () => {
           kind: "k",
           details: { 12: "x", ok: [] },
           status: "gone",
-          sources: ["s", "s", "nope"],
         },
         { id: "b", label: "Beta", details: "flat" },
       ],
@@ -134,15 +132,9 @@ test("kinds, sources, details, statuses and references are validated", () => {
     "model_category_invalid /kinds/k/category",
     "model_icon_unknown /kinds/k/icon",
     "model_id_invalid /kinds/Bad Kind",
-    "model_source_path_invalid /sources/s/path",
-    "model_digest_invalid /sources/s/sha256",
-    "model_text_invalid /sources/s/note",
-    "model_object_required /sources/t",
     "model_detail_name_invalid /components/0/details/12",
     "model_detail_invalid /components/0/details/ok",
     "model_status_invalid /components/0/status",
-    "model_reference_duplicate /components/0/sources/1",
-    "model_reference_unknown /components/0/sources/2",
     "model_details_invalid /components/1/details",
     "model_list_invalid /relations",
   ]);
@@ -150,6 +142,81 @@ test("kinds, sources, details, statuses and references are validated", () => {
   assert.deepEqual(problemsOf(minimalModel({ components: [], relations: [] })), [
     "model_list_invalid /components",
   ]);
+});
+
+test("components claim files by path and relations cite files", () => {
+  const model = validateModel(
+    minimalModel({
+      components: [
+        { id: "a", label: "Alpha", files: ["src/model/", "README.md"] },
+        { id: "b", label: "Beta" },
+      ],
+      relations: [{ id: "a-b", from: "a", to: "b", label: "calls", files: ["src/model/load.mjs"] }],
+    }),
+  );
+  assert.deepEqual(model.components[0].files, ["src/model/", "README.md"]);
+  assert.deepEqual(model.components[1].files, []);
+  assert.deepEqual(model.relations[0].files, ["src/model/load.mjs"]);
+  assert.equal("sources" in model, false);
+  assert.deepEqual(
+    problemsOf(
+      minimalModel({
+        components: [
+          {
+            id: "a",
+            label: "Alpha",
+            files: ["src/model/", "src/*.mjs", "../up", "src/model/", "a//b"],
+          },
+          { id: "b", label: "Beta", files: ["src/model/", 3] },
+        ],
+        relations: [
+          {
+            id: "a-b",
+            from: "a",
+            to: "b",
+            label: "calls",
+            files: ["src/model/", "x.mjs", "x.mjs", "src/[ab].mjs"],
+          },
+        ],
+      }),
+    ),
+    [
+      "model_file_glob /components/0/files/1",
+      "model_file_path_invalid /components/0/files/2",
+      "model_file_duplicate /components/0/files/3",
+      "model_file_path_invalid /components/0/files/4",
+      "model_file_claimed_twice /components/1/files/0",
+      "model_file_path_invalid /components/1/files/1",
+      "model_relation_file_directory /relations/0/files/0",
+      "model_file_duplicate /relations/0/files/2",
+      "model_file_glob /relations/0/files/3",
+    ],
+  );
+  assert.deepEqual(
+    problemsOf(
+      minimalModel({
+        components: [
+          { id: "a", label: "Alpha", files: "src/" },
+          { id: "b", label: "Beta", sources: ["s"] },
+        ],
+      }),
+    ),
+    ["model_files_invalid /components/0/files", "model_field_unknown /components/1/sources"],
+  );
+});
+
+test("a version 1 model is refused with the command that converts it", () => {
+  for (const model of [minimalModel({ version: 1 }), minimalModel({ version: 1, sources: {} })]) {
+    assert.throws(
+      () => validateModel(model),
+      (error) =>
+        error.code === "model_invalid" &&
+        error.problems.length === 1 &&
+        error.problems[0].code === "model_version_unsupported" &&
+        error.problems[0].path === "/version" &&
+        error.problems[0].message.includes("archpub migrate"),
+    );
+  }
 });
 
 test("groups may not overlap or reuse component ids", () => {
@@ -211,6 +278,13 @@ test("the published schema allows the views the loader admits", async () => {
   );
   assert.equal(schema.properties.views.maxItems, undefined);
   assert.deepEqual(Object.keys(schema.properties.coverage.properties), ["include", "exclude"]);
+  assert.deepEqual(schema.properties.version, { const: 2 });
+  assert.equal(schema.properties.sources, undefined);
+  for (const element of ["components", "relations"]) {
+    const { properties } = schema.properties[element].items;
+    assert.equal(properties.sources, undefined, element);
+    assert.ok(properties.files, element);
+  }
 });
 
 test("a coverage scope declares included paths and excluded paths with reasons", () => {

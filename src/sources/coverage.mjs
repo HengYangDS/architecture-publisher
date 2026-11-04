@@ -1,65 +1,10 @@
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
 import { commitOf, readGit } from "./git.mjs";
+import { directoriesOf, isGlob, scopeAt } from "./scope.mjs";
 
 /** The most uncovered directories one report lists. */
 const LISTED_DIRECTORIES = 8;
-
-const byPath = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0);
-
-/** Whether a declared path is a glob: it holds `*`, `?` or `[`, as the model validated it. */
-const isGlob = (declared) => /[*?[]/u.test(declared);
-
-/**
- * The tree with no entries in the repository's object format, from which a diff names every file
- * of a revision. Hashing it writes nothing.
- */
-function emptyTree(root) {
-  const hashed = readGit(root, ["hash-object", "-t", "tree", "--stdin"], "");
-  if (hashed.status !== 0) refuse("source_read_failed", "Git could not hash the empty tree.");
-  return hashed.stdout.toString("utf8").trim();
-}
-
-/**
- * The files of a revision that a glob matches, through Git's own top-anchored glob pathspec:
- * `*` within one segment, `**` across segments, `?` and `[…]` one character, case-sensitive
- * on every host, read from the object store alone.
- */
-function globbed(root, commit, empty, glob) {
-  const listing = readGit(root, [
-    "diff-tree",
-    "-r",
-    "-z",
-    "--name-only",
-    "--no-commit-id",
-    "--no-renames",
-    empty,
-    commit,
-    "--",
-    // A glob ending in a slash names directories, as a plain path does; Git matches their files with `/**`.
-    `:(top,glob)${glob.endsWith("/") ? `${glob}**` : glob}`,
-  ]);
-  if (listing.status !== 0)
-    refuse("source_read_failed", `Git could not match ${glob} at ${commit}.`);
-  return new Set(listing.stdout.toString("utf8").split("\0").filter(Boolean));
-}
-
-/**
- * A test of whether a declared path holds a file: a glob matches as Git matches it, a directory
- * ends in a slash, and any other path is one file.
- */
-function holder(root, commit) {
-  const matches = new Map();
-  /** @type {string | null} */
-  let empty = null;
-  return (declared, file) => {
-    if (!isGlob(declared))
-      return declared.endsWith("/") ? file.startsWith(declared) : file === declared;
-    empty ??= emptyTree(root);
-    if (!matches.has(declared)) matches.set(declared, globbed(root, commit, empty, declared));
-    return matches.get(declared).has(file);
-  };
-}
 
 /** The directory an included path names, or that a glob's characters begin within. */
 const fixedDirectory = (declared) =>
@@ -69,33 +14,12 @@ const fixedDirectory = (declared) =>
       ? declared
       : null;
 
-/** Every directory above a file, outermost first, each ending in a slash. */
-function directoriesOf(file) {
-  const parts = file.split("/").slice(0, -1);
-  return parts.map((_, index) => `${parts.slice(0, index + 1).join("/")}/`);
-}
-
-/** Every tracked file at a commit with its size in bytes, in path order. */
-function trackedFiles(root, commit) {
-  const listing = readGit(root, ["ls-tree", "-r", "-z", "-l", "--full-tree", commit]);
-  if (listing.status !== 0)
-    refuse("source_read_failed", `Git could not list the files at ${commit}.`);
-  const files = [];
-  for (const entry of listing.stdout.toString("utf8").split("\0")) {
-    if (!entry) continue;
-    const tab = entry.indexOf("\t");
-    const [, type, , size] = entry.slice(0, tab).split(/ +/u);
-    if (type === "blob") files.push([entry.slice(tab + 1), Number(size)]);
-  }
-  return files.sort(byPath);
-}
-
 /**
- * The largest directories in scope that hold uncovered files and no cited one, each
+ * The largest directories in scope that hold uncovered files and no owned one, each
  * neither inside nor around one listed before it.
  */
-function largestUncovered(uncovered, cited, include) {
-  const occupied = new Set([...cited].flatMap(directoriesOf));
+function largestUncovered(uncovered, owned, include) {
+  const occupied = new Set([...owned].flatMap(directoriesOf));
   const inScope = (directory) =>
     !include ||
     include.some((declared) => {
@@ -124,63 +48,43 @@ function largestUncovered(uncovered, cited, include) {
   return listed;
 }
 
-/** What the model cites of the files at its revision, within its declared scope. */
-function coverageAt(model, root, commit) {
-  const files = trackedFiles(root, commit);
-  const include = model.coverage?.include ?? null;
-  const excluded = (model.coverage?.exclude ?? []).map(({ path: declared, reason }) => ({
-    path: declared,
-    reason,
-    files: 0,
-    bytes: 0,
-  }));
-  const holds = holder(root, commit);
-  const cited = new Set(model.sources.map(({ path: file }) => file));
-  const tally = { files: { scope: 0, cited: 0, uncovered: 0, excluded: 0 } };
+/** What the model's components own of the files at its revision, within its declared scope. */
+function coverageAt(model, binding, root, commit) {
+  const { include, scope, excluded, unmatched } = scopeAt(model, root, commit);
+  const owned = new Set(binding.records.filter(({ owner }) => owner).map(({ path: file }) => file));
+  const tally = { files: { scope: 0, owned: 0, uncovered: 0, excluded: 0 } };
   tally.bytes = { ...tally.files };
-  const add = (kind, bytes) => {
-    tally.files[kind] += 1;
-    tally.bytes[kind] += bytes;
-  };
-  const matched = new Set();
   const uncovered = [];
-  const citedInScope = new Set();
-  for (const [file, bytes] of files) {
-    const including = include?.find((declared) => holds(declared, file));
-    if (including) matched.add(including);
-    if (include && !including) continue;
-    const exclusion = excluded.find(({ path: declared }) => holds(declared, file));
-    if (exclusion) {
-      matched.add(exclusion.path);
-      exclusion.files += 1;
-      exclusion.bytes += bytes;
-      add("excluded", bytes);
-      continue;
+  for (const [file, bytes] of scope) {
+    const kind = owned.has(file) ? "owned" : "uncovered";
+    for (const counted of ["scope", kind]) {
+      tally.files[counted] += 1;
+      tally.bytes[counted] += bytes;
     }
-    add("scope", bytes);
-    if (cited.has(file)) {
-      add("cited", bytes);
-      citedInScope.add(file);
-    } else {
-      add("uncovered", bytes);
-      uncovered.push([file, bytes]);
-    }
+    if (kind === "uncovered") uncovered.push([file, bytes]);
   }
-  const declared = [...(include ?? []), ...excluded.map(({ path: excludedPath }) => excludedPath)];
+  for (const exclusion of excluded) {
+    tally.files.excluded += exclusion.files;
+    tally.bytes.excluded += exclusion.bytes;
+  }
+  const inScope = new Set(scope.map(([file]) => file));
   return {
     revision: commit,
     include,
     files: tally.files,
     bytes: tally.bytes,
     excluded,
-    unmatched: declared.filter((entry) => !matched.has(entry)),
-    citedOutsideScope: [...cited].filter((file) => !citedInScope.has(file)).sort(),
-    largestUncovered: largestUncovered(uncovered, citedInScope, include),
+    unmatched,
+    // Owned files lie in the scope by construction, so only a relation's files can lie outside it.
+    citedOutsideScope: binding.records
+      .map(({ path: file }) => file)
+      .filter((file) => !inScope.has(file)),
+    largestUncovered: largestUncovered(uncovered, owned, include),
   };
 }
 
 /** How far the repository has moved from the model's revision to a named one. */
-function currencyAgainst(model, root, pinned, revision) {
+function currencyAgainst(binding, root, pinned, revision) {
   const commit = commitOf(root, revision, "currency_revision_unknown");
   const count = readGit(root, ["rev-list", "--count", "--first-parent", `${pinned}..${commit}`]);
   const diff = readGit(root, [
@@ -210,8 +114,7 @@ function currencyAgainst(model, root, pinned, revision) {
     against: { revision, commit },
     ancestor,
     commits: Number(count.stdout.toString("utf8").trim()),
-    sources: model.sources.map(({ id, path: file }) => ({
-      id,
+    files: binding.records.map(({ path: file }) => ({
       path: file,
       ...(fates.get(file) ?? { state: "unchanged" }),
     })),
@@ -221,12 +124,14 @@ function currencyAgainst(model, root, pinned, revision) {
 /**
  * Measure a model against its repository: coverage at the model's revision and, with
  * `against`, currency up to that revision. Git is only read, and a model is never refused
- * for what it cites. Returns `null` for a model without a revision.
+ * for what it covers. `binding` is the model's files bound to the same checkout. Returns
+ * `null` for a model without a revision.
  * @param {any} model
+ * @param {any} binding
  * @param {string} repo
  * @param {{ against?: string | null }} [options]
  */
-export function measureCoverage(model, repo, { against = null } = {}) {
+export function measureCoverage(model, binding, repo, { against = null } = {}) {
   if (!model.repository) {
     if (against !== null)
       refuse(
@@ -238,16 +143,16 @@ export function measureCoverage(model, repo, { against = null } = {}) {
   const root = path.resolve(repo);
   const pinned = commitOf(root, model.repository.revision, "source_revision_unknown");
   return {
-    ...coverageAt(model, root, pinned),
-    currency: against === null ? null : currencyAgainst(model, root, pinned, against),
+    ...coverageAt(model, binding, root, pinned),
+    currency: against === null ? null : currencyAgainst(binding, root, pinned, against),
   };
 }
 
 /**
- * The components and relations that cite no source.
+ * The components that claim no file and the relations that cite none.
  * @param {any} model
  */
 export function uncitedStatements(model) {
-  const uncited = (items) => items.filter(({ sources }) => !sources.length).map(({ id }) => id);
+  const uncited = (items) => items.filter(({ files }) => !files.length).map(({ id }) => id);
   return { components: uncited(model.components), relations: uncited(model.relations) };
 }

@@ -37,7 +37,7 @@ const tiers = (...rows) =>
   rows.map((members, index) => ({ id: `t${index}`, label: `T${index}`, members }));
 
 /**
- * A model with two views over a repository, one of whose sources lies under a
+ * A model with two views over a repository, one of whose files lies under a
  * `secrets` directory, which Archify will not cite on a page.
  */
 const shopInput = () =>
@@ -52,18 +52,14 @@ const shopInput = () =>
       url: "https://example.invalid/shop.git",
       revision: "a".repeat(40),
     },
-    sources: {
-      secret: { path: "internal/secrets/store.go" },
-      main: { path: "src/main.go" },
-    },
     components: [
       {
         id: "web",
         label: "Web | front *end*",
         details: { serves: "pages", owns: ["cart", "sessions"] },
-        sources: ["secret", "main"],
+        files: ["internal/secrets/store.go", "src/main.go"],
       },
-      { id: "store", label: "Store", sources: ["main"] },
+      { id: "store", label: "Store", files: ["src/store.go"] },
     ],
     relations: [{ id: "r", from: "web", to: "store", label: "writes" }],
     views: [
@@ -389,16 +385,17 @@ test("the page lists its panels beside the conclusion while Archify's reasons ho
   assert.equal(await listed(5), 0);
 });
 
-test("the page draft answers the model's question view by view and cites sources at the revision", async () => {
+test("the page draft answers the model's question view by view and cites files at the revision", async () => {
   const model = shop();
   const views = await viewsOf(model);
   const diagrams = views.map((view) => diagramCandidates(model, view)[0]);
-  const { draft, files, cited } = explainerDraft(model, views, diagrams, new Set(["secret"]));
+  const secret = "internal/secrets/store.go";
+  const { draft, files, cited } = explainerDraft(model, views, diagrams, new Set([secret]));
   const steps = (view) => [
     `@steps id=steps-${view}`,
-    `| step-${view}-web | Web \\| front \\*end\\* | serves: pages; owns: cart, sessions[](source:source-main) | diagram-${view} | web |`,
+    `| step-${view}-web | Web \\| front \\*end\\* | serves: pages; owns: cart, sessions[](source:source-1) | diagram-${view} | web |`,
     // A component without details names the file it is cited from.
-    `| step-${view}-store | Store | [src/main.go](source:source-main) | diagram-${view} | store |`,
+    `| step-${view}-store | Store | [src/store.go](source:source-2) | diagram-${view} | store |`,
   ];
   assert.equal(
     draft,
@@ -412,8 +409,9 @@ test("the page draft answers the model's question view by view and cites sources
       "",
       '@answer scope="Checkout only. Payments are out of scope. 不含退款。 Model by the shop team."',
       `@meta locale=en repo_url="https://example.invalid/shop.git" repo_revision=${"a".repeat(40)}`,
-      // A source is listed under the first component that cites it.
-      '@source source-main title="Web | front *end*" path="src/main.go"',
+      // A file is listed under the component that owns it, numbered as the page cites it.
+      '@source source-1 title="Web | front *end*" path="src/main.go"',
+      '@source source-2 title="Store" path="src/store.go"',
       "",
       "## What does the web do? {#view-web}",
       "",
@@ -431,9 +429,17 @@ test("the page draft answers the model's question view by view and cites sources
     ].join("\n"),
   );
   assert.deepEqual(files, ["diagram-web.architecture.json", "diagram-store.architecture.json"]);
-  assert.deepEqual(cited, ["main"]);
-  // Without a withheld source each component cites its first; without a repository URL, none.
-  assert.deepEqual(explainerDraft(model, views, diagrams).cited, ["secret", "main"]);
+  assert.deepEqual(cited, ["src/main.go", "src/store.go"]);
+  // Without a withheld file each component cites its first; without a repository URL, none.
+  assert.deepEqual(explainerDraft(model, views, diagrams).cited, [secret, "src/store.go"]);
+  // A component's first file is the first its binding resolved, such as the first file of a directory.
+  const owned = new Map([
+    ["web", ["src/web/a.go", "src/web/b.go"]],
+    ["store", []],
+  ]);
+  assert.deepEqual(explainerDraft(model, views, diagrams, new Set(), owned).cited, [
+    "src/web/a.go",
+  ]);
   // Steps follow the diagram's rows from the top, left to right, not the model's order.
   const fanned = validateModel(
     graphModel(3, [
@@ -471,13 +477,14 @@ test("the page draft answers the model's question view by view and cites sources
   assert.doesNotMatch(plain.draft, /source:|@source|repo_url/u);
 });
 
-test("a page withholds a source Archify will not cite and cites the component's next one", async () => {
+test("a page withholds a file Archify will not cite and cites the component's next one", async () => {
   const { model, page } = await shopPageOnce();
-  assert.deepEqual(page.withheld, ["secret"]);
+  const secret = "internal/secrets/store.go";
+  assert.deepEqual(page.withheld, [secret]);
   assert.doesNotMatch(page.draft, /internal\/secrets/u);
   assert.equal(
     page.draft,
-    explainerDraft(model, await viewsOf(model), page.diagrams, new Set(["secret"])).draft,
+    explainerDraft(model, await viewsOf(model), page.diagrams, new Set([secret])).draft,
   );
   assert.deepEqual(
     page.diagrams.map(({ view, file }) => [view, file]),

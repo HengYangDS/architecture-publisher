@@ -36,9 +36,11 @@ speaks: English, Simplified and Traditional Chinese, Spanish and Korean.
 
 - One [Architecture Model](reference/model.md): a JSON file written by a person
   or an agent, or imported from a LikeC4 workspace with `archpub import likec4`.
-- Optionally, a checkout of the described repository. With `--repo`, every
-  declared source is read at the model's pinned revision through Git, without
-  fetching, prompting or changing the checkout, and its digest is recorded.
+- Optionally, a checkout of the described repository. With `--repo`, the files
+  each component claims are resolved at the model's pinned revision through Git,
+  without fetching, prompting or changing the checkout: each file in the scope
+  goes to its most specific claim, and every owned or cited file's digest is
+  recorded.
 
 The repository being described gains no files, dependencies or configuration.
 A model may live anywhere, including in a separate publications repository.
@@ -47,7 +49,7 @@ A model may live anywhere, including in a separate publications repository.
 
 1. **Validate** the model against its schema and report every problem with its
    JSON path in one pass.
-2. **Bind sources** at the pinned revision when a checkout is given.
+2. **Bind files** at the pinned revision when a checkout is given.
 3. **Plan views**: the declared views, however many, or one view of every
    component when it fits, or an overview of the groups and one view per group.
 4. **Lay out** each view as rows of cards on one column lattice, as wide as
@@ -59,8 +61,8 @@ A model may live anywhere, including in a separate publications repository.
 6. **Deliver** the artifacts and the manifest into a new directory, staged and
    renamed into place only when complete.
 
-The same model, sources and publisher version produce the same bytes on one
-platform.
+The same model, repository revision and publisher version produce the same
+bytes on one platform.
 
 ## Outputs
 
@@ -84,9 +86,9 @@ Without a guide, the page heads with the model's question and its summary as the
 beside the list of its panels. Each view is a panel with its native Archify
 diagram, which opens Archify's full interactive viewer, and one step per
 component with every one of its details and, when the model names its
-repository URL and revision, its first source that Archify will cite, at that
-revision. The manifest keeps every detail, status, source path, digest and
-verification state.
+repository URL and revision, its first file that Archify will cite, at that
+revision. The manifest keeps every detail, status, claim, cited file, owner,
+digest and verification state.
 
 ## Quality floor
 

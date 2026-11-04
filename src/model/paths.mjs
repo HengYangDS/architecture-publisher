@@ -1,6 +1,6 @@
 /**
- * The repository paths a model names: the files its sources cite and the scope its
- * coverage declares.
+ * The repository paths a model names: the files its components claim and its relations cite,
+ * and the scope its coverage declares.
  */
 
 /**

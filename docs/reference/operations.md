@@ -25,8 +25,8 @@ npm install --global --ignore-scripts build/artifacts/architecture-publisher-<ve
 
 The package needs Node.js 22.13 or later and has no runtime npm dependencies:
 fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
-with their digests, so a build downloads nothing. Git is needed only to verify
-sources with `--repo`, and Typst 0.15.1 on the path only to build an overview. Git and Archify run with only the caller's `PATH`,
+with their digests, so a build downloads nothing. Git is needed only to resolve
+and verify the model's files with `--repo`, and Typst 0.15.1 on the path only to build an overview. Git and Archify run with only the caller's `PATH`,
 `PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`, so
 no other variable, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what
 they read or decide.
@@ -38,16 +38,19 @@ archpub check <model.json> [--repo <checkout>] [--against <revision>] [--media <
 archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
 archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub scaffold guide <model.json> --out <directory> [--json]
+archpub migrate <model.json> --out <model.json> [--json]
 archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
 archpub publish <delivery> --to <root> [--version <name>] [--json]
 archpub --help | --version [--json]
 ```
 
-- `check` validates the model, verifies its sources when `--repo` names a
-  checkout, plans the views, composes the poster pages and checks each diagram
+- `check` validates the model, resolves and verifies its
+  [files](model.md#files-and-the-repository) when `--repo` names a checkout,
+  plans the views, composes the poster pages and checks each diagram
   and the page with Archify, and writes no delivery; Archify's work files stay
   in a temporary directory that it removes. It lists the components and
-  relations that no planned view draws and those that cite no source. With
+  relations that no planned view draws, the components that claim no file and
+  the relations that cite none. With
   `--repo`, it reports the model's [coverage](model.md#coverage) of the
   repository at its revision, and with `--against <revision>` how far the
   repository has moved since; `--against` without `--repo` is a usage error.
@@ -70,6 +73,10 @@ archpub --help | --version [--json]
   overwrite an existing file.
 - `scaffold guide` writes the page the publisher generates for a model as a
   starting [guide](#the-guide) into a new directory.
+- `migrate` writes a version 1 model as version 2 into a new file: each
+  component claims the files its sources named and each relation cites its
+  sources' files. It names each file that several components cited, which stays
+  with the first of them, and refuses to overwrite an existing file.
 - `accept` records a named reviewer's acceptance of an unchanged delivery.
 - `publish` copies an accepted delivery to `<root>/<model id>/<version>/`, in
   any directory the caller names.
@@ -228,13 +235,13 @@ without a candidate that passes refuses the build with Archify's findings; a
 diagram never drops a component or relation to fit.
 
 When the model declares a repository URL and revision, each step cites the
-component's first source as a numbered page source at that revision, listed
-under the name of the first component that cites it, and the step of a
-component without details names that source's file; the checkout's remotes are
-not read. Archify will not cite a file of a sensitive
-class, such as a path with a `secrets` segment, so such a source is withheld
-from the page and recorded as withheld in the manifest, and the component cites
-its next source. In a 1440 × 900 window every preview fits its panel, primary
+component's first file, the first file of its first claim, as a numbered page
+source at that revision, listed under the component's name, and the step of a
+component without details names that file; the checkout's remotes are not
+read. Without a checkout, only a first claim that names one file is cited.
+Archify will not cite a file of a sensitive class, such as a path with a
+`secrets` segment, so such a file is withheld from the page and recorded as
+withheld in the manifest, and the component cites its next file. In a 1440 × 900 window every preview fits its panel, primary
 labels render at 13.25 CSS px or more in the previews and at 14 CSS px or more
 in the full viewer.
 
@@ -297,20 +304,20 @@ guidance keeps a page to four native diagrams.
 | `manifest.json`        | The build record.                                           |
 | `acceptance.json`      | Written by `archpub accept`; absent until then.             |
 
-The manifest records its format and version 4, the publisher's name and
+The manifest records its format and version 5, the publisher's name and
 version, the model id, title, language, digest and size, the declared
-repository, the build's quality and media, every source with its state and
-declared and observed digest, the digest of each bundled supply, each view with
+repository, the build's quality and media, every cited file with its state,
+digest, owner and the relations that cite it, the digest of each bundled supply, each view with
 its tiers, members and page number, each page with its number, files, views,
 admission, the gates it misses, composition and measures, the explainer page's
 quality profile and gates, a guide's draft path and digest, each file it names,
 its writing level and whether its sources were verified, each
 view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
-the sources the page withholds, with the overview its composition's path and
+the files the page withholds, with the overview its composition's path and
 digest, the house class's and the house supply's digests, the Typst version, the
 revision's date and the number of texts, the details,
-status and sources of every component and relation, and the path, size and
+status and files of every component and relation, and the path, size and
 SHA-256 of every artifact. It contains no time, host path or user name, so
 building the same model with the same version on one platform reproduces every
 byte.
@@ -330,7 +337,7 @@ delivery under an existing version is refused.
 ## Refusals
 
 A refusal names one of these codes. Its problems carry finer codes, such as the
-`model_*` field problems, `source_missing`, `source_digest_mismatch`,
+`model_*` field problems, `claim_unmatched`, `relation_file_missing`,
 `view_not_admitted` and the `layout_*` codes of a diagram no candidate lays out.
 A refused view is named in the message; the plan's and the posters' problems
 carry paths under `/views/<id>`, and a page refusal carries the paths the grid
@@ -344,8 +351,8 @@ or Archify reported.
 | `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                       |
 | `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                    |
 | `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                     |
-| `sources_unverified`                                                                    | A source is missing at the revision or differs from its declared digest.                    |
-| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the sources.                                               |
+| `files_unresolved`                                                                      | A claim holds no file in the scope, or a relation's file is missing at the revision.        |
+| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                 |
 | `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                    |
 | `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.     |
 | `plan_not_admitted`                                                                     | No page of its own lays a view out; each problem gives the view's counts and the page size. |
@@ -365,6 +372,7 @@ or Archify reported.
 | `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.       |
 | `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.           |
 | `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                      |
+| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1, cites a source its catalog lacks, or `--out` already exists.    |
 | `raster_failed`, `raster_size_invalid`, `supply_invalid`                                | A bundled supply failed its digest or the raster renderer failed.                           |
 | `delivery_exists`                                                                       | `--out` already exists.                                                                     |
 | `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                            |

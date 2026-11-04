@@ -111,7 +111,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(checked.body.coverage, null);
   assert.match(
     (await runCli(["check", model])).output,
-    /^page: 1 views admitted; sources none\.\nUncited: \d+ components and \d+ relations\.\n$/u,
+    /^page: 1 views admitted; files none\.\nUncited: \d+ components and \d+ relations\.\n$/u,
   );
 
   const out = path.join(root, "delivery");

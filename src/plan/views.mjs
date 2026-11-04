@@ -5,9 +5,9 @@ import { wordsOf } from "../locale.mjs";
  * A view is the unit both media render: its components, its relations and
  * optional ordered tiers. Context components are neighbors shown for orientation.
  * @typedef {{ id: string, label: string, kind: string | null, details: Array<[string, string[]]>,
- *   status: string | null, sources: string[], context?: boolean, group?: boolean }} ViewComponent
+ *   status: string | null, files: string[], context?: boolean, group?: boolean }} ViewComponent
  * @typedef {{ id: string, from: string, to: string, label: string,
- *   details: Array<[string, string[]]>, status: string | null, sources: string[],
+ *   details: Array<[string, string[]]>, status: string | null, files: string[],
  *   relations?: string[] }} ViewRelation
  * @typedef {{ id: string, title: string, question: string, summary: string | null,
  *   origin: "declared" | "complete" | "overview" | "group",
@@ -69,7 +69,7 @@ function overviewView(model) {
       kind: null,
       details: [[words.includes, group.members.map((id) => components.get(id).label)]],
       status: null,
-      sources: [],
+      files: [],
       group: true,
     })),
     ...model.components.filter(({ id }) => !owner.has(id)),
@@ -92,7 +92,7 @@ function overviewView(model) {
     label: pair.labels.join(" / "),
     details: pair.relations.length > 1 ? [[words.relations, [String(pair.relations.length)]]] : [],
     status: null,
-    sources: [],
+    files: [],
     relations: pair.relations,
   }));
   return {

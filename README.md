@@ -19,8 +19,8 @@ archpub accept build/my-repository --reviewer "Your Name"
 archpub publish build/my-repository --to <publication-root>
 ```
 
-`check` validates the model, verifies each declared source at the pinned
-revision, composes every poster page and checks every diagram and the page with
+`check` validates the model, resolves the files each component claims at the
+pinned revision and verifies their digests, composes every poster page and checks every diagram and the page with
 Archify, without writing a delivery. `build` writes the delivery. A person
 accepts it, and only an accepted delivery is published, under
 `<publication-root>/<model id>/<version>/` in any directory you choose.
@@ -32,7 +32,7 @@ sparse page and the manifest records the balance gates it misses:
 ```json
 {
   "format": "architecture-publisher.model",
-  "version": 1,
+  "version": 2,
   "id": "shop",
   "title": "Shop",
   "question": "How does an order reach the warehouse?",
@@ -54,7 +54,9 @@ sparse page and the manifest records the balance gates it misses:
 
 The [model reference](docs/reference/model.md) describes every field: the
 language the model is written in, kinds and their icons, details, statuses,
-sources, the coverage scope, groups and views.
+the files components claim and relations cite, the coverage scope, groups and
+views. `archpub migrate model.json --out model-2.json` converts a version 1
+model, whose components cited a source catalog.
 
 ## What a delivery contains
 
@@ -66,14 +68,14 @@ sources, the coverage scope, groups and views.
 - **Page:** `index.html`, a standalone native Archify explainer that answers the
   model's question with one panel per view: the view's diagram, which opens
   Archify's full viewer, and steps that light each component and cite its
-  source at the pinned revision.
+  first file at the pinned revision.
 - **Overview:** `overview.svg` and PNG, when the model names a composition: one
   16:9 page its author sets with the house class in Typst 0.15.1, checked for
   text outside its area, text over text and characters no face draws.
-- **Manifest:** `manifest.json`, the digest of the model, every source, every
-  bundled supply and every artifact, each page's measures and the gates it
-  misses, each diagram's route measures and the details, statuses and sources
-  of every component and relation. Building the same model with the same
+- **Manifest:** `manifest.json`, the digest of the model, every cited file with
+  its owner, every bundled supply and every artifact, each page's measures and
+  the gates it misses, each diagram's route measures and the details, statuses
+  and files of every component and relation. Building the same model with the same
   version on one platform reproduces every byte.
 
 `--media posters`, `--media page` or `--media overview` builds one medium

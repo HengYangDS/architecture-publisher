@@ -54,14 +54,22 @@ function readingOrder(view, diagram) {
 
 /**
  * The draft of a page, the file each view's diagram is written to beside it
- * and the sources it cites, in citation order. Every id is drawn from one
- * namespace, so panels, diagrams, steps and sources never collide.
+ * and the files it cites, in citation order. Every panel, diagram and step id
+ * is drawn from one namespace, and the cited files are numbered `source-1`
+ * onward, so none collide.
  * @param {any} model
  * @param {any[]} views
  * @param {any[]} diagrams one chosen diagram per view, in plan order
- * @param {Set<string>} [withheld] sources the page may not cite
+ * @param {Set<string>} [withheld] files the page may not cite
+ * @param {Map<string, string[]>} [owned] each component's files in citation order
  */
-export function explainerDraft(model, views, diagrams, withheld = new Set()) {
+export function explainerDraft(
+  model,
+  views,
+  diagrams,
+  withheld = new Set(),
+  owned = claimedFiles(model),
+) {
   const words = wordsOf(model.locale);
   const raw = [
     `page-${model.id}`,
@@ -71,23 +79,23 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
       `steps-${view.id}`,
       ...view.components.map(({ id }) => `step-${view.id}-${id}`),
     ]),
-    ...model.sources.map(({ id }) => `source-${id}`),
   ];
   const ids = archifyIds(raw);
   const id = (key) => /** @type {string} */ (ids.get(key));
-  // A source is pinned to the revision only when the model names the repository it lies in.
+  // A file is pinned to the revision only when the model names the repository it lies in.
   const repository = model.repository?.url && model.repository?.revision ? model.repository : null;
   // A view that asks the model's own question, as an overview often does, is
   // titled with its title, so that the panel does not repeat the page heading.
   const heading = (view) => (view.question === model.question ? view.title : view.question);
   /** @type {string[]} */
   const cited = [];
-  // A source is listed under the name of the first component that cites it;
-  // its path follows from the repository position.
+  // A file is listed under the name of the component that owns it and cited
+  // as its source number; a group of the overview owns none.
   const names = new Map();
+  const sourceId = (file) => `source-${cited.indexOf(file) + 1}`;
   const sourceOf = (component) => {
     const [first] = repository
-      ? (component.sources ?? []).filter((source) => !withheld.has(source))
+      ? (owned.get(component.id) ?? []).filter((file) => !withheld.has(file))
       : [];
     if (first && !cited.includes(first)) {
       cited.push(first);
@@ -104,11 +112,10 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
         .map(([name, values]) => detailText(words, name, values))
         .join(words.semicolon),
     );
-    const source = sourceOf(component);
-    if (!source) return details;
-    const link = `source:${id(`source-${source}`)}`;
+    const file = sourceOf(component);
+    if (!file) return details;
+    const link = `source:${sourceId(file)}`;
     if (details) return `${details}[](${link})`;
-    const { path: file } = model.sources.find((entry) => entry.id === source);
     return `[${text(file)}](${link})`;
   };
   const panels = views.map((view, index) => {
@@ -134,10 +141,10 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
       .filter(Boolean)
       .map(String),
   );
-  const sources = cited.map((sourceId) => {
-    const source = model.sources.find((entry) => entry.id === sourceId);
-    return `@source ${id(`source-${sourceId}`)} title=${plain(names.get(sourceId))} path=${JSON.stringify(source.path)}`;
-  });
+  const sources = cited.map(
+    (file) =>
+      `@source ${sourceId(file)} title=${plain(names.get(file))} path=${JSON.stringify(file)}`,
+  );
   // Beside the conclusion, a page of several views lists the questions its
   // panels answer, numbered as the panels are, each a way into its panel. The
   // list is the conclusion's reasons, which Archify caps, so a page of more
@@ -166,6 +173,16 @@ export function explainerDraft(model, views, diagrams, withheld = new Set()) {
   return { draft, files: views.map((view) => diagramFile(id(`diagram-${view.id}`))), cited };
 }
 
+/**
+ * Each component's files as the model names them, without a checkout: the claims of one file,
+ * since a claimed directory holds files only the revision lists.
+ * @param {any} model
+ */
+const claimedFiles = (model) =>
+  new Map(
+    model.components.map(({ id, files }) => [id, files.filter((claim) => !claim.endsWith("/"))]),
+  );
+
 /** The file a diagram's document is written to beside the draft. */
 const diagramFile = (diagramId) => `${diagramId}.architecture.json`;
 
@@ -191,13 +208,14 @@ export async function writePage(page, directory) {
 /**
  * Choose every view's diagram on Archify's own routes, write the page's draft
  * and validate it with Archify at the build's quality. Archify will not cite a
- * source in a sensitive file class, such as a file under a `secrets`
- * directory, on a page; such a source is withheld from the page and stays in
- * the manifest, and a component that cites it cites its next source. Any other
- * refusal is the page's.
+ * file in a sensitive class, such as a file under a `secrets` directory, on a
+ * page; such a file is withheld from the page and stays in the manifest, and
+ * the component that owns it cites its next file. Any other refusal is the
+ * page's.
  * @param {any} model
  * @param {any[]} views
- * @param {{ quality?: "showcase" | "standard" }} [options]
+ * @param {{ quality?: "showcase" | "standard", owned?: Map<string, string[]> }} [options]
+ *   `owned` holds each component's files in citation order, as binding resolved them
  */
 export async function explainerPage(model, views, options = {}) {
   const quality = options.quality ?? "showcase";
@@ -207,7 +225,13 @@ export async function explainerPage(model, views, options = {}) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-page-"));
   try {
     for (;;) {
-      const { draft, files, cited } = explainerDraft(model, views, diagrams, withheld);
+      const { draft, files, cited } = explainerDraft(
+        model,
+        views,
+        diagrams,
+        withheld,
+        options.owned,
+      );
       const page = {
         draft,
         diagrams: diagrams.map((diagram, index) => ({ ...diagram, file: files[index] })),
@@ -229,7 +253,7 @@ export async function explainerPage(model, views, options = {}) {
           quality,
           withheld: [...withheld].sort(),
         };
-      // Each pass withholds at least one more source or refuses, so the loop ends.
+      // Each pass withholds at least one more file or refuses, so the loop ends.
       const sensitive = sensitiveSources(answer, cited).filter((source) => !withheld.has(source));
       if (!sensitive.length) refusePage(answer);
       for (const source of sensitive) withheld.add(source);
@@ -240,11 +264,11 @@ export async function explainerPage(model, views, options = {}) {
 }
 
 /**
- * The sources a page cites that Archify will not cite, named by its findings
- * through their position among the cited sources. A finding past the cited
- * sources names none.
+ * The files a page cites that Archify will not cite, named by its findings
+ * through their position among the page's sources. A finding past the cited
+ * files names none.
  * @param {any} answer Archify's validation answer
- * @param {string[]} cited the page's cited source ids, in citation order
+ * @param {string[]} cited the page's cited files, in citation order
  */
 export function sensitiveSources(answer, cited) {
   return (answer.diagnostics ?? []).flatMap(({ code, subject }) => {

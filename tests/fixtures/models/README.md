@@ -3,7 +3,9 @@
 The tests use these copies of real models to check that layout, posters and
 the page hold for systems other than the ones the examples describe. Each file
 is a frozen copy: it is not kept in step with its origin, and a test that
-needs a newer copy replaces the file in its own change.
+needs a newer copy replaces the file in its own change. Each was converted to
+model version 2 with `archpub migrate`, which kept a file that several
+components cited with the first of them.
 
 | File                          | Origin                                                                               | Added                           | Why it is here                                                       |
 | ----------------------------- | ------------------------------------------------------------------------------------ | ------------------------------- | -------------------------------------------------------------------- |

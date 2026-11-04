@@ -9,8 +9,9 @@ relations:
 # Model reference
 
 An Architecture Model is one JSON file that describes the architecture to
-publish: its components, the relations between them, how the reader sees them
-and which repository files support each statement. A person or an agent writes
+publish: its components, the relations between them, how the reader sees them,
+the repository files each component owns and the files that support each
+relation. A person or an agent writes
 it, or `archpub import likec4` converts a LikeC4 workspace into one. The
 publisher never infers architecture from code; the model is the only source of
 meaning.
@@ -31,7 +32,7 @@ kinds, details and views.
 ```json
 {
   "format": "architecture-publisher.model",
-  "version": 1,
+  "version": 2,
   "id": "shop",
   "title": "Shop",
   "question": "How does an order reach the warehouse?",
@@ -57,7 +58,7 @@ kinds, details and views.
 | Field         | Required | Meaning                                                                                      |
 | ------------- | -------- | -------------------------------------------------------------------------------------------- |
 | `format`      | yes      | Always `architecture-publisher.model`.                                                       |
-| `version`     | yes      | Always `1`.                                                                                  |
+| `version`     | yes      | Always `2`; `archpub migrate` converts a version 1 model.                                    |
 | `id`          | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused. |
 | `locale`      | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.          |
 | `title`       | yes      | Poster title, and the title of any view without its own.                                     |
@@ -68,7 +69,6 @@ kinds, details and views.
 | `attribution` | no       | Who wrote the model; printed with the scope.                                                 |
 | `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`.             |
 | `kinds`       | no       | Kind catalog keyed by kind id.                                                               |
-| `sources`     | no       | Source file catalog keyed by source id.                                                      |
 | `components`  | yes      | At least one component.                                                                      |
 | `relations`   | yes      | Relations between components; may be empty.                                                  |
 | `groups`      | no       | Named sets of components.                                                                    |
@@ -98,8 +98,8 @@ U+00A0 between `60` and `s`, keeps the words beside it on one line.
 ## Components and relations
 
 A component has an `id`, a `label` and optionally a `kind`, `details`, a
-`status` and `sources`. A relation has an `id`, `from` and `to` component ids,
-a `label` and the same optional `details`, `status` and `sources`. A relation
+`status` and `files`. A relation has an `id`, `from` and `to` component ids,
+a `label` and the same optional `details`, `status` and `files`. A relation
 may not connect a component to itself.
 
 - `details` maps a short name to text or a list of texts, such as
@@ -112,7 +112,9 @@ may not connect a component to itself.
 - `status` is `implemented`, `planned` or `retired`. On posters, planned
   components and relations are drawn dashed and retired ones dotted and muted;
   on the page, planned and retired relations are dashed.
-- `sources` lists source ids from the catalog that support the statement.
+- A component's `files` are the repository paths it owns, and a relation's
+  `files` are the files that evidence it; see
+  [Files and the repository](#files-and-the-repository).
 
 ## Kinds
 
@@ -134,23 +136,54 @@ without a kind is a `backend` component.
 `icon` names any icon in the bundled Lucide 1.66.0 artwork, such as `server` or
 `database`; each category has a default. An unknown icon is refused.
 
-## Sources and the repository
+## Files and the repository
 
-A source has a repository-relative `path`, an optional `sha256` of the file's
-bytes and an optional `note`. With `--repo <checkout>`, `archpub check` and
-`archpub build` read every source at `repository.revision` through Git without
-fetching, prompting or changing the checkout, and record its digest. A missing
-file or a digest that differs from the declared one refuses the build and names
-the actual digest. Without `--repo`, sources are recorded as unverified.
+A component claims the repository paths it owns in `files`: a path ending in
+`/` names a directory and any other path one file. A path is relative, holds no
+glob and is claimed by one component only. A component may claim nothing, as a
+person or an outside system does.
+
+```json
+"components": [
+  { "id": "cli", "label": "Command line", "files": ["src/cli/"] },
+  { "id": "credentials", "label": "Credential helper", "files": ["src/cli/credential/", "docs/credentials.md"] }
+]
+```
+
+A file belongs to the component whose claim is most specific: a claim of the
+file itself, otherwise the deepest claimed directory that holds it. Above,
+`src/cli/credential/read.mjs` belongs to `credentials` and `src/cli/main.mjs`
+to `cli`, whatever order the claims are written in. A relation cites, in
+`files`, the files that evidence it, such as the modules that import the other
+component; each names one file.
+
+With `--repo <checkout>`, `archpub check` and `archpub build` read the files at
+`repository.revision` through Git without fetching, prompting or changing the
+checkout. Each file in the [coverage scope](#coverage) goes to its owner, and
+every owned file and every file a relation cites is recorded in the manifest
+with its digest, its owner and the relations that cite it; that record is the
+edition's lock. A claim that holds no file in the scope, or a relation file the
+revision lacks, refuses the build with its JSON path. Without `--repo`, every
+declared path is recorded as unverified.
 
 When the model also declares `repository.url`, the page cites each component's
-first source at that URL and revision. Archify does not cite a file of a
-sensitive class, such as a path with a `secrets` segment; the page withholds
-such a source, cites the component's next one and records the withheld source in
-the manifest.
+first file at that URL and revision: the first file of its first claim, in
+path order within a directory. Archify does not cite a file of a sensitive
+class, such as a path with a `secrets` segment; the page withholds such a file,
+cites the component's next one and records the withheld file in the manifest.
 
 A revision cannot name the commit that contains it, so a model kept in the
 repository it describes pins an earlier commit.
+
+### From version 1
+
+A version 1 model listed its files in a `sources` catalog that components and
+relations cited by id. `archpub migrate <model> --out <file>` writes it as
+version 2: each component claims the files it cited, in their order, and each
+relation cites its sources' files. A file that several components cited stays
+with the first of them, and the command names it. Folding files into directory
+claims is then the author's choice, since a directory also takes the files no
+source named.
 
 ## Coverage
 
@@ -179,15 +212,15 @@ model leaves out, each with a reason. A path is relative, has no empty, `.` or
 ```
 
 With `--repo`, `archpub check` reads the files at `repository.revision` and
-reports how many of them, and how many of their bytes, are in the scope, cited
-by a source, uncovered or excluded; the files the model cites outside the
+reports how many of them, and how many of their bytes, are in the scope, owned
+by a component, uncovered or excluded; the files relations cite outside the
 scope; the declared paths that match no file; and the largest directories that
-hold uncovered files and no cited one. Git matches each glob at that revision,
+hold uncovered files and no owned one. Git matches each glob at that revision,
 case-sensitively on every platform. With `--against <revision>`, it also
 reports the first-parent commits since the model's revision and whether each
 cited file is unchanged, modified, moved, with its new path, or deleted, as
 Git's rename detection reads them. The report never refuses a model; deciding
-what to cite stays with its author.
+what to claim stays with its author.
 
 ## Overview
 

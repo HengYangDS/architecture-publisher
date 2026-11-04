@@ -24,7 +24,7 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   assert.deepEqual(built.views, ["containers-tiers", "containers-automatic"]);
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
-  assert.equal(manifest.version, 4);
+  assert.equal(manifest.version, 5);
   assert.deepEqual([manifest.quality, manifest.media], ["showcase", ["posters", "page"]]);
   assert.equal(manifest.model.locale, "en");
   assert.equal(manifest.model.id, "big-bank");
@@ -124,18 +124,20 @@ test("check reports the plan without writing and invalid models leave no partial
   assert.deepEqual(await fs.readdir(root), []);
 });
 
-test("sources verified against the checkout are cited on the page at the model's revision", async (t) => {
+test("files verified against the checkout are recorded and cited on the page at the model's revision", async (t) => {
   // The checkout has no origin remote: the page names the declared URL and revision.
   const { root: checkout, revision } = await repository(t);
   const url = "https://example.invalid/fixture.git";
-  const { components } = pageModel();
+  const { components, relations } = pageModel();
   const model = await writeModel(
     t,
     pageModel({
       repository: { name: "fixture", url, revision },
-      sources: { main: { path: "src/main.mjs" } },
       components: components.map((component, index) =>
-        index ? component : { ...component, sources: ["main"] },
+        index ? component : { ...component, files: ["src/"] },
+      ),
+      relations: relations.map((relation, index) =>
+        index ? relation : { ...relation, files: ["src/main.mjs"] },
       ),
     }),
   );
@@ -143,14 +145,24 @@ test("sources verified against the checkout are cited on the page at the model's
   await buildDelivery(model, out, { repo: checkout });
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.sources.state, "verified");
+  // A cited file is recorded once, with its digest, its owner and the relations that cite it.
+  assert.deepEqual(
+    manifest.sources.records.map(({ path: file, owner, relations: citing, state }) => [
+      file,
+      owner,
+      citing,
+      state,
+    ]),
+    [["src/main.mjs", "client", ["r1"], "verified"]],
+  );
+  assert.match(manifest.sources.records[0].sha256, /^[0-9a-f]{64}$/u);
   assert.equal(manifest.page.quality, "showcase");
-  assert.deepEqual(manifest.evidence.components[0].sources, ["main"]);
+  assert.deepEqual(manifest.evidence.components[0].files, ["src/"]);
+  assert.deepEqual(manifest.evidence.relations[0].files, ["src/main.mjs"]);
   const page = await fs.readFile(path.join(out, "index.html"), "utf8");
   assert.ok(page.includes(`"repository":{"url":"${url}","revision":"${revision}"}`));
-  // A page source is listed under the label of the first component that cites it.
-  assert.ok(
-    page.includes('"sources":[{"id":"source-main","title":"Customer","path":"src/main.mjs"}'),
-  );
+  // A component's first file is the first file its first claim holds at the revision.
+  assert.ok(page.includes('"sources":[{"id":"source-1","title":"Customer","path":"src/main.mjs"}'));
 });
 
 test("acceptance and publication require an unchanged delivery", async (t) => {

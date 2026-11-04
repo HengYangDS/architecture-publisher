@@ -12,8 +12,10 @@ only draws and verifies what the model states.
 1. Agree on the reader's question and the scope with the user: which system,
    which parts and what the figures must explain. Record known gaps as `limits`.
 2. Read the repository's actual entry points, modules and configuration. Every
-   component and relation in the model needs a file that supports it; cite
-   those files in `sources` with repository-relative paths, and pin
+   component claims the repository paths it owns in `files`, a directory ending
+   in `/` or one file, each path claimed once; a file belongs to its most
+   specific claim. Each relation cites in `files` the files that evidence it,
+   such as the modules that import the other component. Pin
    `repository.revision` to the full commit you read.
 3. Write the model outside the described repository unless its owner asks for
    it there. Give components stable lowercase ids and short labels, relations
@@ -30,11 +32,12 @@ only draws and verifies what the model states.
    counts and the page size: split it or reorder its tiers. A view no balanced
    page holds is refused with `poster_unbalanced` and each gate its closest page
    misses: give it more of the model to show or merge it with a neighbour. Never
-   drop meaning to pass. A digest mismatch names the actual digest at the
-   revision. Declare `coverage` for the part of the repository the model
-   describes, leaving out with a reason what is not its architecture, such as
-   `**/*_test.go` beside Go code, and cite the largest uncovered directories the
-   report lists until what is left is outside the question's scope.
+   drop meaning to pass. A claim that holds no file in the scope names its path.
+   Declare `coverage` for the part of the repository the model describes,
+   leaving out with a reason what is not its architecture, such as
+   `**/*_test.go` beside Go code, and claim the largest uncovered directories
+   the report lists until what is left is outside the question's scope. A
+   version 1 model converts with `archpub migrate model.json --out <file>`.
 6. Write the guide, the page that explains the system to its reader. Run
    `archpub scaffold guide model.json --out guide` for a starting draft and name
    `guide/guide.archify.md` in the model's `guide`. Then rewrite it: lead with

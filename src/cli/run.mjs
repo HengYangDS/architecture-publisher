@@ -3,6 +3,7 @@ import path from "node:path";
 import { buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
 import { acceptDelivery, publishDelivery } from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
+import { migrateModel } from "../importers/model.mjs";
 import { Refusal } from "../refusal.mjs";
 
 export const USAGE = `Usage:
@@ -11,12 +12,13 @@ export const USAGE = `Usage:
   archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>]
     [--question <text>] [--locale <tag>] [--json]
   archpub scaffold guide <model.json> --out <directory> [--json]
+  archpub migrate <model.json> --out <model.json> [--json]
   archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
   archpub publish <delivery> --to <root> [--version <name>] [--json]
   archpub --help | --version
 
 Build options:
-  --repo <checkout>     Verify the model's sources against this Git checkout.
+  --repo <checkout>     Resolve and verify the model's files in this Git checkout.
   --media <list>        Media to deliver: posters, page, overview (default posters,page
                         and, when the model names a composition, overview).
   --png <widths>        PNG widths of the posters and the overview, comma-separated
@@ -39,7 +41,7 @@ const series = (items) =>
 /** What a check found, as lines: admission, statements, coverage and currency. */
 function checkText(result) {
   const lines = [
-    `${result.model.id}: ${result.views.length} views admitted; sources ${result.sources.state}.`,
+    `${result.model.id}: ${result.views.length} views admitted; files ${result.sources.state}.`,
   ];
   const statements = ({ components, relations }) =>
     `${count(components.length, "component")} and ${count(relations.length, "relation")}`;
@@ -50,7 +52,7 @@ function checkText(result) {
   if (coverage) {
     const { files } = coverage;
     lines.push(
-      `Coverage at ${coverage.revision.slice(0, 7)}: ${files.cited} of ${files.scope} files cited, ` +
+      `Coverage at ${coverage.revision.slice(0, 7)}: ${files.owned} of ${files.scope} files owned, ` +
         `${files.uncovered} uncovered, ${files.excluded} excluded.`,
     );
     if (coverage.largestUncovered.length)
@@ -67,8 +69,8 @@ function checkText(result) {
     const { currency } = coverage;
     if (currency) {
       const states = ["unchanged", "modified", "moved", "deleted"].map((state, index) => {
-        const held = currency.sources.filter((source) => source.state === state).length;
-        return index ? `${held} ${state}` : `${count(held, "source")} ${state}`;
+        const held = currency.files.filter((file) => file.state === state).length;
+        return index ? `${held} ${state}` : `${count(held, "file")} ${state}`;
       });
       lines.push(
         `Currency against ${currency.against.revision} at ${currency.against.commit.slice(0, 7)}: ` +
@@ -182,6 +184,28 @@ const COMMANDS = {
       scaffoldGuide(one(positionals, "model"), required(options, "out")),
     text: (result) =>
       `Wrote ${result.draft} and ${count(result.files.length, "diagram")} into ${result.out}.\n`,
+  },
+  migrate: {
+    options: ["out"],
+    run: async ({ positionals, options }) => {
+      const out = required(options, "out");
+      const { model, moved } = await migrateModel(one(positionals, "model"));
+      await fs
+        .writeFile(out, `${JSON.stringify(model, null, 2)}\n`, { flag: "wx" })
+        .catch((error) => {
+          if (error.code !== "EEXIST") throw error;
+          throw new Refusal("migrate_output_exists", `${out} already exists.`);
+        });
+      const tally = (items) => items.reduce((sum, { files = [] }) => sum + files.length, 0);
+      return {
+        out: path.resolve(out),
+        claims: tally(model.components),
+        cited: tally(model.relations),
+        moved,
+      };
+    },
+    text: (result) =>
+      `Wrote ${result.out}: components claim ${count(result.claims, "file")}, relations cite ${count(result.cited, "file")}.\n${result.moved.map((entry) => `kept with ${entry.owner}: ${entry.path}, no longer cited by ${series(entry.components)}\n`).join("")}`,
   },
   "import likec4": {
     options: ["out", "id", "title", "question", "locale"],

@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- `archpub migrate <model> --out <file>` writes a version 1 model as version 2: each component claims the files its
+  sources named, in their order, and each relation cites its sources' files. A file that several components cited
+  stays with the first, and the command names it.
 - The guide: a model may name an Archify explainer draft as `guide`, and the page is that guide. The build stages the
   draft and the local files it names and refuses a link, another path, a missing file or a draft for another
   repository. With `--repo` it has Archify verify every repository source the guide cites at the model's revision,
@@ -35,6 +38,14 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** model version 2. A component claims the repository paths it owns in `files`, a directory ending in `/`
+  or one file, each claimed once; a file in the coverage scope belongs to its most specific claim. A relation cites in
+  `files` the files that evidence it. The `sources` catalog, its ids and authored digests are removed, and a version 1
+  model is refused with the command that converts it. With `--repo`, ownership is resolved at the model's revision;
+  a claim that holds no file in the scope or a relation file the revision lacks refuses the build with
+  `files_unresolved`. The manifest, now version 5, records every cited file with its digest, its owner and the
+  relations that cite it. The coverage report counts owned files, the generated page numbers its sources `source-1`
+  onward and cites each component's first file, and `check` lists the components and relations without files.
 - A page of more than four views lists no panels beside its conclusion, whose reasons Archify caps at four; its panels
   stay numbered in the plan's order.
 - The development and CI supply moves to the latest stable releases: `globals` 17.14.0, re2js 2.9.1 and minimatch 11.0.4

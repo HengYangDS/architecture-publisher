@@ -6,78 +6,112 @@ import test from "node:test";
 import { validateModel } from "../src/model/load.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
-import { MAIN, README, repository } from "./fixtures/repository.mjs";
+import { MAIN, README, globRepository, repository } from "./fixtures/repository.mjs";
 
 const sha256 = (text) => createHash("sha256").update(text).digest("hex");
 
-function sourcedModel(revision, sources, extra = {}) {
+/** A model at a revision whose components claim `claims` and whose one relation cites `cited`. */
+function claimingModel(revision, claims, cited = [], extra = {}) {
+  const ids = ["a", "b", "c"];
   return validateModel(
     minimalModel({
-      repository: { name: "fixture", revision, ...extra },
-      sources,
-      components: [
-        { id: "a", label: "Alpha", sources: Object.keys(sources) },
-        { id: "b", label: "Beta" },
-      ],
+      repository: { name: "fixture", revision },
+      components: ids.map((id, index) => ({
+        id,
+        label: id.toUpperCase(),
+        ...(claims[index] ? { files: claims[index] } : {}),
+      })),
+      relations: [{ id: "a-b", from: "a", to: "b", label: "calls", files: cited }],
+      ...extra,
     }),
   );
 }
 
-test("models without sources bind nothing and unverified sources keep their declarations", () => {
+const problemsOf = (error) => error.problems.map(({ code, path: where }) => [code, where]);
+
+test("models without files bind nothing, and without a checkout every declared path stays unverified", () => {
   assert.deepEqual(bindSources(validateModel(minimalModel()), null), {
     state: "none",
     repository: null,
     records: [],
+    owned: new Map([
+      ["a", []],
+      ["b", []],
+    ]),
   });
-  const model = sourcedModel("a".repeat(40), {
-    main: { path: "src/main.mjs", sha256: sha256(MAIN) },
-  });
-  assert.deepEqual(bindSources(model, null).records, [
-    {
-      id: "main",
-      path: "src/main.mjs",
-      declaredSha256: sha256(MAIN),
-      sha256: null,
-      state: "unverified",
-    },
+  const model = claimingModel("a".repeat(40), [["src/", "README.md"]], ["src/main.mjs"]);
+  const binding = bindSources(model, null);
+  assert.equal(binding.state, "unverified");
+  assert.deepEqual(binding.records, [
+    { path: "README.md", sha256: null, owner: "a", relations: [], state: "unverified" },
+    { path: "src/", sha256: null, owner: "a", relations: [], state: "unverified" },
+    { path: "src/main.mjs", sha256: null, owner: null, relations: ["a-b"], state: "unverified" },
   ]);
-  assert.equal(bindSources(model, null).state, "unverified");
+  // Without the tree a directory cannot be read, so a component is known to own only the files it names.
+  assert.deepEqual(binding.owned.get("a"), ["README.md"]);
 });
 
-test("sources are read at the declared revision and their digests verified", async (t) => {
+test("files are read at the revision, not from the work tree", async (t) => {
   const { root, revision } = await repository(t);
   await fs.writeFile(path.join(root, "src/main.mjs"), "changed in the work tree\n");
-  const model = sourcedModel(revision, {
-    main: { path: "src/main.mjs", sha256: sha256(MAIN) },
-    readme: { path: "README.md" },
-  });
-  const binding = bindSources(model, root);
+  const binding = bindSources(claimingModel(revision, [["src/"], ["README.md"]]), root);
   assert.equal(binding.state, "verified");
+  assert.deepEqual(binding.records, [
+    { path: "README.md", sha256: sha256(README), owner: "b", relations: [], state: "verified" },
+    { path: "src/main.mjs", sha256: sha256(MAIN), owner: "a", relations: [], state: "verified" },
+  ]);
+});
+
+test("each file in the scope belongs to its most specific claim", async (t) => {
+  const { root, pinned } = await globRepository(t);
+  const model = claimingModel(
+    pinned,
+    [["src/"], ["src/lib/"], ["src/net/c.go"]],
+    ["src/lib/b.go"],
+    {
+      coverage: {
+        include: ["src/"],
+        exclude: [{ path: "**/*_test.go", reason: "Tests beside the code." }],
+      },
+    },
+  );
+  const binding = bindSources(model, root);
+  const digest = sha256("x\n");
+  assert.deepEqual(binding.records, [
+    { path: "src/A_TEST.GO", sha256: digest, owner: "a", relations: [], state: "verified" },
+    { path: "src/a.go", sha256: digest, owner: "a", relations: [], state: "verified" },
+    { path: "src/lib/b.go", sha256: digest, owner: "b", relations: ["a-b"], state: "verified" },
+    { path: "src/net/c.go", sha256: digest, owner: "c", relations: [], state: "verified" },
+  ]);
   assert.deepEqual(
-    binding.records.map(({ id, sha256: digest, state }) => [id, digest, state]),
+    [...binding.owned],
     [
-      ["main", sha256(MAIN), "verified"],
-      ["readme", sha256(README), "verified"],
+      ["a", ["src/A_TEST.GO", "src/a.go"]],
+      ["b", ["src/lib/b.go"]],
+      ["c", ["src/net/c.go"]],
     ],
   );
 });
 
-test("missing paths, directories and digest mismatches are refused together", async (t) => {
-  const { root, revision } = await repository(t);
-  const model = sourcedModel(revision, {
-    gone: { path: "src/gone.mjs" },
-    folder: { path: "src" },
-    main: { path: "src/main.mjs", sha256: "0".repeat(64) },
-  });
+test("a claim that holds no file in the scope and an absent relation file are refused together", async (t) => {
+  const { root, pinned } = await globRepository(t);
+  const model = claimingModel(
+    pinned,
+    [["src/old/", "src/a_test.go", "src/a.go"]],
+    ["src/gone.go"],
+    {
+      coverage: { exclude: [{ path: "**/*_test.go", reason: "Tests beside the code." }] },
+    },
+  );
   assert.throws(
     () => bindSources(model, root),
     (error) =>
-      error.code === "sources_unverified" &&
-      JSON.stringify(error.problems.map(({ code, path: where }) => [code, where])) ===
+      error.code === "files_unresolved" &&
+      JSON.stringify(problemsOf(error)) ===
         JSON.stringify([
-          ["source_missing", "/sources/gone/path"],
-          ["source_missing", "/sources/folder/path"],
-          ["source_digest_mismatch", "/sources/main/sha256"],
+          ["claim_unmatched", "/components/0/files/0"],
+          ["claim_unmatched", "/components/0/files/1"],
+          ["relation_file_missing", "/relations/0/files/0"],
         ]),
   );
 });
@@ -86,15 +120,14 @@ test("verification needs a known revision and a working Git", async (t) => {
   const { root } = await repository(t);
   const unrevised = validateModel(
     minimalModel({
-      sources: { main: { path: "src/main.mjs" } },
       components: [
-        { id: "a", label: "Alpha", sources: ["main"] },
+        { id: "a", label: "Alpha", files: ["src/main.mjs"] },
         { id: "b", label: "Beta" },
       ],
     }),
   );
   assert.throws(() => bindSources(unrevised, root), { code: "source_revision_missing" });
-  const unknown = sourcedModel("b".repeat(40), { main: { path: "src/main.mjs" } });
+  const unknown = claimingModel("b".repeat(40), [["src/main.mjs"]]);
   assert.throws(() => bindSources(unknown, root), { code: "source_revision_unknown" });
   const saved = process.env.PATH;
   process.env.PATH = "";
@@ -108,7 +141,7 @@ test("verification needs a known revision and a working Git", async (t) => {
 test("the caller's Git variables cannot point binding at another repository", async (t) => {
   const { root, revision } = await repository(t);
   const elsewhere = await repository(t);
-  const model = sourcedModel(revision, { main: { path: "src/main.mjs", sha256: sha256(MAIN) } });
+  const model = claimingModel(revision, [["src/main.mjs"]]);
   const saved = process.env.GIT_DIR;
   process.env.GIT_DIR = path.join(elsewhere.root, ".git");
   try {

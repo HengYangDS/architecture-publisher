@@ -1,6 +1,6 @@
 {
   "format": "architecture-publisher.model",
-  "version": 1,
+  "version": 2,
   "id": "big-bank",
   "title": "Internet Banking System",
   "question": "Which containers make up internet banking, and what do they call?",

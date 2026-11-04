@@ -6,6 +6,7 @@ import test from "node:test";
 import { checkModel } from "../src/build.mjs";
 import { runCli } from "../src/cli/run.mjs";
 import { validateModel } from "../src/model/load.mjs";
+import { bindSources } from "../src/sources/bind.mjs";
 import { measureCoverage, uncitedStatements } from "../src/sources/coverage.mjs";
 import { minimalModel, writeModel } from "./fixtures/models.mjs";
 import { globRepository, historyRepository } from "./fixtures/repository.mjs";
@@ -21,20 +22,22 @@ const COVERAGE = {
 const historyJson = (pinned, extra = {}) =>
   minimalModel({
     repository: { name: "history", revision: pinned },
-    sources: {
-      a: { path: "src/a.mjs" },
-      b: { path: "src/b.mjs" },
-      c: { path: "src/c.mjs" },
-      readme: { path: "README.md" },
-    },
     components: [
-      { id: "a", label: "Alpha", sources: ["a", "b"] },
-      { id: "b", label: "Beta", sources: ["c", "readme"] },
+      { id: "a", label: "Alpha", files: ["src/a.mjs", "src/b.mjs"] },
+      { id: "b", label: "Beta", files: ["src/c.mjs"] },
+    ],
+    relations: [
+      { id: "a-b", from: "a", to: "b", label: "calls", files: ["README.md"] },
+      { id: "b-a", from: "b", to: "a", label: "answers" },
     ],
     coverage: COVERAGE,
     ...extra,
   });
 const historyModel = (pinned, extra) => validateModel(historyJson(pinned, extra));
+
+/** Coverage of a model whose files are bound to the same checkout first. */
+const measure = (model, root, options) =>
+  measureCoverage(model, bindSources(model, root), root, options);
 
 /** Everything a read-only command could change in a repository. */
 async function snapshot(root, git) {
@@ -53,12 +56,12 @@ async function snapshot(root, git) {
 
 test("coverage counts the declared scope at the pinned revision", async (t) => {
   const { root, pinned } = await historyRepository(t);
-  const report = measureCoverage(historyModel(pinned), root);
+  const report = measure(historyModel(pinned), root);
   assert.equal(report.revision, pinned);
-  assert.deepEqual(report.files, { scope: 6, cited: 3, uncovered: 3, excluded: 1 });
+  assert.deepEqual(report.files, { scope: 6, owned: 3, uncovered: 3, excluded: 1 });
   assert.deepEqual(report.bytes, {
     scope: 6 * 20,
-    cited: 3 * 20,
+    owned: 3 * 20,
     uncovered: 3 * 20,
     excluded: 20,
   });
@@ -83,21 +86,20 @@ test("a glob path counts the files Git matches at the revision, case-sensitively
     validateModel(
       minimalModel({
         repository: { name: "glob", revision: pinned },
-        sources: { a: { path: "src/a.go" } },
         components: [
-          { id: "a", label: "Alpha", sources: ["a"] },
+          { id: "a", label: "Alpha", files: ["src/a.go"] },
           { id: "b", label: "Beta" },
         ],
         coverage,
       }),
     );
   const tests = { path: "**/*_test.go", reason: "Tests beside the code." };
-  const report = measureCoverage(model({ include: ["src/"], exclude: [tests] }), root);
+  const report = measure(model({ include: ["src/"], exclude: [tests] }), root);
   // src/A_TEST.GO stays in the scope: the glob is case-sensitive on every platform.
-  assert.deepEqual(report.files, { scope: 4, cited: 1, uncovered: 3, excluded: 2 });
+  assert.deepEqual(report.files, { scope: 4, owned: 1, uncovered: 3, excluded: 2 });
   assert.deepEqual(report.excluded, [{ ...tests, files: 2, bytes: 4 }]);
   // The included glob holds no upper-case name, so src/A_TEST.GO is outside the scope.
-  const classes = measureCoverage(
+  const classes = measure(
     model({
       include: ["src/**/*.go", "src/[A-Z]*"],
       exclude: [
@@ -116,7 +118,7 @@ test("a glob path counts the files Git matches at the revision, case-sensitively
       ["**/*.rs", 0],
     ],
   );
-  assert.deepEqual(classes.files, { scope: 4, cited: 1, uncovered: 3, excluded: 2 });
+  assert.deepEqual(classes.files, { scope: 4, owned: 1, uncovered: 3, excluded: 2 });
   assert.deepEqual(classes.unmatched, ["**/*.rs"]);
   assert.deepEqual(
     classes.largestUncovered.map(({ path: directory }) => directory),
@@ -127,7 +129,7 @@ test("a glob path counts the files Git matches at the revision, case-sensitively
 test("a glob matches in a repository of SHA-256 objects", async (t) => {
   const { root, pinned } = await globRepository(t, "sha256");
   assert.equal(pinned.length, 64);
-  const report = measureCoverage(
+  const report = measure(
     validateModel(
       minimalModel({
         repository: { name: "glob", revision: pinned },
@@ -136,13 +138,13 @@ test("a glob matches in a repository of SHA-256 objects", async (t) => {
     ),
     root,
   );
-  assert.deepEqual(report.files, { scope: 4, cited: 0, uncovered: 4, excluded: 2 });
+  assert.deepEqual(report.files, { scope: 4, owned: 0, uncovered: 4, excluded: 2 });
 });
 
 test("without a declared scope the whole repository is measured", async (t) => {
   const { root, pinned } = await historyRepository(t);
-  const report = measureCoverage(historyModel(pinned, { coverage: undefined }), root);
-  assert.deepEqual(report.files, { scope: 9, cited: 4, uncovered: 5, excluded: 0 });
+  const report = measure(historyModel(pinned, { coverage: undefined }), root);
+  assert.deepEqual(report.files, { scope: 9, owned: 3, uncovered: 6, excluded: 0 });
   assert.deepEqual(report.citedOutsideScope, []);
   assert.deepEqual(
     report.largestUncovered.map(({ path: directory }) => directory),
@@ -150,53 +152,48 @@ test("without a declared scope the whole repository is measured", async (t) => {
   );
 });
 
-test("currency reads each cited source's fate and the commits since the pin", async (t) => {
+test("currency reads each cited file's fate and the commits since the pin", async (t) => {
   const { root, git, pinned, head } = await historyRepository(t);
   const before = await snapshot(root, git);
   const model = historyModel(pinned);
-  const report = measureCoverage(model, root, { against: "main" });
+  const report = measure(model, root, { against: "main" });
   assert.deepEqual(report.currency, {
     against: { revision: "main", commit: head },
     ancestor: true,
     commits: 2,
-    sources: [
-      { id: "a", path: "src/a.mjs", state: "modified" },
-      { id: "b", path: "src/b.mjs", state: "moved", to: "src/lib/b.mjs" },
-      { id: "c", path: "src/c.mjs", state: "deleted" },
-      { id: "readme", path: "README.md", state: "unchanged" },
+    files: [
+      { path: "README.md", state: "unchanged" },
+      { path: "src/a.mjs", state: "modified" },
+      { path: "src/b.mjs", state: "moved", to: "src/lib/b.mjs" },
+      { path: "src/c.mjs", state: "deleted" },
     ],
   });
-  assert.deepEqual(measureCoverage(model, root, { against: "main" }), report);
+  assert.deepEqual(measure(model, root, { against: "main" }), report);
   assert.deepEqual(await snapshot(root, git), before);
 });
 
 test("an unknown revision or a model without one is refused", async (t) => {
   const { root, pinned } = await historyRepository(t);
-  assert.throws(() => measureCoverage(historyModel(pinned), root, { against: "no-such-branch" }), {
+  assert.throws(() => measure(historyModel(pinned), root, { against: "no-such-branch" }), {
     code: "currency_revision_unknown",
   });
-  assert.throws(() => measureCoverage(historyModel("f".repeat(40)), root), {
+  assert.throws(() => measure(historyModel("f".repeat(40)), root), {
     code: "source_revision_unknown",
   });
-  assert.throws(
-    () =>
-      measureCoverage(validateModel(minimalModel()), root, {
-        against: "main",
-      }),
-    { code: "coverage_revision_missing" },
-  );
-  assert.equal(measureCoverage(validateModel(minimalModel()), root), null);
+  assert.throws(() => measure(validateModel(minimalModel()), root, { against: "main" }), {
+    code: "coverage_revision_missing",
+  });
+  assert.equal(measure(validateModel(minimalModel()), root), null);
   await assert.rejects(checkModel("unread.json", { against: "main" }), {
     code: "coverage_repository_missing",
   });
 });
 
-test("components and relations without sources are listed as uncited", () => {
+test("components and relations without files are listed as uncited", () => {
   const model = validateModel(
     minimalModel({
-      sources: { main: { path: "src/main.mjs" } },
       components: [
-        { id: "a", label: "Alpha", sources: ["main"] },
+        { id: "a", label: "Alpha", files: ["src/main.mjs"] },
         { id: "b", label: "Beta" },
       ],
     }),
@@ -211,16 +208,16 @@ test("check prints coverage and currency with --repo and --against", async (t) =
   const { exitCode, output } = await runCli([...args, "--json"]);
   assert.equal(exitCode, 0);
   const body = JSON.parse(output);
-  assert.deepEqual(body.coverage.files, { scope: 6, cited: 3, uncovered: 3, excluded: 1 });
+  assert.deepEqual(body.coverage.files, { scope: 6, owned: 3, uncovered: 3, excluded: 1 });
   assert.deepEqual(body.coverage.currency.against, { revision: "main", commit: head });
-  assert.deepEqual(body.statements.uncited, { components: [], relations: ["a-b"] });
+  assert.deepEqual(body.statements.uncited, { components: [], relations: ["b-a"] });
   const text = (await runCli(args)).output.split("\n");
   assert.deepEqual(text.slice(1), [
     "Uncited: 0 components and 1 relation.",
-    `Coverage at ${pinned.slice(0, 7)}: 3 of 6 files cited, 3 uncovered, 1 excluded.`,
+    `Coverage at ${pinned.slice(0, 7)}: 3 of 6 files owned, 3 uncovered, 1 excluded.`,
     "Largest uncovered: src/tools/ (2 files).",
     "Matching no file: src/generated/. Cited outside the scope: 1 file.",
-    `Currency against main at ${head.slice(0, 7)}: 2 commits since the pin; 1 source unchanged, 1 modified, 1 moved and 1 deleted.`,
+    `Currency against main at ${head.slice(0, 7)}: 2 commits since the pin; 1 file unchanged, 1 modified, 1 moved and 1 deleted.`,
     "",
   ]);
 });

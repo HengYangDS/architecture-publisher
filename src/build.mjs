@@ -19,7 +19,7 @@ import { commitDate, commitOf } from "./sources/git.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 4;
+const DELIVERY_VERSION = 5;
 /** The media a delivery may carry: the poster pages, the interactive page and the overview. */
 const MEDIA = Object.freeze(["posters", "page", "overview"]);
 /** The quality profiles a build may hold its media to. */
@@ -152,7 +152,7 @@ async function prepare(modelPath, options) {
     ? null
     : model.guide
       ? await guidePage(model, modelPath, { quality, repo: options.repo })
-      : await explainerPage(model, views, { quality });
+      : await explainerPage(model, views, { quality, owned: binding.owned });
   return { loaded, model, binding, media, views, posters, page, overview, icons, typefaces };
 }
 
@@ -206,7 +206,7 @@ function diagramSummary(diagram) {
 
 /**
  * The evidence behind every component and relation, which the delivery keeps
- * out of its drawings: details, statuses and the sources each one cites.
+ * out of its drawings: details, statuses and the files each one claims or cites.
  * @param {any} model
  */
 function evidenceOf(model) {
@@ -215,7 +215,7 @@ function evidenceOf(model) {
     label: item.label,
     ...(item.status ? { status: item.status } : {}),
     details: Object.fromEntries(item.details),
-    sources: item.sources,
+    files: item.files,
   });
   return {
     components: model.components.map((component) => ({
@@ -244,8 +244,8 @@ function posterSummary(poster, widths) {
 }
 
 /**
- * Check a model end to end without writing: validation, sources, plan, layout and admission,
- * then what the plan leaves undrawn, what cites no source and, with a checkout, the model's
+ * Check a model end to end without writing: validation, files, plan, layout and admission,
+ * then what the plan leaves undrawn, what claims or cites no file and, with a checkout, the model's
  * coverage of it and, with `against`, its currency.
  * @param {string} modelPath
  * @param {BuildOptions & { against?: string | null }} [options]
@@ -275,7 +275,9 @@ export async function checkModel(modelPath, options = {}) {
       undrawn: undrawnStatements(model, prepared.views),
       uncited: uncitedStatements(model),
     },
-    coverage: chosen.repo ? measureCoverage(model, chosen.repo, { against }) : null,
+    coverage: chosen.repo
+      ? measureCoverage(model, prepared.binding, chosen.repo, { against })
+      : null,
   };
 }
 

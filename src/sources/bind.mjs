@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
 import { commitOf, readGit } from "./git.mjs";
+import { directoriesOf, scopeAt } from "./scope.mjs";
 
 /** Parse `git cat-file --batch` output into one record per requested object. */
 function parseBatch(output, count) {
@@ -23,64 +24,148 @@ function parseBatch(output, count) {
   return records;
 }
 
+const byRecordPath = (a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
+
+/** The relations that cite each file, by path, in model order. */
+function citations(model) {
+  const cited = new Map();
+  for (const relation of model.relations)
+    for (const file of relation.files) cited.set(file, [...(cited.get(file) ?? []), relation.id]);
+  return cited;
+}
+
 /**
- * Verify every declared source at the model's revision without changing the repository.
+ * Every path the model declares, unread: each component's claims and each relation's files, as
+ * unverified records, and the files each component names itself, in claim order.
+ * @param {any} model
+ */
+function declared(model) {
+  const cited = citations(model);
+  const records = new Map();
+  for (const component of model.components)
+    for (const claim of component.files)
+      records.set(claim, {
+        path: claim,
+        sha256: null,
+        owner: component.id,
+        relations: cited.get(claim) ?? [],
+        state: "unverified",
+      });
+  for (const [file, relations] of cited)
+    if (!records.has(file))
+      records.set(file, { path: file, sha256: null, owner: null, relations, state: "unverified" });
+  const owned = new Map(
+    model.components.map(({ id, files }) => [id, files.filter((claim) => !claim.endsWith("/"))]),
+  );
+  return { records: [...records.values()].sort(byRecordPath), owned };
+}
+
+/**
+ * Give each file in the scope to its most specific claim, refuse a claim that holds none and a
+ * relation file absent at the commit, and read the digest of every cited file.
+ * @param {any} model
+ * @param {string} root
+ * @param {string} commit
+ */
+function resolved(model, root, commit) {
+  const { tracked, scope } = scopeAt(model, root, commit);
+  const owners = new Map();
+  model.components.forEach((component, index) =>
+    component.files.forEach((claim, position) =>
+      owners.set(claim, {
+        component: component.id,
+        where: `/components/${index}/files/${position}`,
+      }),
+    ),
+  );
+  // A file's most specific claim names the file itself, otherwise its deepest claimed directory.
+  const winning = new Map();
+  for (const [file] of scope) {
+    const claim = [file, ...directoriesOf(file).reverse()].find((entry) => owners.has(entry));
+    if (claim) winning.set(file, claim);
+  }
+  const holding = new Set(winning.values());
+  const present = new Set(tracked.map(([file]) => file));
+  const problems = [];
+  for (const [claim, { where }] of owners)
+    if (!holding.has(claim))
+      problems.push({
+        code: "claim_unmatched",
+        path: where,
+        message: `${claim} holds no file in the scope at ${commit}`,
+      });
+  model.relations.forEach((relation, index) =>
+    relation.files.forEach((file, position) => {
+      if (!present.has(file))
+        problems.push({
+          code: "relation_file_missing",
+          path: `/relations/${index}/files/${position}`,
+          message: `${file} is not a file at ${commit}`,
+        });
+    }),
+  );
+  if (problems.length)
+    refuse(
+      "files_unresolved",
+      "The files the model claims and cites do not hold at its revision.",
+      problems,
+    );
+  const cited = citations(model);
+  const files = [...new Set([...winning.keys(), ...cited.keys()])].sort();
+  const batch = readGit(
+    root,
+    ["cat-file", "--batch"],
+    `${files.map((file) => `${commit}:${file}`).join("\n")}\n`,
+  );
+  if (batch.status !== 0) refuse("source_read_failed", "Git could not read the cited files.");
+  const objects = parseBatch(batch.stdout, files.length);
+  const records = files.map((file, index) => {
+    const object = /** @type {Buffer} */ (objects[index]);
+    const claim = winning.get(file);
+    return {
+      path: file,
+      sha256: createHash("sha256").update(object).digest("hex"),
+      owner: claim ? owners.get(claim).component : null,
+      relations: cited.get(file) ?? [],
+      state: "verified",
+    };
+  });
+  // Each component's files in claim order; within a directory, in path order.
+  const owned = new Map(
+    model.components.map(({ id, files: claims }) => [
+      id,
+      claims.flatMap((claim) =>
+        [...winning].filter(([, winner]) => winner === claim).map(([file]) => file),
+      ),
+    ]),
+  );
+  return { records, owned };
+}
+
+/**
+ * Bind the files a model claims and cites to its revision without changing the repository. With
+ * a checkout, every file in the scope is given to the component whose claim is most specific and
+ * every cited file is recorded with its digest, owner and citing relations; without one, the
+ * declared paths are recorded unverified.
  * @param {any} model
  * @param {string | null} repo
  */
 export function bindSources(model, repo) {
-  if (!model.sources.length) return { state: "none", repository: model.repository, records: [] };
-  if (!repo)
-    return {
-      state: "unverified",
-      repository: model.repository,
-      records: model.sources.map((source) => ({
-        id: source.id,
-        path: source.path,
-        declaredSha256: source.sha256,
-        sha256: null,
-        state: "unverified",
-      })),
-    };
-  if (!model.repository)
+  const repository = model.repository;
+  const empty =
+    model.components.every(({ files }) => !files.length) &&
+    model.relations.every(({ files }) => !files.length);
+  if (empty) {
+    const owned = new Map(model.components.map(({ id }) => [id, []]));
+    return { state: "none", repository, records: [], owned };
+  }
+  if (!repo) return { state: "unverified", repository, ...declared(model) };
+  if (!repository)
     refuse(
       "source_revision_missing",
-      "Verifying sources requires repository.revision in the model.",
+      "Verifying the model's files requires repository.revision in the model.",
     );
   const root = path.resolve(repo);
-  const revision = model.repository.revision;
-  commitOf(root, revision, "source_revision_unknown");
-  const requests = model.sources.map(({ path: file }) => `${revision}:${file}`);
-  const batch = readGit(root, ["cat-file", "--batch"], `${requests.join("\n")}\n`);
-  if (batch.status !== 0) refuse("source_read_failed", "Git could not read the declared sources.");
-  const objects = parseBatch(batch.stdout, requests.length);
-  const problems = [];
-  const records = model.sources.map((source, index) => {
-    const object = objects[index];
-    if (!Buffer.isBuffer(object)) {
-      problems.push({
-        code: "source_missing",
-        path: `/sources/${source.id}/path`,
-        message: `${source.path} is not a file at ${revision}`,
-      });
-      return null;
-    }
-    const sha256 = createHash("sha256").update(object).digest("hex");
-    if (source.sha256 && source.sha256 !== sha256)
-      problems.push({
-        code: "source_digest_mismatch",
-        path: `/sources/${source.id}/sha256`,
-        message: `${source.path} declares ${source.sha256} but is ${sha256} at ${revision}`,
-      });
-    return {
-      id: source.id,
-      path: source.path,
-      declaredSha256: source.sha256,
-      sha256,
-      state: "verified",
-    };
-  });
-  if (problems.length)
-    refuse("sources_unverified", "Declared sources do not match the repository.", problems);
-  return { state: "verified", repository: model.repository, records };
+  const commit = commitOf(root, repository.revision, "source_revision_unknown");
+  return { state: "verified", repository, ...resolved(model, root, commit) };
 }

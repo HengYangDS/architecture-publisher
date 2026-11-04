@@ -1,6 +1,6 @@
 {
   "format": "architecture-publisher.model",
-  "version": 1,
+  "version": 2,
   "id": "ethos",
   "title": "ETHOS",
   "question": "How does ETHOS carry one repository change from official intent to a proven commit on the accepted branch?",

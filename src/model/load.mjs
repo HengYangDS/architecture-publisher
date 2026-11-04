@@ -11,7 +11,7 @@ import {
 } from "./paths.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
-export const MODEL_VERSION = 1;
+export const MODEL_VERSION = 2;
 const STATUSES = Object.freeze(["implemented", "planned", "retired"]);
 export const CATEGORIES = Object.freeze([
   "person",
@@ -32,7 +32,6 @@ const ID = /^[a-z0-9][a-z0-9._-]{0,127}$/u;
  * file system can hold.
  */
 const DEVICE = /^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\.|$)/u;
-const DIGEST = /^[0-9a-f]{64}$/u;
 const REVISION = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
 const DETAIL_NAME = /^(?![0-9]+$)[^:\n]{1,64}$/u;
 const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
@@ -40,7 +39,6 @@ const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
 const TOP = {
   required: ["format", "version", "id", "title", "question", "components", "relations"],
   optional: ["locale", "summary", "attribution", "scope", "limits", "repository", "kinds"].concat([
-    "sources",
     "groups",
     "views",
     "coverage",
@@ -118,7 +116,57 @@ function checkReferences(problems, value, path, known, label, { optional = true 
   return value;
 }
 
+/**
+ * Check a component's claims or a relation's cited files: relative paths within the repository,
+ * none a glob, none repeated. A component may claim a directory, ending in a slash, and a path is
+ * claimed once in the whole model; a relation cites single files.
+ * @param {Problems} problems
+ * @param {unknown} value
+ * @param {string} path
+ * @param {Map<string, string> | null} claimed every path claimed so far, or `null` for a relation
+ */
+function checkFiles(problems, value, path, claimed) {
+  if (value === undefined) return;
+  if (!Array.isArray(value))
+    return problems.add("model_files_invalid", path, "must be a list of repository paths");
+  const seen = new Set();
+  value.forEach((entry, index) => {
+    const where = `${path}/${index}`;
+    if (typeof entry === "string" && /[*?[]/u.test(entry))
+      return problems.add("model_file_glob", where, "must be a path, not a glob");
+    const directory = typeof entry === "string" && entry.endsWith("/");
+    if (!isRelativePath(directory ? entry.slice(0, -1) : entry))
+      return problems.add(
+        "model_file_path_invalid",
+        where,
+        "must be a relative path in the repository",
+      );
+    if (directory && !claimed)
+      return problems.add("model_relation_file_directory", where, "must name one file");
+    if (seen.has(entry)) return problems.add("model_file_duplicate", where, `repeats ${entry}`);
+    seen.add(entry);
+    if (!claimed) return;
+    if (claimed.has(entry))
+      return problems.add(
+        "model_file_claimed_twice",
+        where,
+        `is already claimed at ${claimed.get(entry)}`,
+      );
+    claimed.set(entry, where);
+  });
+}
+
 function checkTop(problems, model) {
+  // A version 1 model holds a source catalog this version has no field for, so it is refused
+  // with the command that converts it rather than with every field it no longer has.
+  if (isRecord(model) && model.version === 1) {
+    problems.add(
+      "model_version_unsupported",
+      "/version",
+      `version 1 models are converted by \`archpub migrate <model> --out <file>\`; the supported version is ${MODEL_VERSION}`,
+    );
+    return false;
+  }
   if (!problems.fields(model, "", TOP.required, TOP.optional)) return false;
   if (model.format !== MODEL_FORMAT)
     problems.add("model_format_unsupported", "/format", `must be ${MODEL_FORMAT}`);
@@ -211,25 +259,15 @@ export function validateModel(model, options = {}) {
         "names no icon in the bundled Lucide artwork",
       );
   });
-  const sources = checkCatalog(problems, value.sources, "/sources", (entry, path) => {
-    if (!problems.fields(entry, path, ["path"], ["sha256", "note"])) return;
-    if (!isRelativePath(entry.path))
-      problems.add("model_source_path_invalid", `${path}/path`, "must be a relative path");
-    if (
-      entry.sha256 !== undefined &&
-      (typeof entry.sha256 !== "string" || !DIGEST.test(entry.sha256))
-    )
-      problems.add("model_digest_invalid", `${path}/sha256`, "must be lowercase SHA-256 hex");
-    problems.text(entry.note, `${path}/note`, true);
-  });
-  const sourceIds = new Set(sources.keys());
-  const element = (required, optional) => (entry, path) => {
+  // Every claimed path, with where it is first claimed, so a second claim names the first.
+  const claimed = new Map();
+  const element = (required, optional, claims) => (entry, path) => {
     if (!problems.fields(entry, path, required, optional)) return false;
     problems.id(entry.id, `${path}/id`);
     problems.text(entry.label, `${path}/label`);
     checkDetails(problems, entry.details, `${path}/details`);
     checkStatus(problems, entry.status, `${path}/status`);
-    checkReferences(problems, entry.sources, `${path}/sources`, sourceIds, "source");
+    checkFiles(problems, entry.files, `${path}/files`, claims ? claimed : null);
     return true;
   };
   const components = checkList(
@@ -237,7 +275,7 @@ export function validateModel(model, options = {}) {
     value.components,
     "/components",
     (entry, path) => {
-      if (!element(["id", "label"], ["kind", "details", "status", "sources"])(entry, path))
+      if (!element(["id", "label"], ["kind", "details", "status", "files"], true)(entry, path))
         return false;
       if (entry.kind !== undefined) problems.id(entry.kind, `${path}/kind`);
       return true;
@@ -246,7 +284,7 @@ export function validateModel(model, options = {}) {
   );
   const componentIds = new Set(components.map(({ id }) => id));
   const relations = checkList(problems, value.relations, "/relations", (entry, path) => {
-    if (!element(["id", "from", "to", "label"], ["details", "status", "sources"])(entry, path))
+    if (!element(["id", "from", "to", "label"], ["details", "status", "files"], false)(entry, path))
       return false;
     for (const end of ["from", "to"])
       if (!componentIds.has(entry[end]))
@@ -307,7 +345,6 @@ export function validateModel(model, options = {}) {
   if (problems.items.length) refuse("model_invalid", "The model is invalid.", problems.items);
   return normalize(value, {
     kinds,
-    sources,
     components,
     relations,
     groups,
@@ -421,7 +458,7 @@ function normalize(value, parts) {
     label: entry.label,
     details: detailList(entry.details),
     status: entry.status ?? null,
-    sources: entry.sources ?? [],
+    files: entry.files ?? [],
   });
   return deepFreeze({
     id: value.id,
@@ -440,12 +477,6 @@ function normalize(value, parts) {
         }
       : null,
     kinds,
-    sources: [...parts.sources].map(([id, source]) => ({
-      id,
-      path: source.path,
-      sha256: source.sha256 ?? null,
-      note: source.note ?? null,
-    })),
     components: parts.components.map((entry) => ({ ...element(entry), kind: entry.kind ?? null })),
     relations: parts.relations.map((entry) => ({
       ...element(entry),
@@ -477,11 +508,10 @@ function deepFreeze(value) {
 }
 
 /**
- * Read, parse and validate one model file.
+ * Read and parse one model file, bounded in size, without validating it.
  * @param {string} file
- * @param {{ icon?: (name: string) => boolean }} [options]
  */
-export async function loadModel(file, options = {}) {
+export async function readModel(file) {
   let bytes;
   try {
     bytes = await fs.readFile(file);
@@ -490,15 +520,23 @@ export async function loadModel(file, options = {}) {
   }
   if (bytes.length > MAXIMUM_MODEL_BYTES)
     refuse("model_too_large", `The model exceeds ${MAXIMUM_MODEL_BYTES} bytes.`);
-  let parsed;
   try {
-    parsed = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+    return { parsed: JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)), bytes };
   } catch (error) {
-    refuse(
+    return refuse(
       "model_json_invalid",
       `The model is not valid UTF-8 JSON: ${/** @type {Error} */ (error).message}`,
     );
   }
+}
+
+/**
+ * Read, parse and validate one model file.
+ * @param {string} file
+ * @param {{ icon?: (name: string) => boolean }} [options]
+ */
+export async function loadModel(file, options = {}) {
+  const { parsed, bytes } = await readModel(file);
   return {
     model: validateModel(parsed, options),
     sha256: createHash("sha256").update(bytes).digest("hex"),
