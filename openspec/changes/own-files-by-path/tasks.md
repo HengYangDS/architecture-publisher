@@ -23,5 +23,5 @@
 
 ## 6. Verification
 
-- [x] 6.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `32de322` with 99.55% statements, 95.56% branches, 99.82% functions and 99.55% lines.
+- [x] 6.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `1ce5718` with 99.55% statements, 95.57% branches, 99.82% functions and 99.55% lines.
 - [x] 6.2 Migrate the three corpus works and build them against their checkouts; verify every poster and overview is byte-identical to this Change's base build of the version 1 models, and each page cites the same file for each component. At `32de322`'s tree the migrated ETHOS, AIGW and Architecture Publisher works build every poster and overview byte-identical to the base build of their version 1 models, every cited file with the base digest, and each page cites the same file under the same component.
