@@ -114,6 +114,27 @@ function drawnTexts(model) {
 }
 
 /**
+ * The model's overview composition, resolved beside the model, refused when the
+ * model names none or no file is there.
+ * @param {string} modelPath
+ * @param {string | null} named the model's `overview`
+ */
+async function compositionOf(modelPath, named) {
+  if (!named)
+    refuse(
+      "overview_composition_missing",
+      "The model names no overview composition; name one in `overview` or leave the overview out of --media.",
+    );
+  const composition = path.resolve(path.dirname(modelPath), named);
+  if (!(await fs.stat(composition).catch(() => null))?.isFile())
+    refuse(
+      "overview_composition_missing",
+      `The model names the overview composition ${named}, but no file is at ${composition}.`,
+    );
+  return composition;
+}
+
+/**
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed.
  * @param {string} modelPath
@@ -124,20 +145,12 @@ async function prepare(modelPath, options) {
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
   const media = options.media ?? MEDIA.filter((name) => name !== "overview" || model.overview);
-  if (media.includes("overview") && !model.overview)
-    refuse(
-      "overview_composition_missing",
-      "The model names no overview composition; name one in `overview` or leave the overview out of --media.",
-    );
-  const composition = model.overview ? path.resolve(path.dirname(modelPath), model.overview) : null;
-  if (media.includes("overview") && !(await fs.stat(composition).catch(() => null))?.isFile())
-    refuse(
-      "overview_composition_missing",
-      `The model names the overview composition ${model.overview}, but no file is at ${composition}.`,
-    );
+  const composition = media.includes("overview")
+    ? await compositionOf(modelPath, model.overview)
+    : null;
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
-  const overview = media.includes("overview")
+  const overview = composition
     ? await typesetOverview({
         composition,
         modelBytes: loaded.content,
