@@ -14,5 +14,5 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 4.2 Check the three published works, as version 2 models, against their repositories at `67ecc87`, `c778fe1` and `5963db1`; verify the worklists: ETHOS 10 components with 11 modified and 3 deleted files, 13 relations and 117 citations with 3 shifted and 2 touched; AIGW 1 component with 1 modified file and 89 citations the same; Architecture Publisher 8 components with 10 modified files, 14 relations and 3 newly uncovered files.
+- [x] 4.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `535aa13` with 99.56% statements, 95.46% branches, 99.82% functions and 99.56% lines.
+- [x] 4.2 Check the three published works, as version 2 models, against their repositories at `67ecc87`, `c778fe1` and `5963db1`; verify the worklists: ETHOS 10 components with 11 modified and 3 deleted files, 13 relations and 117 citations with 3 shifted and 2 touched; AIGW 1 component with 1 modified file and 89 citations the same; Architecture Publisher 8 components with 10 modified files, 14 relations and 3 newly uncovered files. At `535aa13` the worklists match: ETHOS 10 components with 11 modified and 3 deleted files, 13 relations and 117 citations with 3 shifted and 2 touched; AIGW 1 component with 1 modified file and 89 citations the same; Architecture Publisher 8 components with 10 modified files, 14 relations and 3 newly uncovered files.
