@@ -9,6 +9,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- `archpub check --against <revision>` reports a re-pin worklist: per component, the owned files modified, moved with
+  the component their new path falls to, or deleted, and the files its claims take in; per relation, the cited files
+  that changed; the claims and relation files a build at the revision would refuse; the files that newly fall under no
+  claim; and, for a model with a guide, each cited range as the same, shifted with its lines at the revision, moved,
+  touched or gone. The JSON result holds it in `coverage.currency.worklist`.
 - `archpub migrate <model> --out <file>` writes a version 1 model as version 2: each component claims the files its
   sources named, in their order, and each relation cites its sources' files. A file that several components cited
   stays with the first, and the command names it.

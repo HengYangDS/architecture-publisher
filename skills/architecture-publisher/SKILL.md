@@ -55,6 +55,15 @@ only draws and verifies what the model states.
    the name the user gives, then `archpub publish <delivery> --to <root>` to the
    destination the user chose.
 
+To re-pin a work to a later release, first run
+`archpub check model.json --repo <checkout> --against <commit>`. Its re-pin
+worklist names, per component, the files that changed, moved or went and the
+files its claims now take in, the relations whose files changed, what a build
+there would refuse, the newly uncovered files and every guide citation that
+shifted, moved, was touched or is gone. Update the claims, relations and prose
+for each, move every shifted citation to its new range, reread every touched
+one, then set `repository.revision` to that commit.
+
 Report what the model covers and leaves out, the checks that passed and what
 remains unverified. A successful build is not acceptance, and tests do not
 replace the user's review.

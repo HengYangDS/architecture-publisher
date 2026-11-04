@@ -53,7 +53,8 @@ archpub --help | --version [--json]
   the relations that cite none. With
   `--repo`, it reports the model's [coverage](model.md#coverage) of the
   repository at its revision, and with `--against <revision>` how far the
-  repository has moved since; `--against` without `--repo` is a usage error.
+  repository has moved since and what [re-pinning](model.md#re-pinning) to that
+  revision would change; `--against` without `--repo` is a usage error.
 - `build` does the same and writes a new delivery directory. `--out` must not
   exist; the delivery is staged beside it and renamed into place only when
   every artifact is written, so a refused build leaves nothing behind.

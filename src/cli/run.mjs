@@ -77,9 +77,63 @@ function checkText(result) {
           `${count(currency.commits, "commit")} since the pin` +
           `${currency.ancestor ? "" : ", which is not its ancestor"}; ${series(states)}.`,
       );
+      lines.push(...worklistLines(currency.worklist, currency.against.commit));
     }
   }
   return `${lines.join("\n")}\n`;
+}
+
+/** A cited range as `10:12`, or nothing for a whole file. */
+const range = (lines) => (lines ? ` ${lines[0]}:${lines[1]}` : "");
+
+/**
+ * The re-pin worklist as indented lines: each component with what changed in its files, the
+ * relations whose files changed, what a build at the named commit refuses, the newly uncovered
+ * files and every guide citation that is not the same.
+ */
+function worklistLines(worklist, commit) {
+  const lines = ["Re-pin worklist:"];
+  for (const { id, label, modified, moved, deleted, taken } of worklist.components) {
+    const parts = [
+      ...(modified.length ? [`${modified.length} modified`] : []),
+      ...moved.map(
+        ({ path: file, to, owner }) =>
+          `${file} moved to ${to}, ${owner ? `owned by ${owner}` : "under no claim"}`,
+      ),
+      ...deleted.map((file) => `${file} deleted`),
+      ...(taken.length ? [`takes in ${series(taken)}`] : []),
+    ];
+    lines.push(`  ${label} (${id}): ${parts.join("; ")}.`);
+  }
+  if (worklist.relations.length)
+    lines.push(
+      `  Relations whose files changed: ${series(worklist.relations.map(({ id, files }) => `${id} (${count(files.length, "file")})`))}.`,
+    );
+  if (worklist.refused.length)
+    lines.push(
+      `  Refused at ${commit.slice(0, 7)}: ${worklist.refused
+        .map((entry) =>
+          entry.code === "claim_unmatched"
+            ? `${entry.claim} of ${entry.component} owns no file`
+            : `${entry.file} of ${entry.relation} is gone${entry.to ? `, moved to ${entry.to}` : ""}`,
+        )
+        .join("; ")}.`,
+    );
+  if (worklist.uncovered.length) lines.push(`  Newly uncovered: ${series(worklist.uncovered)}.`);
+  if (worklist.citations.length) {
+    const fates = ["same", "shifted", "moved", "touched", "gone"]
+      .map((fate) => [fate, worklist.citations.filter((citation) => citation.fate === fate).length])
+      .filter(([, held]) => held)
+      .map(([fate, held]) => `${held} ${fate}`);
+    lines.push(`  Guide citations: ${worklist.citations.length}: ${series(fates)}.`);
+    for (const { fate, where, path: file, lines: cited, to, at } of worklist.citations)
+      if (fate !== "same")
+        lines.push(
+          `    ${fate}: ${where} ${file}${range(cited)}${at || to ? ` to${to ? ` ${to}` : ""}${range(at)}` : ""}`,
+        );
+  }
+  if (lines.length === 1) lines[0] = "Re-pin worklist: nothing changes for the model.";
+  return lines;
 }
 
 /** A comma-separated option value as its items. */

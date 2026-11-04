@@ -1,16 +1,16 @@
 ## 1. Binding
 
-- [ ] 1.1 Resolve ownership at any commit in one function that returns each file's winning claim and the problems a build would refuse; verify the binding tests pass unchanged and that the function reports, without refusing, a claim left empty and a relation file gone.
+- [x] 1.1 Resolve ownership at any commit in one function that returns each file's winning claim and the problems a build would refuse; verify the binding tests pass unchanged and that the function reports, without refusing, a claim left empty and a relation file gone. `ownershipAt` returns each file's winning claim with the claims left empty and the relation files absent; the binding tests pass unchanged, and at the later commit of the re-pin fixture it names `src/old/` and `src/rel/gone.go` without refusing.
 
 ## 2. Worklist
 
-- [ ] 2.1 Report the re-pin worklist with `--against`: per component its modified, moved and deleted files and the files its claims take in, per relation its changed files, the claims and relation files the build at the named revision would refuse, and the newly uncovered files; verify on a fixture repository a move between claims, a new file under a directory claim and under none, a deleted claimed file and a modified relation file.
-- [ ] 2.2 Classify a guide's citations at the named revision as same, shifted, moved, touched or gone; verify a range below an insertion, a range a change falls within, a renamed file, a deleted file and a diagram's node source.
-- [ ] 2.3 Print the worklist in `archpub check`'s text; verify the command tests.
+- [x] 2.1 Report the re-pin worklist with `--against`: per component its modified, moved and deleted files and the files its claims take in, per relation its changed files, the claims and relation files the build at the named revision would refuse, and the newly uncovered files; verify on a fixture repository a move between claims, a new file under a directory claim and under none, a deleted claimed file and a modified relation file. On the re-pin fixture the worklist lists `src/a/x.go` moved to `src/b/x.go`, owned and taken in by `b`, `src/a/new.go` taken in, `src/b/z.go` modified under relation `a-b`, `src/old/only.go` deleted, the empty claim and the gone relation file as refused, and only `tools/new.go` as newly uncovered.
+- [x] 2.2 Classify a guide's citations at the named revision as same, shifted, moved, touched or gone; verify a range below an insertion, a range a change falls within, a renamed file, a deleted file and a diagram's node source. Two lines inserted above it move `10:12` to `12:14`, a changed line 11 touches `10:12`, a renamed file moves its citation, a deleted file's is gone and a diagram's node source shifts like a draft source.
+- [x] 2.3 Print the worklist in `archpub check`'s text; verify the command tests. `archpub check` prints the worklist after the currency line; the command and coverage tests pass.
 
 ## 3. Documentation
 
-- [ ] 3.1 Describe the worklist in the operations reference, the product skill and the changelog; verify the documentation checks.
+- [x] 3.1 Describe the worklist in the operations reference, the product skill and the changelog; verify the documentation checks. The model reference's re-pinning section, the operations reference, the product skill and the changelog describe the worklist; Prettier, markdownlint and the prose checks pass.
 
 ## 4. Verification
 

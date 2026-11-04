@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { loadIcons } from "./icons.mjs";
 import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs";
-import { deliverGuide, guidePage, guideSummary } from "./map/guide.mjs";
+import { deliverGuide, guideCitations, guidePage, guideSummary, readGuide } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
 import { typesetOverview } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
@@ -246,7 +246,8 @@ function posterSummary(poster, widths) {
 /**
  * Check a model end to end without writing: validation, files, plan, layout and admission,
  * then what the plan leaves undrawn, what claims or cites no file and, with a checkout, the model's
- * coverage of it and, with `against`, its currency.
+ * coverage of it and, with `against`, its currency and re-pin worklist, which reads the guide's
+ * citations when the model names a guide.
  * @param {string} modelPath
  * @param {BuildOptions & { against?: string | null }} [options]
  */
@@ -260,6 +261,14 @@ export async function checkModel(modelPath, options = {}) {
     );
   const prepared = await prepare(modelPath, chosen);
   const { model } = prepared;
+  // The worklist classifies the guide's citations, read here when the page was not prepared.
+  const guided = against !== null && model.guide;
+  const entries = !guided
+    ? null
+    : prepared.page?.kind === "guide"
+      ? prepared.page.entries
+      : (await readGuide(path.resolve(path.dirname(modelPath), model.guide))).entries;
+  const citations = entries ? guideCitations(entries) : [];
   return {
     model: { id: model.id, sha256: prepared.loaded.sha256 },
     quality: chosen.quality,
@@ -276,7 +285,7 @@ export async function checkModel(modelPath, options = {}) {
       uncited: uncitedStatements(model),
     },
     coverage: chosen.repo
-      ? measureCoverage(model, prepared.binding, chosen.repo, { against })
+      ? measureCoverage(model, prepared.binding, chosen.repo, { against, citations })
       : null,
   };
 }

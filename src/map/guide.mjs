@@ -78,6 +78,56 @@ export function draftRepository(draft) {
 const isFileName = (name) => name !== "." && name !== ".." && !/[\\/\0]/u.test(name);
 
 /**
+ * A `lines` argument, `3:7` or `5`, as its first and last line, or `null` without one.
+ * @param {string | undefined} lines
+ * @returns {[number, number] | null}
+ */
+function rangeOf(lines) {
+  const match = /^(\d+)(?::(\d+))?$/u.exec(lines ?? "");
+  return match ? [Number(match[1]), Number(match[2] ?? match[1])] : null;
+}
+
+/**
+ * The repository ranges a guide cites: each `@source` of its draft that names a path, and each
+ * node source of a diagram it names, by where it stands, with its first and last line, or `null`
+ * for a whole file.
+ * @param {Array<{ name: string, bytes: Buffer }>} entries the draft, then the files it names
+ */
+export function guideCitations(entries) {
+  const [draft, ...files] = entries;
+  /** @type {Array<{ where: string, path: string, lines: [number, number] | null }>} */
+  const cited = [];
+  for (const line of directives(draft.bytes.toString("utf8"))) {
+    const { path: file, lines } = argumentsOf(line);
+    if (directiveOf(line) === "@source" && file)
+      cited.push({ where: `@source ${line.split(/\s+/u)[1]}`, path: file, lines: rangeOf(lines) });
+  }
+  for (const { name, bytes } of files.filter(({ name: file }) => file.endsWith(".json"))) {
+    const walk = (value, pointer) => {
+      if (!value || typeof value !== "object") return;
+      for (const [key, item] of Object.entries(value))
+        if (key === "sources" && Array.isArray(item))
+          item.forEach((source, index) => {
+            if (typeof source?.path !== "string") return;
+            /** @type {[number, number] | null} */
+            const lines = Number.isInteger(source.line)
+              ? [source.line, source.end_line ?? source.line]
+              : null;
+            cited.push({ where: `${name}${pointer}/sources/${index}`, path: source.path, lines });
+          });
+        else walk(item, `${pointer}/${key}`);
+    };
+    try {
+      walk(JSON.parse(bytes.toString("utf8")), "");
+    } catch (error) {
+      if (!(error instanceof SyntaxError)) throw error;
+      refuse("guide_file_invalid", `${name} in the guide's directory is not JSON.`);
+    }
+  }
+  return cited;
+}
+
+/**
  * Read a guide: its draft and every local file the draft names, each a regular file in the
  * draft's own directory.
  * @param {string} draftPath the draft's path

@@ -167,6 +167,37 @@ test("currency reads each cited file's fate and the commits since the pin", asyn
       { path: "src/b.mjs", state: "moved", to: "src/lib/b.mjs" },
       { path: "src/c.mjs", state: "deleted" },
     ],
+    worklist: {
+      components: [
+        {
+          id: "a",
+          label: "Alpha",
+          modified: ["src/a.mjs"],
+          moved: [{ path: "src/b.mjs", to: "src/lib/b.mjs", owner: null }],
+          deleted: [],
+          taken: [],
+        },
+        { id: "b", label: "Beta", modified: [], moved: [], deleted: ["src/c.mjs"], taken: [] },
+      ],
+      relations: [],
+      refused: [
+        {
+          code: "claim_unmatched",
+          path: "/components/0/files/1",
+          component: "a",
+          claim: "src/b.mjs",
+        },
+        {
+          code: "claim_unmatched",
+          path: "/components/1/files/0",
+          component: "b",
+          claim: "src/c.mjs",
+        },
+      ],
+      // The moved file falls under no claim; the files uncovered at the pin stay unlisted.
+      uncovered: ["src/lib/b.mjs"],
+      citations: [],
+    },
   });
   assert.deepEqual(measure(model, root, { against: "main" }), report);
   assert.deepEqual(await snapshot(root, git), before);
@@ -218,6 +249,11 @@ test("check prints coverage and currency with --repo and --against", async (t) =
     "Largest uncovered: src/tools/ (2 files).",
     "Matching no file: src/generated/. Cited outside the scope: 1 file.",
     `Currency against main at ${head.slice(0, 7)}: 2 commits since the pin; 1 file unchanged, 1 modified, 1 moved and 1 deleted.`,
+    "Re-pin worklist:",
+    "  Alpha (a): 1 modified; src/b.mjs moved to src/lib/b.mjs, under no claim.",
+    "  Beta (b): src/c.mjs deleted.",
+    `  Refused at ${head.slice(0, 7)}: src/b.mjs of a owns no file; src/c.mjs of b owns no file.`,
+    "  Newly uncovered: src/lib/b.mjs.",
     "",
   ]);
 });

@@ -4,7 +4,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { buildDelivery, checkModel, scaffoldGuide } from "../src/build.mjs";
-import { deliverGuide, draftRepository, readGuide, referencedFiles } from "../src/map/guide.mjs";
+import {
+  deliverGuide,
+  draftRepository,
+  guideCitations,
+  readGuide,
+  referencedFiles,
+} from "../src/map/guide.mjs";
 import { minimalModel, temporaryDirectory } from "./fixtures/models.mjs";
 import { MAIN, repository } from "./fixtures/repository.mjs";
 
@@ -88,6 +94,40 @@ test("a draft's local files are those its diagrams, charts and images name", () 
     "```",
   ].join("\n");
   assert.deepEqual(referencedFiles(text), ["parts.architecture.json", "size data.csv", "shot.png"]);
+});
+
+test("a guide cites its sources' line ranges and its diagrams' node sources", () => {
+  const text = [
+    '@source main title="Main" path="src/main.mjs" lines=3:7',
+    '@source one title="One line" path="src/one.mjs" lines=5',
+    '@source file title="A whole file" path="README.md"',
+    "```md",
+    '@source ignored title="In a fence" path="src/ignored.mjs" lines=1:2',
+    "```",
+  ].join("\n");
+  const parts = {
+    components: [
+      {
+        id: "x",
+        sources: [
+          { path: "src/x.mjs", line: 2, end_line: 4, label: "X" },
+          { path: "src/y.mjs", label: "Y" },
+        ],
+      },
+    ],
+  };
+  const entries = [
+    { name: "guide.archify.md", bytes: Buffer.from(text) },
+    { name: "parts.architecture.json", bytes: Buffer.from(JSON.stringify(parts)) },
+    { name: "size.csv", bytes: Buffer.from("part,lines\n") },
+  ];
+  assert.deepEqual(guideCitations(entries), [
+    { where: "@source main", path: "src/main.mjs", lines: [3, 7] },
+    { where: "@source one", path: "src/one.mjs", lines: [5, 5] },
+    { where: "@source file", path: "README.md", lines: null },
+    { where: "parts.architecture.json/components/0/sources/0", path: "src/x.mjs", lines: [2, 4] },
+    { where: "parts.architecture.json/components/0/sources/1", path: "src/y.mjs", lines: null },
+  ]);
 });
 
 test("a draft's @meta names the repository it cites", () => {

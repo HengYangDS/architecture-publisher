@@ -223,6 +223,27 @@ cited file is unchanged, modified, moved, with its new path, or deleted, as
 Git's rename detection reads them. The report never refuses a model; deciding
 what to claim stays with its author.
 
+## Re-pinning
+
+Before moving `repository.revision` to a later commit, check the model with
+`--against <commit>`. Beside the currency counts, the check reports a re-pin
+worklist from the model's claims resolved at both commits:
+
+- each component's owned files that are modified, moved, with the component
+  their new path falls to, or deleted, and the files its claims take in;
+- each relation's cited files that changed;
+- the claims that would own no file and the relation files that would be gone,
+  which a build at the later commit refuses;
+- the files of the scope that newly fall under no claim;
+- for a model that names a guide, each line range its draft and diagrams cite:
+  the same, shifted with its range at the later commit, moved with its file,
+  touched when a change falls within its lines, or gone.
+
+Archify checks only that a cited range exists, so after a re-pin a shifted
+citation would cite other text: move it to its new range, and reread every
+touched one. The JSON result holds the worklist in `coverage.currency.worklist`,
+and it never refuses the check.
+
 ## Overview
 
 `overview` names the work's overview composition: a Typst file, relative to the

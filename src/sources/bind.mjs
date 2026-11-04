@@ -61,13 +61,14 @@ function declared(model) {
 }
 
 /**
- * Give each file in the scope to its most specific claim, refuse a claim that holds none and a
- * relation file absent at the commit, and read the digest of every cited file.
+ * Each file in the scope at a commit with its most specific claim, and what a build at that
+ * commit refuses: the claims that own no file in the scope and the relation files absent there.
+ * Git is only read, and nothing is refused.
  * @param {any} model
  * @param {string} root
  * @param {string} commit
  */
-function resolved(model, root, commit) {
+export function ownershipAt(model, root, commit) {
   const { tracked, scope } = scopeAt(model, root, commit);
   const owners = new Map();
   model.components.forEach((component, index) =>
@@ -86,24 +87,40 @@ function resolved(model, root, commit) {
   }
   const holding = new Set(winning.values());
   const present = new Set(tracked.map(([file]) => file));
-  const problems = [];
-  for (const [claim, { where }] of owners)
-    if (!holding.has(claim))
-      problems.push({
-        code: "claim_unmatched",
-        path: where,
-        message: `${claim} owns no file in the scope at ${commit}`,
-      });
-  model.relations.forEach((relation, index) =>
-    relation.files.forEach((file, position) => {
-      if (!present.has(file))
-        problems.push({
-          code: "relation_file_missing",
-          path: `/relations/${index}/files/${position}`,
-          message: `${file} is not a file at ${commit}`,
-        });
-    }),
+  const empty = [...owners]
+    .filter(([claim]) => !holding.has(claim))
+    .map(([claim, { component, where }]) => ({ claim, component, path: where }));
+  const missing = model.relations.flatMap((relation, index) =>
+    relation.files.flatMap((file, position) =>
+      present.has(file)
+        ? []
+        : [{ file, relation: relation.id, path: `/relations/${index}/files/${position}` }],
+    ),
   );
+  return { scope, owners, winning, empty, missing };
+}
+
+/**
+ * Give each file in the scope to its most specific claim, refuse a claim that holds none and a
+ * relation file absent at the commit, and read the digest of every cited file.
+ * @param {any} model
+ * @param {string} root
+ * @param {string} commit
+ */
+function resolved(model, root, commit) {
+  const { owners, winning, empty, missing } = ownershipAt(model, root, commit);
+  const problems = [
+    ...empty.map(({ claim, path: where }) => ({
+      code: "claim_unmatched",
+      path: where,
+      message: `${claim} owns no file in the scope at ${commit}`,
+    })),
+    ...missing.map(({ file, path: where }) => ({
+      code: "relation_file_missing",
+      path: where,
+      message: `${file} is not a file at ${commit}`,
+    })),
+  ];
   if (problems.length)
     refuse(
       "files_unresolved",

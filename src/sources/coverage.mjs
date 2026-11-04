@@ -2,6 +2,7 @@ import path from "node:path";
 import { refuse } from "../refusal.mjs";
 import { commitOf, readGit } from "./git.mjs";
 import { directoriesOf, isGlob, scopeAt } from "./scope.mjs";
+import { fatesBetween, repinWorklist } from "./worklist.mjs";
 
 /** The most uncovered directories one report lists. */
 const LISTED_DIRECTORIES = 8;
@@ -83,33 +84,17 @@ function coverageAt(model, binding, root, commit) {
   };
 }
 
-/** How far the repository has moved from the model's revision to a named one. */
-function currencyAgainst(binding, root, pinned, revision) {
+/**
+ * How far the repository has moved from the model's revision to a named one, and the re-pin
+ * worklist between them.
+ */
+function currencyAgainst(model, binding, root, pinned, revision, citations) {
   const commit = commitOf(root, revision, "currency_revision_unknown");
   const count = readGit(root, ["rev-list", "--count", "--first-parent", `${pinned}..${commit}`]);
-  const diff = readGit(root, [
-    "diff-tree",
-    "-r",
-    "-z",
-    "-M",
-    "--no-commit-id",
-    "--name-status",
-    pinned,
-    commit,
-  ]);
-  if (count.status !== 0 || diff.status !== 0)
+  if (count.status !== 0)
     refuse("source_read_failed", `Git could not compare ${pinned} with ${commit}.`);
   const ancestor = readGit(root, ["merge-base", "--is-ancestor", pinned, commit]).status === 0;
-  const fates = new Map();
-  const fields = diff.stdout.toString("utf8").split("\0").filter(Boolean);
-  for (let index = 0; index < fields.length;) {
-    const status = fields[index];
-    if (status.startsWith("R"))
-      fates.set(fields[index + 1], { state: "moved", to: fields[index + 2] });
-    else if (!status.startsWith("C"))
-      fates.set(fields[index + 1], { state: status === "D" ? "deleted" : "modified" });
-    index += status.startsWith("R") || status.startsWith("C") ? 3 : 2;
-  }
+  const fates = fatesBetween(root, pinned, commit);
   return {
     against: { revision, commit },
     ancestor,
@@ -118,20 +103,22 @@ function currencyAgainst(binding, root, pinned, revision) {
       path: file,
       ...(fates.get(file) ?? { state: "unchanged" }),
     })),
+    worklist: repinWorklist(model, root, pinned, commit, fates, citations),
   };
 }
 
 /**
  * Measure a model against its repository: coverage at the model's revision and, with
- * `against`, currency up to that revision. Git is only read, and a model is never refused
- * for what it covers. `binding` is the model's files bound to the same checkout. Returns
- * `null` for a model without a revision.
+ * `against`, currency up to that revision with the re-pin worklist, which classifies the
+ * `citations` a guide makes. Git is only read, and a model is never refused for what it covers.
+ * `binding` is the model's files bound to the same checkout. Returns `null` for a model
+ * without a revision.
  * @param {any} model
  * @param {any} binding
  * @param {string} repo
- * @param {{ against?: string | null }} [options]
+ * @param {{ against?: string | null, citations?: Array<{ where: string, path: string, lines: [number, number] | null }> }} [options]
  */
-export function measureCoverage(model, binding, repo, { against = null } = {}) {
+export function measureCoverage(model, binding, repo, { against = null, citations = [] } = {}) {
   if (!model.repository) {
     if (against !== null)
       refuse(
@@ -144,7 +131,8 @@ export function measureCoverage(model, binding, repo, { against = null } = {}) {
   const pinned = commitOf(root, model.repository.revision, "source_revision_unknown");
   return {
     ...coverageAt(model, binding, root, pinned),
-    currency: against === null ? null : currencyAgainst(binding, root, pinned, against),
+    currency:
+      against === null ? null : currencyAgainst(model, binding, root, pinned, against, citations),
   };
 }
 
