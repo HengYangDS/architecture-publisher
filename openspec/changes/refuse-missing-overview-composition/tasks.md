@@ -8,5 +8,5 @@
 
 ## 3. Verification
 
-- [ ] 3.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 3.2 Check the three published works with this publisher against their repositories; verify each check passes with its overview typeset as before.
+- [x] 3.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `cb34216` with 99.57% statements, 95.47% branches, 99.83% functions and 99.57% lines.
+- [x] 3.2 Check the three published works with this publisher against their repositories; verify each check passes with its overview typeset as before. At `cb34216`, ETHOS, AIGW and Architecture Publisher at publications `931ca99` pass `archpub check` with their checkouts; each overview's composition and house digests, Typst version, date and text count (125, 105 and 101 texts) equal its build at `5963db1`.
