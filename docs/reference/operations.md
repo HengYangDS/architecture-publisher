@@ -351,7 +351,7 @@ or Archify reported.
 | `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                       |
 | `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                    |
 | `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                     |
-| `files_unresolved`                                                                      | A claim holds no file in the scope, or a relation's file is missing at the revision.        |
+| `files_unresolved`                                                                      | A claim owns no file in the scope, or a relation's file is missing at the revision.         |
 | `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                 |
 | `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                    |
 | `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.     |

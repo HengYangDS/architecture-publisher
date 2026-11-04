@@ -162,8 +162,9 @@ With `--repo <checkout>`, `archpub check` and `archpub build` read the files at
 checkout. Each file in the [coverage scope](#coverage) goes to its owner, and
 every owned file and every file a relation cites is recorded in the manifest
 with its digest, its owner and the relations that cite it; that record is the
-edition's lock. A claim that holds no file in the scope, or a relation file the
-revision lacks, refuses the build with its JSON path. Without `--repo`, every
+edition's lock. A claim that owns no file in the scope, because the scope leaves
+its files out, none exists or deeper claims take them all, or a relation file
+the revision lacks, refuses the build with its JSON path. Without `--repo`, every
 declared path is recorded as unverified.
 
 When the model also declares `repository.url`, the page cites each component's

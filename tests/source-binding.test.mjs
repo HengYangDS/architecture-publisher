@@ -93,11 +93,12 @@ test("each file in the scope belongs to its most specific claim", async (t) => {
   );
 });
 
-test("a claim that holds no file in the scope and an absent relation file are refused together", async (t) => {
+test("a claim that owns no file in the scope and an absent relation file are refused together", async (t) => {
   const { root, pinned } = await globRepository(t);
+  // src/net/ holds one file, which a deeper claim takes, so it owns none.
   const model = claimingModel(
     pinned,
-    [["src/old/", "src/a_test.go", "src/a.go"]],
+    [["src/old/", "src/a_test.go", "src/a.go"], ["src/net/"], ["src/net/c.go"]],
     ["src/gone.go"],
     {
       coverage: { exclude: [{ path: "**/*_test.go", reason: "Tests beside the code." }] },
@@ -111,6 +112,7 @@ test("a claim that holds no file in the scope and an absent relation file are re
         JSON.stringify([
           ["claim_unmatched", "/components/0/files/0"],
           ["claim_unmatched", "/components/0/files/1"],
+          ["claim_unmatched", "/components/1/files/0"],
           ["relation_file_missing", "/relations/0/files/0"],
         ]),
   );

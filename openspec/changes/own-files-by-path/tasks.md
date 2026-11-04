@@ -4,7 +4,7 @@
 
 ## 2. Binding
 
-- [x] 2.1 Resolve ownership at the revision, giving each file in the scope to its most specific claim, and refuse a claim that holds no file in the scope and a relation file absent at the revision; verify on a fixture repository a nested claim, an empty claim, a claim the scope excludes and an absent relation file. On fixture repositories `src/lib/b.go` goes to the deeper of two claims, and an empty claim, a claim the scope excludes and an absent relation file are refused together with `files_unresolved`.
+- [x] 2.1 Resolve ownership at the revision, giving each file in the scope to its most specific claim, and refuse a claim that owns no file in the scope and a relation file absent at the revision; verify on a fixture repository a nested claim, an empty claim, a claim the scope excludes, a claim that deeper claims leave empty and an absent relation file. On fixture repositories `src/lib/b.go` goes to the deeper of two claims, and an empty claim, a claim the scope excludes, a claim that deeper claims leave empty and an absent relation file are refused together with `files_unresolved`.
 - [x] 2.2 Record every cited file in the manifest, version 5, with its digest, owner and citing relations, and every declared path as unverified without a checkout; verify the delivery and source-binding tests. The version 5 manifest records `src/main.mjs` once with its digest, owner `client` and relation `r1`; without a checkout every declared path is unverified.
 
 ## 3. Readers

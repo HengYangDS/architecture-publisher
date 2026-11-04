@@ -42,7 +42,7 @@ remain pre-release contracts and may contain incompatible changes.
   or one file, each claimed once; a file in the coverage scope belongs to its most specific claim. A relation cites in
   `files` the files that evidence it. The `sources` catalog, its ids and authored digests are removed, and a version 1
   model is refused with the command that converts it. With `--repo`, ownership is resolved at the model's revision;
-  a claim that holds no file in the scope or a relation file the revision lacks refuses the build with
+  a claim that owns no file in the scope or a relation file the revision lacks refuses the build with
   `files_unresolved`. The manifest, now version 5, records every cited file with its digest, its owner and the
   relations that cite it. The coverage report counts owned files, the generated page numbers its sources `source-1`
   onward and cites each component's first file, and `check` lists the components and relations without files.

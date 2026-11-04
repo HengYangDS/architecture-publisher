@@ -32,7 +32,8 @@ only draws and verifies what the model states.
    counts and the page size: split it or reorder its tiers. A view no balanced
    page holds is refused with `poster_unbalanced` and each gate its closest page
    misses: give it more of the model to show or merge it with a neighbour. Never
-   drop meaning to pass. A claim that holds no file in the scope names its path.
+   drop meaning to pass. A claim that owns no file in the scope names its path:
+   drop it, or narrow a deeper claim that takes all its files.
    Declare `coverage` for the part of the repository the model describes,
    leaving out with a reason what is not its architecture, such as
    `**/*_test.go` beside Go code, and claim the largest uncovered directories

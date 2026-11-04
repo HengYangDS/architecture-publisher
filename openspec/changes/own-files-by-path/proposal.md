@@ -18,7 +18,7 @@ package initializers against its own rules, and nothing in the model showed it.
 - A file in the coverage scope belongs to the component whose claim is most
   specific: a file claim before any directory, a deeper directory before a
   shallower one. A path claimed twice and a glob in a claim are refused; with a
-  checkout, so is a claim that holds no file in the scope.
+  checkout, so is a claim that owns no file in the scope.
 - With a checkout, `check` and `build` resolve ownership at the model's revision
   and record every cited file with its digest, its owner and the relations that
   cite it; the manifest moves to version 5. Without one, they record every

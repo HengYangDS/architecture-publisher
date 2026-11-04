@@ -38,7 +38,8 @@ heuristic had attributed against its own rules.
   stay out of every claim.
 - **Ownership stays inside the scope.** A claim owns only files in the coverage
   scope, and a claim that owns none is refused, so a typing error, a file the
-  scope leaves out and a file a re-pin removed are found at once.
+  scope leaves out, a claim that deeper claims leave empty and a file a re-pin
+  removed are found at once.
 - **The manifest is the lock.** The revision already pins every byte; each
   build records every cited file's digest and owner, and an edition is accepted
   on that manifest. A committed lock file would duplicate both. It can return

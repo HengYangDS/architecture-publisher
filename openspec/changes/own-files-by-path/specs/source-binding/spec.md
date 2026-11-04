@@ -92,7 +92,7 @@ cites.
 
 ### Requirement: Claims and cited files hold at the revision
 
-With a repository checkout, a missing revision, a claim that holds no file in
+With a repository checkout, a missing revision, a claim that owns no file in
 the scope and a relation file absent at the revision SHALL refuse the build and
 name the component or relation and its path.
 
@@ -108,6 +108,12 @@ name the component or relation and its path.
 - **WHEN** a component claims `src/a_test.go` and the scope excludes
   `**/*_test.go`
 - **THEN** the build refuses with the component's id and that claim
+
+#### Scenario: A claim deeper claims leave empty
+
+- **WHEN** one component claims `src/net/` and another claims `src/net/c.go`,
+  the only file under it
+- **THEN** the build refuses with the first component's id and its claim
 
 #### Scenario: A relation file absent at the revision
 

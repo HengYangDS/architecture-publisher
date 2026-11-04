@@ -92,7 +92,7 @@ function resolved(model, root, commit) {
       problems.push({
         code: "claim_unmatched",
         path: where,
-        message: `${claim} holds no file in the scope at ${commit}`,
+        message: `${claim} owns no file in the scope at ${commit}`,
       });
   model.relations.forEach((relation, index) =>
     relation.files.forEach((file, position) => {
