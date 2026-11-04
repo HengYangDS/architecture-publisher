@@ -117,12 +117,13 @@ export function guideCitations(entries) {
           });
         else walk(item, `${pointer}/${key}`);
     };
+    let parsed;
     try {
-      walk(JSON.parse(bytes.toString("utf8")), "");
-    } catch (error) {
-      if (!(error instanceof SyntaxError)) throw error;
+      parsed = JSON.parse(bytes.toString("utf8"));
+    } catch {
       refuse("guide_file_invalid", `${name} in the guide's directory is not JSON.`);
     }
+    walk(parsed, "");
   }
   return cited;
 }

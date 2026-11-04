@@ -128,6 +128,8 @@ test("a guide cites its sources' line ranges and its diagrams' node sources", ()
     { where: "parts.architecture.json/components/0/sources/0", path: "src/x.mjs", lines: [2, 4] },
     { where: "parts.architecture.json/components/0/sources/1", path: "src/y.mjs", lines: null },
   ]);
+  const broken = [entries[0], { name: "parts.architecture.json", bytes: Buffer.from("{") }];
+  assert.throws(() => guideCitations(broken), { code: "guide_file_invalid" });
 });
 
 test("a draft's @meta names the repository it cites", () => {
