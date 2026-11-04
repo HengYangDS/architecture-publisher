@@ -246,7 +246,7 @@ test("the composition's directory may not hold the class's own directory or link
   );
 });
 
-test("a build delivers the overview a model names, and refuses one it does not", async (t) => {
+test("a build delivers the overview a model names, and refuses one it does not name or that is not there", async (t) => {
   const file = await composed(t);
   const out = path.join(await temporaryDirectory(t, "archpub-overview-build-"), "delivery");
   const built = await buildDelivery(file, out, { media: ["overview"], png: [2400, 240] });
@@ -266,6 +266,20 @@ test("a build delivers the overview a model names, and refuses one it does not",
   await assert.rejects(buildDelivery(plain, `${out}-plain`, { media: ["overview"] }), {
     code: "overview_composition_missing",
   });
+  for (const [index, named] of ["overview.typ", "art/overview.typ"].entries()) {
+    const absent = await writeModel(t, minimalModel({ overview: named }));
+    const looked = path.join(path.dirname(absent), named);
+    const missing = (error) =>
+      error.code === "overview_composition_missing" &&
+      error.message.includes(named) &&
+      error.message.includes(looked);
+    await assert.rejects(checkModel(absent, { media: ["overview"] }), missing);
+    await assert.rejects(
+      buildDelivery(absent, `${out}-absent-${index}`, { media: ["overview"] }),
+      missing,
+    );
+    await assert.rejects(fs.access(`${out}-absent-${index}`), { code: "ENOENT" });
+  }
   const checked = await checkModel(file, { media: ["overview"] });
   assert.equal(checked.overview.typst, TYPST_VERSION);
   assert.equal(checked.overview.date, null);

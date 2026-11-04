@@ -129,11 +129,17 @@ async function prepare(modelPath, options) {
       "overview_composition_missing",
       "The model names no overview composition; name one in `overview` or leave the overview out of --media.",
     );
+  const composition = model.overview ? path.resolve(path.dirname(modelPath), model.overview) : null;
+  if (media.includes("overview") && !(await fs.stat(composition).catch(() => null))?.isFile())
+    refuse(
+      "overview_composition_missing",
+      `The model names the overview composition ${model.overview}, but no file is at ${composition}.`,
+    );
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
   const overview = media.includes("overview")
     ? await typesetOverview({
-        composition: path.resolve(path.dirname(modelPath), model.overview),
+        composition,
         modelBytes: loaded.content,
         revision: model.repository?.revision ?? null,
         date: revisionDate(model, options.repo),

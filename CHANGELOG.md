@@ -71,6 +71,9 @@ remain pre-release contracts and may contain incompatible changes.
 ### Fixed
 
 - On Windows, an overview refusal names the composition's line instead of the temporary file Typst read.
+- An overview composition that the model names but that is not there is refused with `overview_composition_missing`,
+  naming the model's `overview` and the path looked at, instead of with Typst's error about a temporary file or a bare
+  `ENOENT`.
 
 ### Removed
 
