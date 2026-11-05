@@ -9,6 +9,7 @@
 
 - [x] 2.1 Add the conformance journey that assembles the running platform's archive, unpacks it and builds a model with an overview with no Node.js or Typst on the path; verify on macOS that every delivered file equals the checkout's build. On macOS the journey passes: `--version` and a build with posters, page and overview ran with a path of links to `dirname` and `readlink` alone, and every delivered file equals the checkout's build. The path was `/usr/bin:/bin` until the Linux CI image, built for browsers, was found to install a Node.js there; in that image the first version fails with `/usr/bin/node` on the path and this one passes.
 - [x] 2.2 Run the journey in each CI platform's acceptance; verify `npm run check:ci` passes with the regenerated projections. Each platform's acceptance in `.gitlab-ci.yml` and `.github/workflows/verify.yml` runs the journey; `node tools/ci/projection.mjs --check` passes.
+- [x] 2.3 Install the declared archive with mise and build a real work with it; verify the delivered files equal the checkout's build. On macOS, mise 2026.10.25 with empty data, cache and config directories installed `http:archpub` from the declaration over a local HTTP server, and `archpub build` of the filmkit work, with only Git added to the system path, delivered 16 files byte-identical to the checkout's build.
 
 ## 3. Documentation
 
