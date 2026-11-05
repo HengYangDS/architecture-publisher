@@ -16,4 +16,4 @@
 
 ## 4. Verification
 
-- [ ] 4.1 Run `npm run check`; verify it passes at or above the coverage floors.
+- [x] 4.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `5ff4484` with 99.57% statements, 95.47% branches, 99.83% functions and 99.57% lines.
