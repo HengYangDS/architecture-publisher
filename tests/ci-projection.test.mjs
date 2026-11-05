@@ -167,6 +167,9 @@ test("native Mise paths resolve before the locked tools are installed", async (t
 
 test("native Mise execution selects the declared Node and npm rather than bundled npm", async () => {
   const workspace = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
+  // The repository's declaration alone: a machine's own Mise configuration may declare another
+  // npm, and Mise's walk up the parents reaches the home directory's unless a ceiling stops it.
+  const absent = path.join(root, "build/absent-mise-configuration");
   for (const [tool, expected] of [
     ["node", `v${workspace.devEngines.runtime.version}`],
     ["npm", workspace.devEngines.packageManager.version],
@@ -175,7 +178,13 @@ test("native Mise execution selects the declared Node and npm rather than bundle
       cwd: root,
       encoding: "utf8",
       timeout: 30_000,
-      env: { ...process.env, MISE_EXEC_AUTO_INSTALL: "0" },
+      env: {
+        ...process.env,
+        MISE_EXEC_AUTO_INSTALL: "0",
+        MISE_CEILING_PATHS: path.dirname(root),
+        MISE_GLOBAL_CONFIG_FILE: path.join(absent, "config.toml"),
+        MISE_SYSTEM_CONFIG_DIR: absent,
+      },
     });
     assert.equal(result.error, undefined);
     assert.equal(result.status, 0, result.stderr);
