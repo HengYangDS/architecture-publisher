@@ -41,11 +41,25 @@ async function onPath(name, searchPath) {
   return null;
 }
 
-/** A path with the system's own programs only, so no Node.js or Typst is found on it. */
-function systemPath() {
-  if (!windows) return "/usr/bin:/bin";
-  const system = process.env.SystemRoot ?? "C:\\Windows";
-  return [path.join(system, "System32"), system].join(path.delimiter);
+/**
+ * A path on which no Node.js or Typst is found, whatever the machine has installed: on
+ * Windows the system directories, and elsewhere links to the system's `dirname` and
+ * `readlink`, the only programs the launcher runs. `/usr/bin` is not enough, as images
+ * built for browsers install a Node.js there.
+ */
+async function barePath(work) {
+  if (windows) {
+    const system = process.env.SystemRoot ?? "C:\\Windows";
+    return [path.join(system, "System32"), system].join(path.delimiter);
+  }
+  const bin = path.join(work, "bare-path");
+  await fs.mkdir(bin);
+  for (const name of ["dirname", "readlink"]) {
+    const found = await onPath(name, process.env.PATH ?? "");
+    assert.ok(found, `the launcher needs ${name} on the path`);
+    await fs.symlink(found, path.join(bin, name));
+  }
+  return bin;
 }
 
 function run(command, args, env) {
@@ -116,7 +130,7 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
   }
   const command = path.join(unpacked, "archpub", "bin", windows ? "archpub.cmd" : "archpub");
   const env = {
-    PATH: systemPath(),
+    PATH: await barePath(work),
     ...(windows
       ? { SystemRoot: process.env.SystemRoot, TEMP: process.env.TEMP, TMP: process.env.TMP }
       : { HOME: work, TMPDIR: process.env.TMPDIR ?? "/tmp" }),
