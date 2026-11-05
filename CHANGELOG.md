@@ -7,6 +7,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Fixed
+
+- A browser that takes longer than two minutes to close no longer fails its test. Closing is cleanup: the test notes
+  the delay and passes, and Playwright ends the browser when the test process exits, so a hung browser still cannot
+  hold its runner. A loaded Windows runner failed the 0.8.0 proposal this way after every check of its pages had
+  passed.
+
 ## [0.8.0] - 2026-11-05
 
 ### Added

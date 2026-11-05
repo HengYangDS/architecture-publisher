@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { setTimeout as delay } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
 import { deliverExplainer, explainerPage } from "../src/map/explainer.mjs";
@@ -10,11 +11,38 @@ import { planViews } from "../src/plan/views.mjs";
 import { AIGW_MODEL, BIG_BANK_MODEL, temporaryDirectory } from "./fixtures/models.mjs";
 
 /**
- * How long the browser may take to start, to open the standalone page or to
- * close: past it the test fails instead of holding its runner until the job's
- * time limit, as one hosted Windows run did.
+ * How long the browser may take to start or to open the standalone page: past it
+ * the test fails instead of holding its runner until the job's time limit, as
+ * one hosted Windows run did. A test also waits this long for its browser to
+ * close.
  */
 const BROWSER = 2 * 60 * 1000;
+
+/**
+ * Closes the browser after the test, waiting at most `limit` ms. Closing is
+ * cleanup, not what the tests check: a loaded Windows runner once took longer
+ * than two minutes to close a browser whose pages had passed. Past the limit
+ * the test notes the delay and passes; `--test-force-exit` ends the test file,
+ * and Playwright ends a browser still running when the test process exits. An
+ * error from closing still fails the test.
+ * @param {import("node:test").TestContext} t
+ * @param {{ close(): Promise<void> }} browser
+ * @param {number} limit
+ */
+function closeAfter(t, browser, limit) {
+  t.after(async () => {
+    const waiting = new AbortController();
+    try {
+      const late = await Promise.race([
+        browser.close().then(() => false),
+        delay(limit, true, { signal: waiting.signal }),
+      ]);
+      if (late) t.diagnostic(`the browser did not close within ${limit} ms`);
+    } finally {
+      waiting.abort();
+    }
+  });
+}
 
 /**
  * The CI browser, or Playwright's own headless build, closed after the test; a
@@ -28,7 +56,7 @@ async function launch(t) {
       timeout: BROWSER,
       ...(executablePath ? { executablePath } : {}),
     });
-    t.after(() => browser.close(), { timeout: BROWSER });
+    closeAfter(t, browser, BROWSER);
     return browser;
   } catch (error) {
     if (executablePath || process.env.CI === "true") throw error;
@@ -55,6 +83,22 @@ test("the CI browser opens a standalone page", { timeout: BROWSER }, async (t) =
   await page.goto(pathToFileURL(file).href);
   assert.equal(await page.textContent("p"), "ready");
 });
+
+test(
+  "a browser that does not close in time is noted, not failed",
+  { timeout: 10 * 1000 },
+  async (t) => {
+    let diagnostic;
+    await t.test("its browser never closes", (inner) => {
+      diagnostic = t.mock.method(inner, "diagnostic");
+      closeAfter(inner, { close: () => new Promise(() => {}) }, 100);
+    });
+    assert.deepEqual(
+      diagnostic?.mock.calls.map((call) => call.arguments),
+      [["the browser did not close within 100 ms"]],
+    );
+  },
+);
 
 // Building two pages measures a few hundred candidate diagrams, each through
 // Archify's own command line in processes of its own; on a hosted Windows
