@@ -24,6 +24,10 @@ byte-identical to the normal build.
   byte-identical to the build from the checkout.
 - The README and the operations reference install archpub with that declaration;
   CONTRIBUTING lists the release assets.
+- This Change cuts 0.9.0, the first release with the archives: `VERSION`, its
+  projections and the changelog's Unreleased notes dated as 0.9.0. After landing,
+  `ethos land --release` signs `v0.9.0`, and each Forge publishes its Release with
+  the package, the archives, the declaration and their `SHA256SUMS`.
 
 ## Capabilities
 
@@ -39,6 +43,7 @@ None.
 ## Impact
 
 `tools/release/`, a new conformance journey and its CI step on each platform,
-the README, the operations reference, CONTRIBUTING and the changelog. What a
+the README, the operations reference, CONTRIBUTING, the changelog, `VERSION` and
+its projections. What a
 build produces does not change, and the npm tarball stays a release asset as the
 archives' input.

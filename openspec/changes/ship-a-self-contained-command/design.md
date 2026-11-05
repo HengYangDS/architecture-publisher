@@ -71,8 +71,16 @@ a published `ethos-<version>.mise.toml`.
   It then compares every delivered file with the same build from the checkout.
   The CI runs it on each platform, beside the raster journey.
 
+- **The first release is part of this Change.** An archive no release delivers
+  serves no one, and a second lane would repeat a full proof and both Forges' CI
+  for a version bump. The changelog carries the tag's date, 2026-11-06, and the
+  tag waits for that day.
+
 ## Risks / Trade-offs
 
+- [A Forge's Release fails after `main` and the tag are published] → The tag is
+  the release; the Release is created again from the same tag and the same
+  assets, which are read back by digest.
 - [Each archive is about 100 MB, mostly Node.js] → It is a third of ETHOS's, and
   the npm tarball stays for anyone who has Node.js.
 - [macOS marks a browser-downloaded binary as quarantined] → mise and curl

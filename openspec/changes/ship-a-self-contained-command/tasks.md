@@ -18,3 +18,8 @@
 ## 4. Verification
 
 - [x] 4.1 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `5ff4484` with 99.57% statements, 95.47% branches, 99.83% functions and 99.57% lines.
+
+## 5. Release
+
+- [x] 5.1 Set `VERSION` to 0.9.0 and write its projections; verify `node tools/release/version.mjs --check` passes and `package.json` and its lock name 0.9.0. `VERSION` is 0.9.0; `node tools/release/version.mjs --check` passes, and `package.json`, the lock and its root package name 0.9.0.
+- [x] 5.2 Date the changelog's Unreleased notes as 0.9.0 at the tag's date and link the release; verify Prettier and markdownlint pass. The Unreleased notes are dated `## [0.9.0] - 2026-11-06` and linked to the v0.9.0 release; Prettier and markdownlint pass on the changelog and the Change.

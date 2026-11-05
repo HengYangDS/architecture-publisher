@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-06
+
 ### Added
 
 - A release delivers the `archpub` command as one archive for each platform the CI verifies, Linux, macOS and
@@ -770,6 +772,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.9.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.9.0
 [0.8.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.8.0
 [0.7.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.7.0
 [0.6.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.6.0
