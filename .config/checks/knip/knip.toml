@@ -6,7 +6,9 @@ ignoreDependencies = ["sax", "opentype.js", "@likec4/language-services", "bundle
 
 entry = [
   "src/importers/likec4-worker.mjs",
+  "tests/conformance/journeys/command/archive.test.mjs",
   "tests/conformance/journeys/raster/rebuild.test.mjs",
+  "tools/release/archive.mjs",
   "tools/raster/resvg/verify.mjs",
   "tests/*.test.mjs",
 ]

@@ -59,6 +59,7 @@ shared: {
 	"acceptance": [
 		"mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz",
 		"mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs",
+		"mise exec -- node --test --test-force-exit tests/conformance/journeys/command/archive.test.mjs",
 		"mise exec -- npm run check",
 	]
 	"assetPreparation": [

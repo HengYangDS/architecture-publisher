@@ -111,19 +111,16 @@ the build and every refusal.
 
 ## Install
 
-This repository is the `architecture-publisher` package.
-It needs Node.js 22.13 or later and has no runtime npm dependencies. From a
-checkout, `mise run bootstrap` installs the locked inputs and prepares the
-bundled raster renderer and LikeC4 parser; then pack and install the package:
+Each release has an archive for Linux, macOS and Windows on ARM64 that holds the
+`archpub` command with its own Node.js and Typst; it needs only Git. Pin it with
+mise from the release's `architecture-publisher-<version>.mise.toml`, or unpack
+it and put its `archpub/bin` on the path.
 
-```sh
-mise run bootstrap
-npm pack --ignore-scripts --pack-destination build/artifacts
-npm install --global --ignore-scripts build/artifacts/architecture-publisher-<version>.tgz
-```
-
-In the checkout itself, `node src/cli/main.mjs` runs the same
-command.
+The release's `architecture-publisher-<version>.tgz` is the same command as an
+npm package for a machine with Node.js 22.13 or later, and Typst 0.15.1 for an
+overview. In a checkout, `mise run bootstrap` installs the locked inputs and
+prepares the bundled raster renderer and LikeC4 parser; then
+`node src/cli/main.mjs` runs the command.
 
 ## Documentation
 

@@ -88,6 +88,10 @@ jobs:
           tests/conformance/journeys/raster/rebuild.test.mjs
       - run: mise exec -- pixi run --locked --config-file
           .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable node --test --test-force-exit
+          tests/conformance/journeys/command/archive.test.mjs
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
           .config/ci/linux/pixi.toml --executable npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
@@ -168,6 +172,10 @@ jobs:
           tests/conformance/journeys/raster/rebuild.test.mjs
       - run: mise exec -- pixi run --locked --config-file
           .config/ci/linux/pixi-config.toml --manifest-path
+          .config/ci/linux/pixi.toml --executable node --test --test-force-exit
+          tests/conformance/journeys/command/archive.test.mjs
+      - run: mise exec -- pixi run --locked --config-file
+          .config/ci/linux/pixi-config.toml --manifest-path
           .config/ci/linux/pixi.toml --executable npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
@@ -228,6 +236,8 @@ jobs:
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
           build/runtime/tool-cache/raster/source.tar.xz
       - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- node --test --test-force-exit
+          tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
@@ -288,6 +298,8 @@ jobs:
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
           build/runtime/tool-cache/raster/source.tar.xz
       - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- node --test --test-force-exit
+          tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
@@ -352,6 +364,8 @@ jobs:
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
           build/runtime/tool-cache/raster/source.tar.xz
       - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- node --test --test-force-exit
+          tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
@@ -416,6 +430,8 @@ jobs:
       - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
           build/runtime/tool-cache/raster/source.tar.xz
       - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+      - run: mise exec -- node --test --test-force-exit
+          tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}

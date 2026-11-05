@@ -56,6 +56,8 @@ stages:
     - mise exec -- node tools/raster/resvg/verify.mjs --archive
       build/runtime/tool-cache/raster/source.tar.xz
     - mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
+    - mise exec -- node --test --test-force-exit
+      tests/conformance/journeys/command/archive.test.mjs
     - mise exec -- npm run check
   stage: verify
   interruptible: true
@@ -109,6 +111,10 @@ stages:
       .config/ci/linux/pixi-config.toml --manifest-path
       .config/ci/linux/pixi.toml --executable node --test
       tests/conformance/journeys/raster/rebuild.test.mjs
+    - mise exec -- pixi run --locked --config-file
+      .config/ci/linux/pixi-config.toml --manifest-path
+      .config/ci/linux/pixi.toml --executable node --test --test-force-exit
+      tests/conformance/journeys/command/archive.test.mjs
     - mise exec -- pixi run --locked --config-file
       .config/ci/linux/pixi-config.toml --manifest-path
       .config/ci/linux/pixi.toml --executable npm run check

@@ -7,6 +7,14 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- A release delivers the `archpub` command as one archive for each platform the CI verifies, Linux, macOS and
+  Windows on ARM64, with its own Node.js 26.13.0 and Typst 0.15.1, the package and their licenses; it needs only Git.
+  The release's `architecture-publisher-<version>.mise.toml` names each archive with its SHA-256, so mise installs it
+  as `http:archpub`. `tools/release/archive.mjs` assembles the archives deterministically and writes the declaration,
+  and each CI platform builds a work with its own archive, byte-identical to the checkout's build.
+
 ### Fixed
 
 - A browser that takes longer than two minutes to close no longer fails its test. Closing is cleanup: the test notes

@@ -15,15 +15,27 @@ refusal.
 
 ## Installation
 
-The repository is the `architecture-publisher` package. Pack it and install the
-archive with npm:
+Each release delivers the command as one archive per platform the CI verifies:
+`archpub-<version>-<platform>.tar.gz` for `linux-arm64`, `macos-arm64` and
+`windows-arm64`. An archive holds `archpub/bin/archpub` (`archpub.cmd` on
+Windows), the Node.js and Typst it runs in `archpub/libexec`, the package in
+`archpub/lib/architecture-publisher` and their licenses in `archpub/licenses`.
+Unpacked anywhere, the command needs only Git on the path. The release's
+`architecture-publisher-<version>.mise.toml` names each archive with its SHA-256
+for `mise`, as an `http:archpub` tool:
 
-```sh
-npm pack --ignore-scripts --pack-destination build/artifacts
-npm install --global --ignore-scripts build/artifacts/architecture-publisher-<version>.tgz
+```toml
+[tools."http:archpub"]
+version = "<version>"
+
+[tools."http:archpub".platforms]
+macos-arm64 = { url = "<release>/archpub-<version>-macos-arm64.tar.gz", checksum = "sha256:<digest>", bin_path = "archpub/bin" }
 ```
 
-The package needs Node.js 22.13 or later and has no runtime npm dependencies:
+The release's `architecture-publisher-<version>.tgz` is the same command as an
+npm package; install it with `npm install --global --ignore-scripts` where
+Node.js 22.13 or later is present, with Typst 0.15.1 on the path for an
+overview. The package has no runtime npm dependencies:
 fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
 with their digests, so a build downloads nothing. Git is needed only to resolve
 and verify the model's files with `--repo`, and Typst 0.15.1 on the path only to build an overview. Git and Archify run with only the caller's `PATH`,

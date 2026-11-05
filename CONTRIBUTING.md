@@ -50,3 +50,18 @@ never push `dev` or `main` directly.
 [changelog](CHANGELOG.md) at the release cut. A release lands like any change;
 `ethos land --release` then signs the `vX.Y.Z` tag at the accepted head. Each
 Forge publishes and verifies its own Release.
+
+A Release holds the npm package, the command's archives and their declaration,
+with `SHA256SUMS`. On macOS, from the tag's package:
+
+```sh
+SOURCE_DATE_EPOCH=$(git log -1 --format=%ct vX.Y.Z) node tools/release/archive.mjs assemble \
+  --package architecture-publisher-X.Y.Z.tgz --out build/artifacts/release-X.Y.Z --platform all --official
+node tools/release/archive.mjs declare --dir build/artifacts/release-X.Y.Z --version X.Y.Z \
+  --base-url https://github.com/HengYangDS/architecture-publisher/releases/download/vX.Y.Z
+```
+
+`--official` downloads each platform's Node.js and Typst at the lock's URLs and
+refuses any whose SHA-256 differs. Each CI platform builds its own archive from
+the Node.js and Typst mise installed and checks that it builds what the checkout
+builds.
