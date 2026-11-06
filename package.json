@@ -65,7 +65,7 @@
     },
     "minimatch": "11.0.4"
   },
-  "packageManager": "npm@12.2.1",
+  "packageManager": "npm@12.2.2",
   "devEngines": {
     "runtime": {
       "name": "node",
@@ -74,7 +74,7 @@
     },
     "packageManager": {
       "name": "npm",
-      "version": "12.2.1",
+      "version": "12.2.2",
       "onFail": "error"
     }
   },

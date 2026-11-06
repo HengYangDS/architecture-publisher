@@ -28,12 +28,13 @@ backend = "github:tamasfe/taplo"
 specifiers = ["0.10.0"]
 
 [tools."github:tamasfe/taplo".options]
-asset_pattern = "taplo-windows-aarch64.zip"
+asset_pattern = "taplo-linux-aarch64.gz"
 version_prefix = ""
 
-[tools."github:tamasfe/taplo"."platforms.windows-arm64"]
-url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-windows-aarch64.zip"
-url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257322977"
+[tools."github:tamasfe/taplo"."platforms.linux-arm64"]
+checksum = "sha256:033681d01eec8376c3fd38fa3703c79316f5e14bb013d859943b60a07bccdcc3"
+url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-linux-aarch64.gz"
+url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257322597"
 
 [[tools."github:tamasfe/taplo"]]
 version = "0.10.0"
@@ -45,6 +46,7 @@ asset_pattern = "taplo-darwin-aarch64.gz"
 version_prefix = ""
 
 [tools."github:tamasfe/taplo"."platforms.macos-arm64"]
+checksum = "sha256:713734314c3e71894b9e77513c5349835eefbd52908445a0d73b0c7dc469347d"
 url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-darwin-aarch64.gz"
 url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257323110"
 
@@ -54,12 +56,13 @@ backend = "github:tamasfe/taplo"
 specifiers = ["0.10.0"]
 
 [tools."github:tamasfe/taplo".options]
-asset_pattern = "taplo-linux-aarch64.gz"
+asset_pattern = "taplo-windows-aarch64.zip"
 version_prefix = ""
 
-[tools."github:tamasfe/taplo"."platforms.linux-arm64"]
-url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-linux-aarch64.gz"
-url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257322597"
+[tools."github:tamasfe/taplo"."platforms.windows-arm64"]
+checksum = "sha256:65a50c5d3b78f6014e6bc6d64eb6dc1d4992bc236589c9bb29e5609fc3454674"
+url = "https://github.com/tamasfe/taplo/releases/download/0.10.0/taplo-windows-aarch64.zip"
+url_api = "https://api.github.com/repos/tamasfe/taplo/releases/assets/257322977"
 
 [[tools."github:wasm-bindgen/wasm-bindgen"]]
 version = "0.2.130"
@@ -114,10 +117,10 @@ checksum = "sha256:a9427139595156ef484e1fb08957676e09d4232368dd1743a2a9f93f3d241
 url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-win-arm64.zip"
 
 [[tools."npm:npm"]]
-version = "12.2.1"
-aube = { path = "locks/npm-npm/12.2.1", digest = "sha256:444df8e4844b0bbac73752177bb8845de4e60958e82ec8d0e7814d64871aa13e" }
+version = "12.2.2"
+aube = { path = "locks/npm-npm/12.2.2", digest = "sha256:aa1583eaec25bbf8f161baebcfb3b9500e918a9d0772b3278c80b0e57b96c69a" }
 backend = "npm:npm"
-specifiers = ["12.2.1"]
+specifiers = ["12.2.2"]
 
 [[tools.pixi]]
 version = "0.83.0"
@@ -128,18 +131,6 @@ specifiers = ["0.83.0"]
 checksum = "sha256:d08403d8f048626ec93ba7b7c56e3b747a5f3a95c4e6e0c815ceb264f5f0b9ce"
 url = "https://github.com/prefix-dev/pixi/releases/download/v0.83.0/pixi-aarch64-unknown-linux-musl.tar.gz"
 url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/666387811"
-provenance = "github-attestations"
-
-[tools.pixi."platforms.macos-arm64"]
-checksum = "sha256:b46066fbaf931284a3f4a61d68e0eb352295f4b3ce4330315a3de3dc5da5736c"
-url = "https://github.com/prefix-dev/pixi/releases/download/v0.83.0/pixi-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/666387691"
-provenance = "github-attestations"
-
-[tools.pixi."platforms.windows-arm64"]
-checksum = "sha256:9ed3a4f7c1fdd2a36936e6d44b1492bfd47d84a57bfbd9be3ae4f338bd3cc92c"
-url = "https://github.com/prefix-dev/pixi/releases/download/v0.83.0/pixi-aarch64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/prefix-dev/pixi/releases/assets/666387762"
 provenance = "github-attestations"
 
 [[tools.rust]]

@@ -7,6 +7,12 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- Development uses npm 12.2.2, and the mise lock names a checksum for every archive it installs, so mise 2026.11.2
+  installs the toolchain in its safe and locked modes. The npm lock moves `@napi-rs/wasm-runtime` to 1.2.7, and a
+  lock of npm 12.2.0 that no configuration read is gone.
+
 ## [0.9.0] - 2026-11-06
 
 ### Added
