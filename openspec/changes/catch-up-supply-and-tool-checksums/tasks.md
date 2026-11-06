@@ -7,5 +7,5 @@
 
 ## 2. Verification
 
-- [ ] 2.1 Install every locked tool on fresh stores with `MISE_SAFE=1` and `MISE_LOCKED=1`: with mise 2026.10.25, also with `MISE_ENV=ci`, and with 2026.11.2; verify each install passes and each tool runs.
-- [ ] 2.2 Run `npm run check`; verify it passes at or above the coverage floors.
+- [x] 2.1 Install every locked tool on fresh stores with `MISE_SAFE=1` and `MISE_LOCKED=1`: with mise 2026.10.25, also with `MISE_ENV=ci`, and with 2026.11.2; verify each install passes and each tool runs. On fresh stores under `MISE_SAFE=1` and `MISE_LOCKED=1`, mise 2026.10.25, again with `MISE_ENV=ci`, and the official 2026.11.2 (SHA-256 equal to GitHub's) each installed every locked tool, and node, npm 12.2.2, typst, cue, taplo, rustc, cargo and wasm-bindgen each ran.
+- [x] 2.2 Run `npm run check`; verify it passes at or above the coverage floors. Passed at `5c11b25` with 99.57% statements, 95.47% branches, 99.83% functions and 99.57% lines.
