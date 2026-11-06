@@ -1,0 +1,93 @@
+import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import path from "node:path";
+import test from "node:test";
+import { pathToFileURL } from "node:url";
+import { loadIcons } from "../src/icons.mjs";
+import { loadModel, validateModel } from "../src/model/load.mjs";
+import { planViews } from "../src/plan/views.mjs";
+import { admitsView } from "../src/poster/compose/candidates.mjs";
+import { composeEdition, composePosters } from "../src/poster/compose/edition.mjs";
+import { loadTypefaces } from "../src/poster/text.mjs";
+import { PAGE } from "../src/poster/tokens.mjs";
+import { verifySupply } from "../src/supply.mjs";
+import { ETHOS_PROOF_PLANE_MODEL, minimalModel } from "./fixtures/models.mjs";
+
+const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
+
+/** One face of a bundled supply, parsed by the same OpenType reader the engine uses. */
+async function faceOf(supplyName, file) {
+  const resvg = await verifySupply("resvg");
+  const opentype = await import(
+    pathToFileURL(path.join(resvg.root, "opentype", "opentype.mjs")).href
+  );
+  const supply = await verifySupply(supplyName);
+  const bytes = await fs.readFile(path.join(supply.root, file));
+  return opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+}
+
+const width = (face, text, size) => face.getAdvanceWidth(text, size, { kerning: true });
+
+// The house palette: the overview's paper, ink, green, greys and ochre, and the
+// tints the posters draw cards, outside systems and rules in.
+const HOUSE_PALETTE = new Set([
+  "#F5F3ED",
+  "#FBFAF6",
+  "#29372F",
+  "#2B2A24",
+  "#324F3E",
+  "#617465",
+  "#4F5F52",
+  "#7B857C",
+  "#8C877A",
+  "#8C968D",
+  "#845922",
+  "#CBC6B8",
+  "#C4BDAE",
+  "#D6D1C4",
+  "#ECE8DF",
+]);
+
+test("posters set Latin text in Source Sans 3, its semibold for heavy text, and Han in Noto Sans CJK SC", async () => {
+  const [regular, semibold, han] = await Promise.all([
+    faceOf("house", "source-sans-3/SourceSans3-Regular.otf"),
+    faceOf("house", "source-sans-3/SourceSans3-Semibold.otf"),
+    faceOf("fonts", "noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf"),
+  ]);
+  const text = "Architecture Publisher";
+  assert.equal(typefaces.measure(text, PAGE.summary), width(regular, text, PAGE.summary.size));
+  assert.equal(typefaces.measure(text, PAGE.running), width(semibold, text, PAGE.running.size));
+  assert.equal(typefaces.measure("数据", PAGE.summary), width(han, "数据", PAGE.summary.size));
+});
+
+test("page and plate titles are set in Source Serif 4 Subhead", async () => {
+  const display = await faceOf("house", "source-serif-4/SourceSerif4Subhead-Regular.otf");
+  const title = "Narration and its supply";
+  assert.equal(typefaces.measure(title, PAGE.title), width(display, title, PAGE.title.size));
+  assert.equal(typefaces.measure(title, PAGE.plate), width(display, title, PAGE.plate.size));
+});
+
+test("posters are drawn in the house palette", async () => {
+  const model = validateModel(minimalModel());
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const [poster] = composePosters(model, views, typefaces, icons);
+  const colours = new Set(poster.svg.match(/#[0-9A-Fa-f]{6}\b/gu)?.map((c) => c.toUpperCase()));
+  assert.deepEqual(
+    [...colours].filter((colour) => !HOUSE_PALETTE.has(colour)),
+    [],
+  );
+});
+
+test("the ETHOS proof plane prints alone beside its overview", async () => {
+  // In the house faces its cards narrow, and alone the proof plane leaves more
+  // blank paper and more holes than a sparse page admits; the edition must
+  // still print it rather than refuse.
+  const { model } = await loadModel(ETHOS_PROOF_PLANE_MODEL, { icon: icons.has });
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const pages = composeEdition(model, views, typefaces, icons);
+  assert.deepEqual(
+    pages.map(({ views: shown }) => shown.map(({ id }) => id)),
+    [["overview"], ["proof"]],
+  );
+  for (const { admission } of pages) assert.ok(["balanced", "sparse"].includes(admission));
+});

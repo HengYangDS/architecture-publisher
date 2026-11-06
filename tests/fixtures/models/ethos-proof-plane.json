@@ -1,0 +1,351 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 2,
+  "id": "ethos",
+  "title": "ETHOS",
+  "question": "How does ETHOS turn official intent and fresh facts into proven repository change, and what does it hold every repository to?",
+  "summary": "ETHOS compiles an OpenSpec Change, fresh facts and prior Attestations into a TransitionPlan, admits each effect only on a pass, and holds every governed repository, itself included, to one declared structure.",
+  "scope": "The ETHOS product as released at v0.2.0-alpha.28: the src/ethos package, its system declarations, the npm launcher and the repository's own .ethos binding.",
+  "limits": [
+    "Each component cites every file the rules attribute to it; a relation cites the modules that import the other component.",
+    "Relations are imports and process calls in the source, not runtime order or design intent."
+  ],
+  "attribution": "Architecture Publications, read from the ETHOS source",
+  "kinds": {
+    "surface": {
+      "label": "surface",
+      "category": "frontend",
+      "icon": "square-terminal"
+    },
+    "service": {
+      "label": "ETHOS module",
+      "category": "backend",
+      "icon": "workflow"
+    },
+    "admission": {
+      "label": "admission",
+      "category": "security",
+      "icon": "shield-check"
+    },
+    "policy": {
+      "label": "policy",
+      "category": "security",
+      "icon": "list-checks"
+    },
+    "store": {
+      "label": "Git-common store",
+      "category": "database",
+      "icon": "database"
+    },
+    "tool": {
+      "label": "external tool",
+      "category": "external",
+      "icon": "wrench"
+    }
+  },
+  "components": [
+    {
+      "id": "cli",
+      "label": "CLI",
+      "kind": "surface",
+      "details": {
+        "commands": "status, plan, prove, land, publish, adopt, lane, hook, attestation, mcp",
+        "launcher": "a thin npm package over the Python command plane"
+      }
+    },
+    {
+      "id": "openspec-intent",
+      "label": "OpenSpec intent",
+      "kind": "service",
+      "details": {
+        "compiles": "the official Change into a Commitment",
+        "archives": "a completed Change with exact relocations"
+      }
+    },
+    {
+      "id": "gate-policy",
+      "label": "Gate policy",
+      "kind": "policy",
+      "details": {
+        "declares": "system/gates.toml and the profile's repository gates",
+        "binds": "execution identities to selected sources"
+      }
+    },
+    {
+      "id": "quality-policy",
+      "label": "Quality obligations",
+      "kind": "policy",
+      "details": {
+        "judges": "coverage, tests, dependencies and source budgets from native reports"
+      }
+    },
+    {
+      "id": "gate-runner",
+      "label": "Gate runner",
+      "kind": "service",
+      "details": {
+        "runs": "the admitted gate DAG, bounded readers and exclusive writers",
+        "admits": "one full proof per host under its load limit"
+      }
+    },
+    {
+      "id": "native-evidence",
+      "label": "Native evidence",
+      "kind": "service",
+      "details": {
+        "captures": "each native tool's output once, with its receipts",
+        "covers": "Python, JavaScript, formatting, configuration and provenance"
+      }
+    },
+    {
+      "id": "proof",
+      "label": "Proof Attestation",
+      "kind": "service",
+      "details": {
+        "command": "ethos prove",
+        "issues": "a proof Attestation for the exact HEAD"
+      }
+    },
+    {
+      "id": "prewrite-admission",
+      "label": "Prewrite admission",
+      "kind": "admission",
+      "details": {
+        "command": "ethos lane prewrite",
+        "admits": "exact tracked write paths and patches"
+      }
+    },
+    {
+      "id": "mutation-admission",
+      "label": "Mutation decision",
+      "kind": "admission",
+      "details": {
+        "requires": "--authorize, --expect-head and current facts",
+        "names": "the bounded recovery for each gap"
+      }
+    },
+    {
+      "id": "work-lane",
+      "label": "Work Lane",
+      "kind": "service",
+      "details": {
+        "commands": "lane start, refresh-base, archive-change",
+        "starts": "an owned branch and worktree from the candidate"
+      }
+    },
+    {
+      "id": "landing",
+      "label": "Landing and acceptance",
+      "kind": "service",
+      "details": {
+        "command": "ethos land",
+        "promotes": "a proven lane to candidate, then dev, then main"
+      }
+    },
+    {
+      "id": "git-effects",
+      "label": "Git effect engine",
+      "kind": "service",
+      "details": {
+        "executes": "exact compare-and-swap ref, worktree and merge effects, then attests them"
+      }
+    },
+    {
+      "id": "attestation-set",
+      "label": "Attestation set",
+      "kind": "store",
+      "details": {
+        "holds": "the only persistent semantic results, a Git-native set"
+      }
+    },
+    {
+      "id": "evidence-store",
+      "label": "Evidence custody",
+      "kind": "store",
+      "details": {
+        "holds": "content-addressed evidence bytes bound by Attestation members"
+      }
+    },
+    {
+      "id": "native-tools",
+      "label": "Native tools",
+      "kind": "tool",
+      "details": {
+        "for example": "pytest, ruff, ty, eslint, vale, mise"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "id": "cli-proof",
+      "from": "cli",
+      "to": "proof",
+      "label": "runs prove"
+    },
+    {
+      "id": "cli-landing",
+      "from": "cli",
+      "to": "landing",
+      "label": "runs land"
+    },
+    {
+      "id": "cli-work-lane",
+      "from": "cli",
+      "to": "work-lane",
+      "label": "runs lane"
+    },
+    {
+      "id": "cli-prewrite-admission",
+      "from": "cli",
+      "to": "prewrite-admission",
+      "label": "runs prewrite"
+    },
+    {
+      "id": "cli-attestation-set",
+      "from": "cli",
+      "to": "attestation-set",
+      "label": "queries"
+    },
+    {
+      "id": "gate-policy-quality-policy",
+      "from": "gate-policy",
+      "to": "quality-policy",
+      "label": "composes floors"
+    },
+    {
+      "id": "proof-gate-policy",
+      "from": "proof",
+      "to": "gate-policy",
+      "label": "resolves gates"
+    },
+    {
+      "id": "proof-attestation-set",
+      "from": "proof",
+      "to": "attestation-set",
+      "label": "records proof"
+    },
+    {
+      "id": "proof-evidence-store",
+      "from": "proof",
+      "to": "evidence-store",
+      "label": "stores artifacts"
+    },
+    {
+      "id": "gate-runner-native-evidence",
+      "from": "gate-runner",
+      "to": "native-evidence",
+      "label": "captures"
+    },
+    {
+      "id": "gate-runner-gate-policy",
+      "from": "gate-runner",
+      "to": "gate-policy",
+      "label": "binds identities"
+    },
+    {
+      "id": "cli-gate-runner",
+      "from": "cli",
+      "to": "gate-runner",
+      "label": "executes gates"
+    },
+    {
+      "id": "native-evidence-native-tools",
+      "from": "native-evidence",
+      "to": "native-tools",
+      "label": "runs"
+    },
+    {
+      "id": "native-evidence-evidence-store",
+      "from": "native-evidence",
+      "to": "evidence-store",
+      "label": "keeps receipts"
+    },
+    {
+      "id": "prewrite-admission-openspec-intent",
+      "from": "prewrite-admission",
+      "to": "openspec-intent",
+      "label": "attributes paths"
+    },
+    {
+      "id": "work-lane-git-effects",
+      "from": "work-lane",
+      "to": "git-effects",
+      "label": "creates refs, worktrees"
+    },
+    {
+      "id": "work-lane-openspec-intent",
+      "from": "work-lane",
+      "to": "openspec-intent",
+      "label": "archives the Change"
+    },
+    {
+      "id": "landing-mutation-admission",
+      "from": "landing",
+      "to": "mutation-admission",
+      "label": "admits land"
+    },
+    {
+      "id": "landing-proof",
+      "from": "landing",
+      "to": "proof",
+      "label": "requires proof"
+    },
+    {
+      "id": "landing-git-effects",
+      "from": "landing",
+      "to": "git-effects",
+      "label": "moves refs by CAS"
+    },
+    {
+      "id": "mutation-admission-proof",
+      "from": "mutation-admission",
+      "to": "proof",
+      "label": "selects proof"
+    },
+    {
+      "id": "mutation-admission-git-effects",
+      "from": "mutation-admission",
+      "to": "git-effects",
+      "label": "admits effects"
+    },
+    {
+      "id": "attestation-set-evidence-store",
+      "from": "attestation-set",
+      "to": "evidence-store",
+      "label": "binds custody"
+    }
+  ],
+  "views": [
+    {
+      "id": "overview",
+      "title": "One change, from intent to the accepted branch",
+      "question": "How does one change move from an official OpenSpec Change to a proven commit on the accepted branch?",
+      "members": [
+        "openspec-intent",
+        "work-lane",
+        "prewrite-admission",
+        "proof",
+        "landing",
+        "mutation-admission",
+        "git-effects",
+        "attestation-set"
+      ]
+    },
+    {
+      "id": "proof",
+      "title": "Proof of one exact HEAD",
+      "question": "How is the proof of one exact HEAD produced, judged and kept?",
+      "members": [
+        "cli",
+        "proof",
+        "gate-runner",
+        "gate-policy",
+        "quality-policy",
+        "native-evidence",
+        "evidence-store",
+        "attestation-set",
+        "native-tools"
+      ]
+    }
+  ]
+}

@@ -47,8 +47,7 @@ carries no live text.
 4. **The ETHOS `proof` view must compose before the faces change lands.** With
    narrower faces the view fails sparse admission: emptyShare 0.144 and holes
    0.462. The faces change is not merged until that view composes, whether as a
-   balanced, sparse or edition plate. A frozen copy of the current ETHOS model
-   in the test corpus guards it.
+   balanced, sparse or edition plate. A frozen copy of the published ETHOS overview and proof views in the test corpus guards it: today it prints the proof plane alone and sparse, and with the spike's house faces it is refused.
 5. **Model version 3.** `editors` is a non-empty list of names, each with an
    optional URL. `license` is an SPDX expression. `attribution` is not
    accepted. `archpub migrate` converts version 2 to version 3. It does not

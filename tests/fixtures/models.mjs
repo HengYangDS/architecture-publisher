@@ -17,6 +17,11 @@ export const CONTEXT_MODE_MODEL = path.join(MODELS, "context-mode.json");
  * its proof plane wires cleanly only on a page of its own.
  */
 export const ETHOS_MODEL = path.join(MODELS, "ethos.json");
+/**
+ * The overview and proof plane of the ETHOS work as Architecture Publications
+ * published it, without sources: the proof plane prints only alone, sparse.
+ */
+export const ETHOS_PROOF_PLANE_MODEL = path.join(MODELS, "ethos-proof-plane.json");
 /** This repository's former self model, now the architecture-publisher work of architecture-publications. */
 export const SELF_MODEL = path.join(MODELS, "architecture-publisher.json");
 

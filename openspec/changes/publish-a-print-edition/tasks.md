@@ -1,8 +1,8 @@
 ## 1. Guards and failing tests
 
-- [ ] 1.1 Replace the ETHOS copy in the test corpus with the published model and add a test that its `proof` view composes as a poster and as an edition plate; verify it passes with today's faces.
-- [ ] 1.2 Add failing tests for the house faces: Latin text measured in Source Sans 3, Han in Noto Sans CJK SC, and page and plate titles in Source Serif 4 Subhead; verify they fail because the engine sets Noto faces.
-- [ ] 1.3 Add failing tests for edition plates: every plate of the AIGW and filmkit-sized models fits 2256 by 1101 px, draws no page text and reports the legend of the kinds it shows; verify they fail because no edition-plate composer exists.
+- [x] 1.1 Add the published ETHOS overview and proof views to the test corpus and test that the proof plane prints alone beside the overview; verify it passes with today's faces and that the spike's house faces refuse it. `tests/poster-faces.test.mjs` passes on `de4aa6f1` in 34 s; the spike's house faces refuse with `poster_unbalanced` (emptyShare 0.141, holes 0.458).
+- [x] 1.2 Add failing tests for the house faces: Latin text measured in Source Sans 3, Han in Noto Sans CJK SC, page and plate titles in Source Serif 4 Subhead, and posters drawn in the house palette; verify they fail because the engine sets Noto faces and its own colours. The three tests in `tests/poster-faces.test.mjs` fail: a summary measures 165.84 px against Source Sans 3's 149.15 px, and a title 567.31 px against 504.91 px.
+- [x] 1.3 Add failing tests for edition plates: every AIGW plate fits 2256 by 1101 px without paper, its legend names the kinds it shows, and the ETHOS proof plane is a plate of its own; verify they fail because no edition-plate composer exists. The three tests in `tests/edition-plates.test.mjs` fail on `composePlates is not exported`.
 
 ## 2. House faces and palette
 
