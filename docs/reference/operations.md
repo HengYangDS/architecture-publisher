@@ -64,7 +64,9 @@ archpub --help | --version [--json]
   overview's composition and checks each diagram and the page with Archify, and writes no delivery; Archify's work files stay
   in a temporary directory that it removes. It lists the components and
   relations that no planned view draws, the components that claim no file and
-  the relations that cite none. With
+  the relations that cite none. For each plate it reports its figure's share
+  of the body, whether its reading is set beside it or left out, and the
+  balance gates it misses. With
   `--repo`, it reports the model's [coverage](model.md#coverage) of the
   repository at its revision, and with `--against <revision>` how far the
   repository has moved since and what [re-pinning](model.md#re-pinning) to that
@@ -175,6 +177,22 @@ spaces, and between Han and Kana characters, keeping closing punctuation on the
 line before. Each kind draws its Lucide icon. A plate is drawn as the SVG of its
 shapes and a list of text runs, which the edition sets as text.
 
+A plate's page is its figure and its view's reading. The figure takes the
+narrowest of 100, 80 and 65 percent of the body's width at which it wires with
+no more crossings and route defects than at the full width. A view with a
+summary gives up at least a fifth: its figure takes 80 percent, at the type
+step that width allows, or 65 percent when that keeps the same step; when 80
+percent would wire worse, the figure keeps the body and the manifest records
+its reading as left out. A view without a summary gives up only width its
+figure leaves at the full width, at its own step, and only when one of its
+components claims files. Beside the figure, 40 points from it, the plate sets
+the view's summary, justified when its column holds 24 ems and flush left
+otherwise, and then where each component it shows lives: its label and the
+paths it claims. A reading taller than the body is refused with
+`edition_reading_too_long`. Blank inside a figure, which the view's structure
+leaves, stays: `check` reports it, and reshaping the view is its author's
+choice.
+
 The print edition is typeset by Typst 0.15.1 with the house class into
 `<model id>.pdf`, pages of 1600 × 900 points:
 
@@ -183,7 +201,8 @@ The print edition is typeset by Typst 0.15.1 with the house class into
 - contents whose rows link to their pages and continue on a second page past
   sixteen, beside the edition's facts, its scope and limits and a reading note;
 - the overview, set in place from its composition when the model names one;
-- one plate per view, headed by its number, title and question, with a key of
+- one plate per view, headed by its number, title and question, its figure
+  beside the view's reading when it leaves part of the body, with a key of
   the kinds and statuses it shows.
 
 Every page after the title page shares one frame: a head at the margin, a body
@@ -345,8 +364,8 @@ repository, the build's quality and media, every cited file with its state,
 digest, owner and the relations that cite it, the digest of each bundled
 supply, each view with its tiers, members and plate number, the edition's file,
 page count, Typst version, house class digest, release, date and what dated it,
-each plate with its number, views, images, composition, measures and the gates
-it misses, the page's file, quality profile and gates, a guide's draft path and digest, each file it names,
+each plate with its number, views, share of the body, reading, images,
+composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft path and digest, each file it names,
 its writing level and whether its sources were verified, each
 view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
@@ -397,6 +416,7 @@ or Archify reported.
 | `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                       |
 | `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                   |
 | `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, or a plate's title longer than its line.                   |
+| `edition_reading_too_long`                                                              | A view's summary and paths need more than the body's height beside its figure.                                          |
 | `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                       |
 | `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                              |
 | `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                               |

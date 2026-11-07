@@ -81,7 +81,8 @@ contents that link to every page beside the edition's facts, scope, limits and
 a reading note, then the overview and one plate per view. A plate shows the
 view's title and question, its figure with each component's icon and details
 and each relation's label and details, and a key of the kinds, boundary and
-statuses it shows; its text is text, and each card title links to its
+statuses it shows. A figure that leaves part of the page gives it to the view's
+reading: its summary and where each of its components lives. Its text is text, and each card title links to its
 component's first file when the model names a browsable repository. The edition
 conforms to PDF/A-3a and PDF/UA-1 and carries the model it was built from. It
 prints the model digest and the number of files read among its facts, but no

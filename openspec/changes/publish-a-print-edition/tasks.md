@@ -36,7 +36,7 @@
 ## 7. Documentation
 
 - [x] 7.1 Update the README, the product contract, the references and the changelog for the print edition, the plates, model version 3, the media and the file names; verify Prettier and markdownlint pass. The README, CONTRIBUTING, the product contract, the model, operations, configuration and development references and the changelog's Unreleased notes describe the edition, its plates, images and refusals, model version 3 and its migration, and no longer the posters, resvg, Rust or Pixi; their two example models validate as version 3. Prettier, markdownlint and OpenSpec validation pass. The repository declares no Vale configuration, so Vale is not a gate here.
-- [ ] 7.2 Describe the plate's width and reading and the check's plate report in the README, the operations and model references and the changelog; verify Prettier and markdownlint pass.
+- [x] 7.2 Describe the plate's width and reading and the check's plate report in the README, the operations and model references and the changelog; verify Prettier and markdownlint pass. The operations reference states the width rule, the reading, `edition_reading_too_long`, the check's plate lines and the manifest's share and reading; the model reference says a view's summary is its reading; the README, the product contract and the changelog follow. Prettier, markdownlint and OpenSpec validation pass.
 
 ## 8. Verification
 

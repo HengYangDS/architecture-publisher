@@ -28,7 +28,11 @@ remain pre-release contracts and may contain incompatible changes.
   edition's image widths, and the manifest is version 6, recording the edition, its plates and the date that dated it:
   the revision's commit, `SOURCE_DATE_EPOCH` or the time of typesetting.
 - Each view is composed alone as a plate for the edition's body and admitted when some composition lays it out; a view
-  none does is refused with `plate_unfittable`. A plate records the balance gates it misses rather than being refused,
+  none does is refused with `plate_unfittable`. A plate's page is its figure and its view's reading: a figure gives
+  up width where it keeps its wiring and its view has a summary, or files to list, and the plate sets the summary and
+  where each component lives beside it, justified or flush left by its column; a reading too tall for the body is
+  refused with `edition_reading_too_long`. `archpub check` reports each plate's share of the body, its reading and the
+  gates it misses. A planned view carries only its own summary; the model's is the title page's. A plate records the balance gates it misses rather than being refused,
   and the reviewer weighs them at acceptance.
 - Figure text is measured in the house faces, Source Sans 3 and its semibold, with Noto Sans CJK SC for Han, and
   figures are drawn in the house palette, read with the class from one token file, `src/house.json`. opentype.js has a

@@ -341,7 +341,11 @@ component id. Groups shape the media in two places:
 
 A view is drawn as one plate of the print edition, a page of its own, and as
 one panel of the page, with its own diagram. It has an `id`, an optional `title`,
-`question` and `summary`, and exactly one of:
+`question` and `summary`, and exactly one of the two forms below. A view's
+`summary` is its reading: the plate sets it beside the figure, which gives up
+a fifth of the body for it, with where each of the view's components lives. A
+view without one carries no summary of its own; the model's summary is the
+title page's.
 
 - `tiers`: an ordered list of group ids or inline `{ id, label, members }`
   bands, drawn as labelled rows in that order. A component appears in at most

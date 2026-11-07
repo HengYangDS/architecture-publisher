@@ -68,7 +68,8 @@ converts a version 1 or 2 model once its editors are declared.
   licence; contents that link to every page beside the edition's facts, scope
   and limits; the overview its author composes, when the model names one; and
   one plate per view, its figure with each component's icon and details and a
-  key of what it shows. Its text is text, each card title links to the file it
+  key of what it shows, beside the view's summary and where each component
+  lives when the figure leaves part of the page. Its text is text, each card title links to the file it
   was read from when the model names a browsable repository, and the PDF
   conforms to PDF/A-3a and PDF/UA-1 with the model attached.
 - **Images:** in `images/`, the overview's page as `00-overview.png` and each
