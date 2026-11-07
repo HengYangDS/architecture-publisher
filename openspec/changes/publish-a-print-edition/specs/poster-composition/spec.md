@@ -124,7 +124,7 @@
 
 **Reason**: A page holds one plate.
 
-**Migration**: See Three figure type steps.
+**Migration**: None.
 
 ### Requirement: Plate order
 
@@ -173,12 +173,6 @@
 **Reason**: Only a view that cannot be laid out is refused.
 
 **Migration**: See Unfittable views refused.
-
-### Requirement: Figure type steps
-
-**Reason**: Steps that set card text larger than the page's own are dropped.
-
-**Migration**: See Three figure type steps.
 
 ### Requirement: Portable deterministic output
 
@@ -294,18 +288,6 @@ then the least area in holes and in the largest blank rectangle.
 - **WHEN** a view crosses no wires at the smallest step and crosses one at a
   larger step
 - **THEN** its plate is set at the smallest step
-
-### Requirement: Three figure type steps
-
-The figure SHALL be set in one of three steps of card label, detail and
-relation-label sizes: 18/14/14, 20/16/16 and 24/18/18 px. A step SHALL scale the
-cards' padding, icons, gaps and wires with its text, so that a card label stays
-smaller than the edition's heads and a detail no larger than its text.
-
-#### Scenario: A sparse view keeps the page's hierarchy
-
-- **WHEN** a view of three cards fits its plate at every step
-- **THEN** it is set at 24/18/18 px and no larger
 
 ### Requirement: Recorded plates
 

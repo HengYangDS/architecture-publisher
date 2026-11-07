@@ -99,17 +99,18 @@ reading the model.
 ### Requirement: Print edition
 
 The print edition SHALL be typeset by the bundled Typst with the house class: a
-title page; contents whose entries link to their pages; the overview, when the
-model names a composition; one plate per view; and a colophon with the subject,
-repository, revision, files read, model digest, editors, licence, publisher,
-typesetter and standards. The scope, limits and summary SHALL be set once, on
-the contents and the colophon.
+title page of the work's name, question and summary over a byline of its
+release, editors, licence and publisher; contents whose entries link to their
+pages, beside the edition's facts, scope, limits and a reading note; the
+overview, when the model names a composition; and one plate per view. The facts
+SHALL name the subject, repository, revision, files read, model digest,
+editors, licence, typesetter and standards.
 
 #### Scenario: The contents link to the plates
 
 - **WHEN** a model with a composition and six views is built
-- **THEN** its PDF holds ten pages
-- **AND** each of the eight contents entries links to its page
+- **THEN** its PDF holds nine pages
+- **AND** each of the seven contents entries links to its page
 
 ### Requirement: Edition page frame
 
@@ -138,17 +139,29 @@ shows, and no others.
 
 ### Requirement: Contents rows
 
-Contents rows SHALL share the body equally at no more than 90 points each; rows
-that would fall below 44 points SHALL continue on a second contents page.
+Contents rows SHALL share the body equally; rows that would fall below 44
+points SHALL continue on a second contents page.
 
 #### Scenario: An edition of eleven views
 
 - **WHEN** a model with a composition and eleven views is built
-- **THEN** its thirteen contents rows fit one page at 56 points each
+- **THEN** its twelve contents rows fill one page at 59.5 points each
+
+### Requirement: Columns fill their pages
+
+On the title and contents pages, each column's blocks SHALL be spaced equally
+over the band the column occupies, so that no column leaves its paper in one
+block.
+
+#### Scenario: The contents' left column
+
+- **WHEN** the contents page is set
+- **THEN** its left column starts at the top of the body and its last block
+  ends at the body's foot
 
 ### Requirement: Edition typography
 
-Prose, the summary, scope, limits, reading note and colophon, SHALL be justified
+Prose, the summary, scope, limits and reading note, SHALL be justified
 on optimized lines, hyphenated in the model's language, with word spaces from 80
 to 125 percent and tracking from −0.012 to +0.025 em, at most 32 em to a line.
 Titles, questions, labels and figure text SHALL NOT be justified.

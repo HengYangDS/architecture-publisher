@@ -28,14 +28,12 @@ Prototypes measured this design before this Change:
 ## What Changes
 
 - **BREAKING** A build delivers the print edition, `<model id>.pdf`, in place of
-  posters: a title page, linked contents, the overview, one plate per view and
-  a colophon, typeset by the bundled Typst. Each page after the title page has
+  posters: a title page, linked contents with the edition's facts, the overview and one plate per view, typeset by the bundled Typst. Each page after the title page has
   one head, one key line and one foot.
 - **BREAKING** The engine composes each view alone for the edition's body
   field, chosen by the fewest wiring faults and then the largest type. It no
   longer groups views, picks page archetypes or sets heads, legends and notes.
-  Balance is measured and recorded, not refused. Figure type uses three steps,
-  so card text never outranks the page's own.
+  Balance is measured and recorded, not refused, and each figure takes the largest type it fits, so plates fill their pages.
 - Figure text is live. The engine supplies shapes and positioned text runs, and
   Typst sets the runs in the house faces. When the model declares how to browse
   its repository, each card title links to the first file the component cites
@@ -65,8 +63,7 @@ None.
 
 - `architecture-model`: editors, licence and a browse template, in model
   version 3.
-- `poster-composition`: one view per plate, composed for the edition's body; three
-  type steps; live text; balance recorded. The capability keeps its id.
+- `poster-composition`: one view per plate, composed for the edition's body; live text; balance recorded. The capability keeps its id.
 - `edition-delivery`: the print edition, its typography and composition, media,
   file names and manifest version 6.
 - `overview-page`: the overview in the print edition and its image named

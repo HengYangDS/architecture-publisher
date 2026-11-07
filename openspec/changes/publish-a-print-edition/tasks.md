@@ -2,7 +2,7 @@
 
 - [x] 1.1 Add the published ETHOS overview and proof views to the test corpus and test that the proof plane prints alone beside the overview; verify it passes with today's faces and that the spike's house faces refuse it. `tests/poster-faces.test.mjs` passes on `de4aa6f1` in 34 s; the spike's house faces refuse with `poster_unbalanced` (emptyShare 0.141, holes 0.458).
 - [x] 1.2 Add failing tests for the house faces: figure text measured in Source Sans 3, its semibold for heavy text, and Han in Noto Sans CJK SC, and plates drawn in the house palette; verify they fail because the engine sets Noto faces and has no plates. Both tests in `tests/poster-faces.test.mjs` fail: a detail measures 746.28 px against Source Sans 3's 671.18 px, and `composePlates` is not exported.
-- [x] 1.3 Add failing tests for plates: every AIGW plate fits 2256 by 1071 px at a step of at most two, with no paper and no text in its shapes, its key names the kinds it shows, and the ETHOS proof plane is a plate of its own; verify they fail because no plate composer exists. The three tests in `tests/edition-plates.test.mjs` fail on `composePlates is not exported`.
+- [x] 1.3 Add failing tests for plates: every AIGW plate fits 2256 by 1071 px, with no paper and no text in its shapes, its key names the kinds it shows, and the ETHOS proof plane is a plate of its own; verify they fail because no plate composer exists. The three tests in `tests/edition-plates.test.mjs` fail on `composePlates is not exported`.
 
 ## 2. House tokens and faces
 
@@ -11,7 +11,7 @@
 
 ## 3. Plates
 
-- [ ] 3.1 Compose each view alone for the body field in the plate composition order at three type steps, record each plate's measures and missed gates, and refuse `plate_unfittable`; verify tests 1.3 pass and every corpus model composes.
+- [ ] 3.1 Compose each view alone for the body field in the plate composition order across the five type steps, record each plate's measures and missed gates, and refuse `plate_unfittable`; verify tests 1.3 pass and every corpus model composes.
 - [ ] 3.2 Draw each plate as an SVG of its shapes and a list of text runs, each title run naming its component; verify test 1.2's palette test passes and no plate SVG holds text.
 - [ ] 3.3 Remove the page archetypes, grouping, heads, legends, notes, balance refusals and drafts; verify `npm test` passes and `npm run check:dead-code` reports nothing.
 
@@ -22,7 +22,7 @@
 
 ## 5. Print edition
 
-- [ ] 5.1 Add the edition to the house class: title page, contents rows, the overview in place, plate heads, keys, live runs and links, the colophon, the page frame and the prose settings; verify by a class test that compiles a fixture edition, follows its links, extracts its card labels and fits eleven views' contents on one page.
+- [ ] 5.1 Add the edition to the house class: title page, contents rows, the overview in place, plate heads, keys, live runs and links, the edition's facts beside the contents, the page frame, the prose settings and columns that fill their pages; verify by a class test that compiles a fixture edition, follows its links, extracts its card labels and fits eleven views' contents on one page.
 - [ ] 5.2 Deliver `<model id>.pdf` with PDF/A-3a and PDF/UA-1, the model attached, the commit's date, `edition_text_wider` and `edition_title_too_long`; verify by delivery tests for page count, author, attachment bytes, refusals and two byte-identical builds.
 - [ ] 5.3 Render `00-overview.png` and `NN-<view>.png` with Typst at each width and retire resvg, its Rust toolchain, the raster journey and their CI steps; verify by delivery tests and `npm run check:ci`.
 

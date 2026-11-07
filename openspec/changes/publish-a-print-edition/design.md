@@ -36,11 +36,11 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
    - Balance is measured and recorded. It no longer refuses or drafts a page, because its thresholds
      were calibrated for pages with text around the figure. A view that no wrapping fits at the smallest
      step is refused.
-3. **Three type steps.** These are 18/14/14, 20/16/16 and 24/18/18 px for card names, details and
-   relation labels, or card names of 12 to 16 points and details of 9.3 to 12. A card name then stays smaller than the page's
-   18-point heads, and a detail no larger than its 12.5-point text.
-   - Steps four and five set 18 of 41 views' text larger than the page's own, an inverted hierarchy.
-   - Capping filmkit at step two kept both affected figures at 96 percent of the body's width.
+3. **Figures fill their plates.** Each plate takes the largest of the five type steps it fits after the
+   fewest wiring faults, so the figure fills the body, as the owner asked on 7 November:
+   「尽量利用好排版空间，别留大块空白」. A card label stays smaller than the plate's 34-point title. At
+   the larger steps a detail is larger than the page's 12.5-point text, a deliberate trade. A cap at the
+   third step was measured and dropped, because it left more paper around sparse figures.
 4. **Live figure text.** The engine returns each plate's shapes as one SVG without text and its text
    as runs: text, position, size, weight, colour and the width it measured. The house class sets each
    run in the house faces at that position.
@@ -54,14 +54,25 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
 6. **Typography.**
    - Prose is justified on optimized lines, hyphenated in the model's language. Word spaces are held to
      80–125 percent and letters tracked by −0.012 to +0.025 em. Prose here means the summary, scope,
-     limits, the reading note and the colophon.
+     limits and the reading note.
    - A prose line holds at most 32 em, about 75 characters. Today's notes measure 116.
    - Figure text keeps the engine's lines, ragged, so card heights hold. Measured on filmkit's cards,
      justifying them opened word spaces to 1.6 times their natural width, and their rag averaged under
      8 percent.
    - Titles, questions and labels are never justified. Han text is justified, the convention for
      Chinese print.
-7. **Composition.**
+7. **Composition.** Every page uses its space; no column leaves its paper in one block. Measured as the
+   largest blank rectangle in the live area, filmkit's pages are: the overview 4 percent, the contents
+   10 percent, the plates 8–19 percent (the blank inside the figures) and the title page 32 percent, in
+   two strips above and below its centred columns.
+   - The title page gives the work's name at 120 points and its question on the left, its summary as a
+     standfirst on the right, both centred in their band, and a byline across the foot.
+   - The contents page sets the edition's facts, the scope, what the edition leaves out and a reading
+     note in its left column, spaced over the whole body, and the rows in its right column, sharing
+     the body equally. A work of eleven views needs twelve rows of 59.5 points; rows below 44 points
+     continue on a second page.
+   - A separate colophon was dropped: it left 29 percent of its page blank, and its facts fit the
+     contents page.
    - Every page after the title page has the overview's head: a label at the margin, a display title at
      124 points and a lead line at baseline 84.
    - A plate's key, its kinds, boundary and statuses, is one line at baseline 848, above the foot.
@@ -69,9 +80,6 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
      not.
    - The foot is a rule at 866 points, the work's title, release, revision and date linked to the
      contents, and the folio.
-   - Contents rows share the body at no more than 90 points each, so a work of 11 views fits at 56. Rows
-     that would fall below 44 points continue on a second page.
-   - The title page is paper and type, with one green rule.
 8. **One token source; one fewer toolchain.** The palette, faces and sizes live in the house supply,
    read by the class with `toml()` and by the engine. Text is measured with the house faces and Noto
    Sans CJK SC; Noto Sans leaves the font supply. resvg, its Rust build, the raster journey and the
@@ -95,7 +103,7 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
 ## Risks / Trade-offs
 
 - [Without balance gates, a sparse view leaves paper beside its figure] → Each plate records its
-  measures. The three-step cap keeps type consistent. The owner reviews every edition's pages before
+  measures. The owner reviews every edition's pages before
   the publications rebuild lands.
 - [Typst becomes required for print] → It is already pinned and shipped in the self-contained command;
   the page alone still builds without it.

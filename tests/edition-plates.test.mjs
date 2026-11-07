@@ -34,7 +34,6 @@ test("each edition plate draws its figures alone, within the edition's body", as
     assert.doesNotMatch(plate.svg, /<rect width="\d+" height="\d+" fill=/u);
     assert.doesNotMatch(plate.svg, /<text|<path fill="#[0-9A-Fa-f]{6}" d="M[^"]*Z/u);
     assert.ok(plate.runs.length > 0);
-    assert.ok(plate.step <= 2, `plate ${plate.page} is set at step ${plate.step}`);
   }
 });
 
