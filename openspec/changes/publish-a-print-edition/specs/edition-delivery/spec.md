@@ -3,7 +3,9 @@
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: the print edition `<model id>.pdf`; the interactive page `<model id>.html`; in `images/`, at each `--png` width, one image of the overview's page and of each plate's page, named `00-overview.png` and `NN-<view>.png` at 2400 px and `00-overview-<width>.png` and `NN-<view>-<width>.png` at any other, where `NN` is the plate's two-digit number from 01 in reading order; and `manifest.json`. Nothing else SHALL be written at the top of the delivery. It SHALL stage the
+exist: the print edition `<model id>.pdf`, the interactive page
+`<model id>.html`, the edition's images in `images/` and `manifest.json`.
+Nothing else SHALL be written at the top of the delivery. It SHALL stage the
 delivery and move it into place only after every artifact succeeds, so a refused
 or failed build leaves no output.
 
@@ -68,6 +70,20 @@ artifact's path, size and digest.
 **Migration**: See Media.
 
 ## ADDED Requirements
+
+### Requirement: Edition image names
+
+At each `--png` width, `images/` SHALL hold one image of the overview's page
+and one of each plate's page, named `00-overview.png` and `NN-<view>.png` at
+2400 px and `00-overview-<width>.png` and `NN-<view>-<width>.png` at any other,
+where `NN` is the plate's two-digit number from 01 in reading order.
+
+#### Scenario: Images at two widths
+
+- **WHEN** a model `route` with a composition and one view `route` is built
+  with `--png 2400,6000`
+- **THEN** `images/` holds `00-overview.png`, `00-overview-6000.png`,
+  `01-route.png` and `01-route-6000.png`
 
 ### Requirement: Media
 
