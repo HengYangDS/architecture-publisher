@@ -87,12 +87,16 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
    - `archpub migrate` converts version 2 and refuses with `attribution_not_migrated` until editors are
      declared, rather than guessing them from prose.
    - `repository.browse` is optional.
-10. **Names and media.**
-    - `--media` takes `edition`, the PDF with its PNGs, and `page`.
-    - The overview's and plates' pages are delivered as `00-overview.png` and `NN-<view>.png` at each
-      `--png` width. A PNG is its PDF page, foot included.
-    - Manifest version 6 records the edition, its pages and plates, and the house and measuring
-      supplies.
+10. **Names, structure and media.** A delivery is named for its work, by the owner's choice of 7 November:
+    - `<model id>.pdf`, the print edition, and `<model id>.html`, the interactive page, at the top: one stem, the
+      medium in the extension. `index.html` is retired; a web link names the file.
+    - `images/` holds the overview's and plates' pages as `00-overview.png` and `NN-<view>.png` at each `--png`
+      width, numbered as the plates are. A PNG is its PDF page, foot included.
+    - `manifest.json`, the machine record, keeps its conventional name. Nothing else is written at the top.
+    - A tarball was declined: a Forge cannot preview it, Git cannot compare it, and readers must unpack it.
+    - Two languages, in 0.11.0, add the locale before the extension and an `images/<locale>/` folder.
+    - `--media` takes `edition`, the PDF with its images, and `page`. Manifest version 6 records the edition, its
+      pages and plates, and the house and measuring supplies.
 11. **Standards.** Typst compiles with `--pdf-standard a-3a,ua-1`, with system fonts ignored and the
     revision's commit time as the creation date. Title, authors, subject, keywords and language come
     from the model, and the model is attached with the relationship `source`.

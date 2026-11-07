@@ -3,20 +3,15 @@
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: the print edition `<model id>.pdf` and, at each `--png` width, one image
-of the overview's page and of each plate's page, named `00-overview.png` and
-`NN-<view>.png` at 2400 px and `00-overview-<width>.png` and
-`NN-<view>-<width>.png` at any other, where `NN` is the plate's two-digit number
-from 01 in reading order; `index.html`; and `manifest.json`. It SHALL stage the
+exist: the print edition `<model id>.pdf`; the interactive page `<model id>.html`; in `images/`, at each `--png` width, one image of the overview's page and of each plate's page, named `00-overview.png` and `NN-<view>.png` at 2400 px and `00-overview-<width>.png` and `NN-<view>-<width>.png` at any other, where `NN` is the plate's two-digit number from 01 in reading order; and `manifest.json`. Nothing else SHALL be written at the top of the delivery. It SHALL stage the
 delivery and move it into place only after every artifact succeeds, so a refused
 or failed build leaves no output.
 
 #### Scenario: Semantic names
 
-- **WHEN** a model with a composition whose first view is `route` is built with
+- **WHEN** a model `route` with a composition whose first view is `route` is built with
   `--png 2400,6000`
-- **THEN** the delivery holds `00-overview.png`, `01-route.png` and
-  `01-route-6000.png`, and no SVG
+- **THEN** the delivery holds `route.pdf` beside `images/00-overview.png`, `images/01-route.png` and `images/01-route-6000.png`, and no SVG
 
 #### Scenario: An existing output directory
 
@@ -87,8 +82,7 @@ reading the model.
 #### Scenario: The edition alone
 
 - **WHEN** a model is built with `--media edition`
-- **THEN** the delivery holds the print edition and its images and no
-  `index.html`
+- **THEN** the delivery holds the print edition and its images and no `<model id>.html`
 - **AND** its manifest records no page and no Archify supply
 
 #### Scenario: An unknown medium

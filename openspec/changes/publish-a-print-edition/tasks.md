@@ -23,11 +23,11 @@
 
 - [ ] 5.1 Add the edition to the house class: title page, contents rows, the overview in place, plate heads, keys, live runs and links, the edition's facts beside the contents, the page frame, the prose settings and columns that fill their pages; verify by a class test that compiles a fixture edition, follows its links, extracts its card labels and fits eleven views' contents on one page.
 - [ ] 5.2 Deliver `<model id>.pdf` with PDF/A-3a and PDF/UA-1, the model attached, the commit's date, `edition_text_wider` and `edition_title_too_long`; verify by delivery tests for page count, author, attachment bytes, refusals and two byte-identical builds.
-- [ ] 5.3 Render `00-overview.png` and `NN-<view>.png` with Typst at each width and retire resvg, its Rust toolchain, the raster journey and their CI steps; verify by delivery tests and `npm run check:ci`.
+- [ ] 5.3 Render `images/00-overview.png` and `images/NN-<view>.png` with Typst at each width and retire resvg, its Rust toolchain, the raster journey and their CI steps; verify by delivery tests and `npm run check:ci`.
 
 ## 6. Delivery
 
-- [ ] 6.1 Take `--media edition,page`, `--png` for the edition's images and `--quality` for the page, and record manifest version 6; verify by delivery and command tests.
+- [ ] 6.1 Take `--media edition,page`, `--png` for the edition's images and `--quality` for the page, deliver the page as `<model id>.html`, and record manifest version 6; verify by delivery and command tests.
 - [ ] 6.2 Remove the poster pipeline the edition replaces: page archetypes, grouping, heads, legends, notes, balance refusals, drafts and posters; verify `npm test` passes and `npm run check:dead-code` reports nothing.
 
 ## 7. Documentation

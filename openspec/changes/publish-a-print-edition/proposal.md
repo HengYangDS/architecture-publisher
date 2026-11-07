@@ -42,9 +42,7 @@ Prototypes measured this design before this Change:
   token source feeds the class and the engine. The raster renderer, its Rust
   toolchain and Noto Sans leave the product, and the text-measuring library
   gets a supply of its own.
-- **BREAKING** Static files are named for what they show: `00-overview.png` and
-  `NN-<view>.png`, rendered by Typst from the edition's pages. SVG files are
-  not delivered. `--media` takes `edition` and `page`, and the manifest moves
+- **BREAKING** A delivery is named for its work: `<model id>.pdf` and `<model id>.html`, which replaces `index.html`, with the images in `images/`, named for what they show, `00-overview.png` and `NN-<view>.png`, rendered by Typst from the edition's pages. SVG files are not delivered. `--media` takes `edition` and `page`, and the manifest moves
   to version 6.
 - **BREAKING** The model moves to version 3. `editors` and `license` replace
   `attribution`, `repository.browse` is optional, and `archpub migrate`
