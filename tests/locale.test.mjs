@@ -42,7 +42,8 @@ test("every language sets every word the publisher writes", () => {
     assert.deepEqual(Object.keys(words).sort(), Object.keys(english).sort(), locale);
     for (const [key, value] of Object.entries(words)) {
       assert.equal(typeof value, typeof english[/** @type {keyof typeof english} */ (key)], key);
-      if (typeof value === "function") assert.match(value("A", 2), /A/u, `${locale} ${key}`);
+      if (typeof value === "function")
+        assert.match(value(key === "editors" ? ["A"] : "A", 2), /A/u, `${locale} ${key}`);
     }
   }
   // An unknown or absent language reads as English.
@@ -94,14 +95,14 @@ test("a Chinese model's poster notes, legend words and generated details are Chi
       locale: "zh-CN",
       scope: "只含结账",
       limits: ["不含退款", "不含库存"],
-      attribution: "商店团队",
+      editors: [{ name: "商店团队" }],
       repository: { name: "shop", revision: "0123456789ab".padEnd(40, "0") },
     }),
   );
   assert.deepEqual(notesOf(model), [
     { label: "范围", text: "只含结账。" },
     { label: "局限", text: "不含退款。不含库存。" },
-    { label: "来源", text: "源码 shop，修订 0123456789ab；建模：商店团队。" },
+    { label: "来源", text: "源码 shop，修订 0123456789ab；编辑：商店团队。" },
   ]);
   assert.equal(presentation(model, { kind: null }).label, "组件");
   assert.equal(presentation(model, { kind: null, group: true }).label, "分组");

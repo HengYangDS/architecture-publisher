@@ -28,7 +28,7 @@ const shopInput = () =>
     summary: "Orders flow from the web to the store.",
     scope: "Checkout only",
     limits: ["Payments are out of scope.", "不含退款"],
-    attribution: "the shop team",
+    editors: [{ name: "the shop team" }],
     repository: {
       name: "shop",
       url: "https://example.invalid/shop.git",
@@ -99,7 +99,7 @@ test("the page draft answers the model's question view by view and cites files a
       "- [What does the web do?](block:view-web)",
       "- [Where do orders go?](block:view-store)",
       "",
-      '@answer scope="Checkout only. Payments are out of scope. 不含退款。 Model by the shop team."',
+      '@answer scope="Checkout only. Payments are out of scope. 不含退款。 Edited by the shop team."',
       `@meta locale=en repo_url="https://example.invalid/shop.git" repo_revision=${"a".repeat(40)}`,
       // A file is listed under the component that owns it, numbered as the page cites it.
       '@source source-1 title="Web | front *end*" path="src/main.go"',

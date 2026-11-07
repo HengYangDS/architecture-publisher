@@ -1,6 +1,6 @@
 {
   "format": "architecture-publisher.model",
-  "version": 2,
+  "version": 3,
   "id": "ethos",
   "title": "ETHOS",
   "question": "How does ETHOS turn official intent and fresh facts into proven repository change, and what does it hold every repository to?",
@@ -10,7 +10,11 @@
     "Each component cites every file the rules attribute to it; a relation cites the modules that import the other component.",
     "Relations are imports and process calls in the source, not runtime order or design intent."
   ],
-  "attribution": "Architecture Publications, read from the ETHOS source",
+  "editors": [
+    {
+      "name": "Architecture Publications"
+    }
+  ],
   "kinds": {
     "surface": {
       "label": "surface",

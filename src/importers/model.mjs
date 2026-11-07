@@ -1,8 +1,10 @@
 import { MODEL_FORMAT, MODEL_VERSION, readModel, validateModel } from "../model/load.mjs";
 import { refuse } from "../refusal.mjs";
 
-/** The model version this importer reads: the one whose components cite a source catalog. */
+/** The model version whose components cite a source catalog. */
 const CATALOG_VERSION = 1;
+/** The model version that names its editors in a free-text attribution. */
+const ATTRIBUTION_VERSION = 2;
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -22,20 +24,43 @@ function replaced(object, key, entry) {
 }
 
 /**
- * Read a model whose components and relations cite a source catalog and write it as the current
- * version: each component claims the files its sources name, in their order, and each relation
- * cites its sources' files. A file several components cite stays with the first of them; the
- * result names it with the components that no longer cite it. Every other field is kept where it
- * was, and the written model is validated.
+ * Read a model of an earlier version and write it as the current one. A version 1 model's
+ * components and relations cite a source catalog: each component then claims the files its
+ * sources name, in their order, and each relation cites its sources' files; a file several
+ * components cite stays with the first of them, and the result names it with the components that
+ * no longer cite it. A version 1 or 2 model's attribution is replaced by the editors its author
+ * declares beside it: the attribution is free text, so it is never parsed into names, and a model
+ * that has one and declares no editors is refused. Every other field is kept where it was, and the
+ * written model is validated.
  * @param {string} file
  */
 export async function migrateModel(file) {
   const { parsed: model } = await readModel(file);
-  if (!isRecord(model) || model.format !== MODEL_FORMAT || model.version !== CATALOG_VERSION)
+  if (
+    !isRecord(model) ||
+    model.format !== MODEL_FORMAT ||
+    ![CATALOG_VERSION, ATTRIBUTION_VERSION].includes(model.version)
+  )
     refuse(
       "migrate_version_unsupported",
-      `Only a version ${CATALOG_VERSION} ${MODEL_FORMAT} is migrated; this model is not one.`,
+      `Only a version ${CATALOG_VERSION} or ${ATTRIBUTION_VERSION} ${MODEL_FORMAT} is migrated; this model is not one.`,
     );
+  if (typeof model.attribution === "string" && model.editors === undefined)
+    refuse(
+      "attribution_not_migrated",
+      `The model's attribution, "${model.attribution}", names no editors. Declare \`editors\` beside it, ` +
+        "each with a name, move any provenance it states into the summary or limits, and migrate again.",
+      [{ code: "attribution_not_migrated", path: "/attribution", message: model.attribution }],
+    );
+  if (model.version === ATTRIBUTION_VERSION) {
+    const migrated = replaced(
+      replaced(model, "version", ["version", MODEL_VERSION]),
+      "attribution",
+      null,
+    );
+    validateModel(migrated);
+    return { model: migrated, moved: [] };
+  }
   const catalog = isRecord(model.sources) ? model.sources : {};
   const problems = [];
   const pathsOf = (entry, where) =>
@@ -86,6 +111,7 @@ export async function migrateModel(file) {
       problems,
     );
   let migrated = replaced(model, "version", ["version", MODEL_VERSION]);
+  migrated = replaced(migrated, "attribution", null);
   migrated = replaced(migrated, "sources", null);
   migrated = replaced(migrated, "components", ["components", components]);
   migrated = replaced(migrated, "relations", ["relations", relations]);

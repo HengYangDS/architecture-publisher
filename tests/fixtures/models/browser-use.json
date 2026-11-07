@@ -1,6 +1,6 @@
 {
   "format": "architecture-publisher.model",
-  "version": 2,
+  "version": 3,
   "id": "browser-use",
   "title": "browser-use",
   "question": "How does each Agent step turn a task and the live page into Chrome DevTools Protocol commands?",
@@ -10,7 +10,11 @@
     "Getting a browser is folded into Chrome over CDP: the local launch, Browser Use Cloud, reconnects and eight other watchdogs are left out, as are the file system, skills, the judge, telemetry, the MCP server and the CLI.",
     "Relations are calls, dispatches and handler registrations in the source, not runtime order; whether the security watchdog stops a navigation before it starts depends on the bubus event bus."
   ],
-  "attribution": "the Architecture Publisher maintainers, read from the browser-use source",
+  "editors": [
+    {
+      "name": "The Architecture Publisher maintainers"
+    }
+  ],
   "repository": {
     "name": "browser-use",
     "url": "https://github.com/browser-use/browser-use.git",

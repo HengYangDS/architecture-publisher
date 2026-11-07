@@ -137,7 +137,11 @@ export function explainerDraft(
   });
   const scope = sentences(
     words,
-    [model.scope, ...model.limits, model.attribution ? words.attribution(model.attribution) : null]
+    [
+      model.scope,
+      ...model.limits,
+      model.editors.length ? words.editors(model.editors.map(({ name }) => name)) : null,
+    ]
       .filter(Boolean)
       .map(String),
   );

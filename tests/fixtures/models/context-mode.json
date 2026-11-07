@@ -1,6 +1,6 @@
 {
   "format": "architecture-publisher.model",
-  "version": 2,
+  "version": 3,
   "id": "context-mode",
   "title": "context-mode",
   "question": "How does context-mode keep bulky tool output out of an agent's context window while keeping it retrievable?",
@@ -10,7 +10,11 @@
     "Draws the Claude Code path of the 18 supported hosts; per-platform hooks, in-process adapters, the CLI, statistics and the web site are left out.",
     "Relations are calls and imports in the source, not runtime order; security internals and file handoffs between hooks and the server are not drawn."
   ],
-  "attribution": "the Architecture Publisher maintainers, read from the context-mode source",
+  "editors": [
+    {
+      "name": "The Architecture Publisher maintainers"
+    }
+  ],
   "repository": {
     "name": "context-mode",
     "url": "https://github.com/mksglu/context-mode.git",

@@ -206,7 +206,7 @@ test("statuses and the boundary appear in the drawing, and the source note names
   // Whether each source was verified, and by which digest, is the manifest's
   // evidence: the page names the repository and revision a reader can open.
   const source = notesOf(model).find(({ label }) => label === "Source");
-  assert.match(source?.text ?? "", /^Source fixture at 0123456789ab; Model by /u);
+  assert.match(source?.text ?? "", /^Source fixture at 0123456789ab; Edited by /u);
   assert.ok(notesOf(model).every(({ text }) => !/verif|SHA-256|digest/iu.test(text)));
 });
 

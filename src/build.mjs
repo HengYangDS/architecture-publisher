@@ -89,8 +89,8 @@ async function publisherVersion() {
 function drawnTexts(model) {
   const texts = [];
   const add = (where, value) => value && texts.push({ path: where, text: value });
-  for (const key of ["title", "question", "summary", "scope", "attribution"])
-    add(`/${key}`, model[key]);
+  for (const key of ["title", "question", "summary", "scope"]) add(`/${key}`, model[key]);
+  model.editors.forEach((editor, index) => add(`/editors/${index}/name`, editor.name));
   model.limits.forEach((limit, index) => add(`/limits/${index}`, limit));
   if (model.repository) add("/repository/name", model.repository.name);
   model.kinds.forEach((kind) => add(`/kinds/${kind.id}/label`, kind.label));

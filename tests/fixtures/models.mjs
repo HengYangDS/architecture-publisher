@@ -29,7 +29,7 @@ export const SELF_MODEL = path.join(MODELS, "architecture-publisher.json");
 export function minimalModel(extra = {}) {
   return {
     format: "architecture-publisher.model",
-    version: 2,
+    version: 3,
     id: "minimal",
     title: "Minimal",
     question: "What is minimal?",

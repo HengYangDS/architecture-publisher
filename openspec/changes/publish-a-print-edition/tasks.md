@@ -16,8 +16,8 @@
 
 ## 4. Model version 3
 
-- [ ] 4.1 Accept `editors`, `license` and `repository.browse`, and refuse `attribution` and a template without both placeholders; verify by model-input tests for each refusal.
-- [ ] 4.2 Migrate version 2 models, refusing `attribution_not_migrated` until editors are declared; verify by migration tests, and migrate the corpus and examples.
+- [x] 4.1 Accept `editors`, `license` and `repository.browse`, and refuse `attribution` and a template without both placeholders; verify by model-input tests for each refusal. The loader and schema accept version 3 with `editors`, `license` and `repository.browse`, and refuse an attribution, an empty editor list, an editor without a name, a licence that is not an SPDX expression, a template without both placeholders and a version 2 model; the model-input tests pass.
+- [x] 4.2 Migrate version 2 models, refusing `attribution_not_migrated` until editors are declared; verify by migration tests, and migrate the corpus and examples. `archpub migrate` converts versions 1 and 2 and refuses `attribution_not_migrated`, naming the text and writing nothing; the six corpus models and Big Bank were migrated with it after their editors were declared.
 
 ## 5. Print edition
 

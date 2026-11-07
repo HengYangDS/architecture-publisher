@@ -30,7 +30,7 @@ test("a catalog model becomes one whose components claim the files they cited", 
   const { model, moved } = await migrateModel(await writeModel(t, catalogModel()));
   assert.deepEqual(model, {
     format: "architecture-publisher.model",
-    version: 2,
+    version: 3,
     id: "minimal",
     title: "Minimal",
     question: "What is minimal?",
@@ -79,6 +79,34 @@ test("only a version 1 model whose sources resolve is migrated", async (t) => {
   );
 });
 
+test("a version 2 model becomes version 3, its attribution replaced by declared editors", async (t) => {
+  const plain = await migrateModel(await writeModel(t, minimalModel({ version: 2, scope: "All" })));
+  assert.deepEqual(plain.model, minimalModel({ scope: "All" }));
+  const credited = await migrateModel(
+    await writeModel(
+      t,
+      minimalModel({ version: 2, attribution: "the team", editors: [{ name: "Yang HENG" }] }),
+    ),
+  );
+  assert.equal("attribution" in credited.model, false);
+  assert.deepEqual(credited.model.editors, [{ name: "Yang HENG" }]);
+});
+
+test("an attribution without declared editors is refused and nothing is written", async (t) => {
+  const input = await writeModel(t, minimalModel({ version: 2, attribution: "the team" }));
+  await assert.rejects(
+    migrateModel(input),
+    (error) =>
+      error.code === "attribution_not_migrated" &&
+      /"the team"/u.test(error.message) &&
+      error.problems[0].path === "/attribution",
+  );
+  const directory = await temporaryDirectory(t, "archpub-migrate-");
+  const out = path.join(directory, "model.json");
+  assert.equal((await runCli(["migrate", input, "--out", out])).exitCode, 1);
+  await assert.rejects(fs.access(out));
+});
+
 test("migrate writes a new file and refuses one that exists", async (t) => {
   const input = await writeModel(t, catalogModel());
   const directory = await temporaryDirectory(t, "archpub-migrate-");
@@ -89,7 +117,7 @@ test("migrate writes a new file and refuses one that exists", async (t) => {
     written.output,
     `Wrote ${out}: components claim 2 files, relations cite 1 file.\nkept with a: README.md, no longer cited by b\n`,
   );
-  assert.equal(JSON.parse(await fs.readFile(out, "utf8")).version, 2);
+  assert.equal(JSON.parse(await fs.readFile(out, "utf8")).version, 3);
   await fs.writeFile(out, "kept\n");
   const refused = await runCli(["migrate", input, "--out", out, "--json"]);
   assert.equal(refused.exitCode, 1);

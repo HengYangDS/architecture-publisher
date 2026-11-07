@@ -85,7 +85,7 @@ test("top-level fields, repository and limits are validated", () => {
   const problems = problemsOf({
     ...minimalModel(),
     format: "other",
-    version: 3,
+    version: 4,
     id: "Bad Id",
     limits: "none",
     repository: { name: "x", revision: "abc", extra: 1 },
@@ -278,7 +278,7 @@ test("the published schema allows the views the loader admits", async () => {
   );
   assert.equal(schema.properties.views.maxItems, undefined);
   assert.deepEqual(Object.keys(schema.properties.coverage.properties), ["include", "exclude"]);
-  assert.deepEqual(schema.properties.version, { const: 2 });
+  assert.deepEqual(schema.properties.version, { const: 3 });
   assert.equal(schema.properties.sources, undefined);
   for (const element of ["components", "relations"]) {
     const { properties } = schema.properties[element].items;
@@ -450,4 +450,45 @@ test("model files are read, bounded and digested", async (t) => {
   await assert.rejects(loadModel(await writeModel(t, " ".repeat(4 * 1024 * 1024 + 1))), {
     code: "model_too_large",
   });
+});
+
+test("editors, a licence and a browse template validate, and an attribution is refused", () => {
+  const model = validateModel(
+    minimalModel({
+      editors: [{ name: "Yang HENG" }, { name: "A. Reader", url: "https://example.invalid/a" }],
+      license: "MIT OR Apache-2.0",
+      repository: {
+        name: "o/r",
+        revision: "a".repeat(40),
+        browse: "https://github.com/o/r/blob/{revision}/{path}",
+      },
+    }),
+  );
+  assert.deepEqual(model.editors, [
+    { name: "Yang HENG", url: null },
+    { name: "A. Reader", url: "https://example.invalid/a" },
+  ]);
+  assert.equal(model.license, "MIT OR Apache-2.0");
+  assert.equal(model.repository?.browse, "https://github.com/o/r/blob/{revision}/{path}");
+  const refusedAt = (extra) => {
+    try {
+      validateModel(minimalModel(extra));
+    } catch (error) {
+      return /** @type {any} */ (error).problems.map(({ path: where }) => where);
+    }
+    return [];
+  };
+  assert.deepEqual(refusedAt({ attribution: "the team" }), ["/attribution"]);
+  assert.deepEqual(refusedAt({ editors: [] }), ["/editors"]);
+  assert.deepEqual(refusedAt({ editors: [{ url: "https://example.invalid" }] }), [
+    "/editors/0/name",
+  ]);
+  assert.deepEqual(refusedAt({ license: "MIT and more" }), ["/license"]);
+  assert.deepEqual(
+    refusedAt({
+      repository: { name: "r", revision: "a".repeat(40), browse: "https://x.invalid/{revision}" },
+    }),
+    ["/repository/browse"],
+  );
+  assert.deepEqual(refusedAt({ version: 2 }), ["/version"]);
 });

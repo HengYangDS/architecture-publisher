@@ -1,11 +1,15 @@
 {
   "format": "architecture-publisher.model",
-  "version": 2,
+  "version": 3,
   "id": "aigw-client-projection",
   "title": "AIGW Client Projection",
   "question": "How does AIGW turn operator intent into guarded native client projections?",
   "summary": "Operator intent and observed clients enter desired-state coordination; one admitted Adapter contract projects guarded native client settings. This Edition covers Client Projection, not the whole product or release approval.",
-  "attribution": "aigw-cli",
+  "editors": [
+    {
+      "name": "aigw-cli"
+    }
+  ],
   "scope": "Selected AIGW control-plane owners; not automatic inference or exhaustive implementation coverage",
   "limits": [
     "Selected AIGW control-plane owners at source revision 546fe89343860904fec9e6fcd047552a3b1b203801dbe462c6978ad243c75c9e; curated from exact source bytes without inferred implementation completeness. Native input attribution and source hashes do not prove exhaustive implementation behavior."

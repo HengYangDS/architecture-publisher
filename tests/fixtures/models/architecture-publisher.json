@@ -1,11 +1,15 @@
 {
   "format": "architecture-publisher.model",
-  "version": 2,
+  "version": 3,
   "id": "architecture-publisher",
   "title": "Architecture Publisher",
   "question": "How does Architecture Publisher turn an architecture model into posters and a page?",
   "summary": "An editor runs archpub on a model or a LikeC4 workspace. One build validates the model, verifies its sources, plans at most four views, lays each out on one grid and writes 16:9 poster pages, a native Archify explainer page and a manifest of their digests and evidence.",
-  "attribution": "the Architecture Publisher maintainers",
+  "editors": [
+    {
+      "name": "The Architecture Publisher maintainers"
+    }
+  ],
   "scope": "The publisher package and its vendored supplies; not the repository's quality tooling or CI",
   "limits": [
     "Curated from the selected modules at the pinned revision; relations describe calls between those modules, not every function"

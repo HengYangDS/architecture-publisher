@@ -11,7 +11,7 @@
       "const": "architecture-publisher.model"
     },
     "version": {
-      "const": 2
+      "const": 3
     },
     "id": {
       "$ref": "#/$defs/id"
@@ -29,8 +29,28 @@
     "summary": {
       "$ref": "#/$defs/text"
     },
-    "attribution": {
-      "$ref": "#/$defs/text"
+    "editors": {
+      "description": "The people who edited this model, each by name and optionally a URL.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "$ref": "#/$defs/text"
+          },
+          "url": {
+            "$ref": "#/$defs/text"
+          }
+        }
+      }
+    },
+    "license": {
+      "description": "The licence of this model and its editions, as an SPDX licence expression.",
+      "type": "string",
+      "pattern": "^\\(?[A-Za-z0-9.+-]+\\)?(?: (?:AND|OR|WITH) \\(?[A-Za-z0-9.+-]+\\)?)*$"
     },
     "scope": {
       "$ref": "#/$defs/text"
@@ -55,6 +75,11 @@
         "revision": {
           "type": "string",
           "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "browse": {
+          "description": "A URL that shows one file of the repository at one revision, with the placeholders {revision} and {path}.",
+          "type": "string",
+          "pattern": "\\{revision\\}[\\s\\S]*\\{path\\}|\\{path\\}[\\s\\S]*\\{revision\\}"
         }
       }
     },

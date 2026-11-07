@@ -11,7 +11,7 @@ import {
 } from "./paths.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
-export const MODEL_VERSION = 2;
+export const MODEL_VERSION = 3;
 const STATUSES = Object.freeze(["implemented", "planned", "retired"]);
 export const CATEGORIES = Object.freeze([
   "person",
@@ -34,17 +34,22 @@ const ID = /^[a-z0-9][a-z0-9._-]{0,127}$/u;
 const DEVICE = /^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\.|$)/u;
 const REVISION = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
 const DETAIL_NAME = /^(?![0-9]+$)[^:\n]{1,64}$/u;
+/** An SPDX licence expression: identifiers joined by AND, OR or WITH, each optionally in parentheses. */
+const LICENSE = /^\(?[A-Za-z0-9.+-]+\)?(?: (?:AND|OR|WITH) \(?[A-Za-z0-9.+-]+\)?)*$/u;
 const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
 
 const TOP = {
   required: ["format", "version", "id", "title", "question", "components", "relations"],
-  optional: ["locale", "summary", "attribution", "scope", "limits", "repository", "kinds"].concat([
-    "groups",
-    "views",
-    "coverage",
-    "overview",
-    "guide",
-  ]),
+  optional: [
+    "locale",
+    "summary",
+    "editors",
+    "license",
+    "scope",
+    "limits",
+    "repository",
+    "kinds",
+  ].concat(["groups", "views", "coverage", "overview", "guide"]),
 };
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -159,11 +164,11 @@ function checkFiles(problems, value, path, claimed) {
 function checkTop(problems, model) {
   // A version 1 model holds a source catalog this version has no field for, so it is refused
   // with the command that converts it rather than with every field it no longer has.
-  if (isRecord(model) && model.version === 1) {
+  if (isRecord(model) && (model.version === 1 || model.version === 2)) {
     problems.add(
       "model_version_unsupported",
       "/version",
-      `version 1 models are converted by \`archpub migrate <model> --out <file>\`; the supported version is ${MODEL_VERSION}`,
+      `version ${model.version} models are converted by \`archpub migrate <model> --out <file>\`; the supported version is ${MODEL_VERSION}`,
     );
     return false;
   }
@@ -182,16 +187,43 @@ function checkTop(problems, model) {
   if (model.locale !== undefined && !LOCALES.includes(model.locale))
     problems.add("model_locale_unsupported", "/locale", `must be one of ${LOCALES.join(", ")}`);
   for (const key of ["title", "question"]) problems.text(model[key], `/${key}`);
-  for (const key of ["summary", "attribution", "scope"]) problems.text(model[key], `/${key}`, true);
+  for (const key of ["summary", "scope"]) problems.text(model[key], `/${key}`, true);
+  if (model.editors !== undefined) {
+    if (!Array.isArray(model.editors) || !model.editors.length)
+      problems.add("model_editors_invalid", "/editors", "must be a non-empty list");
+    else
+      model.editors.forEach((editor, index) => {
+        const where = `/editors/${index}`;
+        if (!problems.fields(editor, where, ["name"], ["url"])) return;
+        if ("name" in editor) problems.text(editor.name, `${where}/name`);
+        problems.text(editor.url, `${where}/url`, true);
+      });
+  }
+  if (
+    model.license !== undefined &&
+    (typeof model.license !== "string" || !LICENSE.test(model.license))
+  )
+    problems.add("model_license_invalid", "/license", "must be an SPDX licence expression");
   if (model.limits !== undefined) {
     if (!Array.isArray(model.limits)) problems.add("model_limits_invalid", "/limits", "list");
     else model.limits.forEach((limit, index) => problems.text(limit, `/limits/${index}`));
   }
   if (model.repository !== undefined) {
     const repository = model.repository;
-    if (problems.fields(repository, "/repository", ["name", "revision"], ["url"])) {
+    if (problems.fields(repository, "/repository", ["name", "revision"], ["url", "browse"])) {
       problems.text(repository.name, "/repository/name");
       problems.text(repository.url, "/repository/url", true);
+      if (
+        repository.browse !== undefined &&
+        (typeof repository.browse !== "string" ||
+          !repository.browse.includes("{revision}") ||
+          !repository.browse.includes("{path}"))
+      )
+        problems.add(
+          "model_browse_invalid",
+          "/repository/browse",
+          "must be a URL with the placeholders {revision} and {path}",
+        );
       if (typeof repository.revision !== "string" || !REVISION.test(repository.revision))
         problems.add("model_revision_invalid", "/repository/revision", "must be a full commit id");
     }
@@ -466,13 +498,15 @@ function normalize(value, parts) {
     title: value.title,
     question: value.question,
     summary: value.summary ?? null,
-    attribution: value.attribution ?? null,
+    editors: (value.editors ?? []).map(({ name, url }) => ({ name, url: url ?? null })),
+    license: value.license ?? null,
     scope: value.scope ?? null,
     limits: value.limits ?? [],
     repository: value.repository
       ? {
           name: value.repository.name,
           url: value.repository.url ?? null,
+          browse: value.repository.browse ?? null,
           revision: value.repository.revision,
         }
       : null,

@@ -129,7 +129,7 @@ export function notesOf(model) {
   const origin = [];
   if (model.repository)
     origin.push(words.revision(model.repository.name, model.repository.revision.slice(0, 12)));
-  if (model.attribution) origin.push(words.attribution(model.attribution));
+  if (model.editors.length) origin.push(words.editors(model.editors.map(({ name }) => name)));
   if (origin.length)
     blocks.push({ label: words.source, text: sentence(words, origin.join(words.semicolon)) });
   return blocks;
