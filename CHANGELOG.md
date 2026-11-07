@@ -7,11 +7,43 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- The print edition: `<model id>.pdf`, typeset by Typst 0.15.1 with the house class. A title page of the work's name,
+  question and summary over a byline of its release, editors, licence and publisher; contents that link to every page
+  beside the edition's facts, scope, limits and a reading note; the overview set in place, its text still text; and
+  one plate per view under a frame shared by every page, with a key of what it shows. Plates set their text live in
+  Source Sans 3 and Noto Sans CJK SC, card titles link to the file each component was read from when the model names
+  `repository.browse`, and the PDF conforms to PDF/A-3a and PDF/UA-1 with the model attached. Text Typst would set
+  wider than the engine measured it is refused with `edition_text_wider`, and a plate title longer than its line with
+  `edition_title_too_long`.
+- Model version 3 names `editors`, each with an optional URL, a `license` as an SPDX expression and
+  `repository.browse`. `archpub migrate` converts version 1 and 2 models, and refuses `attribution_not_migrated` until
+  a model's editors are declared beside its attribution.
+
 ### Changed
 
+- A delivery is named for its work: `<model id>.pdf`, `<model id>.html` and, in `images/`, `00-overview.png` and
+  `NN-<view>.png` at 2400 px and `-<width>` at other widths. `--media` takes `edition` and `page`, `--png` names the
+  edition's image widths, and the manifest is version 6, recording the edition, its plates and the date that dated it:
+  the revision's commit, `SOURCE_DATE_EPOCH` or the time of typesetting.
+- Each view is composed alone as a plate for the edition's body and admitted when some composition lays it out; a view
+  none does is refused with `plate_unfittable`. A plate records the balance gates it misses rather than being refused,
+  and the reviewer weighs them at acceptance.
+- Figure text is measured in the house faces, Source Sans 3 and its semibold, with Noto Sans CJK SC for Han, and
+  figures are drawn in the house palette, read with the class from one token file, `src/house.json`. opentype.js has a
+  supply of its own, and Noto Sans has left the font supply.
 - Development uses npm 12.2.2, and the mise lock names a checksum for every archive it installs, so mise 2026.11.2
   installs the toolchain in its safe and locked modes. The npm lock moves `@napi-rs/wasm-runtime` to 1.2.7, and a
   lock of npm 12.2.0 that no configuration read is gone.
+
+### Removed
+
+- The posters: `page-<n>.svg` and its PNGs, `overview.svg`, the page archetypes, grouping, heads, legends, notes,
+  drafts, `poster_unbalanced` and the other `poster_*` refusals. `--media posters` and `--media overview` are gone.
+- resvg, its Rust and wasm-bindgen build, the sax supply, the raster rebuild journey and the `raster_*` refusals;
+  Typst renders every image. Pixi's Linux compiler and xz, which only the Rust build needed, and their CI steps are
+  gone too.
 
 ## [0.9.0] - 2026-11-06
 

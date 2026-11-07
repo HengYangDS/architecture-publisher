@@ -27,9 +27,8 @@ mise run bootstrap
 npm run check
 ```
 
-`mise run bootstrap` installs the locked Node, npm and Rust toolchains and the
-locked npm dependencies, and restores the canonical Raster pair from Git
-custody. `npm run check` is the fail-closed quality entry: formatting, lint,
+`mise run bootstrap` installs the locked Node, npm and Typst toolchains and the
+locked npm dependencies, and generates the LikeC4 parser from locked inputs. `npm run check` is the fail-closed quality entry: formatting, lint,
 types, module boundaries, dead code, Markdown, strict OpenSpec validation, the
 test suite with at least 95 percent coverage in every dimension, and packed
 package validation. `mise run fix` applies the native formatters. A local check

@@ -32,7 +32,7 @@
 
 ## 7. Documentation
 
-- [ ] 7.1 Update the README, the product contract, the references and the changelog for the print edition, the plates, model version 3, the media and the file names; verify Prettier, markdownlint and Vale pass.
+- [x] 7.1 Update the README, the product contract, the references and the changelog for the print edition, the plates, model version 3, the media and the file names; verify Prettier and markdownlint pass. The README, CONTRIBUTING, the product contract, the model, operations, configuration and development references and the changelog's Unreleased notes describe the edition, its plates, images and refusals, model version 3 and its migration, and no longer the posters, resvg, Rust or Pixi; their two example models validate as version 3. Prettier, markdownlint and OpenSpec validation pass. The repository declares no Vale configuration, so Vale is not a gate here.
 
 ## 8. Verification
 

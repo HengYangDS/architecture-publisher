@@ -8,8 +8,9 @@ relations:
 
 # Operations reference
 
-`archpub` turns one [Architecture Model](model.md) into a delivery: posters of
-its views and one interactive page that answers its question view by view. This
+`archpub` turns one [Architecture Model](model.md) into a delivery: a print
+edition with one plate per view and one interactive page that answers its
+question view by view. This
 page lists the commands, what the build does, the delivery it writes and every
 refusal.
 
@@ -34,11 +35,12 @@ macos-arm64 = { url = "<release>/archpub-<version>-macos-arm64.tar.gz", checksum
 
 The release's `architecture-publisher-<version>.tgz` is the same command as an
 npm package; install it with `npm install --global --ignore-scripts` where
-Node.js 22.13 or later is present, with Typst 0.15.1 on the path for an
-overview. The package has no runtime npm dependencies:
-fonts, icons, the raster renderer, Archify and the LikeC4 parser are bundled
+Node.js 22.13 or later is present, with Typst 0.15.1 on the path for the print
+edition. The package has no runtime npm dependencies: the fonts, the house
+faces, the measuring library, icons, Archify and the LikeC4 parser are bundled
 with their digests, so a build downloads nothing. Git is needed only to resolve
-and verify the model's files with `--repo`, and Typst 0.15.1 on the path only to build an overview. Git and Archify run with only the caller's `PATH`,
+and verify the model's files with `--repo`, and Typst 0.15.1 on the path only
+to build the print edition. Git and Archify run with only the caller's `PATH`,
 `PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`, so
 no other variable, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what
 they read or decide.
@@ -58,8 +60,8 @@ archpub --help | --version [--json]
 
 - `check` validates the model, resolves and verifies its
   [files](model.md#files-and-the-repository) when `--repo` names a checkout,
-  plans the views, composes the poster pages and checks each diagram
-  and the page with Archify, and writes no delivery; Archify's work files stay
+  plans the views, composes each view as a plate of the edition, checks the
+  overview's composition and checks each diagram and the page with Archify, and writes no delivery; Archify's work files stay
   in a temporary directory that it removes. It lists the components and
   relations that no planned view draws, the components that claim no file and
   the relations that cite none. With
@@ -70,26 +72,27 @@ archpub --help | --version [--json]
 - `build` does the same and writes a new delivery directory. `--out` must not
   exist; the delivery is staged beside it and renamed into place only when
   every artifact is written, so a refused build leaves nothing behind.
-- `--media` names the media to deliver, any of `posters`, `page` and
-  `overview`; by default the posters and the page and, when the model names a
-  composition, the overview. A build composes only what it delivers, so
-  `--media posters` runs no Archify and no Typst. `--png` names the PNG widths
-  of the posters and the overview, comma-separated, from 1 to 6000 px, by
-  default 2400. `--quality` is `showcase`, the default, or
-  `standard`, which delivers drafts instead of refusing a poster page or a
-  page diagram that misses its checks. An invalid value is refused before the
-  model is read.
+- `--media` names the media to deliver, `edition`, the print edition with its
+  images, and `page`; by default both. A build composes only what it delivers,
+  so `--media edition` runs no Archify and `--media page` needs no Typst.
+  `--png` names the widths of the edition's images, comma-separated, from 1 to
+  6000 px, by default 2400. `--quality` is `showcase`, the default, or
+  `standard`, which delivers a draft instead of refusing a page diagram that
+  misses its checks. An invalid value is refused before the model is read.
 - `import likec4` writes a model from a LikeC4 workspace and lists, with its
   file and line, every construct the model cannot represent. `--locale` names
   the model's language; the import's own words, an unnamed relation's label and
-  a missing question, are set in it. It names no attribution and refuses to
+  a missing question, are set in it. It names no editors and refuses to
   overwrite an existing file.
 - `scaffold guide` writes the page the publisher generates for a model as a
   starting [guide](#the-guide) into a new directory.
-- `migrate` writes a version 1 model as version 2 into a new file: each
-  component claims the files its sources named and each relation cites its
-  sources' files. It names each file that several components cited, which stays
-  with the first of them, and refuses to overwrite an existing file.
+- `migrate` writes a version 1 or 2 model as version 3 into a new file. Each
+  component of a version 1 model claims the files its sources named and each
+  relation cites its sources' files; the command names each file that several
+  components cited, which stays with the first of them. A model with an
+  `attribution` is refused with `attribution_not_migrated` until its author
+  declares `editors` beside it, and the attribution is then dropped. The
+  command refuses to overwrite an existing file.
 - `accept` records a named reviewer's acceptance of an unchanged delivery.
 - `publish` copies an accepted delivery to `<root>/<model id>/<version>/`, in
   any directory the caller names.
@@ -107,7 +110,7 @@ line.
 
 ## Layout and media
 
-Each view becomes rows of cards on one column lattice. On a poster each card is
+Each view becomes rows of cards on one column lattice. On a plate each card is
 as wide as its own text within its lattice slot, the cards of one column share
 the widest of those widths, and every card of a row has one height; the page's
 diagram cards share one width. Declared tiers are the rows, in order; a tier
@@ -119,7 +122,7 @@ cards within their rows is exact: it minimizes a weighted count of crossings,
 bends and unused columns over the whole lattice. Relations run through the
 channels between rows as buses, corridors, lanes beyond the outermost cards and
 straight arrows. A relation that skips rows takes the free column gap, empty
-cell or lane that crosses the fewest wires, then runs shortest, and on posters
+cell or lane that crosses the fewest wires, then runs shortest, and on plates
 then leaves the most paper beside the cards it passes.
 
 The layout never draws an overlap. A diagonal segment, a segment shared by
@@ -127,7 +130,7 @@ different relations, a wire through a card or a label touching a card, another
 label, another wire or the system boundary rejects that layout, and a view is
 refused only when no row wrapping, width or type step lays it out. Each channel
 takes the routing with the fewest crossings, even when that needs another label
-row, and on posters then the one whose own wires make the fewest route defects;
+row, and on plates then the one whose own wires make the fewest route defects;
 it keeps parallel wires 24 px apart and a label 16 px from another relation's
 wire wherever the cards leave room, and a wire that turns on a label row within
 the span of a card it does not connect turns 48 px from it. A card's one port
@@ -144,49 +147,67 @@ two relations' runs in line less than 400 px apart across a third relation's
 wire, unless both leave or enter one card, two wires closer than 40 px that
 each turn inside the other's length, and a relation label on its own run less
 than 48 px above or below another relation's turn, so seems to label that wire,
-are counted in each poster page's measures.
+are counted in each plate's measures.
 Each row wrapping is also laid out with channels that take more label rows so
-that no wire turns in a band beside another card than its own; a page takes that
-taller figure when it holds it and it has no more route defects.
+that no wire turns in a band beside another card than its own; a plate takes
+that taller figure when the body holds it and it has no more route defects.
 
-Every poster is a 2400 × 1350 px page, with no text below 14 px. A page carries
-one to three consecutive views that share no component as plates, in bands of
-one or more plates under a masthead, beside a rail of text, or, for one view,
-with its text set in the corners its figure leaves free. Cards are as large as
-their text and never stretch; a sparse view is instead set at a larger type
-step, up to 32 px labels and 24 px details, and every plate of a page uses one
-step. The numbered tier labels stand in one column before the figure; a page
-that would set them nearer than three gutters to a rail's text is not drawn.
-When no page with them in one column balances, the labels of tiers that start at
-one edge share a column before that edge, and the manifest records which. A tier
-wrapped into several rows has its label level with its first row, beside a
-bracket that spans them all. Every page passes four balance gates over its live
-area: its largest blank rectangle covers at most 12 percent of it, no blank band
-96 px or taller runs across it, at most 40 percent of it lies in empty squares
-of 240 px or more, and its centre of mass lies within 12 percent of the centre
-across and down. The edition is grouped into the fewest crossings and then
-route defects over all its pages, since two views squeezed onto one page wire
-worse, then the fewest pages that miss a gate, then the fewest pages, then the
-least area in those holes, and each page prefers the fewest crossings and
-route defects. A grouping no passing page holds is printed on a sparse page
-when its figures already stand at the largest step, or at the largest step
-they fit at with only its largest blank rectangle or a blank band over its
-gate: the model has too little to fill the page. A grouping is also printed on
-such a sparse page when it wires fewer crossings or route defects than every
-page of the grouping that passes. Otherwise, a view
-that no admitted page holds, alone or with a neighbour, is refused with
-`poster_unbalanced` and its closest page's measures and limits, unless
-`--quality standard` prints that page as a draft. Text is outlined from the
-bundled faces, Noto Sans CJK SC and then Noto Sans for the Latin, Greek and
-Cyrillic letters the first lacks; lines break at spaces but not at no-break
+Each view is one plate: a figure laid out for the edition's body, 2256 × 1071
+px at two thirds of a point each, with no text below 14 px. Cards are as large
+as their text and never stretch; a sparse view is instead set at a larger type
+step, up to 32 px labels and 24 px details. A plate tries every type step and
+row wrapping, with its rows centred over all its cards, over the cards inside
+the boundary, and uncentred, and with its numbered tier labels in one column
+before the figure or each before the edge its tier starts at. It takes the
+fewest crossings, then the fewest route defects, then the largest step, then
+the widest wrapping, then the least of the body left blank, and the manifest
+records its composition. A tier wrapped into several rows has its label level
+with its first row, beside a bracket that spans them all. Each plate is
+measured against four balance gates over the body: its largest blank rectangle
+covers at most 12 percent of it, no blank band 96 px or taller runs across it,
+at most 40 percent of it lies in empty squares of 240 px or more, and its
+centre of mass lies within 12 percent of the centre across and down. The gates
+a plate misses are recorded with their values and limits, not refused; a view
+no composition lays out is refused with `plate_unfittable`. Figure text is
+measured in Source Sans 3, its semibold for heavy text, and Noto Sans CJK SC
+for the characters the first lacks; lines break at spaces but not at no-break
 spaces, and between Han and Kana characters, keeping closing punctuation on the
-line before. Each kind draws its Lucide icon. Each page is written as SVG and
-as PNG at 2400 px or the widths `--png` names.
+line before. Each kind draws its Lucide icon. A plate is drawn as the SVG of its
+shapes and a list of text runs, which the edition sets as text.
+
+The print edition is typeset by Typst 0.15.1 with the house class into
+`<model id>.pdf`, pages of 1600 × 900 points:
+
+- a title page of the work's name, question and summary over a byline of its
+  release and revision, editors, licence and publisher;
+- contents whose rows link to their pages and continue on a second page past
+  sixteen, beside the edition's facts, its scope and limits and a reading note;
+- the overview, set in place from its composition when the model names one;
+- one plate per view, headed by its number, title and question, with a key of
+  the kinds and statuses it shows.
+
+Every page after the title page shares one frame: a head at the margin, a body
+from 112 to 826 points, the key at 848 and a foot of a rule and the work's
+title, release, revision and date, which links back to the contents. Prose is
+justified and hyphenated within a measure of 32 ems, in Source Serif 4 for
+titles and Source Sans 3 for text, with Noto Sans CJK SC for Han. Each plate's
+runs are set where the engine measured them; a run Typst sets wider is refused
+with `edition_text_wider`, and a title longer than its line with
+`edition_title_too_long`. When the model declares `repository.browse`, each card
+title links to its component's first file at the pinned revision. Each plate is
+one figure with alt text of its title and question, its shapes and key are
+artifacts, and the model is attached as `model.json` with the relationship
+`source`, so the PDF conforms to PDF/A-3a and PDF/UA-1. Its title, authors,
+subject, keywords and language come from the model; it is dated by the
+revision's commit with `--repo`, otherwise by `SOURCE_DATE_EPOCH` when set, and
+otherwise by the time it is typeset, which the manifest records. Typst also
+renders the overview's page and each plate's page as PNG at each `--png` width,
+at width × 72 / 1600 pixels per inch.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
 Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
 listed beside it the titles of up to four panels, each a link to its panel, and
-its scope the model's scope, limits and attribution. Each view is a panel
+its scope the model's scope, limits and editors. Each view is a panel
 titled with the view's question, or its title when it asks the model's own
 question, in the plan's order, holding the view's native architecture diagram,
 named by the view's own title or else its question, which opens Archify's full
@@ -271,9 +292,10 @@ sets records its glyph box, which the build reads back: text must stay 48 pt
 from either side and 16 pt from the top and the bottom, and no text may lie
 over other text. A character no available face draws is refused, because Typst
 would draw an empty box without warning, and every Typst warning or error is
-refused at the composition's line. The overview is written as `overview.svg`
-and one PNG per width at width × 72 / 1600 pixels per inch, so the same inputs
-give the same bytes.
+refused at the composition's line. The print edition then sets the composition
+in place, with the edition's foot as its imprint, so its text stays text; its
+page is delivered as `images/00-overview.png` and at each other `--png` width,
+and the same inputs give the same bytes.
 
 ## The guide
 
@@ -305,35 +327,38 @@ guidance keeps a page to four native diagrams.
 
 ## The delivery
 
-| File                   | Content                                                     |
-| ---------------------- | ----------------------------------------------------------- |
-| `page-<n>.svg`         | Poster page `n`, numbered from 1 in reading order.          |
-| `page-<n>.png`         | The page rasterized at 2400 px wide.                        |
-| `page-<n>-<width>.png` | The page rasterized at each other width `--png` names.      |
-| `index.html`           | The standalone interactive explainer page, unless excluded. |
-| `overview.svg`         | The overview, when the build delivers it.                   |
-| `overview.png`         | The overview rasterized at 2400 px wide.                    |
-| `overview-<width>.png` | The overview at each other width `--png` names.             |
-| `manifest.json`        | The build record.                                           |
-| `acceptance.json`      | Written by `archpub accept`; absent until then.             |
+| File                        | Content                                                                  |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `<model id>.pdf`            | The print edition, unless excluded.                                      |
+| `<model id>.html`           | The standalone interactive page, unless excluded.                        |
+| `images/00-overview.png`    | The overview's page at 2400 px wide, when the model names a composition. |
+| `images/NN-<view>.png`      | Plate `NN`'s page at 2400 px wide, numbered from 01 in reading order.    |
+| `images/<name>-<width>.png` | The overview's or a plate's page at each other width `--png` names.      |
+| `manifest.json`             | The build record.                                                        |
+| `acceptance.json`           | Written by `archpub accept`; absent until then.                          |
 
-The manifest records its format and version 5, the publisher's name and
+Nothing else is written at the top of the delivery.
+
+The manifest records its format and version 6, the publisher's name and
 version, the model id, title, language, digest and size, the declared
 repository, the build's quality and media, every cited file with its state,
-digest, owner and the relations that cite it, the digest of each bundled supply, each view with
-its tiers, members and page number, each page with its number, files, views,
-admission, the gates it misses, composition and measures, the explainer page's
-quality profile and gates, a guide's draft path and digest, each file it names,
+digest, owner and the relations that cite it, the digest of each bundled
+supply, each view with its tiers, members and plate number, the edition's file,
+page count, Typst version, house class digest, release, date and what dated it,
+each plate with its number, views, images, composition, measures and the gates
+it misses, the page's file, quality profile and gates, a guide's draft path and digest, each file it names,
 its writing level and whether its sources were verified, each
 view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
 preview stands beside its steps, candidate count and Archify route measures,
 the files the page withholds, with the overview its composition's path and
-digest, the house class's and the house supply's digests, the Typst version, the
-revision's date and the number of texts, the details,
+digest, the house class's digest, the Typst version, the revision's date and
+the number of texts, the details,
 status and files of every component and relation, and the path, size and
-SHA-256 of every artifact. It contains no time, host path or user name, so
-building the same model with the same version on one platform reproduces every
-byte.
+SHA-256 of every artifact. It contains no host path or user name, and the
+edition's date is the revision's commit or `SOURCE_DATE_EPOCH`, so building the
+same model with the same version on one platform reproduces every byte; without
+either, the edition is dated when it is typeset and differs from build to
+build.
 
 ## Acceptance and publication
 
@@ -352,7 +377,7 @@ delivery under an existing version is refused.
 A refusal names one of these codes. Its problems carry finer codes, such as the
 `model_*` field problems, `claim_unmatched`, `relation_file_missing`,
 `view_not_admitted` and the `layout_*` codes of a diagram no candidate lays out.
-A refused view is named in the message; the plan's and the posters' problems
+A refused view is named in the message; the plan's and the plates' problems
 carry paths under `/views/<id>`, and a page refusal carries the paths the grid
 or Archify reported.
 
@@ -368,10 +393,11 @@ or Archify reported.
 | `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                                             |
 | `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                                                |
 | `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.                                 |
-| `plan_not_admitted`                                                                     | No page of its own lays a view out; each problem gives the view's counts and the page size.                             |
-| `poster_title_too_long`, `poster_summary_too_long`                                      | The title, question or summary does not fit any page composition.                                                       |
-| `poster_unfittable`                                                                     | A view cannot be laid out on any page at any type step or row wrapping.                                                 |
-| `poster_unbalanced`                                                                     | No admitted page holds a view, alone or with a neighbour.                                                               |
+| `plan_not_admitted`                                                                     | No plate lays a view out; each problem gives the view's counts and the plate size.                                      |
+| `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                       |
+| `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                   |
+| `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, or a plate's title longer than its line.                   |
+| `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                       |
 | `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                              |
 | `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                               |
 | `overview_composition_missing`, `overview_composition_invalid`                          | The overview is asked of a model without a composition or with one that is not there, or its directory holds `archpub`. |
@@ -385,8 +411,9 @@ or Archify reported.
 | `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.                                   |
 | `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.                                       |
 | `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                                                  |
-| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1, cites a source its catalog lacks, or `--out` already exists.                                |
-| `raster_failed`, `raster_size_invalid`, `supply_invalid`                                | A bundled supply failed its digest or the raster renderer failed.                                                       |
+| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists.                           |
+| `attribution_not_migrated`                                                              | The model's attribution names no editors; declare `editors` beside it first.                                            |
+| `supply_invalid`                                                                        | A bundled supply failed its digest.                                                                                     |
 | `delivery_exists`                                                                       | `--out` already exists.                                                                                                 |
 | `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                                                        |
 | `delivery_changed`                                                                      | An artifact differs from the manifest.                                                                                  |

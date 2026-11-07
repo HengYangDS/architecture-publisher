@@ -50,8 +50,8 @@ export async function loadTypefaces() {
 
 /**
  * Scripts written right to left or shaped into joined or reordered glyphs.
- * Outlined glyph by glyph, they would read wrong, so their text is refused
- * rather than drawn.
+ * Measured glyph by glyph, they would be laid out wrong, so their text is
+ * refused rather than drawn.
  */
 const SHAPED =
   /[\p{Script=Arabic}\p{Script=Hebrew}\p{Script=Syriac}\p{Script=Thaana}\p{Script=Nko}\p{Script=Devanagari}\p{Script=Bengali}\p{Script=Gurmukhi}\p{Script=Gujarati}\p{Script=Oriya}\p{Script=Tamil}\p{Script=Telugu}\p{Script=Kannada}\p{Script=Malayalam}\p{Script=Sinhala}\p{Script=Thai}\p{Script=Lao}\p{Script=Tibetan}\p{Script=Myanmar}\p{Script=Khmer}\p{Script=Mongolian}]/u;

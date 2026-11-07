@@ -24,15 +24,15 @@ one pass and builds nothing.
 ## A minimal model
 
 This is the smallest model the schema accepts. It builds, but three components
-cannot fill a 16:9 page, so its poster is a sparse page and the manifest
-records the balance gates it misses. The
+leave most of the edition's body blank, so the manifest records the balance
+gates its plate misses. The
 [Big Bank example](../../examples/big-bank/README.md) is a larger model with
 kinds, details and views.
 
 ```json
 {
   "format": "architecture-publisher.model",
-  "version": 2,
+  "version": 3,
   "id": "shop",
   "title": "Shop",
   "question": "How does an order reach the warehouse?",
@@ -55,27 +55,28 @@ kinds, details and views.
 
 ## Top-level fields
 
-| Field         | Required | Meaning                                                                                      |
-| ------------- | -------- | -------------------------------------------------------------------------------------------- |
-| `format`      | yes      | Always `architecture-publisher.model`.                                                       |
-| `version`     | yes      | Always `2`; `archpub migrate` converts a version 1 model.                                    |
-| `id`          | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused. |
-| `locale`      | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.          |
-| `title`       | yes      | Poster title, and the title of any view without its own.                                     |
-| `question`    | yes      | The question the model answers: under the first poster's title and heading the page.         |
-| `summary`     | no       | A short answer printed under the question on the first poster; the page's conclusion.        |
-| `scope`       | no       | What the model covers and leaves out; in the poster notes and the page scope.                |
-| `limits`      | no       | Known limits of the description, each one text; printed with the scope.                      |
-| `attribution` | no       | Who wrote the model; printed with the scope.                                                 |
-| `repository`  | no       | The described repository: `name`, optional `url` and the full commit `revision`.             |
-| `kinds`       | no       | Kind catalog keyed by kind id.                                                               |
-| `components`  | yes      | At least one component.                                                                      |
-| `relations`   | yes      | Relations between components; may be empty.                                                  |
-| `groups`      | no       | Named sets of components.                                                                    |
-| `views`       | no       | Any number of views; without them the publisher plans the views itself.                      |
-| `coverage`    | no       | The repository paths the model describes and those it leaves out, for `archpub check`.       |
-| `overview`    | no       | The overview composition: a Typst file beside the model that sets its work's overview page.  |
-| `guide`       | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.        |
+| Field        | Required | Meaning                                                                                        |
+| ------------ | -------- | ---------------------------------------------------------------------------------------------- |
+| `format`     | yes      | Always `architecture-publisher.model`.                                                         |
+| `version`    | yes      | Always `3`; `archpub migrate` converts a version 1 or 2 model.                                 |
+| `id`         | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused.   |
+| `locale`     | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.            |
+| `title`      | yes      | The edition's title, and the title of any view without its own.                                |
+| `question`   | yes      | The question the model answers: on the edition's title page and heading the page.              |
+| `summary`    | no       | A short answer under the question on the title page; the page's conclusion.                    |
+| `scope`      | no       | What the model covers and leaves out; beside the edition's contents and the page's scope.      |
+| `limits`     | no       | Known limits of the description, each one text; printed with the scope.                        |
+| `editors`    | no       | The people who edited the model, each a `name` and an optional `url`: the edition's authors.   |
+| `license`    | no       | The licence of the model and its editions, as an SPDX expression such as `MIT`.                |
+| `repository` | no       | The described repository: `name`, optional `url` and `browse`, and the full commit `revision`. |
+| `kinds`      | no       | Kind catalog keyed by kind id.                                                                 |
+| `components` | yes      | At least one component.                                                                        |
+| `relations`  | yes      | Relations between components; may be empty.                                                    |
+| `groups`     | no       | Named sets of components.                                                                      |
+| `views`      | no       | Any number of views; without them the publisher plans the views itself.                        |
+| `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.         |
+| `overview`   | no       | The overview composition: a Typst file beside the model, set as the edition's first page.      |
+| `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -84,13 +85,14 @@ misspelt field never disappears silently.
 ## Language
 
 `locale` names the language the model's own text is written in. The publisher
-sets the few words it writes itself in that language: the headings of a
-poster's notes, the legend's boundary and status entries, the details it
-derives for an overview, and how it joins details, lists and sentences. The
+sets the few words it writes itself in that language: the edition's contents,
+facts, reading note and foot, the key's boundary and status entries, the
+details it derives for an overview, and how it joins details, lists and
+sentences. The
 page declares the language to Archify, whose controls and viewer then speak it.
 Text in Latin, Greek, Cyrillic, Han, Kana and Hangul can be set; text in a
 right-to-left or shaped script, such as Arabic, Hebrew or Devanagari, is
-refused with `script_unsupported`, since the posters outline glyph by glyph
+refused with `script_unsupported`, since the figure is measured glyph by glyph
 without shaping. Lines break at spaces, and between Han and Kana characters,
 with closing punctuation kept on the line before. A no-break space, such as
 U+00A0 between `60` and `s`, keeps the words beside it on one line.
@@ -105,11 +107,11 @@ may not connect a component to itself.
 - `details` maps a short name to text or a list of texts, such as
   `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. Names are at most
   64 characters, contain no colon and are not plain numbers. A component's
-  details are printed on its poster card; on the page, its diagram card shows
+  details are printed on its card on the plate; on the page, its diagram card shows
   the first detail it holds whole, or none, and its step lists every detail. A
   relation's details are printed under its label. The manifest's evidence lists
   every detail.
-- `status` is `implemented`, `planned` or `retired`. On posters, planned
+- `status` is `implemented`, `planned` or `retired`. On plates, planned
   components and relations are drawn dashed and retired ones dotted and muted;
   on the page, planned and retired relations are dashed.
 - A component's `files` are the repository paths it owns, and a relation's
@@ -173,18 +175,28 @@ path order within a directory. Archify does not cite a file of a sensitive
 class, such as a path with a `secrets` segment; the page withholds such a file,
 cites the component's next one and records the withheld file in the manifest.
 
+When the model declares `repository.browse`, a URL holding `{revision}` and
+`{path}`, such as `https://github.com/o/r/blob/{revision}/{path}`, each card
+title on the edition's plates links to the component's first file at the
+pinned revision, its path encoded segment by segment.
+
 A revision cannot name the commit that contains it, so a model kept in the
 repository it describes pins an earlier commit.
 
-### From version 1
+### From earlier versions
 
 A version 1 model listed its files in a `sources` catalog that components and
 relations cited by id. `archpub migrate <model> --out <file>` writes it as
-version 2: each component claims the files it cited, in their order, and each
+version 3: each component claims the files it cited, in their order, and each
 relation cites its sources' files. A file that several components cited stays
 with the first of them, and the command names it. Folding files into directory
 claims is then the author's choice, since a directory also takes the files no
 source named.
+
+A version 2 model named its authors in a free-text `attribution`, which the
+command never parses into names: declare `editors` beside it, and the command
+writes version 3 without the attribution, or refuses with
+`attribution_not_migrated`, quoting the text, and writes nothing.
 
 ## Coverage
 
@@ -248,8 +260,9 @@ and it never refuses the check.
 
 `overview` names the work's overview composition: a Typst file, relative to the
 model and within its directory, that sets one 16:9 page with the publisher's
-house class. The page is designed for the work, as a document is written in a
-document class; the class owns the page, the faces, the four type sizes and the
+house class; the print edition sets it in place after its contents, so its
+text stays text. The page is designed for the work, as a document is written in
+a document class; the class owns the page, the faces, the four type sizes and the
 palette, and the composition places the work's own figure and text:
 
 ```typst
@@ -321,13 +334,13 @@ component belongs to at most one group, and a group id may not equal a
 component id. Groups shape the media in two places:
 
 - A view's `tiers` may name groups.
-- When a model has no views and is too large for one poster, the plan is an
+- When a model has no views and its whole is too large for one plate, the plan is an
   overview with one card per group followed by one view per group.
 
 ## Views
 
-A view is drawn on a poster page, which holds one to three views, and as one
-panel of the page, with its own diagram. It has an `id`, an optional `title`,
+A view is drawn as one plate of the print edition, a page of its own, and as
+one panel of the page, with its own diagram. It has an `id`, an optional `title`,
 `question` and `summary`, and exactly one of:
 
 - `tiers`: an ordered list of group ids or inline `{ id, label, members }`
@@ -337,17 +350,17 @@ panel of the page, with its own diagram. It has an `id`, an optional `title`,
   six cards per row.
 
 The page names a view's diagram by its title, or by its question when it has
-no title of its own; a later poster of one view leads with its title, or with
-the model's.
+no title of its own; its plate is headed by its title, or the model's, and
+its question.
 
 Relations between the shown components are always drawn; neither form selects
 relations. Rows that follow relations are chosen deterministically: every
 relation points down or stays within one row, rows skipped by relations are
 avoided first, then relations within one row, then extra rows. See
-[the layout](operations.md#layout-and-media) for how rows become a poster.
+[the layout](operations.md#layout-and-media) for how rows become a plate.
 
-A model may declare any number of views; each is one poster plate and one
-panel of the page. Without `views`, the publisher draws one view of every
-component when it fits its poster, and otherwise the group overview described
+A model may declare any number of views; each is one plate of the edition and
+one panel of the page. Without `views`, the publisher draws one view of every
+component when it fits one plate, and otherwise the group overview described
 above, with one view for every group. `archpub check` lists the components and
 relations that no planned view draws.

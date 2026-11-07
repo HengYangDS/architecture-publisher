@@ -67,22 +67,10 @@ working-tree verification does not replace that runtime transition or committed
 source acceptance. Never relabel the release as an npm package or modify its
 members to fit an older verifier.
 
-`mise run bootstrap` prepares generated runtime before verification. Its native
-`raster-supply` task restores the canonical prebuilt pair from one immutable Git
-revision without changing the index or contacting a Forge; `npm run generate`
-verifies that pair and reproduces the LikeC4 parser from locked inputs.
-Exact ignore rules separate those three outputs from authored source. Npm's
-package `files` declaration still includes them when present at pack time.
-Git untracking and committed-source proof remain a separate migration step;
-ignore rules alone do not remove a file from the index.
-
-The canonical Raster pair and a fresh native rebuild are distinct objects.
-The current compiler can produce a qualified native witness with different Wasm
-bytes; bootstrap restores the immutable canonical pair and verifies its recorded
-`outputs` instead of treating that witness as a byte-identical replacement.
-Full-history recovery of the selected Git object remains a separate custody
-requirement. A shallow clone without that object must not learn new hashes or
-silently select another pair.
+`mise run bootstrap` installs the locked npm inputs and runs `npm run
+generate`, which reproduces the LikeC4 parser from locked inputs. An exact ignore
+rule separates that output from authored source, and npm's package `files`
+declaration still includes it when present at pack time.
 
 `VERSION` is the sole version source, not tool configuration. The release
 projection at `tools/release/version.mjs` reads it, derives required npm package
@@ -94,7 +82,7 @@ generated-input gate runs its non-mutating `--check` mode before qualification.
 ## Job-local native tools
 
 `.config/ci/pipeline.cue` owns one shared execution graph and native-platform selection.
-Its peer adapter owns only events, runner trust roles and source-asset transport.
+Its peer adapter owns only events, runner trust roles and runner bindings.
 `node tools/ci/projection.mjs --write` generates configured YAML. `npm run check:ci`
 verifies exact projections without writing, both locally and before each peer's
 whole quality gate. GitLab and GitHub are configured as equal optional peers;
@@ -118,35 +106,16 @@ verifies the authored checksum during installation rather than reporting absent
 lock metadata as provenance. Platform-specific options produce separate lock
 entries. No source modification or duplicate host installation is required.
 
-Node selection comes from the native Mise tools declaration. The selected npm, Rust target and
-`wasm-bindgen` versions serve native execution, not an alternative quality gate.
-The Rust declaration explicitly selects `cargo` and `rustc`; native Mise
-installation reconciles these components even when the tool-cache survives.
-Mise exposes each selected tool as either a map or an array. Both environment
-templates resolve the native shape before selecting its installation path.
+Node selection comes from the native Mise tools declaration. The selected npm,
+Typst and CUE versions serve native execution, not an alternative quality gate.
 Windows CI retains only the locked tool-cache through GitLab's native fetch and
 clean settings. Forced index checkout refreshes tracked bytes before any tools;
 previous coverage and other job output are not retained.
-Linux ARM64 additionally selects official Pixi through Mise's lock. The native
-`ci/linux/` manifest and lock provide C compilation and xz without root package
-installation. CI invokes native `pixi run --locked` with the exact manifest and
-configuration carriers. Pixi activates the environment for each acceptance
-command; no copied manifest, generated shell hook or sourced script is required.
-Its cache stays in `build/runtime/tool-cache/pixi/` on the Runner's native
-filesystem; `.config/ci/linux/.pixi/` is ignored native environment state, not
-another configuration owner. These prerequisites do not change the public product's runtime.
-The Pixi-generated lock retains native bytes as a Git snapshot and is excluded
-from editorial formatting; authored manifest and configuration remain config.
-
 Playwright owns Chromium installation; the npm test preload requires the exact
-selected executable in CI. The Raster source manifest owns archive identity and
-registry coordinates; `tools/raster/resvg/verify.mjs` derives its retrieval URL
-from the caller's Forge API base and verifies bytes before the frozen journey.
-GitHub retrieves the same manifest-selected source closure from its own private
-release custody through native `gh`, using only that job's read-only token.
-Its hosted ARM64 runners use pinned official checkout and Mise actions; each
-quality command retains the executor's failure boundary. The source closure
-must be mirrored and downloaded with a matching hash before hosted qualification.
+selected executable in CI. GitHub's hosted ARM64 runners use pinned official
+checkout and Mise actions; each quality command retains the executor's failure
+boundary. Every platform runs the same shared acceptance commands after the
+same preparation.
 
 `.config/ci/linux/Dockerfile` changes only the immutable official Playwright image's
 default to `pwuser`. Runner's native checkout ownership inspection uses that

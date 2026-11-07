@@ -12,10 +12,11 @@ relations:
 
 Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
-delivery: static posters of its views on fixed 16:9 pages, one interactive page
-that answers the model's question, an overview page its author composes with
-the house class when the model names one, and a manifest that binds every
-artifact to its inputs and keeps the evidence the drawings leave out. The page
+delivery: a print edition, one PDF with a plate for each view and the overview
+its author composes with the house class when the model names one, its pages as
+images, one interactive page that answers the model's question, and a manifest
+that binds every artifact to its inputs and keeps the evidence the drawings
+leave out. The page
 is the guide its author writes when the model names one, and otherwise answers
 the question view by view.
 
@@ -53,31 +54,39 @@ A model may live anywhere, including in a separate publications repository.
 3. **Plan views**: the declared views, however many, or one view of every
    component when it fits, or an overview of the groups and one view per group.
 4. **Lay out** each view as rows of cards on one column lattice, as wide as
-   their text on posters, with an exact placement and routing that never draws
+   their text on plates, with an exact placement and routing that never draws
    an overlap.
-5. **Compose** the views onto 2400 × 1350 px poster pages and rasterize them;
-   **explain** the model on one page of the vendored Archify: the guide the
-   model names, or one native diagram per view.
+5. **Compose** each view as one plate and **typeset** the print edition and its
+   images with Typst; **explain** the model on one page of the vendored Archify:
+   the guide the model names, or one native diagram per view.
 6. **Deliver** the artifacts and the manifest into a new directory, staged and
    renamed into place only when complete.
 
 The same model, repository revision and publisher version produce the same
-bytes on one platform.
+bytes on one platform; without a checkout, the print edition is reproducible
+when the caller sets `SOURCE_DATE_EPOCH`.
 
 ## Outputs
 
-A delivery holds each poster page as `page-<n>.svg` and as PNG at 2400 px or
-the widths the caller names; the interactive page as one standalone
-`index.html`; the overview as `overview.svg` and PNG at the same widths; and
-`manifest.json`. A build may deliver any of the three media alone. The [operations reference](reference/operations.md#the-delivery) lists
+A delivery holds the print edition as `<model id>.pdf`; the interactive page as
+one standalone `<model id>.html`; in `images/`, the overview's page as
+`00-overview.png` and each plate's page as `NN-<view>.png`, at 2400 px or the
+widths the caller names; and `manifest.json`. A build may deliver either medium
+alone. The [operations reference](reference/operations.md#the-delivery) lists
 the manifest fields.
 
-A poster page holds one to three views. It shows the title, the question and
-summary, each view's figure with each component's icon and details and each
-relation's label and details, one legend of the kinds, boundary and statuses
-present, and notes with the scope, limits, attribution and the repository and
-revision. It prints no digests, verification states, claim records or tables.
-The words the publisher sets itself are in the model's language.
+The print edition opens with a title page of the work's name, question and
+summary and a byline of its release, editors, licence and publisher, then
+contents that link to every page beside the edition's facts, scope, limits and
+a reading note, then the overview and one plate per view. A plate shows the
+view's title and question, its figure with each component's icon and details
+and each relation's label and details, and a key of the kinds, boundary and
+statuses it shows; its text is text, and each card title links to its
+component's first file when the model names a browsable repository. The edition
+conforms to PDF/A-3a and PDF/UA-1 and carries the model it was built from. It
+prints the model digest and the number of files read among its facts, but no
+verification states, claim records or tables. The words the publisher sets
+itself are in the model's language.
 
 A guide is the page as its author wrote it, held by Archify to its checks at
 the build's quality, with strict writing at showcase; with a checkout, its
@@ -92,34 +101,31 @@ digest and verification state.
 
 ## Quality floor
 
-- Every poster page is 2400 × 1350 px, and no text is smaller than 14 px. A
-  page passes the balance gates for its largest blank rectangle, blank bands,
-  holes and centre of mass, or, when its figures already stand at the largest
-  type step, is printed as sparse: the model has too little to fill it. Any
-  other view no admitted page holds is refused with its closest page's measures
-  and limits, unless the build asks for standard quality, which prints that page
-  as a draft. The manifest records every page's admission and misses. A view
-  that no page can lay out is refused; text is never shrunk and nothing is
-  cropped.
+- Every plate is laid out for the edition's body, and no figure text is smaller
+  than 14 px. Each plate is measured against the balance gates for its largest
+  blank rectangle, blank bands, holes and centre of mass, and the manifest
+  records the gates it misses, which the reviewer weighs at acceptance. A view that no
+  plate can lay out is refused; text is never shrunk and nothing is cropped,
+  and text Typst would set wider than the engine measured it is refused.
 - Text is set in the bundled faces, and lines break where the text's writing
   system allows. Text in a right-to-left or shaped script, or with a character
   no bundled face draws, is refused rather than drawn wrong.
-- On posters each card is as wide as its text, the cards of one lattice column
+- On plates each card is as wide as its text, the cards of one lattice column
   share one width and the cards of a row one height, and all sit on shared row
   lines; the page's diagram cards share one width. Wires are horizontal and
   vertical only; no segment is shared by two relations, no wire crosses a card
   and no label touches a card, a label, another wire or the system boundary. A
   layout that cannot meet this is never drawn, and a view no layout draws is
   refused. Crossings the relations force are allowed and counted, as are route
-  defects, and each poster page prefers the fewest of both.
+  defects, and each plate prefers the fewest of both.
 - Archify delivers the page at the build's quality profile, showcase unless the
   build asks for standard, and every view diagram passes Archify's checks at
   that profile, or the build is refused with Archify's findings. In a 1440 × 900 window every preview fits its panel,
   primary labels render at no less than 13.25 CSS px in the previews and 14 CSS
   px in the full viewer. Each diagram draws every component and relation of its
   view, and the manifest records its route measures.
-- Archify, the fonts, the icons, the raster renderer and the LikeC4 parser are
-  bundled unmodified with recorded digests.
+- Archify, the fonts, the house faces, the measuring library, the icons and the
+  LikeC4 parser are bundled unmodified with recorded digests.
 
 ## Acceptance and publication
 
@@ -136,7 +142,7 @@ published delivery. Tests and checks never stand in for that acceptance.
 - `archpub check` reports what a model draws, cites and covers of its
   repository, and how far the repository has moved since its revision. These
   are counts for the author and the reviewer; they never refuse a model.
-- The media are the posters and the page. Slides, PDF and mobile layouts are
+- The media are the print edition and the page. Slides and mobile layouts are
   not produced.
 - A build needs no network, account or credential. Publication copies files
   locally; uploading to a Forge or a website is the caller's own step.
