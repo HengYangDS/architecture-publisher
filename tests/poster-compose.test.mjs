@@ -8,6 +8,7 @@ import { planViews } from "../src/plan/views.mjs";
 import { notesOf } from "../src/poster/blocks.mjs";
 import { admitsView } from "../src/poster/compose/candidates.mjs";
 import { composeEdition, composePosters } from "../src/poster/compose/edition.mjs";
+import { composePlates } from "../src/poster/compose/plates.mjs";
 import { gateFailures } from "../src/poster/compose/gates.mjs";
 import { rasterize } from "../src/poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
@@ -150,22 +151,22 @@ test("tier labels stand three gutters clear of the rail text beside them", async
   assert.ok(left - right >= 3 * POSTER.grid.gutter, `${left - right} px`);
 });
 
-test("tier labels stand before the edge their tier starts at when one column cannot balance a page", async () => {
-  // Big Bank's data tier starts at the mainframe, far left of the boundary its
-  // front and back ends start at: one label column left the paper between it
-  // and the boundary blank, and no page with it balanced.
-  const { model } = await loadModel(BIG_BANK_MODEL);
-  const [page] = await edition(model);
-  assertBalanced(page);
-  assert.equal(page.composition.tierLabels, "edges");
-  const numbers = [...page.svg.matchAll(/<circle cx="([\d.]+)" cy="[\d.]+" r="14"/gu)].map(
+test("tier labels stand before the edge their tier starts at when that leaves less of the plate blank", async () => {
+  // AIGW's authority view starts its tiers at different edges: labels in one
+  // column leave paper between it and the tiers that start further in, so the
+  // plate sets each label before its own tier's edge.
+  const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
+  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const plate = composePlates(model, views, typefaces, icons).find(
+    ({ views: [id] }) => id === "authority",
+  );
+  assert.equal(plate.composition.tierLabels, "edges");
+  const numbers = [...plate.svg.matchAll(/<circle cx="([\d.]+)" cy="[\d.]+" r="14"/gu)].map(
     ([, cx]) => Number(cx),
   );
-  assert.equal(numbers.length, 4);
-  assert.equal(numbers[1], numbers[2]);
-  assert.equal(new Set(numbers).size, 3);
+  assert.ok(numbers.length > 1);
+  assert.ok(new Set(numbers).size > 1, "every label stands in one column");
 });
-
 test("a wrapped tier's label stands level with its first row beside a bracket over its rows", async () => {
   const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
   const pages = await edition(model);

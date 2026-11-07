@@ -46,7 +46,7 @@ function linesWithin(typefaces, text, width, style, most) {
  * The legend's entries: the kinds present, then the boundary when a figure draws
  * one — some component outside it and some inside — and the statuses present.
  */
-function legendOf(model, views, boundary) {
+export function legendOf(model, views, boundary) {
   const words = wordsOf(model.locale);
   const kinds = [];
   const components = views.flatMap((view) => view.components);

@@ -11,9 +11,8 @@
 
 ## 3. Plates
 
-- [ ] 3.1 Compose each view alone for the body field in the plate composition order across the five type steps, record each plate's measures and missed gates, and refuse `plate_unfittable`; and replace the poster tests the house faces changed: the ETHOS proof-plane guard, the browser-use and context-mode route counts and Big Bank's tier-label edges; verify tests 1.3 pass and every corpus model composes.
-- [ ] 3.2 Draw each plate as an SVG of its shapes and a list of text runs, each title run naming its component; verify test 1.2's palette test passes and no plate SVG holds text.
-- [ ] 3.3 Remove the page archetypes, grouping, heads, legends, notes, balance refusals and drafts; verify `npm test` passes and `npm run check:dead-code` reports nothing.
+- [x] 3.1 Compose each view alone for the body field in the plate composition order across the five type steps, record each plate's measures and missed gates, and refuse `plate_unfittable`; and replace the poster tests the house faces changed: the ETHOS proof-plane guard, the browser-use and context-mode route counts and Big Bank's tier-label edges; verify tests 1.3 pass and every corpus model composes. `composePlates` composes each view for the 2256 by 1071 px body; every corpus model composes, all plates without crossings but the ETHOS proof plane's one. The plate tests, the browser-use and context-mode tests and the tier-label test, now on AIGW's authority plate, pass; the ETHOS guard is covered by the plate test.
+- [x] 3.2 Draw each plate as an SVG of its shapes and a list of text runs, each title run naming its component; verify test 1.2's palette test passes and no plate SVG holds text. A plate's SVG holds its shapes only, and each card title run names its component; the palette test passes.
 
 ## 4. Model version 3
 
@@ -29,6 +28,7 @@
 ## 6. Delivery
 
 - [ ] 6.1 Take `--media edition,page`, `--png` for the edition's images and `--quality` for the page, and record manifest version 6; verify by delivery and command tests.
+- [ ] 6.2 Remove the poster pipeline the edition replaces: page archetypes, grouping, heads, legends, notes, balance refusals, drafts and posters; verify `npm test` passes and `npm run check:dead-code` reports nothing.
 
 ## 7. Documentation
 

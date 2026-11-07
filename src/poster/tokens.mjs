@@ -2,7 +2,7 @@ import fs from "node:fs";
 import { ROUTE } from "../layout/measure.mjs";
 
 /** The house tokens: the palette and faces the overview class sets in, read once. */
-const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
+export const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
 /**
  * Poster design tokens. One fixed landscape page, one grid, one type scale and

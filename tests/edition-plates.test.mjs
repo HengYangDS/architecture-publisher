@@ -4,7 +4,7 @@ import { loadIcons } from "../src/icons.mjs";
 import { loadModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
 import { admitsView } from "../src/poster/compose/candidates.mjs";
-import * as edition from "../src/poster/compose/edition.mjs";
+import * as edition from "../src/poster/compose/plates.mjs";
 import { loadTypefaces } from "../src/poster/text.mjs";
 import { AIGW_MODEL, ETHOS_PROOF_PLANE_MODEL } from "./fixtures/models.mjs";
 

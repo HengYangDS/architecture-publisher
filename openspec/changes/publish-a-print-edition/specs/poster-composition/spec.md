@@ -274,14 +274,25 @@ hold the view's figure only.
 - **THEN** each plate is at most 2256 px wide and 1071 px high
 - **AND** each view of the plan is one plate, in plan order
 
-### Requirement: Plate composition order
+### Requirement: Plate candidates
 
 A plate's candidates SHALL be every row wrapping its view can draw, at each
 figure type step, with each row centred over all its cards, over only those
-inside the boundary when its rows hold outside cards, and uncentred. The
-publisher SHALL choose the fewest crossings, then the fewest route defects,
-then the largest type step, then the widest wrapping, then the fewest bends,
-then the least area in holes and in the largest blank rectangle.
+inside the boundary when its rows hold outside cards, and uncentred, and with
+its tier labels in one column or before the edges their tiers start at.
+
+#### Scenario: Uncentred rows are tried
+
+- **WHEN** centring a view's rows makes a relation that skips a row cross a wire
+- **THEN** the plate also tries the rows uncentred and draws the one that does
+  not cross
+
+### Requirement: Plate composition order
+
+Among a plate's candidates the publisher SHALL choose the fewest crossings,
+then the fewest route defects, then the largest type step, then the widest
+wrapping, then layered rows before flatter ones, then the least of the body in
+holes and in the largest blank rectangle.
 
 #### Scenario: Fewer crossings before larger type
 

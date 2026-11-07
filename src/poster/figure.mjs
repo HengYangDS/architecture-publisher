@@ -240,10 +240,11 @@ export function drawFigure(layout, input) {
   };
   const at = (x) => x + shifts.x;
   const down = (y) => y + shifts.y;
-  const text = (layer, value, x, top, style, color) => {
+  const text = (layer, value, x, top, style, color, component = null) => {
     // Runs carry the top of the line box, so the renderer and the balance
-    // measure place the same line from the same number.
-    runs.push({ layer, value, x, top, style, color });
+    // measure place the same line from the same number. A card's title names
+    // its component, so the edition can link it to the files it cites.
+    runs.push({ layer, value, x, top, style, color, ...(component ? { component } : {}) });
     return top + style.line;
   };
   // Every plate that interrupts a wire is paper, so it reads as a gap in the line.
@@ -376,6 +377,7 @@ export function drawFigure(layout, input) {
         top,
         styles.name,
         component.status === "retired" ? C.muted : C.ink,
+        component.id,
       );
     // Details follow the label as one block read from the card's top edge, so a
     // card shorter than its row's tallest keeps its spare height at its foot,

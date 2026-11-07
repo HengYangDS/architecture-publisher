@@ -1,6 +1,15 @@
 {
-  "page": { "width": 1600, "height": 900, "margin": 48 },
-  "sizes": { "title": 34, "head": 18, "text": 12.5, "small": 11 },
+  "page": {
+    "width": 1600,
+    "height": 900,
+    "margin": 48
+  },
+  "sizes": {
+    "title": 34,
+    "head": 18,
+    "text": 12.5,
+    "small": 11
+  },
   "faces": {
     "sans": "Source Sans 3",
     "serif": "Source Serif 4",
@@ -25,5 +34,12 @@
     "boundary": "#8c877a",
     "retired": "#8c968d",
     "shadow": "#2b2a24"
+  },
+  "plate": {
+    "x": 48,
+    "y": 112,
+    "width": 1504,
+    "height": 714,
+    "pixelsPerPoint": 1.5
   }
 }

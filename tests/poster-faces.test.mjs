@@ -4,14 +4,14 @@ import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 import { loadIcons } from "../src/icons.mjs";
-import { loadModel, validateModel } from "../src/model/load.mjs";
+import { validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
 import { admitsView } from "../src/poster/compose/candidates.mjs";
-import * as edition from "../src/poster/compose/edition.mjs";
+import * as edition from "../src/poster/compose/plates.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
 import { figureStyles } from "../src/poster/tokens.mjs";
 import { verifySupply } from "../src/supply.mjs";
-import { ETHOS_PROOF_PLANE_MODEL, minimalModel } from "./fixtures/models.mjs";
+import { minimalModel } from "./fixtures/models.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 
@@ -76,18 +76,4 @@ test("plates are drawn in the house palette", async () => {
     [...colours].filter((colour) => !HOUSE_PALETTE.has(colour)),
     [],
   );
-});
-
-test("the ETHOS proof plane prints alone beside its overview", async () => {
-  // In the house faces its cards narrow, and alone the proof plane leaves more
-  // blank paper and more holes than a sparse page admits; the edition must
-  // still print it rather than refuse.
-  const { model } = await loadModel(ETHOS_PROOF_PLANE_MODEL, { icon: icons.has });
-  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
-  const pages = edition.composeEdition(model, views, typefaces, icons);
-  assert.deepEqual(
-    pages.map(({ views: shown }) => shown.map(({ id }) => id)),
-    [["overview"], ["proof"]],
-  );
-  for (const { admission } of pages) assert.ok(["balanced", "sparse"].includes(admission));
 });

@@ -28,9 +28,7 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
    one type system, and every page would have been composed twice.
 2. **One view per plate, laid out for the body.** The body field is 1504 by 714 points, or 2256 by
    1071 poster pixels at two thirds of a point each. The engine composes each view alone in that field.
-   It tries every wrapping, type step and centring, uncentred included, and takes the fewest crossings,
-   then the fewest route defects, then the largest step, then the widest wrapping, then the fewest
-   bends, then the least area in holes and blank rectangles.
+   It tries every wrapping, type step, centring, uncentred included, and tier-label arrangement, and takes the fewest crossings, then the fewest route defects, then the largest step, then the widest wrapping, then layered rows before flat ones, then the least area in holes and blank rectangles.
    - No current delivery shares a page between views. Measured on 59 views, this order gave no smaller
      type and no more crossings than today.
    - Balance is measured and recorded. It no longer refuses or drafts a page, because its thresholds
