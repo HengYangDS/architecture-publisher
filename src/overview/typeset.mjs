@@ -26,6 +26,8 @@ export const TYPST_VERSION = "0.15.1";
 /** The house class, staged beside the model under this directory of the root. */
 const STAGED = "archpub";
 const CLASS = fileURLToPath(new URL("./house.typ", import.meta.url));
+/** The house tokens, staged beside the class, which reads them. */
+const TOKENS = fileURLToPath(new URL("../house.json", import.meta.url));
 /** The page's width in points; a PNG of w pixels is rendered at w * 72 / PAGE_WIDTH pixels per inch. */
 const PAGE_WIDTH = LIVE_AREA.width;
 /** The overview's PNG at this width is `overview.png`; any other width is suffixed. */
@@ -104,13 +106,16 @@ async function stage(composition, modelBytes) {
   await fs.mkdir(path.join(root, STAGED));
   const classBytes = await fs.readFile(CLASS);
   await fs.writeFile(path.join(root, STAGED, "house.typ"), classBytes);
+  const tokenBytes = await fs.readFile(TOKENS);
+  await fs.writeFile(path.join(root, STAGED, "house.json"), tokenBytes);
   await fs.writeFile(path.join(root, STAGED, "model.json"), modelBytes);
   const own = sources.find(({ file }) => file === path.basename(composition));
   return {
     root,
     entry: path.basename(composition),
     composition: own ? sha256(Buffer.from(own.text)) : null,
-    house: sha256(classBytes),
+    // The class reads its tokens, so its digest covers both.
+    house: sha256(Buffer.concat([classBytes, tokenBytes])),
   };
 }
 

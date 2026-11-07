@@ -1,0 +1,29 @@
+{
+  "page": { "width": 1600, "height": 900, "margin": 48 },
+  "sizes": { "title": 34, "head": 18, "text": 12.5, "small": 11 },
+  "faces": {
+    "sans": "Source Sans 3",
+    "serif": "Source Serif 4",
+    "display": "Source Serif 4 Subhead",
+    "han": "Noto Sans CJK SC"
+  },
+  "palette": {
+    "paper": "#f5f3ed",
+    "ink": "#29372f",
+    "green": "#324f3e",
+    "mid": "#617465",
+    "soft": "#4f5f52",
+    "rule": "#cbc6b8",
+    "ochre": "#845922"
+  },
+  "figure": {
+    "card": "#fbfaf6",
+    "cardStroke": "#d6d1c4",
+    "outside": "#ece8df",
+    "outsideStroke": "#c4bdae",
+    "outsideMark": "#7b857c",
+    "boundary": "#8c877a",
+    "retired": "#8c968d",
+    "shadow": "#2b2a24"
+  }
+}

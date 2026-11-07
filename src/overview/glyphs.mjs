@@ -14,14 +14,12 @@ import { verifySupply } from "../supply.mjs";
 let coverage = null;
 
 async function loadCoverage() {
-  const [house, fonts, resvg] = await Promise.all([
+  const [house, fonts, reader] = await Promise.all([
     verifySupply("house"),
     verifySupply("fonts"),
-    verifySupply("resvg"),
+    verifySupply("opentype"),
   ]);
-  const opentype = await import(
-    pathToFileURL(path.join(resvg.root, "opentype", "opentype.mjs")).href
-  );
+  const opentype = await import(pathToFileURL(path.join(reader.root, "opentype.mjs")).href);
   const files = [
     ...house.manifest.files
       .filter((file) => file.family)

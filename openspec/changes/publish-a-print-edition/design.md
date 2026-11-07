@@ -80,8 +80,7 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
      not.
    - The foot is a rule at 866 points, the work's title, release, revision and date linked to the
      contents, and the folio.
-8. **One token source; one fewer toolchain.** The palette, faces and sizes live in the house supply,
-   read by the class with `toml()` and by the engine. Text is measured with the house faces and Noto
+8. **One token source; one fewer toolchain.** The palette, faces, sizes and figure colours live in one file, `src/house.json`, staged beside the class, which reads it with `json()`, and read by the engine. JSON rather than TOML: both readers parse it natively, so no parser is added. Text is measured with the house faces and Noto
    Sans CJK SC; Noto Sans leaves the font supply. resvg, its Rust build, the raster journey and the
    `--png` path through it are retired, and Typst renders every PNG. opentype.js moves to a supply of
    its own at the same version and digest.

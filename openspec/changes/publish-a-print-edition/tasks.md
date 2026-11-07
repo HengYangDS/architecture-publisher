@@ -6,12 +6,12 @@
 
 ## 2. House tokens and faces
 
-- [ ] 2.1 Move the palette, faces and sizes to one token file in the house supply, read by the Typst class and the engine; verify the overview tests pass with unchanged overview bytes.
-- [ ] 2.2 Measure figure text in Source Sans 3 and then Noto Sans CJK SC, draw figures in the house palette, drop Noto Sans from the font supply and give opentype.js a supply of its own; verify test 1.2's measuring test and the glyph refusal tests pass.
+- [x] 2.1 Move the palette, faces and sizes to one token file, `src/house.json`, read by the Typst class and the engine; verify the overview tests pass with unchanged overview bytes. The class reads `src/house.json`, staged beside it, and the engine reads it; filmkit's `overview.svg` and `overview.png` built before and after are byte-identical, and the overview tests pass. The class digest now covers the class and its tokens.
+- [x] 2.2 Measure figure text in Source Sans 3 and then Noto Sans CJK SC, draw figures in the house palette, drop Noto Sans from the font supply and give opentype.js a supply of its own; verify test 1.2's measuring test and the glyph refusal tests pass. The engine measures in Source Sans 3 and Noto Sans CJK SC through `renderers/opentype/supply`; Noto Sans left the font supply. The measuring, `Łódź` and CJK glyph-refusal tests pass; `npm test` passes 219 of 227, the eight failures being group 3's plate tests and the four poster tests in task 3.1.
 
 ## 3. Plates
 
-- [ ] 3.1 Compose each view alone for the body field in the plate composition order across the five type steps, record each plate's measures and missed gates, and refuse `plate_unfittable`; verify tests 1.3 pass and every corpus model composes.
+- [ ] 3.1 Compose each view alone for the body field in the plate composition order across the five type steps, record each plate's measures and missed gates, and refuse `plate_unfittable`; and replace the poster tests the house faces changed: the ETHOS proof-plane guard, the browser-use and context-mode route counts and Big Bank's tier-label edges; verify tests 1.3 pass and every corpus model composes.
 - [ ] 3.2 Draw each plate as an SVG of its shapes and a list of text runs, each title run naming its component; verify test 1.2's palette test passes and no plate SVG holds text.
 - [ ] 3.3 Remove the page archetypes, grouping, heads, legends, notes, balance refusals and drafts; verify `npm test` passes and `npm run check:dead-code` reports nothing.
 

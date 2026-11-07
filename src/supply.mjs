@@ -15,6 +15,7 @@ const SUPPLIES = Object.freeze({
   house: "renderers/house/supply",
   icons: "renderers/icons/supply",
   likec4: "supplies/likec4",
+  opentype: "renderers/opentype/supply",
   resvg: "renderers/resvg/supply",
 });
 

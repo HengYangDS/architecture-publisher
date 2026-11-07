@@ -9,6 +9,7 @@ export default [
       "openspec/changes/archive/**",
       "renderers/archify/supply/**",
       "renderers/fonts/supply/**",
+      "renderers/opentype/supply/**",
       "renderers/resvg/supply/**",
       "supplies/likec4/**",
     ],

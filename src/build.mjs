@@ -374,7 +374,12 @@ export async function buildDelivery(modelPath, out, options = {}) {
       : prepared.page.kind === "guide"
         ? await deliverGuide(prepared.page, staging)
         : await deliverExplainer(prepared.page, staging);
-    const [fonts, resvg] = await Promise.all([verifySupply("fonts"), verifySupply("resvg")]);
+    const [fonts, house, opentype, resvg] = await Promise.all([
+      verifySupply("fonts"),
+      verifySupply("house"),
+      verifySupply("opentype"),
+      verifySupply("resvg"),
+    ]);
     const manifest = {
       format: DELIVERY_FORMAT,
       version: DELIVERY_VERSION,
@@ -392,10 +397,11 @@ export async function buildDelivery(modelPath, out, options = {}) {
       sources: { state: prepared.binding.state, records: prepared.binding.records },
       supplies: {
         fonts: fonts.sha256,
+        house: house.sha256,
+        opentype: opentype.sha256,
         icons: prepared.icons.supplySha256,
         resvg: resvg.sha256,
         ...(page ? { archify: page.supplySha256 } : {}),
-        ...(overview ? { house: overview.supply } : {}),
       },
       views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
       posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),

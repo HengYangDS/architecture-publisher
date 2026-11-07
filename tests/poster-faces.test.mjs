@@ -8,7 +8,7 @@ import { loadModel, validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
 import { admitsView } from "../src/poster/compose/candidates.mjs";
 import * as edition from "../src/poster/compose/edition.mjs";
-import { loadTypefaces } from "../src/poster/text.mjs";
+import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
 import { figureStyles } from "../src/poster/tokens.mjs";
 import { verifySupply } from "../src/supply.mjs";
 import { ETHOS_PROOF_PLANE_MODEL, minimalModel } from "./fixtures/models.mjs";
@@ -17,10 +17,8 @@ const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 
 /** One face of a bundled supply, parsed by the same OpenType reader the engine uses. */
 async function faceOf(supplyName, file) {
-  const resvg = await verifySupply("resvg");
-  const opentype = await import(
-    pathToFileURL(path.join(resvg.root, "opentype", "opentype.mjs")).href
-  );
+  const reader = await verifySupply("opentype");
+  const opentype = await import(pathToFileURL(path.join(reader.root, "opentype.mjs")).href);
   const supply = await verifySupply(supplyName);
   const bytes = await fs.readFile(path.join(supply.root, file));
   return opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
@@ -59,6 +57,13 @@ test("figure text is measured in Source Sans 3, its semibold for heavy text, and
   assert.equal(typefaces.measure(text, detail), width(regular, text, detail.size));
   assert.equal(typefaces.measure(text, name), width(semibold, text, name.size));
   assert.equal(typefaces.measure("数据", detail), width(han, "数据", detail.size));
+});
+
+test("letters the CJK face lacks are measured in Source Sans 3 and not refused", async () => {
+  const regular = await faceOf("house", "source-sans-3/SourceSans3-Regular.otf");
+  const { detail } = figureStyles(0);
+  requireGlyphs(typefaces, [{ path: "/components/0/label", text: "Łódź" }]);
+  assert.equal(typefaces.measure("Łódź", detail), width(regular, "Łódź", detail.size));
 });
 
 test("plates are drawn in the house palette", async () => {

@@ -16,14 +16,6 @@
       "integrity": "sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==",
       "license": "BlueOak-1.0.0",
       "sourceCommit": "961ceeefcc5186005466f2085aeb36f31b161e37"
-    },
-    {
-      "name": "opentype.js",
-      "version": "2.0.0",
-      "archive": "https://registry.npmjs.org/opentype.js/-/opentype.js-2.0.0.tgz",
-      "integrity": "sha512-kCyjv6xdDY1W/jLWZ/L3QhhTlKUqDZMQ5+Jdlw12b3dXkKNpYBqqlMMj0YDQPShWFTMwgZI1hG14kN3XUDSg/A==",
-      "license": "MIT",
-      "sourceCommit": "e2eaedebfa6187c1b435a87e6b7b02e6f1ba1b48"
     }
   ],
   "files": [
@@ -86,30 +78,6 @@
       "source": "package.json",
       "bytes": 789,
       "sha256": "d7e5ff764b48b9532d1b9a8b481b8d54336e6309e362571e993645b790bea657"
-    },
-    {
-      "path": "opentype/opentype.mjs",
-      "source": "dist/opentype.mjs",
-      "bytes": 494695,
-      "sha256": "e139522ac432bb38fb4878d772012f0ad351993c36d7815d65a9890fb3fe68fb"
-    },
-    {
-      "path": "opentype/LICENSE",
-      "source": "LICENSE",
-      "bytes": 1085,
-      "sha256": "a5b87c9bc191e7f9c06b07bd7cbbed3ed846dfdb50e859484b2c245aa1ab2e61"
-    },
-    {
-      "path": "opentype/package.json",
-      "source": "package.json",
-      "bytes": 2875,
-      "sha256": "3c6a2462738f1bedff41b8b71856f8586cedcc597b1cc8a68de67244e9f2cd4a"
-    },
-    {
-      "path": "opentype/tiny-inflate-LICENSE",
-      "source": "src/tiny-inflate@1.0.3.esm.mjs license header at opentype.js sourceCommit",
-      "bytes": 1077,
-      "sha256": "c0df7f551401f8f80197ff31bf69b8cd23727d127423403282514d242a3ab132"
     }
   ]
 }

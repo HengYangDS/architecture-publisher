@@ -1,4 +1,8 @@
+import fs from "node:fs";
 import { ROUTE } from "../layout/measure.mjs";
+
+/** The house tokens: the palette and faces the overview class sets in, read once. */
+const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
 /**
  * Poster design tokens. One fixed landscape page, one grid, one type scale and
@@ -117,32 +121,35 @@ export const POSTER = Object.freeze({
     /** The gap between two plates on one page. */
     plateGap: 40,
   }),
+  /**
+   * The house palette, which the overview class reads too. Colour marks meaning, not category: every kind is
+   * drawn in the house green, checks in ochre and what lies outside the system in a grey-green; a kind is told
+   * apart by its icon and label.
+   */
   color: Object.freeze({
-    paper: "#FBFBF8",
-    ink: "#141B26",
-    muted: "#536074",
-    faint: "#9AA3AF",
-    line: "#4A5567",
-    card: "#FFFFFF",
-    cardStroke: "#D5DAE2",
-    external: "#EEF0F4",
-    externalStroke: "#C4CBD6",
-    bandA: "#F1F2EE",
-    bandB: "#FBFBF8",
-    boundary: "#7B8698",
-    rule: "#DADBD3",
-    accent: "#2357C4",
-    shadow: "#0F1B2D",
+    paper: HOUSE.palette.paper,
+    ink: HOUSE.palette.ink,
+    muted: HOUSE.palette.soft,
+    faint: HOUSE.figure.retired,
+    line: HOUSE.palette.mid,
+    card: HOUSE.figure.card,
+    cardStroke: HOUSE.figure.cardStroke,
+    external: HOUSE.figure.outside,
+    externalStroke: HOUSE.figure.outsideStroke,
+    boundary: HOUSE.figure.boundary,
+    rule: HOUSE.palette.rule,
+    accent: HOUSE.palette.green,
+    shadow: HOUSE.figure.shadow,
   }),
   hue: Object.freeze({
-    person: "#68758A",
-    external: "#68758A",
-    frontend: "#2E6BD9",
-    backend: "#4A55C8",
-    database: "#0D8579",
-    cloud: "#1C82C2",
-    messagebus: "#8650CC",
-    security: "#B86A1C",
+    person: HOUSE.figure.outsideMark,
+    external: HOUSE.figure.outsideMark,
+    frontend: HOUSE.palette.green,
+    backend: HOUSE.palette.green,
+    database: HOUSE.palette.green,
+    cloud: HOUSE.palette.green,
+    messagebus: HOUSE.palette.green,
+    security: HOUSE.palette.ochre,
   }),
   wire: Object.freeze({
     arrow: 9,

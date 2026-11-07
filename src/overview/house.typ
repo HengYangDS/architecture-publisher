@@ -2,25 +2,27 @@
 //
 // A work's composition imports this file, applies `overview`, and places its page with the primitives below on one
 // 1600 by 900 point page. Every text primitive records its box as `<archpub-box>` metadata so that the publisher can
-// check the typeset page; sizes and colours come only from the tokens defined here.
+// check the typeset page; sizes and colours come only from the house tokens, `house.json`, staged beside this class.
 
-#let paper = rgb("#f5f3ed")
-#let ink = rgb("#29372f")
-#let green = rgb("#324f3e")
-#let mid = rgb("#617465")
-#let soft = rgb("#4f5f52")
-#let rule = rgb("#cbc6b8")
-#let ochre = rgb("#845922")
+// The house tokens, which the poster engine reads too: the palette, the faces and the four type sizes.
+#let _house = json("house.json")
+#let paper = rgb(_house.palette.paper)
+#let ink = rgb(_house.palette.ink)
+#let green = rgb(_house.palette.green)
+#let mid = rgb(_house.palette.mid)
+#let soft = rgb(_house.palette.soft)
+#let rule = rgb(_house.palette.rule)
+#let ochre = rgb(_house.palette.ochre)
 
-#let sans = ("Source Sans 3", "Noto Sans CJK SC")
-#let serif = ("Source Serif 4", "Noto Sans CJK SC")
-#let display = ("Source Serif 4 Subhead", "Noto Sans CJK SC")
+#let sans = (_house.faces.sans, _house.faces.han)
+#let serif = (_house.faces.serif, _house.faces.han)
+#let display = (_house.faces.display, _house.faces.han)
 
 // The four type sizes of the house style.
-#let sizes = (title: 34pt, head: 18pt, text: 12.5pt, small: 11pt)
-#let page-width = 1600pt
-#let page-height = 900pt
-#let margin = 48pt
+#let sizes = _house.sizes.pairs().map(((name, size)) => (name, size * 1pt)).to-dict()
+#let page-width = _house.page.width * 1pt
+#let page-height = _house.page.height * 1pt
+#let margin = _house.page.margin * 1pt
 
 #let _model = json("/archpub/model.json")
 #let _inputs = sys.inputs

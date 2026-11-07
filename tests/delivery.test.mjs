@@ -29,7 +29,14 @@ test("a delivery holds every poster, the page and a manifest of their digests", 
   assert.equal(manifest.model.locale, "en");
   assert.equal(manifest.model.id, "big-bank");
   assert.equal(manifest.sources.state, "none");
-  assert.deepEqual(Object.keys(manifest.supplies), ["fonts", "icons", "resvg", "archify"]);
+  assert.deepEqual(Object.keys(manifest.supplies), [
+    "fonts",
+    "house",
+    "opentype",
+    "icons",
+    "resvg",
+    "archify",
+  ]);
   assert.deepEqual(
     manifest.artifacts.map(({ path: file }) => file),
     ["index.html", "page-1.png", "page-1.svg", "page-2.png", "page-2.svg"],

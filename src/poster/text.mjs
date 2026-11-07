@@ -11,29 +11,40 @@ import { verifySupply } from "../supply.mjs";
 let loaded;
 
 /**
- * Load the bundled typefaces once; text is measured and outlined with the same
- * faces. Each weight is a chain of faces in the order the supply lists its
- * families: CJK first, whose Latin the posters have always been set in, then a
- * Latin, Greek and Cyrillic face for the letters it lacks.
+ * Load the faces figure text is measured in, once: the house's Source Sans 3, which the
+ * edition sets that text in, then Noto Sans CJK SC for Han. Heavy text takes Source Sans 3's
+ * semibold and the CJK face's bold.
  */
 export async function loadTypefaces() {
   if (loaded) return loaded;
-  const fonts = await verifySupply("fonts");
-  const resvg = await verifySupply("resvg");
-  const opentype = await import(
-    pathToFileURL(path.join(resvg.root, "opentype", "opentype.mjs")).href
-  );
+  const [house, fonts, reader] = await Promise.all([
+    verifySupply("house"),
+    verifySupply("fonts"),
+    verifySupply("opentype"),
+  ]);
+  const opentype = await import(pathToFileURL(path.join(reader.root, "opentype.mjs")).href);
+  /** @param {any} supply @param {string} family @param {number} weight */
+  const face = async (supply, family, weight) => {
+    const file = supply.manifest.files.find(
+      (entry) => entry.family === family && entry.weight === weight && entry.style !== "italic",
+    );
+    const bytes = await fs.readFile(path.join(supply.root, file.path));
+    return opentype.parse(
+      bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+    );
+  };
   /** @type {Map<number, any[]>} */
-  const chains = new Map();
-  for (const { family } of fonts.manifest.families)
-    for (const file of fonts.manifest.files.filter((entry) => entry.family === family)) {
-      const bytes = await fs.readFile(path.join(fonts.root, file.path));
-      const face = opentype.parse(
-        bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
-      );
-      chains.set(file.weight, [...(chains.get(file.weight) ?? []), face]);
-    }
-  loaded = createTypefaces(chains, fonts.sha256);
+  const chains = new Map([
+    [
+      400,
+      await Promise.all([face(house, "Source Sans 3", 400), face(fonts, "Noto Sans CJK SC", 400)]),
+    ],
+    [
+      700,
+      await Promise.all([face(house, "Source Sans 3", 600), face(fonts, "Noto Sans CJK SC", 700)]),
+    ],
+  ]);
+  loaded = createTypefaces(chains);
   return loaded;
 }
 
@@ -55,7 +66,7 @@ function softSegments(word) {
 }
 
 /** @param {Map<number, any[]>} chains each weight's faces, in fallback order */
-function createTypefaces(chains, supplySha256) {
+function createTypefaces(chains) {
   const weightOf = (style) => (style.weight >= 600 ? 700 : 400);
   // A space between words draws nothing in any face; a no-break space is
   // drawn only by a face with a glyph of its own for it.
@@ -223,7 +234,7 @@ function createTypefaces(chains, supplySha256) {
   /** Top of a line box to its alphabetic baseline. */
   const baseline = (top, style) => top + (style.line - style.size) / 2 + style.size * 0.88;
 
-  return Object.freeze({ measure, missing, wrap, detailLines, outline, baseline, supplySha256 });
+  return Object.freeze({ measure, missing, wrap, detailLines, outline, baseline });
 }
 
 const coordinate = (value) => {
