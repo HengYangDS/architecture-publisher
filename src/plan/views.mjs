@@ -31,7 +31,7 @@ function viewOf(model, base, memberIds, tiers, contextIds = []) {
     id: base.id,
     title: base.title ?? model.title,
     question: base.question ?? model.question,
-    summary: base.summary ?? (base.origin === "complete" ? model.summary : null),
+    summary: base.summary ?? null,
     origin: base.origin,
     tiers,
     components,
@@ -41,11 +41,9 @@ function viewOf(model, base, memberIds, tiers, contextIds = []) {
 
 /** @returns {View[]} */
 function declaredViews(model) {
-  return model.views.map((view, index) => {
+  return model.views.map((view) => {
     const members = view.tiers ? view.tiers.flatMap(({ members: ids }) => ids) : view.members;
-    // The first view opens the edition, so it carries the model summary unless it has its own.
-    const summary = view.summary ?? (index === 0 ? model.summary : null);
-    return viewOf(model, { ...view, summary, origin: "declared" }, members, view.tiers);
+    return viewOf(model, { ...view, origin: "declared" }, members, view.tiers);
   });
 }
 
@@ -99,7 +97,7 @@ function overviewView(model) {
     id,
     title: model.title,
     question: model.question,
-    summary: model.summary,
+    summary: null,
     origin: /** @type {const} */ ("overview"),
     tiers: null,
     components: nodes,
@@ -224,11 +222,14 @@ async function admitAll(views, admit) {
 
 /** @param {View} view @param {Measurement} measured */
 function viewProblems(view, measured) {
-  if (measured.refusal)
+  if (measured.refusal) {
+    // A problem already placed under its view keeps its path.
+    const under = `/views/${view.id}`;
     return measured.refusal.problems.map((problem) => ({
       ...problem,
-      path: `/views/${view.id}${problem.path ?? ""}`,
+      path: problem.path?.startsWith(under) ? problem.path : `${under}${problem.path ?? ""}`,
     }));
+  }
   return [
     {
       code: "view_not_admitted",

@@ -37,7 +37,7 @@ const count = (number, noun) => `${number} ${noun}${number === 1 ? "" : "s"}`;
 const series = (items) =>
   items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 
-/** What a check found, as lines: admission, statements, coverage and currency. */
+/** What a check found, as lines: admission, statements, plates, coverage and currency. */
 function checkText(result) {
   const lines = [
     `${result.model.id}: ${result.views.length} views admitted; files ${result.sources.state}.`,
@@ -47,6 +47,16 @@ function checkText(result) {
   for (const [name, found] of Object.entries(result.statements))
     if (found.components.length || found.relations.length)
       lines.push(`${name[0].toUpperCase()}${name.slice(1)}: ${statements(found)}.`);
+  for (const plate of result.plates) {
+    const reading = { set: ", beside its reading", omitted: ", its reading left out", none: "" };
+    const misses = plate.misses?.length
+      ? `; misses ${series(plate.misses.map(({ measure }) => measure))}`
+      : "";
+    lines.push(
+      `Plate ${String(plate.page).padStart(2, "0")} (${plate.views.join(", ")}): figure ` +
+        `${Math.round(plate.share * 100)}% of the body${reading[plate.reading]}${misses}.`,
+    );
+  }
   const { coverage } = result;
   if (coverage) {
     const { files } = coverage;

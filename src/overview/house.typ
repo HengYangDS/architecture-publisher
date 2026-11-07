@@ -244,11 +244,46 @@
 #let _key(entries) = place(top + left, dx: margin, dy: _e.key * 1pt - 10pt,
   text(size: sizes.small, fill: soft, entries.map(entry => [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
 
+/// A plate's reading in the width its figure leaves: the view's summary, justified when its column holds 24 em and
+/// flush left otherwise, then where each component it shows lives. A reading taller than the body is refused, since
+/// text is never shrunk.
+#let _reading(p, words, x, w, height) = {
+  let size = 17pt
+  let column = block(width: w, {
+    set block(spacing: 0pt)
+    if p.summary != none {
+      if w >= 24 * size { prose(w, p.summary, size: size, font: serif, pitch: 24pt) } else {
+        set text(size: size, font: serif, fill: ink, hyphenate: false, top-edge: "baseline", bottom-edge: "baseline")
+        set par(justify: false, leading: 24pt, spacing: 0pt)
+        block(width: w, p.summary)
+      }
+      v(40pt)
+    }
+    if p.places.len() > 0 {
+      _label(words.places)
+      v(20pt)
+      for entry in p.places {
+        block(width: w, {
+          set par(leading: 6pt, justify: false)
+          text(size: 14pt, weight: "semibold", font: sans, fill: ink, entry.label)
+          linebreak()
+          text(size: 13pt, font: sans, fill: soft, entry.files.join(", "))
+        })
+        v(14pt)
+      }
+    }
+  })
+  context if measure(column).height > height - 24pt { panic("edition_reading_too_long: " + p.title) }
+  place(top + left, dx: x, dy: _e.bodyTop * 1pt + 24pt, column)
+}
+
 /// One plate: its shapes as an artifact, its runs as text at the engine's positions, its card titles linked to the
 /// files they cite, the whole one figure named by its title and question.
-#let _plate(p) = {
-  let width = page-width - 2 * margin
+#let _plate(p, words) = {
+  let body = page-width - 2 * margin
+  let width = p.figureWidth * _k
   let height = (_e.bodyBottom - _e.bodyTop) * 1pt
+  if width < body - 1pt { _reading(p, words, margin + width + 40pt, body - width - 40pt, height) }
   place(top + left, dx: margin, dy: _e.bodyTop * 1pt, figure(alt: p.alt, box(width: width, height: height, {
     place(pdf.artifact(image(p.file, width: width)))
     for r in p.runs {
@@ -367,7 +402,7 @@
       panic("edition_title_too_long: " + p.title)
     }
     _head(p.number, p.title, lead: p.question, label-style: (size: "title", font: display, fill: green))
-    _plate(p)
+    _plate(p, words)
     _key(p.marks)
     edition-foot()
   }

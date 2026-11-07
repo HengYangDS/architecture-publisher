@@ -21,6 +21,9 @@ function plate(page, overrides = {}) {
   return {
     page,
     views: [`view-${page}`],
+    width: 2256,
+    share: 1,
+    reading: "none",
     title: `View ${page}`,
     question: `What does view ${page} show?`,
     svg: SHAPES,
@@ -165,7 +168,9 @@ test("a narrowed plate sets its view's summary and where each component lives, a
   assert.equal((await edition([narrowed(summary)])).pages, 3);
   await assert.rejects(
     edition([narrowed("A sentence of the summary, at its length. ".repeat(48).trim())]),
-    (error) => error.code === "edition_reading_too_long" && /View 1/u.test(error.message),
+    (error) =>
+      error.code === "edition_reading_too_long" &&
+      error.problems.some(({ message }) => /View 1/u.test(message)),
   );
 });
 

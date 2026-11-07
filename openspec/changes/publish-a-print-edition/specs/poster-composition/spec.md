@@ -305,8 +305,8 @@ holes and in the largest blank rectangle.
 A plate's figure SHALL take the narrowest of 100, 80 and 65 percent of the
 body's width at which its chosen composition has no more crossings and route
 defects than at the full width. A view without a summary SHALL take a narrower
-share only when its figure at the full width spans no more than that share and
-keeps its type step there.
+share only when one of its components claims files, its figure at the full
+width spans no more than that share, and it keeps its type step there.
 
 #### Scenario: A narrow view
 

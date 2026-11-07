@@ -44,9 +44,24 @@ export function editionRecord(input) {
       const url = linkOf(repository.browse, repository.revision, owned.get(run.component)?.[0]);
       if (url) links[run.component] = url;
     }
+    // Beside a figure that leaves part of the body: the view's summary, and where each component it shows lives,
+    // as the model claims it.
+    const shown = [...new Set(plate.runs.flatMap((run) => (run.component ? [run.component] : [])))];
+    const places =
+      plate.reading === "set"
+        ? shown.flatMap((id) => {
+            const component = model.components.find((one) => one.id === id);
+            return component?.files?.length
+              ? [{ label: component.label, files: component.files }]
+              : [];
+          })
+        : [];
     return {
       key: `plate-${number}`,
       number,
+      figureWidth: plate.width,
+      summary: plate.reading === "set" ? (plate.summary ?? null) : null,
+      places,
       file: `plates/${number}.svg`,
       title: plate.title,
       question: plate.question,
@@ -144,6 +159,7 @@ export function editionRecord(input) {
       limits: words.limits,
       reading: words.reading,
       readingNote: words.readingNote(linked, input.page),
+      places: words.places,
       attached: words.attached,
       built: at ? words.built(short ?? "", date) : null,
       foot: short ? words.foot(model.title, release, short, date) : model.title,

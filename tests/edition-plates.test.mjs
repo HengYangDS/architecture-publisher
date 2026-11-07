@@ -91,30 +91,43 @@ test("an edition plate's legend names the kinds its figures show, each with its 
 });
 
 test("a narrow view's figure takes 65 percent of the body, and a wide view without a summary keeps all of it", async () => {
-  // Six tiers of one card each: a chain as tall as the body and a sixth as wide.
-  const chain = validateModel(
-    graphModel(
-      6,
-      Array.from({ length: 5 }, (_, index) => [index + 1, index + 2]),
-      {
-        views: [
-          {
-            id: "chain",
-            tiers: Array.from({ length: 6 }, (_, index) => ({
-              id: `t${index + 1}`,
-              label: `Tier ${index + 1}`,
-              members: [`c${index + 1}`],
-            })),
-          },
-        ],
-      },
-    ),
+  // Six tiers of one card each, each claiming its file: a chain as tall as the body and a sixth as wide.
+  const base = graphModel(
+    6,
+    Array.from({ length: 5 }, (_, index) => [index + 1, index + 2]),
+    {
+      views: [
+        {
+          id: "chain",
+          tiers: Array.from({ length: 6 }, (_, index) => ({
+            id: `t${index + 1}`,
+            label: `Tier ${index + 1}`,
+            members: [`c${index + 1}`],
+          })),
+        },
+      ],
+    },
   );
+  const chain = validateModel({
+    ...base,
+    components: base.components.map((component) => ({
+      ...component,
+      files: [`src/${component.id}.mjs`],
+    })),
+  });
+  // Without a file to list or a summary to set, the same chain keeps the body.
+  const {
+    plates: [bare],
+  } = await platesOf(validateModel(base));
+  assert.deepEqual([bare.share, bare.reading], [1, "none"]);
   const {
     plates: [narrow],
   } = await platesOf(chain);
   assert.deepEqual([narrow.share, narrow.width, narrow.reading], [0.65, 1466, "set"]);
-  const layout = (await platesOf(await loaded(SELF_MODEL))).plates.find(
+  // The layout view spans the body; without its summary, it keeps all of it.
+  const self = JSON.parse(await fs.readFile(SELF_MODEL, "utf8"));
+  for (const view of self.views) delete view.summary;
+  const layout = (await platesOf(validateModel(self))).plates.find(
     ({ views: [id] }) => id === "layout",
   );
   assert.deepEqual([layout?.share, layout?.width, layout?.reading], [1, BODY.width, "none"]);
@@ -280,6 +293,22 @@ test("a view no composition lays out in the body is refused by name", async () =
       /View architecture cannot be laid out in the edition's body/u.test(error.message) &&
       error.problems[0].path === "/views/architecture",
   );
+  // Two declared views that no composition lays out are refused together, each problem under its own view.
+  const two = validateModel({
+    ...base,
+    views: [
+      { id: "first", members: ["c1", "c2"] },
+      { id: "second", members: ["c3", "c4"] },
+    ],
+  });
+  await assert.rejects(platesOf(two), (error) => {
+    assert.equal(error.code, "plate_unfittable");
+    assert.deepEqual(
+      error.problems.map(({ path }) => path),
+      ["/views/first"],
+    );
+    return true;
+  });
   // A plan without groups whose only view is refused asks for structure, naming why.
   await assert.rejects(platesOf(model), (error) => {
     assert.equal(error.code, "plan_requires_structure");

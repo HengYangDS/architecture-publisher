@@ -13,12 +13,12 @@ const rowsOf = (model) =>
     ({ members }) => members,
   );
 
-test("a model that fits is one complete view carrying the model summary", async () => {
+test("a model that fits is one complete view, which leaves the model's summary to the title page", async () => {
   const model = validateModel(minimalModel({ summary: "All of it." }));
   const [view] = await planViews(model, fits);
   assert.equal(view.id, "architecture");
   assert.equal(view.origin, "complete");
-  assert.equal(view.summary, "All of it.");
+  assert.equal(view.summary, null);
   assert.deepEqual(
     view.components.map(({ id }) => id),
     ["a", "b"],
@@ -29,7 +29,7 @@ test("a model that fits is one complete view carrying the model summary", async 
   );
 });
 
-test("declared views keep their members, tiers and the first view's summary", async () => {
+test("declared views keep their members, tiers and their own summaries", async () => {
   const model = validateModel(
     minimalModel({
       summary: "Model summary.",
@@ -55,9 +55,10 @@ test("declared views keep their members, tiers and the first view's summary", as
     return { fits: true, width: 1, height: 1 };
   });
   assert.deepEqual(asked, ["first", "second"]);
+  // The model's summary is the title page's; a view carries only its own.
   assert.deepEqual(
     views.map(({ summary }) => summary),
-    ["Model summary.", "Own."],
+    [null, "Own."],
   );
   assert.deepEqual(
     views[0].relations.map(({ id }) => id),

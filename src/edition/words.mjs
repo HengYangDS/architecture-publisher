@@ -16,7 +16,7 @@ import { DEFAULT_LOCALE } from "../locale.mjs";
  *   built: (revision: string, date: string | null) => string,
  *   foot: (title: string, release: string | null, revision: string, date: string | null) => string,
  *   plate: (number: string, title: string, question: string) => string,
- *   list: string,
+ *   places: string, list: string,
  * }} EditionWords
  */
 
@@ -47,6 +47,7 @@ const WORDS = Object.freeze({
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""} at ${revision}${date ? `, ${date}` : ""}`,
     plate: (number, title, question) => `Plate ${number}: ${title}. ${question}`,
+    places: "Where it lives",
     list: ", ",
   }),
   "zh-CN": Object.freeze({
@@ -74,6 +75,7 @@ const WORDS = Object.freeze({
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""}，修订 ${revision}${date ? `，${date}` : ""}`,
     plate: (number, title, question) => `图版 ${number}：${title}。${question}`,
+    places: "文件位置",
     list: "、",
   }),
   "zh-TW": Object.freeze({
@@ -101,6 +103,7 @@ const WORDS = Object.freeze({
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""}，修訂 ${revision}${date ? `，${date}` : ""}`,
     plate: (number, title, question) => `圖版 ${number}：${title}。${question}`,
+    places: "檔案位置",
     list: "、",
   }),
   es: Object.freeze({
@@ -129,6 +132,7 @@ const WORDS = Object.freeze({
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""} en ${revision}${date ? `, ${date}` : ""}`,
     plate: (number, title, question) => `Lámina ${number}: ${title}. ${question}`,
+    places: "Ubicación",
     list: ", ",
   }),
   ko: Object.freeze({
@@ -156,6 +160,7 @@ const WORDS = Object.freeze({
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""}, 리비전 ${revision}${date ? `, ${date}` : ""}`,
     plate: (number, title, question) => `도판 ${number}: ${title}. ${question}`,
+    places: "파일 위치",
     list: ", ",
   }),
 });

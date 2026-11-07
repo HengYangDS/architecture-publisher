@@ -267,6 +267,8 @@ function plateSummary(plate, widths) {
   return {
     page: plate.page,
     views: plate.views,
+    share: plate.share,
+    reading: plate.reading,
     images: widths.map((width) => ({
       width,
       file: width === PNG_WIDTHS[0] ? `images/${name}.png` : `images/${name}-${width}.png`,

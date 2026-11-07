@@ -113,8 +113,8 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
       crossings and route defects. A view with a summary gives up at least a fifth of the width: its
       figure takes 80 percent, at the step that width allows, or 65 percent when that keeps its
       80-percent step, so a summary costs at most the type that 80 percent takes from the figure. A view
-      without one narrows only to a share its full-width figure already leaves and keeps its step, so a
-      figure is never narrowed for a list alone.
+      without one narrows only when one of its components claims files, to a share its full-width figure
+      already leaves, at its step, so a figure is never narrowed for a list alone or for nothing.
     - Beside the figure, 40 points from its field, the plate sets the view's summary and then where each
       shown component lives: its claimed paths, as the model declares them. The summary is justified when
       its column holds at least 24 em at 17 points, and flush left otherwise.
