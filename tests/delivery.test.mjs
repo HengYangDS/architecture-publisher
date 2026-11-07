@@ -49,6 +49,14 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   // The edition is named for the work; each plate's image is named for its number and view.
   assert.deepEqual([manifest.edition.file, manifest.edition.pages], ["big-bank.pdf", 4]);
   assert.equal(manifest.page.file, "big-bank.html");
+  // Neither of Big Bank's views has a summary, and both figures span the body.
+  assert.deepEqual(
+    manifest.plates.map(({ share, reading }) => [share, reading]),
+    [
+      [1, "none"],
+      [1, "none"],
+    ],
+  );
   assert.deepEqual(
     manifest.plates.map(({ page, views, images }) => [page, views, images]),
     [

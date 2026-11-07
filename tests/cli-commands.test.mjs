@@ -111,7 +111,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(checked.body.coverage, null);
   assert.match(
     (await runCli(["check", model])).output,
-    /^page: 1 views admitted; files none\.\nUncited: \d+ components and \d+ relations\.\n$/u,
+    /^page: 1 views admitted; files none\.\nUncited: \d+ components and \d+ relations\.\nPlate 01 \(architecture\): figure (100|80|65)% of the body(, beside its reading)?(; misses [a-zA-Z, ]+)?\.\n$/u,
   );
 
   const out = path.join(root, "delivery");
@@ -166,6 +166,29 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.deepEqual(
     (await fs.readdir(shop)).filter((name) => name.endsWith(".html")),
     [],
+  );
+});
+
+test("check names each plate's share of the body and a plate that left its reading out", async (t) => {
+  // Big Bank's tiered containers would wire with route defects at 80 percent, so a summary finds no room.
+  const bank = JSON.parse(
+    await fs.readFile(new URL("../examples/big-bank/model.json", import.meta.url), "utf8"),
+  );
+  for (const view of bank.views) view.summary = `What the ${view.id} view shows.`;
+  const model = await writeModel(t, bank);
+  const checked = await json(["check", model, "--media", "edition"]);
+  assert.deepEqual(
+    checked.body.plates.map(({ views: [id], share, reading }) => [id, share, reading]).slice(0, 1),
+    [["containers-tiers", 1, "omitted"]],
+  );
+  const text = (await runCli(["check", model, "--media", "edition"])).output;
+  assert.match(
+    text,
+    /^Plate 01 \(containers-tiers\): figure 100% of the body, its reading left out/mu,
+  );
+  assert.match(
+    text,
+    /^Plate 02 \(containers-automatic\): figure (80|65)% of the body, beside its reading/mu,
   );
 });
 

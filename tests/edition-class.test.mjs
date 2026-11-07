@@ -44,6 +44,10 @@ function plate(page, overrides = {}) {
 const model = validateModel(
   minimalModel({
     summary: "A small system.",
+    components: [
+      { id: "a", label: "Alpha", files: ["src/a.mjs"] },
+      { id: "b", label: "Beta" },
+    ],
     editors: [{ name: "Yang HENG" }],
     license: "MIT",
     repository: {
@@ -133,6 +137,36 @@ test("without a checkout the foot names the title and revision and no date, and 
   assert.equal(unpinned.words.foot, "Minimal");
   assert.equal(unpinned.words.built, null);
   assert.equal(unpinned.byline[0].note, null);
+});
+
+test("a narrowed plate sets its view's summary and where each component lives, and a reading taller than the body is refused", async () => {
+  const summary = "Alpha calls Beta, and Beta answers it.";
+  const narrowed = (text) => plate(1, { share: 0.65, width: 1466, reading: "set", summary: text });
+  const record = editionRecord({
+    model,
+    plates: [narrowed(summary)],
+    icons,
+    owned: new Map([["a", ["src/a.mjs"]]]),
+    files: 1,
+    modelSha256: "0".repeat(64),
+    publisher: "0.10.0",
+    typst: "0.15.1",
+    overview: false,
+    page: "minimal.html",
+    commit: null,
+    release: null,
+  });
+  const [set] = record.plates;
+  assert.deepEqual(
+    [set.figureWidth, set.summary, set.places],
+    [1466, summary, [{ label: "Alpha", files: ["src/a.mjs"] }]],
+  );
+  assert.equal(record.words.places, "Where it lives");
+  assert.equal((await edition([narrowed(summary)])).pages, 3);
+  await assert.rejects(
+    edition([narrowed("A sentence of the summary, at its length. ".repeat(48).trim())]),
+    (error) => error.code === "edition_reading_too_long" && /View 1/u.test(error.message),
+  );
 });
 
 test("a run set wider than the engine measured it, and a title wider than its line, are refused", async () => {

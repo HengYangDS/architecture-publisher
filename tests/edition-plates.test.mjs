@@ -90,6 +90,52 @@ test("an edition plate's legend names the kinds its figures show, each with its 
   }
 });
 
+test("a narrow view's figure takes 65 percent of the body, and a wide view without a summary keeps all of it", async () => {
+  // Six tiers of one card each: a chain as tall as the body and a sixth as wide.
+  const chain = validateModel(
+    graphModel(
+      6,
+      Array.from({ length: 5 }, (_, index) => [index + 1, index + 2]),
+      {
+        views: [
+          {
+            id: "chain",
+            tiers: Array.from({ length: 6 }, (_, index) => ({
+              id: `t${index + 1}`,
+              label: `Tier ${index + 1}`,
+              members: [`c${index + 1}`],
+            })),
+          },
+        ],
+      },
+    ),
+  );
+  const {
+    plates: [narrow],
+  } = await platesOf(chain);
+  assert.deepEqual([narrow.share, narrow.width, narrow.reading], [0.65, 1466, "set"]);
+  const layout = (await platesOf(await loaded(SELF_MODEL))).plates.find(
+    ({ views: [id] }) => id === "layout",
+  );
+  assert.deepEqual([layout?.share, layout?.width, layout?.reading], [1, BODY.width, "none"]);
+});
+
+test("a view with a summary gives up a fifth of the body, or keeps it and leaves its reading out", async () => {
+  const self = JSON.parse(await fs.readFile(SELF_MODEL, "utf8"));
+  for (const view of self.views) view.summary = `What the ${view.id} view shows.`;
+  const plates = (await platesOf(validateModel(self))).plates;
+  // The media view keeps its step at 80 percent and loses one at 65 percent.
+  const media = plates.find(({ views: [id] }) => id === "media");
+  assert.deepEqual([media?.share, media?.width, media?.reading], [0.8, 1805, "set"]);
+  // Big Bank's tiered containers wire with route defects at 80 percent, so the figure keeps the body.
+  const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
+  for (const view of bank.views) view.summary = `What the ${view.id} view shows.`;
+  const tiered = (await platesOf(validateModel(bank))).plates.find(
+    ({ views: [id] }) => id === "containers-tiers",
+  );
+  assert.deepEqual([tiered?.share, tiered?.reading], [1, "omitted"]);
+});
+
 test("the ETHOS proof plane is an edition plate of its own", async () => {
   const { plates } = await platesOf(await loaded(ETHOS_PROOF_PLANE_MODEL));
   assert.deepEqual(
