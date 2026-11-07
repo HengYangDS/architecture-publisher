@@ -183,9 +183,9 @@ test("a guide is the page, its cited lines pinned and the checkout untouched", a
     writing: "strict",
     sources: "verified",
   });
-  assert.ok((await read("first", "index.html")).toString().includes(MAIN.trim()));
+  assert.ok((await read("first", "minimal.html")).toString().includes(MAIN.trim()));
   assert.deepEqual(await read("second", "manifest.json"), await read("first", "manifest.json"));
-  assert.deepEqual(await read("second", "index.html"), await read("first", "index.html"));
+  assert.deepEqual(await read("second", "minimal.html"), await read("first", "minimal.html"));
   assert.equal(work.source.git("status", "--porcelain"), "");
   assert.equal(work.source.git("remote"), "");
 });
@@ -202,7 +202,7 @@ test("a guide whose checkout cannot be cloned is refused", async (t) => {
     repo: await temporaryDirectory(t, "archpub-not-a-repository-"),
     repository: { url: URL, revision: work.source.revision },
   };
-  await assert.rejects(deliverGuide(page, await temporaryDirectory(t)), {
+  await assert.rejects(deliverGuide(page, await temporaryDirectory(t), "minimal.html"), {
     code: "guide_repository_unavailable",
   });
 });

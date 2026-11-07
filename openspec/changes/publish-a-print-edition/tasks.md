@@ -27,7 +27,7 @@
 
 ## 6. Delivery
 
-- [ ] 6.1 Take `--media edition,page`, `--png` for the edition's images and `--quality` for the page, deliver the page as `<model id>.html`, and record manifest version 6; verify by delivery and command tests.
+- [x] 6.1 Take `--media edition,page`, `--png` for the edition's images and `--quality` for the page, deliver the page as `<model id>.html`, and record manifest version 6; verify by delivery and command tests. Archify writes the page and its receipt under the model's id, and the manifest names the page's file beside the edition's; the delivery, explainer, guide and command tests pass.
 - [ ] 6.2 Remove the poster pipeline the edition replaces: page archetypes, grouping, heads, legends, notes, balance refusals, drafts and posters; verify `npm test` passes and `npm run check:dead-code` reports nothing.
 
 ## 7. Documentation

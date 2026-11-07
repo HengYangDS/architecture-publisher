@@ -163,7 +163,10 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   );
   assert.ok(manifest.plates.every(({ misses }) => misses.length));
   assert.equal(manifest.page, null);
-  await assert.rejects(fs.access(path.join(shop, "index.html")));
+  assert.deepEqual(
+    (await fs.readdir(shop)).filter((name) => name.endsWith(".html")),
+    [],
+  );
 });
 
 test("scaffold guide writes a starting guide and says where", async (t) => {

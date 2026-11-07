@@ -414,8 +414,8 @@ export async function buildDelivery(modelPath, out, options = {}) {
     const page = !prepared.page
       ? null
       : prepared.page.kind === "guide"
-        ? await deliverGuide(prepared.page, staging)
-        : await deliverExplainer(prepared.page, staging);
+        ? await deliverGuide(prepared.page, staging, `${model.id}.html`)
+        : await deliverExplainer(prepared.page, staging, `${model.id}.html`);
     const [fonts, house, opentype] = await Promise.all([
       verifySupply("fonts"),
       verifySupply("house"),
@@ -470,11 +470,13 @@ export async function buildDelivery(modelPath, out, options = {}) {
           ? null
           : prepared.page.kind === "guide"
             ? {
+                file: `${model.id}.html`,
                 quality: page.receipt.quality,
                 gates: page.receipt.gates,
                 guide: guideSummary(prepared.page),
               }
             : {
+                file: `${model.id}.html`,
                 quality: page.receipt.quality,
                 gates: page.receipt.gates,
                 diagrams: prepared.page.diagrams.map(diagramSummary),

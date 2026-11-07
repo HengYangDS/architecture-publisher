@@ -116,7 +116,7 @@ test(
         const views = await planViews(model, async () => ({ fits: true, width: 1, height: 1 }));
         const directory = await temporaryDirectory(t, "archpub-page-browser-");
         const explained = await explainerPage(model, views);
-        const { output } = await deliverExplainer(explained, directory);
+        const { output } = await deliverExplainer(explained, directory, `${model.id}.html`);
         const page = await browser.newPage({
           viewport: { width: 1440, height: 900 },
           reducedMotion: "reduce",

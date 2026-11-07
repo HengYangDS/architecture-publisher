@@ -22,7 +22,6 @@ import { chooseDiagram } from "./choice.mjs";
  */
 const WORK = "explainer";
 const DRAFT = "page.archify.md";
-const PAGE = "index.html";
 /** The most reasons an Archify explainer's conclusion holds: its schema's `/answer/reasons` maxItems. */
 const MAXIMUM_REASONS = 4;
 
@@ -298,10 +297,11 @@ export function refusePage(answer) {
  * verified against. Its sources and Archify's receipts stay out of the
  * delivery.
  * @param {any} page
- * @param {string} directory a staging directory that receives `index.html`
+ * @param {string} directory a staging directory that receives the page
+ * @param {string} file the page's file name, `<model id>.html`
  * @param {{ repoRoot?: string | null }} [options]
  */
-export async function deliverExplainer(page, directory, options = {}) {
+export async function deliverExplainer(page, directory, file, options = {}) {
   // Archify records where the draft lay relative to the page after resolving
   // symbolic links, so a directory reached through one, such as macOS's /tmp,
   // would record a path up and out of it; resolving them first keeps the record
@@ -310,8 +310,9 @@ export async function deliverExplainer(page, directory, options = {}) {
   const work = path.join(root, WORK);
   await fs.mkdir(work);
   const draft = await writePage(page, work);
-  const output = path.join(root, PAGE);
-  const receipt = path.join(root, "index.delivery.json");
+  const output = path.join(root, file);
+  // Archify writes its receipt beside the page, named for it.
+  const receipt = output.replace(/\.html$/u, ".delivery.json");
   try {
     const { supply, answer } = await runArchify([
       "finalize",
@@ -329,7 +330,7 @@ export async function deliverExplainer(page, directory, options = {}) {
     ]);
     if (answer.ok !== true || answer.status !== "pass") refusePage(answer);
     return {
-      output: path.join(directory, PAGE),
+      output: path.join(directory, file),
       supplySha256: supply.sha256,
       receipt: { quality: answer.quality, gates: answer.gates },
     };

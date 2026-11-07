@@ -200,7 +200,7 @@ test("only a finding that names a source the draft cites withholds it", () => {
   assert.deepEqual(sensitiveSources({ diagnostics: [finding(5)] }, ["secret"]), []);
 });
 
-test("native Archify delivers the page deterministically and leaves only index.html", async (t) => {
+test("native Archify delivers the page deterministically under the name it is given and nothing else", async (t) => {
   const { page } = await shopPageOnce();
   const outputs = [];
   // The second delivery runs under the caller's Archify variables, which would
@@ -212,13 +212,13 @@ test("native Archify delivers the page deterministically and leaves only index.h
   for (const variables of callers) {
     const directory = await temporaryDirectory(t, "archpub-page-");
     Object.assign(process.env, variables);
-    const delivered = await deliverExplainer(page, directory).finally(() => {
+    const delivered = await deliverExplainer(page, directory, "shop.html").finally(() => {
       for (const name of Object.keys(variables)) delete process.env[name];
     });
-    assert.equal(delivered.output, path.join(directory, "index.html"));
+    assert.equal(delivered.output, path.join(directory, "shop.html"));
     assert.match(delivered.supplySha256, /^[0-9a-f]{64}$/u);
     assert.equal(delivered.receipt.quality, "showcase");
-    assert.deepEqual(await fs.readdir(directory), ["index.html"]);
+    assert.deepEqual(await fs.readdir(directory), ["shop.html"]);
     outputs.push(await fs.readFile(delivered.output));
   }
   assert.ok(outputs[0].equals(outputs[1]));
@@ -241,6 +241,6 @@ test("a page Archify rejects is refused with its diagnostics and leaves nothing 
     ],
   };
   const directory = await temporaryDirectory(t, "archpub-page-");
-  await assert.rejects(deliverExplainer(broken, directory), { code: "page_refused" });
+  await assert.rejects(deliverExplainer(broken, directory, "shop.html"), { code: "page_refused" });
   assert.deepEqual(await fs.readdir(directory), []);
 });

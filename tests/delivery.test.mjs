@@ -39,15 +39,16 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   assert.deepEqual(
     manifest.artifacts.map(({ path: file }) => file),
     [
+      "big-bank.html",
       "big-bank.pdf",
       "images/01-containers-tiers.png",
       "images/02-containers-automatic.png",
-      "index.html",
     ],
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
   // The edition is named for the work; each plate's image is named for its number and view.
   assert.deepEqual([manifest.edition.file, manifest.edition.pages], ["big-bank.pdf", 4]);
+  assert.equal(manifest.page.file, "big-bank.html");
   assert.deepEqual(
     manifest.plates.map(({ page, views, images }) => [page, views, images]),
     [
@@ -183,7 +184,7 @@ test("files verified against the checkout are recorded and cited on the page at 
   assert.equal(manifest.page.quality, "showcase");
   assert.deepEqual(manifest.evidence.components[0].files, ["src/"]);
   assert.deepEqual(manifest.evidence.relations[0].files, ["src/main.mjs"]);
-  const page = await fs.readFile(path.join(out, "index.html"), "utf8");
+  const page = await fs.readFile(path.join(out, "page.html"), "utf8");
   assert.ok(page.includes(`"repository":{"url":"${url}","revision":"${revision}"}`));
   // A component's first file is the first file its first claim holds at the revision.
   assert.ok(page.includes('"sources":[{"id":"source-1","title":"Customer","path":"src/main.mjs"}'));
@@ -229,12 +230,12 @@ test("acceptance and publication require an unchanged delivery", async (t) => {
       error.problems[0].message.includes(`images/${image} changed`),
   );
   await fs.writeFile(path.join(out, "stray.txt"), "stray");
-  await fs.rm(path.join(out, "index.html"));
+  await fs.rm(path.join(out, "page.html"));
   await assert.rejects(publishDelivery(out, path.join(root, "other")), (error) => {
     const messages = error.problems.map(({ message }) => message);
     return (
       error.code === "delivery_changed" &&
-      messages.includes("index.html is missing") &&
+      messages.includes("page.html is missing") &&
       messages.includes("stray.txt is not in the manifest")
     );
   });
@@ -262,6 +263,6 @@ test("deliveries need their own manifest, acceptance and plain files", async (t)
   await assert.rejects(publishDelivery(out, path.join(root, "published")), {
     code: "publish_unaccepted",
   });
-  await fs.symlink("index.html", path.join(out, "alias.html"));
+  await fs.symlink("page.html", path.join(out, "alias.html"));
   await assert.rejects(digestTree(out), { code: "delivery_entry_invalid" });
 });

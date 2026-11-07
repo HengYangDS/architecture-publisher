@@ -233,12 +233,13 @@ export function guideSummary(page) {
 }
 
 /**
- * Deliver a guide as `index.html` into a staging directory.
+ * Deliver a guide into a staging directory under its file name, `<model id>.html`.
  * @param {Awaited<ReturnType<typeof guidePage>>} page
  * @param {string} directory
+ * @param {string} file
  */
-export const deliverGuide = (page, directory) =>
-  withClone(page, (repoRoot) => deliverExplainer(page, directory, { repoRoot }));
+export const deliverGuide = (page, directory, file) =>
+  withClone(page, (repoRoot) => deliverExplainer(page, directory, file, { repoRoot }));
 
 /**
  * Run `use` with a temporary clone that shares the checkout's objects, its `origin` at the
