@@ -36,7 +36,7 @@
 
 ## 8. Verification
 
-- [ ] 8.1 Run `npm run check`; verify it passes at or above the coverage floors.
+- [x] 8.1 Run `npm run check`; verify it passes at or above the coverage floors. The first run passed all 222 tests but held branches at 94.98 percent, since the removed poster tests had covered some engine branches and the edition's words were tested in one form only; tests of the words without links, a release or a date, the foot without a checkout, the vertical centroid gate and a tagged revision followed. `npm run check` then passed: 224 tests, coverage 99.43 percent of statements and lines, 95.49 of branches and 99.82 of functions, and publint.
 - [ ] 8.2 Build the six Architecture Publications works from migrated copies; verify each builds a conforming edition whose card labels and overview claim `pdftotext` extracts, and send the editions to the owner for review.
 
 ## 9. Release

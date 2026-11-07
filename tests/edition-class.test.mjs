@@ -110,6 +110,31 @@ test("card titles link to the files they cite, and the edition names its editors
   assert.ok(again.pdf.equals(typeset.pdf), "two editions of one commit differ");
 });
 
+test("without a checkout the foot names the title and revision and no date, and without a repository the title alone", () => {
+  const record = (input) =>
+    editionRecord({
+      plates: [],
+      icons,
+      owned: new Map(),
+      files: 0,
+      modelSha256: "0".repeat(64),
+      publisher: "0.10.0",
+      typst: "0.15.1",
+      overview: false,
+      page: "minimal.html",
+      commit: null,
+      release: null,
+      ...input,
+    });
+  const pinned = record({ model });
+  assert.equal(pinned.words.foot, "Minimal at aaaaaaa");
+  assert.equal(pinned.words.built, "As built at aaaaaaa");
+  const unpinned = record({ model: validateModel(minimalModel()) });
+  assert.equal(unpinned.words.foot, "Minimal");
+  assert.equal(unpinned.words.built, null);
+  assert.equal(unpinned.byline[0].note, null);
+});
+
 test("a run set wider than the engine measured it, and a title wider than its line, are refused", async () => {
   await assert.rejects(
     edition([plate(1, { runs: [{ ...plate(1).runs[0], width: 10 }] })]),

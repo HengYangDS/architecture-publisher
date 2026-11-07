@@ -151,7 +151,7 @@ test("check reports the plan without writing and invalid models leave no partial
 
 test("files verified against the checkout are recorded and cited on the page at the model's revision", async (t) => {
   // The checkout has no origin remote: the page names the declared URL and revision.
-  const { root: checkout, revision } = await repository(t);
+  const { root: checkout, revision, git } = await repository(t);
   const url = "https://example.invalid/fixture.git";
   const { components, relations } = pageModel();
   const model = await writeModel(
@@ -167,9 +167,13 @@ test("files verified against the checkout are recorded and cited on the page at 
     }),
   );
   const out = path.join(await workspace(t), "linked");
+  // The revision is tagged, so the edition names it as its release.
+  git("tag", "v1.2.0");
   await buildDelivery(model, out, { repo: checkout });
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.sources.state, "verified");
+  assert.deepEqual([manifest.edition.release, manifest.edition.dated], ["v1.2.0", "commit"]);
+  assert.match(manifest.edition.date, /^\d{4}-\d{2}-\d{2}$/u);
   // A cited file is recorded once, with its digest, its owner and the relations that cite it.
   assert.deepEqual(
     manifest.sources.records.map(({ path: file, owner, relations: citing, state }) => [

@@ -110,6 +110,16 @@ test("the centre of gravity weighs each element by how dark it prints", () => {
   const [across, down] = balanceOf([left, right], LIVE, PAGE).centroid;
   assert.ok(across < -0.25, String(across));
   assert.equal(down, 0);
+  // Ink only along the top sits high, and misses the gate down but not across.
+  const top = text(LIVE.x, LIVE.y, LIVE.width, LIVE.height / 4);
+  const high = balanceOf([top], LIVE, PAGE);
+  assert.ok(high.centroid[1] < -0.12, String(high.centroid[1]));
+  assert.deepEqual(
+    gateFailures(high)
+      .filter(({ measure }) => measure.startsWith("centroid"))
+      .map(({ measure }) => measure),
+    ["centroidY"],
+  );
   const even = balanceOf([left, { ...right, weight: left.weight }], LIVE, PAGE).centroid;
   assert.deepEqual(
     even.map((value) => Math.abs(value)),
