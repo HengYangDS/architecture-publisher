@@ -7,9 +7,9 @@ import { loadIcons } from "../src/icons.mjs";
 import { loadModel, validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
 import { admitsView } from "../src/poster/compose/candidates.mjs";
-import { composeEdition, composePosters } from "../src/poster/compose/edition.mjs";
+import * as edition from "../src/poster/compose/edition.mjs";
 import { loadTypefaces } from "../src/poster/text.mjs";
-import { PAGE } from "../src/poster/tokens.mjs";
+import { figureStyles } from "../src/poster/tokens.mjs";
 import { verifySupply } from "../src/supply.mjs";
 import { ETHOS_PROOF_PLANE_MODEL, minimalModel } from "./fixtures/models.mjs";
 
@@ -48,30 +48,25 @@ const HOUSE_PALETTE = new Set([
   "#ECE8DF",
 ]);
 
-test("posters set Latin text in Source Sans 3, its semibold for heavy text, and Han in Noto Sans CJK SC", async () => {
+test("figure text is measured in Source Sans 3, its semibold for heavy text, and Han in Noto Sans CJK SC", async () => {
   const [regular, semibold, han] = await Promise.all([
     faceOf("house", "source-sans-3/SourceSans3-Regular.otf"),
     faceOf("house", "source-sans-3/SourceSans3-Semibold.otf"),
     faceOf("fonts", "noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf"),
   ]);
   const text = "Architecture Publisher";
-  assert.equal(typefaces.measure(text, PAGE.summary), width(regular, text, PAGE.summary.size));
-  assert.equal(typefaces.measure(text, PAGE.running), width(semibold, text, PAGE.running.size));
-  assert.equal(typefaces.measure("数据", PAGE.summary), width(han, "数据", PAGE.summary.size));
+  const { detail, name } = figureStyles(0);
+  assert.equal(typefaces.measure(text, detail), width(regular, text, detail.size));
+  assert.equal(typefaces.measure(text, name), width(semibold, text, name.size));
+  assert.equal(typefaces.measure("数据", detail), width(han, "数据", detail.size));
 });
 
-test("page and plate titles are set in Source Serif 4 Subhead", async () => {
-  const display = await faceOf("house", "source-serif-4/SourceSerif4Subhead-Regular.otf");
-  const title = "Narration and its supply";
-  assert.equal(typefaces.measure(title, PAGE.title), width(display, title, PAGE.title.size));
-  assert.equal(typefaces.measure(title, PAGE.plate), width(display, title, PAGE.plate.size));
-});
-
-test("posters are drawn in the house palette", async () => {
+test("plates are drawn in the house palette", async () => {
+  assert.equal(typeof edition.composePlates, "function", "composePlates is not exported");
   const model = validateModel(minimalModel());
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
-  const [poster] = composePosters(model, views, typefaces, icons);
-  const colours = new Set(poster.svg.match(/#[0-9A-Fa-f]{6}\b/gu)?.map((c) => c.toUpperCase()));
+  const [plate] = edition.composePlates(model, views, typefaces, icons);
+  const colours = new Set(plate.svg.match(/#[0-9A-Fa-f]{6}\b/gu)?.map((c) => c.toUpperCase()));
   assert.deepEqual(
     [...colours].filter((colour) => !HOUSE_PALETTE.has(colour)),
     [],
@@ -84,7 +79,7 @@ test("the ETHOS proof plane prints alone beside its overview", async () => {
   // still print it rather than refuse.
   const { model } = await loadModel(ETHOS_PROOF_PLANE_MODEL, { icon: icons.has });
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
-  const pages = composeEdition(model, views, typefaces, icons);
+  const pages = edition.composeEdition(model, views, typefaces, icons);
   assert.deepEqual(
     pages.map(({ views: shown }) => shown.map(({ id }) => id)),
     [["overview"], ["proof"]],

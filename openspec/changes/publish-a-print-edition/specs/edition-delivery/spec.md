@@ -3,19 +3,20 @@
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet
-exist: for each poster page, one PNG per width, named `NN-<views>.png` at the
-page's own 2400 px and `NN-<views>-<width>.png` at any other, where `NN` is the
-page's two-digit number and `<views>` its view ids joined by `+`; the
-overview's files; the print edition; `index.html`; and `manifest.json`. Pages
-are numbered from 01 in reading order. It SHALL stage the delivery and move it
-into place only after every artifact succeeds, so a refused or failed build
-leaves no output.
+exist: the print edition `<model id>.pdf` and, at each `--png` width, one image
+of the overview's page and of each plate's page, named `00-overview.png` and
+`NN-<view>.png` at 2400 px and `00-overview-<width>.png` and
+`NN-<view>-<width>.png` at any other, where `NN` is the plate's two-digit number
+from 01 in reading order; `index.html`; and `manifest.json`. It SHALL stage the
+delivery and move it into place only after every artifact succeeds, so a refused
+or failed build leaves no output.
 
 #### Scenario: Semantic names
 
-- **WHEN** a model whose first poster page shows the view `route` is built with
+- **WHEN** a model with a composition whose first view is `route` is built with
   `--png 2400,6000`
-- **THEN** the delivery holds `01-route.png` and `01-route-6000.png` and no SVG
+- **THEN** the delivery holds `00-overview.png`, `01-route.png` and
+  `01-route-6000.png`, and no SVG
 
 #### Scenario: An existing output directory
 
@@ -24,14 +25,13 @@ leaves no output.
 
 #### Scenario: A failure during rendering
 
-- **WHEN** the page fails after the posters were written to the staging area
+- **WHEN** the page fails after the edition was written to the staging area
 - **THEN** the build refuses and neither the output directory nor the staging
   area remains
 
 #### Scenario: A refused overview
 
-- **WHEN** the overview is refused after the posters were written to the
-  staging area
+- **WHEN** the overview is refused after the plates were composed
 - **THEN** the build refuses and neither the output directory nor the staging
   area remains
 
@@ -40,10 +40,10 @@ leaves no output.
 The manifest SHALL record its format and version 6; the publisher's name and
 version; the model's id, title, language, SHA-256 and size; the declared
 repository; the build's quality and media; every cited file with its state,
-digest, owner and the relations that cite it; the digests of the bundled font,
-house, icon and raster supplies and, when it delivers the page, Archify's; the
-plan, each view naming the number of its poster page; each edition plate's
-composition and measures; and every artifact's path, size and digest.
+digest, owner and the relations that cite it; the digests of the font, house,
+measuring and icon supplies and, when it delivers the page, Archify's; the
+plan, each view naming the number of its plate; each plate's record; and every
+artifact's path, size and digest.
 
 #### Scenario: Identity fields
 
@@ -58,28 +58,128 @@ composition and measures; and every artifact's path, size and digest.
 - **THEN** the manifest records that path once, with its digest, the
   component as its owner and the relation's id
 
+## REMOVED Requirements
+
+### Requirement: Build options
+
+**Reason**: The posters and the overview become one medium, the print edition.
+
+**Migration**: Use `--media edition`; see Media.
+
+### Requirement: Media by default
+
+**Reason**: The posters and the overview become one medium, the print edition.
+
+**Migration**: See Media.
+
 ## ADDED Requirements
+
+### Requirement: Media
+
+`archpub build` and `archpub check` SHALL accept `--media` with any of `edition`
+and `page`, by default both; `--png` with comma-separated widths from 1 to
+6000 px, by default 2400, for the edition's images; and `--quality` with
+`showcase`, the default, or `standard`, for the page. A build SHALL compose only
+the media it delivers, and SHALL refuse an option outside these values with
+`build_media_invalid`, `build_png_invalid` or `build_quality_invalid` before
+reading the model.
+
+#### Scenario: The edition alone
+
+- **WHEN** a model is built with `--media edition`
+- **THEN** the delivery holds the print edition and its images and no
+  `index.html`
+- **AND** its manifest records no page and no Archify supply
+
+#### Scenario: An unknown medium
+
+- **WHEN** a build names `--media posters`
+- **THEN** it refuses with `build_media_invalid` and writes nothing
 
 ### Requirement: Print edition
 
-A build that delivers posters SHALL deliver `<model id>.pdf`, typeset by the
-bundled Typst with the house class: a title page; contents whose entries link
-to their pages; the overview when the model has a composition; one plate per
-poster page with its number, title, question and legend; and a colophon. Every
-page after the title page SHALL carry a foot that links to the contents.
+The print edition SHALL be typeset by the bundled Typst with the house class: a
+title page; contents whose entries link to their pages; the overview, when the
+model names a composition; one plate per view; and a colophon with the subject,
+repository, revision, files read, model digest, editors, licence, publisher,
+typesetter and standards. The scope, limits and summary SHALL be set once, on
+the contents and the colophon.
 
 #### Scenario: The contents link to the plates
 
-- **WHEN** a model with an overview and six poster pages is built
+- **WHEN** a model with a composition and six views is built
 - **THEN** its PDF holds ten pages
 - **AND** each of the eight contents entries links to its page
+
+### Requirement: Edition page frame
+
+Every page after the title page SHALL share one frame on the 1600 by 900 point
+page: a head of a label at the margin, a title at 124 points and a lead line; a
+body from 112 to 826 points; and a foot of a rule at 866 points, the work's
+title, release, revision and date linked to the contents, and the folio. A
+title wider than its line SHALL be refused with `edition_title_too_long`.
+
+#### Scenario: A foot that returns to the contents
+
+- **WHEN** a reader follows the foot of any plate
+- **THEN** it opens the contents page
+
+### Requirement: Plate head and key
+
+A plate's head SHALL be its number, its view's title and its question. Its key
+SHALL be one line at 848 points of the kinds, boundary and statuses its figure
+shows, and no others.
+
+#### Scenario: A plate's key
+
+- **WHEN** a plate's figure shows commands and checks inside the boundary
+- **THEN** its key lists command, check and the boundary on one line above the
+  foot, and no kind it does not show
+
+### Requirement: Contents rows
+
+Contents rows SHALL share the body equally at no more than 90 points each; rows
+that would fall below 44 points SHALL continue on a second contents page.
+
+#### Scenario: An edition of eleven views
+
+- **WHEN** a model with a composition and eleven views is built
+- **THEN** its thirteen contents rows fit one page at 56 points each
+
+### Requirement: Edition typography
+
+Prose, the summary, scope, limits, reading note and colophon, SHALL be justified
+on optimized lines, hyphenated in the model's language, with word spaces from 80
+to 125 percent and tracking from −0.012 to +0.025 em, at most 32 em to a line.
+Titles, questions, labels and figure text SHALL NOT be justified.
+
+#### Scenario: Notes at a reading measure
+
+- **WHEN** the scope is set on the contents
+- **THEN** no line of it is wider than 32 em of its size
+
+### Requirement: Links to cited files
+
+When the model declares `repository.browse`, each card title on a plate SHALL
+link to the first file the manifest records for its component, the template's
+`{revision}` and `{path}` filled with the pinned revision and that path. Without
+it, no card title SHALL link.
+
+#### Scenario: A browsable repository
+
+- **WHEN** a model declares
+  `browse: "https://github.com/o/r/blob/{revision}/{path}"` and a component owns
+  `src/a.mjs`
+- **THEN** that component's card title links to
+  `https://github.com/o/r/blob/<revision>/src/a.mjs`
 
 ### Requirement: Print edition conformance and metadata
 
 The print edition SHALL conform to PDF/A-3a and PDF/UA-1, attach the model with
 the relationship `source`, take its title, authors, subject, keywords and
 language from the model and its date from the revision's commit, and be
-byte-identical for equal inputs.
+byte-identical for equal inputs. Each plate SHALL be one figure with alt text of
+its title and question, its shapes and key marks artifacts.
 
 #### Scenario: Metadata and the attached model
 
@@ -90,4 +190,4 @@ byte-identical for equal inputs.
 #### Scenario: Two builds
 
 - **WHEN** a model is built twice at one revision
-- **THEN** both PDFs are byte-identical
+- **THEN** both PDFs and every image are byte-identical

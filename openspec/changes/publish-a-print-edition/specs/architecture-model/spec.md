@@ -5,8 +5,9 @@
 The publisher SHALL accept one Architecture Model file as its only input. The
 model SHALL declare components and relations and MAY declare its language, a
 repository, the files each component owns and each relation cites, kinds,
-groups, views, scope, limits, editors and a licence. The publisher SHALL NOT
-infer components or relations from repository contents.
+groups, views, scope, limits, editors, a licence and a template for browsing
+its repository. The publisher SHALL NOT infer components or relations from
+repository contents.
 
 #### Scenario: A minimal model validates
 
@@ -65,3 +66,15 @@ attribution's text, and write nothing.
 - **WHEN** a version 2 model declares `attribution` and no `editors`
 - **THEN** migration refuses with `attribution_not_migrated` naming that text
 - **AND** no file is written
+
+### Requirement: Repository browse template
+
+A version 3 model's repository MAY declare `browse`, a URL with the
+placeholders `{revision}` and `{path}`. The publisher SHALL refuse a template
+that lacks either placeholder.
+
+#### Scenario: A template without a path
+
+- **WHEN** a model's repository declares
+  `browse: "https://github.com/o/r/tree/{revision}"`
+- **THEN** validation refuses with the problem at `/repository/browse`

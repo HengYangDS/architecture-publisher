@@ -1,76 +1,358 @@
-## MODIFIED Requirements
+## REMOVED Requirements
+
+### Requirement: Fixed presentation format
+
+**Reason**: Plates are composed for the print edition's body field, not for a 2400 × 1350 px poster.
+
+**Migration**: See Plates.
+
+### Requirement: Pages of plates
+
+**Reason**: Each view is one plate on a page of its own.
+
+**Migration**: See Plates.
+
+### Requirement: Bands of plates
+
+**Reason**: A page holds one plate.
+
+**Migration**: See Plates.
+
+### Requirement: Edition grouping
+
+**Reason**: Views are not grouped; no delivery shared a page between views.
+
+**Migration**: See Plates.
+
+### Requirement: Page grid
+
+**Reason**: The house class sets the page on its own grid.
+
+**Migration**: See the print edition requirements in edition-delivery.
+
+### Requirement: Page archetypes
+
+**Reason**: Typst sets the page's text; the engine composes figures only.
+
+**Migration**: See Plates and Plate drawing.
+
+### Requirement: Masthead
+
+**Reason**: The edition's head replaces the poster masthead.
+
+**Migration**: See Edition page frame in edition-delivery.
+
+### Requirement: Sidebar
+
+**Reason**: The edition's head replaces the rail.
+
+**Migration**: See Edition page frame in edition-delivery.
+
+### Requirement: Tier labels beside a rail
+
+**Reason**: Plates have no rail.
+
+**Migration**: None.
+
+### Requirement: Corner page
+
+**Reason**: Plates have no floating head.
+
+**Migration**: See Plates.
+
+### Requirement: Corner placement
+
+**Reason**: The key is one line above the foot.
+
+**Migration**: See Edition page frame in edition-delivery.
+
+### Requirement: Floating notes
+
+**Reason**: Scope and limits are stated once, on the contents and colophon.
+
+**Migration**: See Print edition in edition-delivery.
+
+### Requirement: Text clearance
+
+**Reason**: No text floats beside a figure.
+
+**Migration**: None.
 
 ### Requirement: Header, legend and notes
 
-Each poster SHALL lead with a title and question: the model's on the first
-page; on a later page of one view, that view's, under the model's title when
-the view has its own; on a later page of several views, the model's title
-alone, each plate asking its own question. Each poster SHALL show one legend
-of the kinds, the system boundary and the statuses present, and notes with the
-scope, limits, repository and revision and editors, and SHALL NOT state
-whether its files were verified.
+**Reason**: The edition sets each plate's head and key.
 
-#### Scenario: Evidence stays off the poster
+**Migration**: See Edition page frame in edition-delivery.
 
-- **WHEN** a build verifies the digest of every file the model cites
-- **THEN** the poster's notes name the repository and its revision
-- **AND** the poster prints no digest and no verification state
+### Requirement: One summary per page
 
-#### Scenario: A later page of one view
+**Reason**: The summary is set once, on the contents.
 
-- **WHEN** the second page holds one view with its own title and question
-- **THEN** it leads with them under the model's title
+**Migration**: See Print edition in edition-delivery.
+
+### Requirement: Uncut text
+
+**Reason**: Typst sets titles and questions; the edition refuses a title wider than its line.
+
+**Migration**: See Edition page frame in edition-delivery.
+
+### Requirement: Candidate compositions
+
+**Reason**: A plate's candidates are its wrappings, steps and centrings.
+
+**Migration**: See Plate composition order.
+
+### Requirement: Uncentred rows
+
+**Reason**: Uncentred rows are always among a plate's candidates.
+
+**Migration**: See Plate composition order.
+
+### Requirement: Narrower wrappings
+
+**Reason**: One order chooses among a plate's candidates.
+
+**Migration**: See Plate composition order.
+
+### Requirement: Natural-height bands
+
+**Reason**: A plate is laid out for the whole body field.
+
+**Migration**: See Plates.
+
+### Requirement: One step per page
+
+**Reason**: A page holds one plate.
+
+**Migration**: See Three figure type steps.
+
+### Requirement: Plate order
+
+**Reason**: One order chooses among a plate's candidates.
+
+**Migration**: See Plate composition order.
+
+### Requirement: Chosen page
+
+**Reason**: One order chooses among a plate's candidates.
+
+**Migration**: See Plate composition order.
+
+### Requirement: Recorded composition
+
+**Reason**: The manifest records plates.
+
+**Migration**: See Recorded plates.
+
+### Requirement: Recorded admission
+
+**Reason**: Balance is recorded, not admitted.
+
+**Migration**: See Recorded plates.
+
+### Requirement: Sparse pages
+
+**Reason**: Balance no longer refuses a plate.
+
+**Migration**: See Balance gate.
+
+### Requirement: Sparse pages that wire cleaner
+
+**Reason**: Wiring faults come first in every choice.
+
+**Migration**: See Plate composition order.
+
+### Requirement: Draft pages
+
+**Reason**: Balance no longer refuses a plate, so no plate is a draft.
+
+**Migration**: See Balance gate.
+
+### Requirement: Unadmitted editions refused
+
+**Reason**: Only a view that cannot be laid out is refused.
+
+**Migration**: See Unfittable views refused.
+
+### Requirement: Figure type steps
+
+**Reason**: Steps that set card text larger than the page's own are dropped.
+
+**Migration**: See Three figure type steps.
+
+### Requirement: Portable deterministic output
+
+**Reason**: Typst renders the edition and its images; figures carry live text.
+
+**Migration**: See Plate drawing and Live figure text.
+
+### Requirement: Bundled faces
+
+**Reason**: Figure text is measured and set in the house faces.
+
+**Migration**: See Faces of figure text.
+
+## MODIFIED Requirements
 
 ### Requirement: The publisher's words
 
-The words the publisher sets itself, the notes' headings, the boundary and
-status entries and the source and editor phrases, SHALL be in the model's
-language, punctuated as that language punctuates details, lists and sentences.
+The words the publisher sets itself, the key's boundary and status entries, the
+headings of the contents and colophon and the editor and source phrases, SHALL be
+in the model's language, punctuated as that language punctuates details, lists
+and sentences.
 
 #### Scenario: Notes in the model's language
 
 - **WHEN** a model written in Simplified Chinese declares a scope and limits
-- **THEN** its notes are headed 范围, 局限 and 来源
+- **THEN** the edition heads them 范围 and 局限
 - **AND** their sentences end with the ideographic full stop
 
-### Requirement: Portable deterministic output
+### Requirement: Status styles
 
-Each poster SHALL be rendered as SVG whose text is converted to glyph outlines
-and whose icons are inline paths, and delivered as PNG at 2400 px wide, or at
-each width the build names up to 6000 px, rendered from that SVG by the vendored
-renderer. The publisher SHALL NOT discover host fonts. Building the same model
-with the same publisher version on one platform SHALL reproduce identical bytes.
+Relations and components with status `planned` SHALL be drawn dashed, and
+those with status `retired` SHALL be drawn dotted and muted. The plate's key
+SHALL explain each style present.
 
-#### Scenario: Rendering without fonts
+#### Scenario: A planned relation
 
-- **WHEN** a poster is rendered on a machine without the bundled fonts
-- **THEN** it renders the same glyphs because its SVG contains no font
-  references
+- **WHEN** a relation has status `planned`
+- **THEN** its wire is dashed and the key explains the dashed style
 
-#### Scenario: Rebuild
+### Requirement: Type floor
 
-- **WHEN** a model is built twice into two directories on one platform
-- **THEN** every PNG and the print edition in one equal the corresponding files
-  in the other
+Every figure text SHALL use a size of the type scale, none smaller than 14 px;
+no card text SHALL break inside a word. These hold by construction: a
+composition that would break one is never drawn.
 
-### Requirement: Bundled faces
+#### Scenario: Text floor
 
-Text SHALL be set in the house faces, each text in the first face of its
-role's chain that draws it whole: Source Sans 3, then Noto Sans CJK SC, for
-text; Source Serif 4 Subhead, then Noto Sans CJK SC, for page and plate titles.
-Colours SHALL be the house palette. A text in a right-to-left or shaped script,
-or with a character no face draws, SHALL be refused.
+- **WHEN** any plate is composed
+- **THEN** every style it sets text in is a size of the type scale of at least
+  14 px
+
+### Requirement: Balance gate
+
+A plate SHALL be measured over its body field: the share of the largest
+rectangle no ink touches, the tallest band without text, cards, labels or
+glyphs across the whole width, the share in holes, empty squares at least
+240 px on a side, and its ink centroid. The manifest SHALL record each gate a
+plate misses, with its value and limit: 12 percent, 96 px, 40 percent and 12
+percent of the centre. A miss SHALL NOT refuse a plate.
+
+#### Scenario: A blank band across the page
+
+- **WHEN** text fills the body field except a band 304 px tall across its whole
+  width, crossed only by one wire
+- **THEN** the manifest records the plate missing the empty-share and
+  blank-band gates
+- **AND** the plate is delivered
+
+### Requirement: Balance measurement regions
+
+Every balance measure SHALL be taken over the plate's body field from every
+mark the figure draws, text included. A blank band SHALL count wires as blank,
+the empty rectangle and the holes SHALL count every mark, and the centroid
+SHALL weight each mark by how dark it prints.
+
+#### Scenario: A wire across a blank band
+
+- **WHEN** only a wire crosses a 304 px band of the body field
+- **THEN** the plate measures a 304 px blank band
+- **AND** the wire divides the largest blank rectangle
+
+#### Scenario: Dark text weighs more than white cards
+
+- **WHEN** text fills a quarter of the body field at its left and white cards
+  the same area at its right
+- **THEN** the centroid lies left of centre
+
+## ADDED Requirements
+
+### Requirement: Plates
+
+Each view SHALL be composed alone as one plate for the print edition's body
+field, 2256 by 1071 px, set at two thirds of a point per pixel. A plate SHALL
+hold the view's figure only.
+
+#### Scenario: A plate fits the body
+
+- **WHEN** a model's plates are composed
+- **THEN** each plate is at most 2256 px wide and 1071 px high
+- **AND** each view of the plan is one plate, in plan order
+
+### Requirement: Plate composition order
+
+A plate's candidates SHALL be every row wrapping its view can draw, at each
+figure type step, with each row centred over all its cards, over only those
+inside the boundary when its rows hold outside cards, and uncentred. The
+publisher SHALL choose the fewest crossings, then the fewest route defects,
+then the largest type step, then the widest wrapping, then the fewest bends,
+then the least area in holes and in the largest blank rectangle.
+
+#### Scenario: Fewer crossings before larger type
+
+- **WHEN** a view crosses no wires at the smallest step and crosses one at a
+  larger step
+- **THEN** its plate is set at the smallest step
+
+### Requirement: Three figure type steps
+
+The figure SHALL be set in one of three steps of card label, detail and
+relation-label sizes: 18/14/14, 20/16/16 and 24/18/18 px. A step SHALL scale the
+cards' padding, icons, gaps and wires with its text, so that a card label stays
+smaller than the edition's heads and a detail no larger than its text.
+
+#### Scenario: A sparse view keeps the page's hierarchy
+
+- **WHEN** a view of three cards fits its plate at every step
+- **THEN** it is set at 24/18/18 px and no larger
+
+### Requirement: Recorded plates
+
+The manifest SHALL record each plate's number, view, type step, wrapping,
+row shape and centring; its measures: crossings, route defects, bends, empty
+share and rectangle, blank band, hole share and centroid; and each balance gate
+it misses.
+
+#### Scenario: A plate in the manifest
+
+- **WHEN** an edition is built
+- **THEN** its manifest records every plate's composition and measures
+
+### Requirement: Unfittable views refused
+
+A view that no wrapping lays out in the body field at the smallest step SHALL be
+refused with `plate_unfittable` and its id, and the build SHALL write nothing.
+
+#### Scenario: A view too large for the body
+
+- **WHEN** a view's cards cannot be laid out in the body field at 18/14/14 px
+- **THEN** the build refuses with `plate_unfittable` naming the view
+
+### Requirement: Plate drawing
+
+The engine SHALL draw a plate as an SVG of its shapes, with its icons as inline
+paths and no text, paper, head, key or notes, and SHALL report its text as runs:
+each run's text, position, size, weight, colour and the width it measured, and
+the component whose title it is.
+
+#### Scenario: Shapes without text
+
+- **WHEN** a plate is drawn
+- **THEN** its SVG holds no text and no glyph outlines
+- **AND** every card label, detail and relation label is one of its runs
+
+### Requirement: Faces of figure text
+
+Figure text SHALL be measured in the house faces, each run in the first face of
+its weight's chain that draws it whole: Source Sans 3, then Noto Sans CJK SC. A
+text in a right-to-left or shaped script, or with a character no face draws,
+SHALL be refused.
 
 #### Scenario: Letters the CJK face lacks
 
-- **WHEN** a component label is `Łódź 数据`
-- **THEN** `Łódź` is set in Source Sans 3, `数据` in Noto Sans CJK SC, and the
-  build is not refused
-
-#### Scenario: A title in the display face
-
-- **WHEN** a poster sets a view's title
-- **THEN** the title is set in Source Serif 4 Subhead
+- **WHEN** a component label is `Łódź`
+- **THEN** the label is measured in Source Sans 3 and the build is not refused
 
 #### Scenario: An Arabic title
 
@@ -78,25 +360,14 @@ or with a character no face draws, SHALL be refused.
 - **THEN** the build refuses with `glyphs_missing` and the problem
   `script_unsupported` at `/title`
 
-## ADDED Requirements
+### Requirement: Live figure text
 
-### Requirement: Edition plates
+The print edition SHALL set every run of a plate as text in the house faces at
+the engine's position and size, over the plate's shapes, ragged on the engine's
+lines. A run that Typst sets wider than the engine measured SHALL be refused with
+`edition_text_wider`.
 
-For the print edition, the engine SHALL compose each poster page's views for
-the edition's body field, 2256 by 1101 poster pixels, with the same candidates,
-gates and admission as a poster, and draw the figures alone: no title,
-question, legend, notes or paper. It SHALL report each plate's size and the
-legend entries of the kinds, boundary and statuses its figures show.
+#### Scenario: Searchable figure text
 
-#### Scenario: A plate fits the body
-
-- **WHEN** a model's edition plates are composed
-- **THEN** each plate is at most 2256 px wide and 1101 px high
-- **AND** its SVG draws no text of the page's title, question or notes
-
-#### Scenario: The plate's legend
-
-- **WHEN** a plate's figures show components of the kinds command and check
-  inside the system boundary
-- **THEN** its legend lists command, check and the boundary entry, and no kind
-  it does not show
+- **WHEN** the print edition of a model is built
+- **THEN** every card label of its plates can be extracted as text from its page

@@ -10,9 +10,9 @@ import { AIGW_MODEL, ETHOS_PROOF_PLANE_MODEL } from "./fixtures/models.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 
-// The print edition's body, 1504 by 734 points, in poster pixels at two thirds
-// of a point each.
-const BODY = Object.freeze({ width: 2256, height: 1101 });
+// The print edition's body, 1504 by 714 points, in pixels at two thirds of a
+// point each.
+const BODY = Object.freeze({ width: 2256, height: 1071 });
 
 /** Plan a model's views and compose its edition plates, as the build will. */
 async function platesOf(file) {
@@ -29,9 +29,12 @@ test("each edition plate draws its figures alone, within the edition's body", as
     assert.ok(plate.width <= BODY.width, `plate ${plate.page} is ${plate.width} px wide`);
     assert.ok(plate.height <= BODY.height, `plate ${plate.page} is ${plate.height} px high`);
     assert.match(plate.svg, new RegExp(`viewBox="0 0 ${plate.width} ${plate.height}"`, "u"));
-    // No paper: the edition's page is the paper, and Typst sets the plate's head.
+    // No paper and no text: the edition's page is the paper, and Typst sets
+    // the head, the key and every run.
     assert.doesNotMatch(plate.svg, /<rect width="\d+" height="\d+" fill=/u);
-    assert.ok(["balanced", "sparse"].includes(plate.admission), plate.admission);
+    assert.doesNotMatch(plate.svg, /<text|<path fill="#[0-9A-Fa-f]{6}" d="M[^"]*Z/u);
+    assert.ok(plate.runs.length > 0);
+    assert.ok(plate.step <= 2, `plate ${plate.page} is set at step ${plate.step}`);
   }
 });
 

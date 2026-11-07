@@ -1,38 +1,59 @@
 ## Why
 
 A delivery is one edition of a work, but its static media do not read as one.
-The overview is set by Typst in the house faces and palette, while the posters
-are set by the poster engine in Noto Sans, with their own type scale and colours.
-The static pages are loose files named by mechanical numbers, and no single
-publication collects them. The owner asked on 7 November for a print edition
-like a formal booklet: contents with links at the front, and pages that read
-like slides. The owner also set every work's editor to Yang HENG and its licence
-to MIT.
+The overview is set by Typst in the house faces and palette. The posters are
+set by the publisher's own engine in Noto Sans, on their own type scale and
+colours, outlined and rasterized through a renderer built from Rust. Each
+poster repeats its own head, legend and notes. No single publication collects
+them.
 
-A prototype for filmkit typeset that booklet in one pass with the bundled Typst:
-title page, linked contents, the overview, six plates and a colophon. Typst
-checked it against PDF/A-3a and PDF/UA-1 while compiling, and it rebuilt
-byte-identical. A measured spike set the posters in the house faces. Every work
-and fixture still composed except one view of the ETHOS work.
+The owner asked on 7 November for a print edition like a formal booklet:
+contents with links at the front, pages that read like slides, and one
+coherent typographic design. The owner approved one layout for every view and
+a division of labour among three tools. The publisher lays the figures out,
+Typst sets every word and prints, and Archify serves the screen. The owner set
+every work's editor to Yang HENG and its licence to MIT.
+
+Prototypes measured this design before this Change:
+
+- Every view composed for one body field and was chosen by the fewest wiring
+  faults, then the largest type. Across 12 targets and 59 views, every view
+  fit, no view's type got smaller and no view gained crossings.
+- Figure text set live by Typst at the engine's positions was never wider than
+  the engine measured, in 51 of 51 runs.
+- Prose justified with limited spacing and tracking kept every word space within
+  1.37 times its natural width.
+- The booklet passed PDF/A-3a and PDF/UA-1 and rebuilt byte-identical.
 
 ## What Changes
 
-- **BREAKING** The posters are set in the house faces: Source Sans 3 for text,
-  Source Serif 4 Subhead for titles, Noto Sans CJK SC for Han, and the house
-  palette. One token source feeds the overview class and the poster engine.
-- The poster engine gains edition plates. A page's figures are laid out for the
-  edition's body and drawn without a head, legend or notes, and the engine
-  reports each plate's legend.
-- A build that delivers posters also delivers the print edition,
-  `<model id>.pdf`. It holds a title page, linked contents, the overview compiled
-  in place, one plate per poster page and a colophon. Typst sets every word
-  outside the figures, and the model is attached to the file.
-- **BREAKING** The model moves to version 3: `editors` and `license` replace
-  `attribution`, and `archpub migrate` converts version 2 models.
-- **BREAKING** Static files are named for what they show: `00-overview.png`,
-  then `NN-<views>.png` in reading order. The SVG files are no longer delivered,
-  because the PDF is the vector form. The manifest moves to version 6 and
-  records the house supply.
+- **BREAKING** A build delivers the print edition, `<model id>.pdf`, in place of
+  posters: a title page, linked contents, the overview, one plate per view and
+  a colophon, typeset by the bundled Typst. Each page after the title page has
+  one head, one key line and one foot.
+- **BREAKING** The engine composes each view alone for the edition's body
+  field, chosen by the fewest wiring faults and then the largest type. It no
+  longer groups views, picks page archetypes or sets heads, legends and notes.
+  Balance is measured and recorded, not refused. Figure type uses three steps,
+  so card text never outranks the page's own.
+- Figure text is live. The engine supplies shapes and positioned text runs, and
+  Typst sets the runs in the house faces. When the model declares how to browse
+  its repository, each card title links to the first file the component cites
+  at the pinned revision.
+- **BREAKING** The house faces and palette apply to everything printed. One
+  token source feeds the class and the engine. The raster renderer, its Rust
+  toolchain and Noto Sans leave the product, and the text-measuring library
+  gets a supply of its own.
+- **BREAKING** Static files are named for what they show: `00-overview.png` and
+  `NN-<view>.png`, rendered by Typst from the edition's pages. SVG files are
+  not delivered. `--media` takes `edition` and `page`, and the manifest moves
+  to version 6.
+- **BREAKING** The model moves to version 3. `editors` and `license` replace
+  `attribution`, `repository.browse` is optional, and `archpub migrate`
+  converts version 2.
+- Prose is justified on optimized lines, with hyphenation, limited spacing and
+  tracking, and at most 32 em to a line. Figure text keeps the engine's ragged
+  lines.
 
 ## Capabilities
 
@@ -42,19 +63,23 @@ None.
 
 ### Modified Capabilities
 
-- `architecture-model`: editors and a licence replace the attribution, in model
+- `architecture-model`: editors, licence and a browse template, in model
   version 3.
-- `poster-composition`: house faces and palette, and edition plates laid out for
-  the booklet's body.
-- `edition-delivery`: the print edition, semantic file names and manifest
-  version 6.
-- `overview-page`: the overview set in place in the print edition, and its file
-  named `00-overview.png`.
+- `poster-composition`: one view per plate, composed for the edition's body; three
+  type steps; live text; balance recorded. The capability keeps its id.
+- `edition-delivery`: the print edition, its typography and composition, media,
+  file names and manifest version 6.
+- `overview-page`: the overview in the print edition and its image named
+  `00-overview.png`; Typst required for print.
+- `product-identity`: the self-contained command delivers the edition and the
+  page.
 
 ## Impact
 
-The poster engine's typefaces, tokens and composer; the overview class; the
-build and its manifest; the model schema and migration; the house supply; the
-tests, fixtures and documentation. Every work in Architecture Publications must
-migrate its model and rebuild, in that repository's own Change. The interactive
-page and its Archify style are out of scope here.
+The poster engine is reduced to plate composition. The overview class gains the
+edition. The build, the manifest, the model schema and migration, and the
+supplies change, and the raster supply and its tooling, the Rust toolchain and
+its CI steps are removed. Tests, fixtures and documentation follow. Every work in
+Architecture Publications must migrate its model and rebuild, in that
+repository's own Change. The interactive page and its Archify style are out of
+scope.
