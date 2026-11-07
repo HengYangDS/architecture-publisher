@@ -245,6 +245,8 @@ test("check prints coverage and currency with --repo and --against", async (t) =
   const text = (await runCli(args)).output.split("\n");
   assert.deepEqual(text.slice(1), [
     "Uncited: 0 components and 1 relation.",
+    // The two components each claim a file, and their figure leaves the body's width, so it sits beside its reading.
+    "Plate 01 (architecture): figure 65% of the body, beside its reading; misses emptyShare, blankBand and holes.",
     `Coverage at ${pinned.slice(0, 7)}: 3 of 6 files owned, 3 uncovered, 1 excluded.`,
     "Largest uncovered: src/tools/ (2 files).",
     "Matching no file: src/generated/. Cited outside the scope: 1 file.",

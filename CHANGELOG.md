@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-08
+
 ### Added
 
 - The print edition: `<model id>.pdf`, typeset by Typst 0.15.1 with the house class. A title page of the work's name,
@@ -45,7 +47,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 - The posters: `page-<n>.svg` and its PNGs, `overview.svg`, the page archetypes, grouping, heads, legends, notes,
   drafts, `poster_unbalanced` and the other `poster_*` refusals. `--media posters` and `--media overview` are gone.
-- resvg, its Rust and wasm-bindgen build, the sax supply, the raster rebuild journey and the `raster_*` refusals;
+- resvg, its Rust and `wasm-bindgen` build, the sax supply, the raster rebuild journey and the `raster_*` refusals;
   Typst renders every image. Pixi's Linux compiler and xz, which only the Rust build needed, and their CI steps are
   gone too.
 
@@ -814,6 +816,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.10.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.0
 [0.9.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.9.0
 [0.8.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.8.0
 [0.7.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.7.0

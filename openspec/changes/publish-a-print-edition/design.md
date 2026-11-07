@@ -95,7 +95,7 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
       width, numbered as the plates are. A PNG is its PDF page, foot included.
     - `manifest.json`, the machine record, keeps its conventional name. Nothing else is written at the top.
     - A tarball was declined: a Forge cannot preview it, Git cannot compare it, and readers must unpack it.
-    - Two languages, in 0.11.0, add the locale before the extension and an `images/<locale>/` folder.
+    - Two languages, in a later release, add the locale before the extension and an `images/<locale>/` folder.
     - `--media` takes `edition`, the PDF with its images, and `page`. Manifest version 6 records the edition, its
       pages and plates, and the house and measuring supplies.
 11. **Standards.** Typst compiles with `--pdf-standard a-3a,ua-1`, with system fonts ignored and the

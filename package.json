@@ -1,6 +1,6 @@
 {
   "name": "architecture-publisher",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Publish a repository's architecture model as posters and an interactive page",
   "license": "MIT",
   "type": "module",
