@@ -54,7 +54,7 @@ and SHALL use one flow view of all components when that view is admitted.
 
 #### Scenario: A small model
 
-- **WHEN** a model without views has eight components that fit one poster
+- **WHEN** a model without views has eight components that fit one plate
 - **THEN** the plan has one view containing all of them
 
 ### Requirement: Automatic overview and group views
@@ -104,35 +104,6 @@ takes.
 - **THEN** the build refuses with the view's component and relation counts and
   the 2400 × 1350 px page size, and asks for groups or views
 
-### Requirement: Poster admission
-
-A view SHALL be admitted when some candidate composition lays it out alone on
-a 2400 × 1350 px page with no text smaller than 14 px; whether its page passes
-the balance gates SHALL be decided when the edition is grouped. Admission
-SHALL try the finite candidate compositions and no other parameters. A view no
-candidate lays out SHALL be refused with its id, its component and relation
-counts and the page size. The publisher SHALL NOT shrink text, crop or change
-the format.
-
-#### Scenario: An oversized view
-
-- **WHEN** a declared view's cards cannot be laid out at 14 px in any candidate
-  composition
-- **THEN** the build refuses with `plan_not_admitted`, that view id, its counts
-  and the 2400 × 1350 px page size
-
-#### Scenario: A sparse view is admitted
-
-- **WHEN** a declared view can be laid out but fills no balanced page alone
-- **THEN** the plan admits it
-- **AND** the edition prints it beside a neighbour, on a sparse page, or
-  refuses it with `poster_unbalanced`
-
-#### Scenario: A deterministic plan
-
-- **WHEN** the same model is checked twice with the same publisher version
-- **THEN** both results report identical views and compositions
-
 ### Requirement: Named view refusals
 
 A view whose admission is refused SHALL be refused with its id, and the
@@ -141,11 +112,11 @@ report every view it refuses, under the code of the first.
 
 #### Scenario: Two refused views
 
-- **WHEN** the second of three declared views has a summary no page can set
-  and the third cannot be laid out on any page
-- **THEN** the refusal has the code `poster_summary_too_long` and names the
-  second view
-- **AND** its problems list the third view's `view_not_admitted` problem under
+- **WHEN** the second and third of three declared views cannot be laid out in
+  the edition's body
+- **THEN** the refusal has the code `plate_unfittable` and names the second
+  view
+- **AND** its problems list each view's `plate_unfittable` problem once, under
   `/views/<id>`
 
 ### Requirement: Declared views
@@ -179,3 +150,22 @@ aggregated overview relation.
 
 - **WHEN** a model declares views and one component belongs to none of them
 - **THEN** the check result lists that component and its relations as undrawn
+
+### Requirement: Plate admission
+
+A view SHALL be admitted when some candidate composition lays it out alone in
+the print edition's body field with no text smaller than 14 px. Admission SHALL
+try the finite candidate compositions and no other parameters. A view no
+candidate lays out SHALL be refused with `plate_unfittable` and its id. The
+publisher SHALL NOT shrink text, crop or change the format.
+
+#### Scenario: An oversized view
+
+- **WHEN** a declared view's cards cannot be laid out at 14 px in any candidate
+  composition
+- **THEN** the build refuses with `plate_unfittable` and that view's id
+
+#### Scenario: A deterministic plan
+
+- **WHEN** the same model is checked twice with the same publisher version
+- **THEN** both results report identical views and compositions

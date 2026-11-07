@@ -44,21 +44,22 @@ holds a link or an `archpub` entry, where the class is staged,
 
 The house class SHALL set one 16:9 page of 1600 by 900 points, the house
 palette, Source Serif 4 for titles and heads and Source Sans 3 for text, with
-Noto Sans CJK SC for Han characters, and four type sizes. It SHALL provide a
-masthead and an imprint that print the model's title, its revision and, when
-the build names the checkout, the revision's commit date, and primitives for
-heads, text, definition lists, rules, lines, stations and arrowheads.
+Noto Sans CJK SC for Han characters, and four type sizes, read from the house
+supply's one token file. It SHALL provide a masthead, and a foot that prints the
+model's title, its revision and, when the build names the checkout, the
+revision's commit date, and primitives for heads, text, definition lists, rules,
+lines, stations and arrowheads.
 
 #### Scenario: The imprint with a checkout
 
 - **WHEN** a model pinned at a revision is built with `--repo`
-- **THEN** the imprint names the model's title, the revision's first seven
+- **THEN** the foot names the model's title, the revision's first seven
   characters and its commit date
 
 #### Scenario: The imprint without a checkout
 
 - **WHEN** the same model is built without `--repo`
-- **THEN** the imprint names the title and the revision and no date
+- **THEN** the foot names the title and the revision and no date
 
 ### Requirement: Model references
 
@@ -97,33 +98,14 @@ and error, `overview_typst_error`, at the composition's line.
 
 ### Requirement: Overview files
 
-The overview SHALL be delivered as `overview.svg` and one PNG per `--png`
-width, `overview.png` at 2400 px and `overview-<width>.png` at any other. Equal
-compositions, models, classes, fonts and Typst versions SHALL give equal bytes.
+The overview SHALL be set in place in the print edition and delivered as one PNG of its page per `--png` width in `images/`, `00-overview.png` at 2400 px and
+`00-overview-<width>.png` at any other. Equal compositions, models, classes,
+fonts and Typst versions SHALL give equal bytes.
 
 #### Scenario: Two builds
 
 - **WHEN** a model with a composition is built twice with `--png 2400,6000`
-- **THEN** both deliveries hold byte-identical `overview.svg`, `overview.png`
-  and `overview-6000.png`
-
-### Requirement: Pinned Typst
-
-The publisher SHALL typeset with Typst 0.15.1 found on the path and SHALL refuse
-an overview when Typst is missing, `overview_typst_missing`, or reports another
-version, `overview_typst_version`, naming the version it needs. Media other than
-the overview SHALL NOT need Typst.
-
-#### Scenario: Typst missing
-
-- **WHEN** a model with a composition is built and no Typst is on the path
-- **THEN** the build refuses with `overview_typst_missing` before writing
-  anything
-
-#### Scenario: Posters and page without Typst
-
-- **WHEN** the same model is built with `--media posters,page` and no Typst
-- **THEN** the build delivers the posters and the page
+- **THEN** both deliveries hold byte-identical `images/00-overview.png` and `images/00-overview-6000.png`
 
 ### Requirement: Missing composition
 
@@ -143,3 +125,31 @@ value and the path it looked at, before it stages anything or runs Typst.
 - **WHEN** a model names `art/overview.typ` and no `art/` is beside it
 - **THEN** `archpub check` and the build refuse with
   `overview_composition_missing` instead of failing on the directory
+
+### Requirement: Pinned Typst for print
+
+The publisher SHALL typeset the print edition with Typst 0.15.1 found on the
+path and SHALL refuse it when Typst is missing, `edition_typst_missing`, or
+reports another version, `edition_typst_version`, naming the version it needs.
+The page SHALL NOT need Typst.
+
+#### Scenario: Typst missing
+
+- **WHEN** a model is built with the edition and no Typst is on the path
+- **THEN** the build refuses with `edition_typst_missing` before writing
+  anything
+
+#### Scenario: The page without Typst
+
+- **WHEN** the same model is built with `--media page` and no Typst
+- **THEN** the build delivers the page
+
+### Requirement: Overview in the print edition
+
+In the print edition the overview SHALL be compiled from its composition in
+place, so its text is text, and its imprint SHALL be the edition's foot.
+
+#### Scenario: Searchable overview text
+
+- **WHEN** the print edition of a model with a composition is built
+- **THEN** the overview's masthead claim can be extracted as text from its page

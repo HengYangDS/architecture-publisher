@@ -104,7 +104,7 @@ platform SHALL be offered.
 
 - **WHEN** the archive for the machine's platform is unpacked and its
   `archpub build` runs with no Node.js or Typst on the path
-- **THEN** it delivers the posters, the page and the overview
+- **THEN** it delivers the print edition, its images and the page
 - **AND** every delivered file is byte-identical to the build from the package on
   that platform
 

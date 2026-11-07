@@ -501,7 +501,7 @@ SHALL be strict at the showcase quality and warnings at the standard quality.
 
 - **WHEN** a model names a guide whose draft draws a sequence and cites a
   repository file
-- **THEN** the page is that guide, delivered as `index.html`
+- **THEN** the page is that guide, delivered as `<model id>.html`
 
 #### Scenario: A draft for another revision
 
