@@ -235,7 +235,7 @@ test("components and relations without files are listed as uncited", () => {
 test("check prints coverage and currency with --repo and --against", async (t) => {
   const { root, pinned, head } = await historyRepository(t);
   const model = await writeModel(t, historyJson(pinned));
-  const args = ["check", model, "--repo", root, "--against", "main", "--media", "posters"];
+  const args = ["check", model, "--repo", root, "--against", "main", "--media", "edition"];
   const { exitCode, output } = await runCli([...args, "--json"]);
   assert.equal(exitCode, 0);
   const body = JSON.parse(output);

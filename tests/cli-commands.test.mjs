@@ -117,7 +117,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   const out = path.join(root, "delivery");
   assert.match(
     (await runCli(["build", model, "--out", out])).output,
-    /^Built 1 view as 1 poster page and the page into /u,
+    /^Built 1 view as the print edition of 1 plate and the page into /u,
   );
   const accepted = await json(["accept", out, "--reviewer", "Reviewer", "--note", "fine"]);
   assert.equal(accepted.body.reviewer, "Reviewer");
@@ -150,21 +150,18 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(JSON.parse(await fs.readFile(imported, "utf8")).id, "shop");
   const again = await json(["import", "likec4", SHOP, "--out", imported, "--id", "shop"]);
   assert.deepEqual([again.exitCode, again.body.code], [1, "import_output_exists"]);
-  // Six components cannot fill a 16:9 page even at the largest type step: the
-  // build delivers each page as sparse and records the gates it misses.
+  // Six components cannot fill the body even at the largest type step: each
+  // plate records the balance gates it misses, and none is refused.
   const shop = path.join(root, "shop");
-  const built = await json(["build", imported, "--out", shop, "--media", "posters"]);
+  const built = await json(["build", imported, "--out", shop, "--media", "edition"]);
   assert.equal(built.exitCode, 0);
-  assert.deepEqual([built.body.media, built.body.posters], [["posters"], 2]);
+  assert.deepEqual([built.body.media, built.body.plates], [["edition"], 2]);
   const manifest = JSON.parse(await fs.readFile(path.join(shop, "manifest.json"), "utf8"));
   assert.deepEqual(
-    manifest.posters.map(({ admission, views }) => [admission, views]),
-    [
-      ["sparse", ["index"]],
-      ["sparse", ["internals"]],
-    ],
+    manifest.plates.map(({ views }) => views),
+    [["index"], ["internals"]],
   );
-  assert.ok(manifest.posters.every(({ misses }) => misses.length));
+  assert.ok(manifest.plates.every(({ misses }) => misses.length));
   assert.equal(manifest.page, null);
   await assert.rejects(fs.access(path.join(shop, "index.html")));
 });

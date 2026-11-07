@@ -159,8 +159,19 @@
   if read-from != none { txr(page-width - margin, 50pt, 420pt, read-from, fill: soft) }
 }
 
-/// The imprint across the foot of the page.
-#let imprint(note) = {
+/// Whether the page is set inside the print edition, where the edition's foot replaces the imprint.
+#let _in-edition = _inputs.at("edition", default: "") == "true"
+
+/// The edition's foot: a rule, the work's title, release, revision and date linked to the contents, and the folio.
+#let edition-foot() = {
+  let words = json("edition.json").words
+  hrule(_house.edition.rule * 1pt)
+  tx(margin, _house.edition.foot * 1pt, link(<archpub-contents>, words.foot), size: "small", fill: soft)
+  context txr(page-width - margin, _house.edition.foot * 1pt, 300pt, counter(page).display(), size: "small", fill: soft)
+}
+
+/// The imprint across the foot of the page; in the print edition, the edition's foot.
+#let imprint(note) = if _in-edition { edition-foot() } else {
   let rev = _inputs.at("revision", default: "")
   let date = _inputs.at("date", default: "")
   hrule(866pt)
@@ -170,9 +181,194 @@
 }
 
 /// Apply the page: `#show: overview`.
-#let overview(body) = {
+#let overview(body) = if _in-edition { body } else {
   set page(width: page-width, height: page-height, margin: 0pt, fill: paper)
   set text(font: sans, size: sizes.text, fill: ink, stretch: 100%)
   set par(leading: 6.6pt, spacing: 6.6pt)
   body
+}
+
+// ── The print edition ─────────────────────────────────────────────────────────────────────────────────────────────
+// The edition typesets a delivery in one pass from `edition.json`, which the publisher writes beside this class: a
+// title page, contents beside the edition's facts, the overview when the model has a composition, and one plate per
+// view. Every page after the title page shares one frame: the head, the body, the key line and the foot. The
+// publisher lays each plate's figure out; the edition sets every word, the figure's runs at the engine's positions.
+
+#let _e = _house.edition
+#let _k = 1pt / _house.plate.pixelsPerPoint
+#let _caps(body) = text(tracking: 1.4pt, upper(body))
+#let _label(name) = text(size: sizes.small, weight: "semibold", fill: soft, _caps(name))
+
+/// Prose: justified on optimized lines, hyphenated where a break is cheap, word spaces held between 80 and 125 percent
+/// and letters tracked by at most a few hundredths of an em, at most `measure` em to a line.
+#let prose(width, body, size: sizes.text, font: sans, fill: ink, pitch: 16pt) = {
+  set text(size: size, font: font, fill: fill, hyphenate: true, costs: (hyphenation: 40%, runt: 150%),
+    top-edge: "baseline", bottom-edge: "baseline")
+  set par(justify: true, linebreaks: "optimized", leading: pitch, spacing: 0pt,
+    justification-limits: (spacing: (min: 80% + 0pt, max: 125% + 0pt), tracking: (min: -0.012em, max: 0.025em)))
+  block(width: calc.min(width.pt(), _e.measure * size.pt()) * 1pt, spacing: 0pt, body)
+}
+
+/// A column spread over a band: its blocks share the band's height equally, so no paper is left in one block.
+#let _band(x, y, width, height, ..blocks) = place(top + left, dx: x, dy: y, block(width: width, height: height, {
+  set block(spacing: 0pt)
+  v(1fr)
+  blocks.pos().join(v(1fr))
+  v(1fr)
+}))
+
+#let _head(label, title, lead: none, label-style: (size: "head", font: sans, fill: ink)) = {
+  if label != none {
+    tx(margin, 52pt, label, size: label-style.size, font: label-style.font, fill: label-style.fill,
+      weight: if label-style.font == sans { "semibold" } else { "regular" })
+  }
+  tx(if label == none { margin } else { _e.claim * 1pt }, 52pt, title, size: "title", font: display)
+  if lead != none { tx(_e.claim * 1pt, 84pt, lead, fill: soft) }
+}
+
+/// A key entry's mark: a kind's icon, drawn as the figure draws it, or the style of the boundary, an outside system or
+/// a status. Marks are artifacts: the label beside each says what it is.
+#let _mark(entry) = pdf.artifact(box(baseline: 2pt, if "artwork" in entry {
+  image(bytes("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='" + entry.color
+    + "' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + entry.artwork + "</svg>"),
+    format: "svg", width: 13pt)
+} else if entry.shape == "boundary" {
+  rect(width: 16pt, height: 10pt, radius: 3pt, stroke: (paint: rgb(_house.figure.boundary), thickness: 0.7pt, dash: (2pt, 1.6pt)))
+} else if entry.shape == "outside" {
+  rect(width: 16pt, height: 10pt, radius: 3pt, fill: rgb(_house.figure.outside), stroke: 0.7pt + rgb(_house.figure.outsideStroke))
+} else {
+  line(length: 16pt, stroke: (paint: rgb(if entry.shape == "retired" { _house.figure.retired } else { _house.palette.mid }),
+    thickness: 1pt, dash: if entry.shape == "retired" { "dotted" } else { "dashed" }))
+}))
+
+#let _key(entries) = place(top + left, dx: margin, dy: _e.key * 1pt - 10pt,
+  text(size: sizes.small, fill: soft, entries.map(entry => [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
+
+/// One plate: its shapes as an artifact, its runs as text at the engine's positions, its card titles linked to the
+/// files they cite, the whole one figure named by its title and question.
+#let _plate(p) = {
+  let width = page-width - 2 * margin
+  let height = (_e.bodyBottom - _e.bodyTop) * 1pt
+  place(top + left, dx: margin, dy: _e.bodyTop * 1pt, figure(alt: p.alt, box(width: width, height: height, {
+    place(pdf.artifact(image(p.file, width: width)))
+    for r in p.runs {
+      let set-run = text.with(font: sans, size: r.size * _k, weight: if r.weight >= 600 { "semibold" } else { "regular" },
+        fill: rgb(r.color), top-edge: "baseline", bottom-edge: "baseline")
+      place(top + left, dx: r.x * _k, dy: r.baseline * _k, set-run(r.text))
+      context if measure(set-run(r.text)).width > r.width * _k + 0.5pt { panic("edition_text_wider: " + r.text) }
+      if "component" in r and r.component in p.links {
+        place(top + left, dx: r.x * _k, dy: (r.baseline - r.size) * _k,
+          link(p.links.at(r.component), box(width: r.width * _k, height: r.size * 1.3 * _k)))
+      }
+    }
+  })))
+}
+
+/// The contents: one row per entry, linked to its page, the rows sharing the body equally and never below 44 points,
+/// further rows continuing on the next page.
+#let _contents-rows(r) = context {
+  let entries = query(heading.where(outlined: true))
+  let per = calc.floor((_e.bodyBottom - _e.bodyTop) / 44)
+  let pitch = calc.max(44, (_e.bodyBottom - _e.bodyTop) / calc.min(entries.len(), per)) * 1pt
+  let w = page-width - margin - _e.column * 1pt
+  for (i, h) in entries.enumerate() {
+    if i > 0 and calc.rem(i, per) == 0 {
+      pagebreak()
+      _head(none, r.words.contents)
+      edition-foot()
+    }
+    let row = r.rows.at(str(h.label))
+    let y = _e.bodyTop * 1pt + calc.rem(i, per) * pitch
+    // The row's title and question stand in its middle, whatever the pitch.
+    let b = pitch / 2 - 2pt
+    place(top + left, dx: _e.column * 1pt, dy: y, link(h.location(), box(width: w, height: pitch, {
+      line(length: w, stroke: 0.8pt + rule)
+      tx(0pt, b, row.number, size: "head", font: serif, fill: green)
+      tx(56pt, b, row.title, size: "head", font: serif)
+      tx(56pt, b + 22pt, row.question, fill: soft, w: w - 160pt)
+      txr(w, b, 80pt, str(h.location().page()), size: "head", font: serif, fill: soft)
+    })))
+  }
+}
+
+/// The print edition of one delivery, from the record the publisher writes; `overview` is the composition's content.
+#let edition(r, overview: none) = {
+  let words = r.words
+  // Dated by the revision's commit; without the checkout, by the time it is typeset.
+  let date = if r.committed == none { auto } else {
+    let c = r.committed
+    datetime(year: c.at(0), month: c.at(1), day: c.at(2), hour: c.at(3), minute: c.at(4), second: c.at(5))
+  }
+  set document(title: r.title + ": " + words.edition, author: r.editors, description: r.summary,
+    keywords: r.keywords, date: date)
+  set page(width: page-width, height: page-height, margin: 0pt, fill: paper)
+  set text(lang: r.locale.split("-").first(), region: if "-" in r.locale { r.locale.split("-").last() } else { none },
+    font: sans, size: sizes.text, fill: ink, stretch: 100%)
+  set par(leading: 6.6pt, spacing: 6.6pt)
+  show heading: it => place(hide(it.body))
+  pdf.attach("model.json", read("model.json", encoding: none), relationship: "source", mime-type: "application/json",
+    description: words.attached)
+
+  // Title page: the name and question on the left, the summary as a standfirst on the right, the byline below.
+  [#heading(outlined: false, bookmarked: true, r.title) <archpub-cover>]
+  tx(margin, 64pt, _caps(words.edition), size: "small", weight: "semibold", fill: soft)
+  if r.subject.date != none { txr(page-width - margin, 64pt, 400pt, _caps(r.subject.date), size: "small", weight: "semibold", fill: soft) }
+  _band(margin, 96pt, 900pt, 640pt, {
+    set text(top-edge: "baseline", bottom-edge: "baseline")
+    line(length: 72pt, stroke: 2.4pt + green)
+    // The title's first baseline sits a cap height and a gap below the rule.
+    v(_e.cover * 0.72pt + 40pt)
+    block(width: 900pt, move(dx: -7pt, text(font: display, size: _e.cover * 1pt, par(leading: _e.cover * 1.08pt, r.title))))
+    v(84pt)
+    block(width: 860pt, text(font: serif, size: sizes.title, fill: soft, par(leading: 44pt, r.question)))
+  })
+  if r.summary != none { _band(992pt, 96pt, 560pt, 640pt, prose(560pt, r.summary, size: sizes.head, font: serif, pitch: 27pt)) }
+  hrule(760pt)
+  for (i, fact) in r.byline.enumerate() {
+    let x = margin + i * 504pt
+    tx(x, 796pt, _caps(fact.label), size: "small", weight: "semibold", fill: soft)
+    tx(x, 822pt, fact.value, size: "head")
+    if fact.note != none { tx(x, 846pt, fact.note, size: "small", fill: soft) }
+  }
+
+  // Contents: the edition's facts, scope, limits and reading note on the left, the rows on the right.
+  pagebreak()
+  [#heading(outlined: false, bookmarked: true, words.contents) <archpub-contents>]
+  _head(none, words.contents)
+  if words.built != none { txr(page-width - margin, 34pt, 420pt, words.built, fill: soft) }
+  let left = (
+    {
+      set text(top-edge: "baseline", bottom-edge: "baseline", size: sizes.small)
+      set par(leading: 16pt, spacing: 0pt)
+      grid(columns: (110pt, 1fr), row-gutter: 0pt, inset: (x: 0pt, top: 20pt, bottom: 9pt),
+        stroke: (x, y) => (top: 0.8pt + rule, bottom: if y == r.facts.len() - 1 { 0.8pt + rule } else { none }),
+        ..r.facts.map(f => (text(weight: "semibold", f.label), if f.url == none { f.value } else { link(f.url, f.value) })).flatten())
+    },
+  )
+  if r.scope != none { left.push({ _label(words.scope); v(22pt); prose(540pt, r.scope, fill: soft) }) }
+  if r.limits.len() > 0 { left.push({ _label(words.limits); v(22pt); r.limits.map(l => prose(540pt, l, fill: soft)).join(v(14pt)) }) }
+  left.push({ _label(words.reading); v(22pt); prose(540pt, words.readingNote, fill: soft) })
+  _band(margin, 116pt, 540pt, (_e.bodyBottom - 116) * 1pt, ..left)
+  _contents-rows(r)
+  edition-foot()
+
+  // The overview, compiled from its composition in place.
+  if overview != none {
+    pagebreak()
+    [#heading(words.overview) <plate-00>]
+    overview
+  }
+
+  // Plates.
+  for p in r.plates {
+    pagebreak()
+    [#heading(p.title)#label(p.key)]
+    context if measure(text(font: display, size: sizes.title, p.title)).width > page-width - margin - _e.claim * 1pt {
+      panic("edition_title_too_long: " + p.title)
+    }
+    _head(p.number, p.title, lead: p.question, label-style: (size: "title", font: display, fill: green))
+    _plate(p)
+    _key(p.marks)
+    edition-foot()
+  }
 }

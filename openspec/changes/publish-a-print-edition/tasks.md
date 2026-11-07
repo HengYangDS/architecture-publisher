@@ -7,7 +7,7 @@
 ## 2. House tokens and faces
 
 - [x] 2.1 Move the palette, faces and sizes to one token file, `src/house.json`, read by the Typst class and the engine; verify the overview tests pass with unchanged overview bytes. The class reads `src/house.json`, staged beside it, and the engine reads it; filmkit's `overview.svg` and `overview.png` built before and after are byte-identical, and the overview tests pass. The class digest now covers the class and its tokens.
-- [x] 2.2 Measure figure text in Source Sans 3 and then Noto Sans CJK SC, draw figures in the house palette, drop Noto Sans from the font supply and give opentype.js a supply of its own; verify test 1.2's measuring test and the glyph refusal tests pass. The engine measures in Source Sans 3 and Noto Sans CJK SC through `renderers/opentype/supply`; Noto Sans left the font supply. The measuring, `Łódź` and CJK glyph-refusal tests pass; `npm test` passes 219 of 227, the eight failures being group 3's plate tests and the four poster tests in task 3.1.
+- [x] 2.2 Measure figure text in Source Sans 3 and then Noto Sans CJK SC, draw figures in the house palette, drop Noto Sans from the font supply and give opentype.js a supply of its own; verify test 1.2's measuring test and the glyph refusal tests pass. The engine measures in Source Sans 3 and Noto Sans CJK SC through `renderers/opentype/supply`; Noto Sans left the font supply. The measuring, `Łódź` and CJK glyph-refusal tests pass; `npm test` passes 219 of 227, the eight failures being group 3's plate tests and the four poster tests in task 3.1. The measuring test passed vacuously at first, comparing two NaN widths because `figureStyles(0)` sets no size; since group 5 it measures at `POSTER.steps[0]`.
 
 ## 3. Plates
 
@@ -21,8 +21,8 @@
 
 ## 5. Print edition
 
-- [ ] 5.1 Add the edition to the house class: title page, contents rows, the overview in place, plate heads, keys, live runs and links, the edition's facts beside the contents, the page frame, the prose settings and columns that fill their pages; verify by a class test that compiles a fixture edition, follows its links, extracts its card labels and fits eleven views' contents on one page.
-- [ ] 5.2 Deliver `<model id>.pdf` with PDF/A-3a and PDF/UA-1, the model attached, the commit's date, `edition_text_wider` and `edition_title_too_long`; verify by delivery tests for page count, author, attachment bytes, refusals and two byte-identical builds.
+- [x] 5.1 Add the edition to the house class: title page, contents rows, the overview in place, plate heads, keys, live runs and links, the edition's facts beside the contents, the page frame, the prose settings and columns that fill their pages; verify by class tests that eleven plates' contents fit one page and seventeen continue on a second, card titles link to the files they cite, the editors and model are carried, two typesettings are byte-identical, and wider runs and long titles are refused. Card labels and the overview's claim are extracted as text from the built works in 8.2. The three class tests in `tests/edition-class.test.mjs` pass.
+- [x] 5.2 Deliver `<model id>.pdf` with PDF/A-3a and PDF/UA-1, the model attached, the commit's date, `SOURCE_DATE_EPOCH` or the time of typesetting, `edition_typst_missing`, `edition_text_wider` and `edition_title_too_long`; verify by delivery tests for the files, page count, Typst refusal before writing, a page built without Typst and two byte-identical builds. The delivery, overview and edition tests pass; `npm test` passed 233 of 234, the module-boundary test failing until the edition unit was registered, and it passes since. Types, lint, format, docs and spec checks pass; the dead-code check reports `MAXIMUM_WIDTH` in `src/poster/raster.mjs`, which 5.3 removes.
 - [ ] 5.3 Render `images/00-overview.png` and `images/NN-<view>.png` with Typst at each width and retire resvg, its Rust toolchain, the raster journey and their CI steps; verify by delivery tests and `npm run check:ci`.
 
 ## 6. Delivery
@@ -37,7 +37,7 @@
 ## 8. Verification
 
 - [ ] 8.1 Run `npm run check`; verify it passes at or above the coverage floors.
-- [ ] 8.2 Build the six Architecture Publications works from migrated copies; verify each builds a conforming edition, and send the editions to the owner for review.
+- [ ] 8.2 Build the six Architecture Publications works from migrated copies; verify each builds a conforming edition whose card labels and overview claim `pdftotext` extracts, and send the editions to the owner for review.
 
 ## 9. Release
 

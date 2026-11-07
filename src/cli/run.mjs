@@ -19,11 +19,10 @@ export const USAGE = `Usage:
 
 Build options:
   --repo <checkout>     Resolve and verify the model's files in this Git checkout.
-  --media <list>        Media to deliver: posters, page, overview (default posters,page
-                        and, when the model names a composition, overview).
-  --png <widths>        PNG widths of the posters and the overview, comma-separated
-                        (default 2400).
-  --quality <profile>   showcase (default) or standard, which delivers drafts.
+  --media <list>        Media to deliver: edition, the print edition with its images,
+                        and page (default both).
+  --png <widths>        Widths of the edition's images, comma-separated (default 2400).
+  --quality <profile>   The page's quality: showcase (default) or standard.
 
 Check options:
   --against <revision>  With --repo, compare the model's revision with this one.
@@ -198,9 +197,10 @@ const COMMANDS = {
       buildDelivery(one(positionals, "model"), required(options, "out"), buildArguments(options)),
     text: (result) => {
       const media = [
-        ...(result.media.includes("posters") ? [count(result.posters, "poster page")] : []),
+        ...(result.media.includes("edition")
+          ? [`the print edition of ${count(result.plates, "plate")}`]
+          : []),
         ...(result.media.includes("page") ? ["the page"] : []),
-        ...(result.media.includes("overview") ? ["the overview"] : []),
       ];
       return `Built ${count(result.views.length, "view")} as ${series(media)} into ${result.out}.\n`;
     },

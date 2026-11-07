@@ -9,7 +9,7 @@ import { planViews } from "../src/plan/views.mjs";
 import { admitsView } from "../src/poster/compose/candidates.mjs";
 import * as edition from "../src/poster/compose/plates.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
-import { figureStyles } from "../src/poster/tokens.mjs";
+import { POSTER, figureStyles } from "../src/poster/tokens.mjs";
 import { verifySupply } from "../src/supply.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 
@@ -53,7 +53,7 @@ test("figure text is measured in Source Sans 3, its semibold for heavy text, and
     faceOf("fonts", "noto-sans-cjk-sc/NotoSansCJKsc-Regular.otf"),
   ]);
   const text = "Architecture Publisher";
-  const { detail, name } = figureStyles(0);
+  const { detail, name } = figureStyles(POSTER.steps[0]);
   assert.equal(typefaces.measure(text, detail), width(regular, text, detail.size));
   assert.equal(typefaces.measure(text, name), width(semibold, text, name.size));
   assert.equal(typefaces.measure("数据", detail), width(han, "数据", detail.size));
@@ -61,7 +61,7 @@ test("figure text is measured in Source Sans 3, its semibold for heavy text, and
 
 test("letters the CJK face lacks are measured in Source Sans 3 and not refused", async () => {
   const regular = await faceOf("house", "source-sans-3/SourceSans3-Regular.otf");
-  const { detail } = figureStyles(0);
+  const { detail } = figureStyles(POSTER.steps[0]);
   requireGlyphs(typefaces, [{ path: "/components/0/label", text: "Łódź" }]);
   assert.equal(typefaces.measure("Łódź", detail), width(regular, "Łódź", detail.size));
 });

@@ -41,5 +41,16 @@
     "width": 1504,
     "height": 714,
     "pixelsPerPoint": 1.5
+  },
+  "edition": {
+    "cover": 120,
+    "claim": 124,
+    "column": 680,
+    "bodyTop": 112,
+    "bodyBottom": 826,
+    "key": 848,
+    "rule": 866,
+    "foot": 886,
+    "measure": 32
   }
 }

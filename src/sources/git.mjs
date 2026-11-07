@@ -43,6 +43,29 @@ export function commitDate(repo, commit) {
 }
 
 /**
+ * A commit's time as the committer recorded it, in seconds since the epoch.
+ * @param {string} repo
+ * @param {string} commit
+ */
+export function commitTime(repo, commit) {
+  const result = readGit(repo, ["show", "-s", "--format=%ct", commit]);
+  if (result.status !== 0)
+    refuse("source_read_failed", `Git could not read the time of ${commit}.`);
+  return Number(result.stdout.toString("utf8").trim());
+}
+
+/**
+ * The release a commit is tagged as: the highest version among the tags that point at it, or null.
+ * @param {string} repo
+ * @param {string} commit
+ */
+export function releaseOf(repo, commit) {
+  const result = readGit(repo, ["tag", "--points-at", commit, "--sort=-version:refname"]);
+  if (result.status !== 0) return null;
+  return result.stdout.toString("utf8").split("\n")[0].trim() || null;
+}
+
+/**
  * The commit a revision names in a repository, or a refusal with the given code.
  * @param {string} repo
  * @param {string} revision

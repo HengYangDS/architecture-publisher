@@ -8,7 +8,7 @@ import { checkBoxes } from "../src/overview/checks.mjs";
 import { lintComposition } from "../src/overview/lint.mjs";
 import {
   TYPST_VERSION,
-  typesetOverview,
+  checkOverview,
   typstProblems,
   typstVersion,
 } from "../src/overview/typeset.mjs";
@@ -37,26 +37,21 @@ async function composed(t, text = COMPOSITION, extra = {}) {
   return file;
 }
 
-async function typeset(t, text, widths = [2400]) {
+async function typeset(t, text) {
   const file = await composed(t, text);
-  return typesetOverview({
+  return checkOverview({
     composition: path.join(path.dirname(file), "overview.typ"),
     modelBytes: await fs.readFile(file),
     revision: "a".repeat(40),
     date: "2026-11-02",
-    widths,
   });
 }
 
 /**
- * The fixture overview's digests with Typst 0.15.1 and the bundled faces. Every CI platform must
- * reproduce them, so an overview is the same file wherever it is built.
+ * The fixture overview's page image with Typst 0.15.1 and the bundled faces. Every CI platform must reproduce it,
+ * so an overview is the same image wherever it is built.
  */
-const DIGESTS = {
-  svg: "64476bd128529da9681916d0b7f3f867496db81e31f8f937ad1b10de91588205",
-  "overview-240.png": "d74e76bcec550c4c8e0d4f47d982d4bd24cf3601c2f40e1b36dcf8915aa0284c",
-  "overview.png": "1e4c12042dd95ac0e875c2a387647541f94a8244bd739312fc0ba66a663ab62b",
-};
+const OVERVIEW_PNG = "127a83ca0b0c4386b842643d9adee1dd17b5facdfac44eda42faced9ed806670";
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 /** A PNG's width from its header. */
@@ -66,9 +61,9 @@ const pngWidth = (bytes) => bytes.readUInt32BE(16);
 const lineOf = (text, fragment) =>
   text.split("\n").findIndex((line) => line.includes(fragment)) + 1;
 
-test("the overview typesets the same bytes twice, with a PNG at each width", async (t) => {
-  const first = await typeset(t, COMPOSITION, [240, 2400]);
-  const second = await typeset(t, COMPOSITION, [240, 2400]);
+test("the overview is read with its revision and date, the same twice", async (t) => {
+  const first = await typeset(t, COMPOSITION);
+  const second = await typeset(t, COMPOSITION);
   assert.equal(first.typst, TYPST_VERSION);
   // The masthead and the imprint name the model, its revision and the revision's date.
   assert.ok(first.texts.includes(`As built at aaaaaaa · 2026-11-02`));
@@ -76,23 +71,7 @@ test("the overview typesets the same bytes twice, with a PNG at each width", asy
     first.texts.some((text) => text.startsWith("As built from Minimal at aaaaaaa, 2026-11-02. ")),
   );
   assert.ok(first.texts.includes("Alpha"));
-  assert.ok(first.svg.equals(second.svg));
-  assert.deepEqual(
-    first.png.map(({ width, file, bytes }) => [width, file, pngWidth(bytes)]),
-    [
-      [240, "overview-240.png", 240],
-      [2400, "overview.png", 2400],
-    ],
-  );
-  first.png.forEach(({ bytes }, index) => assert.ok(bytes.equals(second.png[index].bytes)));
-  assert.deepEqual(
-    {
-      svg: sha256(first.svg),
-      ...Object.fromEntries(first.png.map(({ file, bytes }) => [file, sha256(bytes)])),
-    },
-    DIGESTS,
-  );
-  assert.match(first.svg.toString("utf8"), /^<svg /u);
+  assert.deepEqual(first.texts, second.texts);
 });
 
 test("text over text and text outside the live area are refused", async (t) => {
@@ -235,37 +214,56 @@ test("the composition's directory may not hold the class's own directory or link
   const file = await composed(t);
   await fs.mkdir(path.join(path.dirname(file), "archpub"));
   await assert.rejects(
-    typesetOverview({
+    checkOverview({
       composition: path.join(path.dirname(file), "overview.typ"),
       modelBytes: await fs.readFile(file),
       revision: null,
       date: null,
-      widths: [2400],
     }),
     { code: "overview_composition_invalid" },
   );
 });
 
-test("a build delivers the overview a model names, and refuses one it does not name or that is not there", async (t) => {
+test("the edition needs the pinned Typst before it writes anything, and the page does not", async (t) => {
+  const file = await composed(t);
+  const root = await temporaryDirectory(t, "archpub-overview-typst-");
+  const saved = process.env.PATH;
+  // A path with Node and no Typst.
+  process.env.PATH = path.dirname(process.execPath);
+  try {
+    await assert.rejects(buildDelivery(file, path.join(root, "edition")), {
+      code: "edition_typst_missing",
+    });
+    assert.deepEqual(await fs.readdir(root), []);
+    const built = await buildDelivery(file, path.join(root, "page"), { media: ["page"] });
+    assert.deepEqual(built.media, ["page"]);
+  } finally {
+    process.env.PATH = saved;
+  }
+});
+
+test("a build sets the overview a model names in the edition, and refuses one that is not there", async (t) => {
   const file = await composed(t);
   const out = path.join(await temporaryDirectory(t, "archpub-overview-build-"), "delivery");
-  const built = await buildDelivery(file, out, { media: ["overview"], png: [2400, 240] });
-  assert.deepEqual(built.media, ["overview"]);
-  assert.deepEqual((await fs.readdir(out)).sort(), [
-    "manifest.json",
-    "overview-240.png",
-    "overview.png",
-    "overview.svg",
-  ]);
+  const built = await buildDelivery(file, out, { media: ["edition"], png: [2400, 240] });
+  assert.deepEqual(built.media, ["edition"]);
+  const images = (await fs.readdir(path.join(out, "images"))).sort();
+  assert.deepEqual(
+    images.filter((name) => name.startsWith("00-")),
+    ["00-overview-240.png", "00-overview.png"],
+  );
+  const image = await fs.readFile(path.join(out, "images", "00-overview.png"));
+  assert.equal(pngWidth(image), 2400);
+  assert.equal(pngWidth(await fs.readFile(path.join(out, "images", "00-overview-240.png"))), 240);
+  assert.equal(sha256(image), OVERVIEW_PNG);
+  const again = path.join(path.dirname(out), "again");
+  await buildDelivery(file, again, { media: ["edition"] });
+  assert.ok(image.equals(await fs.readFile(path.join(again, "images", "00-overview.png"))));
   const manifest = JSON.parse(await fs.readFile(path.join(out, "manifest.json"), "utf8"));
   assert.equal(manifest.overview.composition.path, "overview.typ");
   assert.equal(manifest.overview.typst, TYPST_VERSION);
   assert.match(manifest.overview.house, /^[0-9a-f]{64}$/u);
   assert.match(manifest.supplies.house, /^[0-9a-f]{64}$/u);
-  const plain = await writeModel(t, minimalModel());
-  await assert.rejects(buildDelivery(plain, `${out}-plain`, { media: ["overview"] }), {
-    code: "overview_composition_missing",
-  });
   for (const [index, named] of ["overview.typ", "art/overview.typ"].entries()) {
     const absent = await writeModel(t, minimalModel({ overview: named }));
     const looked = path.join(path.dirname(absent), named);
@@ -273,14 +271,14 @@ test("a build delivers the overview a model names, and refuses one it does not n
       error.code === "overview_composition_missing" &&
       error.message.includes(named) &&
       error.message.includes(looked);
-    await assert.rejects(checkModel(absent, { media: ["overview"] }), missing);
+    await assert.rejects(checkModel(absent, { media: ["edition"] }), missing);
     await assert.rejects(
-      buildDelivery(absent, `${out}-absent-${index}`, { media: ["overview"] }),
+      buildDelivery(absent, `${out}-absent-${index}`, { media: ["edition"] }),
       missing,
     );
     await assert.rejects(fs.access(`${out}-absent-${index}`), { code: "ENOENT" });
   }
-  const checked = await checkModel(file, { media: ["overview"] });
+  const checked = await checkModel(file, { media: ["edition"] });
   assert.equal(checked.overview.typst, TYPST_VERSION);
   assert.equal(checked.overview.date, null);
 });
@@ -288,7 +286,7 @@ test("a build delivers the overview a model names, and refuses one it does not n
 test("with the checkout, the overview prints the revision's commit date", async (t) => {
   const { root, revision, git } = await repository(t);
   const file = await composed(t, COMPOSITION, { repository: { name: "fixture", revision } });
-  const checked = await checkModel(file, { media: ["overview"], repo: root });
+  const checked = await checkModel(file, { media: ["edition"], repo: root });
   assert.equal(checked.overview.date, git("show", "-s", "--format=%cs", revision).trim());
   assert.match(checked.overview.date, /^\d{4}-\d{2}-\d{2}$/u);
 });

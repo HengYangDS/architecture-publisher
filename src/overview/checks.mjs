@@ -1,7 +1,7 @@
 import { refuse } from "../refusal.mjs";
 
 /** The overview page and the area its text must stay within, in points. */
-export const LIVE_AREA = Object.freeze({
+const LIVE_AREA = Object.freeze({
   width: 1600,
   height: 900,
   left: 48,

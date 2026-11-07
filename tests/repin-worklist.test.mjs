@@ -142,7 +142,7 @@ test("check reads a guide's citations for the worklist and prints it", async (t)
       "",
     ].join("\n"),
   );
-  const result = await checkModel(model, { repo: root, against: "main", media: ["posters"] });
+  const result = await checkModel(model, { repo: root, against: "main", media: ["edition"] });
   assert.deepEqual(
     result.coverage.currency.worklist.citations.map(({ where, fate }) => [where, fate]),
     [
@@ -150,7 +150,7 @@ test("check reads a guide's citations for the worklist and prints it", async (t)
       ["@source touch", "touched"],
     ],
   );
-  const args = ["check", model, "--repo", root, "--against", "main", "--media", "posters"];
+  const args = ["check", model, "--repo", root, "--against", "main", "--media", "edition"];
   const { exitCode, output } = await runCli(args);
   assert.equal(exitCode, 0);
   const lines = output.split("\n");

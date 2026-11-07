@@ -5,27 +5,28 @@ import { loadIcons } from "./icons.mjs";
 import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs";
 import { deliverGuide, guideCitations, guidePage, guideSummary, readGuide } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
-import { typesetOverview } from "./overview/typeset.mjs";
+import { editionRecord } from "./edition/record.mjs";
+import { typesetEdition } from "./edition/typeset.mjs";
+import { checkOverview, typstVersion } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
 import { admitsView } from "./poster/compose/candidates.mjs";
-import { composePosters } from "./poster/compose/edition.mjs";
-import { MAXIMUM_WIDTH, rasterize } from "./poster/raster.mjs";
+import { composePlates } from "./poster/compose/plates.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
-import { POSTER } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
 import { bindSources } from "./sources/bind.mjs";
 import { measureCoverage, uncitedStatements } from "./sources/coverage.mjs";
-import { commitDate, commitOf } from "./sources/git.mjs";
+import { commitDate, commitOf, commitTime, releaseOf } from "./sources/git.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 5;
-/** The media a delivery may carry: the poster pages, the interactive page and the overview. */
-const MEDIA = Object.freeze(["posters", "page", "overview"]);
+const DELIVERY_VERSION = 6;
+/** The media a delivery may carry: the print edition with its images, and the interactive page. */
+const MEDIA = Object.freeze(["edition", "page"]);
 /** The quality profiles a build may hold its media to. */
 const QUALITIES = Object.freeze(["showcase", "standard"]);
-/** The PNG widths a poster page is rasterized at by default: its own width. */
-const PNG_WIDTHS = Object.freeze([POSTER.width]);
+/** The width the edition's images are rendered at by default, and the widest they may be. */
+const PNG_WIDTHS = Object.freeze([2400]);
+const MAXIMUM_WIDTH = 6000;
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 /**
@@ -48,8 +49,7 @@ function buildOptions(options = {}) {
   const quality = options.quality ?? "showcase";
   if (requested && (!requested.length || requested.some((name) => !MEDIA.includes(name))))
     refuse("build_media_invalid", `Media must be one or more of ${MEDIA.join(", ")}.`);
-  // Without --media, the model decides whether the overview is delivered.
-  const media = requested ? MEDIA.filter((name) => requested.includes(name)) : null;
+  const media = requested ? MEDIA.filter((name) => requested.includes(name)) : [...MEDIA];
   if (
     !png.length ||
     png.some((width) => !Number.isInteger(width) || width < 1 || width > MAXIMUM_WIDTH)
@@ -67,15 +67,6 @@ function buildOptions(options = {}) {
     quality: /** @type {"showcase" | "standard"} */ (quality),
   };
 }
-
-/** The files of one poster page: its SVG and one PNG per width, the page's own width unsuffixed. */
-const posterFiles = (page, widths) => ({
-  svg: `page-${page}.svg`,
-  png: widths.map((width) => ({
-    width,
-    file: width === POSTER.width ? `page-${page}.png` : `page-${page}-${width}.png`,
-  })),
-});
 
 /** The publisher's own version, recorded in every manifest. */
 async function publisherVersion() {
@@ -123,7 +114,7 @@ async function compositionOf(modelPath, named) {
   if (!named)
     refuse(
       "overview_composition_missing",
-      "The model names no overview composition; name one in `overview` or leave the overview out of --media.",
+      "The model names no overview composition; name one in `overview`.",
     );
   const composition = path.resolve(path.dirname(modelPath), named);
   if (!(await fs.stat(composition).catch(() => null))?.isFile())
@@ -144,42 +135,64 @@ async function prepare(modelPath, options) {
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
-  const media = options.media ?? MEDIA.filter((name) => name !== "overview" || model.overview);
-  const composition = media.includes("overview")
-    ? await compositionOf(modelPath, model.overview)
-    : null;
+  const { media } = options;
+  const printed = media.includes("edition");
+  // The edition is typeset by the pinned Typst; the page needs none.
+  if (printed) await typstVersion("typst", "edition");
+  const composition =
+    printed && model.overview ? await compositionOf(modelPath, model.overview) : null;
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
+  const commit = commitFacts(model, options.repo);
   const overview = composition
-    ? await typesetOverview({
+    ? await checkOverview({
         composition,
         modelBytes: loaded.content,
         revision: model.repository?.revision ?? null,
-        date: revisionDate(model, options.repo),
-        widths: options.png,
+        date: commit?.date ?? null,
       })
     : null;
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
   const { quality } = options;
-  // Pages are composed for the edition as a whole: a sparse view shares a page
-  // with its neighbour, so a poster is a page, not a view.
-  const posters = media.includes("posters")
-    ? composePosters(model, views, typefaces, icons, { quality })
-    : [];
+  // Each view is one plate of the edition, laid out for its body.
+  const plates = printed ? composePlates(model, views, typefaces, icons) : [];
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const page = !media.includes("page")
     ? null
     : model.guide
       ? await guidePage(model, modelPath, { quality, repo: options.repo })
       : await explainerPage(model, views, { quality, owned: binding.owned });
-  return { loaded, model, binding, media, views, posters, page, overview, icons, typefaces };
+  return {
+    loaded,
+    model,
+    binding,
+    media,
+    views,
+    plates,
+    page,
+    composition,
+    overview,
+    commit,
+    icons,
+    typefaces,
+  };
 }
 
-/** The commit date of the model's revision in the checkout, or none without one. */
-function revisionDate(model, repo) {
+/**
+ * The model's revision in the checkout: its commit date and time and the release it is tagged as, or none without
+ * a checkout.
+ * @param {any} model
+ * @param {string | null} repo
+ */
+function commitFacts(model, repo) {
   if (!repo || !model.repository?.revision) return null;
   const root = path.resolve(repo);
-  return commitDate(root, commitOf(root, model.repository.revision, "source_revision_unknown"));
+  const commit = commitOf(root, model.repository.revision, "source_revision_unknown");
+  return {
+    date: commitDate(root, commit),
+    time: commitTime(root, commit),
+    release: releaseOf(root, commit),
+  };
 }
 
 /** The overview's inputs and Typst's reading of them, for the manifest and the check. */
@@ -193,8 +206,8 @@ function overviewSummary(model, overview) {
   };
 }
 
-function viewSummary(view, posters) {
-  const page = posters.find((poster) => poster.views.includes(view.id));
+function viewSummary(view, plates) {
+  const plate = plates.find((one) => one.views.includes(view.id));
   return {
     id: view.id,
     title: view.title,
@@ -203,7 +216,7 @@ function viewSummary(view, posters) {
     tiers: view.tiers?.map(({ id }) => id) ?? null,
     components: view.components.map(({ id }) => id),
     relations: view.relations.map(({ id }) => id),
-    poster: page?.page ?? null,
+    plate: plate?.page ?? null,
   };
 }
 
@@ -249,16 +262,19 @@ function evidenceOf(model) {
   };
 }
 
-/** One poster page's files, composition and measures, and the gates it misses, for the manifest. */
-function posterSummary(poster, widths) {
+/** One plate's images, composition and measures, and the balance gates it misses, for the manifest. */
+function plateSummary(plate, widths) {
+  const name = `${String(plate.page).padStart(2, "0")}-${plate.views.join("+")}`;
   return {
-    page: poster.page,
-    ...posterFiles(poster.page, widths),
-    views: poster.views,
-    admission: poster.admission,
-    ...(poster.misses.length ? { misses: poster.misses } : {}),
-    composition: poster.composition,
-    measures: poster.measures,
+    page: plate.page,
+    views: plate.views,
+    images: widths.map((width) => ({
+      width,
+      file: width === PNG_WIDTHS[0] ? `images/${name}.png` : `images/${name}-${width}.png`,
+    })),
+    composition: plate.composition,
+    measures: plate.measures,
+    ...(plate.misses.length ? { misses: plate.misses } : {}),
   };
 }
 
@@ -293,8 +309,8 @@ export async function checkModel(modelPath, options = {}) {
     quality: chosen.quality,
     media: prepared.media,
     sources: { state: prepared.binding.state, count: prepared.binding.records.length },
-    views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
-    posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
+    views: prepared.views.map((view) => viewSummary(view, prepared.plates)),
+    plates: prepared.plates.map((plate) => plateSummary(plate, chosen.png)),
     diagrams:
       prepared.page?.kind === "guide" ? [] : (prepared.page?.diagrams.map(diagramSummary) ?? []),
     guide: prepared.page?.kind === "guide" ? guideSummary(prepared.page) : null,
@@ -354,19 +370,45 @@ export async function buildDelivery(modelPath, out, options = {}) {
   await fs.mkdir(parent, { recursive: true });
   const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
   try {
-    for (const poster of prepared.posters) {
-      const files = posterFiles(poster.page, chosen.png);
-      await fs.writeFile(path.join(staging, files.svg), poster.svg);
-      for (const { width, file } of files.png)
-        await fs.writeFile(
-          path.join(staging, file),
-          await rasterize(poster.svg, width, poster.height, poster.width),
-        );
-    }
-    const { overview } = prepared;
-    if (overview) {
-      await fs.writeFile(path.join(staging, overview.files.svg), overview.svg);
-      for (const { file, bytes } of overview.png)
+    const { overview, model } = prepared;
+    // The edition is dated by its revision's commit; without the checkout, by SOURCE_DATE_EPOCH when the caller
+    // sets one, as reproducible builds do; otherwise by the time it is typeset, and then it is not reproducible.
+    const epoch = process.env.SOURCE_DATE_EPOCH;
+    const dated = prepared.commit
+      ? { by: "commit", time: prepared.commit.time }
+      : epoch && /^\d+$/u.test(epoch)
+        ? { by: "SOURCE_DATE_EPOCH", time: Number(epoch) }
+        : { by: "typesetting", time: null };
+    const edition = !prepared.media.includes("edition")
+      ? null
+      : await typesetEdition({
+          record: editionRecord({
+            model,
+            plates: prepared.plates,
+            icons: prepared.icons,
+            owned: prepared.binding.owned,
+            files: prepared.binding.records.length,
+            modelSha256: prepared.loaded.sha256,
+            publisher: await publisherVersion(),
+            typst: "0.15.1",
+            overview: Boolean(overview),
+            page: `${model.id}.html`,
+            commit:
+              prepared.commit ?? (dated.time === null ? null : { date: null, time: dated.time }),
+            release: prepared.commit?.release ?? null,
+          }),
+          plates: prepared.plates,
+          modelBytes: prepared.loaded.content,
+          composition: prepared.composition,
+          revision: model.repository?.revision ?? null,
+          date: prepared.commit?.date ?? null,
+          time: dated.time,
+          widths: chosen.png,
+        });
+    if (edition) {
+      await fs.writeFile(path.join(staging, `${model.id}.pdf`), edition.pdf);
+      await fs.mkdir(path.join(staging, "images"));
+      for (const { file, bytes } of edition.png)
         await fs.writeFile(path.join(staging, file), bytes);
     }
     const page = !prepared.page
@@ -374,11 +416,10 @@ export async function buildDelivery(modelPath, out, options = {}) {
       : prepared.page.kind === "guide"
         ? await deliverGuide(prepared.page, staging)
         : await deliverExplainer(prepared.page, staging);
-    const [fonts, house, opentype, resvg] = await Promise.all([
+    const [fonts, house, opentype] = await Promise.all([
       verifySupply("fonts"),
       verifySupply("house"),
       verifySupply("opentype"),
-      verifySupply("resvg"),
     ]);
     const manifest = {
       format: DELIVERY_FORMAT,
@@ -400,11 +441,30 @@ export async function buildDelivery(modelPath, out, options = {}) {
         house: house.sha256,
         opentype: opentype.sha256,
         icons: prepared.icons.supplySha256,
-        resvg: resvg.sha256,
         ...(page ? { archify: page.supplySha256 } : {}),
       },
-      views: prepared.views.map((view) => viewSummary(view, prepared.posters)),
-      posters: prepared.posters.map((poster) => posterSummary(poster, chosen.png)),
+      views: prepared.views.map((view) => viewSummary(view, prepared.plates)),
+      edition: edition
+        ? {
+            file: `${model.id}.pdf`,
+            pages: edition.pages,
+            typst: edition.typst,
+            house: edition.house,
+            release: prepared.commit?.release ?? null,
+            date: prepared.commit?.date ?? null,
+            dated: dated.by,
+            ...(overview
+              ? {
+                  image: chosen.png.map((width) =>
+                    width === PNG_WIDTHS[0]
+                      ? "images/00-overview.png"
+                      : `images/00-overview-${width}.png`,
+                  ),
+                }
+              : {}),
+          }
+        : null,
+      plates: prepared.plates.map((plate) => plateSummary(plate, chosen.png)),
       page:
         !page || !prepared.page
           ? null
@@ -420,9 +480,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
                 diagrams: prepared.page.diagrams.map(diagramSummary),
                 withheld: prepared.page.withheld,
               },
-      ...(overview
-        ? { overview: { ...overviewSummary(prepared.model, overview), ...overview.files } }
-        : {}),
+      ...(overview ? { overview: overviewSummary(prepared.model, overview) } : {}),
       evidence: evidenceOf(prepared.model),
       artifacts: await digestTree(staging),
     };
@@ -436,7 +494,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
       model: manifest.model,
       media: prepared.media,
       views: manifest.views.map(({ id }) => id),
-      posters: manifest.posters.length,
+      plates: manifest.plates.length,
       artifacts: manifest.artifacts.length,
     };
   } catch (error) {

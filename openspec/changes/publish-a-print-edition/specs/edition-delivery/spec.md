@@ -183,10 +183,9 @@ it, no card title SHALL link.
 ### Requirement: Print edition conformance and metadata
 
 The print edition SHALL conform to PDF/A-3a and PDF/UA-1, attach the model with
-the relationship `source`, take its title, authors, subject, keywords and
-language from the model and its date from the revision's commit, and be
-byte-identical for equal inputs. Each plate SHALL be one figure with alt text of
-its title and question, its shapes and key marks artifacts.
+the relationship `source`, and take its title, authors, subject, keywords and
+language from the model. Each plate SHALL be one figure with alt text of its
+title and question, its shapes and key marks artifacts.
 
 #### Scenario: Metadata and the attached model
 
@@ -194,7 +193,16 @@ its title and question, its shapes and key marks artifacts.
 - **THEN** the PDF's author is `Yang HENG`
 - **AND** its attachment `model.json` equals the model's bytes
 
+### Requirement: Edition date
+
+The print edition SHALL be dated by the revision's commit when the build names
+the checkout, otherwise by `SOURCE_DATE_EPOCH` when it is set, and otherwise by
+the time it is typeset, and the manifest SHALL record which. Two builds of equal
+inputs and date SHALL be byte-identical.
+
 #### Scenario: Two builds
 
-- **WHEN** a model is built twice at one revision
+- **WHEN** a model is built twice at one revision with one `SOURCE_DATE_EPOCH`
+  and no checkout
 - **THEN** both PDFs and every image are byte-identical
+- **AND** the manifest records the edition as dated by `SOURCE_DATE_EPOCH`

@@ -98,8 +98,10 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
     - `--media` takes `edition`, the PDF with its images, and `page`. Manifest version 6 records the edition, its
       pages and plates, and the house and measuring supplies.
 11. **Standards.** Typst compiles with `--pdf-standard a-3a,ua-1`, with system fonts ignored and the
-    revision's commit time as the creation date. Title, authors, subject, keywords and language come
-    from the model, and the model is attached with the relationship `source`.
+    revision's commit time as the creation date. Without the checkout, the date is `SOURCE_DATE_EPOCH`
+    when the caller sets it, as reproducible builds do, and otherwise the time of typesetting; the
+    manifest records which. Title, authors, subject, keywords and language come from the model, and
+    the model is attached with the relationship `source`.
 
 ## Risks / Trade-offs
 

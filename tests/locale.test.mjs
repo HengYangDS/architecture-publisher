@@ -13,6 +13,7 @@ import {
   sentences,
   wordsOf,
 } from "../src/locale.mjs";
+import { editionWordsOf } from "../src/edition/words.mjs";
 import { diagramCandidates } from "../src/map/archify.mjs";
 import { explainerDraft } from "../src/map/explainer.mjs";
 import { validateModel } from "../src/model/load.mjs";
@@ -49,6 +50,30 @@ test("every language sets every word the publisher writes", () => {
   // An unknown or absent language reads as English.
   assert.equal(wordsOf(undefined), english);
   assert.equal(wordsOf("xx"), english);
+});
+
+test("every language sets every word of the print edition in its own words", () => {
+  const english = editionWordsOf("en");
+  for (const locale of LOCALES) {
+    const words = editionWordsOf(locale);
+    if (locale !== "en") assert.notEqual(words, english, locale);
+    assert.deepEqual(Object.keys(words).sort(), Object.keys(english).sort(), locale);
+    for (const [key, value] of Object.entries(words)) {
+      assert.equal(typeof value, typeof english[/** @type {keyof typeof english} */ (key)], key);
+      if (typeof value !== "function") continue;
+      // Every argument English sets, the language sets too.
+      const args =
+        key === "readValue" ? [7] : key === "readingNote" ? [true, "Ω"] : ["Ω", "Ω", "Ω", "Ω"];
+      const count = (/** @type {Function} */ set) => set(...args).split(/Ω|7/u).length;
+      assert.equal(
+        count(value),
+        count(english[/** @type {keyof typeof english} */ (key)]),
+        `${locale} ${key}`,
+      );
+    }
+  }
+  assert.equal(editionWordsOf(undefined), english);
+  assert.equal(editionWordsOf("xx"), english);
 });
 
 test("a model names its language, which defaults to English", () => {
