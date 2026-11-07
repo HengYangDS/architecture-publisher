@@ -131,6 +131,32 @@ shows, and no others.
 - **THEN** its key lists command, check and the boundary on one line above the
   foot, and no kind it does not show
 
+### Requirement: Plate reading
+
+Where a plate's figure leaves part of the body, the plate SHALL set its view's
+reading in the rest, 40 points from the figure: the view's summary, and then
+under the publisher's heading for where each part lives, each shown component's
+label with its claimed paths as the model declares them, in reading order. The
+summary SHALL be justified when its column holds at least 24 em of its size and
+set flush left otherwise. The heading SHALL be in the model's language.
+
+#### Scenario: A summary beside a narrow figure
+
+- **WHEN** a view with a summary is set on a plate whose figure takes 65
+  percent of the body
+- **THEN** the summary can be extracted as text from that plate's page
+- **AND** each shown component that claims files is listed with its paths
+
+### Requirement: Plate fit in check
+
+`archpub check` SHALL report, for each plate, its figure's share of the body,
+the balance gates it misses and whether it left its view's reading out.
+
+#### Scenario: A plate that left its reading out
+
+- **WHEN** a view with a summary cannot give up width without more crossings
+- **THEN** `archpub check` names that plate as leaving its reading out
+
 ### Requirement: Contents rows
 
 Contents rows SHALL share the body equally; rows that would fall below 44

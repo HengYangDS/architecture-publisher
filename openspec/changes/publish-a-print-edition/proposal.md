@@ -50,6 +50,12 @@ Prototypes measured this design before this Change:
 - Prose is justified on optimized lines, with hyphenation, limited spacing and
   tracking, and at most 32 em to a line. Figure text keeps the engine's ragged
   lines.
+- A plate's page is its figure and the view's reading. A figure gives up width
+  where it keeps its type and wiring, or where its view has a summary to set,
+  and the plate sets the summary and where each shown component lives beside it.
+  `archpub check` reports each plate's width, the balance gates it misses and a
+  reading it left out, so the work's author can reshape a view whose structure
+  leaves blank.
 
 ## Capabilities
 

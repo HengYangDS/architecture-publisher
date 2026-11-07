@@ -104,11 +104,35 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
     manifest records which. Title, authors, subject, keywords and language come from the model, and
     the model is attached with the relationship `source`.
 
+12. **A plate is its figure and its view's reading.** The owner's review of 7 November found blank
+    plates; measurement located the cause. Every figure already reaches the body's edge in one dimension,
+    so neither scaling it nor a larger type step fills the body. Two plates in twelve are narrower than
+    the body, the rest hold blank inside the figure that their relations' structure leaves, and no
+    composition with as few wiring faults removes it without losing type.
+    - A figure takes the narrowest of 100, 80 and 65 percent of the body's width that keeps its full-width
+      crossings and route defects. A view with a summary gives up at least a fifth of the width: its
+      figure takes 80 percent, at the step that width allows, or 65 percent when that keeps its
+      80-percent step, so a summary costs at most the type that 80 percent takes from the figure. A view
+      without one narrows only to a share its full-width figure already leaves and keeps its step, so a
+      figure is never narrowed for a list alone.
+    - Beside the figure, 40 points from its field, the plate sets the view's summary and then where each
+      shown component lives: its claimed paths, as the model declares them. The summary is justified when
+      its column holds at least 24 em at 17 points, and flush left otherwise.
+    - When 80 percent would add crossings or route defects, the figure keeps the full width and the
+      manifest records the reading it left out.
+    - Blank the figure's structure leaves stays visible. `archpub check` reports each plate's width, its
+      missed gates and a reading left out; reshaping a view is its author's decision.
+    - Scaling the whole plate and placing the key in the largest blank rectangle were measured and
+      declined: the first gained 2 to 7 percent, and the owner declined the second.
+
 ## Risks / Trade-offs
 
 - [Without balance gates, a sparse view leaves paper beside its figure] → Each plate records its
-  measures. The owner reviews every edition's pages before
-  the publications rebuild lands.
+  measures, a narrow figure gives its width to the view's reading, and `archpub check` reports the
+  rest to the work's author. The owner reviews every edition's pages before the publications
+  rebuild lands.
+- [A summary costs a view's largest type step] → At most one or two steps, measured on twelve plates,
+  and only for a view whose author wrote a summary.
 - [Typst becomes required for print] → It is already pinned and shipped in the self-contained command;
   the page alone still builds without it.
 - [A run set wider in Typst than measured] → Both use the same font files. The build refuses, and a

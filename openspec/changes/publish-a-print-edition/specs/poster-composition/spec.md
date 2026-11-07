@@ -300,10 +300,42 @@ holes and in the largest blank rectangle.
   larger step
 - **THEN** its plate is set at the smallest step
 
+### Requirement: Plate width
+
+A plate's figure SHALL take the narrowest of 100, 80 and 65 percent of the
+body's width at which its chosen composition has no more crossings and route
+defects than at the full width. A view without a summary SHALL take a narrower
+share only when its figure at the full width spans no more than that share and
+keeps its type step there.
+
+#### Scenario: A narrow view
+
+- **WHEN** a view's figure spans 47 percent of the body at its largest step
+  and keeps its step and wiring at 65 percent
+- **THEN** its plate's figure takes 65 percent of the body's width
+
+#### Scenario: A wide view without a summary
+
+- **WHEN** a view without a summary spans the whole body
+- **THEN** its plate's figure keeps the full width
+
+### Requirement: Room for a view's summary
+
+A view with a summary SHALL give up at least a fifth of the body's width: its
+figure SHALL take 80 percent, at the type step that width allows, or 65 percent
+when that keeps its step at 80 percent. When 80 percent adds crossings or route
+defects, its figure SHALL keep the full width and its reading SHALL be left out.
+
+#### Scenario: A wide view with a summary
+
+- **WHEN** a view with a summary spans the whole body and keeps its wiring at
+  80 percent
+- **THEN** its plate's figure takes 80 percent of the body's width
+
 ### Requirement: Recorded plates
 
-The manifest SHALL record each plate's number, view, type step, wrapping,
-row shape and centring; its measures: crossings, route defects, bends, empty
+The manifest SHALL record each plate's number, view, figure width, whether its
+reading was set or left out, type step, wrapping, row shape and centring; its measures: crossings, route defects, bends, empty
 share and rectangle, blank band, hole share and centroid; and each balance gate
 it misses.
 
