@@ -21,7 +21,7 @@ const COMPOSITION = [
   "#head(48pt, 140pt, [The call])",
   '#tx(48pt, 170pt, label-of("a"), weight: "semibold")',
   "#dl(48pt, 200pt, 90pt, 600pt, (([Alpha], [calls Beta]), ([Beta], [answers])))",
-  "#imprint([Each view has its poster.])",
+  "#imprint([Each view has its plate.])",
 ].join("\n");
 
 /** The first file named `name` on `searchPath`, or null. */
@@ -77,8 +77,13 @@ function run(command, args, env) {
   return result.stdout;
 }
 
+/** Every file of a delivery, by its path relative to the delivery, with its bytes. */
 async function files(directory) {
-  const names = (await fs.readdir(directory)).sort();
+  const names = (await fs.readdir(directory, { recursive: true, withFileTypes: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => path.relative(directory, path.join(entry.parentPath, entry.name)))
+    .map((name) => name.split(path.sep).join("/"))
+    .sort();
   return Promise.all(
     names.map(async (name) => [name, await fs.readFile(path.join(directory, name))]),
   );
@@ -129,8 +134,11 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
     }
   }
   const command = path.join(unpacked, "archpub", "bin", windows ? "archpub.cmd" : "archpub");
+  // A model without a checkout dates its edition by SOURCE_DATE_EPOCH, so both builds are the same bytes.
+  const epoch = "1793918078";
   const env = {
     PATH: await barePath(work),
+    SOURCE_DATE_EPOCH: epoch,
     ...(windows
       ? { SystemRoot: process.env.SystemRoot, TEMP: process.env.TEMP, TMP: process.env.TMP }
       : { HOME: work, TMPDIR: process.env.TMPDIR ?? "/tmp" }),
@@ -148,12 +156,14 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
   run(
     process.execPath,
     [path.join(root, "src/cli/main.mjs"), "build", model, "--out", fromCheckout, "--json"],
-    process.env,
+    { ...process.env, SOURCE_DATE_EPOCH: epoch },
   );
   const archived = await files(fromArchive);
-  assert.ok(
-    archived.some(([name]) => name === "overview.svg"),
-    "the archive's build delivers no overview",
-  );
+  // The archive's own Typst set the edition, overview included, and its images.
+  for (const name of ["minimal.pdf", "minimal.html", "images/00-overview.png", "manifest.json"])
+    assert.ok(
+      archived.some(([file]) => file === name),
+      `the archive's build delivers no ${name}`,
+    );
   assert.deepEqual(archived, await files(fromCheckout));
 });
