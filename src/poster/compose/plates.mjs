@@ -1,11 +1,10 @@
 import { presentation } from "../../kinds.mjs";
+import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { refuse } from "../../refusal.mjs";
 import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
-import { legendOf } from "../blocks.mjs";
-import { gutterFor } from "../page.mjs";
 import { platesOf } from "../plate.mjs";
-import { HOUSE } from "../tokens.mjs";
+import { HOUSE, POSTER, figureStyles } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
 
 /**
@@ -19,6 +18,55 @@ const BODY = Object.freeze({
   width: Math.round(HOUSE.plate.width * HOUSE.plate.pixelsPerPoint),
   height: Math.round(HOUSE.plate.height * HOUSE.plate.pixelsPerPoint),
 });
+
+/**
+ * The width of the column that holds a figure's tier labels: the widest label at
+ * the largest tier size plus the numbered disc before it, and never more than the
+ * token's column. A column wide enough for the longest label any model might
+ * have leaves a blank strip down the plate beside short labels.
+ * @param {any} typefaces
+ * @param {string[]} labels
+ */
+export function gutterFor(typefaces, labels) {
+  if (!labels.length) return 0;
+  const tier = figureStyles(/** @type {any} */ (POSTER.steps.at(-1))).tier;
+  const widest = Math.max(...labels.map((label) => typefaces.measure(label, tier)));
+  return Math.min(POSTER.spacing.rowColumn, Math.ceil((widest + 64) / 8) * 8);
+}
+
+/**
+ * The legend's entries: the kinds present, then the boundary when a figure draws
+ * one — some component outside it and some inside — and the statuses present.
+ */
+function legendOf(model, views, boundary) {
+  const words = wordsOf(model.locale);
+  const kinds = [];
+  const components = views.flatMap((view) => view.components);
+  const outside = components.filter((component) => presentation(model, component).outside);
+  const bounded = outside.length > 0 && outside.length < components.length;
+  for (const component of components) {
+    const style = presentation(model, component);
+    if (kinds.some((entry) => entry.kind === style.kind)) continue;
+    kinds.push({
+      kind: style.kind,
+      label: style.label,
+      icon: style.icon,
+      color: POSTER.hue[style.category],
+    });
+  }
+  /** @type {Array<{ shape: string, label: string }>} */
+  const rest = [];
+  if (boundary && bounded)
+    rest.push(
+      { shape: "boundary", label: words.inside(boundary) },
+      { shape: "outside", label: words.outside },
+    );
+  const shown = views.flatMap((view) => [...view.components, ...view.relations]);
+  for (const status of /** @type {const} */ (["planned", "retired"]))
+    if (shown.some((item) => item.status === status))
+      rest.push({ shape: status, label: words[status] });
+  return { kinds, rest };
+}
 
 const compare = (a, b) => {
   for (let index = 0; index < a.length; index += 1)
@@ -46,13 +94,72 @@ function balanceOfPlate(one, typefaces) {
 }
 
 /**
- * Compose every view of a model as one plate each. A plate tries its view at
- * every type step and wrapping, with its rows centred over all cards, over the
- * cards inside the boundary, and uncentred, and with tier labels in one column
- * or before the edges their tiers start at. It takes the fewest crossings, then
- * the fewest route defects, then the largest step, then the widest wrapping,
- * then the least of the body left blank. Balance is measured and recorded; a
- * view no composition lays out is refused.
+ * Each composition of one view the body admits. A plate tries its view at every
+ * type step and wrapping, with its rows centred over all cards, over the cards
+ * inside the boundary, and uncentred, and with tier labels in one column or
+ * before the edges their tiers start at.
+ * @param {any} model
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} typefaces
+ * @param {any} icons
+ */
+function* compositions(model, view, typefaces, icons) {
+  const boundaryName = model.repository?.name ?? model.title;
+  const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
+    label ? [label] : [],
+  );
+  const column = gutterFor(typefaces, labels);
+  const plate = {
+    view,
+    field: { x: column, y: 0, width: BODY.width - column, height: BODY.height },
+    labelColumn: column ? { x: 0, y: 0, width: column, height: BODY.height, floor: 0 } : null,
+  };
+  const outside = view.components.some((component) => presentation(model, component).outside);
+  /** @type {Array<"all" | "inside" | null>} */
+  const centrings = outside ? ["all", "inside", null] : ["all", null];
+  for (const tierLabels of column ? ["column", "edges"] : ["column"])
+    for (const centring of centrings) {
+      const [one] = platesOf(
+        { model, typefaces, icons, boundaryName, centring, tierLabels },
+        plate,
+      );
+      if (one) yield { one, centring, tierLabels };
+    }
+}
+
+/** @param {import("../../plan/views.mjs").View} view */
+function unfittable(view) {
+  return refuse(
+    "plate_unfittable",
+    `View ${view.id} cannot be laid out in the edition's body at any type step or wrapping.`,
+    [
+      {
+        code: "plate_unfittable",
+        path: `/views/${view.id}`,
+        message: "No wrapping lays its cards out within the body at the smallest step.",
+      },
+    ],
+  );
+}
+
+/**
+ * Whether the edition's body admits a view: some composition lays it out, or the
+ * view is refused with `plate_unfittable`.
+ * @param {any} model
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} typefaces
+ * @param {any} icons
+ */
+export function admitsView(model, view, typefaces, icons) {
+  if (compositions(model, view, typefaces, icons).next().done) unfittable(view);
+  return { fits: true, width: BODY.width, height: BODY.height };
+}
+
+/**
+ * Compose every view of a model as one plate each. Of its compositions, a plate
+ * takes the fewest crossings, then the fewest route defects, then the largest
+ * step, then the widest wrapping, then the least of the body left blank. Balance
+ * is measured and recorded; a view no composition lays out is refused.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
@@ -61,50 +168,21 @@ function balanceOfPlate(one, typefaces) {
 export function composePlates(model, views, typefaces, icons) {
   const boundaryName = model.repository?.name ?? model.title;
   return views.map((view, index) => {
-    const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
-      label ? [label] : [],
-    );
-    const column = gutterFor(typefaces, labels);
-    const plate = {
-      view,
-      field: { x: column, y: 0, width: BODY.width - column, height: BODY.height },
-      labelColumn: column ? { x: 0, y: 0, width: column, height: BODY.height, floor: 0 } : null,
-    };
-    const outside = view.components.some((component) => presentation(model, component).outside);
-    /** @type {Array<"all" | "inside" | null>} */
-    const centrings = outside ? ["all", "inside", null] : ["all", null];
     const candidates = [];
-    for (const tierLabels of column ? ["column", "edges"] : ["column"])
-      for (const centring of centrings) {
-        const [one] = platesOf(
-          { model, typefaces, icons, boundaryName, centring, tierLabels },
-          plate,
-        );
-        if (!one) continue;
-        const balance = balanceOfPlate(one, typefaces);
-        const { crossings, routes } = one.layout.measures;
-        const rank = [
-          crossings,
-          routes,
-          -one.step,
-          -one.limit,
-          one.flat ? 1 : 0,
-          balance.holes + balance.emptyShare,
-        ];
-        candidates.push({ one, centring, tierLabels, balance, rank });
-      }
-    if (!candidates.length)
-      refuse(
-        "plate_unfittable",
-        `View ${view.id} cannot be laid out in the edition's body at any type step or wrapping.`,
-        [
-          {
-            code: "plate_unfittable",
-            path: `/views/${view.id}`,
-            message: "No wrapping lays its cards out within the body at the smallest step.",
-          },
-        ],
-      );
+    for (const { one, centring, tierLabels } of compositions(model, view, typefaces, icons)) {
+      const balance = balanceOfPlate(one, typefaces);
+      const { crossings, routes } = one.layout.measures;
+      const rank = [
+        crossings,
+        routes,
+        -one.step,
+        -one.limit,
+        one.flat ? 1 : 0,
+        balance.holes + balance.emptyShare,
+      ];
+      candidates.push({ one, centring, tierLabels, balance, rank });
+    }
+    if (!candidates.length) unfittable(view);
     const { one, centring, tierLabels, balance } = candidates.sort((a, b) =>
       compare(a.rank, b.rank),
     )[0];

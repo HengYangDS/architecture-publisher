@@ -5,24 +5,17 @@ import { ROUTE } from "../layout/measure.mjs";
 export const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
 /**
- * Poster design tokens. One fixed landscape page, one grid, one type scale and
- * one palette; every composition is a choice of archetype, wrapping and type
- * step on these tokens, never a new format.
+ * The figure's design tokens: one type scale, one baseline grid and one
+ * palette; every plate is a choice of wrapping and type step on these tokens.
  */
 export const POSTER = Object.freeze({
-  width: 2400,
-  height: 1350,
-  /** The smallest type on any poster, and the type scale every size must come from. */
+  /** The smallest type in a figure, and the type scale every size must come from. */
   floor: 14,
   scale: Object.freeze([14, 16, 18, 20, 24, 28, 32, 36, 48]),
-  margin: 64,
-  /** Twelve columns of 160 px with 32 px gutters fill 2400 − 2 × 64 exactly. */
-  grid: Object.freeze({ columns: 12, column: 160, gutter: 32, baseline: 4 }),
+  /** Every line box is a whole number of 4 px baseline steps. */
+  grid: Object.freeze({ baseline: 4 }),
   /** A text block keeps a measure a reader can follow without losing the line. */
   measure: 80,
-  summaryLines: 3,
-  /** One tier holds at most this many cards before a candidate wraps it. */
-  rowLimit: 6,
   /**
    * A figure of compact cards may widen its column gaps up to this multiple of
    * the token gap, so it spans more of its field instead of sitting in its middle.
@@ -233,22 +226,3 @@ export function figureMetrics(styles) {
     }),
   });
 }
-
-/** The page's fixed text styles: the header, the plates, the notes and the legend. */
-export const PAGE = Object.freeze({
-  kicker: style(14, { weight: 400 }),
-  /** The model's title above a later page's own title: the edition's running head. */
-  running: style(20, { weight: 700 }),
-  title: style(48, { weight: 700 }),
-  question: style(24, { weight: 400 }),
-  summary: style(16, { weight: 400 }),
-  legend: style(16, { weight: 400 }),
-  /**
-   * A view's own heading, above its plate or under the page's head: one step
-   * above the largest card label, so a sparse figure set large never outranks
-   * the heading that names it.
-   */
-  plate: style(36, { weight: 700 }),
-  plateQuestion: style(20, { weight: 400 }),
-  notes: style(14, { weight: 400 }),
-});

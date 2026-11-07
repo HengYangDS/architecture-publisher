@@ -13,11 +13,6 @@ export const BIG_BANK_MODEL = fileURLToPath(
 export const BROWSER_USE_MODEL = path.join(MODELS, "browser-use.json");
 export const CONTEXT_MODE_MODEL = path.join(MODELS, "context-mode.json");
 /**
- * The ETHOS publication's model without its sources, kept as it was published:
- * its proof plane wires cleanly only on a page of its own.
- */
-export const ETHOS_MODEL = path.join(MODELS, "ethos.json");
-/**
  * The overview and proof plane of the ETHOS work as Architecture Publications
  * published it, without sources: the proof plane prints only alone, sparse.
  */

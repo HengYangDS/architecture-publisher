@@ -18,7 +18,6 @@ import { diagramCandidates } from "../src/map/archify.mjs";
 import { explainerDraft } from "../src/map/explainer.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
-import { notesOf } from "../src/poster/blocks.mjs";
 import { graphModel, minimalModel } from "./fixtures/models.mjs";
 
 const fits = async () => ({ fits: true, width: 2400, height: 1350 });
@@ -114,7 +113,7 @@ test("details, lists and sentences are punctuated as the model's language sets t
   assert.equal(sentences(zh, ["Checkout only.", "不含退款"]), "Checkout only. 不含退款。");
 });
 
-test("a Chinese model's poster notes, legend words and generated details are Chinese", async () => {
+test("a Chinese model's legend words and generated details are Chinese", async () => {
   const model = validateModel(
     minimalModel({
       locale: "zh-CN",
@@ -124,11 +123,6 @@ test("a Chinese model's poster notes, legend words and generated details are Chi
       repository: { name: "shop", revision: "0123456789ab".padEnd(40, "0") },
     }),
   );
-  assert.deepEqual(notesOf(model), [
-    { label: "范围", text: "只含结账。" },
-    { label: "局限", text: "不含退款。不含库存。" },
-    { label: "来源", text: "源码 shop，修订 0123456789ab；编辑：商店团队。" },
-  ]);
   assert.equal(presentation(model, { kind: null }).label, "组件");
   assert.equal(presentation(model, { kind: null, group: true }).label, "分组");
   const grouped = validateModel(

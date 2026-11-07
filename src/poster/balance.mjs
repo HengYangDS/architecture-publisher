@@ -317,9 +317,9 @@ function centroidOf(rects, live) {
  * the corners a sparse figure leaves on every side.
  * @param {Ink[]} rects every rectangle of ink the page draws
  * @param {Field} live the live area inside the page's margins
- * @param {{ width: number, height: number }} [page]
+ * @param {{ width: number, height: number }} page the page the live area lies on
  */
-export function balanceOf(rects, live, page = POSTER) {
+export function balanceOf(rects, live, page) {
   const grid = cellsOf(rects, page);
   const round = (value) => Math.round(value * 1000) / 1000;
   const blank = largestBlank(grid, live);

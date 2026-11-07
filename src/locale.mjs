@@ -12,8 +12,6 @@ export const DEFAULT_LOCALE = "en";
 
 /**
  * @typedef {{
- *   scope: string, limits: string, source: string,
- *   revision: (name: string, revision: string) => string,
  *   editors: (names: string[]) => string,
  *   inside: (boundary: string) => string, outside: string,
  *   planned: string, retired: string, component: string, group: string,
@@ -27,10 +25,6 @@ export const DEFAULT_LOCALE = "en";
 /** @type {Readonly<Record<string, Readonly<Words>>>} */
 const WORDS = Object.freeze({
   en: Object.freeze({
-    scope: "Scope",
-    limits: "Limits",
-    source: "Source",
-    revision: (name, revision) => `Source ${name} at ${revision}`,
     editors: (names) => `Edited by ${names.join(", ")}`,
     inside: (boundary) => `inside ${boundary}`,
     outside: "outside it",
@@ -50,10 +44,6 @@ const WORDS = Object.freeze({
     between: " ",
   }),
   "zh-CN": Object.freeze({
-    scope: "范围",
-    limits: "局限",
-    source: "来源",
-    revision: (name, revision) => `源码 ${name}，修订 ${revision}`,
     editors: (names) => `编辑：${names.join("、")}`,
     inside: (boundary) => `${boundary} 内部`,
     outside: "外部",
@@ -73,10 +63,6 @@ const WORDS = Object.freeze({
     between: "",
   }),
   "zh-TW": Object.freeze({
-    scope: "範圍",
-    limits: "局限",
-    source: "來源",
-    revision: (name, revision) => `原始碼 ${name}，修訂 ${revision}`,
     editors: (names) => `編輯：${names.join("、")}`,
     inside: (boundary) => `${boundary} 內部`,
     outside: "外部",
@@ -96,10 +82,6 @@ const WORDS = Object.freeze({
     between: "",
   }),
   es: Object.freeze({
-    scope: "Alcance",
-    limits: "Límites",
-    source: "Fuente",
-    revision: (name, revision) => `Código de ${name} en ${revision}`,
     editors: (names) => `Edición de ${names.join(", ")}`,
     inside: (boundary) => `dentro de ${boundary}`,
     outside: "fuera",
@@ -119,10 +101,6 @@ const WORDS = Object.freeze({
     between: " ",
   }),
   ko: Object.freeze({
-    scope: "범위",
-    limits: "한계",
-    source: "출처",
-    revision: (name, revision) => `${name} 소스, 리비전 ${revision}`,
     editors: (names) => `편집: ${names.join(", ")}`,
     inside: (boundary) => `${boundary} 내부`,
     outside: "외부",

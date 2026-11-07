@@ -6,7 +6,7 @@ import { pathToFileURL } from "node:url";
 import { loadIcons } from "../src/icons.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
-import { admitsView } from "../src/poster/compose/candidates.mjs";
+import { admitsView } from "../src/poster/compose/plates.mjs";
 import * as edition from "../src/poster/compose/plates.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
 import { POSTER, figureStyles } from "../src/poster/tokens.mjs";

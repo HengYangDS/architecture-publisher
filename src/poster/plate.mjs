@@ -5,15 +5,24 @@ import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf } from "../locale.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
-import { measureWidth } from "./blocks.mjs";
 import { POSTER, figureMetrics, figureStyles } from "./tokens.mjs";
 
 /**
- * One plate: one view's figure in one band of a page. The plate tries every
+ * The width at which a text style keeps at most 80 characters on a line, so no
+ * card's text runs a measure a reader loses the line in.
+ * @param {{ measure: (text: string, style: any) => number }} typefaces
+ * @param {{ size: number, weight: number, line: number }} style
+ */
+function measureWidth(typefaces, style) {
+  return Math.ceil(typefaces.measure("n".repeat(POSTER.measure), style));
+}
+
+/**
+ * One plate: one view's figure in the edition's body. The plate tries every
  * type step and row wrapping, lays each out with cards as large as their text
- * and no larger, justifies the figure into the band and orders the candidates
- * as figures. A band the figure cannot fill is not filled by stretching its
- * cards: a page fills by what it carries.
+ * and no larger, justifies the figure into the body and orders the candidates
+ * as figures. A body the figure cannot fill is not filled by stretching its
+ * cards.
  */
 
 /** Row wrappings tried for every view, widest first. */
@@ -23,7 +32,7 @@ const LIMITS = Object.freeze([ROW_LIMIT, 4, 3, 2, 1]);
  * Every distinct set of rows a plate tries for a view: its rows wrapped at each
  * limit, and for rows that follow its relations, the flatter rows the row engine
  * draws when a further row costs more, so a chain of single cards can run along
- * a row of a wide page instead of down a column of its own. Each set keeps the
+ * a row of a wide plate instead of down a column of its own. Each set keeps the
  * limit and shape that produced it, for the manifest.
  * @returns {Array<{ rows: import("../layout/rows.mjs").Row[], limit: number, flat: boolean }>}
  */
@@ -66,9 +75,9 @@ const layouts = new WeakMap();
 
 /**
  * The layout of one set of rows at one type step and field width. A layout's
- * placement and channel routing depend on nothing else — not on the band, the
- * page or where the figure is drawn — so every plate, skeleton and page that
- * asks again for the same view, rows, step, width and centring reuses it.
+ * placement and channel routing depend on nothing else — not on the body or
+ * where the figure is drawn — so every composition that asks again for the
+ * same view, rows, step, width and centring reuses it.
  * @returns {{ layout?: any, error?: any }}
  */
 function layoutFor(view, rows, metrics, key, boundaryName) {
@@ -211,7 +220,7 @@ function candidateMetrics(input) {
 function attempt(input) {
   const { rows } = input;
   // A wrapping the engine cannot wire is one rejected candidate, not a failure
-  // of the view: another wrapping or a larger page may still compose.
+  // of the view: another wrapping or step may still compose.
   const { layout, error } = layoutFor(
     input.view,
     rows,
@@ -380,91 +389,7 @@ function brokenText(input, layout) {
   return null;
 }
 
-/**
- * How tall one plate's figure naturally is: the shortest figure the plate can
- * draw at the densest step, over every wrapping that keeps its cards cards.
- * A band plan built on these heights never asks a plate for less than it needs,
- * so a grouping whose figures do not fit the page is refused instead of being
- * squeezed into bands that cannot hold them.
- * @param {any} input
- * @param {any} plate
- * @returns {number | null} null when no wrapping of this view composes
- */
-export function naturalOf(input, plate) {
-  const styles = figureStyles(POSTER.steps[0]);
-  const metrics = figureMetrics(styles);
-  let best = null;
-  for (const [order, { rows }] of wrappingsOf(input.model, plate.view).entries()) {
-    const measured = candidateMetrics({
-      model: input.model,
-      view: plate.view,
-      typefaces: input.typefaces,
-      styles,
-      metrics,
-      field: plate.field,
-    });
-    // One wrapping the engine cannot wire says nothing about the others.
-    const { layout } = layoutFor(
-      plate.view,
-      rows,
-      measured,
-      `0|${order}|${plate.field.width}|-`,
-      input.boundaryName,
-    );
-    if (!layout || layout.width > plate.field.width + 1) continue;
-    if (best === null || layout.height < best) best = layout.height;
-  }
-  return best === null ? null : Math.round(best);
-}
-
-/** Figure widths already measured, per planned view. */
-const extents = new WeakMap();
-
-/**
- * How wide one view's figure is at the densest step when nothing asks it to
- * spread: the span of its cards and boundary at their own widths, with the
- * token gaps between them, in its most natural wrapping. Plates that share a
- * band divide it in proportion to these widths.
- * @param {any} input
- * @param {any} view
- * @returns {number}
- */
-export function extentOf(input, view) {
-  if (extents.has(view)) return extents.get(view);
-  const styles = figureStyles(POSTER.steps[0]);
-  const metrics = figureMetrics(styles);
-  const field = { x: 0, y: 0, width: POSTER.width - 2 * POSTER.margin, height: POSTER.height };
-  const measured = candidateMetrics({
-    model: input.model,
-    view,
-    typefaces: input.typefaces,
-    styles,
-    metrics,
-    field,
-  });
-  const fixed = { ...measured, spacing: { ...measured.spacing, columnSpread: 1 } };
-  let width = field.width;
-  for (const [order, { rows }] of wrappingsOf(input.model, view).entries()) {
-    const { layout } = layoutFor(view, rows, fixed, `extent|${order}`, input.boundaryName);
-    if (!layout) continue;
-    const cards = [...layout.cards.values()];
-    const left = Math.min(...cards.map((card) => card.x), layout.boundary?.x ?? Infinity);
-    const right = Math.max(
-      ...cards.map((card) => card.x + card.width),
-      layout.boundary ? layout.boundary.x + layout.boundary.width : -Infinity,
-    );
-    width = Math.ceil(right - left + 2 * metrics.spacing.inset);
-    break;
-  }
-  extents.set(view, width);
-  return width;
-}
-
-/**
- * Every composition of one plate, best first. A page whose text is set around
- * its figure needs more than the plate's own best: the best figure may leave no
- * corner for the page's head, and a figure one rank down may balance the page.
- */
+/** Every composition of one plate, best first. */
 export function platesOf(input, plate) {
   const found = [];
   for (const [index, step] of POSTER.steps.entries()) {
@@ -474,7 +399,7 @@ export function platesOf(input, plate) {
       const { centring } = input;
       // Each wrapping is drawn once with channels that take more label rows to
       // turn no wire beside another card than its own, and once without, for a
-      // page that cannot hold the taller channels.
+      // body that cannot hold the taller channels.
       const seen = new Set();
       for (const clearTurns of [true, false]) {
         const fields = {
@@ -508,8 +433,8 @@ export function platesOf(input, plate) {
         const drawn = JSON.stringify(made.layout.paths);
         if (seen.has(drawn)) continue;
         seen.add(drawn);
-        // Each plate is flat: the page needs its figure, and the manifest needs
-        // the step and wrapping that produced it.
+        // Each plate is flat: the edition needs its figure, and the manifest
+        // needs the step and wrapping that produced it.
         found.push({
           rank: [
             made.layout.measures.crossings,
@@ -529,12 +454,9 @@ export function platesOf(input, plate) {
   // before anything else, so the compositions with the fewest come first; then
   // the largest type step, because
   // the same figure set larger reads from further away; then the widest rows,
-  // layered before flatter ones, so the page splits a row only when the figure
-  // its widest rows make leaves the page unbalanced; then the channels that
-  // turn no wire beside another card than its own, where they wire no worse;
-  // then the centroid nearest the field's centre. Filling the page is the
-  // page's work: it sets larger type, takes a narrower wrapping, groups views
-  // and sets its text beside the figure.
+  // layered before flatter ones; then the channels that turn no wire beside
+  // another card than its own, where they wire no worse; then the centroid
+  // nearest the field's centre.
   found.sort((a, b) => compare(a.rank, b.rank));
   return found.map(({ plate: one }) => one);
 }

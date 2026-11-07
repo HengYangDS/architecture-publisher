@@ -3,8 +3,11 @@ import fs from "node:fs/promises";
 import test from "node:test";
 import { DARKNESS, balanceOf, darkness } from "../src/poster/balance.mjs";
 import { gateFailures } from "../src/poster/compose/gates.mjs";
-import { LIVE } from "../src/poster/page.mjs";
 import { POSTER } from "../src/poster/tokens.mjs";
+
+/** The 2400 by 1350 px posters the review judged, and their live area inside a 64 px margin. */
+const PAGE = Object.freeze({ width: 2400, height: 1350 });
+const LIVE = Object.freeze({ x: 64, y: 64, width: 2272, height: 1222 });
 
 const judged = JSON.parse(
   await fs.readFile(new URL("./fixtures/balance-pages.json", import.meta.url), "utf8"),
@@ -30,7 +33,9 @@ test("every page the review rejected fails a gate and every page it accepted pas
   };
   for (const page of judged.pages) {
     const name = `${page.edition}/${page.page}`;
-    const fails = gateFailures(balanceOf(page.rects.map(ink), LIVE)).map(({ measure }) => measure);
+    const fails = gateFailures(balanceOf(page.rects.map(ink), LIVE, PAGE)).map(
+      ({ measure }) => measure,
+    );
     assert.deepEqual(fails, page.verdict === "rejected" ? rejectedBy[name] : [], name);
   }
   assert.equal(judged.pages.filter(({ verdict }) => verdict === "rejected").length, 3);
@@ -48,7 +53,7 @@ test("a page set edge to edge with text is balanced", () => {
   const lines = [];
   for (let y = LIVE.y; y + 24 <= LIVE.y + LIVE.height; y += 48)
     lines.push(text(LIVE.x, y, LIVE.width, 24));
-  const measured = balanceOf(lines, LIVE);
+  const measured = balanceOf(lines, LIVE, PAGE);
   // The 24 px gaps between lines, and the paper below the last line.
   assert.ok(measured.band.height <= 48, String(measured.band.height));
   assert.equal(measured.holes, 0);
@@ -60,10 +65,10 @@ test("a page set edge to edge with text is balanced", () => {
 test("a wire across a blank band leaves the band blank but divides the largest blank rectangle", () => {
   const top = text(LIVE.x, LIVE.y, LIVE.width, 336);
   const bottom = text(LIVE.x, 704, LIVE.width, LIVE.y + LIVE.height - 704);
-  const open = balanceOf([top, bottom], LIVE);
+  const open = balanceOf([top, bottom], LIVE, PAGE);
   assert.deepEqual(open.band, { height: 304, y: 400 });
   assert.deepEqual(open.emptyRectangle, [LIVE.x, 400, LIVE.width, 304]);
-  const crossed = balanceOf([top, bottom, wire(1200, 400, 2, 304)], LIVE);
+  const crossed = balanceOf([top, bottom, wire(1200, 400, 2, 304)], LIVE, PAGE);
   assert.deepEqual(crossed.band, open.band);
   assert.ok(crossed.emptyShare < open.emptyShare / 1.9, `${crossed.emptyShare} ${open.emptyShare}`);
   assert.deepEqual(
@@ -83,16 +88,16 @@ test("holes are the empty squares of the page at least 240 px on a side", () => 
       text(x + side, y, LIVE.x + LIVE.width - x - side, side),
     ];
   };
-  const hole = balanceOf(around(320), LIVE);
+  const hole = balanceOf(around(320), LIVE, PAGE);
   // A 40 × 40 cell square out of 284 × 153 cells.
   assert.equal(hole.holes, 0.037);
   assert.deepEqual(hole.emptyRectangle, [1000, 504, 320, 320]);
-  assert.equal(balanceOf(around(200), LIVE).holes, 0);
+  assert.equal(balanceOf(around(200), LIVE, PAGE).holes, 0);
 });
 
 test("ink wholly off the page covers no cell of it", () => {
   // Left of the page in its first row of cells, and above the page.
-  const measured = balanceOf([text(-80, 0, 40, 6), text(LIVE.x, -40, 200, 20)], LIVE);
+  const measured = balanceOf([text(-80, 0, 40, 6), text(LIVE.x, -40, 200, 20)], LIVE, PAGE);
   assert.equal(measured.emptyShare, 1);
   assert.equal(measured.holes, 1);
   assert.deepEqual(measured.centroid, [0, 0]);
@@ -102,10 +107,10 @@ test("the centre of gravity weighs each element by how dark it prints", () => {
   const half = LIVE.width / 4;
   const left = text(LIVE.x, LIVE.y, half, LIVE.height);
   const right = { ...left, x: LIVE.x + LIVE.width - half, weight: DARKNESS.card };
-  const [across, down] = balanceOf([left, right], LIVE).centroid;
+  const [across, down] = balanceOf([left, right], LIVE, PAGE).centroid;
   assert.ok(across < -0.25, String(across));
   assert.equal(down, 0);
-  const even = balanceOf([left, { ...right, weight: left.weight }], LIVE).centroid;
+  const even = balanceOf([left, { ...right, weight: left.weight }], LIVE, PAGE).centroid;
   assert.deepEqual(
     even.map((value) => Math.abs(value)),
     [0, 0],

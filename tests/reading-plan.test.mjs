@@ -215,7 +215,7 @@ test("planning refuses oversized views it cannot split", async () => {
     (error) =>
       error.code === "plan_not_admitted" &&
       error.problems[0].path === "/views/v" &&
-      /2 components and 1 relations cannot be laid out on a 1800 × 1600 px page/u.test(
+      /2 components and 1 relations cannot be laid out on a 1800 × 1600 px plate/u.test(
         error.problems[0].message,
       ),
   );
@@ -255,7 +255,7 @@ test("a refused layout names its view, and every refused view is reported", asyn
     (error) =>
       error.code === "plan_not_admitted" &&
       error.message ===
-        "View first does not fit its poster frame. Views second and third are refused too.",
+        "View first does not fit the edition's body. Views second and third are refused too.",
   );
   await assert.rejects(
     planViews(model, async () => {

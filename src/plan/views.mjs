@@ -128,7 +128,7 @@ function groupViews(model) {
 }
 
 /**
- * Choose the views to render. `admit` composes one poster and reports its size.
+ * Choose the views to render. `admit` composes one view as a plate and reports its size.
  * @param {any} model
  * @param {(view: View) => Promise<{ fits: boolean, width: number, height: number }>} admit
  */
@@ -217,7 +217,7 @@ async function admitAll(views, admit) {
     measured.refusal?.code ?? "plan_not_admitted",
     (measured.refusal
       ? `View ${view.id}: ${measured.refusal.message}`
-      : `View ${view.id} does not fit its poster frame.`) + rest,
+      : `View ${view.id} does not fit the edition's body.`) + rest,
     refused.flatMap((each) => viewProblems(each.view, each.measured)),
   );
 }
@@ -252,7 +252,7 @@ function oversized(view, measured, remedy) {
   return (
     `View ${view.id} with ${view.components.length} components and ` +
     `${view.relations.length} relations cannot be laid out on a ` +
-    `${measured.width} × ${measured.height} px page. ${remedy}`
+    `${measured.width} × ${measured.height} px plate. ${remedy}`
   );
 }
 

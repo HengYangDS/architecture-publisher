@@ -216,47 +216,10 @@ function createTypefaces(chains) {
     ).flatMap((text) => (measure(text, style) > width ? wrap(text, width, style) : [text]));
   }
 
-  /**
-   * SVG path data for one text run whose alphabetic baseline is at `y`. The
-   * commands are serialized here: opentype.js 2.0.0 `toPathData` rounds through
-   * string exponents and emits NaN for fractions such as 1.4e-14.
-   */
-  const outline = (text, x, y, style) => {
-    let d = "";
-    let at = x;
-    for (const run of runsOf(text, style)) {
-      d += pathData(run.face.getPath(run.text, at, y, style.size, { kerning: true }).commands);
-      at += run.face.getAdvanceWidth(run.text, style.size, { kerning: true });
-    }
-    return d;
-  };
-
   /** Top of a line box to its alphabetic baseline. */
   const baseline = (top, style) => top + (style.line - style.size) / 2 + style.size * 0.88;
 
-  return Object.freeze({ measure, missing, wrap, detailLines, outline, baseline });
-}
-
-const coordinate = (value) => {
-  const rounded = Math.round(value * 100) / 100;
-  return Object.is(rounded, -0) ? "0" : String(rounded);
-};
-
-/** @param {Array<Record<string, any>>} commands */
-function pathData(commands) {
-  let d = "";
-  for (const command of commands) {
-    const points =
-      command.type === "C"
-        ? [command.x1, command.y1, command.x2, command.y2, command.x, command.y]
-        : command.type === "Q"
-          ? [command.x1, command.y1, command.x, command.y]
-          : command.type === "Z"
-            ? []
-            : [command.x, command.y];
-    d += command.type + points.map(coordinate).join(" ");
-  }
-  return d;
+  return Object.freeze({ measure, missing, wrap, detailLines, baseline });
 }
 
 /**

@@ -5,8 +5,7 @@ import { loadIcons } from "../src/icons.mjs";
 import { wordsOf } from "../src/locale.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
-import { admitsView } from "../src/poster/compose/candidates.mjs";
-import { composePosters } from "../src/poster/compose/edition.mjs";
+import { admitsView, composePlates } from "../src/poster/compose/plates.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
 import { graphModel } from "./fixtures/models.mjs";
 
@@ -91,7 +90,7 @@ test("a detail wraps between its values with the list marks of the model's langu
   );
 });
 
-test("a model written in Chinese composes into pages without breaking a label apart", async () => {
+test("a model written in Chinese composes into plates without breaking a label apart", async () => {
   const labels = ["网关服务", "订单服务", "支付服务提供方", "库存服务", "消息队列", "订单数据库"];
   const model = validateModel(
     graphModel(
@@ -116,24 +115,17 @@ test("a model written in Chinese composes into pages without breaking a label ap
     ),
   );
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
-  const pages = composePosters(model, views, typefaces, icons);
-  assert.ok(pages.length >= 1);
-  for (const page of pages) {
-    assert.ok(["balanced", "sparse"].includes(page.admission), page.admission);
-    assert.doesNotMatch(page.svg, /<text|NaN|undefined/u);
-  }
+  const plates = composePlates(model, views, typefaces, icons);
+  assert.ok(plates.length >= 1);
+  const runs = new Set(plates.flatMap((plate) => plate.runs.map(({ text }) => text)));
+  for (const label of labels) assert.ok(runs.has(label), label);
+  for (const plate of plates) assert.doesNotMatch(plate.svg, /<text|NaN|undefined/u);
 });
 
 test("letters the CJK face lacks are set in the Latin, Greek and Cyrillic face", () => {
   for (const text of ["Łódź usługa", "Příliš žluťoučký", "Ağ geçidi", "Привіт, світ", "Ελληνικά ά"])
     assert.deepEqual(typefaces.missing(text), [], text);
-  // A text the CJK face draws whole keeps its CJK Latin, so a word never mixes faces.
-  const mixed = typefaces.outline("认证 Łódź", 0, 20, style);
-  assert.equal(
-    mixed,
-    typefaces.outline("认证 ", 0, 20, style) +
-      typefaces.outline("Łódź", typefaces.measure("认证 ", style), 20, style),
-  );
+  // A text the CJK face draws whole is measured run by run, so a word never mixes faces.
   assert.equal(
     typefaces.measure("认证 Łódź", style),
     typefaces.measure("认证 ", style) + typefaces.measure("Łódź", style),

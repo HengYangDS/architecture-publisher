@@ -28,7 +28,7 @@
 ## 6. Delivery
 
 - [x] 6.1 Take `--media edition,page`, `--png` for the edition's images and `--quality` for the page, deliver the page as `<model id>.html`, and record manifest version 6; verify by delivery and command tests. Archify writes the page and its receipt under the model's id, and the manifest names the page's file beside the edition's; the delivery, explainer, guide and command tests pass.
-- [ ] 6.2 Remove the poster pipeline the edition replaces: page archetypes, grouping, heads, legends, notes, balance refusals, drafts and posters; verify `npm test` passes and `npm run check:dead-code` reports nothing.
+- [x] 6.2 Remove the poster pipeline the edition replaces: page archetypes, grouping, heads, legends, notes, balance refusals, drafts and posters; verify `npm test` passes and `npm run check:dead-code` reports nothing. Views are admitted as plates and refused `plate_unfittable`; the page composer, corners, page and block modules, text outlining, the page styles and sizes, the note words and the unused ETHOS model copy are gone, and the poster tests that still describe the figure now test plates, a wrapped tier on a model of nine workers since no corpus plate wraps one. `npm test` passes all 222 tests, and the types, lint, dead-code and format checks pass.
 
 ## 7. Documentation
 

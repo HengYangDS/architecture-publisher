@@ -4,8 +4,7 @@ import test from "node:test";
 import { loadIcons } from "../src/icons.mjs";
 import { loadModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
-import { admitsView } from "../src/poster/compose/candidates.mjs";
-import { composePlates } from "../src/poster/compose/plates.mjs";
+import { admitsView, composePlates } from "../src/poster/compose/plates.mjs";
 import { loadTypefaces } from "../src/poster/text.mjs";
 import { BROWSER_USE_MODEL, CONTEXT_MODE_MODEL } from "./fixtures/models.mjs";
 
