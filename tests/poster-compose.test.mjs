@@ -10,7 +10,6 @@ import { admitsView } from "../src/poster/compose/candidates.mjs";
 import { composeEdition, composePosters } from "../src/poster/compose/edition.mjs";
 import { composePlates } from "../src/poster/compose/plates.mjs";
 import { gateFailures } from "../src/poster/compose/gates.mjs";
-import { rasterize } from "../src/poster/raster.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
 import { PAGE, POSTER } from "../src/poster/tokens.mjs";
 import {
@@ -354,22 +353,5 @@ test("an over-long summary is refused with its line count", async () => {
   await assert.rejects(edition(model), (error) => {
     assert.match(error.message, /The summary of Minimal needs \d+ lines/u);
     return true;
-  });
-});
-
-test("pages rasterize at 2400 and 6000 px and other widths are refused", async () => {
-  const { model } = await loadModel(AIGW_MODEL, { icon: icons.has });
-  const [poster] = await edition(model);
-  for (const width of [2400, 6000]) {
-    const png = await rasterize(poster.svg, width, poster.height, poster.width);
-    assert.equal(png.subarray(1, 4).toString("ascii"), "PNG");
-    assert.equal(png.readUInt32BE(16), width);
-    assert.equal(png.readUInt32BE(20), Math.round((poster.height * width) / poster.width));
-  }
-  await assert.rejects(rasterize(poster.svg, 6001, poster.height, poster.width), {
-    code: "raster_size_invalid",
-  });
-  await assert.rejects(rasterize(poster.svg, 0, poster.height, poster.width), {
-    code: "raster_size_invalid",
   });
 });

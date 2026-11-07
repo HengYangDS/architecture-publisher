@@ -32,30 +32,16 @@ stages:
   script:
     - mise --version
     - mise install
-    - mise exec -- rustup component add rust-std
     - mise exec -- node --version
     - mise exec -- npm --version
     - git --version
     - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-    - mise run raster-supply
     - mise exec -- npm run generate
     - mise exec -- npm run check:ci
     - mise exec -- node node_modules/playwright-core/cli.js install chromium
     - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
       --test-force-exit --test-name-pattern=standalone
       tests/map-browser.test.mjs
-    - mise exec -- node -e
-      "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-    - mise exec -- node tools/raster/resvg/verify.mjs --registry-url >
-      build/runtime/tool-cache/raster/source-url.txt
-    - 'curl --fail --silent --show-error --connect-timeout 15 --max-time 180
-      --variable source@build/runtime/tool-cache/raster/source-url.txt
-      --expand-url "{{source:trim}}" --variable %CI_JOB_TOKEN --expand-header
-      "JOB-TOKEN: {{CI_JOB_TOKEN}}" --output
-      build/runtime/tool-cache/raster/source.tar.xz'
-    - mise exec -- node tools/raster/resvg/verify.mjs --archive
-      build/runtime/tool-cache/raster/source.tar.xz
-    - mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
     - mise exec -- node --test --test-force-exit
       tests/conformance/journeys/command/archive.test.mjs
     - mise exec -- npm run check
@@ -72,58 +58,10 @@ stages:
     - install --mode=0755 build/runtime/tool-cache/mise/bootstrap/mise.download
       build/runtime/tool-cache/mise/bootstrap/mise
     - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"
-  script:
-    - mise --version
-    - mise install
-    - mise exec -- rustup component add rust-std
-    - mise exec -- node --version
-    - mise exec -- npm --version
-    - git --version
-    - mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-    - mise run raster-supply
-    - mise exec -- npm run generate
-    - mise exec -- npm run check:ci
-    - mise exec -- node node_modules/playwright-core/cli.js install chromium
-    - mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
-      --test-force-exit --test-name-pattern=standalone
-      tests/map-browser.test.mjs
-    - mise exec -- node -e
-      "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-    - mise exec -- node tools/raster/resvg/verify.mjs --registry-url >
-      build/runtime/tool-cache/raster/source-url.txt
-    - 'curl --fail --silent --show-error --connect-timeout 15 --max-time 180
-      --variable source@build/runtime/tool-cache/raster/source-url.txt
-      --expand-url "{{source:trim}}" --variable %CI_JOB_TOKEN --expand-header
-      "JOB-TOKEN: {{CI_JOB_TOKEN}}" --output
-      build/runtime/tool-cache/raster/source.tar.xz'
-    - mise exec -- pixi run --locked --config-file
-      .config/ci/linux/pixi-config.toml --manifest-path
-      .config/ci/linux/pixi.toml --executable xz --version
-    - mise exec -- pixi run --locked --config-file
-      .config/ci/linux/pixi-config.toml --manifest-path
-      .config/ci/linux/pixi.toml --executable aarch64-conda-linux-gnu-cc
-      --version
-    - mise exec -- pixi run --locked --config-file
-      .config/ci/linux/pixi-config.toml --manifest-path
-      .config/ci/linux/pixi.toml --executable node tools/raster/resvg/verify.mjs
-      --archive build/runtime/tool-cache/raster/source.tar.xz
-    - mise exec -- pixi run --locked --config-file
-      .config/ci/linux/pixi-config.toml --manifest-path
-      .config/ci/linux/pixi.toml --executable node --test
-      tests/conformance/journeys/raster/rebuild.test.mjs
-    - mise exec -- pixi run --locked --config-file
-      .config/ci/linux/pixi-config.toml --manifest-path
-      .config/ci/linux/pixi.toml --executable node --test --test-force-exit
-      tests/conformance/journeys/command/archive.test.mjs
-    - mise exec -- pixi run --locked --config-file
-      .config/ci/linux/pixi-config.toml --manifest-path
-      .config/ci/linux/pixi.toml --executable npm run check
   extends: .verify-native
   variables:
     FF_USE_INIT_WITH_DOCKER_EXECUTOR: "true"
     FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
-    PIXI_HOME: $CI_PROJECT_DIR/build/runtime/work/native-linux-prerequisites/home
-    PIXI_CACHE_DIR: $CI_PROJECT_DIR/build/runtime/tool-cache/pixi
     PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 .verify-macos:
   before_script: []
@@ -142,8 +80,6 @@ stages:
     GIT_CONFIG_KEY_0: core.longPaths
     GIT_CONFIG_VALUE_0: "true"
     MISE_WINDOWS_SHIM_MODE: file
-    MISE_RUSTUP_HOME: $CI_BUILDS_DIR/tool-cache/rustup
-    MISE_CARGO_HOME: $CI_BUILDS_DIR/tool-cache/cargo
   image: null
   resource_group: native-windows-verification
   interruptible: true

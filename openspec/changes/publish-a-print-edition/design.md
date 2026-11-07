@@ -80,7 +80,8 @@ publisher's own grid layout (`src/layout/`) and are rendered by Archify, which h
      contents, and the folio.
 8. **One token source; one fewer toolchain.** The palette, faces, sizes and figure colours live in one file, `src/house.json`, staged beside the class, which reads it with `json()`, and read by the engine. JSON rather than TOML: both readers parse it natively, so no parser is added. Text is measured with the house faces and Noto
    Sans CJK SC; Noto Sans leaves the font supply. resvg, its Rust build, the raster journey and the
-   `--png` path through it are retired, and Typst renders every PNG. opentype.js moves to a supply of
+   `--png` path through it are retired, with Pixi's Linux compiler and xz that only the Rust build
+   needed, and Typst renders every PNG. opentype.js moves to a supply of
    its own at the same version and digest.
 9. **Model version 3.** `editors` is a non-empty list of names, each with an optional URL, and
    `license` is an SPDX expression. `attribution` is refused.

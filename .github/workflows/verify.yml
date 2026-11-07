@@ -17,10 +17,6 @@ env:
   PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/build/runtime/tool-cache/playwright
 jobs:
   verify-linux-review:
-    env:
-      PIXI_HOME: ${{ github.workspace
-        }}/build/runtime/work/native-linux-prerequisites/home
-      PIXI_CACHE_DIR: ${{ github.workspace }}/build/runtime/tool-cache/pixi
     name: linux / review
     if: ${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' &&
       !github.ref_protected) }}
@@ -48,12 +44,10 @@ jobs:
           add_shims_to_path: false
       - run: mise --version
       - run: mise install
-      - run: mise exec -- rustup component add rust-std
       - run: mise exec -- node --version
       - run: mise exec -- npm --version
       - run: git --version
       - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-      - run: mise run raster-supply
       - run: mise exec -- npm run generate
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
@@ -61,38 +55,9 @@ jobs:
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
           --test-force-exit --test-name-pattern=standalone
           tests/map-browser.test.mjs
-      - run: mise exec -- node -e
-          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-      - name: Retrieve exact Raster source closure
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-f55157d60abd" --repo
-          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
-          build/runtime/tool-cache/raster
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable xz --version
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable aarch64-conda-linux-gnu-cc
-          --version
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable node
-          tools/raster/resvg/verify.mjs --archive
-          build/runtime/tool-cache/raster/source.tar.xz
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable node --test
-          tests/conformance/journeys/raster/rebuild.test.mjs
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable node --test --test-force-exit
+      - run: mise exec -- node --test --test-force-exit
           tests/conformance/journeys/command/archive.test.mjs
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable npm run check
+      - run: mise exec -- npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
         with:
@@ -101,10 +66,6 @@ jobs:
           retention-days: 7
           if-no-files-found: error
   verify-linux-protected:
-    env:
-      PIXI_HOME: ${{ github.workspace
-        }}/build/runtime/work/native-linux-prerequisites/home
-      PIXI_CACHE_DIR: ${{ github.workspace }}/build/runtime/tool-cache/pixi
     name: linux / protected
     if: ${{ github.event_name != 'pull_request' && (github.ref_protected ||
       github.ref_type == 'tag') }}
@@ -132,12 +93,10 @@ jobs:
           add_shims_to_path: false
       - run: mise --version
       - run: mise install
-      - run: mise exec -- rustup component add rust-std
       - run: mise exec -- node --version
       - run: mise exec -- npm --version
       - run: git --version
       - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-      - run: mise run raster-supply
       - run: mise exec -- npm run generate
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install-deps chromium
@@ -145,38 +104,9 @@ jobs:
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
           --test-force-exit --test-name-pattern=standalone
           tests/map-browser.test.mjs
-      - run: mise exec -- node -e
-          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-      - name: Retrieve exact Raster source closure
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-f55157d60abd" --repo
-          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
-          build/runtime/tool-cache/raster
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable xz --version
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable aarch64-conda-linux-gnu-cc
-          --version
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable node
-          tools/raster/resvg/verify.mjs --archive
-          build/runtime/tool-cache/raster/source.tar.xz
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable node --test
-          tests/conformance/journeys/raster/rebuild.test.mjs
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable node --test --test-force-exit
+      - run: mise exec -- node --test --test-force-exit
           tests/conformance/journeys/command/archive.test.mjs
-      - run: mise exec -- pixi run --locked --config-file
-          .config/ci/linux/pixi-config.toml --manifest-path
-          .config/ci/linux/pixi.toml --executable npm run check
+      - run: mise exec -- npm run check
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: ${{ always() }}
         with:
@@ -212,30 +142,16 @@ jobs:
           add_shims_to_path: false
       - run: mise --version
       - run: mise install
-      - run: mise exec -- rustup component add rust-std
       - run: mise exec -- node --version
       - run: mise exec -- npm --version
       - run: git --version
       - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-      - run: mise run raster-supply
       - run: mise exec -- npm run generate
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
           --test-force-exit --test-name-pattern=standalone
           tests/map-browser.test.mjs
-      - run: mise exec -- node -e
-          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-      - name: Retrieve exact Raster source closure
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-f55157d60abd" --repo
-          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
-          build/runtime/tool-cache/raster
-      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
-          build/runtime/tool-cache/raster/source.tar.xz
-      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
       - run: mise exec -- node --test --test-force-exit
           tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
@@ -274,30 +190,16 @@ jobs:
           add_shims_to_path: false
       - run: mise --version
       - run: mise install
-      - run: mise exec -- rustup component add rust-std
       - run: mise exec -- node --version
       - run: mise exec -- npm --version
       - run: git --version
       - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-      - run: mise run raster-supply
       - run: mise exec -- npm run generate
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
           --test-force-exit --test-name-pattern=standalone
           tests/map-browser.test.mjs
-      - run: mise exec -- node -e
-          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-      - name: Retrieve exact Raster source closure
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-f55157d60abd" --repo
-          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
-          build/runtime/tool-cache/raster
-      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
-          build/runtime/tool-cache/raster/source.tar.xz
-      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
       - run: mise exec -- node --test --test-force-exit
           tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
@@ -340,30 +242,16 @@ jobs:
           add_shims_to_path: false
       - run: mise --version
       - run: mise install
-      - run: mise exec -- rustup component add rust-std
       - run: mise exec -- node --version
       - run: mise exec -- npm --version
       - run: git --version
       - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-      - run: mise run raster-supply
       - run: mise exec -- npm run generate
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
           --test-force-exit --test-name-pattern=standalone
           tests/map-browser.test.mjs
-      - run: mise exec -- node -e
-          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-      - name: Retrieve exact Raster source closure
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-f55157d60abd" --repo
-          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
-          build/runtime/tool-cache/raster
-      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
-          build/runtime/tool-cache/raster/source.tar.xz
-      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
       - run: mise exec -- node --test --test-force-exit
           tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check
@@ -406,30 +294,16 @@ jobs:
           add_shims_to_path: false
       - run: mise --version
       - run: mise install
-      - run: mise exec -- rustup component add rust-std
       - run: mise exec -- node --version
       - run: mise exec -- npm --version
       - run: git --version
       - run: mise exec -- npm ci --ignore-scripts --no-audit --no-fund
-      - run: mise run raster-supply
       - run: mise exec -- npm run generate
       - run: mise exec -- npm run check:ci
       - run: mise exec -- node node_modules/playwright-core/cli.js install chromium
       - run: mise exec -- node --import=./tests/fixtures/npm-environment.mjs --test
           --test-force-exit --test-name-pattern=standalone
           tests/map-browser.test.mjs
-      - run: mise exec -- node -e
-          "require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})"
-      - name: Retrieve exact Raster source closure
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_PROMPT_DISABLED: "1"
-        run: gh release download "0.49.0-f55157d60abd" --repo
-          HengYangDS/architecture-publisher --pattern source.tar.xz --dir
-          build/runtime/tool-cache/raster
-      - run: mise exec -- node tools/raster/resvg/verify.mjs --archive
-          build/runtime/tool-cache/raster/source.tar.xz
-      - run: mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs
       - run: mise exec -- node --test --test-force-exit
           tests/conformance/journeys/command/archive.test.mjs
       - run: mise exec -- npm run check

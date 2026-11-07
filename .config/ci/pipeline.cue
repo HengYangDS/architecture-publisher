@@ -2,11 +2,7 @@ package ci
 
 import (
 	"list"
-	"strings"
 )
-
-// Raster identity is supplied by the existing source manifest, not copied here.
-source: registry: {version: string, file: string}
 
 // Shared execution and native prerequisites have one owner, independent of peers.
 shared: {
@@ -42,12 +38,10 @@ shared: {
 	"toolPreparation": [
 		"mise --version",
 		"mise install",
-		"mise exec -- rustup component add rust-std",
 		"mise exec -- node --version",
 		"mise exec -- npm --version",
 		"git --version",
 		"mise exec -- npm ci --ignore-scripts --no-audit --no-fund",
-		"mise run raster-supply",
 		"mise exec -- npm run generate",
 		"mise exec -- npm run check:ci",
 	]
@@ -57,38 +51,21 @@ shared: {
 	]
 	"preparation": list.Concat([shared.toolPreparation, shared.readerPreparation])
 	"acceptance": [
-		"mise exec -- node tools/raster/resvg/verify.mjs --archive build/runtime/tool-cache/raster/source.tar.xz",
-		"mise exec -- node --test tests/conformance/journeys/raster/rebuild.test.mjs",
 		"mise exec -- node --test --test-force-exit tests/conformance/journeys/command/archive.test.mjs",
 		"mise exec -- npm run check",
-	]
-	"assetPreparation": [
-		"mise exec -- node -e \"require('node:fs').mkdirSync('build/runtime/tool-cache/raster',{recursive:true})\""
 	]
 	"platformSetup": {
 		workspace: string
 		"linux": {
 			"before_script": []
-			"prerequisites": [
-				"xz --version",
-				"aarch64-conda-linux-gnu-cc --version",
-			]
-			"executor": "mise exec -- pixi run --locked --config-file .config/ci/linux/pixi-config.toml --manifest-path .config/ci/linux/pixi.toml --executable "
-			"variables": {
-				PIXI_HOME:      "\(workspace)/build/runtime/work/native-linux-prerequisites/home"
-				PIXI_CACHE_DIR: "\(workspace)/build/runtime/tool-cache/pixi"
-			}
+			"variables": {}
 		}
 		"macos": {
 			"before_script": []
-			"prerequisites": []
-			"executor": "mise exec -- "
 			"variables": {}
 		}
 		"windows": {
 			"before_script": []
-			"prerequisites": []
-			"executor": "mise exec -- "
 			"variables": {
 				"GIT_CONFIG_COUNT":   "1"
 				"GIT_CONFIG_KEY_0":   "core.longPaths"
@@ -132,10 +109,6 @@ peers: gitlab: {
 			"coverage/coverage-summary.json"
 		]
 	}
-	"transport": [
-		"mise exec -- node tools/raster/resvg/verify.mjs --registry-url > build/runtime/tool-cache/raster/source-url.txt",
-		"curl --fail --silent --show-error --connect-timeout 15 --max-time 180 --variable source@build/runtime/tool-cache/raster/source-url.txt --expand-url \"{{source:trim}}\" --variable %CI_JOB_TOKEN --expand-header \"JOB-TOKEN: {{CI_JOB_TOKEN}}\" --output build/runtime/tool-cache/raster/source.tar.xz",
-	]
 	"platforms": {
 		"linux": {
 			"bootstrap": [
@@ -164,15 +137,9 @@ peers: gitlab: {
 				"$env:PATH = (Join-Path $env:ProgramFiles \"mise/bin\") + [IO.Path]::PathSeparator + $env:PATH",
 			]
 			// The runner refuses Mise's default copies of mise-shim.exe; the jobs
-			// run tools through `mise exec`, which needs no shim. The MSVC linker
-			// opens no path of 260 characters or more, and under the protected
-			// runner's build directory a Rust standard library file in the
-			// workspace's tool cache takes 260, so the Rust toolchain stays under
-			// the runner's builds directory.
+			// run tools through `mise exec`, which needs no shim.
 			"variables": {
 				"MISE_WINDOWS_SHIM_MODE": "file"
-				"MISE_RUSTUP_HOME":       "$CI_BUILDS_DIR/tool-cache/rustup"
-				"MISE_CARGO_HOME":        "$CI_BUILDS_DIR/tool-cache/cargo"
 			}
 			"image":          null
 			"resource_group": "native-windows-verification"
@@ -222,7 +189,7 @@ compiled: gitlab: {
 		stages: [shared.verification.stage]
 		".verify-native": shared.verification & {
 			artifacts: peers.gitlab.artifacts
-			script: list.Concat([shared.preparation, shared.assetPreparation, peers.gitlab.transport, shared.acceptance])
+			script: list.Concat([shared.preparation, shared.acceptance])
 		}
 		for platform in shared.platforms {
 			let native = nativePlatforms[platform]
@@ -231,12 +198,6 @@ compiled: gitlab: {
 				extends: ".verify-native"
 				if platform == "windows" {before_script: list.Concat([peer.bootstrap, native.before_script])}
 				if platform != "windows" {before_script: list.Concat([native.before_script, peer.bootstrap])}
-				if platform == "linux" {
-					script: list.Concat([shared.preparation, shared.assetPreparation, peers.gitlab.transport,
-						[for command in native.prerequisites {native.executor + command}],
-						[for command in shared.acceptance {native.executor + strings.TrimPrefix(command, "mise exec -- ")}],
-					])
-				}
 				variables: native.variables & peer.variables
 				for key, value in peer if key != "bootstrap" && key != "variables" {"\(key)": value}
 			}
@@ -286,11 +247,6 @@ peers: github: {
 			add_shims_to_path: false
 		}
 	}
-	transport: {
-		name: "Retrieve exact Raster source closure"
-		env: {GH_TOKEN: "${{ github.token }}", GH_PROMPT_DISABLED: "1"}
-		run: "gh release download \"\(source.registry.version)\" --repo \(peers.github.repository) --pattern \(source.registry.file) --dir build/runtime/tool-cache/raster"
-	}
 	artifacts: {
 		uses: "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
 		if:   "${{ always() }}"
@@ -328,10 +284,7 @@ compiled: github: {
 						steps: list.Concat([
 							[peer.checkout, peer.bootstrap],
 							[for command in native.before_script {run: command}],
-							[for command in list.Concat([shared.toolPreparation, runner.readerPrerequisites, shared.readerPreparation, shared.assetPreparation]) {run: command}],
-							[peer.transport],
-							[for command in native.prerequisites {run: native.executor + command}],
-							[for command in shared.acceptance {run: native.executor + strings.TrimPrefix(command, "mise exec -- ")}],
+							[for command in list.Concat([shared.toolPreparation, runner.readerPrerequisites, shared.readerPreparation, shared.acceptance]) {run: command}],
 							[peer.artifacts],
 						])
 					}

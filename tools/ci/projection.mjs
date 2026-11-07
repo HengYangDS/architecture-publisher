@@ -11,7 +11,6 @@ const mode = process.argv[2];
 if (process.argv.length !== 3 || !["--check", "--write"].includes(mode))
   throw new Error("ci_projection_mode_required");
 const source = ".config/ci/pipeline.cue";
-const raster = "renderers/resvg/supply/resvg/source.json";
 const options = {
   cwd: root,
   encoding: "utf8",
@@ -28,9 +27,7 @@ if (
 )
   throw new Error("ci_projection_cue_version_mismatch");
 execFileSync("cue", ["fmt", "--check", source], options);
-const compiled = JSON.parse(
-  execFileSync("cue", ["export", source, raster, "-e", "compiled"], options),
-);
+const compiled = JSON.parse(execFileSync("cue", ["export", source, "-e", "compiled"], options));
 const policy = await resolveConfig(path.join(root, ".gitlab-ci.yml"), {
   config: path.join(root, ".config/checks/prettier/prettier.toml"),
   editorconfig: false,

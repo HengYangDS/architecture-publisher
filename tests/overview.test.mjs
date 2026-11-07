@@ -245,20 +245,22 @@ test("the edition needs the pinned Typst before it writes anything, and the page
 test("a build sets the overview a model names in the edition, and refuses one that is not there", async (t) => {
   const file = await composed(t);
   const out = path.join(await temporaryDirectory(t, "archpub-overview-build-"), "delivery");
-  const built = await buildDelivery(file, out, { media: ["edition"], png: [2400, 240] });
+  const built = await buildDelivery(file, out, { media: ["edition"], png: [2400, 6000] });
   assert.deepEqual(built.media, ["edition"]);
   const images = (await fs.readdir(path.join(out, "images"))).sort();
   assert.deepEqual(
     images.filter((name) => name.startsWith("00-")),
-    ["00-overview-240.png", "00-overview.png"],
+    ["00-overview-6000.png", "00-overview.png"],
   );
   const image = await fs.readFile(path.join(out, "images", "00-overview.png"));
   assert.equal(pngWidth(image), 2400);
-  assert.equal(pngWidth(await fs.readFile(path.join(out, "images", "00-overview-240.png"))), 240);
+  const wide = await fs.readFile(path.join(out, "images", "00-overview-6000.png"));
+  assert.equal(pngWidth(wide), 6000);
   assert.equal(sha256(image), OVERVIEW_PNG);
   const again = path.join(path.dirname(out), "again");
-  await buildDelivery(file, again, { media: ["edition"] });
+  await buildDelivery(file, again, { media: ["edition"], png: [2400, 6000] });
   assert.ok(image.equals(await fs.readFile(path.join(again, "images", "00-overview.png"))));
+  assert.ok(wide.equals(await fs.readFile(path.join(again, "images", "00-overview-6000.png"))));
   const manifest = JSON.parse(await fs.readFile(path.join(out, "manifest.json"), "utf8"));
   assert.equal(manifest.overview.composition.path, "overview.typ");
   assert.equal(manifest.overview.typst, TYPST_VERSION);

@@ -19,7 +19,6 @@ src/edition/generated/** ethos-role=generated
 supplies/** ethos-role=snapshot
 renderers/*/supply/** ethos-role=snapshot
 .config/mise/locks/** ethos-role=snapshot
-.config/ci/linux/pixi.lock ethos-role=snapshot
 
 # Native received-path classification preserves upstream and generator names.
 src/edition/generated/** linguist-generated
@@ -32,7 +31,6 @@ src/edition/generated/** -text
 supplies/** -text
 renderers/*/supply/** -text
 .config/mise/locks/** -text
-.config/ci/linux/pixi.lock -text
 
 supplies/likec4/parser.mjs -whitespace
 supplies/likec4/THIRD-PARTY-NOTICES.txt -whitespace

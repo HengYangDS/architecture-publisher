@@ -1,6 +1,5 @@
 ../../../build/
 ../../mise/locks/
-../../ci/linux/pixi.lock
 ../../../.superpowers/
 ../../../node_modules/
 ../../../openspec/changes/archive/
@@ -9,5 +8,4 @@
 ../../../renderers/house/supply/
 ../../../renderers/icons/supply/
 ../../../renderers/opentype/supply/
-../../../renderers/resvg/supply/
 ../../../supplies/likec4/

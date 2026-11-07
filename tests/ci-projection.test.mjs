@@ -15,11 +15,9 @@ const owned = [
   ".config/checks/prettier/prettier.toml",
   ".gitlab-ci.yml",
   "tools/ci/projection.mjs",
-  "renderers/resvg/supply/resvg/source.json",
 ];
 
 const projections = [".gitlab-ci.yml", ".github/workflows/verify.yml"];
-const cueInputs = [owned[0], owned.at(-1)];
 
 test("every native CI job installs Chromium before importing the required browser fixture", async () => {
   const [gitlab, github] = await Promise.all(
@@ -78,7 +76,7 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   assert.equal(pipeline[".verify-linux"].variables.PATH, undefined);
   const checksum = await fs.readFile(path.join(root, ".config/ci/linux/mise.sha256"), "utf8");
   assert.match(checksum, new RegExp(`^[a-f0-9]{64}  ${staged.replaceAll(".", "\\.")}\\n$`, "u"));
-  assert.equal(pipeline[".verify-linux"].script[0], "mise --version");
+  assert.equal(pipeline[".verify-native"].script[0], "mise --version");
   await assert.rejects(fs.access(path.join(root, "tools/ci/mise.sh")), { code: "ENOENT" });
   await assert.rejects(fs.access(path.join(root, ".config/mise/generated.toml")), {
     code: "ENOENT",
@@ -91,53 +89,6 @@ test("the Windows job writes Mise shims as command files", async () => {
   // arborist; the jobs run tools through `mise exec`, which needs no shim.
   const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
   assert.equal(pipeline[".verify-windows"].variables.MISE_WINDOWS_SHIM_MODE, "file");
-});
-
-test("the GitLab Windows jobs keep the Rust toolchain under the runner's builds directory", async (t) => {
-  // The MSVC linker opens no path of 260 characters or more, and under the
-  // protected runner's build directory a Rust standard library file in the
-  // workspace's tool cache takes 260; the runner's builds directory is short.
-  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
-  const { variables } = pipeline[".verify-windows"];
-  assert.equal(variables.MISE_RUSTUP_HOME, "$CI_BUILDS_DIR/tool-cache/rustup");
-  assert.equal(variables.MISE_CARGO_HOME, "$CI_BUILDS_DIR/tool-cache/cargo");
-  // Mise keeps a home the job sets, and falls back to the workspace's tool cache.
-  const base = path.join(root, "build/runtime/work");
-  await fs.mkdir(base, { recursive: true });
-  const scratch = await fs.mkdtemp(path.join(base, "mise-homes-"));
-  t.after(() => fs.rm(scratch, { recursive: true, force: true }));
-  const configuration = path.join(scratch, ".config/mise");
-  await fs.mkdir(configuration, { recursive: true });
-  for (const name of ["config.toml", "mise.lock"])
-    await fs.copyFile(path.join(root, ".config/mise", name), path.join(configuration, name));
-  const homes = (overrides) => {
-    const env = {
-      ...process.env,
-      MISE_DATA_DIR: path.join(scratch, "data"),
-      MISE_CACHE_DIR: path.join(scratch, "cache"),
-      MISE_TRUSTED_CONFIG_PATHS: scratch,
-    };
-    delete env.MISE_RUSTUP_HOME;
-    delete env.MISE_CARGO_HOME;
-    const result = spawnSync("mise", ["env", "--json"], {
-      cwd: scratch,
-      encoding: "utf8",
-      timeout: 30_000,
-      env: { ...env, ...overrides },
-    });
-    assert.equal(result.error, undefined);
-    assert.equal(result.status, 0, result.stderr);
-    const environment = JSON.parse(result.stdout);
-    return [environment.MISE_RUSTUP_HOME, environment.MISE_CARGO_HOME];
-  };
-  const selected = path.join(scratch, "selected");
-  assert.deepEqual(
-    homes({ MISE_RUSTUP_HOME: `${selected}/rustup`, MISE_CARGO_HOME: `${selected}/cargo` }),
-    [`${selected}/rustup`, `${selected}/cargo`],
-  );
-  const [rustup, cargo] = homes({});
-  assert(rustup.endsWith("/build/runtime/tool-cache/rustup"), rustup);
-  assert(cargo.endsWith("/build/runtime/tool-cache/cargo"), cargo);
 });
 
 test("native Mise paths resolve before the locked tools are installed", async (t) => {
@@ -194,7 +145,7 @@ test("native Mise execution selects the declared Node and npm rather than bundle
 
 function exportCue(expression) {
   return JSON.parse(
-    execFileSync("cue", ["export", ...cueInputs, "-e", expression], {
+    execFileSync("cue", ["export", owned[0], "-e", expression], {
       cwd: root,
       encoding: "utf8",
       timeout: 30_000,
@@ -269,20 +220,17 @@ test("the selected peer invokes the shared quality and projection owners on all 
   assert.deepEqual(shared.platforms, ["linux", "macos", "windows"]);
   assert(shared.preparation.includes("mise exec -- npm run check:ci"));
   assert.equal(shared.acceptance.at(-1), "mise exec -- npm run check");
-  assert(peer.transport.every((command) => !command.includes("npm run check")));
   for (const platform of shared.platforms)
     assert(!Object.hasOwn(peer.platforms[platform], "before_script"));
   const github = parse(await fs.readFile(path.join(root, projections[1]), "utf8"));
   assert.deepEqual(github, compiled.github.document);
   assert.deepEqual(github.permissions, { contents: "read" });
   assert.deepEqual(Object.keys(github.on), ["pull_request", "push", "workflow_dispatch"]);
+  // Every platform runs the shared acceptance as it is, after the shared preparation.
+  assert.deepEqual(common.script, [...shared.preparation, ...shared.acceptance]);
   for (const platform of shared.platforms) {
-    const native = shared.platformSetup[platform];
-    const acceptance = shared.acceptance.map(
-      (command) => native.executor + command.slice("mise exec -- ".length),
-    );
-    if (platform === "linux")
-      for (const command of acceptance) assert(pipeline[".verify-linux"].script.includes(command));
+    assert.equal(pipeline[`.verify-${platform}`].script, undefined);
+    const { acceptance } = shared;
     for (const trust of shared.trustRoles) {
       const job = github.jobs[`verify-${platform}-${trust}`];
       assert.equal(job["timeout-minutes"], shared.timeLimitMinutes);
@@ -311,6 +259,4 @@ test("the selected peer invokes the shared quality and projection owners on all 
   const githubPeer = exportCue("peers.github");
   assert(!JSON.stringify(githubPeer).includes("CI_JOB_TOKEN"));
   assert(!JSON.stringify(github).includes("192.168.64.101"));
-  assert(githubPeer.transport.run.startsWith("gh release download "));
-  assert(githubPeer.transport.run.includes(exportCue("source.registry.version")));
 });

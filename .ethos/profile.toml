@@ -12,25 +12,10 @@ static-analysis = "node-static"
 
 [[proof.source_contracts]]
 kind = "upstream"
-input_refs = [
-  "package-lock.json#packages/node_modules/sax",
-  "package-lock.json#packages/node_modules/opentype.js",
-]
+input_refs = ["package-lock.json#packages/node_modules/opentype.js"]
 integrity_gate = "source-integrity"
 
 [proof.source_contracts.members]
-"renderers/resvg/supply/sax/sax.cjs" = [
-  "package-lock.json#packages/node_modules/sax",
-  "package/lib/sax.js",
-]
-"renderers/resvg/supply/sax/LICENSE.md" = [
-  "package-lock.json#packages/node_modules/sax",
-  "package/LICENSE.md",
-]
-"renderers/resvg/supply/sax/package.json" = [
-  "package-lock.json#packages/node_modules/sax",
-  "package/package.json",
-]
 "renderers/opentype/supply/opentype.mjs" = [
   "package-lock.json#packages/node_modules/opentype.js",
   "package/dist/opentype.mjs",

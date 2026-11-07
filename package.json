@@ -17,11 +17,11 @@
     "README.md"
   ],
   "scripts": {
-    "generate": "node tools/raster/resvg/verify.mjs --stage && node tools/supply/likec4.mjs --write",
+    "generate": "node tools/supply/likec4.mjs --write",
     "test": "node --import=./tests/fixtures/npm-environment.mjs --test --test-concurrency=2 --test-force-exit tests/*.test.mjs",
     "check": "npm run check:static && npm run test:coverage && npm run check:package",
     "check:static": "npm run check:generated && npm run check:format && npm run check:lint && npm run check:types && npm run check:imports && npm run check:dead-code && npm run check:docs && npm run check:spec",
-    "check:generated": "node tools/release/version.mjs --check && npm run check:ci && node tools/supply/likec4.mjs --check && node tools/supply/icons.mjs --check && node tools/supply/resvg.mjs --check",
+    "check:generated": "node tools/release/version.mjs --check && npm run check:ci && node tools/supply/likec4.mjs --check && node tools/supply/icons.mjs --check",
     "check:format": "prettier --config .config/checks/prettier/prettier.toml --ignore-path .gitignore --ignore-path .config/checks/prettier/prettierignore --check . && taplo format --config .config/checks/taplo/taplo.toml --check",
     "check:lint": "eslint --config .config/checks/eslint/eslint.config.mjs . --max-warnings 0",
     "check:types": "tsc --project .config/checks/typescript/tsconfig.json --noEmit",
@@ -51,7 +51,6 @@
     "playwright-core": "1.64.1",
     "prettier": "3.9.10",
     "publint": "0.3.25",
-    "sax": "1.6.1",
     "semver": "7.8.6",
     "smol-toml": "1.9.1",
     "typescript": "7.0.2",

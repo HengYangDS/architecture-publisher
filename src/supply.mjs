@@ -16,7 +16,6 @@ const SUPPLIES = Object.freeze({
   icons: "renderers/icons/supply",
   likec4: "supplies/likec4",
   opentype: "renderers/opentype/supply",
-  resvg: "renderers/resvg/supply",
 });
 
 /**

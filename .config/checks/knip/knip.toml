@@ -2,14 +2,12 @@
 treatConfigHintsAsErrors = true
 ignoreBinaries = ["cue", "mise", "taplo"]
 # Vendored or bundled by the supply tools, not imported by maintained modules.
-ignoreDependencies = ["sax", "opentype.js", "@likec4/language-services", "bundle-require"]
+ignoreDependencies = ["opentype.js", "@likec4/language-services", "bundle-require"]
 
 entry = [
   "src/importers/likec4-worker.mjs",
   "tests/conformance/journeys/command/archive.test.mjs",
-  "tests/conformance/journeys/raster/rebuild.test.mjs",
   "tools/release/archive.mjs",
-  "tools/raster/resvg/verify.mjs",
   "tests/*.test.mjs",
 ]
 project = ["src/**/*.mjs", "tools/**/*.mjs", "tests/**/*.mjs"]

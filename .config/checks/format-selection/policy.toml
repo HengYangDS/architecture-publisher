@@ -10,5 +10,4 @@ format_command = "not-applicable:captured-input"
 format_check = "npm run test:coverage"
 validation_owner = "node-behavior"
 validation_command = "npm run test:coverage"
-semantic_companions = ["raster-rebuild"]
 mutation_policy = "forbidden"
