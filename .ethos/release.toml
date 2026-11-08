@@ -1,10 +1,6 @@
 [protected_refs]
 tags = ["v*"]
 
-[publication]
-local_verification_command = "npm run check"
-local_installation_command = "node --test tests/installed-cli.test.mjs"
-
 [[publication.peers]]
 id = "gitlab"
 provider = "gitlab"
@@ -20,4 +16,3 @@ role = "public_distribution"
 git_remote = "github"
 capabilities = ["repository", "ci_cd", "publication"]
 ci_surface = ".github/workflows/verify.yml"
-forge_repository = "https://github.com/HengYangDS/architecture-publisher"
