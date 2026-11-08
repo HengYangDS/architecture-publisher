@@ -11,7 +11,8 @@ causes and no work can fix:
 ## What Changes
 
 - In the print edition the masthead sets the edition's own build line, in the model's language. A check of the
-  overview alone keeps the English line it measures today.
+  overview alone keeps the English line it measures today. An overview of a model that pins no revision no longer
+  prints a bare "As built at".
 - A cover title that holds Han, Kana or Hangul text and is wider than its column breaks at the space that leaves the
   most balanced lines that each fit; without such a space, into lines of balanced width. A title in other scripts
   breaks at its spaces as before, so English editions are typeset as in 0.10.0.
@@ -31,5 +32,5 @@ None.
 ## Impact
 
 `src/overview/house.typ`, its tests, `CHANGELOG.md`, `VERSION` and `package.json`. Editions of an English model
-are typeset as in 0.10.0; editions in other languages change only on their overview's masthead and, for a CJK title
+that pins its revision are typeset as in 0.10.0; editions in other languages change only on their overview's masthead and, for a CJK title
 wider than its column, on the title page.

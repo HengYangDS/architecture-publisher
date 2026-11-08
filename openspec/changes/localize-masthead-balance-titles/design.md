@@ -21,7 +21,8 @@ at the cover size, and Typst may break CJK text between any two characters, so i
 ## Decisions
 
 - **The masthead reads the record it already has.** In the edition the class sets `words.built`; outside it, the
-  English line it sets today, so the check's measured boxes do not change.
+  English line it sets today, so the check's measured boxes do not change. A model that pins no revision has no build
+  line, so its masthead, like its contents page, sets none, where 0.10.0 printed a bare "As built at".
 - **Balance only what the writing system lets break anywhere.** A title holding Han, Kana or Hangul and wider than
   its column breaks at the space whose two lines both fit and whose wider line is narrowest. Without one, it is set
   in a column the title's width divided by the lines it needs, plus half an em, so greedy breaking fills every line

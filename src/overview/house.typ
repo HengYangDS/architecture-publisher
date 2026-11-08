@@ -147,6 +147,9 @@
 /// A horizontal rule across the live area or between two x positions.
 #let hrule(y, x0: margin, x1: page-width - margin) = seg((x0, y), (x1, y), w: 0.8pt, c: rule)
 
+/// Whether the page is set inside the print edition, where the edition's foot replaces the imprint.
+#let _in-edition = _inputs.at("edition", default: "") == "true"
+
 /// The masthead: the work's short name, its claim, one lead sentence, and the revision it was built at.
 #let masthead(name, claim, lead, read-from: none, claim-x: 196pt) = {
   let rev = _inputs.at("revision", default: "")
@@ -154,13 +157,14 @@
   tx(margin, 52pt, name, size: "head", weight: "semibold")
   tx(claim-x, 52pt, claim, size: "title", font: display)
   tx(margin, 84pt, lead, fill: soft)
-  let built = "As built at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { " · " + date } else { "" })
-  txr(page-width - margin, 34pt, 420pt, built, fill: soft)
+  // In the edition the build line is the record's, in the model's language; the overview checked alone keeps English.
+  let built = if _in-edition { json("edition.json").words.built } else {
+    "As built at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { " · " + date } else { "" })
+  }
+  if built != none { txr(page-width - margin, 34pt, 420pt, built, fill: soft) }
   if read-from != none { txr(page-width - margin, 50pt, 420pt, read-from, fill: soft) }
 }
 
-/// Whether the page is set inside the print edition, where the edition's foot replaces the imprint.
-#let _in-edition = _inputs.at("edition", default: "") == "true"
 
 /// The edition's foot: a rule, the work's title, release, revision and date linked to the contents, and the folio.
 #let edition-foot() = {
@@ -327,6 +331,34 @@
 }
 
 /// The print edition of one delivery, from the record the publisher writes; `overview` is the composition's content.
+/// The lines of a cover title that holds Han, Kana or Hangul and is wider than its column, or none for a title that
+/// fits or is in another script, which breaks at its spaces. Typst may break CJK text between any two characters, so it
+/// would leave one alone on the last line: the title breaks instead at the space whose two lines both fit and whose
+/// wider line is narrowest, or else fills lines of its width divided by the lines it needs, plus half an em.
+#let _cover-lines(title, width, size, set-it) = {
+  let wide(s) = measure(set-it(s)).width
+  let cjk = regex("[\\p{Han}\\p{Hiragana}\\p{Katakana}\\p{Hangul}]")
+  if title.find(cjk) == none or wide(title) <= width { return none }
+  let parts = title.split(" ")
+  let best = none
+  for i in range(1, parts.len()) {
+    let (a, b) = (parts.slice(0, i).join(" "), parts.slice(i).join(" "))
+    let wider = calc.max(wide(a).pt(), wide(b).pt())
+    if wide(a) <= width and wide(b) <= width and (best == none or wider < best.at(0)) { best = (wider, (a, b)) }
+  }
+  if best != none { return best.at(1) }
+  let target = wide(title) / calc.ceil(wide(title) / width) + size / 2
+  let lines = ()
+  let line = ""
+  for c in title.clusters() {
+    if line != "" and wide(line + c) > target {
+      lines.push(line.trim())
+      line = c.trim()
+    } else { line += c }
+  }
+  lines + (line.trim(),)
+}
+
 #let edition(r, overview: none) = {
   let words = r.words
   // Dated by the revision's commit; without the checkout, by the time it is typeset.
@@ -353,7 +385,14 @@
     line(length: 72pt, stroke: 2.4pt + green)
     // The title's first baseline sits a cap height and a gap below the rule.
     v(_e.cover * 0.72pt + 40pt)
-    block(width: 900pt, move(dx: -7pt, text(font: display, size: _e.cover * 1pt, par(leading: _e.cover * 1.08pt, r.title))))
+    let cover-text(body) = text(font: display, size: _e.cover * 1pt, par(leading: _e.cover * 1.08pt, body))
+    context {
+      let lines = _cover-lines(r.title, 900pt, _e.cover * 1pt, cover-text)
+      if lines == none { block(width: 900pt, move(dx: -7pt, cover-text(r.title))) } else {
+        [#metadata(lines) <archpub-cover-lines>]
+        block(width: 900pt, move(dx: -7pt, cover-text(lines.join(linebreak()))))
+      }
+    }
     v(84pt)
     block(width: 860pt, text(font: serif, size: sizes.title, fill: soft, par(leading: 44pt, r.question)))
   })

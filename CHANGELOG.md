@@ -7,6 +7,19 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-11-08
+
+### Fixed
+
+- The overview's masthead in the print edition sets its build line in the model's language, as the contents page
+  does: a Chinese edition reads 构建于 and the revision, where 0.10.0 printed "As built at". A model that pins no
+  revision gets no build line, where 0.10.0 printed a bare "As built at"; the overview checked alone keeps its
+  English line.
+- A cover title that holds Han, Kana or Hangul text and is wider than its column breaks at the space whose two lines
+  both fit and whose wider line is narrowest, or else into lines of balanced width, so no line holds one character
+  alone: 数据部门工作指南 is set as 数据部门 and 工作指南, AIGW 客户端投影 as AIGW and 客户端投影. Titles in other
+  scripts break at their spaces as before.
+
 ## [0.10.0] - 2026-11-08
 
 ### Added
@@ -816,6 +829,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.10.1]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.1
 [0.10.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.0
 [0.9.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.9.0
 [0.8.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.8.0
