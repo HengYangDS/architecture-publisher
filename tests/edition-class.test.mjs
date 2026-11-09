@@ -44,28 +44,34 @@ function plate(page, overrides = {}) {
   };
 }
 
-const model = validateModel(
-  minimalModel({
-    summary: "A small system.",
-    components: [
-      { id: "a", label: "Alpha", files: ["src/a.mjs"] },
-      { id: "b", label: "Beta" },
-    ],
-    editors: [{ name: "Yang HENG" }],
-    license: "MIT",
-    repository: {
-      name: "minimal",
-      url: "https://github.com/o/minimal.git",
-      revision: "a".repeat(40),
-      browse: "https://github.com/o/minimal/blob/{revision}/{path}",
-    },
-  }),
-);
+/**
+ * The test model, with Alpha's own fields.
+ * @param {Record<string, unknown>} alpha
+ */
+const modelWith = (alpha) =>
+  validateModel(
+    minimalModel({
+      summary: "A small system.",
+      components: [
+        { id: "a", label: "Alpha", ...alpha },
+        { id: "b", label: "Beta" },
+      ],
+      editors: [{ name: "Yang HENG" }],
+      license: "MIT",
+      repository: {
+        name: "minimal",
+        url: "https://github.com/o/minimal.git",
+        revision: "a".repeat(40),
+        browse: "https://github.com/o/minimal/blob/{revision}/{path}",
+      },
+    }),
+  );
+const model = modelWith({ files: ["src/a.mjs"] });
 
-/** Typeset an edition of the given plates. */
-async function edition(plates, extra = {}) {
+/** Typeset an edition of the given plates, of the test model unless another is given. */
+async function edition(plates, extra = {}, subject = model) {
   const record = editionRecord({
-    model,
+    model: subject,
     plates,
     icons,
     owned: new Map([["a", ["src/a.mjs"]]]),
@@ -81,9 +87,9 @@ async function edition(plates, extra = {}) {
   return typesetEdition({
     record,
     plates,
-    modelBytes: Buffer.from(JSON.stringify(model)),
+    modelBytes: Buffer.from(JSON.stringify(subject)),
     composition: null,
-    revision: model.repository?.revision ?? null,
+    revision: subject.repository?.revision ?? null,
     date: "2026-11-06",
     time: 1793918078,
     widths: [2400],
@@ -142,7 +148,7 @@ test("without a checkout the foot names the title and revision and no date, and 
   assert.equal(unpinned.byline[0].note, null);
 });
 
-test("a narrowed plate sets its view's summary and where each component lives, and a reading taller than the body is refused", async () => {
+test("a narrowed plate sets its view's summary and where each component lives, and a summary taller than the body is refused", async () => {
   const summary = "Alpha calls Beta, and Beta answers it.";
   const narrowed = (text) => plate(1, { share: 0.65, width: 1466, reading: "set", summary: text });
   const record = editionRecord({
@@ -171,6 +177,28 @@ test("a narrowed plate sets its view's summary and where each component lives, a
     (error) =>
       error.code === "edition_reading_too_long" &&
       error.problems.some(({ message }) => /View 1/u.test(message)),
+  );
+});
+
+test("a reading whose paths do not fit beside its summary sets the summary alone, and paths beside no summary are refused", async () => {
+  const narrowed = plate(1, {
+    share: 0.65,
+    width: 1466,
+    reading: "set",
+    summary: "Alpha calls Beta, and Beta answers it.",
+  });
+  const many = modelWith({
+    files: Array.from({ length: 400 }, (_, index) => `src/part-${index}/alpha.mjs`),
+  });
+  const [alone] = (await edition([narrowed], {}, many)).png;
+  const [bare] = (await edition([narrowed], {}, modelWith({}))).png;
+  assert.ok(
+    alone.bytes.equals(bare.bytes),
+    "the plate set paths that do not fit beside its summary",
+  );
+  await assert.rejects(
+    edition([{ ...narrowed, summary: undefined }], {}, many),
+    (error) => error.code === "edition_reading_too_long",
   );
 });
 

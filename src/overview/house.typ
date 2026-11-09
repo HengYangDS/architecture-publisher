@@ -249,11 +249,12 @@
   text(size: sizes.small, fill: soft, entries.map(entry => [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
 
 /// A plate's reading in the width its figure leaves: the view's summary, justified when its column holds 24 em and
-/// flush left otherwise, then where each component it shows lives. A reading taller than the body is refused, since
-/// text is never shrunk.
+/// flush left otherwise, then where each component it shows lives. When that is taller than the body the summary is
+/// set alone, without the heading or the paths. A summary, or paths beside none, taller than the body is refused,
+/// since text is never shrunk.
 #let _reading(p, words, x, w, height) = {
   let size = 17pt
-  let column = block(width: w, {
+  let reading-column(with-places) = block(width: w, {
     set block(spacing: 0pt)
     if p.summary != none {
       if w >= 24 * size { prose(w, p.summary, size: size, font: serif, pitch: 24pt) } else {
@@ -261,9 +262,9 @@
         set par(justify: false, leading: 24pt, spacing: 0pt)
         block(width: w, p.summary)
       }
-      v(40pt)
+      if with-places { v(40pt) }
     }
-    if p.places.len() > 0 {
+    if with-places and p.places.len() > 0 {
       _label(words.places)
       v(20pt)
       for entry in p.places {
@@ -277,8 +278,16 @@
       }
     }
   })
-  context if measure(column).height > height - 24pt { panic("edition_reading_too_long: " + p.title) }
-  place(top + left, dx: x, dy: _e.bodyTop * 1pt + 24pt, column)
+  context {
+    let limit = height - 24pt
+    let whole = reading-column(true)
+    let chosen = if measure(whole).height <= limit { whole } else {
+      let alone = reading-column(false)
+      if p.summary == none or measure(alone).height > limit { panic("edition_reading_too_long: " + p.title) }
+      alone
+    }
+    place(top + left, dx: x, dy: _e.bodyTop * 1pt + 24pt, chosen)
+  }
 }
 
 /// One plate: its shapes as an artifact, its runs as text at the engine's positions, its card titles linked to the
