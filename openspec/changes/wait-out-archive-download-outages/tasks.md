@@ -1,0 +1,4 @@
+## 1. Archive downloads
+
+- [ ] 1.1 Write failing tests: an official archive that answers `504` twice and then its bytes is downloaded, verified and extracted; one that keeps answering `504` is refused once the schedule's deadline passes; one that answers `404` is refused after one request; verify the first fails on the current download.
+- [ ] 1.2 Retry transient download errors on a doubling schedule within a deadline in `tools/release/archive/sources.mjs`, and state the wait in `CONTRIBUTING.md`; verify the release archive tests and `npm run check:static` pass and Vale reports nothing in the changed Markdown.
