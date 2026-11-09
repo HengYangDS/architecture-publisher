@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
+import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -199,4 +201,92 @@ test("an official archive whose bytes differ from the lock is refused before it 
   await assert.rejects(officialSource(locked, { cache, download: false }), {
     message: `archive_checksum_mismatch:${path.basename(new URL(locked.node.url).pathname)}`,
   });
+});
+
+/**
+ * A local server for the official archives: each path answers with the statuses it is given, in turn, and then with
+ * its bytes. Returns the base URL and the requests each path received.
+ * @param {Record<string, { statuses: number[], body: Uint8Array }>} routes
+ */
+async function archiveServer(t, routes) {
+  const requests = Object.fromEntries(Object.keys(routes).map((route) => [route, 0]));
+  const server = http.createServer((request, response) => {
+    const route = routes[request.url ?? ""];
+    if (!route) return void response.writeHead(404).end();
+    const status = route.statuses[requests[request.url ?? ""]++] ?? 200;
+    if (status === 200) response.writeHead(200).end(route.body);
+    else response.writeHead(status).end();
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(undefined)));
+  t.after(() => new Promise((resolve) => server.close(() => resolve(undefined))));
+  const { port } = /** @type {import("node:net").AddressInfo} */ (server.address());
+  return { base: `http://127.0.0.1:${port}`, requests };
+}
+
+/** A platform's locked Node.js and Typst archives, served by `server` with the given statuses. */
+async function servedPlatform(t, statuses) {
+  const archive = (name, entries) => {
+    const body = gzip(
+      writeTar(
+        entries.map(([file, text]) => ({
+          path: `${name}/${file}`,
+          mode: 0o755,
+          data: bytes(text),
+        })),
+      ),
+    );
+    return { body, checksum: `sha256:${createHash("sha256").update(body).digest("hex")}` };
+  };
+  const node = archive("node-v26.13.0-darwin-arm64", [
+    ["bin/node", "node"],
+    ["LICENSE", "node license"],
+  ]);
+  const typst = archive("typst-aarch64-apple-darwin", [
+    ["typst", "typst"],
+    ["LICENSE", "typst license"],
+    ["NOTICE", "typst notice"],
+  ]);
+  const { base, requests } = await archiveServer(t, {
+    "/node.tar.gz": { statuses: statuses.node ?? [], body: node.body },
+    "/typst.tar.gz": { statuses: statuses.typst ?? [], body: typst.body },
+  });
+  const cache = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-archive-"));
+  t.after(() => fs.rm(cache, { recursive: true, force: true }));
+  return {
+    locked: {
+      node: { url: `${base}/node.tar.gz`, checksum: node.checksum },
+      typst: { url: `${base}/typst.tar.gz`, checksum: typst.checksum },
+    },
+    cache,
+    requests,
+  };
+}
+
+/** A schedule of milliseconds, so an outage passes in the test as it would in minutes. */
+const QUICK = { first: 5, ceiling: 20, deadline: 400 };
+
+test("an official archive that answers 504 three times and then its bytes is downloaded, verified and extracted", async (t) => {
+  const { locked, cache, requests } = await servedPlatform(t, { typst: [504, 504, 504] });
+  const source = await officialSource(locked, { cache, schedule: QUICK });
+  assert.equal(new TextDecoder().decode(source.typst.executable), "typst");
+  assert.equal(new TextDecoder().decode(source.node.license), "node license");
+  assert.deepEqual(requests, { "/node.tar.gz": 1, "/typst.tar.gz": 4 });
+});
+
+test("an official archive that keeps answering 504 is refused once the schedule's deadline passes", async (t) => {
+  const { locked, cache, requests } = await servedPlatform(t, { node: Array(1000).fill(504) });
+  const started = Date.now();
+  await assert.rejects(officialSource(locked, { cache, schedule: QUICK }), {
+    message: /^archive_source_unavailable:node\.tar\.gz:504 after \d+ attempts$/u,
+  });
+  assert.ok(Date.now() - started >= QUICK.deadline, "refused before the deadline");
+  assert.ok(requests["/node.tar.gz"] > 3, "the download gave up after three attempts");
+});
+
+test("an official archive that answers 404 is refused after one request", async (t) => {
+  const { locked, cache, requests } = await servedPlatform(t, { node: [404] });
+  await assert.rejects(officialSource(locked, { cache, schedule: QUICK }), {
+    message: "archive_source_unavailable:node.tar.gz:404 after 1 attempt",
+  });
+  assert.equal(requests["/node.tar.gz"], 1);
 });

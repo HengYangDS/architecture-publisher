@@ -61,6 +61,9 @@ node tools/release/archive.mjs declare --dir build/artifacts/release-X.Y.Z --ver
 ```
 
 `--official` downloads each platform's Node.js and Typst at the lock's URLs and
-refuses any whose SHA-256 differs. Each CI platform builds its own archive from
+refuses any whose SHA-256 differs. A server error, a rate limit or a dropped
+connection is retried at a doubling interval from 10 seconds to 2 minutes for up
+to 30 minutes, so a short Forge outage does not stop a release; an archive
+already in the tool cache is not downloaded again. Each CI platform builds its own archive from
 the Node.js and Typst mise installed and checks that it builds what the checkout
 builds.

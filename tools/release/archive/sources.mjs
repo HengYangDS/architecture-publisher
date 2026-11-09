@@ -43,29 +43,46 @@ export async function installedSource({ node, typst }) {
 
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
-/** Download `url`, retrying a server error or a dropped connection twice, a few seconds apart. */
-async function download(url, name) {
+/**
+ * How long a download waits out a Forge outage: the first retry after `first` milliseconds, each next one after twice
+ * the last, at most `ceiling`, until `deadline` milliseconds have passed since the first request.
+ */
+const SCHEDULE = Object.freeze({ first: 10_000, ceiling: 120_000, deadline: 30 * 60_000 });
+
+/**
+ * Download `url`, retrying a server error, a rate limit or a dropped connection on `schedule`; any other refusal stops
+ * at once.
+ */
+async function download(url, name, schedule) {
+  const started = Date.now();
+  let wait = schedule.first;
   for (let attempt = 1; ; attempt += 1) {
     const response = await fetch(url).catch((error) => ({
       ok: false,
       status: String(error.cause?.code ?? error),
     }));
     if (response.ok) return Buffer.from(await response.arrayBuffer());
-    const transient = typeof response.status !== "number" || response.status >= 500;
-    if (!transient || attempt === 3)
-      throw Error(`archive_source_unavailable:${name}:${response.status}`);
-    await new Promise((resolve) => setTimeout(resolve, 5000 * attempt));
+    const transient =
+      typeof response.status !== "number" || response.status >= 500 || response.status === 429;
+    const left = schedule.deadline - (Date.now() - started);
+    if (!transient || left <= 0) {
+      const attempts = `${attempt} attempt${attempt === 1 ? "" : "s"}`;
+      throw Error(`archive_source_unavailable:${name}:${response.status} after ${attempts}`);
+    }
+    // The last wait ends at the deadline, where the download is tried once more.
+    await new Promise((resolve) => setTimeout(resolve, Math.min(wait, left)));
+    wait = Math.min(wait * 2, schedule.ceiling);
   }
 }
 
 /** The archive at `url`, from the cache or downloaded into it, refused unless its SHA-256 is `checksum`. */
-async function fetchVerified({ url, checksum }, cache, online) {
+async function fetchVerified({ url, checksum }, cache, online, schedule) {
   const name = path.basename(new URL(url).pathname);
   const file = path.join(cache, name);
   let bytes = await fs.readFile(file).catch(() => null);
   if (!bytes) {
     if (!online) throw Error(`archive_source_missing:${name}`);
-    bytes = await download(url, name);
+    bytes = await download(url, name, schedule);
     if (`sha256:${sha256(bytes)}` !== checksum) throw Error(`archive_checksum_mismatch:${name}`);
     await fs.mkdir(cache, { recursive: true });
     await fs.writeFile(file, bytes);
@@ -102,11 +119,14 @@ async function pick(files, name, what) {
  * verified by the lock's SHA-256 and extracted with the system's `tar`, which must
  * read tar.gz, tar.xz and zip archives, as macOS's does.
  * @param {{ node: { url: string, checksum: string }, typst: { url: string, checksum: string } }} locked
- * @param {{ cache: string, download?: boolean, tar?: string }} options
+ * @param {{ cache: string, download?: boolean, tar?: string, schedule?: typeof SCHEDULE }} options
  */
-export async function officialSource(locked, { cache, download = true, tar = "tar" }) {
-  const nodeArchive = await fetchVerified(locked.node, cache, download);
-  const typstArchive = await fetchVerified(locked.typst, cache, download);
+export async function officialSource(
+  locked,
+  { cache, download = true, tar = "tar", schedule = SCHEDULE },
+) {
+  const nodeArchive = await fetchVerified(locked.node, cache, download, schedule);
+  const typstArchive = await fetchVerified(locked.typst, cache, download, schedule);
   const work = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-official-"));
   try {
     await fs.mkdir(path.join(work, "node"));
