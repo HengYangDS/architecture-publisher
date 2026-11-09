@@ -188,8 +188,12 @@ figure leaves at the full width, at its own step, and only when one of its
 components claims files. Beside the figure, 40 points from it, the plate sets
 the view's summary, justified when its column holds 24 ems and flush left
 otherwise, and then where each component it shows lives: its label and the
-paths it claims. A reading taller than the body is refused with
-`edition_reading_too_long`. Blank inside a figure, which the view's structure
+paths it claims. When the summary and the paths together are taller than the
+body, the plate sets the summary alone, without the heading or the paths. A
+summary taller than the body on its own, or paths taller than it beside no
+summary, is refused with `edition_reading_too_long`, since text is never
+shrunk. `check` and the manifest, which plan plates without typesetting them,
+record such a reading as set. Blank inside a figure, which the view's structure
 leaves, stays: `check` reports it, and reshaping the view is its author's
 choice.
 
@@ -416,7 +420,7 @@ or Archify reported.
 | `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                       |
 | `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                   |
 | `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, or a plate's title longer than its line.                   |
-| `edition_reading_too_long`                                                              | A view's summary and paths need more than the body's height beside its figure.                                          |
+| `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.             |
 | `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                       |
 | `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                              |
 | `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                               |
