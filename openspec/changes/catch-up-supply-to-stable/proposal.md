@@ -16,6 +16,9 @@ Node.js 26.13.0, npm 12.2.2, Typst 0.15.1, cue 0.17.1 and Taplo 0.10.0 are alrea
 
 - knip 6.44.2, lucide-static 1.70.0 and playwright-core 1.65.0 in `package.json`, and the npm lock updated by the
   pinned npm at a cutoff 24 hours back.
+- The icon supply regenerated from Lucide 1.70.0: its policy names the new version and integrity, and the bundled
+  artwork gains 30 icons; three unused icons (`chef-hat`, `circle-letter-j`, `square-letter-j`) are redrawn and none is
+  removed.
 - The CI's mise 2026.11.5 and jdx/mise-action 5.2.7, pinned by its release commit, in `.config/ci/pipeline.cue`, with
   the generated workflow.
 
@@ -31,5 +34,7 @@ None; the supply moves and no behavior changes.
 
 ## Impact
 
-`package.json`, `package-lock.json`, `.config/ci/pipeline.cue`, `.github/workflows/verify.yml` and `CHANGELOG.md`.
-The package, its archives and the editions do not change: no moved package is a runtime dependency.
+`package.json`, `package-lock.json`, `.config/ci/pipeline.cue`, `.github/workflows/verify.yml`, `.gitlab-ci.yml`,
+`.config/ci/linux/mise.sha256`, the icon supply under `.config/release/icons/` and `renderers/icons/supply/`,
+`docs/reference/model.md` and `CHANGELOG.md`. The package ships the new icon artwork; no icon a model or the kinds
+catalog uses changes, so the editions of the published works do not change.

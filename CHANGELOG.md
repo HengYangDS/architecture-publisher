@@ -7,6 +7,12 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- The development and CI supply moves to the latest stable releases public for a day: knip 6.44.2, lucide-static
+  1.70.0 and playwright-core 1.65.0 with their transitive updates, and the CI's mise 2026.11.5 with
+  `jdx/mise-action` 5.2.7. The bundled icon artwork follows Lucide 1.70.0: 30 icons are added and none is removed.
+
 ## [0.10.2] - 2026-11-09
 
 ### Fixed

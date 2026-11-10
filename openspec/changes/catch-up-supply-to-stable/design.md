@@ -14,7 +14,7 @@ own mise.
 **Non-Goals:**
 
 - Moving a dependency younger than 24 hours: `@fission-ai/openspec` 1.17.0 waits for a later move.
-- Changing anything a build, a check or a delivery produces.
+- Changing any figure of a published work: the icons that move are ones no model or kind uses.
 
 ## Decisions
 
@@ -23,8 +23,11 @@ own mise.
   cutoff enters the lock. OSV names no advisory for any of the 29 moved versions.
 - **Pin mise-action by its release commit.** v5.2.7 is commit `b44d12e7d0d8`; the workflow names the commit, as for
   every action.
-- **Regenerate the workflow, never edit it.** The projection writes `verify.yml` from the pipeline declaration, and
-  its check refuses a hand edit.
+- **Regenerate the workflow, never edit it.** The projection writes `verify.yml` and `.gitlab-ci.yml` from the
+  pipeline declaration, and its check refuses a hand edit. GitLab's Linux jobs download the mise binary themselves,
+  so `.config/ci/linux/mise.sha256` moves with it, to the digest mise's `SHASUMS256.txt` and the release asset both name.
+- **Regenerate the icon supply with Lucide.** `tools/supply/icons.mjs` refuses a lock whose lucide-static differs from
+  the icon policy, so the policy moves with the lock and the tool rewrites the bundled artwork and its manifest.
 
 ## Risks / Trade-offs
 
