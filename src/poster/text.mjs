@@ -38,15 +38,16 @@ export async function loadTypefaces() {
     );
   };
   const han = await face(fonts, "Noto Sans CJK SC", 400);
-  /** @type {Map<number | "serif", any[]>} */
-  const chains = new Map([
+  /** @type {Array<[number | "serif", any[]]>} */
+  const entries = [
     [400, [await face(house, "Source Sans 3", 400), han]],
     [
       700,
       await Promise.all([face(house, "Source Sans 3", 600), face(fonts, "Noto Sans CJK SC", 700)]),
     ],
     ["serif", [await face(house, "Source Serif 4", 400), han]],
-  ]);
+  ];
+  const chains = new Map(entries);
   loaded = createTypefaces(chains);
   return loaded;
 }

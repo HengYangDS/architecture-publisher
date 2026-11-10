@@ -249,6 +249,7 @@ function standfirstOf(model, view, typefaces, icons, full) {
  * @param {any} typefaces
  * @param {any} icons
  * @param {any} full the best composition at the full width
+ * @returns {{ chosen: any, share: number, reading: string, standfirst?: { lines: string[] } }}
  */
 function widthOf(model, view, typefaces, icons, full) {
   const within = (share) =>

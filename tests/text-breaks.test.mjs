@@ -132,6 +132,11 @@ test("the summary's face measures Source Serif 4, and Han beside Latin text take
     typefaces.measure("视图view", serif),
     typefaces.measure("视图", serif) + 17 / 4 + typefaces.measure("view", serif),
   );
+  // Typst sets a closing mark at a line's end, an opening mark at its start and one of two marks side by side in
+  // half their width; these are the widths it sets at 17 points.
+  assert.equal(typefaces.measure("视）。", serif), 34);
+  assert.equal(typefaces.measure("（视", serif), 25.5);
+  assert.equal(typefaces.measure("视）（视", serif), 59.5);
   // A summary breaks within its measure, Han between characters and Latin at spaces.
   const lines = typefaces.wrap(
     "每个容器服务银行的一个渠道，并调用下一层的 API 网关。".repeat(4),

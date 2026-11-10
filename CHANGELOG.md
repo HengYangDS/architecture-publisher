@@ -7,6 +7,21 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-11
+
+### Added
+
+- A view whose figure wires worse at 80 percent of the body keeps the full width and sets its summary above the
+  figure, when the figure wires no worse in the height left below it: at 17 points of Source Serif 4, flush left
+  within 32 ems in the title's column, without the heading for where each part lives or the paths. `archpub check`
+  and the manifest record such a plate's reading as set above the figure. On the six published works, 16 of the 21
+  plates that left their summary out set it above the figure; plates that set it beside the figure are typeset as in
+  0.10.2.
+- The engine breaks a summary above its figure as Typst sets it, with a quarter em between Han and the letters and
+  digits beside it and full-width marks at half their width at a line's ends and side by side. It reads no kerning
+  from the faces, so a line of Latin text can break a little earlier than Typst would; a line Typst sets wider than
+  32 ems is refused with `edition_text_wider`.
+
 ### Changed
 
 - The development and CI supply moves to the latest stable releases public for a day: knip 6.44.2, lucide-static
@@ -844,6 +859,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[0.11.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.11.0
 [0.10.2]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.2
 [0.10.1]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.1
 [0.10.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.0
