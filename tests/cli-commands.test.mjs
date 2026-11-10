@@ -179,12 +179,12 @@ test("check names each plate's share of the body and a plate that left its readi
   const checked = await json(["check", model, "--media", "edition"]);
   assert.deepEqual(
     checked.body.plates.map(({ views: [id], share, reading }) => [id, share, reading]).slice(0, 1),
-    [["containers-tiers", 1, "omitted"]],
+    [["containers-tiers", 1, "above"]],
   );
   const text = (await runCli(["check", model, "--media", "edition"])).output;
   assert.match(
     text,
-    /^Plate 01 \(containers-tiers\): figure 100% of the body, its reading left out/mu,
+    /^Plate 01 \(containers-tiers\): figure 100% of the body, its reading above the figure/mu,
   );
   assert.match(
     text,

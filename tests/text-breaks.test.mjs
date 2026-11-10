@@ -122,6 +122,26 @@ test("a model written in Chinese composes into plates without breaking a label a
   for (const plate of plates) assert.doesNotMatch(plate.svg, /<text|NaN|undefined/u);
 });
 
+test("the summary's face measures Source Serif 4, and Han beside Latin text takes a quarter em", () => {
+  const serif = { size: 17, weight: 400, line: 24, face: "serif" };
+  const sans = { size: 17, weight: 400, line: 24 };
+  // Source Serif 4 sets "Summary" wider than Source Sans 3 does.
+  assert.ok(typefaces.measure("Summary", serif) > typefaces.measure("Summary", sans));
+  // Typst sets a quarter em between Han and Latin text; the engine measures it too.
+  assert.equal(
+    typefaces.measure("视图view", serif),
+    typefaces.measure("视图", serif) + 17 / 4 + typefaces.measure("view", serif),
+  );
+  // A summary breaks within its measure, Han between characters and Latin at spaces.
+  const lines = typefaces.wrap(
+    "每个容器服务银行的一个渠道，并调用下一层的 API 网关。".repeat(4),
+    32 * 17,
+    serif,
+  );
+  assert.ok(lines.length > 1);
+  for (const line of lines) assert.ok(typefaces.measure(line, serif) <= 32 * 17, line);
+});
+
 test("letters the CJK face lacks are set in the Latin, Greek and Cyrillic face", () => {
   for (const text of ["Łódź usługa", "Příliš žluťoučký", "Ağ geçidi", "Привіт, світ", "Ελληνικά ά"])
     assert.deepEqual(typefaces.missing(text), [], text);

@@ -202,6 +202,45 @@ test("a reading whose paths do not fit beside its summary sets the summary alone
   );
 });
 
+test("a summary above its figure is set in its lines at the claim column, and the figure below it", async () => {
+  const lines = ["Alpha calls Beta, and Beta answers it with", "the result it has stored."];
+  const above = plate(1, {
+    reading: "above",
+    summary: lines.join(" "),
+    standfirst: { lines },
+    height: 1071 - (2 * 24 + 16) * 1.5,
+  });
+  const record = editionRecord({
+    model,
+    plates: [above],
+    icons,
+    owned: new Map([["a", ["src/a.mjs"]]]),
+    files: 1,
+    modelSha256: "0".repeat(64),
+    publisher: "0.11.0",
+    typst: "0.15.1",
+    overview: false,
+    page: "minimal.html",
+    commit: null,
+    release: null,
+  });
+  const [set] = record.plates;
+  assert.deepEqual(
+    [set.standfirst, set.summary, set.places, set.figureHeight],
+    [lines, null, [], 1071 - 96],
+  );
+  const typeset = await edition([above]);
+  assert.equal(typeset.pages, 3);
+  // The same plate without its summary differs: the summary is set, and the figure moves down.
+  const [bare] = (await edition([plate(1)])).png;
+  assert.ok(!typeset.png[0].bytes.equals(bare.bytes));
+  // A line Typst sets wider than the engine measured is refused, as for figure text.
+  await assert.rejects(
+    edition([{ ...above, standfirst: { lines: ["W".repeat(80)] } }]),
+    (error) => error.code === "edition_text_wider",
+  );
+});
+
 test("a run set wider than the engine measured it, and a title wider than its line, are refused", async () => {
   await assert.rejects(
     edition([plate(1, { runs: [{ ...plate(1).runs[0], width: 10 }] })]),

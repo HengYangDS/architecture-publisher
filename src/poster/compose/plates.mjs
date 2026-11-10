@@ -68,6 +68,16 @@ function legendOf(model, views, boundary) {
   return { kinds, rest };
 }
 
+/**
+ * A summary set above a figure that keeps the full width: 17 points of the summary's face on 24-point lines, at most
+ * the house's measure to a line, and 16 points more before the figure.
+ */
+const STANDFIRST = Object.freeze({
+  style: Object.freeze({ size: 17, weight: 400, line: 24, face: /** @type {const} */ ("serif") }),
+  measure: HOUSE.edition.measure * 17,
+  before: 16,
+});
+
 /** The shares of the body's width a figure may take, widest first. */
 const SHARES = Object.freeze([1, 0.8, 0.65]);
 
@@ -83,7 +93,7 @@ const compare = (a, b) => {
  * @param {any} one a composition of the plate
  * @param {any} typefaces
  */
-function balanceOfPlate(one, typefaces, width) {
+function balanceOfPlate(one, typefaces, width, height) {
   const text = (run) => ({
     x: run.x,
     y: run.top,
@@ -92,7 +102,7 @@ function balanceOfPlate(one, typefaces, width) {
     kind: /** @type {const} */ ("mass"),
     weight: DARKNESS.text * darkness(run.color),
   });
-  const body = { x: 0, y: 0, width, height: BODY.height };
+  const body = { x: 0, y: 0, width, height };
   return balanceOf([...one.figure.rects, ...one.figure.runs.map(text)], body, body);
 }
 
@@ -100,14 +110,15 @@ function balanceOfPlate(one, typefaces, width) {
  * Each composition of one view the body admits. A plate tries its view at every
  * type step and wrapping, with its rows centred over all cards, over the cards
  * inside the boundary, and uncentred, and with tier labels in one column or
- * before the edges their tiers start at, within the given width of the body.
+ * before the edges their tiers start at, within the given width and height of the body.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} typefaces
  * @param {any} icons
  * @param {number} [width]
+ * @param {number} [height]
  */
-function* compositions(model, view, typefaces, icons, width = BODY.width) {
+function* compositions(model, view, typefaces, icons, width = BODY.width, height = BODY.height) {
   const boundaryName = model.repository?.name ?? model.title;
   const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
     label ? [label] : [],
@@ -115,8 +126,8 @@ function* compositions(model, view, typefaces, icons, width = BODY.width) {
   const column = gutterFor(typefaces, labels);
   const plate = {
     view,
-    field: { x: column, y: 0, width: width - column, height: BODY.height },
-    labelColumn: column ? { x: 0, y: 0, width: column, height: BODY.height, floor: 0 } : null,
+    field: { x: column, y: 0, width: width - column, height },
+    labelColumn: column ? { x: 0, y: 0, width: column, height, floor: 0 } : null,
   };
   const outside = view.components.some((component) => presentation(model, component).outside);
   /** @type {Array<"all" | "inside" | null>} */
@@ -160,19 +171,27 @@ export function admitsView(model, view, typefaces, icons) {
 }
 
 /**
- * The best composition of a view within one width of the body: the fewest crossings, then the fewest route
- * defects, then the largest step, then the widest wrapping, then layered rows before flatter ones, then the least
- * of the body left blank; or null when none lays it out.
+ * The best composition of a view within one width and height of the body: the fewest crossings, then the fewest
+ * route defects, then the largest step, then the widest wrapping, then layered rows before flatter ones, then the
+ * least of the body left blank; or null when none lays it out.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} typefaces
  * @param {any} icons
  * @param {number} width
+ * @param {number} [height]
  */
-function bestWithin(model, view, typefaces, icons, width) {
+function bestWithin(model, view, typefaces, icons, width, height = BODY.height) {
   const candidates = [];
-  for (const { one, centring, tierLabels } of compositions(model, view, typefaces, icons, width)) {
-    const balance = balanceOfPlate(one, typefaces, width);
+  for (const { one, centring, tierLabels } of compositions(
+    model,
+    view,
+    typefaces,
+    icons,
+    width,
+    height,
+  )) {
+    const balance = balanceOfPlate(one, typefaces, width, height);
     const { crossings, routes } = one.layout.measures;
     const rank = [
       crossings,
@@ -182,7 +201,7 @@ function bestWithin(model, view, typefaces, icons, width) {
       one.flat ? 1 : 0,
       balance.holes + balance.emptyShare,
     ];
-    candidates.push({ one, centring, tierLabels, balance, rank, width });
+    candidates.push({ one, centring, tierLabels, balance, rank, width, height });
   }
   return candidates.sort((a, b) => compare(a.rank, b.rank))[0] ?? null;
 }
@@ -201,9 +220,30 @@ function reachOf(one, typefaces) {
 const wiresNoWorse = (a, b) => compare(a.rank.slice(0, 2), b.rank.slice(0, 2)) <= 0;
 
 /**
+ * A view's summary above its figure: its lines within the house's measure, and the figure at the full width below
+ * them when it wires no worse there than at the full body; or null.
+ * @param {any} model
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} typefaces
+ * @param {any} icons
+ * @param {any} full the best composition at the full width
+ */
+function standfirstOf(model, view, typefaces, icons, full) {
+  const lines = typefaces.wrap(view.summary, STANDFIRST.measure, STANDFIRST.style);
+  const reserved =
+    (lines.length * STANDFIRST.style.line + STANDFIRST.before) * HOUSE.plate.pixelsPerPoint;
+  const height = BODY.height - Math.round(reserved);
+  const shorter = height > 0 ? bestWithin(model, view, typefaces, icons, BODY.width, height) : null;
+  return shorter && wiresNoWorse(shorter, full)
+    ? { chosen: shorter, share: 1, reading: "above", standfirst: { lines } }
+    : null;
+}
+
+/**
  * The width a view's figure takes and whether its reading is set beside it. A view with a summary gives up a
- * fifth of the body, or more at no cost to its type; a view without one gives up only width its figure leaves,
- * and only when one of its components claims files to list.
+ * fifth of the body, or more at no cost to its type, or else keeps the width and sets its summary above the
+ * figure when that costs it no wiring; a view without one gives up only width its figure leaves, and only when one
+ * of its components claims files to list.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} typefaces
@@ -215,7 +255,14 @@ function widthOf(model, view, typefaces, icons, full) {
     bestWithin(model, view, typefaces, icons, Math.round(BODY.width * share));
   if (view.summary) {
     const wide = within(SHARES[1]);
-    if (!wide || !wiresNoWorse(wide, full)) return { chosen: full, share: 1, reading: "omitted" };
+    if (!wide || !wiresNoWorse(wide, full))
+      return (
+        standfirstOf(model, view, typefaces, icons, full) ?? {
+          chosen: full,
+          share: 1,
+          reading: "omitted",
+        }
+      );
     const narrow = within(SHARES[2]);
     return narrow && wiresNoWorse(narrow, full) && narrow.one.step === wide.one.step
       ? { chosen: narrow, share: SHARES[2], reading: "set" }
@@ -246,8 +293,8 @@ export function composePlates(model, views, typefaces, icons) {
   return views.map((view, index) => {
     const full = bestWithin(model, view, typefaces, icons, BODY.width);
     if (!full) unfittable(view);
-    const { chosen, share, reading } = widthOf(model, view, typefaces, icons, full);
-    const { one, centring, tierLabels, balance, width } = chosen;
+    const { chosen, share, reading, standfirst } = widthOf(model, view, typefaces, icons, full);
+    const { one, centring, tierLabels, balance, width, height } = chosen;
     const { kinds, rest } = legendOf(model, [view], boundaryName);
     return {
       page: index + 1,
@@ -255,13 +302,14 @@ export function composePlates(model, views, typefaces, icons) {
       title: view.title,
       question: view.question,
       width,
-      height: BODY.height,
+      height,
       share,
       reading,
+      ...(standfirst ? { standfirst } : {}),
       summary: view.summary,
       step: one.step,
       svg: [
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${BODY.height}" viewBox="0 0 ${width} ${BODY.height}">`,
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">`,
         ...one.figure.shapes,
         "</svg>",
         "",

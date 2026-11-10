@@ -48,7 +48,12 @@ function checkText(result) {
     if (found.components.length || found.relations.length)
       lines.push(`${name[0].toUpperCase()}${name.slice(1)}: ${statements(found)}.`);
   for (const plate of result.plates) {
-    const reading = { set: ", beside its reading", omitted: ", its reading left out", none: "" };
+    const reading = {
+      set: ", beside its reading",
+      above: ", its reading above the figure",
+      omitted: ", its reading left out",
+      none: "",
+    };
     const misses = plate.misses?.length
       ? `; misses ${series(plate.misses.map(({ measure }) => measure))}`
       : "";

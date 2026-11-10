@@ -30,6 +30,15 @@ async function platesOf(model) {
 
 const loaded = async (file) => (await loadModel(file, { icon: icons.has })).model;
 
+/** Big Bank's tiered containers plate, its view given the summary. */
+async function tieredBank(summary) {
+  const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
+  for (const view of bank.views) view.summary = summary;
+  return (await platesOf(validateModel(bank))).plates.find(
+    ({ views: [id] }) => id === "containers-tiers",
+  );
+}
+
 /** The x or y of each numbered tier label a plate draws. */
 const tierNumbers = (plate, axis) =>
   [...plate.svg.matchAll(/<circle cx="([\d.]+)" cy="([\d.]+)" r="14"/gu)].map((match) =>
@@ -133,20 +142,41 @@ test("a narrow view's figure takes 65 percent of the body, and a wide view witho
   assert.deepEqual([layout?.share, layout?.width, layout?.reading], [1, BODY.width, "none"]);
 });
 
-test("a view with a summary gives up a fifth of the body, or keeps it and leaves its reading out", async () => {
+test("a view with a summary gives up a fifth of the body, or keeps it and sets its summary above", async () => {
   const self = JSON.parse(await fs.readFile(SELF_MODEL, "utf8"));
   for (const view of self.views) view.summary = `What the ${view.id} view shows.`;
   const plates = (await platesOf(validateModel(self))).plates;
-  // The media view keeps its step at 80 percent and loses one at 65 percent.
+  // The media view keeps its step at 80 percent and loses one at 65 percent, and keeps that width as before.
   const media = plates.find(({ views: [id] }) => id === "media");
   assert.deepEqual([media?.share, media?.width, media?.reading], [0.8, 1805, "set"]);
-  // Big Bank's tiered containers wire with route defects at 80 percent, so the figure keeps the body.
-  const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
-  for (const view of bank.views) view.summary = `What the ${view.id} view shows.`;
-  const tiered = (await platesOf(validateModel(bank))).plates.find(
-    ({ views: [id] }) => id === "containers-tiers",
+  assert.equal(media?.standfirst, undefined);
+  // Big Bank's tiered containers wire with route defects at 80 percent but none at the full width below a
+  // one-line summary, so the figure keeps the full width and gives up the top of the body.
+  const tiered = await tieredBank("What the containers-tiers view shows.");
+  assert.deepEqual([tiered?.share, tiered?.width, tiered?.reading], [1, BODY.width, "above"]);
+  assert.deepEqual(tiered?.standfirst?.lines, ["What the containers-tiers view shows."]);
+  // One line of 24 points and 16 points before the figure, in pixels of two thirds of a point.
+  assert.equal(tiered?.height, BODY.height - (24 + 16) * 1.5);
+});
+
+test("a summary above its figure is broken within 32 em at 17 points, and one that leaves too little height is left out", async () => {
+  // Two lines: the tiered figure wires no worse at the full width below them, and worse below five.
+  const long =
+    "Each container serves one channel of the bank and calls the next tier down, and every tier keeps its own store and its own audit trail.";
+  const tiered = await tieredBank(long);
+  assert.equal(tiered?.reading, "above");
+  const serif = { size: 17, weight: 400, line: 24, face: "serif" };
+  assert.ok(tiered.standfirst.lines.length > 1);
+  assert.equal(tiered.standfirst.lines.join(" "), long);
+  for (const line of tiered.standfirst.lines)
+    assert.ok(typefaces.measure(line, serif) <= 32 * 17, line);
+  assert.equal(tiered.height, BODY.height - (tiered.standfirst.lines.length * 24 + 16) * 1.5);
+  // A summary that leaves the figure less than half the body cannot keep its wiring there.
+  const omitted = await tieredBank(`${long} `.repeat(6).trim());
+  assert.deepEqual(
+    [omitted?.reading, omitted?.height, omitted?.standfirst],
+    ["omitted", BODY.height, undefined],
   );
-  assert.deepEqual([tiered?.share, tiered?.reading], [1, "omitted"]);
 });
 
 test("the ETHOS proof plane is an edition plate of its own", async () => {

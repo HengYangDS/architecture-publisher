@@ -60,7 +60,10 @@ export function editionRecord(input) {
       key: `plate-${number}`,
       number,
       figureWidth: plate.width,
+      figureHeight: plate.height,
       summary: plate.reading === "set" ? (plate.summary ?? null) : null,
+      // Above a figure that keeps the full width: the summary alone, on the lines the engine broke.
+      standfirst: plate.reading === "above" ? plate.standfirst.lines : null,
       places,
       file: `plates/${number}.svg`,
       title: plate.title,

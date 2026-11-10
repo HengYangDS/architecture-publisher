@@ -65,8 +65,8 @@ archpub --help | --version [--json]
   in a temporary directory that it removes. It lists the components and
   relations that no planned view draws, the components that claim no file and
   the relations that cite none. For each plate it reports its figure's share
-  of the body, whether its reading is set beside it or left out, and the
-  balance gates it misses. With
+  of the body, whether its reading is set beside it, set above it or left out,
+  and the balance gates it misses. With
   `--repo`, it reports the model's [coverage](model.md#coverage) of the
   repository at its revision, and with `--against <revision>` how far the
   repository has moved since and what [re-pinning](model.md#re-pinning) to that
@@ -181,9 +181,20 @@ A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with
 no more crossings and route defects than at the full width. A view with a
 summary gives up at least a fifth: its figure takes 80 percent, at the type
-step that width allows, or 65 percent when that keeps the same step; when 80
-percent would wire worse, the figure keeps the body and the manifest records
-its reading as left out. A view without a summary gives up only width its
+step that width allows, or 65 percent when that keeps the same step. When 80
+percent would wire worse, the figure keeps the full width and gives up the top
+of the body instead: the engine breaks the summary at 17 points of Source Serif
+4 into lines of at most 32 ems, and the figure takes the body's height less 24
+points for each line and 16 points more. The plate then sets the summary above
+the figure, flush left in the title's column with its first baseline 24 points
+below the body's top, and the figure stands on the body's bottom. When the
+figure would wire worse at that height too, it keeps the whole body and the
+manifest records its reading as left out. A summary above the figure carries
+neither the heading for where each part lives nor the paths. The engine
+measures the summary as Typst sets it, with a quarter em between Han and the
+letters and digits beside it and some full-width marks at half their width,
+but without the faces' kerning, so a line of Latin text can break a little
+earlier than Typst would break it. A view without a summary gives up only width its
 figure leaves at the full width, at its own step, and only when one of its
 components claims files. Beside the figure, 40 points from it, the plate sets
 the view's summary, justified when its column holds 24 ems and flush left
@@ -206,15 +217,16 @@ The print edition is typeset by Typst 0.15.1 with the house class into
   sixteen, beside the edition's facts, its scope and limits and a reading note;
 - the overview, set in place from its composition when the model names one;
 - one plate per view, headed by its number, title and question, its figure
-  beside the view's reading when it leaves part of the body, with a key of
-  the kinds and statuses it shows.
+  beside the view's reading when it leaves part of the body or below it when it
+  keeps the full width, with a key of the kinds and statuses it shows.
 
 Every page after the title page shares one frame: a head at the margin, a body
 from 112 to 826 points, the key at 848 and a foot of a rule and the work's
 title, release, revision and date, which links back to the contents. Prose is
 justified and hyphenated within a measure of 32 ems, in Source Serif 4 for
 titles and Source Sans 3 for text, with Noto Sans CJK SC for Han. Each plate's
-runs are set where the engine measured them; a run Typst sets wider is refused
+runs are set where the engine measured them; a run Typst sets wider, or a line
+of a summary above its figure that Typst sets wider than 32 ems, is refused
 with `edition_text_wider`, and a title longer than its line with
 `edition_title_too_long`. When the model declares `repository.browse`, each card
 title links to its component's first file at the pinned revision. Each plate is
@@ -404,45 +416,45 @@ A refused view is named in the message; the plan's and the plates' problems
 carry paths under `/views/<id>`, and a page refusal carries the paths the grid
 or Archify reported.
 
-| Code                                                                                    | Meaning                                                                                                                 |
-| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `usage`                                                                                 | Unknown command or option, or a missing value.                                                                          |
-| `model_invalid`                                                                         | The model breaks the schema; each problem has its own `model_*` code.                                                   |
-| `model_unreadable`, `model_json_invalid`, `model_too_large`                             | The file cannot be read, is not JSON or exceeds 4 MiB.                                                                  |
-| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                                                   |
-| `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                                                |
-| `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                                                 |
-| `files_unresolved`                                                                      | A claim owns no file in the scope, or a relation's file is missing at the revision.                                     |
-| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                                             |
-| `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                                                |
-| `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.                                 |
-| `plan_not_admitted`                                                                     | No plate lays a view out; each problem gives the view's counts and the plate size.                                      |
-| `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                       |
-| `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                   |
-| `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, or a plate's title longer than its line.                   |
-| `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.             |
-| `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                       |
-| `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                              |
-| `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                               |
-| `overview_composition_missing`, `overview_composition_invalid`                          | The overview is asked of a model without a composition or with one that is not there, or its directory holds `archpub`. |
-| `overview_typst_missing`, `overview_typst_version`                                      | Typst is not on the path or is not 0.15.1.                                                                              |
-| `overview_import_refused`, `overview_style_refused`                                     | The composition imports a package or sets a size, face, colour or the page itself.                                      |
-| `overview_reference_unknown`                                                            | The composition names a component the model lacks.                                                                      |
-| `overview_text_outside`, `overview_text_overlap`                                        | Text leaves the page's area or lies over other text.                                                                    |
-| `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.                                      |
-| `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                               |
-| `page_refused`                                                                          | Archify did not validate or deliver the page.                                                                           |
-| `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.                                   |
-| `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.                                       |
-| `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                                                  |
-| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists.                           |
-| `attribution_not_migrated`                                                              | The model's attribution names no editors; declare `editors` beside it first.                                            |
-| `supply_invalid`                                                                        | A bundled supply failed its digest.                                                                                     |
-| `delivery_exists`                                                                       | `--out` already exists.                                                                                                 |
-| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                                                        |
-| `delivery_changed`                                                                      | An artifact differs from the manifest.                                                                                  |
-| `acceptance_reviewer_missing`, `acceptance_exists`                                      | Name a reviewer; a delivery is accepted once.                                                                           |
-| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                     | Accept first, use a valid version name, and never replace a published one.                                              |
-| `publish_copy_invalid`                                                                  | The copy differs from the delivery and was removed.                                                                     |
-| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large`   | The workspace cannot be imported.                                                                                       |
-| `import_output_exists`                                                                  | The output file exists.                                                                                                 |
+| Code                                                                                    | Meaning                                                                                                                                                       |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `usage`                                                                                 | Unknown command or option, or a missing value.                                                                                                                |
+| `model_invalid`                                                                         | The model breaks the schema; each problem has its own `model_*` code.                                                                                         |
+| `model_unreadable`, `model_json_invalid`, `model_too_large`                             | The file cannot be read, is not JSON or exceeds 4 MiB.                                                                                                        |
+| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                                                                                         |
+| `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                                                                                      |
+| `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                                                                                       |
+| `files_unresolved`                                                                      | A claim owns no file in the scope, or a relation's file is missing at the revision.                                                                           |
+| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                                                                                   |
+| `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                                                                                      |
+| `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.                                                                       |
+| `plan_not_admitted`                                                                     | No plate lays a view out; each problem gives the view's counts and the plate size.                                                                            |
+| `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                                                             |
+| `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                                                         |
+| `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, a line of a summary above its figure wider than 32 ems, or a plate's title longer than its line. |
+| `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.                                                   |
+| `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                                                             |
+| `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                                                                    |
+| `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                                                                     |
+| `overview_composition_missing`, `overview_composition_invalid`                          | The overview is asked of a model without a composition or with one that is not there, or its directory holds `archpub`.                                       |
+| `overview_typst_missing`, `overview_typst_version`                                      | Typst is not on the path or is not 0.15.1.                                                                                                                    |
+| `overview_import_refused`, `overview_style_refused`                                     | The composition imports a package or sets a size, face, colour or the page itself.                                                                            |
+| `overview_reference_unknown`                                                            | The composition names a component the model lacks.                                                                                                            |
+| `overview_text_outside`, `overview_text_overlap`                                        | Text leaves the page's area or lies over other text.                                                                                                          |
+| `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.                                                                            |
+| `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                                                                     |
+| `page_refused`                                                                          | Archify did not validate or deliver the page.                                                                                                                 |
+| `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.                                                                         |
+| `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.                                                                             |
+| `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                                                                                        |
+| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists.                                                                 |
+| `attribution_not_migrated`                                                              | The model's attribution names no editors; declare `editors` beside it first.                                                                                  |
+| `supply_invalid`                                                                        | A bundled supply failed its digest.                                                                                                                           |
+| `delivery_exists`                                                                       | `--out` already exists.                                                                                                                                       |
+| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                                                                                              |
+| `delivery_changed`                                                                      | An artifact differs from the manifest.                                                                                                                        |
+| `acceptance_reviewer_missing`, `acceptance_exists`                                      | Name a reviewer; a delivery is accepted once.                                                                                                                 |
+| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                     | Accept first, use a valid version name, and never replace a published one.                                                                                    |
+| `publish_copy_invalid`                                                                  | The copy differs from the delivery and was removed.                                                                                                           |
+| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large`   | The workspace cannot be imported.                                                                                                                             |
+| `import_output_exists`                                                                  | The output file exists.                                                                                                                                       |

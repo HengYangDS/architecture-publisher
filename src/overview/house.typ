@@ -290,14 +290,30 @@
   }
 }
 
+/// A summary above a figure that keeps the full width: the lines the engine broke, flush left at 17 points in the
+/// title's column, the first baseline 24 points below the body's top. A line wider than the house's measure is
+/// refused, since the engine reserved the figure's height for exactly these lines.
+#let _standfirst(lines) = {
+  let size = 17pt
+  let set-line = text.with(size: size, font: serif, fill: ink, hyphenate: false, top-edge: "baseline",
+    bottom-edge: "baseline")
+  for (i, line) in lines.enumerate() {
+    place(top + left, dx: _e.claim * 1pt, dy: _e.bodyTop * 1pt + 24pt + i * 24pt, set-line(line))
+    context if measure(set-line(line)).width > _e.measure * size + 0.5pt { panic("edition_text_wider: " + line) }
+  }
+}
+
 /// One plate: its shapes as an artifact, its runs as text at the engine's positions, its card titles linked to the
-/// files they cite, the whole one figure named by its title and question.
+/// files they cite, the whole one figure named by its title and question. Below a standfirst the figure keeps the
+/// height the engine composed it in and stands on the body's bottom.
 #let _plate(p, words) = {
   let body = page-width - 2 * margin
   let width = p.figureWidth * _k
-  let height = (_e.bodyBottom - _e.bodyTop) * 1pt
+  let height = if p.standfirst == none { (_e.bodyBottom - _e.bodyTop) * 1pt } else { p.figureHeight * _k }
+  let figure-top = if p.standfirst == none { _e.bodyTop * 1pt } else { _e.bodyBottom * 1pt - height }
   if width < body - 1pt { _reading(p, words, margin + width + 40pt, body - width - 40pt, height) }
-  place(top + left, dx: margin, dy: _e.bodyTop * 1pt, figure(alt: p.alt, box(width: width, height: height, {
+  if p.standfirst != none { _standfirst(p.standfirst) }
+  place(top + left, dx: margin, dy: figure-top, figure(alt: p.alt, box(width: width, height: height, {
     place(pdf.artifact(image(p.file, width: width)))
     for r in p.runs {
       let set-run = text.with(font: sans, size: r.size * _k, weight: if r.weight >= 600 { "semibold" } else { "regular" },

@@ -6,14 +6,18 @@ import { detailPieces } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
-/** @typedef {{ size: number, weight: number, line: number }} TextStyle */
+/**
+ * A text style: its size, weight and line pitch, and its face, the house's sans for figure text unless it names the
+ * serif the edition sets a view's summary in.
+ * @typedef {{ size: number, weight: number, line: number, face?: "serif" }} TextStyle
+ */
 
 let loaded;
 
 /**
- * Load the faces figure text is measured in, once: the house's Source Sans 3, which the
- * edition sets that text in, then Noto Sans CJK SC for Han. Heavy text takes Source Sans 3's
- * semibold and the CJK face's bold.
+ * Load the faces text is measured in, once: the house's Source Sans 3, which the edition sets figure text in, and
+ * Source Serif 4, which it sets a view's summary in, each followed by Noto Sans CJK SC for Han. Heavy text takes
+ * Source Sans 3's semibold and the CJK face's bold.
  */
 export async function loadTypefaces() {
   if (loaded) return loaded;
@@ -33,16 +37,15 @@ export async function loadTypefaces() {
       bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
     );
   };
-  /** @type {Map<number, any[]>} */
+  const han = await face(fonts, "Noto Sans CJK SC", 400);
+  /** @type {Map<number | "serif", any[]>} */
   const chains = new Map([
-    [
-      400,
-      await Promise.all([face(house, "Source Sans 3", 400), face(fonts, "Noto Sans CJK SC", 400)]),
-    ],
+    [400, [await face(house, "Source Sans 3", 400), han]],
     [
       700,
       await Promise.all([face(house, "Source Sans 3", 600), face(fonts, "Noto Sans CJK SC", 700)]),
     ],
+    ["serif", [await face(house, "Source Serif 4", 400), han]],
   ]);
   loaded = createTypefaces(chains);
   return loaded;
@@ -65,9 +68,36 @@ function softSegments(word) {
   return word.match(/[^/\-_.:]+[/\-_.:]*|[/\-_.:]+/gu) ?? [word];
 }
 
-/** @param {Map<number, any[]>} chains each weight's faces, in fallback order */
+/**
+ * Han beside a letter or digit, where Typst sets a quarter em between the two: a Han character, Hiragana or
+ * Katakana on one side, and on the other a Latin, Greek or Cyrillic letter, a digit, a Roman numeral, or #, $, % or &.
+ */
+const HAN_NEIGHBOUR =
+  /(?<=[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}])(?=[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Nd}\u2160-\u217F#$%&])|(?<=[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Nd}\u2160-\u217F#$%&])(?=[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}])/gu;
+
+/** Full-width marks that close a phrase, and those that open one. */
+const CLOSING_MARK = /[，。．、：；！？）】》」』〕〗〙〛〉］｝]/u;
+const OPENING_MARK = /[（【《「『〔〖〘〚〈［｛]/u;
+const MARK = new RegExp(`${CLOSING_MARK.source}|${OPENING_MARK.source}`, "u");
+
+/**
+ * How many full-width marks of a line Typst sets in half their width: a closing mark that ends the line, an opening
+ * mark that starts it, and one of each two marks side by side.
+ * @param {string} text
+ */
+function halvedMarks(text) {
+  const characters = Array.from(text);
+  let count = 0;
+  if (CLOSING_MARK.test(characters.at(-1) ?? "")) count += 1;
+  if (OPENING_MARK.test(characters[0] ?? "")) count += 1;
+  for (let index = 1; index < characters.length; index += 1)
+    if (MARK.test(characters[index - 1]) && MARK.test(characters[index])) count += 1;
+  return count;
+}
+
+/** @param {Map<number | "serif", any[]>} chains each weight's faces, and the summary's, in fallback order */
 function createTypefaces(chains) {
-  const weightOf = (style) => (style.weight >= 600 ? 700 : 400);
+  const weightOf = (style) => (style.face === "serif" ? "serif" : style.weight >= 600 ? 700 : 400);
   // A space between words draws nothing in any face; a no-break space is
   // drawn only by a face with a glyph of its own for it.
   const draws = (face, character) =>
@@ -78,7 +108,8 @@ function createTypefaces(chains) {
    * The runs a text is set in at one weight, each with its face. A text one
    * face draws whole is set in the first such face; otherwise each word is, and
    * a word no face draws whole is set character by character in the first face
-   * that draws each one. Adjacent runs in one face are joined.
+   * that draws each one. The summary's face falls back character by character,
+   * as Typst does. Adjacent runs in one face are joined.
    */
   const runsKnown = new Map();
   /** @returns {Array<{ text: string, face: any }>} */
@@ -89,17 +120,23 @@ function createTypefaces(chains) {
     const chain = /** @type {any[]} */ (chains.get(weightOf(style)));
     const whole = chain.find((face) => drawsAll(face, text));
     runs = [];
-    const pieces = whole
-      ? [{ text, face: whole }]
-      : (text.match(/\S+\s*|\s+/gu) ?? []).flatMap((word) => {
-          const face = chain.find((each) => drawsAll(each, word));
-          return face
-            ? [{ text: word, face }]
-            : Array.from(word, (character) => ({
-                text: character,
-                face: chain.find((each) => draws(each, character)) ?? chain[0],
-              }));
-        });
+    const pieces =
+      style.face === "serif"
+        ? Array.from(text, (character) => ({
+            text: character,
+            face: chain.find((each) => draws(each, character)) ?? chain[0],
+          }))
+        : whole
+          ? [{ text, face: whole }]
+          : (text.match(/\S+\s*|\s+/gu) ?? []).flatMap((word) => {
+              const face = chain.find((each) => drawsAll(each, word));
+              return face
+                ? [{ text: word, face }]
+                : Array.from(word, (character) => ({
+                    text: character,
+                    face: chain.find((each) => draws(each, character)) ?? chain[0],
+                  }));
+            });
     for (const piece of pieces) {
       const last = runs.at(-1);
       if (last && last.face === piece.face) last.text += piece.text;
@@ -122,6 +159,12 @@ function createTypefaces(chains) {
         (sum, run) => sum + run.face.getAdvanceWidth(run.text, style.size, { kerning: true }),
         0,
       );
+      // The summary's lines are set by Typst, which spaces Han from the letters and digits beside it and sets some
+      // full-width marks in half their width.
+      if (style.face === "serif")
+        width +=
+          ((String(text).match(HAN_NEIGHBOUR) ?? []).length * style.size) / 4 -
+          (halvedMarks(String(text)) * style.size) / 2;
       advances.set(key, width);
     }
     return width;
