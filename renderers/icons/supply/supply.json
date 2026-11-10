@@ -2,9 +2,9 @@
   "schema": "architecture.icon-supply/v1",
   "package": {
     "package": "lucide-static",
-    "version": "1.66.0",
+    "version": "1.70.0",
     "license": "ISC",
-    "integrity": "sha512-j8Bjf/f21PtlD8p0wx1lRxyOrs98WZ1QEImkWmfskuJ8mOCwTN7Dwc6EHUzJDSzh79aB+Bo7SWcoTCM2zEjnJg==",
+    "integrity": "sha512-A9UgY98g94IuHQY7rl7/AFwHX7T1qNpzryim+Kw5CGhdV2STobtBY+ib/Z44ohyqXEJB88gvXFAeJ87uOOHKLw==",
     "viewBox": [
       0,
       0,
@@ -15,8 +15,8 @@
   "files": [
     {
       "path": "artwork.json",
-      "bytes": 755429,
-      "sha256": "b28ad5e008a851495d2fed4dd50c849f2746b5620ccd0860bead172d57ef4d49"
+      "bytes": 766347,
+      "sha256": "5bdfe7f478396439f0797cb8bddb3f17415afc26bfd2033d1e1e2ba9aa79190f"
     },
     {
       "path": "LICENSE",
