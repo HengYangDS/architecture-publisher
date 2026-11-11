@@ -1,6 +1,6 @@
 ---
 name: architecture-publisher
-description: Use when publishing a repository's architecture with the archpub command, as a print edition of one plate per view and an explorable page, or when re-pinning such a work to a later commit.
+description: Use when publishing a repository's architecture with the archpub command, as a print edition of one plate per view and an interactive page, or when re-pinning such a work to a later commit.
 ---
 
 # Architecture Publisher

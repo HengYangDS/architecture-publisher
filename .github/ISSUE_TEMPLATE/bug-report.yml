@@ -1,0 +1,38 @@
+name: Bug report
+description: Something archpub does wrong or refuses that it should accept.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The output of `archpub --version`.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: Operating system and architecture, and how you installed archpub.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command and output
+      description: The command you ran and what it printed with `--json`.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: model
+    attributes:
+      label: A model that shows it
+      description: The smallest model that shows the problem, if you can share one.
+      render: json

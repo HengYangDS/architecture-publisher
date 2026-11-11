@@ -1,9 +1,41 @@
 # Contributing
 
-This guide is for maintainers who change, check or release Architecture
-Publisher. The repository holds the generic publisher only; published works,
-such as the architecture of ETHOS, live in the separate
-architecture-publications repository.
+Thank you for helping. The repository holds the generic publisher only;
+published works, such as the architecture of ETHOS, live in the separate
+[architecture-publications](https://github.com/HengYangDS/architecture-publications)
+repository.
+
+## Report, propose or fix
+
+- **A bug:** open an issue with the bug form. Name the version
+  (`archpub --version`), the platform, the command you ran and its output with
+  `--json`; a model that shows the problem is the fastest route to a fix.
+- **A change in behaviour:** open an issue with the idea form before you write
+  code, so the change can be agreed against the
+  [product contract](docs/product-contract.md).
+- **A fix or an agreed change:** fork the repository on GitHub, change it on a
+  branch with a test that fails without your change, run `mise run bootstrap`
+  and `npm run check`, and open a pull request. A maintainer lands it through
+  the repository's governed workflow below; you need none of it.
+
+## Report a vulnerability
+
+Do not open a public issue. Write to the maintainer privately at the email
+address on [their GitHub profile](https://github.com/HengYangDS), with the
+version, what an attacker could do and how to reproduce it.
+
+## Conduct
+
+Be kind and assume good faith. Discuss the work, not the person; no
+harassment, insults or unwelcome attention, in issues, pull requests or
+anywhere the project is discussed. The maintainer may remove comments and block
+people who do not keep to this. Report a problem privately to the address
+above.
+
+## Maintainers
+
+This part is for maintainers who change, check or release Architecture
+Publisher.
 
 Before editing, read the [product contract](docs/product-contract.md) and the
 active OpenSpec Change, run the installed `ethos status --json` in the intended
@@ -20,7 +52,7 @@ commit and push admission.
 | Look up commands and refusals    | [Operations reference](docs/reference/operations.md)                 |
 | Change a model or start from one | [Model reference](docs/reference/model.md) and [examples](examples/) |
 
-## Set up and verify
+### Set up and verify
 
 ```sh
 mise run bootstrap
@@ -34,7 +66,7 @@ test suite with at least 95 percent coverage in every dimension, and packed
 package validation. `mise run fix` applies the native formatters. A local check
 does not decide landing; the full ETHOS proof of the exact head does.
 
-## Commit and land
+### Commit and land
 
 Commit in the Work Lane with an SSH signature and a `type(scope): summary`
 subject that the ETHOS commit grammar admits, such as
@@ -42,7 +74,7 @@ subject that the ETHOS commit grammar admits, such as
 Change named by `ETHOS_CHANGE`. Land through `ethos land` after a passing proof;
 never push `dev` or `main` directly.
 
-## Release
+### Release
 
 `VERSION` is the only maintained product version. After changing it, run
 `node tools/release/version.mjs --write`, and date the `Unreleased` notes of the

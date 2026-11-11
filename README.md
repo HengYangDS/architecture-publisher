@@ -1,155 +1,112 @@
 # Architecture Publisher
 
-Architecture Publisher draws the architecture of any repository from an
-explicit model. Describe the components, the relations between them and the
-files that support them in one JSON model, or import a LikeC4 workspace, and
-`archpub` builds a print edition with one plate for each view, one interactive
-page that answers the model's question and a manifest that binds every byte to
-its inputs. The page
-is the guide the work's author writes, checked by the vendored Archify against
-the repository at the model's revision; a model without a guide gets a page
-that answers its question view by view.
+Architecture Publisher turns an explicit model of a repository's architecture
+into a print edition and an interactive page, and checks every part and every
+connection it draws against the code at one pinned commit.
+
+![Plate 01 of Architecture Publisher's own edition: the parts one build passes through, from the author's model to a published delivery](docs/images/architecture-publisher-plate-01.png)
+
+_Plate 01 of the publisher's own edition, built by 0.11.0 from
+[its model](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/architecture-publisher/README.md)._
+
+You write the model: the components, the connections between them and the
+files that show each one, or you import a LikeC4 workspace. `archpub` reads
+those files at the commit the model pins, lays each view out as a plate with
+no overlaps, and delivers a PDF of one plate per view, a picture of each page,
+a standalone page that walks through the system, and a manifest that binds
+every byte to its inputs. A person accepts the delivery before it is published.
+
+## Install
+
+```sh
+mise use -g github:HengYangDS/architecture-publisher
+```
+
+[mise](https://mise.jdx.dev) installs the release archive for your machine:
+Linux and Windows on ARM64 or x86-64, or macOS on ARM64. It holds `archpub`
+with its own Node.js and Typst, so it needs only Git. The
+[how-to guides](docs/how-to.md#install-the-command) install it without mise or
+as an npm package.
 
 ## Quick start
 
 ```sh
 archpub check model.json --repo ../my-repository
-archpub scaffold guide model.json --out guide
-archpub build model.json --repo ../my-repository --out build/my-repository
-archpub accept build/my-repository --reviewer "Your Name"
-archpub publish build/my-repository --to <publication-root>
+archpub build model.json --repo ../my-repository --out delivery
+archpub accept delivery --reviewer "Your Name"
+archpub publish delivery --to <publication-root>
 ```
 
-`check` validates the model, resolves the files each component claims at the
-pinned revision and verifies their digests, composes every plate and checks
-every diagram and the page with Archify, without writing a delivery. `build` writes the delivery. A person
-accepts it, and only an accepted delivery is published, under
-`<publication-root>/<model id>/<version>/` in any directory you choose.
+`check` validates the model, reads every file it claims and cites at the pinned
+commit and lays out every plate, without writing anything. `build` writes the
+delivery. Only an accepted delivery is published, under
+`<publication-root>/<model id>/<version>/`. The [tutorial](docs/tutorial.md)
+builds a first work from an empty directory in about fifteen minutes.
 
-A minimal model looks like the one below; the [examples](examples/) hold larger
-ones. Three components leave most of a plate blank, so the manifest records the
-balance gates it misses:
+## What it guarantees
 
-```json
-{
-  "format": "architecture-publisher.model",
-  "version": 3,
-  "id": "shop",
-  "title": "Shop",
-  "question": "How does an order reach the warehouse?",
-  "editors": [{ "name": "Shop team" }],
-  "license": "MIT",
-  "components": [
-    { "id": "web", "label": "Web shop", "kind": "frontend" },
-    { "id": "orders", "label": "Order service" },
-    { "id": "db", "label": "Order store", "kind": "store" }
-  ],
-  "relations": [
-    { "id": "web-orders", "from": "web", "to": "orders", "label": "places orders" },
-    { "id": "orders-db", "from": "orders", "to": "db", "label": "writes" }
-  ],
-  "kinds": {
-    "frontend": { "label": "web application", "category": "frontend" },
-    "store": { "label": "database", "category": "database" }
-  }
-}
-```
+- **The model, not the code, states the architecture, and the code backs it.**
+  Each component claims the paths it owns and each connection cites the files
+  that show it. A claim that owns no file or a cited file that is gone is
+  refused, and `check --repo <checkout> --against <commit>` lists what moving
+  the pin would change.
+- **A plate never draws an overlap.** Cards sit on one lattice and every wire is
+  horizontal or vertical; a wire through a card, a shared segment or a touching label
+  rejects the layout, and a view no layout can draw is refused, never shrunk.
+- **The same inputs give the same bytes.** The manifest records the digest of
+  the model, every file read, every bundled supply and every file written;
+  with `--repo`, which dates the edition by the pinned commit, the same model
+  and version reproduce every byte on one platform.
+- **A person accepts.** `accept` refuses a delivery that changed since it was
+  built, and records who accepted it.
 
-The [model reference](docs/reference/model.md) describes every field: the
-language the model is written in, its editors and licence, kinds and their
-icons, details, statuses, the files components claim and relations cite, the
-coverage scope, groups and views. `archpub migrate model.json --out model-3.json`
-converts a version 1 or 2 model once its editors are declared.
+## Published works
 
-## What a delivery contains
+Six works are published from models kept outside the systems they describe, in
+[architecture-publications](https://github.com/HengYangDS/architecture-publications),
+each in English and Chinese:
 
-- **Print edition:** `<model id>.pdf`, typeset by Typst 0.15.1 on 1600 × 900
-  point pages: a title page with the work's question, summary, editors and
-  licence; contents that link to every page beside the edition's facts, scope
-  and limits; the overview its author composes, when the model names one; and
-  one plate per view, its figure with each component's icon and details and a
-  key of what it shows, beside the view's summary and where each component
-  lives when the figure leaves part of the page. Its text is text, each card title links to the file it
-  was read from when the model names a browsable repository, and the PDF
-  conforms to PDF/A-3a and PDF/UA-1 with the model attached.
-- **Images:** in `images/`, the overview's page as `00-overview.png` and each
-  plate's page as `NN-<view>.png` at 2400 px, and at the other widths `--png`
-  names.
-- **Page:** `<model id>.html`, a standalone native Archify explainer that answers
-  the model's question with one panel per view: the view's diagram, which opens
-  Archify's full viewer, and steps that light each component and cite its
-  first file at the pinned revision.
-- **Manifest:** `manifest.json`, the digest of the model, every cited file with
-  its owner, every bundled supply and every artifact, each plate's composition,
-  measures and the balance gates it misses, each diagram's route measures and
-  the details, statuses and files of every component and relation. Building the
-  same model with the same version on one platform reproduces every byte when
-  the edition is dated by the revision's commit or `SOURCE_DATE_EPOCH`.
+- [ETHOS](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/ethos/README.md):
+  how ETHOS turns official intent and fresh facts into proven repository
+  change.
+- [Architecture Publisher](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/architecture-publisher/README.md):
+  how a model becomes a print edition and a page.
+- [AIGW Client Projection](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/aigw-client/README.md),
+  [Data Department Work Guidelines](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/ddwg/README.md),
+  [Film Kit](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/filmkit/README.md)
+  and the
+  [OpenAI Responses Proxy](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/openai-responses-proxy/README.md).
 
-`--media edition` or `--media page` builds one medium alone. The publisher sets
-its own words, such as the edition's contents and facts and the key, in the
-model's language: English, Simplified or Traditional Chinese, Spanish or Korean.
-
-Layout is a grid: cards on shared row lines of one column lattice, each card on
-a plate as wide as its text, wires that are only horizontal or vertical, and no
-shared segment, wire through a card or touching label. A layout that breaks
-this is never drawn, and a view no layout draws is refused, never shrunk or
-cropped. Each plate takes the fewest crossings and route defects, then the
-largest type it fits, and records the balance gates it misses for the reviewer.
-
-## Commands
+## With an agent
 
 ```sh
-archpub check model.json [--repo <checkout>]
-archpub build model.json --out <new-directory> [--repo <checkout>]
-  [--media edition,page] [--png 2400,6000] [--quality showcase|standard]
-archpub import likec4 <workspace> --out model.json --id <id> [--locale <tag>]
-archpub migrate model.json --out <new-model.json>
-archpub accept <delivery> --reviewer <name>
-archpub publish <delivery> --to <root>
-archpub --help | --version
+archpub skill
 ```
 
-Every command accepts `--json` and exits with 0 on success, 1 on a refused
-input, 2 on a usage error and 3 on any other failure. The
-[operations reference](docs/reference/operations.md) describes each command,
-the build and every refusal.
-
-## Install
-
-Each release has an archive for Linux, macOS and Windows on ARM64 that holds the
-`archpub` command with its own Node.js and Typst; it needs only Git. Pin it with
-mise from the release's `architecture-publisher-<version>.mise.toml`, or unpack
-it and put its `archpub/bin` on the path.
-
-The release's `architecture-publisher-<version>.tgz` is the same command as an
-npm package for a machine with Node.js 22.13 or later, and Typst 0.15.1 for the
-print edition. In a checkout, `mise run bootstrap` installs the locked inputs
-and prepares the bundled LikeC4 parser; then `node src/cli/main.mjs` runs the
-command.
+prints the agent Skill that ships with the installed version. It walks an agent
+through agreeing on the reader's question, claiming files, planning views,
+checking, writing the guide and building, and leaves acceptance to a person.
 
 ## Documentation
 
-- [Product contract](docs/product-contract.md): inputs, outputs, quality floor and boundaries.
-- [Model reference](docs/reference/model.md): the Architecture Model format.
-- [Operations reference](docs/reference/operations.md): commands, layout, the delivery and refusals.
-- [Development and verification](docs/reference/development.md): toolchain, checks and supply.
-- [Contributing](CONTRIBUTING.md): set up, verify, commit, land and release.
+- [Tutorial](docs/tutorial.md): publish a first work, step by step.
+- [How-to guides](docs/how-to.md): install, import, write a guide, compose an
+  overview, re-pin and hand a work to a reviewer.
+- [Model reference](docs/reference/model.md): every field of an Architecture
+  Model.
+- [Operations reference](docs/reference/operations.md): commands, layout, the
+  delivery and every refusal.
+- [Glossary](docs/glossary.md): the words the publisher uses.
+- [Product contract](docs/product-contract.md): inputs, outputs, quality floor
+  and boundaries.
 - Examples: the [Big Bank model](examples/big-bank/README.md) and the
-  [LikeC4 shop workspace](examples/likec4-shop/README.md) to start from.
+  [LikeC4 shop workspace](examples/likec4-shop/README.md).
 
-## Development
+## Contributing
 
-```sh
-mise run bootstrap
-npm run check
-```
-
-`npm run check` runs formatting, lint, types, module boundaries, dead code,
-Markdown, OpenSpec, the test suite with coverage of at least 95 percent in
-every dimension and package validation. `VERSION` is the only maintained
-product version; after changing it, run `node tools/release/version.mjs --write`.
-The [changelog](CHANGELOG.md) records each release.
+Bug reports, ideas and pull requests are welcome; [CONTRIBUTING](CONTRIBUTING.md)
+explains how to report a problem, propose a change and check it locally. The
+[changelog](CHANGELOG.md) records each release.
 
 ## License
 

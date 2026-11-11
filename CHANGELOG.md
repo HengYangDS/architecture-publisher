@@ -7,6 +7,32 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- `archpub <command> --help` prints that command's usage, what it does and the options it takes, and a usage error
+  answers with the command's own usage. The usage block is derived from the command table.
+- `archpub skill` prints the agent Skill that ships in the package and every archive. The Skill describes the print
+  edition, the overview, the guide, re-pinning and acceptance, and a test holds every command, option and refusal
+  code it names to the source.
+- A model may name its `$schema` for its editor, and an unknown field names the nearest field of its object, such as
+  `is not a model field; did you mean label?`.
+- `check` and `build` warn with `repo_unused` when `--repo` names a checkout but the model claims and cites no file,
+  so none is verified; results carry `warnings`, and text output prints each on its own line.
+- Release archives for Linux and Windows on x86-64, verified by GitHub's CI on `ubuntu-24.04` and `windows-2025`, so a
+  release has five archives. `mise use -g github:HengYangDS/architecture-publisher` installs the one for the machine.
+- A tag publishes the package to npm with provenance through GitHub's OIDC once the protected jobs pass, when the
+  repository variable `NPM_PUBLISH` is `enabled`; the package names its repository.
+- A tutorial, how-to guides and a glossary. The README shows a plate, installs in one line and lists the published
+  works; CONTRIBUTING gains a path for outside contributors, a private vulnerability report and a conduct section; issue
+  forms and a pull request template join the repository.
+
+### Changed
+
+- Every reading of the print edition is justified like its prose, hyphenated in the model's language: a summary beside
+  a figure is no longer set flush left in a column under 24 ems, and a summary above a figure is justified within 32
+  ems when that takes no more lines than the engine reserved, and otherwise keeps the engine's lines, flush left.
+- `check` counts one view in the singular, and the package's description names the print edition.
+
 ## [0.11.0] - 2026-11-11
 
 ### Added
@@ -706,7 +732,6 @@ remain pre-release contracts and may contain incompatible changes.
 - Signed candidate tag only. The tag pipeline rejected a mismatch between its September 24 tagger date and the
   Changelog's former September 23 date. No GitLab Release or package assets were published; this candidate is superseded
   by `0.3.0-alpha.3`.
-
 - The self-Edition binds its product version to the explicitly selected core package source instead of a hard-coded
   release string.
 
