@@ -98,9 +98,13 @@ child.
 
 ## Continuous integration
 
-`.config/ci/pipeline.cue` owns one shared execution graph for Linux ARM64, macOS
-ARM64 and Windows ARM64, and `node tools/ci/projection.mjs --write` generates the
-GitLab and GitHub configuration from it. GitLab and GitHub are equal optional
+`.config/ci/pipeline.cue` owns one shared execution graph for Linux, macOS and
+Windows on ARM64, which GitHub also runs for Linux and Windows on x86-64, and
+`node tools/ci/projection.mjs --write` generates the GitLab and GitHub
+configuration from it. On a release tag, once the protected jobs pass, GitHub
+publishes the package to npm through its OIDC trust when the repository variable
+`NPM_PUBLISH` is `enabled`. Its owner first publishes the package and names
+`.github/workflows/verify.yml` as its trusted publisher on npm. GitLab and GitHub are equal optional
 peers; `npm run check:ci` verifies the projections without contacting either.
 Each job installs Chromium through Playwright, admits it by opening the browser
 test's standalone page alone, runs the archive command journey and runs

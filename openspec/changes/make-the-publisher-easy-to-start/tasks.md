@@ -10,8 +10,8 @@
 
 ## 3. Platforms
 
-- [ ] 3.1 Lock Node.js, Typst, CUE and Taplo for `linux-x64` and `windows-x64` and declare Taplo's x86-64 assets; verify `mise install` resolves each locked platform's archive by its checksum.
-- [ ] 3.2 Add GitHub verification jobs on `ubuntu-24.04` and `windows-2025` from the pipeline's single source, assemble archives for every locked platform and add the npm provenance job gated by `NPM_PUBLISH`; verify the generated workflows match `pipeline.cue`, the archive tests cover the five platforms and the release refuses an unlocked one.
+- [x] 3.1 Lock Node.js, Typst, CUE and Taplo for `linux-x64` and `windows-x64` and declare Taplo's x86-64 assets; verify `mise install` resolves each locked platform's archive by its checksum.
+- [x] 3.2 Add GitHub verification jobs on `ubuntu-24.04` and `windows-2025` from the pipeline's single source, assemble archives for every locked platform and add the npm provenance job gated by `NPM_PUBLISH`; verify the generated workflows match `pipeline.cue`, the archive tests cover the five platforms and the release refuses an unlocked one.
 
 ## 4. Readers
 

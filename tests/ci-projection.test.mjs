@@ -25,10 +25,13 @@ test("every native CI job installs Chromium before importing the required browse
       parse(await fs.readFile(path.join(root, relative), "utf8")),
     ),
   );
-  const jobs = Object.entries(github.jobs).map(([name, job]) => [
-    `github/${name}`,
-    job.steps.filter((step) => step.run).flatMap((step) => step.run.split("\n")),
-  ]);
+  // The npm job publishes what the protected jobs verified and runs no test.
+  const jobs = Object.entries(github.jobs)
+    .filter(([name]) => name.startsWith("verify-"))
+    .map(([name, job]) => [
+      `github/${name}`,
+      job.steps.filter((step) => step.run).flatMap((step) => step.run.split("\n")),
+    ]);
   for (const platform of ["linux", "macos", "windows"])
     for (const role of ["review", "protected"]) {
       const name = `verify:${platform}:${role}`;
@@ -259,4 +262,41 @@ test("the selected peer invokes the shared quality and projection owners on all 
   const githubPeer = exportCue("peers.github");
   assert(!JSON.stringify(githubPeer).includes("CI_JOB_TOKEN"));
   assert(!JSON.stringify(github).includes("192.168.64.101"));
+});
+
+test("GitHub alone also verifies Linux and Windows on x86-64 and publishes to npm only when enabled", async () => {
+  const github = parse(await fs.readFile(path.join(root, projections[1]), "utf8"));
+  const gitlab = parse(await fs.readFile(path.join(root, projections[0]), "utf8"));
+  assert.ok(!Object.keys(gitlab).some((job) => job.includes("x64")));
+  const steps = (job) => job.steps.map(({ run, uses }) => run ?? uses);
+  for (const [platform, arm, runner] of [
+    ["linux-x64", "linux", "ubuntu-24.04"],
+    ["windows-x64", "windows", "windows-2025"],
+  ])
+    for (const trust of ["review", "protected"]) {
+      const job = github.jobs[`verify-${platform}-${trust}`];
+      const twin = github.jobs[`verify-${arm}-${trust}`];
+      assert.equal(job["runs-on"], runner);
+      assert.equal(job.if, twin.if);
+      assert.deepEqual(job.defaults, twin.defaults);
+      assert.deepEqual(job.env, twin.env);
+      assert.deepEqual(steps(job), steps(twin));
+    }
+  const publish = github.jobs["publish-npm"];
+  assert.equal(publish.if, "${{ github.ref_type == 'tag' && vars.NPM_PUBLISH == 'enabled' }}");
+  assert.deepEqual(publish.permissions, { contents: "read", "id-token": "write" });
+  assert.deepEqual(
+    publish.needs,
+    Object.keys(github.jobs).filter(
+      (job) => job.startsWith("verify-") && job.endsWith("-protected"),
+    ),
+  );
+  assert.equal(steps(publish).at(-1), "mise exec -- npm publish --provenance");
+  assert.ok(!steps(publish).some((step) => /NPM_TOKEN|NODE_AUTH_TOKEN/u.test(step)));
+  // npm checks a provenance statement against the repository the package names.
+  const manifest = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
+  assert.equal(
+    manifest.repository.url,
+    "git+https://github.com/HengYangDS/architecture-publisher.git",
+  );
 });

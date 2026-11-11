@@ -221,12 +221,28 @@ peers: github: {
 		review:    "${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' && !github.ref_protected) }}"
 		protected: "${{ github.event_name != 'pull_request' && (github.ref_protected || github.ref_type == 'tag') }}"
 	}
-	platforms: {
-		linux: {runner: "ubuntu-24.04-arm", shell: "bash", readerPrerequisites: [
+	systems: {
+		linux: {shell: "bash", readerPrerequisites: [
 			"mise exec -- node node_modules/playwright-core/cli.js install-deps chromium",
 		]}
-		macos: {runner: "macos-15", shell: "bash", readerPrerequisites: []}
-		windows: {runner: "windows-11-arm", shell: "pwsh", readerPrerequisites: []}
+		macos: {shell: "bash", readerPrerequisites: []}
+		windows: {shell: "pwsh", readerPrerequisites: []}
+	}
+	// Each shared platform runs on ARM64; GitHub alone also verifies Linux and Windows on x86-64.
+	platforms: {
+		linux: {runner: "ubuntu-24.04-arm", system: "linux"}
+		macos: {runner: "macos-15", system: "macos"}
+		windows: {runner: "windows-11-arm", system: "windows"}
+		"linux-x64": {runner: "ubuntu-24.04", system: "linux"}
+		"windows-x64": {runner: "windows-2025", system: "windows"}
+	}
+	// A release tag publishes the package to npm through GitHub's OIDC once its owner has
+	// registered the package and set the repository variable.
+	publication: {
+		if:     "${{ github.ref_type == 'tag' && vars.NPM_PUBLISH == 'enabled' }}"
+		runner: "ubuntu-24.04"
+		permissions: {contents: "read", "id-token": "write"}
+		command: "mise exec -- npm publish --provenance"
 	}
 	checkout: {
 		uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"
@@ -269,26 +285,40 @@ compiled: github: {
 		permissions: peer.permissions
 		env: (shared.environment & {workspace: peer.workspace}).variables
 		jobs: {
-			for platform in shared.platforms {
-				let native = nativePlatforms[platform]
-				let runner = peer.platforms[platform]
+			for platform, target in peer.platforms {
+				let native = nativePlatforms[target.system]
+				let system = peer.systems[target.system]
 				for role in shared.trustRoles {
 					"verify-\(platform)-\(role)": {
 						name:              "\(platform) / \(role)"
 						if:                peer.trust[role]
-						"runs-on":         runner.runner
+						"runs-on":         target.runner
 						"timeout-minutes": shared.timeLimitMinutes
 						concurrency: {group: "${{ github.workflow }}-${{ github.ref }}-\(platform)-\(role)", "cancel-in-progress": shared.verification.interruptible}
-						defaults: run: shell: runner.shell
+						defaults: run: shell: system.shell
 						if len(native.variables) > 0 {env: native.variables}
 						steps: list.Concat([
 							[peer.checkout, peer.bootstrap],
 							[for command in native.before_script {run: command}],
-							[for command in list.Concat([shared.toolPreparation, runner.readerPrerequisites, shared.readerPreparation, shared.acceptance]) {run: command}],
+							[for command in list.Concat([shared.toolPreparation, system.readerPrerequisites, shared.readerPreparation, shared.acceptance]) {run: command}],
 							[peer.artifacts],
 						])
 					}
 				}
+			}
+			"publish-npm": {
+				name: "npm / publish"
+				needs: [for platform, _ in peer.platforms {"verify-\(platform)-protected"}]
+				if:                peer.publication.if
+				"runs-on":         peer.publication.runner
+				"timeout-minutes": shared.timeLimitMinutes
+				permissions:       peer.publication.permissions
+				defaults: run: shell: "bash"
+				steps: list.Concat([
+					[peer.checkout, peer.bootstrap],
+					[for command in shared.toolPreparation {run: command}],
+					[{run: peer.publication.command}],
+				])
 			}
 		}
 	}

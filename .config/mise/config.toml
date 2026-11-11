@@ -31,6 +31,10 @@ rename_exe = "taplo"
 asset_pattern = "taplo-linux-aarch64.gz"
 checksum = "sha256:033681d01eec8376c3fd38fa3703c79316f5e14bb013d859943b60a07bccdcc3"
 
+[tools."github:tamasfe/taplo".platforms.linux-x64]
+asset_pattern = "taplo-linux-x86_64.gz"
+checksum = "sha256:8fe196b894ccf9072f98d4e1013a180306e17d244830b03986ee5e8eabeb6156"
+
 [tools."github:tamasfe/taplo".platforms.macos-arm64]
 asset_pattern = "taplo-darwin-aarch64.gz"
 checksum = "sha256:713734314c3e71894b9e77513c5349835eefbd52908445a0d73b0c7dc469347d"
@@ -38,3 +42,7 @@ checksum = "sha256:713734314c3e71894b9e77513c5349835eefbd52908445a0d73b0c7dc4693
 [tools."github:tamasfe/taplo".platforms.windows-arm64]
 asset_pattern = "taplo-windows-aarch64.zip"
 checksum = "sha256:65a50c5d3b78f6014e6bc6d64eb6dc1d4992bc236589c9bb29e5609fc3454674"
+
+[tools."github:tamasfe/taplo".platforms.windows-x64]
+asset_pattern = "taplo-windows-x86_64.zip"
+checksum = "sha256:1615eed140039bd58e7089109883b1c434de5d6de8f64a993e6e8c80ca57bdf9"

@@ -17,8 +17,8 @@ refusal.
 ## Installation
 
 Each release delivers the command as one archive per platform the CI verifies:
-`archpub-<version>-<platform>.tar.gz` for `linux-arm64`, `macos-arm64` and
-`windows-arm64`. An archive holds `archpub/bin/archpub` (`archpub.cmd` on
+`archpub-<version>-<platform>.tar.gz` for `linux-arm64`, `linux-x64`, `macos-arm64`,
+`windows-arm64` and `windows-x64`. An archive holds `archpub/bin/archpub` (`archpub.cmd` on
 Windows), the Node.js and Typst it runs in `archpub/libexec`, the package in
 `archpub/lib/architecture-publisher` and their licenses in `archpub/licenses`.
 Unpacked anywhere, the command needs only Git on the path. The release's

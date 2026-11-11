@@ -112,7 +112,7 @@ Windows CI retains only the locked tool-cache through GitLab's native fetch and
 clean settings. Forced index checkout refreshes tracked bytes before any tools;
 previous coverage and other job output are not retained.
 Playwright owns Chromium installation; the npm test preload requires the exact
-selected executable in CI. GitHub's hosted ARM64 runners use pinned official
+selected executable in CI. GitHub's hosted runners use pinned official
 checkout and Mise actions; each quality command retains the executor's failure
 boundary. Every platform runs the same shared acceptance commands after the
 same preparation.

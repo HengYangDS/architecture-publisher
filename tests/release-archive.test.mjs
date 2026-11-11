@@ -9,6 +9,7 @@ import { assemble, launchers, lockedPlatforms } from "../tools/release/archive/a
 import { declaration } from "../tools/release/archive/declaration.mjs";
 import { officialSource } from "../tools/release/archive/sources.mjs";
 import { gunzip, gzip, readTar, writeTar } from "../tools/release/archive/tar.mjs";
+import { parse as parseToml } from "smol-toml";
 
 const root = path.resolve(import.meta.dirname, "..");
 const bytes = (text) => new TextEncoder().encode(text);
@@ -96,13 +97,24 @@ test("gzip writes no time and no system into its header", () => {
   assert.equal(new TextDecoder().decode(gunzip(packed)), "archive");
 });
 
-test("the lock pins the three platforms the CI verifies, and a platform needs both tools", async () => {
+test("the lock pins the five platforms the CI verifies, and a platform needs both tools", async () => {
   const lock = await fs.readFile(path.join(root, ".config/mise/mise.lock"), "utf8");
-  assert.deepEqual(Object.keys(lockedPlatforms(lock)), [
-    "linux-arm64",
-    "macos-arm64",
-    "windows-arm64",
-  ]);
+  const verified = ["linux-arm64", "linux-x64", "macos-arm64", "windows-arm64", "windows-x64"];
+  assert.deepEqual(Object.keys(lockedPlatforms(lock)), verified);
+  assert.match(lockedPlatforms(lock)["linux-x64"].node.url, /node-v[\d.]+-linux-x64\.tar\.gz$/u);
+  assert.match(
+    lockedPlatforms(lock)["windows-x64"].typst.url,
+    /typst-x86_64-pc-windows-msvc\.zip$/u,
+  );
+  // A CI job installs every locked tool, so each tool with platform archives pins all five.
+  const pinned = (name) =>
+    parseToml(lock)
+      .tools[name].flatMap((entry) => Object.keys(entry))
+      .filter((key) => key.startsWith("platforms."))
+      .map((key) => key.slice("platforms.".length))
+      .sort();
+  for (const name of ["node", "typst", "cue", "github:tamasfe/taplo"])
+    assert.deepEqual(pinned(name), verified, name);
   assert.deepEqual(Object.keys(lockedPlatforms(LOCK)), ["linux-arm64", "macos-arm64"]);
   assert.match(lockedPlatforms(LOCK)["macos-arm64"].typst.url, /typst-aarch64-apple-darwin/u);
 });
