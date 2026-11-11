@@ -30,7 +30,7 @@
     "check:docs": "markdownlint-cli2 --config .config/checks/markdownlint-cli2/.markdownlint-cli2.yaml",
     "check:spec": "openspec validate --all --strict --no-interactive",
     "test:coverage": "c8 --config .config/checks/c8/.c8rc.json npm test",
-    "check:package": "publint --pack false",
+    "check:package": "publint --pack npm",
     "check:ci": "node tools/ci/projection.mjs --check",
     "format": "prettier --config .config/checks/prettier/prettier.toml --ignore-path .gitignore --ignore-path .config/checks/prettier/prettierignore --write . && taplo format --config .config/checks/taplo/taplo.toml"
   },
