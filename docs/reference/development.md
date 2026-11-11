@@ -33,6 +33,11 @@ installation or scripts. Every CI job uses the same locked selection in its own
 ignored tool cache. The installed package itself needs only Node.js 22.13 or
 later.
 
+`npm run check:package` invokes npm's selected absolute CLI entrypoint to pack
+with lifecycle scripts disabled, then checks the resulting archive through
+publint's tarball API. Its temporary archive is removed on success or failure.
+Run it through npm so Node's bundled npm cannot replace the selected version.
+
 The supply checks bind each bundled supply to its recorded identity:
 `node tools/supply/likec4.mjs --check` and `node tools/supply/icons.mjs --check`.
 Archify's complete release archive is retained under `tools/supply/archives/`,
