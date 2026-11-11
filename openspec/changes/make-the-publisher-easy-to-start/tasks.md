@@ -5,8 +5,8 @@
 
 ## 2. Skill
 
-- [ ] 2.1 Write failing tests that the package's files include `skills/architecture-publisher/SKILL.md`, that `archpub skill` prints it, and that every command, option and refusal code the Skill names exists in the command table and in `src/`; verify they fail on 0.11.0.
-- [ ] 2.2 Rewrite the Skill for the print edition, the guide, re-pinning and acceptance, ship it in the package and add `archpub skill`; verify the tests pass and the archive holds the Skill.
+- [x] 2.1 Write failing tests that the package's files include `skills/architecture-publisher/SKILL.md`, that `archpub skill` prints it, and that every command, option and refusal code the Skill names exists in the command table and in `src/`; verify they fail on 0.11.0.
+- [x] 2.2 Rewrite the Skill for the print edition, the guide, re-pinning and acceptance, ship it in the package and add `archpub skill`; verify the tests pass and the archive holds the Skill.
 
 ## 3. Platforms
 

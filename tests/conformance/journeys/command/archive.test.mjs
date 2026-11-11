@@ -147,6 +147,11 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
   assert.equal(await onPath("typst", env.PATH), null, "the bare path holds a Typst");
   const version = (await fs.readFile(path.join(root, "VERSION"), "utf8")).trim();
   assert.equal(run(command, ["--version"], env).trim(), version);
+  // The archive carries the agent Skill of its version.
+  assert.equal(
+    run(command, ["skill"], env),
+    await fs.readFile(path.join(root, "skills/architecture-publisher/SKILL.md"), "utf8"),
+  );
 
   const model = await writeModel(t, minimalModel({ overview: "overview.typ" }));
   await fs.writeFile(path.join(path.dirname(model), "overview.typ"), COMPOSITION);

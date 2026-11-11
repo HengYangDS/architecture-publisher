@@ -33,6 +33,7 @@ test("the packed publisher installs, relocates and builds with its own verified 
   assert.ok(packed.includes("src/cli/main.mjs"));
   assert.ok(packed.includes("renderers/archify/supply/bin/archify.mjs"));
   assert.ok(packed.includes("supplies/likec4/parser.mjs"));
+  assert.ok(packed.includes("skills/architecture-publisher/SKILL.md"));
   assert.ok(!packed.some((file) => /^(tests|tools|build)\//u.test(file)));
 
   const relocated = path.join(directory, "relocated");
@@ -44,6 +45,16 @@ test("the packed publisher installs, relocates and builds with its own verified 
   assert.equal(built.status, 0, built.stderr + JSON.stringify(built.body));
   const manifest = JSON.parse(await fs.readFile(path.join(out, "manifest.json"), "utf8"));
   assert.deepEqual(manifest.publisher, { name: "architecture-publisher", version });
+  // The installed command prints the Skill it carries, wherever it was moved.
+  const skill = path.join(
+    relocated,
+    "node_modules/architecture-publisher/skills/architecture-publisher/SKILL.md",
+  );
+  assert.deepEqual(archpub(relocated, "skill").body, {
+    ok: true,
+    file: skill,
+    skill: await fs.readFile(path.join(root, "skills/architecture-publisher/SKILL.md"), "utf8"),
+  });
 
   await fs.appendFile(
     path.join(relocated, "node_modules/architecture-publisher/renderers/icons/supply/LICENSE"),

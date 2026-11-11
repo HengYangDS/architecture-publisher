@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
 import { acceptDelivery, publishDelivery } from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
@@ -201,6 +202,11 @@ function one(positionals, what) {
   return positionals[0];
 }
 
+/** The agent Skill this version carries, beside its source. */
+const SKILL = fileURLToPath(
+  new URL("../../skills/architecture-publisher/SKILL.md", import.meta.url),
+);
+
 /**
  * The commands in the order the usage lists them. Each carries its usage lines, what it does and the
  * option sections it takes, which both `archpub --help` and `archpub <command> --help` print.
@@ -325,6 +331,18 @@ const COMMANDS = {
         version: options.version ?? null,
       }),
     text: (result) => `${result.copied ? "Published" : "Already published"} ${result.target}.\n`,
+  },
+  skill: {
+    usage: ["archpub skill [--json]"],
+    purpose:
+      "Print the agent Skill for writing, checking and publishing a model with this version.",
+    sections: [],
+    options: [],
+    run: async ({ positionals }) => {
+      if (positionals.length) throw new UsageError("skill takes no arguments.");
+      return { file: SKILL, skill: await fs.readFile(SKILL, "utf8") };
+    },
+    text: (result) => result.skill,
   },
 };
 
