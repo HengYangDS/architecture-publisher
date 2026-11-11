@@ -2,4 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: Report a vulnerability privately
     url: https://github.com/HengYangDS/architecture-publisher/blob/dev/CONTRIBUTING.md#report-a-vulnerability
-    about: Do not open a public issue for a security problem.
+    about: A security problem goes to the maintainer privately, never into a public issue.
+  - name: Read the documentation
+    url: https://github.com/HengYangDS/architecture-publisher/blob/dev/docs/README.md
+    about: The tutorial, how-to guides, references and glossary answer most questions.

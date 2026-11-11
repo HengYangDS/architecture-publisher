@@ -16,7 +16,7 @@
 ## 4. Readers
 
 - [x] 4.1 Rewrite the README around a plate, a one-line install, the published works and the agent path; add a tutorial, how-to guides and a glossary; correct the reference where it no longer matches the code; verify every link resolves, `mise run check` passes and Vale reports nothing in the changed Markdown.
-- [x] 4.2 Add issue forms and a pull request template, and give `CONTRIBUTING.md` an outside-contributor path, a private vulnerability report and a conduct section, since the repository paradigm admits no other root document; verify the checks pass on them.
+- [x] 4.2 Add bug, feature and documentation issue forms and a pull request template on GitHub, the same issue and merge request templates on GitLab, and give `CONTRIBUTING.md` an outside-contributor path, a private vulnerability report and a conduct section, since the repository paradigm admits no other root document; verify the checks pass on them.
 
 ## 5. Release
 

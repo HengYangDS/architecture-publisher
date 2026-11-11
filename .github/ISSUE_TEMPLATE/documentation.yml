@@ -1,0 +1,22 @@
+name: Documentation
+description: A page that is wrong, unclear or missing.
+labels: [documentation]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The document's path or link, and the section.
+      placeholder: docs/how-to.md#write-the-guide
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong or missing
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What it should say

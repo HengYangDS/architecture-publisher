@@ -1,21 +1,55 @@
-name: Idea
+name: Feature request
 description: A change in what archpub does, to agree on before anyone writes code.
 labels: [enhancement]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        A change is agreed against the [product contract](https://github.com/HengYangDS/architecture-publisher/blob/dev/docs/product-contract.md) before it is built. Describe the need first; the design follows.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you ask
+      options:
+        - label: I searched the existing issues and found none about this.
+          required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - The model
+        - check and build
+        - The print edition
+        - The page and the guide
+        - Import from LikeC4
+        - Acceptance and publication
+        - Installation and releases
+        - The agent Skill
+        - Documentation
+    validations:
+      required: true
   - type: textarea
     id: need
     attributes:
       label: What you need
-      description: The reader or author, the work, and what they cannot do today.
+      description: Who needs it, for which work, and what they cannot do today.
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
       label: What you propose
+      description: How archpub would behave, as the reader or author would see it.
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: What you tried instead
+      label: Alternatives you considered
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to send a pull request for this once it is agreed.

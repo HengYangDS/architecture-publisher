@@ -1,38 +1,83 @@
 name: Bug report
-description: Something archpub does wrong or refuses that it should accept.
+description: archpub refuses a valid model, builds something wrong, or fails.
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting. Please search the [open and closed issues](https://github.com/HengYangDS/architecture-publisher/issues?q=is%3Aissue) first.
+        A security problem goes to the maintainer privately, as [CONTRIBUTING](https://github.com/HengYangDS/architecture-publisher/blob/dev/CONTRIBUTING.md#report-a-vulnerability) explains, never into an issue.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you report
+      options:
+        - label: I searched the existing issues and found none about this.
+          required: true
+        - label: This is not a security vulnerability.
+          required: true
   - type: input
     id: version
     attributes:
       label: Version
       description: The output of `archpub --version`.
+      placeholder: "0.12.0"
     validations:
       required: true
-  - type: input
+  - type: dropdown
     id: platform
     attributes:
       label: Platform
-      description: Operating system and architecture, and how you installed archpub.
+      options:
+        - Linux on ARM64
+        - Linux on x86-64
+        - macOS on ARM64
+        - Windows on ARM64
+        - Windows on x86-64
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How archpub is installed
+      options:
+        - mise (github:HengYangDS/architecture-publisher)
+        - Release archive, unpacked by hand
+        - npm package
+        - From a checkout
     validations:
       required: true
   - type: textarea
     id: command
     attributes:
-      label: Command and output
-      description: The command you ran and what it printed with `--json`.
-      render: text
+      label: Command
+      description: The exact command you ran.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: What the command printed with `--json`, and its exit status.
+      render: json
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: What you expected
+      label: What you expected instead
     validations:
       required: true
   - type: textarea
     id: model
     attributes:
       label: A model that shows it
-      description: The smallest model that shows the problem, if you can share one.
+      description: The smallest model, and the files it names, that shows the problem. Remove anything private.
       render: json
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: A plate or page image for a drawing problem, or anything else that helps reproduce it.
