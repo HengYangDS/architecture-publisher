@@ -5,7 +5,7 @@ The quality entry already requires packed-package validation. Directory mode wal
 ## Goals / Non-Goals
 
 - Make the package check validate what npm publishes and finish with retained runtime directories present.
-- Preserve every other quality gate, published byte and runtime binding.
+- Preserve every other quality gate, the selected package file set, runtime payload and runtime binding. The published `package.json` changes only its check metadata.
 
 ## Decisions
 

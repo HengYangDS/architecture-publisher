@@ -1,6 +1,6 @@
 ## Why
 
-The package check scans the whole checkout and follows directory symlinks. A retained tool cache can therefore make it traverse a cycle indefinitely, even though the npm package excludes that cache.
+The package check scans the whole checkout and follows directory symlinks. The accepted-root check did not finish while traversing a retained tool cache, even though the npm package excludes that cache. A smaller linked-worktree fixture completed with spurious nested-package warnings; it did not reproduce the timeout.
 
 ## What Changes
 
@@ -18,4 +18,4 @@ None; this repairs development validation without changing published behavior.
 
 ## Impact
 
-Only `package.json`'s `check:package` command changes. Package contents, dependency versions, the lockfile, product source and other checks retain their current owners.
+Only `package.json`'s `check:package` command changes. The selected package file set and runtime payload remain unchanged; the published `package.json` carries the new check metadata. Dependency versions, the lockfile, product source and other checks retain their current owners.
