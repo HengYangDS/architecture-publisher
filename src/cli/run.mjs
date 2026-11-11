@@ -6,25 +6,15 @@ import { importLikeC4 } from "../importers/likec4.mjs";
 import { migrateModel } from "../importers/model.mjs";
 import { Refusal } from "../refusal.mjs";
 
-export const USAGE = `Usage:
-  archpub build <model.json> --out <directory> [build options] [--json]
-  archpub check <model.json> [build options] [--against <revision>] [--json]
-  archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>]
-    [--question <text>] [--locale <tag>] [--json]
-  archpub scaffold guide <model.json> --out <directory> [--json]
-  archpub migrate <model.json> --out <model.json> [--json]
-  archpub accept <delivery> --reviewer <name> [--note <text>] [--json]
-  archpub publish <delivery> --to <root> [--version <name>] [--json]
-  archpub --help | --version
-
-Build options:
+const BUILD_OPTIONS = `Build options:
   --repo <checkout>     Resolve and verify the model's files in this Git checkout.
   --media <list>        Media to deliver: edition, the print edition with its images,
                         and page (default both).
   --png <widths>        Widths of the edition's images, comma-separated (default 2400).
   --quality <profile>   The page's quality: showcase (default) or standard.
+`;
 
-Check options:
+const CHECK_OPTIONS = `Check options:
   --against <revision>  With --repo, compare the model's revision with this one.
 `;
 
@@ -40,7 +30,7 @@ const series = (items) =>
 /** What a check found, as lines: admission, statements, plates, coverage and currency. */
 function checkText(result) {
   const lines = [
-    `${result.model.id}: ${result.views.length} views admitted; files ${result.sources.state}.`,
+    `${result.model.id}: ${count(result.views.length, "view")} admitted; files ${result.sources.state}.`,
   ];
   const statements = ({ components, relations }) =>
     `${count(components.length, "component")} and ${count(relations.length, "relation")}`;
@@ -96,6 +86,12 @@ function checkText(result) {
   }
   return `${lines.join("\n")}\n`;
 }
+
+/** The warnings a result carries, one to a line, each after the place it concerns when it names one. */
+const warningLines = (result) =>
+  (result.warnings ?? [])
+    .map((warning) => `warning: ${warning.path ? `${warning.path}: ` : ""}${warning.message}\n`)
+    .join("");
 
 /** A cited range as `10:12`, or nothing for a whole file. */
 const range = (lines) => (lines ? ` ${lines[0]}:${lines[1]}` : "");
@@ -205,8 +201,15 @@ function one(positionals, what) {
   return positionals[0];
 }
 
+/**
+ * The commands in the order the usage lists them. Each carries its usage lines, what it does and the
+ * option sections it takes, which both `archpub --help` and `archpub <command> --help` print.
+ */
 const COMMANDS = {
   build: {
+    usage: ["archpub build <model.json> --out <directory> [build options] [--json]"],
+    purpose: "Check a model as check does and write its delivery into a new directory.",
+    sections: [BUILD_OPTIONS],
     options: ["out", "repo", "media", "png", "quality"],
     run: ({ positionals, options }) =>
       buildDelivery(one(positionals, "model"), required(options, "out"), buildArguments(options)),
@@ -221,6 +224,9 @@ const COMMANDS = {
     },
   },
   check: {
+    usage: ["archpub check <model.json> [build options] [--against <revision>] [--json]"],
+    purpose: "Check a model as a build would, verifying its files with --repo, and write nothing.",
+    sections: [BUILD_OPTIONS, CHECK_OPTIONS],
     options: ["repo", "media", "png", "quality", "against"],
     run: ({ positionals, options }) => {
       const model = one(positionals, "model");
@@ -230,53 +236,13 @@ const COMMANDS = {
     },
     text: checkText,
   },
-  accept: {
-    options: ["reviewer", "note"],
-    run: ({ positionals, options }) =>
-      acceptDelivery(one(positionals, "delivery"), {
-        reviewer: required(options, "reviewer"),
-        note: options.note ?? null,
-      }),
-    text: (result) => `Accepted ${result.directory} for ${result.reviewer}.\n`,
-  },
-  publish: {
-    options: ["to", "version"],
-    run: ({ positionals, options }) =>
-      publishDelivery(one(positionals, "delivery"), required(options, "to"), {
-        version: options.version ?? null,
-      }),
-    text: (result) => `${result.copied ? "Published" : "Already published"} ${result.target}.\n`,
-  },
-  "scaffold guide": {
-    options: ["out"],
-    run: ({ positionals, options }) =>
-      scaffoldGuide(one(positionals, "model"), required(options, "out")),
-    text: (result) =>
-      `Wrote ${result.draft} and ${count(result.files.length, "diagram")} into ${result.out}.\n`,
-  },
-  migrate: {
-    options: ["out"],
-    run: async ({ positionals, options }) => {
-      const out = required(options, "out");
-      const { model, moved } = await migrateModel(one(positionals, "model"));
-      await fs
-        .writeFile(out, `${JSON.stringify(model, null, 2)}\n`, { flag: "wx" })
-        .catch((error) => {
-          if (error.code !== "EEXIST") throw error;
-          throw new Refusal("migrate_output_exists", `${out} already exists.`);
-        });
-      const tally = (items) => items.reduce((sum, { files = [] }) => sum + files.length, 0);
-      return {
-        out: path.resolve(out),
-        claims: tally(model.components),
-        cited: tally(model.relations),
-        moved,
-      };
-    },
-    text: (result) =>
-      `Wrote ${result.out}: components claim ${count(result.claims, "file")}, relations cite ${count(result.cited, "file")}.\n${result.moved.map((entry) => `kept with ${entry.owner}: ${entry.path}, no longer cited by ${series(entry.components)}\n`).join("")}`,
-  },
   "import likec4": {
+    usage: [
+      "archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>]",
+      "  [--question <text>] [--locale <tag>] [--json]",
+    ],
+    purpose: "Write a model from a LikeC4 workspace, naming each construct it cannot represent.",
+    sections: [],
     options: ["out", "id", "title", "question", "locale"],
     run: async ({ positionals, options }) => {
       const out = required(options, "out");
@@ -300,9 +266,80 @@ const COMMANDS = {
       };
     },
     text: (result) =>
-      `Wrote ${result.out} with ${result.components} components and ${result.relations} relations.\n${result.warnings.map((warning) => `warning: ${warning.path}: ${warning.message}\n`).join("")}`,
+      `Wrote ${result.out} with ${result.components} components and ${result.relations} relations.\n`,
+  },
+  "scaffold guide": {
+    usage: ["archpub scaffold guide <model.json> --out <directory> [--json]"],
+    purpose: "Write the page the publisher generates for a model as a starting guide.",
+    sections: [],
+    options: ["out"],
+    run: ({ positionals, options }) =>
+      scaffoldGuide(one(positionals, "model"), required(options, "out")),
+    text: (result) =>
+      `Wrote ${result.draft} and ${count(result.files.length, "diagram")} into ${result.out}.\n`,
+  },
+  migrate: {
+    usage: ["archpub migrate <model.json> --out <model.json> [--json]"],
+    purpose: "Write a version 1 or 2 model as version 3 into a new file.",
+    sections: [],
+    options: ["out"],
+    run: async ({ positionals, options }) => {
+      const out = required(options, "out");
+      const { model, moved } = await migrateModel(one(positionals, "model"));
+      await fs
+        .writeFile(out, `${JSON.stringify(model, null, 2)}\n`, { flag: "wx" })
+        .catch((error) => {
+          if (error.code !== "EEXIST") throw error;
+          throw new Refusal("migrate_output_exists", `${out} already exists.`);
+        });
+      const tally = (items) => items.reduce((sum, { files = [] }) => sum + files.length, 0);
+      return {
+        out: path.resolve(out),
+        claims: tally(model.components),
+        cited: tally(model.relations),
+        moved,
+      };
+    },
+    text: (result) =>
+      `Wrote ${result.out}: components claim ${count(result.claims, "file")}, relations cite ${count(result.cited, "file")}.\n${result.moved.map((entry) => `kept with ${entry.owner}: ${entry.path}, no longer cited by ${series(entry.components)}\n`).join("")}`,
+  },
+  accept: {
+    usage: ["archpub accept <delivery> --reviewer <name> [--note <text>] [--json]"],
+    purpose: "Record a named reviewer's acceptance of an unchanged delivery.",
+    sections: [],
+    options: ["reviewer", "note"],
+    run: ({ positionals, options }) =>
+      acceptDelivery(one(positionals, "delivery"), {
+        reviewer: required(options, "reviewer"),
+        note: options.note ?? null,
+      }),
+    text: (result) => `Accepted ${result.directory} for ${result.reviewer}.\n`,
+  },
+  publish: {
+    usage: ["archpub publish <delivery> --to <root> [--version <name>] [--json]"],
+    purpose: "Copy an accepted delivery to <root>/<model id>/<version>/.",
+    sections: [],
+    options: ["to", "version"],
+    run: ({ positionals, options }) =>
+      publishDelivery(one(positionals, "delivery"), required(options, "to"), {
+        version: options.version ?? null,
+      }),
+    text: (result) => `${result.copied ? "Published" : "Already published"} ${result.target}.\n`,
   },
 };
+
+export const USAGE = `Usage:
+${Object.values(COMMANDS)
+  .flatMap(({ usage }) => usage.map((line) => `  ${line}\n`))
+  .join("")}  archpub <command> --help
+  archpub --help | --version
+
+${BUILD_OPTIONS}
+${CHECK_OPTIONS}`;
+
+/** One command's usage, what it does and the options it takes. */
+const commandUsage = ({ usage, purpose, sections }) =>
+  `Usage:\n${usage.map((line) => `  ${line}\n`).join("")}\n${purpose}\n${sections.map((section) => `\n${section}`).join("")}`;
 
 /**
  * Run one command. Exit status 0 means success, 1 a refused input, 2 a usage
@@ -331,6 +368,13 @@ export async function runCli(args) {
   const name = paired ? `${words[0]} ${words[1] ?? ""}` : words[0];
   const rest = words.slice(paired ? 2 : 1);
   const command = COMMANDS[/** @type {keyof typeof COMMANDS} */ (name)];
+  if (command && (rest.includes("--help") || (rest.length === 1 && rest[0] === "-h"))) {
+    const usage = commandUsage(command);
+    return {
+      exitCode: 0,
+      output: json ? `${JSON.stringify({ ok: true, usage })}\n` : usage,
+    };
+  }
   try {
     if (!command) throw new UsageError(name ? `Unknown command ${name}.` : "Name a command.");
     const result = await command.run(parseArguments(rest, command.options));
@@ -338,7 +382,7 @@ export async function runCli(args) {
       exitCode: 0,
       output: json
         ? `${JSON.stringify({ ok: true, ...result })}\n`
-        : command.text(/** @type {any} */ (result)),
+        : `${command.text(/** @type {any} */ (result))}${warningLines(result)}`,
     };
   } catch (error) {
     if (error instanceof UsageError)
@@ -346,7 +390,7 @@ export async function runCli(args) {
         exitCode: 2,
         output: json
           ? `${JSON.stringify({ ok: false, code: "usage", message: error.message })}\n`
-          : `${error.message}\n\n${USAGE}`,
+          : `${error.message}\n\n${command ? commandUsage(command) : USAGE}`,
       };
     if (error instanceof Refusal) {
       const body = {

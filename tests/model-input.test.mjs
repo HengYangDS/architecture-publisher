@@ -492,3 +492,32 @@ test("editors, a licence and a browse template validate, and an attribution is r
   );
   assert.deepEqual(refusedAt({ version: 2 }), ["/version"]);
 });
+
+test("a misspelt field names the field it is nearest to", () => {
+  const messageAt = (model, where) => {
+    try {
+      validateModel(model);
+    } catch (error) {
+      return error.problems.find(({ path: at }) => at === where)?.message;
+    }
+    assert.fail("the model was accepted");
+  };
+  assert.equal(
+    messageAt(minimalModel({ vews: [] }), "/vews"),
+    "is not a model field; did you mean views?",
+  );
+  assert.equal(
+    messageAt(minimalModel({ components: [{ id: "a", lable: "Alpha" }] }), "/components/0/lable"),
+    "is not a model field; did you mean label?",
+  );
+  // Nothing in the model format is near enough to suggest.
+  assert.equal(messageAt(minimalModel({ extra: true }), "/extra"), "is not a model field");
+});
+
+test("a model may name its schema for its editor", () => {
+  const plain = validateModel(minimalModel());
+  const referenced = validateModel(
+    minimalModel({ $schema: "https://example.invalid/architecture-publisher.model.json" }),
+  );
+  assert.deepEqual(referenced, plain);
+});

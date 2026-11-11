@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { LOCALES } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
+import { unknownField } from "./nearest-name.mjs";
 import { normalize } from "./normalize.mjs";
 import { checkCoverage, isCompositionPath, isGuidePath, isRelativePath } from "./paths.mjs";
 
@@ -44,7 +45,7 @@ const TOP = {
     "limits",
     "repository",
     "kinds",
-  ].concat(["groups", "views", "coverage", "overview", "guide"]),
+  ].concat(["groups", "views", "coverage", "overview", "guide", "$schema"]),
 };
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -71,7 +72,7 @@ class Problems {
       if (!(key in value)) this.add("model_field_required", `${path}/${key}`, "is required");
     for (const key of Object.keys(value))
       if (!required.includes(key) && !optional.includes(key))
-        this.add("model_field_unknown", `${path}/${key}`, "is not a model field");
+        this.add("model_field_unknown", `${path}/${key}`, unknownField(key, required, optional));
     return true;
   }
 

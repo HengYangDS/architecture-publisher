@@ -1,7 +1,7 @@
 ## 1. Commands
 
-- [ ] 1.1 Write failing tests for `archpub <command> --help` printing that command's usage with status 0, for `check` counting one view in the singular, for `$schema` accepted at the top of a model, for an unknown field naming its nearest field, and for `check` and `build` warning when `--repo` names a checkout but the model claims and cites no file; verify they fail on 0.11.0.
-- [ ] 1.2 Give each command its usage lines, print them for `--help`, count in the singular, accept `$schema`, name the nearest field and return `warnings` in results and text; verify the tests pass and `src/model/load.mjs` stays within 500 lines.
+- [x] 1.1 Write failing tests for `archpub <command> --help` printing that command's usage with status 0, for `check` counting one view in the singular, for `$schema` accepted at the top of a model, for an unknown field naming its nearest field, and for `check` and `build` warning when `--repo` names a checkout but the model claims and cites no file; verify they fail on 0.11.0.
+- [x] 1.2 Give each command its usage lines, print them for `--help`, count in the singular, accept `$schema`, name the nearest field and return `warnings` in results and text; verify the tests pass and `src/model/load.mjs` stays within 500 lines.
 
 ## 2. Skill
 

@@ -7,6 +7,10 @@
   "additionalProperties": false,
   "required": ["format", "version", "id", "title", "question", "components", "relations"],
   "properties": {
+    "$schema": {
+      "description": "The schema an editor checks the model against; the publisher ignores it.",
+      "type": "string"
+    },
     "format": {
       "const": "architecture-publisher.model"
     },

@@ -6,6 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { USAGE, runCli } from "../src/cli/run.mjs";
 import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
+import { repository } from "./fixtures/repository.mjs";
 
 const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
 const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
@@ -50,6 +51,67 @@ test("help and version answer without a command", async () => {
   );
   assert.deepEqual(await runCli(["--version"]), { exitCode: 0, output: `${manifest.version}\n` });
   assert.deepEqual((await json(["--version"])).body, { ok: true, version: manifest.version });
+});
+
+test("each command explains itself with --help", async () => {
+  for (const [args, first] of [
+    [
+      ["build", "--help"],
+      "  archpub build <model.json> --out <directory> [build options] [--json]",
+    ],
+    [
+      ["check", "--help"],
+      "  archpub check <model.json> [build options] [--against <revision>] [--json]",
+    ],
+    [
+      ["accept", "--help"],
+      "  archpub accept <delivery> --reviewer <name> [--note <text>] [--json]",
+    ],
+    [["publish", "--help"], "  archpub publish <delivery> --to <root> [--version <name>] [--json]"],
+    [["migrate", "--help"], "  archpub migrate <model.json> --out <model.json> [--json]"],
+    [
+      ["import", "likec4", "--help"],
+      "  archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>]",
+    ],
+    [
+      ["scaffold", "guide", "--help"],
+      "  archpub scaffold guide <model.json> --out <directory> [--json]",
+    ],
+  ]) {
+    const { exitCode, output } = await runCli(args);
+    assert.equal(exitCode, 0, args.join(" "));
+    assert.equal(output.split("\n").slice(0, 2).join("\n"), `Usage:\n${first}`, args.join(" "));
+    assert.ok(!output.includes("archpub publish") || args[0] === "publish", args.join(" "));
+    const { body } = await json(args);
+    assert.deepEqual(body, { ok: true, usage: output });
+  }
+  // A command's build options are explained where it takes them.
+  const build = (await runCli(["build", "--help"])).output;
+  assert.match(build, /--repo <checkout> /u);
+  assert.doesNotMatch((await runCli(["accept", "--help"])).output, /--repo/u);
+  // Help asked for in the middle of a command line, and a usage error, answer with the command's usage.
+  assert.deepEqual(await runCli(["build", "model.json", "--help"]), { exitCode: 0, output: build });
+  assert.deepEqual(await runCli(["build", "model.json"]), {
+    exitCode: 2,
+    output: `--out is required.\n\n${build}`,
+  });
+});
+
+test("a checkout that the model gives nothing to read is named in a warning", async (t) => {
+  const { root } = await repository(t);
+  const model = await writeModel(t, pageModel());
+  const checked = await json(["check", model, "--repo", root, "--media", "edition"]);
+  assert.equal(checked.exitCode, 0);
+  assert.deepEqual(
+    checked.body.warnings.map(({ code }) => code),
+    ["repo_unused"],
+  );
+  assert.match(
+    (await runCli(["check", model, "--repo", root, "--media", "edition"])).output,
+    /^warning: .*claims and cites no file/mu,
+  );
+  const unchecked = await json(["check", model, "--media", "edition"]);
+  assert.deepEqual(unchecked.body.warnings, []);
 });
 
 test("build options outside their range are refused before anything is read", async () => {
@@ -111,7 +173,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(checked.body.coverage, null);
   assert.match(
     (await runCli(["check", model])).output,
-    /^page: 1 views admitted; files none\.\nUncited: \d+ components and \d+ relations\.\nPlate 01 \(architecture\): figure (100|80|65)% of the body(, beside its reading)?(; misses [a-zA-Z, ]+)?\.\n$/u,
+    /^page: 1 view admitted; files none\.\nUncited: \d+ components and \d+ relations\.\nPlate 01 \(architecture\): figure (100|80|65)% of the body(, beside its reading)?(; misses [a-zA-Z, ]+)?\.\n$/u,
   );
 
   const out = path.join(root, "delivery");

@@ -142,6 +142,16 @@ async function prepare(modelPath, options) {
     printed && model.overview ? await compositionOf(modelPath, model.overview) : null;
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
+  // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
+  const warnings =
+    options.repo && binding.state === "none"
+      ? [
+          {
+            code: "repo_unused",
+            message: `--repo names ${options.repo}, but the model claims and cites no file, so none is verified there.`,
+          },
+        ]
+      : [];
   const commit = commitFacts(model, options.repo);
   const overview = composition
     ? await checkOverview({
@@ -165,6 +175,7 @@ async function prepare(modelPath, options) {
     loaded,
     model,
     binding,
+    warnings,
     media,
     views,
     plates,
@@ -323,6 +334,7 @@ export async function checkModel(modelPath, options = {}) {
     coverage: chosen.repo
       ? measureCoverage(model, prepared.binding, chosen.repo, { against, citations })
       : null,
+    warnings: prepared.warnings,
   };
 }
 
@@ -499,6 +511,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
       views: manifest.views.map(({ id }) => id),
       plates: manifest.plates.length,
       artifacts: manifest.artifacts.length,
+      warnings: prepared.warnings,
     };
   } catch (error) {
     await fs.rm(staging, { recursive: true, force: true });
