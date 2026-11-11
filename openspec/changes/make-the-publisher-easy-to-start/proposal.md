@@ -18,6 +18,9 @@ still describes the posters that 0.10.0 removed and does not ship with the packa
   glossary join the reference; the reference corrects what no longer matches the code; security, conduct and issue
   and pull request templates join the repository, and CONTRIBUTING gains a path for outside contributors.
 - The release workflow can publish the package to npm with provenance once the package is registered.
+- Every reading of the print edition is justified, in every language and at every column width: a summary beside a
+  figure no longer falls back to flush left below 24 em, and a summary above a figure is justified when that takes
+  no more lines than the publisher reserved for it.
 
 ## Capabilities
 
@@ -28,12 +31,13 @@ None.
 ### Modified Capabilities
 
 - `product-identity`: x86-64 archives on the platforms GitHub verifies; the package carries its agent Skill.
-- `edition-delivery`: a command's own usage with `--help`.
+- `edition-delivery`: a command's own usage with `--help`; justified readings beside and above a figure.
 - `architecture-model`: `$schema`, and the nearest field in an unknown-field refusal.
 - `source-binding`: a warning when a checkout has nothing to read.
 
 ## Impact
 
 `src/cli/`, `src/model/`, `src/sources/bind.mjs`, `skills/`, `package.json`, `.config/ci/pipeline.cue` and the
-generated workflows, `.config/mise/`, `tools/release/`, `README.md`, `CONTRIBUTING.md`, `docs/`, `.github/`, tests and
-`CHANGELOG.md`. Deliveries are unchanged: the same model builds the same edition, images and page.
+generated workflows, `.config/mise/`, `tools/release/`, `src/overview/house.typ`, `src/edition/record.mjs`, `README.md`,
+`CONTRIBUTING.md`, `docs/`, `.github/`, tests and `CHANGELOG.md`. Only the readings move: the same model builds the same
+page and the same plates, and the edition's pages that set a reading set it justified.

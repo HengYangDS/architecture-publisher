@@ -1,7 +1,8 @@
 ## Context
 
-See [proposal.md](proposal.md). 0.12.0 changes no medium; it changes how a reader finds, installs, starts and asks
-for help. Twelve editions of the six published works pin the bytes that must not move.
+See [proposal.md](proposal.md). 0.12.0 changes how a reader finds, installs, starts and asks for help, and justifies
+the edition's readings. Twelve editions of the six published works pin the bytes that must not move, and show where
+the readings do.
 
 ## Goals / Non-Goals
 
@@ -14,13 +15,21 @@ for help. Twelve editions of the six published works pin the bytes that must not
 
 **Non-Goals:**
 
-- Any change to a plate, the edition, the page or the manifest's content; the new house style is a later Change.
+- Any change to a plate's composition, the page or the manifest's content beyond the readings' alignment; the new
+  house style, with more styles, compositions and palettes and a general acceptance mark, is a later Change.
 - Moving the layout prose out of `docs/reference/operations.md`: published works cite its line ranges, and moving it
   would orphan those citations for no reader-facing gain in this release.
 - macOS on x86-64: GitHub's Intel runners and Homebrew's Intel bottles end in 2027.
 - A gallery website, and splitting the CJK fonts out of the package.
 
 ## Decisions
+
+- **Every reading justified.** The 24 em threshold set most readings flush left: at 80 percent of the body the column
+  holds about 15 em. Set at that width in English, Spanish, Korean and Chinese, the house's prose rules (optimized
+  lines, hyphenation in the model's language, word spaces from 80 to 125 percent) give an even right edge without
+  rivers, while justification without hyphenation opens wide gaps in English. A summary above a figure is set by
+  Typst as prose within 32 em, since justifying the engine's own lines would stretch a line short by a whole word; it
+  keeps the engine's lines, flush left, in the rare case Typst needs more lines than the engine reserved.
 
 - **One help source per command.** Each entry of the command table carries its usage lines, which both `archpub
 --help` and `archpub <command> --help` print; the usage block stays derived from them.

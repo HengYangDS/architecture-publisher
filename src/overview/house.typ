@@ -248,8 +248,8 @@
 #let _key(entries) = place(top + left, dx: margin, dy: _e.key * 1pt - 10pt,
   text(size: sizes.small, fill: soft, entries.map(entry => [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
 
-/// A plate's reading in the width its figure leaves: the view's summary, justified when its column holds 24 em and
-/// flush left otherwise, then where each component it shows lives. When that is taller than the body the summary is
+/// A plate's reading in the width its figure leaves: the view's summary, justified as prose at any width, then where
+/// each component it shows lives. When that is taller than the body the summary is
 /// set alone, without the heading or the paths. A summary, or paths beside none, taller than the body is refused,
 /// since text is never shrunk.
 #let _reading(p, words, x, w, height) = {
@@ -257,11 +257,7 @@
   let reading-column(with-places) = block(width: w, {
     set block(spacing: 0pt)
     if p.summary != none {
-      if w >= 24 * size { prose(w, p.summary, size: size, font: serif, pitch: 24pt) } else {
-        set text(size: size, font: serif, fill: ink, hyphenate: false, top-edge: "baseline", bottom-edge: "baseline")
-        set par(justify: false, leading: 24pt, spacing: 0pt)
-        block(width: w, p.summary)
-      }
+      prose(w, p.summary, size: size, font: serif, pitch: 24pt)
       if with-places { v(40pt) }
     }
     if with-places and p.places.len() > 0 {
@@ -290,16 +286,21 @@
   }
 }
 
-/// A summary above a figure that keeps the full width: the lines the engine broke, flush left at 17 points in the
-/// title's column, the first baseline 24 points below the body's top. A line wider than the house's measure is
-/// refused, since the engine reserved the figure's height for exactly these lines.
-#let _standfirst(lines) = {
+/// A summary above a figure that keeps the full width, at 17 points in the title's column with its first baseline 24
+/// points below the body's top: justified as prose within the house's measure when that takes no more lines than the
+/// engine broke it into, since the engine reserved the figure's height for those lines, and otherwise on the engine's
+/// own lines, flush left. An engine line wider than the measure is refused either way.
+#let _standfirst(lines, summary) = {
   let size = 17pt
+  let (x, y) = (_e.claim * 1pt, _e.bodyTop * 1pt + 24pt)
+  let justified = prose(_e.measure * size, summary, size: size, font: serif, pitch: 24pt)
   let set-line = text.with(size: size, font: serif, fill: ink, hyphenate: false, top-edge: "baseline",
     bottom-edge: "baseline")
-  for (i, line) in lines.enumerate() {
-    place(top + left, dx: _e.claim * 1pt, dy: _e.bodyTop * 1pt + 24pt + i * 24pt, set-line(line))
-    context if measure(set-line(line)).width > _e.measure * size + 0.5pt { panic("edition_text_wider: " + line) }
+  context {
+    for line in lines { if measure(set-line(line)).width > _e.measure * size + 0.5pt { panic("edition_text_wider: " + line) } }
+    if measure(justified).height <= (lines.len() - 1) * 24pt + 0.5pt { place(top + left, dx: x, dy: y, justified) } else {
+      for (i, line) in lines.enumerate() { place(top + left, dx: x, dy: y + i * 24pt, set-line(line)) }
+    }
   }
 }
 
@@ -312,7 +313,7 @@
   let height = if p.standfirst == none { (_e.bodyBottom - _e.bodyTop) * 1pt } else { p.figureHeight * _k }
   let figure-top = if p.standfirst == none { _e.bodyTop * 1pt } else { _e.bodyBottom * 1pt - height }
   if width < body - 1pt { _reading(p, words, margin + width + 40pt, body - width - 40pt, height) }
-  if p.standfirst != none { _standfirst(p.standfirst) }
+  if p.standfirst != none { _standfirst(p.standfirst, p.summary) }
   place(top + left, dx: margin, dy: figure-top, figure(alt: p.alt, box(width: width, height: height, {
     place(pdf.artifact(image(p.file, width: width)))
     for r in p.runs {

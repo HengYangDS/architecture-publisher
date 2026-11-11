@@ -8,6 +8,7 @@ import { loadTypefaces } from "../src/poster/text.mjs";
 import { POSTER, figureStyles } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { countIn, readPdf } from "./fixtures/pdf.mjs";
+import { inkLines, readPng } from "./fixtures/png.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 const { name } = figureStyles(POSTER.steps[0]);
@@ -227,7 +228,7 @@ test("a summary above its figure is set in its lines at the claim column, and th
   const [set] = record.plates;
   assert.deepEqual(
     [set.standfirst, set.summary, set.places, set.figureHeight],
-    [lines, null, [], 1071 - 96],
+    [lines, lines.join(" "), [], 1071 - 96],
   );
   const typeset = await edition([above]);
   assert.equal(typeset.pages, 3);
@@ -250,4 +251,75 @@ test("a run set wider than the engine measured it, and a title wider than its li
     edition([plate(1, { title: "A title far too long ".repeat(8).trim() })]),
     (error) => error.code === "edition_title_too_long",
   );
+});
+
+/** A 2400 px page image's pixels per point, and the edition's body in points. */
+const PX = 2400 / 1600;
+const BODY = { top: 112, bottom: 826, right: 1600 - 48 };
+
+/** How far apart the right ends of every line but the last lie, and how short the last falls. */
+function edges(lines) {
+  const rights = lines.slice(0, -1).map(({ right }) => right);
+  return {
+    spread: Math.max(...rights) - Math.min(...rights),
+    short: Math.max(...rights) - lines.at(-1).right,
+  };
+}
+
+test("a summary beside its figure is justified at any column width, its last line short", async () => {
+  const summary =
+    "Alpha calls Beta, and Beta answers it with the result it has stored. The reviewer reads the answer beside the figure and accepts the delivery by name.";
+  // At 80 percent of the body the reading column holds about 15 em, where the summary used to be set flush left.
+  const narrowed = plate(1, { share: 0.8, width: 1805, reading: "set", summary });
+  const [page] = (await edition([narrowed], {}, modelWith({}))).png;
+  const lines = inkLines(readPng(page.bytes), {
+    left: Math.round((48 + 1805 / PX + 40) * PX),
+    right: 2400,
+    top: BODY.top * PX,
+    bottom: BODY.bottom * PX,
+  });
+  assert.ok(lines.length >= 4, `the summary set ${lines.length} lines`);
+  const { spread, short } = edges(lines);
+  assert.ok(spread <= 6, `the lines end ${spread} px apart`);
+  assert.ok(short > 30, "the last line is set short, not stretched");
+});
+
+test("a summary above its figure is justified within the house measure in no more lines than were reserved", async () => {
+  const lines = [
+    "Alpha calls Beta, and Beta answers it with the result it has stored,",
+    "which the reviewer reads above the full-width figure before accepting",
+    "the delivery by name and publishing it under its version to the root",
+    "that the reviewer names.",
+  ];
+  const above = plate(1, {
+    reading: "above",
+    summary: lines.join(" "),
+    standfirst: { lines },
+    height: 1071 - (lines.length * 24 + 16) * PX,
+  });
+  const [page] = (await edition([above])).png;
+  const set = inkLines(readPng(page.bytes), {
+    left: 0,
+    right: 2400,
+    top: BODY.top * PX,
+    bottom: (BODY.top + 24 + lines.length * 24 - 12) * PX,
+  });
+  assert.ok(
+    set.length >= 3 && set.length <= lines.length,
+    `the summary set ${set.length} lines: ${JSON.stringify(set)}`,
+  );
+  const { spread, short } = edges(set);
+  assert.ok(spread <= 6, `the lines end ${spread} px apart`);
+  assert.ok(short > 30, "the last line is set short, not stretched");
+  // A summary that would need more lines than were reserved keeps the publisher's own lines, flush left.
+  const kept = ["Alpha calls Beta."];
+  const [fallback] = (
+    await edition([{ ...above, standfirst: { lines: kept }, height: 1071 - (24 + 16) * PX }])
+  ).png;
+  const [plain] = (
+    await edition([
+      { ...above, summary: kept[0], standfirst: { lines: kept }, height: 1071 - (24 + 16) * PX },
+    ])
+  ).png;
+  assert.ok(fallback.bytes.equals(plain.bytes));
 });

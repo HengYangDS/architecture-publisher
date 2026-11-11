@@ -18,7 +18,12 @@
 - [x] 4.1 Rewrite the README around a plate, a one-line install, the published works and the agent path; add a tutorial, how-to guides and a glossary; correct the reference where it no longer matches the code; verify every link resolves, `mise run check` passes and Vale reports nothing in the changed Markdown.
 - [x] 4.2 Add bug, feature and documentation issue forms and a pull request template on GitHub, the same issue and merge request templates on GitLab, and give `CONTRIBUTING.md` an outside-contributor path, a private vulnerability report and a conduct section, since the repository paradigm admits no other root document; verify the checks pass on them.
 
-## 5. Release
+## 5. Readings
 
-- [ ] 5.1 Record 0.12.0 in `CHANGELOG.md`, `VERSION`, `package.json` and `package-lock.json`; verify `mise run check` passes.
-- [ ] 5.2 Build the twelve editions of the six works at publications' current `dev` with the lane's publisher and with 0.11.0; verify every edition, image and page is byte-identical and the manifests differ only in the publisher's version.
+- [x] 5.1 Write failing tests that a summary beside a figure at about 15 em, and a summary above a figure, end every line but the last at the column's edge, and that a summary needing more lines than reserved keeps the engine's lines; verify they fail on 0.11.0.
+- [x] 5.2 Justify every reading beside a figure and set a summary above a figure as justified prose within its reserved lines; verify the tests pass and the twelve editions build.
+
+## 6. Release
+
+- [ ] 6.1 Record 0.12.0 in `CHANGELOG.md`, `VERSION`, `package.json` and `package-lock.json`; verify `mise run check` passes.
+- [ ] 6.2 Build the twelve editions of the six works at publications' current `dev` with the lane's publisher before task 5.2 and with 0.11.0, and verify every edition and image is byte-identical; build them at the release head and verify each differs from 0.11.0 only in the publisher's version, the PDF and the images of plates that set a reading.

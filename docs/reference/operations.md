@@ -186,19 +186,19 @@ percent would wire worse, the figure keeps the full width and gives up the top
 of the body instead: the engine breaks the summary at 17 points of Source Serif
 4 into lines of at most 32 ems, and the figure takes the body's height less 24
 points for each line and 16 points more. The plate then sets the summary above
-the figure, flush left in the title's column with its first baseline 24 points
-below the body's top, and the figure stands on the body's bottom. When the
+the figure, justified within 32 ems in the title's column, its first baseline 24
+points below the body's top, and the figure stands on the body's bottom. When the
 figure would wire worse at that height too, it keeps the whole body and the
 manifest records its reading as left out. A summary above the figure carries
 neither the heading for where each part lives nor the paths. The engine
 measures the summary as Typst sets it, with a quarter em between Han and the
 letters and digits beside it and some full-width marks at half their width,
-but without the faces' kerning, so a line of Latin text can break a little
-earlier than Typst would break it. A view without a summary gives up only width its
+but without the faces' kerning; should Typst need more lines than the engine
+reserved, the plate sets the engine's lines flush left. A view without a summary gives up only width its
 figure leaves at the full width, at its own step, and only when one of its
 components claims files. Beside the figure, 40 points from it, the plate sets
-the view's summary, justified when its column holds 24 ems and flush left
-otherwise, and then where each component it shows lives: its label and the
+the view's summary, justified like the edition's prose at any width of its
+column, and then where each component it shows lives: its label and the
 paths it claims. When the summary and the paths together are taller than the
 body, the plate sets the summary alone, without the heading or the paths. A
 summary taller than the body on its own, or paths taller than it beside no
