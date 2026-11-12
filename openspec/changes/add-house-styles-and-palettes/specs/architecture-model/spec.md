@@ -16,8 +16,8 @@ the nearest valid field.
 
 #### Scenario: An unknown field
 
-- **WHEN** a model's `edition` names `pallete`
-- **THEN** the check refuses the model at `/edition/pallete` and suggests `palette`
+- **WHEN** a model's `edition` names `palettes`
+- **THEN** the check refuses the model at `/edition/palettes` and suggests `palette`
 
 ### Requirement: Custom palette contrast
 

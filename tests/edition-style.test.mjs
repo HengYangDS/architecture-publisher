@@ -178,8 +178,8 @@ test("a measure that rounds onto its bound is shown one step past it", () => {
 });
 
 test("an edition's shape, style, palette name and colours are checked before its rules", () => {
-  assert.deepEqual(refusalOf({ style: "loom", pallete: "indigo" }), [
-    "model_field_unknown /edition/pallete: is not a model field; did you mean palette?",
+  assert.deepEqual(refusalOf({ style: "loom", palettes: "indigo" }), [
+    "model_field_unknown /edition/palettes: is not a model field; did you mean palette?",
     "model_style_unknown /edition/style: must be one of bolts, cards",
   ]);
   const unknown =
@@ -211,8 +211,8 @@ test("an edition's shape, style, palette name and colours are checked before its
 test("a model may name its edition's style and palette", () => {
   const model = validateModel(minimalModel({ edition: { style: "cards", palette: "forest" } }));
   assert.deepEqual(model.edition, { style: "cards", palette: "forest" });
-  assert.deepEqual(problemsOf(minimalModel({ edition: { style: "woven", pallete: "indigo" } })), [
-    "model_field_unknown /edition/pallete",
+  assert.deepEqual(problemsOf(minimalModel({ edition: { style: "woven", palettes: "indigo" } })), [
+    "model_field_unknown /edition/palettes",
     "model_style_unknown /edition/style",
   ]);
 });

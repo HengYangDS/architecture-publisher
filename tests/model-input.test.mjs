@@ -407,11 +407,11 @@ test("a misspelt field names the field it is nearest to", () => {
     "is not a model field; did you mean label?",
   );
   assert.equal(
-    messageAt(minimalModel({ editon: {} }), "/editon"),
+    messageAt(minimalModel({ editions: {} }), "/editions"),
     "is not a model field; did you mean edition?",
   );
   assert.equal(
-    messageAt(minimalModel({ edition: { pallete: "indigo" } }), "/edition/pallete"),
+    messageAt(minimalModel({ edition: { palettes: "indigo" } }), "/edition/palettes"),
     "is not a model field; did you mean palette?",
   );
   // Nothing in the model format is near enough to suggest.
