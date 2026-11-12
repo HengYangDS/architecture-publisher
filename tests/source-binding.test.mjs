@@ -139,8 +139,12 @@ test("each file's size and last change are read from the history at the pin", as
   git("add", "src/side.mjs");
   commitAt(root, "2026-03-01T00:00:00Z", "--message=add side");
   git("switch", "--quiet", "main");
-  // A file the merge itself adds changed in no parent, so only the merge can date it.
-  git("merge", "--quiet", "--no-ff", "--no-commit", "side");
+  // A file the merge itself adds changed in no parent, so only the merge can date it. Git reports a merge stopped
+  // before its commit on standard error even with --quiet, so the report is captured, not printed.
+  execFileSync("git", ["-C", root, "merge", "--quiet", "--no-ff", "--no-commit", "side"], {
+    stdio: "pipe",
+    env: { ...process.env, GIT_CONFIG_NOSYSTEM: "1" },
+  });
   await write("src/merged.mjs", "export const merged = true;\n");
   git("add", "src/merged.mjs");
   commitAt(root, "2026-04-01T00:00:00Z", "--message=merge side");

@@ -201,7 +201,12 @@ test("files verified against the checkout are recorded and cited on the page at 
   assert.match(manifest.sources.records[0].sha256, /^[0-9a-f]{64}$/u);
   // Each cited file keeps its size and the date of its last change at the pin, and the edition weaves its parts.
   assert.equal(typeof manifest.sources.records[0].bytes, "number");
-  assert.equal(manifest.sources.records[0].changed, manifest.edition.date);
+  // The change date is the commit's UTC day; the edition's date is the committer's own, which may differ by one.
+  const changedAt = Number(git("log", "-1", "--format=%ct", "--", "src/main.mjs"));
+  assert.equal(
+    manifest.sources.records[0].changed,
+    new Date(changedAt * 1000).toISOString().slice(0, 10),
+  );
   assert.equal(manifest.style.style, "bolts");
   assert.equal(manifest.style.bands.spans.length, 2);
   assert.equal(manifest.page.quality, "showcase");
