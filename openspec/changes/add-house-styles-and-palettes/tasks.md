@@ -22,5 +22,5 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Build the six publications works in both languages with the defaults and inspect every plate. Done when all builds pass, no plate is refused, and the largest and smallest parts read correctly on a printed A3 proof or its 1:1 image.
-- [ ] 5.2 Run `npm run check` and the full test suite. Done when both pass with no output on standard error.
+- [x] 5.1 Build the six publications works in both languages with the defaults and inspect every plate. All twelve builds pass with 78 plates and none refused; every plate was read at 1:1 or on contact sheets, a strip past its boundary was found and fixed by 29d33bce, and each edition records its strip length (360 px, 240 px for Film Kit in English).
+- [x] 5.2 Run `npm run check` and the full test suite. Both pass at 29d33bce: 303 tests, no test output on standard error.
