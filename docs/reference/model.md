@@ -77,6 +77,7 @@ kinds, details and views.
 | `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.         |
 | `overview`   | no       | The overview composition: a Typst file beside the model, set as the edition's first page.      |
 | `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
+| `edition`    | no       | The print edition's house style and palette; see [Style and palette](#style-and-palette).      |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -255,6 +256,54 @@ Archify checks only that a cited range exists, so after a re-pin a shifted
 citation would cite other text: move it to its new range, and reread every
 touched one. The JSON result holds the worklist in `coverage.currency.worklist`,
 and it never refuses the check.
+
+## Style and palette
+
+The optional `edition` object sets how the print edition looks. The page keeps
+Archify's own themes.
+
+```json
+"edition": { "style": "bolts", "palette": "indigo" }
+```
+
+`style` is `bolts` or `cards`. In `bolts`, each part is its label, a strip woven
+from the files it owns and a caption: the kind, then the number of files and
+their size. A segment of the strip is one file, as wide as its share of the
+part's bytes and as dark as its last change is old, in three age bands the
+edition chooses from the spans 1 day, 3 days, 1 week, 1 month, 3 months, 1 year
+and 3 years so that each band holds about a third of the files. A strip is as
+thick as the code its part owns, on one scale for the edition; a part that owns
+no files is an empty dashed strip. A relation's line is heavier with each file
+that evidences it, up to three, and the relations into the part most others call
+are drawn in the darkest dye. `cards` draws each part as a card with its kind's
+icon and details, as releases before 0.13 did.
+
+`palette` is `indigo` (the default), `persimmon`, `ink` or `forest`, the house
+colours before 0.13, or a palette of your own:
+
+```json
+"palette": { "ground": "#f7f6f2", "ink": "#24272b", "dye": ["#c4dccf", "#6f9a86", "#2f5446"], "accent": "#7a5534" }
+```
+
+A palette of your own must print well; the check refuses it with
+`model_palette_rejected` at the colour that fails, with its measure and the
+bound. Measured in OKLCH lightness L and chroma C, and WCAG contrast against the
+ground: the ground has L at least 0.92 and C at most 0.02; the ink a contrast at
+least 7 and C at most 0.05; each dye step is at least 0.12 darker than the one
+before it, the newest at least 0.07 darker than the ground and the oldest at a
+contrast of at least 4.5, each with C at most 0.08; the accent, which defaults
+to the oldest dye, has a contrast of at least 4.5 and C at most 0.12; and no
+colour lies within 0.06 of the acceptance mark's cinnabar `#A93D31`. Lightness
+alone tells the ages apart, so a photocopy keeps them.
+
+The defaults are `bolts` and `indigo`. A strip needs the files: a build that
+reads no checkout, or a model that claims no files, sets a model that names no
+style in `cards` and warns `style_fallback`, and refuses one that names `bolts`
+with `style_needs_files`. `"edition": {"style": "cards", "palette": "forest"}`
+draws the plates of 0.12 byte for byte.
+
+An overview composition is set in the same palette: the class's `paper` is the
+ground, `ink` the ink, `green` the oldest dye and `ochre` the accent.
 
 ## Overview
 

@@ -60,13 +60,19 @@ explainer with one panel per view or the guide the model names.
    with a line range at the revision, and keep to four native diagrams. Check it
    with `archpub check model.json --repo <checkout>` until Archify's strict
    writing checks and its repository checks pass.
-8. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
+8. Choose the edition's look only if the user asks: an `edition` object with a
+   `style`, `bolts` (each part woven from its files, the default) or `cards`,
+   and a `palette`, `indigo`, `persimmon`, `ink`, `forest` or the user's own
+   colours, which the check holds to printable contrast and refuses with
+   `model_palette_rejected` at the colour that fails. A build without
+   `--repo` sets cards and warns `style_fallback`.
+9. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
    at the edition's every page, its plates and the overview, and at the page
    before showing them to the user. `--media edition` or `--media page` builds
    one medium while you work on it.
-9. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
-   the name the user gives, then `archpub publish <delivery> --to <root>` to the
-   destination the user chose.
+10. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
+    the name the user gives, then `archpub publish <delivery> --to <root>` to the
+    destination the user chose.
 
 To re-pin a work to a later commit, first run
 `archpub check model.json --repo <checkout> --against <commit>`. Its re-pin

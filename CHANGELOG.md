@@ -7,7 +7,25 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- A model may choose its print edition's look in an optional `edition` object: the house style, `bolts` or
+  `cards`, and the palette, `indigo`, `persimmon`, `ink`, `forest` or one of its own. A palette of its own is held
+  to contrast, chroma and lightness rules and refused with `model_palette_rejected` at the colour that fails, with
+  its measure and the bound.
+- In `bolts`, the new default, each part is a strip woven from the files it owns: a segment per file, as wide as its
+  share of the part's bytes and as dark as its last change is old; the strip as thick as the part's code. A
+  relation's line is heavier with each file that evidences it, the relations into the part most others call are
+  drawn in the darkest dye, and the plate's key explains each of these it shows.
+
 ### Changed
+
+- **Breaking**: the manifest is version 7. Each cited file records its size and the date of its last change at the
+  pin, and the manifest records the edition's style, palette and age bands. The default plates change: a build
+  that reads a checkout weaves its parts; one that reads none sets cards and warns `style_fallback`.
+  `"edition": {"style": "cards", "palette": "forest"}` keeps the 0.12 look.
+- An overview composition is set in the edition's palette: `green` is the palette's oldest dye and `ochre` its
+  accent.
 
 - The specifications are validated with OpenSpec 2.0.0, which keeps the workflows and the validation; its
   changes to agent skills and slash commands do not apply, as the repository configures no OpenSpec tool.
