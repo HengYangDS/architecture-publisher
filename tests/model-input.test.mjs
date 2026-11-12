@@ -503,11 +503,11 @@ test("a misspelt field names the field it is nearest to", () => {
     assert.fail("the model was accepted");
   };
   assert.equal(
-    messageAt(minimalModel({ vews: [] }), "/vews"),
+    messageAt(minimalModel({ viewz: [] }), "/viewz"),
     "is not a model field; did you mean views?",
   );
   assert.equal(
-    messageAt(minimalModel({ components: [{ id: "a", lable: "Alpha" }] }), "/components/0/lable"),
+    messageAt(minimalModel({ components: [{ id: "a", labl: "Alpha" }] }), "/components/0/labl"),
     "is not a model field; did you mean label?",
   );
   // Nothing in the model format is near enough to suggest.

@@ -36,8 +36,8 @@ that object has when one differs from it by at most a third of its letters.
 
 #### Scenario: A misspelt field
 
-- **WHEN** a model has a top-level field `vews`
-- **THEN** the build refuses with `model_field_unknown` at `/vews`
+- **WHEN** a model has a top-level field `viewz`
+- **THEN** the build refuses with `model_field_unknown` at `/viewz`
 - **AND** the message names `views`
 
 #### Scenario: A schema reference

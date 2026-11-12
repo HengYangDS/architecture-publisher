@@ -124,7 +124,7 @@ Coverage at b371a1b: 3 of 3 files owned, 0 uncovered, 0 excluded.
 Your commit differs from `b371a1b`. The check read every claimed and cited file
 at the pinned commit and wrote nothing. Three parts leave most of a plate blank, so the plate misses balance
 gates; that is recorded for the reviewer, not refused. Misspell a field, such
-as `lable`, and the check refuses the model and names the field you meant.
+as `labl`, and the check refuses the model and names the field you meant.
 
 ## 4. Build the work
 
