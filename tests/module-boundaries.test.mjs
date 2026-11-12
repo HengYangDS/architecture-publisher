@@ -36,7 +36,7 @@ const ALLOWED = Object.freeze({
     "sources",
     "supply",
   ],
-  delivery: ["build", "refusal"],
+  delivery: ["build", "edition", "environment", "refusal"],
   cli: ["build", "cli", "delivery", "importers", "refusal"],
 });
 

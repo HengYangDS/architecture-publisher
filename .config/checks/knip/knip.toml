@@ -1,6 +1,6 @@
 "$schema" = "https://unpkg.com/knip@6/schema.json"
 treatConfigHintsAsErrors = true
-ignoreBinaries = ["cue", "mise", "taplo"]
+ignoreBinaries = ["cue", "mise", "ssh-keygen", "taplo"]
 # Vendored or bundled by the supply tools, not imported by maintained modules.
 ignoreDependencies = ["opentype.js", "@likec4/language-services", "bundle-require"]
 

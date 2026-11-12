@@ -7,8 +7,29 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- `archpub accept` sets a colophon page, `colophon.pdf`, beside the delivery: one page in the edition's size and
+  language with a round acceptance mark in cinnabar, the publisher's word for accepted and the date on its rim and the
+  reviewer's name across its band, worn where the manifest's digest says, and beside it the reviewer, the time in UTC,
+  the model's title and revision, the manifest's digest and the signer or "unsigned". No artifact of the delivery
+  changes. `--seal-name` sets another name on the mark; a name with a character no house face draws is refused with
+  `acceptance_name_unset`, and one too long for the band with `acceptance_name_too_long`.
+- `archpub accept --sign <private key>` signs the manifest's digest with `ssh-keygen -Y sign` in the namespace
+  `archpub-acceptance` and records the signature and the key's fingerprint; a key ssh-keygen cannot use is refused with
+  `acceptance_sign_failed`.
+- `archpub verify <delivery> [--allowed-signers <file>]` checks every artifact against the manifest, the acceptance
+  record against the manifest and the colophon page, and with allowed signers the signature for the reviewer, and
+  refuses at the first link that fails.
+
 ### Changed
 
+- **Breaking:** the acceptance record is version 2. It adds `accepted_at`, `colophon` and the optional `seal_name`,
+  `signature` and `signer`. `verify` and `publish` refuse a version 1 record with `acceptance_version_unsupported`;
+  remove it and accept the unchanged delivery again. Published versions keep their records.
+- `publish` copies the colophon page with the delivery and refuses a page that is not the one the record names. A
+  record that is not an acceptance record or names another manifest is refused with `acceptance_invalid` or
+  `acceptance_manifest_mismatch`; `publish_unaccepted` now means only that the delivery has no record.
 - The specifications are validated with OpenSpec 2.0.0, which keeps the workflows and the validation; its
   changes to agent skills and slash commands do not apply, as the repository configures no OpenSpec tool.
 

@@ -65,8 +65,16 @@ explainer with one panel per view or the guide the model names.
    before showing them to the user. `--media edition` or `--media page` builds
    one medium while you work on it.
 9. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
-   the name the user gives, then `archpub publish <delivery> --to <root>` to the
-   destination the user chose.
+   the name the user gives, adding `--sign <private key>` when the user signs
+   with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
+   the name, and `acceptance.json`. A name with a character the house faces do
+   not draw is refused with `acceptance_name_unset`; ask the user for a name
+   they draw for the mark, which `--seal-name <name>` sets. Show the user the
+   colophon page, run `archpub verify <delivery>`, or for a signed acceptance
+   `archpub verify <delivery> --allowed-signers <file>` with the signers the user
+   keeps, then `archpub publish <delivery> --to <root>` to the destination the
+   user chose. A delivery accepted by an earlier release is refused with
+   `acceptance_version_unsupported` until the user accepts it again.
 
 To re-pin a work to a later commit, first run
 `archpub check model.json --repo <checkout> --against <commit>`. Its re-pin

@@ -47,7 +47,7 @@ test("every command, option and refusal code the Skill names exists", async () =
     const command = words.slice(0, ["import", "scaffold"].includes(words[0]) ? 2 : 1);
     const help = await runCli([...command, "--help"]);
     assert.equal(help.exitCode, 0, span);
-    for (const option of span.match(/--[a-z]+/gu) ?? [])
+    for (const option of span.match(/--[a-z]+(?:-[a-z]+)*/gu) ?? [])
       assert.ok(names(help.output, option), `${span} names ${option}`);
   }
   for (const span of named.filter((one) => one.startsWith("--")))

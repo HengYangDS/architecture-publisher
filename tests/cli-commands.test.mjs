@@ -9,6 +9,7 @@ import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtu
 import { repository } from "./fixtures/repository.mjs";
 
 const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
+/** OpenSSH's key tool, which the host provides as acceptance does. */
 const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
 const json = async (args) => {
   const { exitCode, output } = await runCli([...args, "--json"]);
@@ -22,6 +23,9 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
     [["import", "mermaid"], "Unknown command import mermaid."],
     [["check", "--color", "red"], "Unknown option --color."],
     [["check", "model.json", "--repo"], "--repo needs a value."],
+    [["verify"], "Name exactly one delivery."],
+    [["verify", "delivery", "--allowed-signers"], "--allowed-signers needs a value."],
+    [["accept", "delivery", "--reviewer", "R", "--seal"], "Unknown option --seal."],
     [["build", "model.json"], "--out is required."],
     [["scaffold", "guide", "model.json"], "--out is required."],
     [["scaffold", "page"], "Unknown command scaffold page."],
@@ -65,8 +69,9 @@ test("each command explains itself with --help", async () => {
     ],
     [
       ["accept", "--help"],
-      "  archpub accept <delivery> --reviewer <name> [--note <text>] [--json]",
+      "  archpub accept <delivery> --reviewer <name> [--seal-name <name>] [--note <text>]",
     ],
+    [["verify", "--help"], "  archpub verify <delivery> [--allowed-signers <file>] [--json]"],
     [["publish", "--help"], "  archpub publish <delivery> --to <root> [--version <name>] [--json]"],
     [["migrate", "--help"], "  archpub migrate <model.json> --out <model.json> [--json]"],
     [
@@ -89,6 +94,9 @@ test("each command explains itself with --help", async () => {
   const build = (await runCli(["build", "--help"])).output;
   assert.match(build, /--repo <checkout> /u);
   assert.doesNotMatch((await runCli(["accept", "--help"])).output, /--repo/u);
+  // Accept and verify explain the options of acceptance.
+  assert.match((await runCli(["accept", "--help"])).output, /--sign <private key> /u);
+  assert.match((await runCli(["verify", "--help"])).output, /--allowed-signers <file> /u);
   // Help asked for in the middle of a command line, and a usage error, answer with the command's usage.
   assert.deepEqual(await runCli(["build", "model.json", "--help"]), { exitCode: 0, output: build });
   assert.deepEqual(await runCli(["build", "model.json"]), {
@@ -181,8 +189,43 @@ test("check, build, accept, publish and import run end to end", async (t) => {
     (await runCli(["build", model, "--out", out])).output,
     /^Built 1 view as the print edition of 1 plate and the page into /u,
   );
-  const accepted = await json(["accept", out, "--reviewer", "Reviewer", "--note", "fine"]);
-  assert.equal(accepted.body.reviewer, "Reviewer");
+  assert.equal((await json(["verify", out])).body.code, "acceptance_missing");
+  assert.match(
+    (await runCli(["accept", out, "--reviewer", "Reviewer", "--seal-name", "R", "--note", "fine"]))
+      .output,
+    /^Accepted .* for Reviewer, unsigned; the colophon page is .*colophon\.pdf\.\n$/u,
+  );
+  const verified = await json(["verify", out]);
+  assert.deepEqual(
+    [verified.exitCode, verified.body.reviewer, verified.body.signature],
+    [0, "Reviewer", "unsigned"],
+  );
+  assert.match(
+    (await runCli(["verify", out])).output,
+    /^Verified .*, accepted by Reviewer at \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z, unsigned\.\n$/u,
+  );
+  const allowed = path.join(root, "allowed-signers");
+  const unsigned = await json(["verify", out, "--allowed-signers", allowed]);
+  assert.deepEqual([unsigned.exitCode, unsigned.body.code], [1, "acceptance_signature_invalid"]);
+  // A signed acceptance of a copy names its signer, and verify checks it against the allowed signers.
+  const signed = path.join(root, "signed");
+  await fs.cp(out, signed, { recursive: true });
+  for (const file of ["acceptance.json", "colophon.pdf"]) await fs.rm(path.join(signed, file));
+  const key = path.join(root, "key");
+  spawnSync("ssh-keygen", ["-q", "-t", "ed25519", "-N", "", "-f", key], { stdio: "ignore" });
+  await fs.writeFile(allowed, `Reviewer ${await fs.readFile(`${key}.pub`, "utf8")}`);
+  assert.match(
+    (await runCli(["accept", signed, "--reviewer", "Reviewer", "--sign", key])).output,
+    /^Accepted .* for Reviewer, signed by SHA256:\S+; the colophon page is /u,
+  );
+  assert.match(
+    (await runCli(["verify", signed])).output,
+    /, signed by SHA256:\S+, unchecked without --allowed-signers\.\n$/u,
+  );
+  assert.match(
+    (await runCli(["verify", signed, "--allowed-signers", allowed])).output,
+    /, signed by SHA256:\S+ and checked against the allowed signers\.\n$/u,
+  );
   const target = path.join(root, "published");
   const published = await runCli(["publish", out, "--to", target, "--version", "v1"]);
   assert.match(published.output, /^Published .*v1\.\n$/u);

@@ -15,11 +15,17 @@ every artifact of the manifest unchanged.
 - **THEN** every artifact still matches the manifest and the delivery holds a
   colophon page whose digest the acceptance record names
 
-#### Scenario: A name in any script
+#### Scenario: A name in another script
 
-- **WHEN** a reviewer named `محمد عبد الله` accepts a Chinese edition
-- **THEN** the mark's rim reads 验收 and the date, and the name is set across the
-  band right to left
+- **WHEN** a reviewer named `김민준` accepts an English edition
+- **THEN** the mark's rim reads ACCEPTED and the date, and the name is set across
+  the band in Hangul
+
+#### Scenario: A name no face can set
+
+- **WHEN** a reviewer's name holds a character no house face draws
+- **THEN** acceptance refuses with `acceptance_name_unset`, names the characters
+  and suggests `--seal-name`
 
 ### Requirement: Verification
 

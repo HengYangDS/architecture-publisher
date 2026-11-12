@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
-import { acceptDelivery, publishDelivery } from "../delivery.mjs";
+import { acceptDelivery, publishDelivery, verifyAcceptance } from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
 import { migrateModel } from "../importers/model.mjs";
 import { Refusal } from "../refusal.mjs";
@@ -17,6 +17,18 @@ const BUILD_OPTIONS = `Build options:
 
 const CHECK_OPTIONS = `Check options:
   --against <revision>  With --repo, compare the model's revision with this one.
+`;
+
+const ACCEPT_OPTIONS = `Accept options:
+  --seal-name <name>    The name the mark sets instead of the reviewer's, in a script
+                        the house faces draw.
+  --sign <private key>  Sign the manifest's digest with this SSH key, or the key
+                        ssh-agent holds for this public key.
+`;
+
+const VERIFY_OPTIONS = `Verify options:
+  --allowed-signers <file>  Check the record's signature for its reviewer against
+                            this ssh-keygen allowed signers file.
 `;
 
 class UsageError extends Error {}
@@ -310,16 +322,42 @@ const COMMANDS = {
       `Wrote ${result.out}: components claim ${count(result.claims, "file")}, relations cite ${count(result.cited, "file")}.\n${result.moved.map((entry) => `kept with ${entry.owner}: ${entry.path}, no longer cited by ${series(entry.components)}\n`).join("")}`,
   },
   accept: {
-    usage: ["archpub accept <delivery> --reviewer <name> [--note <text>] [--json]"],
-    purpose: "Record a named reviewer's acceptance of an unchanged delivery.",
-    sections: [],
-    options: ["reviewer", "note"],
+    usage: [
+      "archpub accept <delivery> --reviewer <name> [--seal-name <name>] [--note <text>]",
+      "  [--sign <private key>] [--json]",
+    ],
+    purpose:
+      "Record a named reviewer's acceptance of an unchanged delivery and set its colophon page.",
+    sections: [ACCEPT_OPTIONS],
+    options: ["reviewer", "seal-name", "note", "sign"],
     run: ({ positionals, options }) =>
       acceptDelivery(one(positionals, "delivery"), {
         reviewer: required(options, "reviewer"),
+        sealName: options["seal-name"] ?? null,
         note: options.note ?? null,
+        sign: options.sign ?? null,
       }),
-    text: (result) => `Accepted ${result.directory} for ${result.reviewer}.\n`,
+    text: (result) =>
+      `Accepted ${result.directory} for ${result.reviewer}, ${result.signer ? `signed by ${result.signer}` : "unsigned"}; the colophon page is ${result.colophon}.\n`,
+  },
+  verify: {
+    usage: ["archpub verify <delivery> [--allowed-signers <file>] [--json]"],
+    purpose:
+      "Check an accepted delivery against its manifest, acceptance record and colophon page.",
+    sections: [VERIFY_OPTIONS],
+    options: ["allowed-signers"],
+    run: ({ positionals, options }) =>
+      verifyAcceptance(one(positionals, "delivery"), {
+        allowedSigners: options["allowed-signers"] ?? null,
+      }),
+    text: (result) =>
+      `Verified ${result.directory}, accepted by ${result.reviewer} at ${result.acceptedAt}, ${
+        {
+          verified: `signed by ${result.signer} and checked against the allowed signers`,
+          unchecked: `signed by ${result.signer}, unchecked without --allowed-signers`,
+          unsigned: "unsigned",
+        }[result.signature]
+      }.\n`,
   },
   publish: {
     usage: ["archpub publish <delivery> --to <root> [--version <name>] [--json]"],

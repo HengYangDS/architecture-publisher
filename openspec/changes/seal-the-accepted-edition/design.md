@@ -41,7 +41,10 @@ A ring in cinnabar `#A93D31`, the publisher's word for accepted in the
 edition's language on the upper rim and the date `YYYY-MM-DD` on the lower, set
 along the arc glyph by glyph; the name straight across a band through the
 centre, at the largest size between 7% and 13% of the mark's width that fits,
-so joining and right-to-left scripts keep their shapes. The wear (where the
+so joining and right-to-left scripts keep their shapes. The mark sets the name in the house faces,
+which draw Latin, Greek, Cyrillic, Han, kana and Hangul; a name with a character no face draws is
+refused with `acceptance_name_unset` and the reviewer may give a `--seal-name` the faces draw. Faces
+for further scripts join the supply in a later Change. The wear (where the
 ring thins) comes from the manifest digest, so each delivery's mark differs and
 a reprint of the same delivery is identical. `--seal-name` replaces the
 reviewer's name on the mark only.

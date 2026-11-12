@@ -1,6 +1,7 @@
 /**
  * The words the print edition sets itself, in each language a model may be read in: the edition's name, the
- * contents, the labels of its facts, its reading note and its foot. Everything else in the edition is the model's
+ * contents, the labels of its facts, its reading note and its foot, and on the colophon page of an accepted delivery
+ * the word on the mark's rim and the labels of the acceptance's facts. Everything else in the edition is the model's
  * own text or a fact the publisher records.
  */
 
@@ -17,6 +18,8 @@ import { DEFAULT_LOCALE } from "../locale.mjs";
  *   foot: (title: string, release: string | null, revision: string, date: string | null) => string,
  *   plate: (number: string, title: string, question: string) => string,
  *   places: string, list: string,
+ *   accepted: string, colophon: string, colophonNote: string, reviewer: string, acceptedOn: string,
+ *   manifest: string, signature: string, unsigned: string,
  * }} EditionWords
  */
 
@@ -49,6 +52,15 @@ const WORDS = Object.freeze({
     plate: (number, title, question) => `Plate ${number}: ${title}. ${question}`,
     places: "Where it lives",
     list: ", ",
+    accepted: "Accepted",
+    colophon: "Acceptance",
+    colophonNote:
+      "The acceptance record beside this page names the SHA-256 of this page and of the manifest; archpub verify checks both.",
+    reviewer: "Reviewer",
+    acceptedOn: "Date",
+    manifest: "Manifest",
+    signature: "Signature",
+    unsigned: "Unsigned",
   }),
   "zh-CN": Object.freeze({
     edition: "架构图册",
@@ -77,6 +89,14 @@ const WORDS = Object.freeze({
     plate: (number, title, question) => `图版 ${number}：${title}。${question}`,
     places: "文件位置",
     list: "、",
+    accepted: "验收",
+    colophon: "验收记录",
+    colophonNote: "本页旁的验收记录载有本页与清单的 SHA-256；archpub verify 核验两者。",
+    reviewer: "验收人",
+    acceptedOn: "日期",
+    manifest: "清单",
+    signature: "签名",
+    unsigned: "未签名",
   }),
   "zh-TW": Object.freeze({
     edition: "架構圖冊",
@@ -105,6 +125,14 @@ const WORDS = Object.freeze({
     plate: (number, title, question) => `圖版 ${number}：${title}。${question}`,
     places: "檔案位置",
     list: "、",
+    accepted: "驗收",
+    colophon: "驗收記錄",
+    colophonNote: "本頁旁的驗收記錄載有本頁與清單的 SHA-256；archpub verify 核驗兩者。",
+    reviewer: "驗收人",
+    acceptedOn: "日期",
+    manifest: "清單",
+    signature: "簽章",
+    unsigned: "未簽章",
   }),
   es: Object.freeze({
     edition: "Edición de arquitectura",
@@ -134,6 +162,15 @@ const WORDS = Object.freeze({
     plate: (number, title, question) => `Lámina ${number}: ${title}. ${question}`,
     places: "Ubicación",
     list: ", ",
+    accepted: "Aceptado",
+    colophon: "Aceptación",
+    colophonNote:
+      "El registro de aceptación junto a esta página nombra el SHA-256 de esta página y del manifiesto; archpub verify comprueba ambos.",
+    reviewer: "Revisor",
+    acceptedOn: "Fecha",
+    manifest: "Manifiesto",
+    signature: "Firma",
+    unsigned: "Sin firmar",
   }),
   ko: Object.freeze({
     edition: "아키텍처 판",
@@ -162,6 +199,15 @@ const WORDS = Object.freeze({
     plate: (number, title, question) => `도판 ${number}: ${title}. ${question}`,
     places: "파일 위치",
     list: ", ",
+    accepted: "승인",
+    colophon: "승인 기록",
+    colophonNote:
+      "이 쪽 옆의 승인 기록은 이 쪽과 매니페스트의 SHA-256을 밝히며, archpub verify가 둘 다 확인합니다.",
+    reviewer: "검토자",
+    acceptedOn: "일시",
+    manifest: "매니페스트",
+    signature: "서명",
+    unsigned: "서명 없음",
   }),
 });
 
