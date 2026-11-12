@@ -142,9 +142,9 @@ const HOUSE_TOKENS = Object.freeze({
 /**
  * The style a plate is drawn in when its edition names none: cards in the
  * house tokens.
- * @type {import("./bolts.mjs").Style}
+ * @type {import("./strip.mjs").Style}
  */
-export const HOUSE_STYLE = Object.freeze({ name: "cards", tokens: HOUSE_TOKENS });
+export const HOUSE_STYLE = Object.freeze({ name: "card", tokens: HOUSE_TOKENS });
 
 /**
  * The colours of a figure, named by what they mark, from an edition's
@@ -152,7 +152,7 @@ export const HOUSE_STYLE = Object.freeze({ name: "cards", tokens: HOUSE_TOKENS }
  * the palette's green, checks in its ochre and what lies outside the system in
  * a grey; a kind is told apart by its icon and label. The dyes run from the
  * newest age band to the oldest.
- * @param {import("./bolts.mjs").Tokens} tokens
+ * @param {import("./strip.mjs").Tokens} tokens
  */
 export function colorsOf({ palette, figure, dye }) {
   return Object.freeze({
@@ -213,15 +213,19 @@ function style(size, extra = {}) {
  * A figure's text at one type step. Every size comes from the type scale, so a
  * sparse view is set larger and a dense one smaller without ever leaving it.
  * @param {{ name: number, detail: number, edge: number }} step
+ * @param {boolean} [strips] whether the figure is drawn with strip marks
  */
-export function figureStyles(step) {
+export function figureStyles(step, strips = false) {
   return Object.freeze({
     name: style(step.name, { weight: 700 }),
     detail: style(step.detail),
-    edge: style(step.edge, { weight: 700 }),
+    // Strip parts carry their names alone in bold, so a relation's name, set
+    // regular, reads under the parts it joins rather than as loud as them.
+    edge: style(step.edge, { weight: strips ? 400 : 700 }),
     edgeDetail: style(step.detail),
     tier: style(step.detail, { weight: 700 }),
     note: style(POSTER.floor, { weight: 700 }),
+    tick: style(POSTER.floor),
     boundary: style(Math.min(24, Math.max(step.name, 20)), { weight: 700 }),
   });
 }

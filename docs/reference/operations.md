@@ -174,8 +174,12 @@ no composition lays out is refused with `plate_unfittable`. Figure text is
 measured in Source Sans 3, its semibold for heavy text, and Noto Sans CJK SC
 for the characters the first lacks; lines break at spaces but not at no-break
 spaces, and between Han and Kana characters, keeping closing punctuation on the
-line before. Each kind draws its Lucide icon. A plate is drawn as the SVG of its
-shapes and a list of text runs, which the edition sets as text.
+line before. A plate draws its parts with the edition's
+[marks](model.md#marks-and-palette), in its palette: a card draws its kind's
+Lucide icon, and a part drawn as a strip has a box as wide as the larger of its
+text and its strip, so placement and every gate run on boxes with either marks.
+A plate is drawn as the SVG of its shapes and a list of text runs, which the
+edition sets as text.
 
 A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with
@@ -218,7 +222,10 @@ The print edition is typeset by Typst 0.15.1 with the house class into
 - the overview, set in place from its composition when the model names one;
 - one plate per view, headed by its number, title and question, its figure
   beside the view's reading when it leaves part of the body or below it when it
-  keeps the full width, with a key of the kinds and statuses it shows.
+  keeps the full width, with a key of what its figure shows: with cards, the
+  kinds, the boundary and the statuses; with strips, the age bands and the
+  pin's date, a scale bar, the citation ticks, the hub, the boundary and the
+  statuses.
 
 Every page after the title page shares one frame: a head at the margin, a body
 from 112 to 826 points, the key at 848 and a foot of a rule and the work's
@@ -374,11 +381,15 @@ guidance keeps a page to four native diagrams.
 
 Nothing else is written at the top of the delivery.
 
-The manifest records its format and version 6, the publisher's name and
+The manifest records its format and version 7, the publisher's name and
 version, the model id, title, language, digest and size, the declared
-repository, the build's quality and media, every cited file with its state,
-digest, owner and the relations that cite it, the digest of each bundled
-supply, each view with its tiers, members and plate number, the edition's file,
+repository, the build's quality and media, in `style` the edition's marks, its
+palette's id (`custom` for the model's own) with its Chinese and English
+names and its resolved ground, ink, dye steps and accent, and with strips the
+age bands' spans in seconds and the pin's date, every cited file with its
+state, digest, size in bytes, the UTC date of its last change at the pin, owner
+and the relations that cite it, the digest of each bundled supply, each view
+with its tiers, members and plate number, the edition's file,
 page count, Typst version, house class digest, release, date and what dated it,
 each plate with its number, views, share of the body, reading, images,
 composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft path and digest, each file it names,
@@ -434,7 +445,7 @@ or Archify reported.
 | `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, a line of a summary above its figure wider than 32 ems, or a plate's title longer than its line. |
 | `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.                                                   |
 | `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                                                             |
-| `style_needs_files`                                                                     | The model asks for the `bolts` style, but the build reads no checkout or the model claims no files.                                                           |
+| `marks_need_files`                                                                      | The model asks for `strip` marks, but the build reads no checkout or the model claims no files.                                                               |
 | `source_history_unavailable`                                                            | The checkout is shallow, or a cited file has no change in its history, so its age cannot be read.                                                             |
 | `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                                                                    |
 | `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                                                                     |

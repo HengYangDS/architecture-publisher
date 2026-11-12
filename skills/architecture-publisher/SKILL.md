@@ -60,12 +60,16 @@ explainer with one panel per view or the guide the model names.
    with a line range at the revision, and keep to four native diagrams. Check it
    with `archpub check model.json --repo <checkout>` until Archify's strict
    writing checks and its repository checks pass.
-8. Choose the edition's look only if the user asks: an `edition` object with a
-   `style`, `bolts` (each part woven from its files, the default) or `cards`,
-   and a `palette`, `indigo`, `persimmon`, `ink`, `forest` or the user's own
-   colours, which the check holds to printable contrast and refuses with
+8. Choose the edition's look only if the user asks: an `edition` object with
+   `marks` (画法), 条带 `strip` (each part a strip as long as its code, its
+   segments the files it owns dyed by age, the default) or 卡片 `card`, and a
+   `palette` (配色), 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`, 铜绿
+   `patina` or the user's own colours, which the check holds to printable
+   contrast, chroma, lightness and hue and refuses with
    `model_palette_rejected` at the colour that fails. A build without
-   `--repo` sets cards and warns `style_fallback`.
+   `--repo`, or of a model that claims no files, draws cards and warns
+   `marks_fallback`, and refuses a model that names `strip` with
+   `marks_need_files`.
 9. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
    at the edition's every page, its plates and the overview, and at the page
    before showing them to the user. `--media edition` or `--media page` builds

@@ -3,7 +3,7 @@ import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
 import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf } from "../locale.mjs";
-import { boltBoxes } from "./bolts.mjs";
+import { stripBoxes } from "./strip.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
 import { POSTER, figureMetrics, figureStyles, measureWidth } from "./tokens.mjs";
@@ -163,15 +163,15 @@ function cardBoxes(words, typefaces, styles, card) {
 /**
  * The layout metrics of one plate. The field bounds the boxes and their text
  * sets their width; every box keeps its content height, so the figure reports
- * how large it really is. The style decides whether a part is a card or a bolt.
+ * how large it really is. The style decides whether a part is a card or a strip.
  */
 function candidateMetrics(input) {
   const { model, view, typefaces, styles, metrics, field, style } = input;
   const { card, wire, spacing } = metrics;
   const words = wordsOf(model.locale);
   const boxes =
-    style.name === "bolts"
-      ? boltBoxes({ model, typefaces, styles, card, style })
+    style.name === "strip"
+      ? stripBoxes({ model, typefaces, styles, card, style })
       : cardBoxes(words, typefaces, styles, card);
   return {
     // The field already excludes the tier-label column, so it is the content width.
@@ -413,7 +413,7 @@ function cardBroken(words, typefaces, styles, card, component, width) {
 export function platesOf(input, plate) {
   const found = [];
   for (const [index, step] of POSTER.steps.entries()) {
-    const styles = figureStyles(step);
+    const styles = figureStyles(step, input.style.name === "strip");
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
       const { centring } = input;

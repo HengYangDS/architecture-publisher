@@ -73,6 +73,7 @@ test("models without files bind nothing, and without a checkout every declared p
     ]),
     times: new Map(),
     pinTime: null,
+    pinDate: null,
   });
   const model = claimingModel("a".repeat(40), [["src/", "README.md"]], ["src/main.mjs"]);
   const binding = bindSources(model, null);
@@ -84,7 +85,7 @@ test("models without files bind nothing, and without a checkout every declared p
     { path: "src/main.mjs", ...unread, owner: null, relations: ["a-b"], state: "unverified" },
   ]);
   assert.deepEqual(Object.keys(binding.records[0]), FIELDS);
-  assert.deepEqual([binding.times, binding.pinTime], [new Map(), null]);
+  assert.deepEqual([binding.times, binding.pinTime, binding.pinDate], [new Map(), null, null]);
   // Without the tree a directory cannot be read, so a component is known to own only the files it names.
   assert.deepEqual(binding.owned.get("a"), ["README.md"]);
 });
@@ -125,6 +126,8 @@ test("files are read at the revision, not from the work tree", async (t) => {
     ]),
   );
   assert.equal(binding.pinTime, pinTime);
+  // The pin's date is the one its committer recorded, as the edition's foot prints it.
+  assert.equal(binding.pinDate, git("show", "-s", "--format=%cs", revision));
   assert.deepEqual(Object.keys(binding.records[0]), FIELDS);
 });
 

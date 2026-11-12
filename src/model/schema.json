@@ -325,19 +325,19 @@
       ]
     },
     "edition": {
-      "description": "The print edition's house style and palette; the build chooses either the model leaves out.",
+      "description": "How the print edition draws its parts and in which palette; the build chooses either the model leaves out.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "style": {
-          "description": "Parts woven from their files as strips (bolts) or set as icon cards (cards).",
-          "enum": ["bolts", "cards"]
+        "marks": {
+          "description": "Each part as a strip of the files it owns, as long as its code (strip, the default with file facts), or as a card with its kind's icon (card).",
+          "enum": ["strip", "card"]
         },
         "palette": {
-          "description": "A built-in palette, or the model's own, which must pass the publisher's contrast, chroma and lightness rules.",
+          "description": "A built-in palette, indigo (the default), persimmon, soot or patina, or the model's own, which must pass the publisher's contrast, chroma, lightness and hue rules.",
           "oneOf": [
             {
-              "enum": ["indigo", "persimmon", "ink", "forest"]
+              "enum": ["indigo", "persimmon", "soot", "patina"]
             },
             {
               "type": "object",

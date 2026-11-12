@@ -1,18 +1,18 @@
 ## ADDED Requirements
 
-### Requirement: Edition style and palette
+### Requirement: Edition marks and palette
 
-A model MAY name its print edition's house style and palette in an optional
-`edition` object. `style` SHALL be `bolts` or `cards`. `palette` SHALL be one of
-`indigo`, `persimmon`, `ink` and `forest`, or an object of `ground`, `ink`, a
-`dye` of three colours from new to old and an optional `accent`, each a
-`#rrggbb` colour. The publisher SHALL refuse any other value or field and name
-the nearest valid field.
+A model MAY name how its print edition draws parts and which palette it uses in
+an optional `edition` object. `marks` SHALL be `strip` or `card`. `palette`
+SHALL be one of `indigo`, `persimmon`, `soot` and `patina`, or an object of
+`ground`, `ink`, a `dye` of three colours from new to old and an optional
+`accent`, each a `#rrggbb` colour. The publisher SHALL refuse any other value
+or field and name the nearest valid field.
 
-#### Scenario: A named style and palette
+#### Scenario: Named marks and palette
 
-- **WHEN** a model sets `"edition": {"style": "cards", "palette": "persimmon"}`
-- **THEN** its print edition is set in cards with the persimmon palette
+- **WHEN** a model sets `"edition": {"marks": "card", "palette": "persimmon"}`
+- **THEN** its print edition draws parts as cards in the persimmon palette
 
 #### Scenario: An unknown field
 
@@ -44,7 +44,9 @@ The publisher SHALL refuse a custom palette with `model_palette_rejected` unless
 dye step is at least 0.12 darker in OKLCH lightness than the one before, the
 newest at least 0.07 below the ground and the oldest at WCAG contrast at least
 4.5 against it, each step has chroma at most 0.08, and no colour of the palette
-lies within 0.06 of the seal's cinnabar `#A93D31` in OKLab.
+lies within 0.06 of the seal's cinnabar `#A93D31` in OKLab, and the dye steps
+whose chroma exceeds 0.02 turn through at most 60° of OKLCH hue, so they read
+as one colour aging.
 
 #### Scenario: A loud dye
 

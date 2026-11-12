@@ -40,31 +40,34 @@
     "mid": "#617465",
     "old": "#324f3e"
   },
-  "housePalette": "forest",
   "palettes": {
     "indigo": {
+      "name": { "zh-CN": "靛蓝", "en": "Indigo" },
       "ground": "#f6f5f1",
       "ink": "#25282c",
       "dye": ["#b7d8db", "#7099ae", "#334965"],
       "accent": "#7a5534"
     },
     "persimmon": {
+      "name": { "zh-CN": "柿漆", "en": "Persimmon" },
       "ground": "#f6f4ef",
       "ink": "#2b2622",
       "dye": ["#e0d2bd", "#af9279", "#6c4d3c"],
       "accent": "#3e5873"
     },
-    "ink": {
+    "soot": {
+      "name": { "zh-CN": "松烟", "en": "Soot" },
       "ground": "#f5f5f3",
       "ink": "#232527",
       "dye": ["#d5d8da", "#8f9296", "#3a3d41"],
       "accent": "#66625a"
     },
-    "forest": {
-      "ground": "#f5f3ed",
-      "ink": "#29372f",
-      "dye": ["#b9c9bb", "#617465", "#324f3e"],
-      "accent": "#845922"
+    "patina": {
+      "name": { "zh-CN": "铜绿", "en": "Patina" },
+      "ground": "#f3f3ec",
+      "ink": "#192724",
+      "dye": ["#bcd2b7", "#699d81", "#1a655d"],
+      "accent": "#754d36"
     }
   },
   "plate": {

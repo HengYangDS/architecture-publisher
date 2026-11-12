@@ -1,21 +1,21 @@
 import fs from "node:fs";
 
 /**
- * The edition's house style and palette: how a model names them, the rules a palette it gives
- * itself must meet, and the tokens every palette resolves to. Colours are measured in OKLab and
- * OKLCH, whose lightness tells the dye steps apart even on a photocopy, and in WCAG 2 contrast
- * against the ground, the measure readers' tools report.
+ * The edition's marks and palette: how a model names them, the rules a palette it gives itself
+ * must meet, and the tokens every palette resolves to. Colours are measured in OKLab and OKLCH,
+ * whose lightness tells the dye steps apart even on a photocopy, and in WCAG 2 contrast against
+ * the ground, the measure readers' tools report.
  */
 
-/** The house palettes and the 0.12 tokens, read once; the poster tokens read the same file. */
+/** The built-in palettes, read once; the poster tokens read the same file. */
 const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
-/** The house styles: parts woven from their files as strips, or the icon cards of 0.12. */
-export const STYLES = Object.freeze(["bolts", "cards"]);
+/** How a part is drawn: as a strip of the files it owns, or as a card with its kind's icon. */
+export const MARKS = Object.freeze(["strip", "card"]);
 /** The built-in palettes, in the house's order. */
 export const PALETTES = Object.freeze(Object.keys(HOUSE.palettes));
 const DEFAULT_PALETTE = "indigo";
-const NO_EDITION = Object.freeze({ style: null, palette: null });
+const NO_EDITION = Object.freeze({ marks: null, palette: null });
 const COLOR = /^#[0-9a-f]{6}$/iu;
 /** The seal's cinnabar: no colour of a palette may be mistaken for it. */
 const CINNABAR = "#a93d31";
@@ -37,6 +37,8 @@ const TOWARD_GROUND = Object.freeze({
 });
 /** A card is its ground lifted toward white by this share, so it reads as paper on paper. */
 const CARD_TOWARD_WHITE = 0.6;
+/** A dye step at or under this chroma is a grey with no hue a reader sees. */
+const HUED = 0.02;
 
 /** @typedef {{ ground: string, ink: string, dye: readonly string[], accent?: string }} Roles */
 
@@ -89,7 +91,7 @@ function hexOf(lab) {
   return `#${channels.map((value) => level(value).toString(16).padStart(2, "0")).join("")}`;
 }
 
-/** A colour's OKLab coordinates, OKLCH lightness and chroma, and WCAG relative luminance. */
+/** A colour's OKLab coordinates, OKLCH lightness, chroma and hue in degrees, and WCAG luminance. */
 function measure(hex) {
   const [r, g, b] = linear(hex);
   const lab = oklab([r, g, b]);
@@ -97,6 +99,7 @@ function measure(hex) {
     lab,
     lightness: lab[0],
     chroma: Math.hypot(lab[1], lab[2]),
+    hue: (Math.atan2(lab[2], lab[1]) * 180) / Math.PI,
     luminance: 0.2126 * r + 0.7152 * g + 0.0722 * b,
   };
 }
@@ -114,14 +117,14 @@ const distance = (one, other) =>
   Math.hypot(...one.lab.map((value, index) => value - other.lab[index]));
 
 /**
- * A bound a measure must reach (`least`) or stay within (`most`), shown to `digits` places. A
- * refused measure is shown rounded, except that one rounding onto the passing side of its bound
- * is shown one place past it, so a refusal never names a value the rule would accept.
+ * A bound a measure must reach (`least`) or stay within (`most`), shown to `digits` places in its
+ * `unit`. A refused measure is shown rounded, except that one rounding onto the passing side of
+ * its bound is shown one place past it, so a refusal never names a value the rule would accept.
  */
-const least = (measured, bound, digits = 3) =>
-  Object.freeze({ measured, bound, digits, holds: (value) => value >= bound, step: -1 });
-const most = (measured, bound, digits = 3) =>
-  Object.freeze({ measured, bound, digits, holds: (value) => value <= bound, step: 1 });
+const least = (measured, bound, digits = 3, unit = "") =>
+  Object.freeze({ measured, bound, digits, unit, holds: (value) => value >= bound, step: -1 });
+const most = (measured, bound, digits = 3, unit = "") =>
+  Object.freeze({ measured, bound, digits, unit, holds: (value) => value <= bound, step: 1 });
 
 /** The rules a custom palette must meet; contrast is against the ground. */
 const RULES = Object.freeze({
@@ -136,6 +139,8 @@ const RULES = Object.freeze({
   accentContrast: least("contrast", 4.5, 2),
   accentChroma: most("chroma", 0.12),
   seal: least("OKLab distance", 0.06),
+  /** Steps that turn further read as several colours, not one colour aging. */
+  hueSpread: most("hue spread", 60, 0, "°"),
 });
 
 /**
@@ -151,17 +156,34 @@ function judge(problems, path, value, rule, relation) {
   const scale = 10 ** rule.digits;
   const rounded = Math.round(value * scale) / scale;
   const shown = rule.holds(rounded) ? rounded + rule.step / scale : rounded;
+  const [measured, bound] = [
+    `${shown.toFixed(rule.digits)}${rule.unit}`,
+    `${rule.bound}${rule.unit}`,
+  ];
   problems.add(
     "model_palette_rejected",
     path,
-    `has ${rule.measured} ${shown.toFixed(rule.digits)}${relation}; the bound is ${rule.bound}`,
+    `has ${rule.measured} ${measured}${relation}; the bound is ${bound}`,
   );
 }
 
 /**
+ * The widest turn of hue between two dye steps that have one, the short way round the circle; 0
+ * when fewer than two steps are coloured.
+ * @param {Array<{ chroma: number, hue: number }>} dye
+ */
+function hueSpread(dye) {
+  const hues = dye.filter((step) => step.chroma > HUED).map((step) => step.hue);
+  const turns = hues.flatMap((one) =>
+    hues.map((other) => Math.min(Math.abs(one - other), 360 - Math.abs(one - other))),
+  );
+  return Math.max(0, ...turns);
+}
+
+/**
  * Hold a well-formed custom palette to the rules: a light, near-neutral ground; an ink and an
- * oldest dye that read against it; dye steps that differ by lightness alone; and no colour near
- * the seal's cinnabar.
+ * oldest dye that read against it; dye steps that differ by lightness, keep one hue and stay
+ * muted; and no colour near the seal's cinnabar.
  */
 function judgePalette(palette, problems) {
   const at = (role) => `/edition/palette/${role}`;
@@ -181,6 +203,8 @@ function judgePalette(palette, problems) {
     judge(problems, at(`dye/${index}`), step.chroma, RULES.dyeChroma, "");
   });
   judge(problems, at("dye/2"), contrast(dye[2], ground), RULES.oldContrast, against);
+  const steps = ` among the steps above chroma ${HUED}`;
+  judge(problems, at("dye"), hueSpread(dye), RULES.hueSpread, steps);
   const colors = [
     ["ground", ground],
     ["ink", ink],
@@ -246,30 +270,22 @@ function readPalette(value, problems) {
 }
 
 /**
- * Validate a model's optional `edition` into its style and palette, each null when the model
+ * Validate a model's optional `edition` into its marks and palette, each null when the model
  * leaves it to the build. Problems are added to the model's one collection, at JSON pointers
  * under `/edition`.
  * @param {unknown} value
  * @param {{ add: Function, fields: Function }} problems
- * @returns {Readonly<{ style: string | null, palette: string | Readonly<Roles> | null }>}
+ * @returns {Readonly<{ marks: string | null, palette: string | Readonly<Roles> | null }>}
  */
 export function readEdition(value, problems) {
-  if (value === undefined || !problems.fields(value, "/edition", [], ["style", "palette"]))
+  if (value === undefined || !problems.fields(value, "/edition", [], ["marks", "palette"]))
     return NO_EDITION;
-  const edition = /** @type {{ style?: string, palette?: unknown }} */ (value);
-  const style =
-    edition.style !== undefined && STYLES.includes(edition.style) ? edition.style : null;
-  if (style === null && edition.style !== undefined)
-    problems.add("model_style_unknown", "/edition/style", `must be one of ${STYLES.join(", ")}`);
-  return Object.freeze({ style, palette: readPalette(edition.palette, problems) });
+  const edition = /** @type {{ marks?: string, palette?: unknown }} */ (value);
+  const marks = edition.marks !== undefined && MARKS.includes(edition.marks) ? edition.marks : null;
+  if (marks === null && edition.marks !== undefined)
+    problems.add("model_marks_unknown", "/edition/marks", `must be one of ${MARKS.join(", ")}`);
+  return Object.freeze({ marks, palette: readPalette(edition.palette, problems) });
 }
-
-/** The house palette's tokens: the 0.12 house's own, which it derives nothing from. */
-const HOUSE_TOKENS = Object.freeze({
-  palette: Object.freeze({ ...HOUSE.palette }),
-  figure: Object.freeze({ ...HOUSE.figure }),
-  dye: Object.freeze({ ...HOUSE.dye }),
-});
 
 /** A palette's tokens mixed from its roles, named as the 0.12 house names them. */
 function derive(roles) {
@@ -300,20 +316,20 @@ function derive(roles) {
 
 /**
  * Resolve a valid palette to its roles and tokens: null is the default, indigo; a name is a
- * built-in palette; roles are a custom palette. The house palette keeps the 0.12 tokens exactly,
- * so a 0.12 plate set in it is unchanged; every other palette derives its tokens from its roles.
+ * built-in palette, with its names in Chinese and English; roles are a custom palette, which has
+ * none. Every palette derives its tokens from its roles in the same way.
  * @param {string | Roles | null} spec
  */
 export function resolvePalette(spec) {
   const chosen = spec ?? DEFAULT_PALETTE;
   const name = typeof chosen === "string" ? chosen : "custom";
   const given = typeof chosen === "string" ? HOUSE.palettes[chosen] : chosen;
+  const names = typeof chosen === "string" ? Object.freeze({ ...given.name }) : null;
   const roles = Object.freeze({
     ground: lower(given.ground),
     ink: lower(given.ink),
     dye: Object.freeze(given.dye.map(lower)),
     accent: lower(given.accent ?? given.dye[2]),
   });
-  const tokens = name === HOUSE.housePalette ? HOUSE_TOKENS : derive(roles);
-  return Object.freeze({ name, roles, tokens });
+  return Object.freeze({ name, names, roles, tokens: derive(roles) });
 }

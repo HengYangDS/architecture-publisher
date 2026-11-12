@@ -1,28 +1,28 @@
 ## ADDED Requirements
 
-### Requirement: Style defaults and fallback
+### Requirement: Mark defaults and fallback
 
-The print edition SHALL default to the `bolts` style and the `indigo` palette.
+The print edition SHALL default to `strip` marks and the `indigo` palette.
 When a build has no bound file facts, because it reads no checkout or the model
-claims no files, it SHALL set a model that names no style in `cards` and warn
-`style_fallback`, and SHALL refuse a model that names `bolts` with
-`style_needs_files`.
+claims no files, it SHALL draw a model that names no marks with cards and warn
+`marks_fallback`, and SHALL refuse a model that names `strip` with
+`marks_need_files`.
 
 #### Scenario: No checkout
 
-- **WHEN** a model that names no style is built without `--repo`
-- **THEN** the edition is set in cards and the result carries the warning
-  `style_fallback`
+- **WHEN** a model that names no marks is built without `--repo`
+- **THEN** the edition draws cards and the result carries the warning
+  `marks_fallback`
 
-#### Scenario: Bolts without files
+#### Scenario: Strips without files
 
-- **WHEN** a model that names `bolts` claims no files
-- **THEN** the build is refused with `style_needs_files`
+- **WHEN** a model that names `strip` claims no files
+- **THEN** the build is refused with `marks_need_files`
 
-### Requirement: Edition style in the manifest
+### Requirement: Edition marks in the manifest
 
-The manifest SHALL record the edition's style, the palette's name or `custom`,
-the resolved palette roles and the spans of its age bands.
+The manifest SHALL record the edition's marks, the palette's name or `custom`,
+the resolved palette roles, the spans of its age bands and the pin's date.
 
 #### Scenario: A custom palette
 
@@ -58,10 +58,10 @@ plate; each plate's record; and every artifact's path, size and digest.
 ### Requirement: Plate head and key
 
 A plate's head SHALL be its number, its view's title and its question. Its key
-SHALL be one line at 848 points of what its figure shows and no more: in
-`cards`, the kinds, boundary and statuses; in `bolts`, the age bands by their
-spans, the strip's thickness, the line weights present, the hub, the boundary
-and the statuses.
+SHALL be one line at 848 points of what its figure shows and no more: with
+cards, the kinds, boundary and statuses; with strips, the age bands and the
+pin's date, the scale bar, the citation ticks, the hub, the boundary and the
+statuses.
 
 #### Scenario: A plate's key
 
@@ -69,9 +69,9 @@ and the statuses.
 - **THEN** its key lists command, check and the boundary on one line above the
   foot, and no kind it does not show
 
-#### Scenario: A woven plate's key
+#### Scenario: A strip plate's key
 
-- **WHEN** a `bolts` plate shows files in all three bands and lines of one and
-  two citing files and no hub
-- **THEN** its key names the three bands, the thickness and the two weights,
-  and no hub
+- **WHEN** a strip plate shows files in all three bands and relations that cite
+  files and no hub
+- **THEN** its key names the three bands, the pin's date, the scale bar and the
+  ticks, and no hub

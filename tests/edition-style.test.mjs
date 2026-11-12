@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
-import { PALETTES, STYLES, resolvePalette } from "../src/model/edition.mjs";
+import { MARKS, PALETTES, resolvePalette } from "../src/model/edition.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { minimalModel, problemsOf } from "./fixtures/models.mjs";
 
@@ -14,6 +14,13 @@ const GREYS = Object.freeze({
   ink: "#000000",
   dye: Object.freeze(["#d0d0d0", "#a0a0a0", "#606060"]),
 });
+
+/** A built-in palette's roles, without its names, as a model would give them. */
+const rolesOf = (id) => {
+  const { name, ...roles } = HOUSE.palettes[id];
+  assert.ok(name);
+  return roles;
+};
 
 const editionOf = (edition) => validateModel(minimalModel({ edition })).edition;
 
@@ -28,18 +35,29 @@ function refusalOf(edition) {
   assert.fail("the model was accepted");
 }
 
-test("an edition chooses from two styles and the house's palettes, in its order", () => {
-  assert.deepEqual(STYLES, ["bolts", "cards"]);
-  assert.deepEqual(PALETTES, ["indigo", "persimmon", "ink", "forest"]);
+test("an edition chooses from two marks and the house's palettes, in its order", () => {
+  assert.deepEqual(MARKS, ["strip", "card"]);
+  assert.deepEqual(PALETTES, ["indigo", "persimmon", "soot", "patina"]);
   assert.deepEqual(PALETTES, Object.keys(HOUSE.palettes));
-  assert.ok(Object.isFrozen(STYLES) && Object.isFrozen(PALETTES));
+  assert.ok(Object.isFrozen(MARKS) && Object.isFrozen(PALETTES));
+  // Each built-in is named for the dye or pigment it comes from, in Chinese and in English.
+  assert.deepEqual(
+    PALETTES.map((id) => [HOUSE.palettes[id].name["zh-CN"], HOUSE.palettes[id].name.en]),
+    [
+      ["靛蓝", "Indigo"],
+      ["柿漆", "Persimmon"],
+      ["松烟", "Soot"],
+      ["铜绿", "Patina"],
+    ],
+  );
 });
 
-test("the published schema lists the same styles and palettes", async () => {
+test("the published schema lists the same marks and palettes", async () => {
   const schema = await readJson(new URL("../src/model/schema.json", import.meta.url));
   const { edition } = schema.properties;
   assert.equal(edition.additionalProperties, false);
-  assert.deepEqual(edition.properties.style.enum, STYLES);
+  assert.deepEqual(Object.keys(edition.properties), ["marks", "palette"]);
+  assert.deepEqual(edition.properties.marks.enum, MARKS);
   const [named, custom] = edition.properties.palette.oneOf;
   assert.deepEqual(named.enum, PALETTES);
   assert.deepEqual(custom.required, ["ground", "ink", "dye"]);
@@ -47,15 +65,15 @@ test("the published schema lists the same styles and palettes", async () => {
   assert.equal(custom.additionalProperties, false);
 });
 
-test("a model names its style and palette, and an edition it leaves out is null", () => {
-  assert.deepEqual(editionOf({ style: "cards", palette: "persimmon" }), {
-    style: "cards",
+test("a model names its marks and palette, and an edition it leaves out is null", () => {
+  assert.deepEqual(editionOf({ marks: "card", palette: "persimmon" }), {
+    marks: "card",
     palette: "persimmon",
   });
-  assert.deepEqual(editionOf({ style: "bolts" }), { style: "bolts", palette: null });
-  assert.deepEqual(editionOf({}), { style: null, palette: null });
+  assert.deepEqual(editionOf({ marks: "strip" }), { marks: "strip", palette: null });
+  assert.deepEqual(editionOf({}), { marks: null, palette: null });
   const model = validateModel(minimalModel());
-  assert.deepEqual(model.edition, { style: null, palette: null });
+  assert.deepEqual(model.edition, { marks: null, palette: null });
   assert.ok(Object.isFrozen(model) && Object.isFrozen(model.edition));
 });
 
@@ -73,27 +91,37 @@ test("a custom palette is kept as given, in lower case", () => {
 });
 
 test("every built-in palette passes the rules a custom palette must meet", () => {
-  for (const name of PALETTES)
-    assert.deepEqual(editionOf({ palette: HOUSE.palettes[name] }).palette, HOUSE.palettes[name]);
+  for (const id of PALETTES)
+    assert.deepEqual(editionOf({ palette: rolesOf(id) }).palette, rolesOf(id));
 });
 
-test("the house palette resolves to the 0.12 house tokens exactly", () => {
-  const forest = resolvePalette(HOUSE.housePalette);
-  assert.equal(forest.name, "forest");
-  assert.deepEqual(forest.roles, HOUSE.palettes.forest);
-  // Key order too: the class reads these tokens from a staged file that keeps 0.12's bytes.
-  assert.equal(
-    JSON.stringify(forest.tokens),
-    JSON.stringify({ palette: HOUSE.palette, figure: HOUSE.figure, dye: HOUSE.dye }),
-  );
-  assert.ok(Object.isFrozen(forest.tokens.figure));
+test("every built-in palette derives its tokens from its roles, as a custom one does", () => {
+  for (const id of PALETTES) {
+    const named = resolvePalette(id);
+    assert.equal(named.name, id);
+    assert.deepEqual(named.names, HOUSE.palettes[id].name);
+    assert.deepEqual(named.roles, { accent: rolesOf(id).dye[2], ...rolesOf(id) });
+    // Key order too: the class reads these tokens from a staged copy of the house file.
+    assert.equal(
+      JSON.stringify(named.tokens),
+      JSON.stringify(resolvePalette(rolesOf(id)).tokens),
+      id,
+    );
+    assert.ok(Object.isFrozen(named.names) && Object.isFrozen(named.tokens.figure));
+  }
+  // The 0.12 house colours stay the plates' own default, but no model can name them.
+  assert.notDeepEqual(resolvePalette("patina").tokens.palette, HOUSE.palette);
+  assert.deepEqual(problemsOf(minimalModel({ edition: { palette: "forest" } })), [
+    "model_palette_unknown /edition/palette",
+  ]);
 });
 
 test("no palette resolves to indigo, whose other tokens mix its ink into its ground", () => {
   const indigo = resolvePalette(null);
   assert.deepEqual(indigo, resolvePalette("indigo"));
   assert.equal(indigo.name, "indigo");
-  const roles = HOUSE.palettes.indigo;
+  assert.deepEqual(indigo.names, { "zh-CN": "靛蓝", en: "Indigo" });
+  const roles = rolesOf("indigo");
   assert.deepEqual(indigo.roles, roles);
   assert.deepEqual(indigo.tokens.palette, {
     paper: roles.ground,
@@ -122,6 +150,7 @@ test("no palette resolves to indigo, whose other tokens mix its ink into its gro
 test("a custom palette resolves its roles, its accent defaulting to its oldest dye", () => {
   const custom = resolvePalette({ ...GREYS, ground: "#FFFFFF" });
   assert.equal(custom.name, "custom");
+  assert.equal(custom.names, null);
   assert.deepEqual(custom.roles, { ...GREYS, accent: "#606060" });
   assert.equal(custom.tokens.palette.ochre, "#606060");
   assert.equal(custom.tokens.palette.paper, "#ffffff");
@@ -166,6 +195,26 @@ test("a custom palette is refused at the role that breaks a rule, with its measu
   ]);
 });
 
+test("dye steps of any colour turn through at most 60 degrees of hue, measured the short way round", () => {
+  const dyed = (dye) => ({ palette: { ...GREYS, dye } });
+  // Pale blue, olive and green read as three colours, not one colour aging.
+  assert.deepEqual(refusalOf(dyed(["#bcd7dc", "#a69866", "#386652"])), [
+    "model_palette_rejected /edition/palette/dye: has hue spread 116° among the steps above chroma 0.02; the bound is 60°",
+  ]);
+  // A near-grey step has no hue to speak of, so a warm grey may lead into blues.
+  assert.deepEqual(editionOf(dyed(["#d6d2cc", "#7099ae", "#334965"])).palette.dye, [
+    "#d6d2cc",
+    "#7099ae",
+    "#334965",
+  ]);
+  // Rose at 355 degrees and brown at 35 are 40 degrees apart across red, not 320.
+  assert.deepEqual(editionOf(dyed(["#e2c5cf", "#a87062", "#673e36"])).palette.dye, [
+    "#e2c5cf",
+    "#a87062",
+    "#673e36",
+  ]);
+});
+
 test("a measure that rounds onto its bound is shown one step past it", () => {
   const refused = (change) => refusalOf({ palette: { ...GREYS, ...change } });
   // Contrast 6.9987 rounds to 7.00, and chroma 0.12008 to 0.120: neither shows as passing.
@@ -177,13 +226,16 @@ test("a measure that rounds onto its bound is shown one step past it", () => {
   ]);
 });
 
-test("an edition's shape, style, palette name and colours are checked before its rules", () => {
-  assert.deepEqual(refusalOf({ style: "loom", palettes: "indigo" }), [
+test("an edition's shape, marks, palette name and colours are checked before its rules", () => {
+  assert.deepEqual(refusalOf({ marks: "loom", palettes: "indigo" }), [
     "model_field_unknown /edition/palettes: is not a model field; did you mean palette?",
-    "model_style_unknown /edition/style: must be one of bolts, cards",
+    "model_marks_unknown /edition/marks: must be one of strip, card",
+  ]);
+  assert.deepEqual(refusalOf({ style: "cards" }), [
+    "model_field_unknown /edition/style: is not a model field",
   ]);
   const unknown =
-    "model_palette_unknown /edition/palette: must be one of indigo, persimmon, ink, forest, or an object of ground, ink, dye and accent";
+    "model_palette_unknown /edition/palette: must be one of indigo, persimmon, soot, patina, or an object of ground, ink, dye and accent";
   assert.deepEqual(refusalOf({ palette: "sakura" }), [unknown]);
   assert.deepEqual(refusalOf({ palette: null }), [unknown]);
   assert.deepEqual(refusalOf("cards"), ["model_object_required /edition: must be an object"]);
@@ -208,11 +260,11 @@ test("an edition's shape, style, palette name and colours are checked before its
   );
 });
 
-test("a model may name its edition's style and palette", () => {
-  const model = validateModel(minimalModel({ edition: { style: "cards", palette: "forest" } }));
-  assert.deepEqual(model.edition, { style: "cards", palette: "forest" });
-  assert.deepEqual(problemsOf(minimalModel({ edition: { style: "woven", palettes: "indigo" } })), [
+test("a model may name its edition's marks and palette", () => {
+  const model = validateModel(minimalModel({ edition: { marks: "card", palette: "soot" } }));
+  assert.deepEqual(model.edition, { marks: "card", palette: "soot" });
+  assert.deepEqual(problemsOf(minimalModel({ edition: { marks: "woven", palettes: "indigo" } })), [
     "model_field_unknown /edition/palettes",
-    "model_style_unknown /edition/style",
+    "model_marks_unknown /edition/marks",
   ]);
 });

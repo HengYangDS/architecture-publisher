@@ -1,62 +1,63 @@
 ## ADDED Requirements
 
-### Requirement: Parts woven from their files
+### Requirement: Strips sized by their code
 
-In the `bolts` style, each part SHALL be drawn as its label, a strip and a
-caption: one strip segment per owned file in path order, as wide as its share of
-the part's bytes and in the dye step of its age band; the strip as thick as
-`4 + 16 · √(bytes / most)` px over the edition's largest part; under it the
-part's kind, its file count and size, then its leading detail. A part that owns
-no files SHALL be an empty dashed strip.
+With `strip` marks, each part SHALL be drawn as its label, a strip and a
+caption. The strip's length SHALL be proportional to the part's bytes on one
+scale for the whole edition, at least 2 px for a part with any bytes; every
+strip has one thickness. Each owned file is one segment in path order, as wide
+as its share of the strip, in the dye of its age band. A part that owns no files
+SHALL be a short dashed outline. The key SHALL show a scale bar.
 
 #### Scenario: Shares of a strip
 
 - **WHEN** a part owns two files of 3 KB and 1 KB
-- **THEN** its strip has two segments whose widths are three quarters and one
-  quarter of its length
+- **THEN** its strip has two segments of three quarters and one quarter of its
+  length
 
-#### Scenario: A part without files
+#### Scenario: One scale
 
-- **WHEN** a part owns no files
-- **THEN** its strip is a dashed outline at the thinnest thickness and its
-  caption says it owns no files
+- **WHEN** one part owns 200 KB and another 20 KB in the same edition
+- **THEN** the first strip is ten times as long as the second, on every plate
 
 ### Requirement: Age bands
 
-An edition SHALL divide its cited files into three age bands by two boundaries
-from the spans 1 day, 3 days, 1 week, 1 month, 3 months, 1 year and 3 years,
-chosen so the bands hold the counts closest to thirds, ties to the shorter span.
+Every edition SHALL divide its cited files into three age bands counted back
+from the pin's commit: changed within a week, within three months, and earlier.
 A file's age SHALL be the pin's commit time minus that of its last change at or
-before the pin. Every plate of the edition SHALL use the same bands.
+before the pin. The key SHALL name the bands and the pin's date.
 
 #### Scenario: Recent and older files
 
-- **WHEN** an edition's files changed one, ten and four hundred days before the pin
-- **THEN** the three files fall in three different bands
+- **WHEN** an edition's files changed one, thirty and four hundred days before
+  the pin
+- **THEN** the three files fall in three different bands, the same bands every
+  edition uses
 
-### Requirement: Line weights and the hub
+### Requirement: Citation ticks and the hub
 
-In the `bolts` style, a relation's line SHALL be 1.2, 1.8 or 2.4 px for one,
-two, or three or more citing files, and 1.2 px when it cites none. The part
-with the most incoming relations of a view, when it has at least three and more
-than any other part, SHALL be the hub, and the relations into it SHALL be drawn
-in the oldest dye.
+With `strip` marks, every relation's line SHALL be drawn at one weight with one
+tick across it near its source for each file the relation cites, up to five
+ticks and the count written beside more. The part with the most incoming
+relations of a view, when it has at least three and more than any other part,
+SHALL be the hub, and the relations into it SHALL be drawn in the oldest dye.
 
-#### Scenario: A hub
+#### Scenario: A hub and its citations
 
-- **WHEN** four relations of a view end at the supplies and at most two at any
-  other part
-- **THEN** those four lines are in the oldest dye and the key names the supplies
+- **WHEN** four relations of a view end at the supplies and one of them cites two
+  files
+- **THEN** those four lines are in the oldest dye, that line carries two ticks,
+  and the key names the supplies
 
-### Requirement: Styles keep the gates
+### Requirement: Marks keep the gates
 
-A plate in either style SHALL pass the same containment, balance, type floor,
-whole-word text and routing gates, and a view either style cannot fit SHALL be
+A plate with either marks SHALL pass the same containment, balance, type floor,
+whole-word text and routing gates, and a view neither marks can fit SHALL be
 refused as before.
 
-#### Scenario: The same view in both styles
+#### Scenario: The same view with both marks
 
-- **WHEN** one view is composed in `cards` and in `bolts`
+- **WHEN** one view is composed with `card` and with `strip` marks
 - **THEN** both plates pass every gate or the view is refused with the gate's reason
 
 ## MODIFIED Requirements
@@ -67,15 +68,11 @@ The engine SHALL draw a plate as an SVG of its shapes, with any icons as inline
 paths and no text, paper, head, key or notes, and SHALL report its text as runs:
 each run's text, position, size, weight, colour and the width it measured, and
 the component whose title it is. Its colours SHALL come from the edition's
-resolved palette only.
+resolved palette only, and on a strip plate relation labels SHALL be set in
+the regular weight, so they read under the parts they join.
 
 #### Scenario: Shapes without text
 
 - **WHEN** a plate is drawn
 - **THEN** its SVG holds no text and no glyph outlines
 - **AND** every card label, detail and relation label is one of its runs
-
-#### Scenario: The 0.12 look
-
-- **WHEN** a model sets `"edition": {"style": "cards", "palette": "forest"}`
-- **THEN** its plates are byte for byte those Architecture Publisher 0.12.0 draws

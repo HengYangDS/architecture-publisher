@@ -1,4 +1,4 @@
-/** Shared models, styles and SVG readers for the woven-plate tests. */
+/** Shared models, styles and SVG readers for the strip-plate tests. */
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { loadIcons } from "../../src/icons.mjs";
@@ -6,7 +6,6 @@ import { validateModel } from "../../src/model/load.mjs";
 import { planViews } from "../../src/plan/views.mjs";
 import { admitsView, composePlates } from "../../src/poster/compose/plates.mjs";
 import { loadTypefaces } from "../../src/poster/text.mjs";
-import { POSTER } from "../../src/poster/tokens.mjs";
 import { minimalModel } from "./models.mjs";
 export const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 const house = JSON.parse(
@@ -45,8 +44,11 @@ export const INDIGO = Object.freeze({
 });
 export const DYES = [INDIGO.dye.new, INDIGO.dye.mid, INDIGO.dye.old];
 
-/** Three days and a month, in seconds: the edition's two band boundaries. */
-const SPANS = Object.freeze([3 * 86400, 30 * 86400]);
+/** A week and three months, in seconds: the edition's two band boundaries. */
+const SPANS = Object.freeze([7 * 86400, 90 * 86400]);
+
+/** The day of the pin's commit, which the key dates the ages from. */
+export const REFERENCE = "2026-11-10";
 
 /** A part's files, as the edition binds them: path, bytes and age band, in path order. */
 export const part = (files) => ({
@@ -55,7 +57,7 @@ export const part = (files) => ({
 });
 
 /**
- * The parts of the bolts work: the composer owns 3 KB and 1 KB, the record a file and a
+ * The parts of the strip work: the composer owns 3 KB and 1 KB, the record a file and a
  * sliver of the same band, the supplies are the largest part, and Typst owns no files.
  */
 export const PARTS = new Map([
@@ -85,27 +87,28 @@ export const PARTS = new Map([
   ],
 ]);
 
-/** A bolts style over the given tokens and parts. */
-export const boltsStyle = (tokens = INDIGO, parts = PARTS) => ({
-  name: "bolts",
+/** A strip style over the given tokens and parts. */
+export const stripStyle = (tokens = INDIGO, parts = PARTS) => ({
+  name: "strip",
   tokens,
   parts,
   most: Math.max(...[...parts.values()].map(({ bytes }) => bytes)),
   bands: { spans: SPANS },
+  reference: REFERENCE,
 });
 
 export const files = (count) => Array.from({ length: count }, (_, index) => `src/f${index}.mjs`);
 
 /**
  * A small work: a builder that composes plates, runs Typst and loads fonts; four parts draw
- * on the supplies, each relation evidenced by three files or more.
+ * on the supplies, each of those relations citing three files or more.
  */
-export function boltModel(locale = "en", extra = {}, statuses = {}) {
+export function stripModel(locale = "en", extra = {}, statuses = {}) {
   const zh = locale === "zh-CN";
   const status = (id) => (statuses[id] ? { status: statuses[id] } : {});
   return validateModel(
     minimalModel({
-      id: "bolts",
+      id: "strips",
       locale,
       title: zh ? "印刷版" : "The print edition",
       question: zh ? "什么把视图变成印刷版？" : "What turns the views into the print edition?",
@@ -173,13 +176,28 @@ export const wiresOf = (svg) =>
     ([, stroke, width]) => ({ stroke, width: number(width) }),
   );
 
+/**
+ * The ticks a plate draws across its lines, one group per relation: their colour, width and
+ * each tick's two ends.
+ */
+export const ticksOf = (svg) =>
+  [
+    ...svg.matchAll(/<path d="([^"]+)" stroke="([^"]+)" stroke-width="([\d.]+)" fill="none"\/>/gu),
+  ].map(([, d, stroke, width]) => ({
+    stroke,
+    width: number(width),
+    ticks: [...d.matchAll(/M([\d.-]+),([\d.-]+) L([\d.-]+),([\d.-]+)/gu)].map((match) =>
+      match.slice(1).map(number),
+    ),
+  }));
+
 /** The arrowheads a plate draws: the tip and the fill. */
 export const arrowsOf = (svg) =>
   [...svg.matchAll(/<path d="M([\d.]+),([\d.]+) L[^"]+Z" fill="([^"]+)"\/>/gu)].map(
     ([, x, y, fill]) => ({ x: number(x), y: number(y), fill }),
   );
 
-/** The label run of a part: its last line, under which its strip is woven. */
+/** The label run of a part: its last line, under which its strip is drawn. */
 export const labelOf = (plate, id) => plate.runs.filter(({ component }) => component === id).at(-1);
 
 /** The segments of a part's strip: contiguous rectangles from the label's left edge, under it. */
@@ -197,5 +215,5 @@ export function stripOf(plate, id) {
   return strip;
 }
 
-/** The px a step's unit scales the bolts' thickness and line weights by. */
-export const unitOf = (plate) => POSTER.steps[plate.step].name / 24;
+/** How long a part's strip is: from its first segment's left edge to its last one's right edge. */
+export const lengthOf = (strip) => strip.at(-1).x + strip.at(-1).width - strip[0].x;

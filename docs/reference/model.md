@@ -42,7 +42,12 @@ kinds, details and views.
     { "id": "db", "label": "Order store", "kind": "store" }
   ],
   "relations": [
-    { "id": "web-orders", "from": "web", "to": "orders", "label": "places orders" },
+    {
+      "id": "web-orders",
+      "from": "web",
+      "to": "orders",
+      "label": "places orders"
+    },
     { "id": "orders-db", "from": "orders", "to": "db", "label": "writes" }
   ],
   "kinds": {
@@ -77,7 +82,7 @@ kinds, details and views.
 | `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.         |
 | `overview`   | no       | The overview composition: a Typst file beside the model, set as the edition's first page.      |
 | `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
-| `edition`    | no       | The print edition's house style and palette; see [Style and palette](#style-and-palette).      |
+| `edition`    | no       | The print edition's marks and palette; see [Marks and palette](#marks-and-palette).            |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -257,50 +262,83 @@ citation would cite other text: move it to its new range, and reread every
 touched one. The JSON result holds the worklist in `coverage.currency.worklist`,
 and it never refuses the check.
 
-## Style and palette
+## Marks and palette
 
-The optional `edition` object sets how the print edition looks. The page keeps
-Archify's own themes.
-
-```json
-"edition": { "style": "bolts", "palette": "indigo" }
-```
-
-`style` is `bolts` or `cards`. In `bolts`, each part is its label, a strip woven
-from the files it owns and a caption: the kind, then the number of files and
-their size. A segment of the strip is one file, as wide as its share of the
-part's bytes and as dark as its last change is old, in three age bands the
-edition chooses from the spans 1 day, 3 days, 1 week, 1 month, 3 months, 1 year
-and 3 years so that each band holds about a third of the files. A strip is as
-thick as the code its part owns, on one scale for the edition; a part that owns
-no files is an empty dashed strip. A relation's line is heavier with each file
-that evidences it, up to three, and the relations into the part most others call
-are drawn in the darkest dye. `cards` draws each part as a card with its kind's
-icon and details, as releases before 0.13 did.
-
-`palette` is `indigo` (the default), `persimmon`, `ink` or `forest`, the house
-colours before 0.13, or a palette of your own:
+The optional `edition` object sets how the print edition draws its parts and
+in which palette. The page keeps Archify's own themes.
 
 ```json
-"palette": { "ground": "#f7f6f2", "ink": "#24272b", "dye": ["#c4dccf", "#6f9a86", "#2f5446"], "accent": "#7a5534" }
+"edition": { "marks": "strip", "palette": "indigo" }
 ```
 
-A palette of your own must print well; the check refuses it with
-`model_palette_rejected` at the colour that fails, with its measure and the
-bound. Measured in OKLCH lightness L and chroma C, and WCAG contrast against the
-ground: the ground has L at least 0.92 and C at most 0.02; the ink a contrast at
-least 7 and C at most 0.05; each dye step is at least 0.12 darker than the one
-before it, the newest at least 0.07 darker than the ground and the oldest at a
-contrast of at least 4.5, each with C at most 0.08; the accent, which defaults
-to the oldest dye, has a contrast of at least 4.5 and C at most 0.12; and no
-colour lies within 0.06 of the acceptance mark's cinnabar `#A93D31`. Lightness
-alone tells the ages apart, so a photocopy keeps them.
+`marks` (画法) is 条带 `strip` or 卡片 `card`. With `strip`, each part is its label, a strip and
+a caption: the kind, then the number of files and their size. A strip is as
+long as the code its part owns, on one scale for the whole edition, so a part of
+200 KB is ten times as long as a part of 20 KB on every plate; a part with any
+bytes is at least 2 px long, and every strip has the same thickness. Each file
+the part owns is one segment, in path order, as wide as its share of the part's
+bytes and in the dye of its age band; a part that owns no files is a short
+dashed outline. With `card`, each part is a card with its kind's icon and
+details.
 
-The defaults are `bolts` and `indigo`. A strip needs the files: a build that
-reads no checkout, or a model that claims no files, sets a model that names no
-style in `cards` and warns `style_fallback`, and refuses one that names `bolts`
-with `style_needs_files`. `"edition": {"style": "cards", "palette": "forest"}`
-draws the plates of 0.12 byte for byte.
+Every edition sorts its files into the same three age bands, counted back from
+the pin's commit: changed within a week, within three months, and earlier. A
+file's age is the time from its last change at or before the pin to the pin.
+The bands are the same for every edition, so two editions can be compared; the
+newest takes the palette's palest dye and the oldest its darkest.
+
+With strips, every relation's line has one weight and carries one tick across
+it, near its source, for each file the relation cites, up to five, with the
+count written beside more. The build checks that a cited file exists at the
+pin, not that it proves the relation. The part with the most incoming relations
+of a view, when it has at least three and more than any other part, is the
+view's hub, and the relations into it are drawn in the oldest dye. A plate's key
+names only what its figure shows: the age bands with the pin's date, a scale
+bar, the ticks, the hub, the boundary and the statuses.
+
+`palette` (配色) names a built-in palette or gives one of your own. Each built-in is
+named for the dye or pigment its colours come from:
+
+| `palette`   | Name           | Colours                                                         |
+| ----------- | -------------- | --------------------------------------------------------------- |
+| `indigo`    | 靛蓝 Indigo    | Indigo blues on a warm white, with a brown accent; the default. |
+| `persimmon` | 柿漆 Persimmon | Persimmon-tannin browns, with a slate blue accent.              |
+| `soot`      | 松烟 Soot      | The greys of pine-soot ink, with a warm grey accent.            |
+| `patina`    | 铜绿 Patina    | The green that grows on bronze, with a brown accent.            |
+
+A palette of your own names a ground, an ink, three dye steps from new to old
+and an optional accent:
+
+```json
+"palette": { "ground": "#f6f1f1", "ink": "#312124", "dye": ["#e2c5cf", "#b38294", "#76475c"], "accent": "#306751" }
+```
+
+It must print well; the check refuses it with `model_palette_rejected` at the
+colour that fails, with its measure and the bound. Measured in OKLCH lightness
+L, chroma C and hue, and WCAG contrast against the ground: the ground has L at
+least 0.92 and C at most 0.02; the ink a contrast at least 7 and C at most
+0.05; each dye step is at least 0.12 darker than the one before it, the newest
+at least 0.07 darker than the ground and the oldest at a contrast of at least
+4.5, each with C at most 0.08; the dye steps whose C exceeds 0.02 turn through
+at most 60° of hue, so they read as one colour aging, not as three colours; the
+accent, which defaults to the oldest dye, has a contrast of at least 4.5 and C
+at most 0.12; and no colour lies within 0.06 of the acceptance mark's cinnabar
+`#A93D31` in OKLab. Lightness alone tells the ages apart, so a photocopy keeps
+them.
+
+The example above is 苏芳 Sappan, the reds of sappanwood; 栗壳 Chestnut, the
+red-browns of lacquer with a green accent, is another palette of your own that
+passes these rules:
+
+```json
+"palette": { "ground": "#f5efe7", "ink": "#271c19", "dye": ["#d8b5a8", "#a87062", "#673e36"], "accent": "#316354" }
+```
+
+The defaults are `strip` and `indigo`. A strip is drawn from the files: a build
+that reads no checkout, or a model that claims no files, draws a model that
+names no marks with cards and warns `marks_fallback`, and refuses one that
+names `strip` with `marks_need_files`. A model that wants cards with a checkout
+sets `"edition": {"marks": "card"}`.
 
 An overview composition is set in the same palette: the class's `paper` is the
 ground, `ink` the ink, `green` the oldest dye and `ochre` the accent.

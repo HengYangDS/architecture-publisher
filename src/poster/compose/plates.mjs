@@ -3,7 +3,7 @@ import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { refuse } from "../../refusal.mjs";
 import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
-import { boltKey } from "../bolts.mjs";
+import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
 import { HOUSE, HOUSE_STYLE, POSTER, colorsOf, figureStyles } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
@@ -12,7 +12,7 @@ import { gateFailures } from "./gates.mjs";
  * What every composition of an edition's plates shares: the model, its
  * typefaces and icons, and the style its parts are drawn in.
  * @typedef {{ model: any, typefaces: any, icons: any,
- *   style: import("../bolts.mjs").Style }} Scene
+ *   style: import("../strip.mjs").Style }} Scene
  */
 
 /**
@@ -43,23 +43,23 @@ export function gutterFor(typefaces, labels) {
 }
 
 /**
- * The legend's entries: for cards, the kinds present; for bolts, the marks its
+ * The legend's entries: for cards, the kinds present; for strips, the marks its
  * strips and lines show; then the boundary when a figure draws one — some
  * component outside it and some inside — and the statuses present.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {string} boundary
- * @param {import("../bolts.mjs").Style} drawn the style the plate is drawn in
+ * @param {import("../strip.mjs").Style} drawn the style the plate is drawn in
  */
 function legendOf(model, view, boundary, drawn) {
   const words = wordsOf(model.locale);
   const hue = colorsOf(drawn.tokens).hue;
   /** @type {Array<{ shape?: string, kind?: string, label: string, icon?: string, color?: string }>} */
-  const kinds = drawn.name === "bolts" ? boltKey(model, view, drawn) : [];
+  const kinds = drawn.name === "strip" ? stripKey(model, view, drawn) : [];
   const components = view.components;
   const outside = components.filter((component) => presentation(model, component).outside);
   const bounded = outside.length > 0 && outside.length < components.length;
-  for (const component of drawn.name === "bolts" ? [] : components) {
+  for (const component of drawn.name === "strip" ? [] : components) {
     const style = presentation(model, component);
     if (kinds.some((entry) => entry.kind === style.kind)) continue;
     kinds.push({
@@ -72,10 +72,10 @@ function legendOf(model, view, boundary, drawn) {
   /** @type {Array<{ shape: string, label: string }>} */
   const rest = [];
   // Cards draw an outside part on its own grey card; a strip outside the boundary is told apart by where it
-  // stands alone, so the bolts key names the boundary only.
+  // stands alone, so the strip key names the boundary only.
   if (boundary && bounded) {
     rest.push({ shape: "boundary", label: words.inside(boundary) });
-    if (drawn.name !== "bolts") rest.push({ shape: "outside", label: words.outside });
+    if (drawn.name !== "strip") rest.push({ shape: "outside", label: words.outside });
   }
   const shown = [...view.components, ...view.relations];
   for (const status of /** @type {const} */ (["planned", "retired"]))
@@ -180,7 +180,7 @@ function unfittable(view) {
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} typefaces
  * @param {any} icons
- * @param {import("../bolts.mjs").Style} [style] cards in the house tokens unless given
+ * @param {import("../strip.mjs").Style} [style] cards in the house tokens unless given
  */
 export function admitsView(model, view, typefaces, icons, style = HOUSE_STYLE) {
   if (compositions({ model, typefaces, icons, style }, view).next().done) unfittable(view);
@@ -288,12 +288,12 @@ function widthOf(scene, view, full) {
 /**
  * Compose every view of a model as one plate each, its figure at the width the plate width rule gives it: the
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
- * Every plate is drawn in the edition's one style, so thickness and age bands keep one scale across it.
+ * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
  * @param {any} icons
- * @param {import("../bolts.mjs").Style} [style] cards in the house tokens unless given
+ * @param {import("../strip.mjs").Style} [style] cards in the house tokens unless given
  */
 export function composePlates(model, views, typefaces, icons, style = HOUSE_STYLE) {
   const boundaryName = model.repository?.name ?? model.title;

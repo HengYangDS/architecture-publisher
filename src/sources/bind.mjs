@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { commitOf, commitTime, readGit } from "./git.mjs";
+import { commitDate, commitOf, commitTime, readGit } from "./git.mjs";
 import { directoriesOf, scopeAt } from "./scope.mjs";
 
 /** Parse `git cat-file --batch` output into one record per requested object. */
@@ -234,14 +234,20 @@ function resolved(model, root, commit) {
       ),
     ]),
   );
-  return { records, owned, times, pinTime: commitTime(root, commit) };
+  return {
+    records,
+    owned,
+    times,
+    pinTime: commitTime(root, commit),
+    pinDate: commitDate(root, commit),
+  };
 }
 
 /**
  * Bind the files a model claims and cites to its revision without changing the repository. With
  * a checkout, every file in the scope is given to the component whose claim is most specific and
  * every cited file is recorded with its digest, size, last change, owner and citing relations,
- * beside each file's change time and the revision's; without one, the declared paths are recorded
+ * beside each file's change time and the revision's time and date; without one, the declared paths are recorded
  * unverified and no time is known.
  * @param {any} model
  * @param {string | null} repo
@@ -253,10 +259,25 @@ export function bindSources(model, repo) {
     model.relations.every(({ files }) => !files.length);
   if (empty) {
     const owned = new Map(model.components.map(({ id }) => [id, []]));
-    return { state: "none", repository, records: [], owned, times: new Map(), pinTime: null };
+    return {
+      state: "none",
+      repository,
+      records: [],
+      owned,
+      times: new Map(),
+      pinTime: null,
+      pinDate: null,
+    };
   }
   if (!repo)
-    return { state: "unverified", repository, ...declared(model), times: new Map(), pinTime: null };
+    return {
+      state: "unverified",
+      repository,
+      ...declared(model),
+      times: new Map(),
+      pinTime: null,
+      pinDate: null,
+    };
   if (!repository)
     refuse(
       "source_revision_missing",

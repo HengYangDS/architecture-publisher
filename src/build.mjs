@@ -144,7 +144,7 @@ async function prepare(modelPath, options) {
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
-  // The edition's style is chosen once, before the plan, since a view is admitted as its style draws it.
+  // The edition's marks and palette are chosen once, before the plan, since a view is admitted as its marks draw it.
   const { style, warnings: styled, record: styleRecord } = editionStyle(model, binding);
   const warnings = [
     ...(options.repo && binding.state === "none"

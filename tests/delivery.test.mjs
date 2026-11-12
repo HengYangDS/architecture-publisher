@@ -16,6 +16,14 @@ import { repository } from "./fixtures/repository.mjs";
 const workspace = (t) => temporaryDirectory(t, "archpub-delivery-");
 
 const readJson = async (file) => JSON.parse(await fs.readFile(file, "utf8"));
+const INDIGO = { "zh-CN": "靛蓝", en: "Indigo" };
+/** 苏芳 sappan, one of the researched traditional palettes, given as a model's own. */
+const SAPPAN = {
+  ground: "#f6f1f1",
+  ink: "#312124",
+  dye: ["#e2c5cf", "#b38294", "#76475c"],
+  accent: "#306751",
+};
 
 test("a delivery holds the print edition, its images, the page and a manifest of their digests", async (t) => {
   const root = await workspace(t);
@@ -25,11 +33,12 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
   assert.equal(manifest.version, 7);
-  // Without a checkout no part can be woven, so the edition is set in cards, in the default palette.
-  assert.deepEqual([manifest.style.style, manifest.style.palette], ["cards", "indigo"]);
+  // Without a checkout no part has a strip, so the edition draws cards, in the default palette.
+  const { marks, palette, names, bands } = manifest.style;
+  assert.deepEqual([marks, palette, names, bands], ["card", "indigo", INDIGO, null]);
   assert.deepEqual(
     built.warnings.map(({ code }) => code),
-    ["style_fallback"],
+    ["marks_fallback"],
   );
   assert.deepEqual([manifest.quality, manifest.media], ["showcase", ["edition", "page"]]);
   assert.equal(manifest.model.locale, "en");
@@ -160,6 +169,12 @@ test("check reports the plan without writing and invalid models leave no partial
     minimalModel({ relations: [{ id: "x", from: "a", to: "zz", label: "y" }] }),
   );
   await assert.rejects(buildDelivery(bad, path.join(root, "never")), { code: "model_invalid" });
+  // Strips are drawn from the files a checkout holds: a model that asks for them without one is refused.
+  const strips = await writeModel(t, minimalModel({ edition: { marks: "strip" } }));
+  await assert.rejects(checkModel(strips), { code: "marks_need_files" });
+  await assert.rejects(buildDelivery(strips, path.join(root, "never")), {
+    code: "marks_need_files",
+  });
   assert.deepEqual(await fs.readdir(root), []);
 });
 
@@ -172,6 +187,7 @@ test("files verified against the checkout are recorded and cited on the page at 
     t,
     pageModel({
       repository: { name: "fixture", url, revision },
+      edition: { palette: SAPPAN },
       components: components.map((component, index) =>
         index ? component : { ...component, files: ["src/"] },
       ),
@@ -199,7 +215,7 @@ test("files verified against the checkout are recorded and cited on the page at 
     [["src/main.mjs", "client", ["r1"], "verified"]],
   );
   assert.match(manifest.sources.records[0].sha256, /^[0-9a-f]{64}$/u);
-  // Each cited file keeps its size and the date of its last change at the pin, and the edition weaves its parts.
+  // Each cited file keeps its size and the date of its last change at the pin, and the edition draws its parts from them.
   assert.equal(typeof manifest.sources.records[0].bytes, "number");
   // The change date is the commit's UTC day; the edition's date is the committer's own, which may differ by one.
   const changedAt = Number(git("log", "-1", "--format=%ct", "--", "src/main.mjs"));
@@ -207,8 +223,18 @@ test("files verified against the checkout are recorded and cited on the page at 
     manifest.sources.records[0].changed,
     new Date(changedAt * 1000).toISOString().slice(0, 10),
   );
-  assert.equal(manifest.style.style, "bolts");
-  assert.equal(manifest.style.bands.spans.length, 2);
+  // The edition draws strips by default, in the model's own palette, with the fixed bands dated by the pin's day as
+  // its committer recorded it, the day the edition's foot prints.
+  assert.deepEqual(manifest.style, {
+    marks: "strip",
+    palette: "custom",
+    names: null,
+    roles: SAPPAN,
+    bands: {
+      spans: [7 * 86400, 90 * 86400],
+      reference: git("show", "-s", "--format=%cs", revision),
+    },
+  });
   assert.equal(manifest.page.quality, "showcase");
   assert.deepEqual(manifest.evidence.components[0].files, ["src/"]);
   assert.deepEqual(manifest.evidence.relations[0].files, ["src/main.mjs"]);

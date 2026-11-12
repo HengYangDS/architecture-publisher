@@ -9,24 +9,29 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
-- A model may choose its print edition's look in an optional `edition` object: the house style, `bolts` or
-  `cards`, and the palette, `indigo`, `persimmon`, `ink`, `forest` or one of its own. A palette of its own is held
-  to contrast, chroma and lightness rules and refused with `model_palette_rejected` at the colour that fails, with
-  its measure and the bound.
-- In `bolts`, the new default, each part is a strip woven from the files it owns: a segment per file, as wide as its
-  share of the part's bytes and as dark as its last change is old; the strip as thick as the part's code. A
-  relation's line is heavier with each file that evidences it, the relations into the part most others call are
-  drawn in the darkest dye, and the plate's key explains each of these it shows.
+- A model may choose how its print edition draws its parts and in which palette, in an optional `edition` object:
+  `marks` (画法), 条带 `strip` or 卡片 `card`, and `palette` (配色), one of 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`
+  and 铜绿 `patina`, or one of its own. A palette of its own is held to contrast, chroma, lightness and hue rules, its dye steps turning
+  through at most 60° of hue, and refused with `model_palette_rejected` at the colour that fails, with its measure
+  and the bound. The reference gives two traditional palettes that pass them as examples.
+- With `strip` marks, the new default, each part is a strip as long as its code on one scale for the edition, with
+  one segment per file it owns, sized by the file's share of its bytes and dyed by its age band; every strip has one
+  thickness. Every edition uses the same age bands, changed within a week, within three months and earlier, counted
+  back from the pin. Each relation carries one tick per file it cites, up to five; the build checks that a cited file
+  exists, not that it proves the relation. The relations into a view's hub are drawn in the oldest dye, and a strip
+  plate's key shows the age bands with the pin's date, a scale bar and the ticks.
 
 ### Changed
 
 - **Breaking**: the manifest is version 7. Each cited file records its size and the date of its last change at the
-  pin, and the manifest records the edition's style, palette and age bands. The default plates change: a build
-  that reads a checkout weaves its parts; one that reads none sets cards and warns `style_fallback`.
-  `"edition": {"style": "cards", "palette": "forest"}` keeps the 0.12 look.
+  pin, and its `style` records the edition's marks, the palette's id or `custom` with its Chinese and English names,
+  its resolved roles, and with strips the age bands' spans and the pin's date. Every default plate changes: a build that reads a checkout draws
+  strips in indigo; one that reads none, or a model that claims no files, draws cards and warns `marks_fallback`,
+  and a model that names `strip` without them is refused with `marks_need_files`. A model that wants cards sets
+  `"edition": {"marks": "card"}`; the plates of 0.12 are not reproduced. On strip plates relation labels are set in
+  the regular weight.
 - An overview composition is set in the edition's palette: `green` is the palette's oldest dye and `ochre` its
   accent.
-
 - The specifications are validated with OpenSpec 2.0.0, which keeps the workflows and the validation; its
   changes to agent skills and slash commands do not apply, as the repository configures no OpenSpec tool.
 

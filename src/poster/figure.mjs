@@ -1,6 +1,6 @@
 import { presentation } from "../kinds.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
-import { boltHeight, drawBolt, hubOf, wireWidth } from "./bolts.mjs";
+import { drawStrip, drawTicks, hubOf, stripHeight, tickRuns } from "./strip.mjs";
 import { POSTER, colorsOf, fixed } from "./tokens.mjs";
 
 /**
@@ -227,15 +227,15 @@ function tierLabels(layout, input, draw) {
  *   labelColumn?: { x: number, y: number, width: number, height: number } | null,
  *   tierLabels?: "column" | "edges",
  *   offset?: number,
- *   style: import("./bolts.mjs").Style,
+ *   style: import("./strip.mjs").Style,
  *   cardText: (component: any, width: number) => any }} input
  *   `offset` moves the figure across its field; its tier labels follow their rows.
- *   `style` names how a part is drawn, as a card or a bolt, and the tokens it is drawn in.
+ *   `style` names how a part is drawn, as a card or a strip, and the tokens it is drawn in.
  */
 export function drawFigure(layout, input) {
   const { model, view, styles, metrics, icons, typefaces, field } = input;
   const C = colorsOf(input.style.tokens);
-  const bolts = input.style.name === "bolts";
+  const strips = input.style.name === "strip";
   const shapes = [];
   const runs = [];
   /** @type {Array<{ x: number, y: number, width: number, height: number, tier?: boolean }>} */
@@ -298,21 +298,22 @@ export function drawFigure(layout, input) {
     rects.push({ x: tabX, y: down(boundary.y) - 14, width: tabWidth, height: 28, ...MASS });
   }
 
-  // Bolts weigh each line by the files that evidence it, and draw the lines
+  // Strip plates tick each line once per file its relation cites, and draw the lines
   // into the view's hub in the oldest dye, so a reader finds what the view
-  // draws on; cards draw every line alike.
-  const unit = styles.name.size / 24;
-  const hub = bolts ? hubOf(view) : null;
+  // draws on; cards draw every line alike. Every line is one weight.
+  const hub = strips ? hubOf(view) : null;
+  const ticks = strips ? tickRuns(model, layout) : new Map();
+  const labelled = layout.labels.map((label) => ({ ...label, x: at(label.x), y: down(label.y) }));
   const components = new Map(view.components.map((component) => [component.id, component]));
-  // A bolt has no outline: in a row with a taller one it ends above its box's
-  // foot, and a wire into or out of that foot runs on up to one gap under the
-  // bolt, so it does not start or end in the paper beneath it.
-  const feet = bolts
+  // A strip part has no outline: in a row with a taller one it ends above its
+  // box's foot, and a wire into or out of that foot runs on up to one gap under
+  // its caption, so it does not start or end in the paper beneath it.
+  const feet = strips
     ? [...layout.cards].map(([id, box]) => ({
         box,
         foot:
           box.y +
-          boltHeight(input.cardText(components.get(id), box.width), styles) +
+          stripHeight(input.cardText(components.get(id), box.width), styles) +
           metrics.card.detailGap,
       }))
     : [];
@@ -329,13 +330,13 @@ export function drawFigure(layout, input) {
       : hub !== null && relations.every(({ to }) => to === hub)
         ? C.dye[2]
         : C.line;
-  for (const { relations, points } of layout.paths) {
+  for (const [index, { relations, points }] of layout.paths.entries()) {
     const status = statusOf(relations);
     const dash = status ? ` stroke-dasharray="${DASH[status]}"` : "";
     const ends = [lift(points[0]), ...points.slice(1, -1), lift(points[points.length - 1])];
     const moved = ends.map(([x, y]) => [at(x), down(y)]);
     const color = colorOf(relations);
-    const weight = bolts ? wireWidth(model, relations, unit) : metrics.wire.stroke;
+    const weight = metrics.wire.stroke;
     const ink = stroke(color, C.paper);
     shapes.push(
       `<path d="${rounded(moved, metrics.wire.radius)}" fill="none" stroke="${color}" ` +
@@ -364,6 +365,20 @@ export function drawFigure(layout, input) {
         ...ink,
       });
     }
+    for (const { count, reverse } of ticks.get(index) ?? [])
+      drawTicks(
+        {
+          points: reverse ? moved.toReversed() : moved,
+          count,
+          color,
+          radius: metrics.wire.radius,
+          weight,
+          style: styles.tick,
+          paper: C.paper,
+          labels: labelled,
+        },
+        { text, shapes, rects, typefaces },
+      );
   }
   for (const arrow of layout.arrows)
     shapes.push(
@@ -371,10 +386,10 @@ export function drawFigure(layout, input) {
         `fill="${colorOf(arrow.relations)}"/>`,
     );
 
-  if (bolts) {
+  if (strips) {
     for (const [id, box] of layout.cards) {
       const component = components.get(id);
-      drawBolt(
+      drawStrip(
         {
           x: at(box.x),
           y: down(box.y),
