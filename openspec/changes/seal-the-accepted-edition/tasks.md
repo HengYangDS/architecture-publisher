@@ -1,17 +1,17 @@
 ## 1. Record and mark
 
-- [x] 1.1 Write acceptance record version 2 (`accepted_at`, optional `seal_name`, optional signature and fingerprint) with `--seal-name` and `--sign`; done when delivery tests read every field back and refuse a missing reviewer, an existing record and a key `ssh-keygen` cannot use; `tests/delivery.test.mjs` reads every field back and refuses each case.
-- [x] 1.2 Set the colophon page with the round mark and the record's facts in the edition's language; done when the page compiles for English and Chinese editions with Latin, Han, Hangul and long names, refuses a name with a character no house face draws, and the mark's wear differs between two manifests. `tests/colophon.test.mjs` covers each case.
+- [x] 1.1 Write `acceptance.json` as an in-toto Statement v1 of `manifest.json` and `colophon.pdf` with the acceptance predicate, and with `--sign` an SSH signature of its exact bytes in `acceptance.sig`; done when acceptance tests read every field back, ssh-keygen verifies `acceptance.sig` over `acceptance.json`, and accept refuses a missing reviewer, an existing record, page or signature, and a key `ssh-keygen` cannot use; `tests/acceptance.test.mjs` passes.
+- [x] 1.2 Set the colophon page with a clean round mark and the acceptance slip in the edition's language; done when colophon tests set Latin, Han, Hangul, Cyrillic and long names inside the band in English and Chinese editions, wrap a name before shrinking it, refuse a name no house face draws or too long for the band, and read the slip's labels, scope sentence and published files back; `tests/colophon.test.mjs` passes.
 
 ## 2. Verify and publish
 
-- [x] 2.1 Add `archpub verify <delivery> [--allowed-signers <file>]`; done when tests show it passing an accepted delivery, refusing a changed artifact, a changed colophon page, a version 1 record and a signature from an unlisted key; `tests/delivery.test.mjs` and `tests/cli-commands.test.mjs` pass.
-- [x] 2.2 Publish the colophon page with the delivery and refuse an unverified one; done when publication tests copy it and refuse a mismatched page; `tests/delivery.test.mjs` copies the page and refuses an edited one.
+- [x] 2.1 Add `archpub verify <delivery> [--allowed-signers <file>]`; done when tests show it passing an accepted delivery and refusing a changed artifact, a changed colophon page, an earlier record, a record edited after signing, a signature the record does not name and a signature from an unlisted key; `tests/acceptance.test.mjs` and `tests/cli-commands.test.mjs` pass.
+- [x] 2.2 Publish the colophon page and any signature with the delivery and refuse an unverified one; done when publication tests copy both byte for byte and refuse a mismatched page; `tests/acceptance.test.mjs` and `tests/delivery.test.mjs` pass.
 
 ## 3. Documents
 
-- [x] 3.1 Update the operations reference, the Skill, CHANGELOG and the command help; done when every new option, refusal and file is named; `tests/agent-skill.test.mjs` passes and the refusal table lists each new code.
+- [x] 3.1 Update the operations reference, the Skill, CHANGELOG and the command help; done when every new option, refusal and file is named and `tests/agent-skill.test.mjs` passes.
 
 ## 4. Verification
 
-- [x] 4.1 Run `npm run check` and the full test suite; done when both pass; `npm run check` exited 0 with 255 of 257 tests passing, the 2 browser tests skipped for want of a local Playwright browser.
+- [x] 4.1 Run `npm run check` and the full test suite; done when both pass; its static, coverage and package steps exited 0 with 254 of 256 tests passing and the 2 browser tests skipped.

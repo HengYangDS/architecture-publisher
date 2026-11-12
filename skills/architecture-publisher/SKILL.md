@@ -67,9 +67,12 @@ explainer with one panel per view or the guide the model names.
 9. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
    the name the user gives, adding `--sign <private key>` when the user signs
    with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
-   the name, and `acceptance.json`. A name with a character the house faces do
-   not draw is refused with `acceptance_name_unset`; ask the user for a name
-   they draw for the mark, which `--seal-name <name>` sets. Show the user the
+   the name, `acceptance.json`, the record of who accepted which bytes and when,
+   and for a signed acceptance `acceptance.sig`. Acceptance does not certify
+   that the architecture is correct; do not report it as if it did. A name with
+   a character the house faces do not draw is refused with
+   `acceptance_name_unset`; ask the user for a name they draw for the mark,
+   which `--seal-name <name>` sets. Show the user the
    colophon page, run `archpub verify <delivery>`, or for a signed acceptance
    `archpub verify <delivery> --allowed-signers <file>` with the signers the user
    keeps, then `archpub publish <delivery> --to <root>` to the destination the

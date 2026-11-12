@@ -98,12 +98,14 @@ archpub --help | --version [--json]
   command refuses to overwrite an existing file.
 - `accept` records a named reviewer's acceptance of an unchanged delivery and
   sets its [colophon page](#acceptance-and-publication). `--seal-name` names the
-  mark instead of the reviewer, and `--sign` signs the acceptance with an SSH key.
+  mark instead of the reviewer, and `--sign` signs the acceptance record with an
+  SSH key.
 - `verify` checks an accepted delivery against its manifest, its acceptance
   record and its colophon page, and with `--allowed-signers` the record's
   signature.
-- `publish` copies an accepted delivery with its colophon page to
-  `<root>/<model id>/<version>/`, in any directory the caller names.
+- `publish` copies an accepted delivery with its colophon page, acceptance
+  record and signature to `<root>/<model id>/<version>/`, in any directory the
+  caller names.
 
 Exit status 0 means success, 1 a refused input, 2 a usage error and 3 an
 internal error, any other failure, such as a file the command cannot read or
@@ -376,7 +378,8 @@ guidance keeps a page to four native diagrams.
 | `images/NN-<view>.png`      | Plate `NN`'s page at 2400 px wide, numbered from 01 in reading order.    |
 | `images/<name>-<width>.png` | The overview's or a plate's page at each other width `--png` names.      |
 | `manifest.json`             | The build record.                                                        |
-| `acceptance.json`           | Written by `archpub accept`; absent until then.                          |
+| `acceptance.json`           | The acceptance record `archpub accept` writes; absent until then.        |
+| `acceptance.sig`            | The record's SSH signature, when the reviewer signs it.                  |
 | `colophon.pdf`              | The colophon page `archpub accept` sets; absent until then.              |
 
 Nothing else is written at the top of the delivery.
@@ -405,60 +408,80 @@ build.
 ## Acceptance and publication
 
 `archpub accept` verifies every artifact against the manifest, sets the colophon
-page and writes `colophon.pdf` and `acceptance.json` beside the delivery. Neither
-is in the manifest, and no artifact changes. A changed artifact, an existing
-record or colophon page, an empty reviewer or seal name are refused.
+page and writes `colophon.pdf`, `acceptance.json` and, when the reviewer signs,
+`acceptance.sig` beside the delivery. None of them is in the manifest, and no
+artifact changes. A changed artifact, any of the three files already present,
+an empty reviewer or an empty seal name is refused.
+
+Acceptance records who accepted which bytes and when; it does not certify that
+the architecture is correct.
 
 The colophon page is one page in the edition's size and language, set by the
 house class with the pinned Typst and the house faces. Its round mark in
 cinnabar carries the publisher's word for accepted, such as ACCEPTED or 验收, and
 the date of acceptance on its rim, and the reviewer's name, or the seal name,
-straight across a band through its centre at the largest size between 7 and 13
-percent of the mark's width that fits, on two lines when one is too narrow.
-Where the ring thins is derived from the manifest's digest, so each delivery's
-mark differs and setting the same acceptance again gives the same bytes. Beside
-the mark stand the reviewer, the date and time in UTC, the model's title, release
-and revision, the manifest's digest and the signer's fingerprint or "unsigned".
-The house faces draw Latin, Greek, Cyrillic, Han, Kana and Hangul; a name with
-another character is refused with `acceptance_name_unset`, which names the
-characters, and `--seal-name` gives the mark a name the faces draw. The page then
-names the reviewer by the seal name too when no face draws the reviewer's own
-name. A name that does not fit two lines of the band is refused with
-`acceptance_name_too_long`.
+straight across a band through its centre. The name takes the largest size
+between 7 and 13 percent of the mark's width at which it fits the band on one
+line, or else on two lines at that size, before any smaller size is tried; two
+lines break where they are most nearly even, at a space, after a hyphen or
+between Han, Kana or Hangul characters. The house faces draw Latin, Greek,
+Cyrillic, Han, Kana and Hangul; a name with another character is refused with
+`acceptance_name_unset`, which names the characters, and `--seal-name` gives the
+mark a name the faces draw. The slip then names the reviewer by the seal name
+too when no face draws the reviewer's own name. A name that does not fit two
+lines of the band at 7 percent is refused with `acceptance_name_too_long`. The
+mark carries nothing else, so two acceptances by one reviewer on one day carry
+the same mark.
 
-`acceptance.json` version 2 records its format, the manifest's digest, the model
-id, the reviewer, the seal name and note when given, `accepted_at`, the UTC time
-of acceptance to the second, and `colophon`, the colophon page's digest.
-`SOURCE_DATE_EPOCH` sets the time of acceptance when the caller sets one. With
-`--sign <private key>`, `ssh-keygen -Y sign -n archpub-acceptance` signs the
-manifest's digest, its 64 hexadecimal digits without a newline, and the record
-holds the armoured `signature` and the key's `signer` fingerprint,
-`SHA256:<base64>`. `--sign` may name a public key whose private half ssh-agent
+Beside the mark, the acceptance slip names the reviewer, the time of acceptance
+in UTC, the subject, which is the model's title and release, the commit the
+edition was built at, the manifest's SHA-256, the signing key's fingerprint or
+"Unsigned", and the note when there is one. Below it stand the sentence on what
+acceptance establishes and the files published with the edition that hold the
+record, with the command that checks them. Setting the same acceptance again
+gives the same bytes. A note with a character no house face draws is refused by
+Typst's PDF/A check with `colophon_typst_error`.
+
+`acceptance.json` is an [in-toto Statement](https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md)
+version 1. Its two subjects are `manifest.json` and `colophon.pdf` with their
+SHA-256 digests, its `predicateType` is
+`https://github.com/HengYangDS/architecture-publisher/acceptance/v2`, and its
+predicate holds the `reviewer`, the `sealName` and `note` when given,
+`acceptedAt`, the UTC time to the second, the `model` id and, when signed, the
+`signer`, the signing key's fingerprint `SHA256:<base64>`. `SOURCE_DATE_EPOCH`
+sets the time of acceptance when the caller sets one.
+
+With `--sign <private key>`, `ssh-keygen -Y sign -n archpub-acceptance` signs
+the exact bytes of `acceptance.json`, and the armoured signature is written to
+`acceptance.sig`. `--sign` may name a public key whose private half ssh-agent
 holds; ssh-keygen runs with the caller's `SSH_AUTH_SOCK` beside the usual
 variables. A key ssh-keygen cannot use is refused with `acceptance_sign_failed`
 before anything is written.
 
 `archpub verify` checks, and refuses at the first link that fails, every
-artifact against the manifest, the record's format and version, its manifest
-digest, the colophon page's digest and, with `--allowed-signers <file>`, the
-signature: `ssh-keygen -Y verify` must accept it for the reviewer as the
-principal in the namespace `archpub-acceptance`, made by the key the record
-names. The allowed signers file is ssh-keygen's, one principal and public key to
-a line, with a name that holds spaces in double quotes. The same check by hand
-is `printf %s <manifest digest> | ssh-keygen -Y verify -f <file> -I <reviewer> -n archpub-acceptance -s <signature file>`.
+artifact against the manifest, the record's form and predicate version, its
+manifest digest, the colophon page's digest, that `acceptance.sig` is present
+exactly when the record names a signer and, with `--allowed-signers <file>`,
+the signature: `ssh-keygen -Y verify` must accept `acceptance.sig` over the
+bytes of `acceptance.json` for the reviewer as the principal in the namespace
+`archpub-acceptance`, made by the key the record names. The allowed signers file
+is ssh-keygen's, one principal and public key to a line, with a name that holds
+spaces in double quotes. The same check by hand is
+`ssh-keygen -Y verify -f <file> -I <reviewer> -n archpub-acceptance -s acceptance.sig < acceptance.json`.
 Without `--allowed-signers` the result says whether the record is signed and
 leaves the signature unchecked.
 
 `archpub publish` verifies the delivery as `verify` does without signers and
-copies it with its colophon page and record. The version defaults to the first
-12 hexadecimal digits of the manifest digest. The copy is staged and verified
-before it is renamed into place. Publishing an identical delivery again changes
-nothing; a different delivery under an existing version is refused.
+copies it with its colophon page, record and signature. The version defaults to
+the first 12 hexadecimal digits of the manifest digest. The copy is staged and
+verified before it is renamed into place. Publishing an identical delivery
+again changes nothing; a different delivery under an existing version is
+refused.
 
-A version 1 record, which earlier releases wrote without a time or colophon
-page, is refused by `verify` and `publish` with
+A record of an earlier release, or a Statement of another version of the
+acceptance predicate, is refused by `verify` and `publish` with
 `acceptance_version_unsupported`. Remove it and accept the unchanged delivery
-again to write version 2. Published versions keep their records as they are.
+again. Published versions keep their records as they are.
 
 ## Refusals
 
@@ -469,53 +492,53 @@ A refused view is named in the message; the plan's and the plates' problems
 carry paths under `/views/<id>`, and a page refusal carries the paths the grid
 or Archify reported.
 
-| Code                                                                                    | Meaning                                                                                                                                                       |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `usage`                                                                                 | Unknown command or option, or a missing value.                                                                                                                |
-| `model_invalid`                                                                         | The model breaks the schema; each problem has its own `model_*` code.                                                                                         |
-| `model_unreadable`, `model_json_invalid`, `model_too_large`                             | The file cannot be read, is not JSON or exceeds 4 MiB.                                                                                                        |
-| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                                                                                         |
-| `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                                                                                      |
-| `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                                                                                       |
-| `files_unresolved`                                                                      | A claim owns no file in the scope, or a relation's file is missing at the revision.                                                                           |
-| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                                                                                   |
-| `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                                                                                      |
-| `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.                                                                       |
-| `plan_not_admitted`                                                                     | No plate lays a view out; each problem gives the view's counts and the plate size.                                                                            |
-| `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                                                             |
-| `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                                                         |
-| `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, a line of a summary above its figure wider than 32 ems, or a plate's title longer than its line. |
-| `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.                                                   |
-| `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                                                             |
-| `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                                                                    |
-| `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                                                                     |
-| `overview_composition_missing`, `overview_composition_invalid`                          | The overview is asked of a model without a composition or with one that is not there, or its directory holds `archpub`.                                       |
-| `overview_typst_missing`, `overview_typst_version`                                      | Typst is not on the path or is not 0.15.1.                                                                                                                    |
-| `overview_import_refused`, `overview_style_refused`                                     | The composition imports a package or sets a size, face, colour or the page itself.                                                                            |
-| `overview_reference_unknown`                                                            | The composition names a component the model lacks.                                                                                                            |
-| `overview_text_outside`, `overview_text_overlap`                                        | Text leaves the page's area or lies over other text.                                                                                                          |
-| `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.                                                                            |
-| `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                                                                     |
-| `page_refused`                                                                          | Archify did not validate or deliver the page.                                                                                                                 |
-| `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.                                                                         |
-| `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.                                                                             |
-| `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                                                                                        |
-| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists.                                                                 |
-| `attribution_not_migrated`                                                              | The model's attribution names no editors; declare `editors` beside it first.                                                                                  |
-| `supply_invalid`                                                                        | A bundled supply failed its digest.                                                                                                                           |
-| `delivery_exists`                                                                       | `--out` already exists.                                                                                                                                       |
-| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                                                                                              |
-| `delivery_changed`                                                                      | An artifact differs from the manifest.                                                                                                                        |
-| `acceptance_reviewer_missing`, `acceptance_exists`                                      | Name a reviewer; a delivery is accepted once.                                                                                                                 |
-| `acceptance_name_unset`, `acceptance_name_too_long`                                     | The name on the mark is empty or has a character no house face draws, or does not fit two lines of the band; give a `--seal-name`.                            |
-| `acceptance_sign_failed`                                                                | ssh-keygen cannot read or sign with the key `--sign` names.                                                                                                   |
-| `colophon_typst_missing`, `colophon_typst_version`                                      | The colophon page needs Typst 0.15.1 on the path.                                                                                                             |
-| `colophon_typst_warning`, `colophon_typst_error`                                        | Typst warned or failed while setting the colophon page.                                                                                                       |
-| `acceptance_missing`, `acceptance_invalid`                                              | `verify` finds no acceptance record, or one that is not JSON or not an acceptance record.                                                                     |
-| `acceptance_version_unsupported`                                                        | The record is version 1; remove it and accept the delivery again.                                                                                             |
-| `acceptance_manifest_mismatch`, `acceptance_colophon_changed`                           | The record names another manifest, or `colophon.pdf` is missing or not the page the record names.                                                             |
-| `acceptance_signature_invalid`                                                          | The record is unsigned, or its signature does not verify for the reviewer with the allowed signers or by the key it names.                                    |
-| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                     | Accept first, use a valid version name, and never replace a published one.                                                                                    |
-| `publish_copy_invalid`                                                                  | The copy differs from the delivery and was removed.                                                                                                           |
-| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large`   | The workspace cannot be imported.                                                                                                                             |
-| `import_output_exists`                                                                  | The output file exists.                                                                                                                                       |
+| Code                                                                                    | Meaning                                                                                                                                                           |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `usage`                                                                                 | Unknown command or option, or a missing value.                                                                                                                    |
+| `model_invalid`                                                                         | The model breaks the schema; each problem has its own `model_*` code.                                                                                             |
+| `model_unreadable`, `model_json_invalid`, `model_too_large`                             | The file cannot be read, is not JSON or exceeds 4 MiB.                                                                                                            |
+| `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                     | A build option is outside its values.                                                                                                                             |
+| `glyphs_missing`                                                                        | Text uses characters the bundled fonts lack or a script they do not set.                                                                                          |
+| `source_revision_missing`, `source_revision_unknown`                                    | `--repo` needs `repository.revision`, and the checkout must contain it.                                                                                           |
+| `files_unresolved`                                                                      | A claim owns no file in the scope, or a relation's file is missing at the revision.                                                                               |
+| `source_git_unavailable`, `source_read_failed`                                          | Git cannot be run or cannot read the files.                                                                                                                       |
+| `plan_requires_structure`                                                               | An automatic plan needs groups or views.                                                                                                                          |
+| `currency_revision_unknown`, `coverage_revision_missing`, `coverage_repository_missing` | `--against` names no commit, the model pins no revision, or currency has no repository.                                                                           |
+| `plan_not_admitted`                                                                     | No plate lays a view out; each problem gives the view's counts and the plate size.                                                                                |
+| `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                                                                 |
+| `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                                                             |
+| `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, a line of a summary above its figure wider than 32 ems, or a plate's title longer than its line.     |
+| `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.                                                       |
+| `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                                                                 |
+| `page_label_too_long`, `page_shape_refused`                                             | A label exceeds the widest diagram card, or no diagram has a usable shape.                                                                                        |
+| `page_layout_refused`, `page_diagram_refused`                                           | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                                                                         |
+| `overview_composition_missing`, `overview_composition_invalid`                          | The overview is asked of a model without a composition or with one that is not there, or its directory holds `archpub`.                                           |
+| `overview_typst_missing`, `overview_typst_version`                                      | Typst is not on the path or is not 0.15.1.                                                                                                                        |
+| `overview_import_refused`, `overview_style_refused`                                     | The composition imports a package or sets a size, face, colour or the page itself.                                                                                |
+| `overview_reference_unknown`                                                            | The composition names a component the model lacks.                                                                                                                |
+| `overview_text_outside`, `overview_text_overlap`                                        | Text leaves the page's area or lies over other text.                                                                                                              |
+| `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.                                                                                |
+| `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                                                                         |
+| `page_refused`                                                                          | Archify did not validate or deliver the page.                                                                                                                     |
+| `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.                                                                             |
+| `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.                                                                                 |
+| `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                                                                                            |
+| `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists.                                                                     |
+| `attribution_not_migrated`                                                              | The model's attribution names no editors; declare `editors` beside it first.                                                                                      |
+| `supply_invalid`                                                                        | A bundled supply failed its digest.                                                                                                                               |
+| `delivery_exists`                                                                       | `--out` already exists.                                                                                                                                           |
+| `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                                                                                                  |
+| `delivery_changed`                                                                      | An artifact differs from the manifest.                                                                                                                            |
+| `acceptance_reviewer_missing`, `acceptance_exists`                                      | Name a reviewer; a delivery is accepted once, so a record, colophon page or signature already beside it is refused.                                               |
+| `acceptance_name_unset`, `acceptance_name_too_long`                                     | The name on the mark is empty or has a character no house face draws, or does not fit two lines of the band at 7 percent; give a `--seal-name`.                   |
+| `acceptance_sign_failed`                                                                | ssh-keygen cannot read the key `--sign` names or sign the record with it.                                                                                         |
+| `colophon_typst_missing`, `colophon_typst_version`                                      | The colophon page needs Typst 0.15.1 on the path.                                                                                                                 |
+| `colophon_typst_warning`, `colophon_typst_error`                                        | Typst warned or failed while setting the colophon page, such as for a note with a character no house face draws.                                                  |
+| `acceptance_missing`, `acceptance_invalid`                                              | `verify` finds no acceptance record, or one that is not JSON or not an in-toto Statement of the acceptance predicate.                                             |
+| `acceptance_version_unsupported`                                                        | The record is from an earlier release or of another predicate version; remove it and accept the delivery again.                                                   |
+| `acceptance_manifest_mismatch`, `acceptance_colophon_changed`                           | The record names another manifest, or `colophon.pdf` is missing or not the page the record names.                                                                 |
+| `acceptance_signature_invalid`                                                          | `acceptance.sig` is missing for a record that names a signer or present for one that names none, or does not verify the record for the reviewer by the named key. |
+| `publish_unaccepted`, `publish_version_invalid`, `publish_conflict`                     | Accept first, use a valid version name, and never replace a published one.                                                                                        |
+| `publish_copy_invalid`                                                                  | The copy differs from the delivery and was removed.                                                                                                               |
+| `likec4_sources_missing`, `likec4_invalid`, `likec4_parse_failed`, `likec4_too_large`   | The workspace cannot be imported.                                                                                                                                 |
+| `import_output_exists`                                                                  | The output file exists.                                                                                                                                           |

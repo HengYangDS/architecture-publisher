@@ -215,8 +215,13 @@ test("acceptance and publication require an unchanged delivery", async (t) => {
   });
   const accepted = await acceptDelivery(out, { reviewer: "Reviewer", note: "Looks right." });
   const record = await readJson(path.join(out, "acceptance.json"));
-  assert.equal(record.manifest, accepted.manifest);
-  assert.equal(record.note, "Looks right.");
+  // The record's first subject is the manifest, by its digest.
+  assert.deepEqual(record.subject[0], {
+    name: "manifest.json",
+    digest: { sha256: sha256(await fs.readFile(path.join(out, "manifest.json"))) },
+  });
+  assert.equal(accepted.manifest, record.subject[0].digest.sha256);
+  assert.equal(record.predicate.note, "Looks right.");
   await assert.rejects(acceptDelivery(out, { reviewer: "Reviewer" }), {
     code: "acceptance_exists",
   });

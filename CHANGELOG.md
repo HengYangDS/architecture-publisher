@@ -11,25 +11,31 @@ remain pre-release contracts and may contain incompatible changes.
 
 - `archpub accept` sets a colophon page, `colophon.pdf`, beside the delivery: one page in the edition's size and
   language with a round acceptance mark in cinnabar, the publisher's word for accepted and the date on its rim and the
-  reviewer's name across its band, worn where the manifest's digest says, and beside it the reviewer, the time in UTC,
-  the model's title and revision, the manifest's digest and the signer or "unsigned". No artifact of the delivery
-  changes. `--seal-name` sets another name on the mark; a name with a character no house face draws is refused with
-  `acceptance_name_unset`, and one too long for the band with `acceptance_name_too_long`.
-- `archpub accept --sign <private key>` signs the manifest's digest with `ssh-keygen -Y sign` in the namespace
-  `archpub-acceptance` and records the signature and the key's fingerprint; a key ssh-keygen cannot use is refused with
-  `acceptance_sign_failed`.
+  reviewer's name across its band, and beside it an acceptance slip naming the reviewer, the time in UTC, the subject,
+  the commit, the manifest's SHA-256, the signing key or "Unsigned" and the note, with the sentence that acceptance
+  records who accepted which bytes and when and does not certify that the architecture is correct. No artifact of the
+  delivery changes. A long name wraps to two lines inside the band before it shrinks. `--seal-name` sets another name
+  on the mark; a name with a character no house face draws is refused with `acceptance_name_unset`, and one that does
+  not fit the band with `acceptance_name_too_long`.
+- `archpub accept --sign <private key>` signs the exact bytes of `acceptance.json` with `ssh-keygen -Y sign` in the
+  namespace `archpub-acceptance` into a detached `acceptance.sig`, and the record names the key's fingerprint; a key
+  ssh-keygen cannot use is refused with `acceptance_sign_failed` before anything is written.
 - `archpub verify <delivery> [--allowed-signers <file>]` checks every artifact against the manifest, the acceptance
-  record against the manifest and the colophon page, and with allowed signers the signature for the reviewer, and
-  refuses at the first link that fails.
+  record against the manifest and the colophon page, that `acceptance.sig` is present exactly when the record names a
+  signer, and with allowed signers the signature for the reviewer, and refuses at the first link that fails.
 
 ### Changed
 
-- **Breaking:** the acceptance record is version 2. It adds `accepted_at`, `colophon` and the optional `seal_name`,
-  `signature` and `signer`. `verify` and `publish` refuse a version 1 record with `acceptance_version_unsupported`;
-  remove it and accept the unchanged delivery again. Published versions keep their records.
-- `publish` copies the colophon page with the delivery and refuses a page that is not the one the record names. A
-  record that is not an acceptance record or names another manifest is refused with `acceptance_invalid` or
-  `acceptance_manifest_mismatch`; `publish_unaccepted` now means only that the delivery has no record.
+- **Breaking:** the acceptance record is an [in-toto Statement v1] whose subjects are `manifest.json` and
+  `colophon.pdf` by SHA-256 and whose predicate, `https://github.com/HengYangDS/architecture-publisher/acceptance/v2`,
+  names the reviewer, the optional seal name and note, the time of acceptance, the model and the optional signing key.
+  `verify` and `publish` refuse a record of an earlier release with `acceptance_version_unsupported`; remove it and
+  accept the unchanged delivery again. Published versions keep their records.
+- `publish` copies the colophon page and any `acceptance.sig` with the delivery and refuses a page that is not the one
+  the record names. A record that is not an acceptance Statement or names another manifest is refused with
+  `acceptance_invalid` or `acceptance_manifest_mismatch`; `publish_unaccepted` now means only that the delivery has no
+  record.
+- The edition's foot names the commit as 提交 in Chinese and 커밋 in Korean, no longer 修订, 修訂 or 리비전.
 - The specifications are validated with OpenSpec 2.0.0, which keeps the workflows and the validation; its
   changes to agent skills and slash commands do not apply, as the repository configures no OpenSpec tool.
 
@@ -912,6 +918,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
 [0.12.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.12.0
 [0.11.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.11.0
 [0.10.2]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.10.2

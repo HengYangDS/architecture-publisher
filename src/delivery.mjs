@@ -1,7 +1,6 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { DELIVERY_FORMAT, digestTree } from "./build.mjs";
@@ -10,10 +9,19 @@ import { childEnvironment } from "./environment.mjs";
 import { refuse } from "./refusal.mjs";
 
 const ACCEPTANCE = "acceptance.json";
+const SIGNATURE = "acceptance.sig";
 const COLOPHON = "colophon.pdf";
 const MANIFEST = "manifest.json";
-const ACCEPTANCE_FORMAT = "architecture-publisher.acceptance";
-const ACCEPTANCE_VERSION = 2;
+/**
+ * The acceptance record is an in-toto Statement: its subjects are the bytes accepted, the manifest and the colophon
+ * page, by digest, and its predicate says who accepted them and when, so attestation tools read it as they read any
+ * other statement.
+ */
+const STATEMENT = "https://in-toto.io/Statement/v1";
+const PREDICATES = "https://github.com/HengYangDS/architecture-publisher/acceptance/";
+const PREDICATE = `${PREDICATES}v2`;
+/** The record format of the releases before the Statement, which named its version beside it. */
+const EARLIER_FORMAT = "architecture-publisher.acceptance";
 /** The SSH signature namespace of an acceptance, so a signature made for anything else never verifies as one. */
 const NAMESPACE = "archpub-acceptance";
 const run = promisify(execFile);
@@ -36,7 +44,7 @@ async function verifyDelivery(directory) {
   }
   if (manifest?.format !== DELIVERY_FORMAT)
     refuse("delivery_manifest_invalid", `${MANIFEST} is not an Architecture Publisher delivery.`);
-  const present = await digestTree(directory, new Set([MANIFEST, ACCEPTANCE, COLOPHON]));
+  const present = await digestTree(directory, new Set([MANIFEST, ACCEPTANCE, SIGNATURE, COLOPHON]));
   if (JSON.stringify(present) !== JSON.stringify(manifest.artifacts))
     refuse(
       "delivery_changed",
@@ -64,7 +72,7 @@ function diff(expected, actual) {
  * Run ssh-keygen with the given standard input, closed after it, and a deadline. The agent's socket is passed with
  * the usual variables, so a key whose private half ssh-agent holds signs without a prompt.
  * @param {string[]} args
- * @param {string} input
+ * @param {string | Buffer} input
  */
 async function sshKeygen(args, input) {
   const agent = process.env.SSH_AUTH_SOCK;
@@ -88,9 +96,9 @@ async function fingerprintOf(key) {
   return signer;
 }
 
-/** The armoured SSH signature of a manifest's digest, as 64 hexadecimal digits without a newline. */
-async function signDigest(key, digest) {
-  const signed = await sshKeygen(["-Y", "sign", "-f", key, "-n", NAMESPACE], digest);
+/** The armoured SSH signature of the acceptance record's exact bytes. */
+async function signRecord(key, bytes) {
+  const signed = await sshKeygen(["-Y", "sign", "-f", key, "-n", NAMESPACE], bytes);
   if (!signed.ok)
     refuse("acceptance_sign_failed", `ssh-keygen cannot sign with ${key}: ${signed.stderr.trim()}`);
   return signed.stdout;
@@ -104,8 +112,9 @@ function acceptanceTime() {
 }
 
 /**
- * Record a reviewer's acceptance of an unchanged delivery: set its colophon page, sign the manifest's digest when
- * the reviewer names a key, and write the colophon page and the acceptance record beside the delivery.
+ * Record a reviewer's acceptance of an unchanged delivery: set its colophon page, write the acceptance record as an
+ * in-toto Statement of the manifest and the page and, when the reviewer names a key, sign the record's exact bytes
+ * into a detached signature beside it.
  * @param {string} directory
  * @param {{ reviewer: string, sealName?: string | null, note?: string | null, sign?: string | null }} acceptance
  */
@@ -118,12 +127,12 @@ export async function acceptDelivery(
   if (sealName !== null && !/\S/u.test(sealName))
     refuse("acceptance_name_unset", "The seal name is empty; give the mark a name or none.");
   const { manifest, manifestSha256 } = await verifyDelivery(directory);
-  for (const file of [ACCEPTANCE, COLOPHON])
+  for (const file of [ACCEPTANCE, SIGNATURE, COLOPHON])
     if (await fs.lstat(path.join(directory, file)).catch(() => null))
       refuse("acceptance_exists", `${path.join(directory, file)} already exists.`);
   const acceptedAt = acceptanceTime();
+  // The slip names the signing key, so the key is read before the page is set.
   const signer = sign ? await fingerprintOf(sign) : null;
-  // The page is set before the key signs, so a name the mark cannot set asks for no signature.
   const { pdf } = await typesetColophon({
     locale: manifest.model.locale,
     title: manifest.model.title,
@@ -132,28 +141,35 @@ export async function acceptDelivery(
     date: manifest.edition?.date ?? null,
     reviewer,
     sealName,
+    note,
     acceptedAt,
     manifest: manifestSha256,
     signer,
   });
-  const signature = sign ? await signDigest(sign, manifestSha256) : null;
-  const record = {
-    format: ACCEPTANCE_FORMAT,
-    version: ACCEPTANCE_VERSION,
-    manifest: manifestSha256,
-    model: manifest.model.id,
-    reviewer,
-    ...(sealName ? { seal_name: sealName } : {}),
-    ...(note ? { note } : {}),
-    accepted_at: acceptedAt,
-    colophon: sha256(pdf),
-    ...(signature ? { signature, signer } : {}),
+  const statement = {
+    _type: STATEMENT,
+    subject: [
+      { name: MANIFEST, digest: { sha256: manifestSha256 } },
+      { name: COLOPHON, digest: { sha256: sha256(pdf) } },
+    ],
+    predicateType: PREDICATE,
+    predicate: {
+      reviewer,
+      ...(sealName ? { sealName } : {}),
+      ...(note ? { note } : {}),
+      acceptedAt,
+      model: manifest.model.id,
+      ...(signer ? { signer } : {}),
+    },
   };
+  const bytes = Buffer.from(`${JSON.stringify(statement, null, 2)}\n`);
+  // The key signs before anything is written, so a key that cannot sign leaves the delivery as it was.
+  const signature = sign ? await signRecord(sign, bytes) : null;
   const colophon = path.join(directory, COLOPHON);
+  const signatureFile = path.join(directory, SIGNATURE);
   await fs.writeFile(colophon, pdf, { flag: "wx" });
-  await fs.writeFile(path.join(directory, ACCEPTANCE), `${JSON.stringify(record, null, 2)}\n`, {
-    flag: "wx",
-  });
+  await fs.writeFile(path.join(directory, ACCEPTANCE), bytes, { flag: "wx" });
+  if (signature) await fs.writeFile(signatureFile, signature, { flag: "wx" });
   return {
     directory: path.resolve(directory),
     manifest: manifestSha256,
@@ -161,96 +177,109 @@ export async function acceptDelivery(
     acceptedAt,
     colophon: path.resolve(colophon),
     signer,
+    signature: signature ? path.resolve(signatureFile) : null,
   };
 }
 
+/** The digest a Statement records for one of its subjects, by name. */
+const subjectDigest = (statement, name) =>
+  statement.subject.find((subject) => subject?.name === name)?.digest?.sha256;
+
 /**
- * A delivery's acceptance record, when it is version 2 and names the delivery's manifest and colophon page.
+ * A delivery's acceptance record and its exact bytes, when it is an acceptance Statement whose subjects are the
+ * delivery's manifest and colophon page, and whose signature is beside it exactly when it names a signer.
  * @param {string} directory
  * @param {string} manifestSha256
  * @param {string} unaccepted the code of a refusal for a delivery without a record
  */
 async function readAcceptance(directory, manifestSha256, unaccepted) {
-  let text;
+  let bytes;
   try {
-    text = await fs.readFile(path.join(directory, ACCEPTANCE), "utf8");
+    bytes = await fs.readFile(path.join(directory, ACCEPTANCE));
   } catch (error) {
     if (/** @type {any} */ (error).code !== "ENOENT") throw error;
     refuse(unaccepted, "The delivery has no acceptance record; run archpub accept first.");
   }
-  let record;
+  let statement;
   try {
-    record = JSON.parse(text);
+    statement = JSON.parse(bytes.toString("utf8"));
   } catch {
     refuse("acceptance_invalid", `${ACCEPTANCE} is not JSON.`);
   }
-  if (record?.format !== ACCEPTANCE_FORMAT || typeof record.reviewer !== "string")
-    refuse(
-      "acceptance_invalid",
-      `${ACCEPTANCE} is not an Architecture Publisher acceptance record.`,
-    );
-  if (record.version !== ACCEPTANCE_VERSION)
+  const earlier = statement?.format === EARLIER_FORMAT;
+  if (
+    earlier ||
+    (statement?.predicateType?.startsWith?.(PREDICATES) && statement.predicateType !== PREDICATE)
+  )
     refuse(
       "acceptance_version_unsupported",
-      `${ACCEPTANCE} is version ${record.version}; remove it and accept the delivery again to write version ${ACCEPTANCE_VERSION}.`,
+      `${ACCEPTANCE} is ${earlier ? `the version ${statement.version} record of an earlier release` : `a ${statement.predicateType} statement`}; remove it and accept the unchanged delivery again to write ${PREDICATE}.`,
     );
-  if (record.manifest !== manifestSha256)
-    refuse("acceptance_manifest_mismatch", "The acceptance record names another manifest.");
+  if (
+    statement?._type !== STATEMENT ||
+    statement.predicateType !== PREDICATE ||
+    !Array.isArray(statement.subject) ||
+    typeof statement.predicate?.reviewer !== "string"
+  )
+    refuse("acceptance_invalid", `${ACCEPTANCE} is not an in-toto Statement of ${PREDICATE}.`);
+  if (subjectDigest(statement, MANIFEST) !== manifestSha256)
+    refuse("acceptance_manifest_mismatch", `${ACCEPTANCE} names another ${MANIFEST}.`);
   const page = await fs.readFile(path.join(directory, COLOPHON)).catch(() => null);
-  if (!page || sha256(page) !== record.colophon)
+  if (!page || sha256(page) !== subjectDigest(statement, COLOPHON))
+    refuse("acceptance_colophon_changed", `${COLOPHON} is not the page ${ACCEPTANCE} names.`);
+  const signed = Boolean(await fs.lstat(path.join(directory, SIGNATURE)).catch(() => null));
+  const signer = statement.predicate.signer ?? null;
+  if (signed !== Boolean(signer))
     refuse(
-      "acceptance_colophon_changed",
-      `${COLOPHON} is not the page the acceptance record names.`,
+      "acceptance_signature_invalid",
+      signer
+        ? `${ACCEPTANCE} names the signing key ${signer}, but ${SIGNATURE} is missing.`
+        : `${SIGNATURE} lies beside ${ACCEPTANCE}, which names no signing key.`,
     );
-  return record;
+  return { statement, bytes, signer };
 }
 
 /**
- * Check an acceptance record's signature of the manifest's digest for its reviewer against an allowed signers file,
- * and that the key that signed is the signer the record names.
+ * Check the detached signature against the record's exact bytes for its reviewer with an allowed signers file, and
+ * that the key that signed is the signing key the record names.
  */
-async function checkSignature(record, digest, allowedSigners) {
-  if (typeof record.signature !== "string")
-    refuse("acceptance_signature_invalid", "The acceptance record is unsigned.");
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-signature-"));
-  try {
-    const file = path.join(directory, "acceptance.sig");
-    await fs.writeFile(file, record.signature);
-    const args = ["-Y", "verify", "-f", allowedSigners, "-I", record.reviewer, "-n", NAMESPACE];
-    const checked = await sshKeygen([...args, "-s", file], digest);
-    if (!checked.ok || !checked.stdout.includes(` ${record.signer}`))
-      refuse(
-        "acceptance_signature_invalid",
-        `The signature does not verify as ${record.reviewer}'s with ${record.signer}: ${(checked.stderr || checked.stdout).trim()}`,
-      );
-  } finally {
-    await fs.rm(directory, { recursive: true, force: true });
-  }
+async function checkSignature(directory, { statement, bytes, signer }, allowedSigners) {
+  const { reviewer } = statement.predicate;
+  if (!signer) refuse("acceptance_signature_invalid", `${ACCEPTANCE} is unsigned.`);
+  const file = path.join(directory, SIGNATURE);
+  const args = ["-Y", "verify", "-f", allowedSigners, "-I", reviewer, "-n", NAMESPACE, "-s", file];
+  const checked = await sshKeygen(args, bytes);
+  if (!checked.ok || !checked.stdout.includes(` ${signer}`))
+    refuse(
+      "acceptance_signature_invalid",
+      `${SIGNATURE} does not verify ${ACCEPTANCE} as ${reviewer}'s with ${signer}: ${(checked.stderr || checked.stdout).trim()}`,
+    );
 }
 
 /**
  * Verify an accepted delivery: every artifact against the manifest, the acceptance record against the manifest and
- * the colophon page and, given allowed signers, the record's signature for its reviewer. The first link that fails
- * is refused.
+ * the colophon page, the signature's presence against the record and, given allowed signers, the signature against
+ * the record's bytes for its reviewer. The first link that fails is refused.
  * @param {string} directory
  * @param {{ allowedSigners?: string | null }} [options]
  */
 export async function verifyAcceptance(directory, options = {}) {
   const { manifestSha256 } = await verifyDelivery(directory);
-  const record = await readAcceptance(directory, manifestSha256, "acceptance_missing");
-  if (options.allowedSigners) await checkSignature(record, manifestSha256, options.allowedSigners);
+  const accepted = await readAcceptance(directory, manifestSha256, "acceptance_missing");
+  if (options.allowedSigners) await checkSignature(directory, accepted, options.allowedSigners);
   return {
     directory: path.resolve(directory),
     manifest: manifestSha256,
-    reviewer: record.reviewer,
-    acceptedAt: record.accepted_at,
-    signer: record.signer ?? null,
-    signature: options.allowedSigners ? "verified" : record.signature ? "unchecked" : "unsigned",
+    reviewer: accepted.statement.predicate.reviewer,
+    acceptedAt: accepted.statement.predicate.acceptedAt,
+    signer: accepted.signer,
+    signature: options.allowedSigners ? "verified" : accepted.signer ? "unchecked" : "unsigned",
   };
 }
 
 /**
- * Copy an accepted delivery with its colophon page to `<root>/<model id>/<version>/`. An identical existing version
+ * Copy an accepted delivery with its colophon page, its acceptance record and any signature to
+ * `<root>/<model id>/<version>/`. An identical existing version
  * is left as it is; a different one is refused.
  * @param {string} directory
  * @param {string} root

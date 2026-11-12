@@ -22,13 +22,13 @@ const CHECK_OPTIONS = `Check options:
 const ACCEPT_OPTIONS = `Accept options:
   --seal-name <name>    The name the mark sets instead of the reviewer's, in a script
                         the house faces draw.
-  --sign <private key>  Sign the manifest's digest with this SSH key, or the key
-                        ssh-agent holds for this public key.
+  --sign <private key>  Sign acceptance.json into acceptance.sig with this SSH key,
+                        or the key ssh-agent holds for this public key.
 `;
 
 const VERIFY_OPTIONS = `Verify options:
-  --allowed-signers <file>  Check the record's signature for its reviewer against
-                            this ssh-keygen allowed signers file.
+  --allowed-signers <file>  Check acceptance.sig against acceptance.json for the
+                            reviewer with this ssh-keygen allowed signers file.
 `;
 
 class UsageError extends Error {}
@@ -338,7 +338,7 @@ const COMMANDS = {
         sign: options.sign ?? null,
       }),
     text: (result) =>
-      `Accepted ${result.directory} for ${result.reviewer}, ${result.signer ? `signed by ${result.signer}` : "unsigned"}; the colophon page is ${result.colophon}.\n`,
+      `Accepted ${result.directory} for ${result.reviewer}, ${result.signer ? `signed by ${result.signer} in ${result.signature}` : "unsigned"}; the colophon page is ${result.colophon}.\n`,
   },
   verify: {
     usage: ["archpub verify <delivery> [--allowed-signers <file>] [--json]"],

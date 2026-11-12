@@ -144,13 +144,11 @@ export function typstProblems(stderr, roots = [], medium = "overview") {
       line: Number(match[2]),
     }));
     const own = places.filter(({ file }) => !file.startsWith(`${STAGED}/`)).at(-1) ?? places[0];
-    const code = /((?:overview|edition|acceptance)_[a-z_]+): /u.exec(message)?.[1];
+    const code = /((?:overview|edition)_[a-z_]+): /u.exec(message)?.[1];
     return {
       code: code ?? `${medium}_typst_${level === "warning" ? "warning" : "error"}`,
       path: own ? `${own.file}:${own.line}` : undefined,
-      message: code
-        ? message.replace(/^.*?(?:overview|edition|acceptance)_[a-z_]+: /u, "")
-        : message,
+      message: code ? message.replace(/^.*?(?:overview|edition)_[a-z_]+: /u, "") : message,
     };
   });
 }

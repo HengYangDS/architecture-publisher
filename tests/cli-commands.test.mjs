@@ -9,7 +9,6 @@ import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtu
 import { repository } from "./fixtures/repository.mjs";
 
 const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
-/** OpenSSH's key tool, which the host provides as acceptance does. */
 const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
 const json = async (args) => {
   const { exitCode, output } = await runCli([...args, "--json"]);
@@ -211,12 +210,13 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   const signed = path.join(root, "signed");
   await fs.cp(out, signed, { recursive: true });
   for (const file of ["acceptance.json", "colophon.pdf"]) await fs.rm(path.join(signed, file));
+  assert.match((await runCli(["accept", "--help"])).output, /acceptance\.sig/u);
   const key = path.join(root, "key");
   spawnSync("ssh-keygen", ["-q", "-t", "ed25519", "-N", "", "-f", key], { stdio: "ignore" });
   await fs.writeFile(allowed, `Reviewer ${await fs.readFile(`${key}.pub`, "utf8")}`);
   assert.match(
     (await runCli(["accept", signed, "--reviewer", "Reviewer", "--sign", key])).output,
-    /^Accepted .* for Reviewer, signed by SHA256:\S+; the colophon page is /u,
+    /^Accepted .* for Reviewer, signed by SHA256:\S+ in .*acceptance\.sig; the colophon page is /u,
   );
   assert.match(
     (await runCli(["verify", signed])).output,
