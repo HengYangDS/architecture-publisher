@@ -1,206 +1,29 @@
 import assert from "node:assert/strict";
-import crypto from "node:crypto";
-import fs from "node:fs/promises";
 import test from "node:test";
-import { loadIcons } from "../src/icons.mjs";
 import { validateModel } from "../src/model/load.mjs";
-import { planViews } from "../src/plan/views.mjs";
 import { hubOf, wireWidth } from "../src/poster/bolts.mjs";
-import { admitsView, composePlates } from "../src/poster/compose/plates.mjs";
-import { loadTypefaces } from "../src/poster/text.mjs";
+import { admitsView } from "../src/poster/compose/plates.mjs";
 import { POSTER } from "../src/poster/tokens.mjs";
-import { wordsOf } from "../src/locale.mjs";
-import { BIG_BANK_MODEL, minimalModel } from "./fixtures/models.mjs";
+import { minimalModel } from "./fixtures/models.mjs";
+import {
+  typefaces,
+  icons,
+  INDIGO,
+  part,
+  PARTS,
+  boltsStyle,
+  files,
+  boltModel,
+  platesIn,
+  rectsOf,
+  wiresOf,
+  arrowsOf,
+  labelOf,
+  stripOf,
+  unitOf,
+} from "./fixtures/bolts.mjs";
 
-const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
-const house = JSON.parse(await fs.readFile(new URL("../src/house.json", import.meta.url), "utf8"));
-
-/** The house tokens: the 0.12 colours every plate is drawn in when the edition names no style. */
-const HOUSE_TOKENS = Object.freeze({
-  palette: house.palette,
-  figure: house.figure,
-  dye: house.dye,
-});
-
-/** Indigo as a resolved palette gives it: its ground, ink, dyes and accent, and the tokens between. */
-const INDIGO = Object.freeze({
-  palette: {
-    paper: "#f6f5f1",
-    ink: "#25282c",
-    green: "#334965",
-    mid: "#5f6a78",
-    soft: "#4d5561",
-    rule: "#c9cbcd",
-    ochre: "#7a5534",
-  },
-  figure: {
-    card: "#fbfbf9",
-    cardStroke: "#d3d5d8",
-    outside: "#e9eaeb",
-    outsideStroke: "#bfc3c8",
-    outsideMark: "#76808b",
-    boundary: "#858b93",
-    retired: "#8d949c",
-    shadow: "#202326",
-  },
-  dye: { new: "#b7d8db", mid: "#7099ae", old: "#334965" },
-});
-const DYES = [INDIGO.dye.new, INDIGO.dye.mid, INDIGO.dye.old];
-
-/** Three days and a month, in seconds: the edition's two band boundaries. */
-const SPANS = Object.freeze([3 * 86400, 30 * 86400]);
-
-/** A part's files, as the edition binds them: path, bytes and age band, in path order. */
-const part = (files) => ({
-  bytes: files.reduce((sum, [, bytes]) => sum + bytes, 0),
-  files: files.map(([path, bytes, band]) => ({ path, bytes, band })),
-});
-
-/**
- * The parts of the bolts work: the composer owns 3 KB and 1 KB, the record a file and a
- * sliver of the same band, the supplies are the largest part, and Typst owns no files.
- */
-const PARTS = new Map([
-  ["builder", part([["src/build.mjs", 21000, 0]])],
-  [
-    "composer",
-    part([
-      ["src/poster/figure.mjs", 3000, 0],
-      ["src/poster/plate.mjs", 1000, 2],
-    ]),
-  ],
-  ["words", part([["src/locale.mjs", 400, 0]])],
-  [
-    "record",
-    part([
-      ["src/edition/record.mjs", 9000, 2],
-      ["src/edition/stamp.mjs", 10, 2],
-    ]),
-  ],
-  [
-    "supplies",
-    part([
-      ["supplies/fonts/a.otf", 30000, 2],
-      ["supplies/fonts/b.otf", 20000, 2],
-      ["supplies/icons.json", 6000, 0],
-    ]),
-  ],
-]);
-
-/** A bolts style over the given tokens and parts. */
-const boltsStyle = (tokens = INDIGO, parts = PARTS) => ({
-  name: "bolts",
-  tokens,
-  parts,
-  most: Math.max(...[...parts.values()].map(({ bytes }) => bytes)),
-  bands: { spans: SPANS },
-});
-
-const files = (count) => Array.from({ length: count }, (_, index) => `src/f${index}.mjs`);
-
-/**
- * A small work: a builder that composes plates, runs Typst and loads fonts; four parts draw
- * on the supplies, each relation evidenced by three files or more.
- */
-function boltModel(locale = "en", extra = {}, statuses = {}) {
-  const zh = locale === "zh-CN";
-  const status = (id) => (statuses[id] ? { status: statuses[id] } : {});
-  return validateModel(
-    minimalModel({
-      id: "bolts",
-      locale,
-      title: zh ? "印刷版" : "The print edition",
-      question: zh ? "什么把视图变成印刷版？" : "What turns the views into the print edition?",
-      kinds: {
-        stage: { label: zh ? "阶段" : "stage", category: "backend", icon: "server" },
-        supply: { label: zh ? "供给" : "vendored supply", category: "backend", icon: "package" },
-        tool: { label: zh ? "外部工具" : "external tool", category: "external", icon: "wrench" },
-      },
-      components: [
-        {
-          id: "builder",
-          label: zh ? "交付构建" : "Delivery builder",
-          kind: "stage",
-          details: { [zh ? "产出" : "builds"]: [zh ? "印刷版" : "the edition"] },
-        },
-        { id: "composer", label: zh ? "图版排布" : "Plate composer", kind: "stage" },
-        { id: "words", label: zh ? "词语" : "Words", kind: "stage" },
-        { id: "record", label: zh ? "记录" : "Record", kind: "stage", ...status("record") },
-        { id: "supplies", label: zh ? "供给" : "Supplies", kind: "supply" },
-        { id: "typst", label: "Typst", kind: "tool", ...status("typst") },
-      ],
-      relations: [
-        { id: "composes", from: "builder", to: "composer", label: "composes", files: files(2) },
-        { id: "fonts", from: "builder", to: "supplies", label: "loads fonts", files: files(3) },
-        { id: "icons", from: "composer", to: "supplies", label: "loads icons", files: files(3) },
-        { id: "faces", from: "words", to: "supplies", label: "reads faces", files: files(4) },
-        { id: "stages", from: "record", to: "supplies", label: "stages", files: files(3) },
-        { id: "sets", from: "composer", to: "words", label: "sets words", files: files(1) },
-        { id: "writes", from: "composer", to: "record", label: "writes" },
-        { id: "runs", from: "builder", to: "typst", label: "runs Typst", files: files(1) },
-      ],
-      ...extra,
-    }),
-  );
-}
-
-/** Plan a model's views and compose its plates in one style, as the build does. */
-async function platesIn(model, style) {
-  const views = await planViews(model, async (view) =>
-    admitsView(model, view, typefaces, icons, style),
-  );
-  return { views, plates: composePlates(model, views, typefaces, icons, style) };
-}
-
-const number = (text) => Number(text);
-
-/** The rectangles a plate draws, with their fill and dash. */
-const rectsOf = (svg) =>
-  [
-    ...svg.matchAll(
-      /<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.-]+)" height="([\d.-]+)"([^>]*)\/>/gu,
-    ),
-  ].map(([, x, y, width, height, rest]) => ({
-    x: number(x),
-    y: number(y),
-    width: number(width),
-    height: number(height),
-    fill: /fill="([^"]+)"/u.exec(rest)?.[1],
-    dash: /stroke-dasharray="([^"]+)"/u.exec(rest)?.[1] ?? null,
-  }));
-
-/** The wires a plate draws: their colour and width. */
-const wiresOf = (svg) =>
-  [...svg.matchAll(/<path d="[^"]+" fill="none" stroke="([^"]+)" stroke-width="([\d.]+)"/gu)].map(
-    ([, stroke, width]) => ({ stroke, width: number(width) }),
-  );
-
-/** The arrowheads a plate draws: the tip and the fill. */
-const arrowsOf = (svg) =>
-  [...svg.matchAll(/<path d="M([\d.]+),([\d.]+) L[^"]+Z" fill="([^"]+)"\/>/gu)].map(
-    ([, x, y, fill]) => ({ x: number(x), y: number(y), fill }),
-  );
-
-/** The label run of a part: its last line, under which its strip is woven. */
-const labelOf = (plate, id) => plate.runs.filter(({ component }) => component === id).at(-1);
-
-/** The segments of a part's strip: contiguous rectangles from the label's left edge, under it. */
-function stripOf(plate, id) {
-  const label = labelOf(plate, id);
-  const under = rectsOf(plate.svg).filter(
-    (rect) => rect.y > label.baseline && rect.y < label.baseline + 40,
-  );
-  const first = under.find((rect) => Math.abs(rect.x - label.x) < 0.11);
-  assert.ok(first, `no strip under ${id}`);
-  const strip = [first];
-  for (const rect of under.filter(({ y }) => y === first.y).sort((a, b) => a.x - b.x))
-    if (rect.x > strip.at(-1).x && rect.x - (strip.at(-1).x + strip.at(-1).width) < 1.25)
-      strip.push(rect);
-  return strip;
-}
-
-/** The px a step's unit scales the bolts' thickness and line weights by. */
-const unitOf = (plate) => POSTER.steps[plate.step].name / 24;
+// The woven drawing: strips, thickness, lines, the hub and the box a bolt keeps.
 
 test("a strip is woven of its part's files, each as wide as its share of the part's bytes", async () => {
   const {
@@ -341,152 +164,6 @@ test("a view's hub draws three relations or more and strictly more than any othe
   );
 });
 
-test("a bolts plate's key lists exactly the marks it shows", async () => {
-  const {
-    plates: [plate],
-  } = await platesIn(boltModel(), boltsStyle());
-  assert.deepEqual(plate.legend, [
-    { shape: "band", band: 0, color: INDIGO.dye.new, label: "changed within 3 days" },
-    { shape: "band", band: 2, color: INDIGO.dye.old, label: "earlier" },
-    { shape: "thickness", label: "a strip's thickness is the code a part owns" },
-    {
-      shape: "weight",
-      counts: [1, 2, 3],
-      label: "line weight counts the files that evidence a relation",
-    },
-    { shape: "hub", color: INDIGO.dye.old, label: "draws on Supplies" },
-    { shape: "boundary", label: "inside The print edition" },
-  ]);
-});
-
-test("a bolts plate in Chinese sets its captions and key in Chinese", async () => {
-  // One file of every band, so the key names all three.
-  const parts = new Map(PARTS);
-  parts.set("words", part([["src/locale.mjs", 6000, 1]]));
-  const {
-    plates: [plate],
-  } = await platesIn(boltModel("zh-CN"), boltsStyle(INDIGO, parts));
-  const texts = plate.runs.map(({ text }) => text);
-  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "不拥有文件", "阶段", "外部工具"])
-    assert.ok(texts.includes(text), text);
-  assert.deepEqual(
-    plate.legend.slice(0, 6).map(({ label }) => label),
-    [
-      "三天内改过",
-      "一月内改过",
-      "更早",
-      "布条的厚薄是组件拥有的代码量",
-      "线的粗细是证明这次调用的源文件数",
-      "调用供给",
-    ],
-  );
-});
-
-test("a band's name follows the edition's spans on the ladder", async () => {
-  const parts = new Map([["words", part([["src/locale.mjs", 6000, 1]])]]);
-  const style = { ...boltsStyle(INDIGO, parts), bands: { spans: [7 * 86400, 365 * 86400] } };
-  const {
-    plates: [plate],
-  } = await platesIn(boltModel(), style);
-  assert.deepEqual(plate.legend[0], {
-    shape: "band",
-    band: 1,
-    color: INDIGO.dye.mid,
-    label: "within a year",
-  });
-  // A plate without evidenced relations draws no weights and has no hub to name.
-  assert.deepEqual(
-    plate.legend.map(({ shape }) => shape),
-    ["band", "thickness", "weight", "hub", "boundary"],
-  );
-  const bare = validateModel(
-    minimalModel({
-      components: [
-        { id: "a", label: "Alpha" },
-        { id: "b", label: "Beta" },
-      ],
-      relations: [{ id: "a-b", from: "a", to: "b", label: "calls" }],
-    }),
-  );
-  const {
-    plates: [empty],
-  } = await platesIn(bare, { ...style, parts: new Map(), most: 0 });
-  assert.deepEqual(empty.legend, []);
-  assert.equal(rectsOf(empty.svg).filter(({ fill }) => fill === "none").length, 2);
-});
-
-test("an overview's group is woven of its members' files in path order", async () => {
-  const model = boltModel("en", {
-    groups: [{ id: "edition", label: "Edition", members: ["composer", "words", "record"] }],
-  });
-  // The words own no files here, so the group weaves the composer's and the record's.
-  const parts = new Map(PARTS);
-  parts.delete("words");
-  const style = boltsStyle(INDIGO, parts);
-  // The whole work fits one plate; set aside, it is planned as an overview and a view of its group.
-  const views = await planViews(model, async (view) =>
-    view.origin === "complete"
-      ? { fits: false, width: 0, height: 0 }
-      : admitsView(model, view, typefaces, icons, style),
-  );
-  const plates = composePlates(model, views, typefaces, icons, style);
-  const overview = plates[views.findIndex(({ origin }) => origin === "overview")];
-  // The record's file and its merged sliver, then the composer's two files.
-  assert.deepEqual(
-    stripOf(overview, "edition").map(({ fill }) => fill),
-    [INDIGO.dye.old, INDIGO.dye.new, INDIGO.dye.old],
-  );
-  assert.ok(overview.runs.some(({ text }) => text === "4 files, 13 KB"));
-  assert.ok(overview.runs.some(({ text }) => text === "group"));
-  // Two relations into the supplies are not a hub.
-  assert.ok(wiresOf(overview.svg).every(({ stroke }) => stroke !== INDIGO.dye.old));
-  assert.ok(!overview.legend.some(({ shape }) => shape === "hub"));
-});
-
-test("a cards plate in indigo draws every colour from its tokens", async () => {
-  const style = { ...boltsStyle(), name: "cards" };
-  const {
-    plates: [plate],
-  } = await platesIn(boltModel(), style);
-  const tokens = new Set([
-    ...Object.values(INDIGO.palette),
-    ...Object.values(INDIGO.figure),
-    ...DYES,
-  ]);
-  const drawn = new Set([
-    ...[...plate.svg.matchAll(/#[0-9a-f]{6}/giu)].map(([color]) => color),
-    ...plate.runs.map(({ color }) => color),
-    ...plate.legend.flatMap(({ color }) => (color ? [color] : [])),
-  ]);
-  for (const color of drawn) assert.ok(tokens.has(color), color);
-  for (const color of [INDIGO.figure.card, INDIGO.figure.outside, INDIGO.palette.mid])
-    assert.ok(drawn.has(color), color);
-  // Cards keep their icons, boxes and kinds.
-  assert.match(plate.svg, /filter="url\(#lift\)"/u);
-  assert.ok(plate.legend.some(({ kind }) => kind === "supply"));
-});
-
-test("cards in the house tokens draw the plates Architecture Publisher 0.12 drew", async () => {
-  const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
-  bank.components[1].status = "planned";
-  bank.components[2].status = "retired";
-  bank.relations[0].status = "planned";
-  bank.relations[1].status = "retired";
-  const model = validateModel(bank);
-  const digest = (plates) =>
-    crypto
-      .createHash("sha256")
-      .update(JSON.stringify(plates.map(({ svg, runs }) => ({ svg, runs }))))
-      .digest("hex");
-  // Captured from 0.12.0's engine, before styles and palettes.
-  const drawn = "9ddb126b2fa312f5a8afa44d952bf523f42dd87ac32d3fefc221b935fed6599c";
-  const unnamed = await platesIn(model);
-  assert.equal(digest(unnamed.plates), drawn);
-  const named = await platesIn(model, { name: "cards", tokens: HOUSE_TOKENS });
-  assert.equal(digest(named.plates), drawn);
-  assert.deepEqual(named.plates, unnamed.plates);
-});
-
 test("a planned or retired part's strip is outlined in its status's dashes", async () => {
   const model = boltModel("en", {}, { record: "retired", typst: "planned" });
   const {
@@ -518,12 +195,6 @@ test("a part of empty files shares its strip evenly", async () => {
   const [first, second] = stripOf(plate, "words");
   assert.ok(Math.abs(first.width + 1 - second.width) <= 0.15, `${first.width} ${second.width}`);
   assert.ok(plate.runs.some(({ text }) => text === "2 files, 0 KB"));
-});
-
-test("a caption counts one file in the singular in every language that has one", () => {
-  assert.equal(wordsOf("en").files(1, "2 KB"), "1 file, 2 KB");
-  assert.equal(wordsOf("es").files(1, "2 KB"), "1 archivo, 2 KB");
-  assert.equal(wordsOf("es").files(3, "2 KB"), "3 archivos, 2 KB");
 });
 
 test("a bolt whose label cannot break within any box is refused as a card would be", () => {

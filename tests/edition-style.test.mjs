@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import test from "node:test";
 import { PALETTES, STYLES, resolvePalette } from "../src/model/edition.mjs";
 import { validateModel } from "../src/model/load.mjs";
-import { minimalModel } from "./fixtures/models.mjs";
+import { minimalModel, problemsOf } from "./fixtures/models.mjs";
 
 const readJson = async (url) => JSON.parse(await fs.readFile(url, "utf8"));
 const HOUSE = await readJson(new URL("../src/house.json", import.meta.url));
@@ -206,4 +206,13 @@ test("an edition's shape, style, palette name and colours are checked before its
       "model_color_invalid /edition/palette/dye/1: must be a #rrggbb colour",
     ],
   );
+});
+
+test("a model may name its edition's style and palette", () => {
+  const model = validateModel(minimalModel({ edition: { style: "cards", palette: "forest" } }));
+  assert.deepEqual(model.edition, { style: "cards", palette: "forest" });
+  assert.deepEqual(problemsOf(minimalModel({ edition: { style: "woven", pallete: "indigo" } })), [
+    "model_field_unknown /edition/pallete",
+    "model_style_unknown /edition/style",
+  ]);
 });

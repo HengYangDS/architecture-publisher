@@ -1,7 +1,9 @@
+import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateModel } from "../../src/model/load.mjs";
 
 const MODELS = fileURLToPath(new URL("./models/", import.meta.url));
 export const AIGW_MODEL = path.join(MODELS, "aigw.json");
@@ -173,4 +175,15 @@ export async function writeModel(t, model) {
   const file = path.join(await temporaryDirectory(t, "archpub-model-"), "model.json");
   await fs.writeFile(file, typeof model === "string" ? model : JSON.stringify(model));
   return file;
+}
+
+/** The refusal's problems as `code path` lines. */
+export function problemsOf(model, options) {
+  try {
+    validateModel(model, options);
+  } catch (error) {
+    assert.equal(error.code, "model_invalid");
+    return error.problems.map(({ code, path: where }) => `${code} ${where}`);
+  }
+  assert.fail("the model was accepted");
 }
