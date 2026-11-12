@@ -385,3 +385,20 @@ that lacks either placeholder.
 - **WHEN** a model's repository declares
   `browse: "https://github.com/o/r/tree/{revision}"`
 - **THEN** validation refuses with the problem at `/repository/browse`
+
+### Requirement: Help for an author's editor
+
+A model MAY carry `$schema`, a reference to the schema for its editor, which the
+publisher does not read. An unknown field's message SHALL name the nearest field
+that object has when one differs from it by at most a third of its letters.
+
+#### Scenario: A misspelt field
+
+- **WHEN** a model has a top-level field `viewz`
+- **THEN** the build refuses with `model_field_unknown` at `/viewz`
+- **AND** the message names `views`
+
+#### Scenario: A schema reference
+
+- **WHEN** a model's top level carries `$schema`
+- **THEN** the model validates as it would without it
