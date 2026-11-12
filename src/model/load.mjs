@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { LOCALES } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
+import { readEdition } from "./edition.mjs";
 import { unknownField } from "./nearest-name.mjs";
 import { normalize } from "./normalize.mjs";
 import { checkCoverage, isCompositionPath, isGuidePath, isRelativePath } from "./paths.mjs";
@@ -45,7 +46,7 @@ const TOP = {
     "limits",
     "repository",
     "kinds",
-  ].concat(["groups", "views", "coverage", "overview", "guide", "$schema"]),
+  ].concat(["groups", "views", "coverage", "overview", "guide", "edition", "$schema"]),
 };
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -361,6 +362,7 @@ export function validateModel(model, options = {}) {
       "/guide",
       "must be a relative path to a .archify.md draft within the model's directory",
     );
+  const edition = readEdition(value.edition, problems);
   const views =
     value.views === undefined ? null : checkViews(problems, value.views, componentIds, groupIds);
   // Tiers are resolved in the same pass, so a tier overlap is reported with
@@ -371,13 +373,8 @@ export function validateModel(model, options = {}) {
     tiers: view.tiers ? resolveTiers(problems, view, groupMap, index) : null,
   }));
   if (problems.items.length) refuse("model_invalid", "The model is invalid.", problems.items);
-  return normalize(value, {
-    kinds,
-    components,
-    relations,
-    groups,
-    views: resolved ?? null,
-  });
+  const parts = { kinds, components, relations, groups, views: resolved ?? null };
+  return Object.freeze({ ...normalize(value, parts), edition });
 }
 
 function checkViews(problems, value, componentIds, groupIds) {

@@ -70,10 +70,16 @@ export function editionRecord(input) {
       question: plate.question,
       alt: words.plate(number, plate.title, plate.question),
       runs: plate.runs,
+      // A kind's mark is its icon; every other mark is a shape, with the colour or line weights it is drawn in.
       marks: plate.legend.map((entry) =>
         entry.icon
           ? { label: entry.label, artwork: icons.artwork(entry.icon), color: entry.color }
-          : { label: entry.label, shape: entry.shape },
+          : {
+              label: entry.label,
+              shape: entry.shape,
+              ...(entry.color ? { color: entry.color } : {}),
+              ...(entry.counts ? { counts: entry.counts } : {}),
+            },
       ),
       links,
     };

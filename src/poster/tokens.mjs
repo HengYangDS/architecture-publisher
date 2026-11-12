@@ -115,35 +115,10 @@ export const POSTER = Object.freeze({
     plateGap: 40,
   }),
   /**
-   * The house palette, which the overview class reads too. Colour marks meaning, not category: every kind is
-   * drawn in the house green, checks in ochre and what lies outside the system in a grey-green; a kind is told
-   * apart by its icon and label.
+   * Dashes: a planned part or relation is drawn in long dashes and a retired
+   * one in dots; a part that owns no files is an outline in short dashes.
    */
-  color: Object.freeze({
-    paper: HOUSE.palette.paper,
-    ink: HOUSE.palette.ink,
-    muted: HOUSE.palette.soft,
-    faint: HOUSE.figure.retired,
-    line: HOUSE.palette.mid,
-    card: HOUSE.figure.card,
-    cardStroke: HOUSE.figure.cardStroke,
-    external: HOUSE.figure.outside,
-    externalStroke: HOUSE.figure.outsideStroke,
-    boundary: HOUSE.figure.boundary,
-    rule: HOUSE.palette.rule,
-    accent: HOUSE.palette.green,
-    shadow: HOUSE.figure.shadow,
-  }),
-  hue: Object.freeze({
-    person: HOUSE.figure.outsideMark,
-    external: HOUSE.figure.outsideMark,
-    frontend: HOUSE.palette.green,
-    backend: HOUSE.palette.green,
-    database: HOUSE.palette.green,
-    cloud: HOUSE.palette.green,
-    messagebus: HOUSE.palette.green,
-    security: HOUSE.palette.ochre,
-  }),
+  dash: Object.freeze({ planned: "6 4", retired: "1.5 3.5", empty: "3 2" }),
   wire: Object.freeze({
     arrow: 9,
     radius: 7,
@@ -153,6 +128,73 @@ export const POSTER = Object.freeze({
     maximumLabel: 250,
   }),
 });
+
+/**
+ * The tokens a plate is drawn in when its edition names no palette: the house
+ * palette, figure and dyes, the colours of the 0.12 plates.
+ */
+const HOUSE_TOKENS = Object.freeze({
+  palette: HOUSE.palette,
+  figure: HOUSE.figure,
+  dye: HOUSE.dye,
+});
+
+/**
+ * The style a plate is drawn in when its edition names none: cards in the
+ * house tokens.
+ * @type {import("./bolts.mjs").Style}
+ */
+export const HOUSE_STYLE = Object.freeze({ name: "cards", tokens: HOUSE_TOKENS });
+
+/**
+ * The colours of a figure, named by what they mark, from an edition's
+ * resolved tokens. Colour marks meaning, not category: every kind is drawn in
+ * the palette's green, checks in its ochre and what lies outside the system in
+ * a grey; a kind is told apart by its icon and label. The dyes run from the
+ * newest age band to the oldest.
+ * @param {import("./bolts.mjs").Tokens} tokens
+ */
+export function colorsOf({ palette, figure, dye }) {
+  return Object.freeze({
+    paper: palette.paper,
+    ink: palette.ink,
+    muted: palette.soft,
+    faint: figure.retired,
+    line: palette.mid,
+    card: figure.card,
+    cardStroke: figure.cardStroke,
+    external: figure.outside,
+    externalStroke: figure.outsideStroke,
+    boundary: figure.boundary,
+    rule: palette.rule,
+    accent: palette.green,
+    shadow: figure.shadow,
+    hue: Object.freeze({
+      person: figure.outsideMark,
+      external: figure.outsideMark,
+      frontend: palette.green,
+      backend: palette.green,
+      database: palette.green,
+      cloud: palette.green,
+      messagebus: palette.green,
+      security: palette.ochre,
+    }),
+    dye: Object.freeze([dye.new, dye.mid, dye.old]),
+  });
+}
+
+/** A coordinate as an SVG writes it, to a tenth of a pixel. */
+export const fixed = (value) => Math.round(value * 10) / 10;
+
+/**
+ * The width at which a text style keeps at most 80 characters on a line, so no
+ * card's text runs a measure a reader loses the line in.
+ * @param {{ measure: (text: string, style: any) => number }} typefaces
+ * @param {{ size: number, weight: number, line: number }} style
+ */
+export function measureWidth(typefaces, style) {
+  return Math.ceil(typefaces.measure("n".repeat(POSTER.measure), style));
+}
 
 /** Line boxes on the 4 px baseline: a size's line is its size rounded up to a baseline multiple. */
 const line = (size) => Math.ceil((size * 1.32) / POSTER.grid.baseline) * POSTER.grid.baseline;

@@ -24,6 +24,7 @@ const ALLOWED = Object.freeze({
   overview: ["environment", "overview", "refusal", "supply"],
   edition: ["edition", "environment", "locale", "overview", "refusal", "supply"],
   importers: ["locale", "model", "refusal", "supply"],
+  style: ["model", "refusal", "sources"],
   build: [
     "edition",
     "icons",
@@ -34,6 +35,7 @@ const ALLOWED = Object.freeze({
     "poster",
     "refusal",
     "sources",
+    "style",
     "supply",
   ],
   delivery: ["build", "refusal"],

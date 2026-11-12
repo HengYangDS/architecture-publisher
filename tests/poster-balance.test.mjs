@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import test from "node:test";
 import { DARKNESS, balanceOf, darkness } from "../src/poster/balance.mjs";
 import { gateFailures } from "../src/poster/compose/gates.mjs";
-import { POSTER } from "../src/poster/tokens.mjs";
+import { HOUSE_STYLE, colorsOf } from "../src/poster/tokens.mjs";
 
 /** The 2400 by 1350 px posters the review judged, and their live area inside a 64 px margin. */
 const PAGE = Object.freeze({ width: 2400, height: 1350 });
@@ -43,9 +43,13 @@ test("every page the review rejected fails a gate and every page it accepted pas
 });
 
 test("darkness runs from the paper to black", () => {
-  assert.equal(darkness(POSTER.color.paper), 0);
-  assert.equal(darkness("#000000"), 1);
-  assert.ok(darkness(POSTER.color.ink) > darkness(POSTER.color.muted));
+  const { paper, ink, muted } = colorsOf(HOUSE_STYLE.tokens);
+  assert.equal(darkness(paper, paper), 0);
+  assert.equal(darkness("#000000", paper), 1);
+  assert.ok(darkness(ink, paper) > darkness(muted, paper));
+  // Each palette prints on its own paper: a lighter paper makes the same ink darker against it.
+  assert.ok(darkness(ink, "#ffffff") > darkness(ink, paper));
+  assert.equal(darkness("#ffffff", paper), 0);
   assert.ok(DARKNESS.text > DARKNESS.card);
 });
 

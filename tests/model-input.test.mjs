@@ -31,6 +31,7 @@ test("a minimal model normalizes with defaults", () => {
     kind: null,
   });
   assert.equal(model.views, null);
+  assert.deepEqual(model.edition, { style: null, palette: null });
   assert.ok(Object.isFrozen(model.components[0]));
 });
 
@@ -510,8 +511,25 @@ test("a misspelt field names the field it is nearest to", () => {
     messageAt(minimalModel({ components: [{ id: "a", labl: "Alpha" }] }), "/components/0/labl"),
     "is not a model field; did you mean label?",
   );
+  assert.equal(
+    messageAt(minimalModel({ editon: {} }), "/editon"),
+    "is not a model field; did you mean edition?",
+  );
+  assert.equal(
+    messageAt(minimalModel({ edition: { pallete: "indigo" } }), "/edition/pallete"),
+    "is not a model field; did you mean palette?",
+  );
   // Nothing in the model format is near enough to suggest.
   assert.equal(messageAt(minimalModel({ extra: true }), "/extra"), "is not a model field");
+});
+
+test("a model may name its edition's style and palette", () => {
+  const model = validateModel(minimalModel({ edition: { style: "cards", palette: "forest" } }));
+  assert.deepEqual(model.edition, { style: "cards", palette: "forest" });
+  assert.deepEqual(problemsOf(minimalModel({ edition: { style: "woven", pallete: "indigo" } })), [
+    "model_field_unknown /edition/pallete",
+    "model_style_unknown /edition/style",
+  ]);
 });
 
 test("a model may name its schema for its editor", () => {

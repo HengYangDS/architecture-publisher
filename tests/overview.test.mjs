@@ -51,7 +51,7 @@ async function typeset(t, text) {
  * The fixture overview's page image with Typst 0.15.1 and the bundled faces. Every CI platform must reproduce it,
  * so an overview is the same image wherever it is built.
  */
-const OVERVIEW_PNG = "e46243c504e587c399910971b2bd06b85a85bccaa657e2230bf1a047e7f73517";
+const OVERVIEW_PNG = "02e3a7027d0b7a7dd91709a62b1df4e0b3c913642a699878e988af06922355b4";
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 /** A PNG's width from its header. */

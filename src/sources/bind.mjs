@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { commitOf, readGit } from "./git.mjs";
+import { commitOf, commitTime, readGit } from "./git.mjs";
 import { directoriesOf, scopeAt } from "./scope.mjs";
 
 /** Parse `git cat-file --batch` output into one record per requested object. */
@@ -26,6 +26,69 @@ function parseBatch(output, count) {
 
 const byRecordPath = (a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
 
+/** A time in seconds since the epoch as its UTC date, `YYYY-MM-DD`. */
+const utcDate = (time) => new Date(time * 1000).toISOString().slice(0, 10);
+
+/**
+ * When each file last changed at or before a commit, in seconds since the epoch, from one read of
+ * the history of the paths the model claims and cites. Git walks from the commit back, so the
+ * first commit that names a file is its last change. A shallow clone's oldest commit seems to add
+ * every file, so its history is refused rather than read as recent.
+ * @param {string} root
+ * @param {string} commit
+ * @param {string[]} pathspecs
+ * @param {string[]} files
+ */
+function changeTimes(root, commit, pathspecs, files) {
+  const shallow = readGit(root, ["rev-parse", "--is-shallow-repository"]);
+  if (shallow.stdout.toString("utf8").trim() === "true")
+    refuse(
+      "source_history_unavailable",
+      `The repository at ${root} is a shallow clone, so when its files last changed is unknown; fetch its full history.`,
+    );
+  const log = readGit(root, [
+    "log",
+    // The caller's configuration could hide the root commit's files, print signatures, follow a
+    // lone path's renames or name paths from a subdirectory.
+    "--root",
+    "--no-show-signature",
+    "--no-follow",
+    "--no-relative",
+    // A merge names the files it changed from every parent: those it wrote itself, such as a
+    // resolved conflict, which no commit on either side holds.
+    "--diff-merges=combined",
+    "--no-renames",
+    "--name-only",
+    "-z",
+    "--format=%x01%ct",
+    commit,
+    "--",
+    ...pathspecs.map((pathspec) => `:(top,literal)${pathspec}`),
+  ]);
+  if (log.status !== 0)
+    refuse("source_read_failed", `Git could not read the history of the cited files at ${commit}.`);
+  const seen = new Map();
+  // Each commit is `\x01<time>\0`, a newline (a second NUL for a merge), then the paths it
+  // changed, each ending in a NUL.
+  for (const chunk of log.stdout.toString("utf8").split("\x01").slice(1)) {
+    const end = chunk.indexOf("\0");
+    for (const name of chunk.slice(end + 2).split("\0"))
+      if (name && !seen.has(name)) seen.set(name, Number(chunk.slice(0, end)));
+  }
+  /** @type {Map<string, number>} */
+  const times = new Map();
+  for (const file of files) {
+    const time = seen.get(file);
+    if (time === undefined)
+      refuse(
+        "source_history_unavailable",
+        `No commit at or before ${commit} changes ${file}, so when it last changed is unknown.`,
+      );
+    times.set(file, time);
+  }
+  return times;
+}
+
 /** The relations that cite each file, by path, in model order. */
 function citations(model) {
   const cited = new Map();
@@ -47,13 +110,23 @@ function declared(model) {
       records.set(claim, {
         path: claim,
         sha256: null,
+        bytes: null,
+        changed: null,
         owner: component.id,
         relations: cited.get(claim) ?? [],
         state: "unverified",
       });
   for (const [file, relations] of cited)
     if (!records.has(file))
-      records.set(file, { path: file, sha256: null, owner: null, relations, state: "unverified" });
+      records.set(file, {
+        path: file,
+        sha256: null,
+        bytes: null,
+        changed: null,
+        owner: null,
+        relations,
+        state: "unverified",
+      });
   const owned = new Map(
     model.components.map(({ id, files }) => [id, files.filter((claim) => !claim.endsWith("/"))]),
   );
@@ -102,7 +175,8 @@ export function ownershipAt(model, root, commit) {
 
 /**
  * Give each file in the scope to its most specific claim, refuse a claim that holds none and a
- * relation file absent at the commit, and read the digest of every cited file.
+ * relation file absent at the commit, and read the digest, size and last change of every cited
+ * file.
  * @param {any} model
  * @param {string} root
  * @param {string} commit
@@ -136,12 +210,16 @@ function resolved(model, root, commit) {
   );
   if (batch.status !== 0) refuse("source_read_failed", "Git could not read the cited files.");
   const objects = parseBatch(batch.stdout, files.length);
+  const claims = model.components.flatMap(({ files: claimed }) => claimed);
+  const times = changeTimes(root, commit, [...new Set([...claims, ...cited.keys()])], files);
   const records = files.map((file, index) => {
     const object = /** @type {Buffer} */ (objects[index]);
     const claim = winning.get(file);
     return {
       path: file,
       sha256: createHash("sha256").update(object).digest("hex"),
+      bytes: object.length,
+      changed: utcDate(/** @type {number} */ (times.get(file))),
       owner: claim ? owners.get(claim).component : null,
       relations: cited.get(file) ?? [],
       state: "verified",
@@ -156,14 +234,15 @@ function resolved(model, root, commit) {
       ),
     ]),
   );
-  return { records, owned };
+  return { records, owned, times, pinTime: commitTime(root, commit) };
 }
 
 /**
  * Bind the files a model claims and cites to its revision without changing the repository. With
  * a checkout, every file in the scope is given to the component whose claim is most specific and
- * every cited file is recorded with its digest, owner and citing relations; without one, the
- * declared paths are recorded unverified.
+ * every cited file is recorded with its digest, size, last change, owner and citing relations,
+ * beside each file's change time and the revision's; without one, the declared paths are recorded
+ * unverified and no time is known.
  * @param {any} model
  * @param {string | null} repo
  */
@@ -174,9 +253,10 @@ export function bindSources(model, repo) {
     model.relations.every(({ files }) => !files.length);
   if (empty) {
     const owned = new Map(model.components.map(({ id }) => [id, []]));
-    return { state: "none", repository, records: [], owned };
+    return { state: "none", repository, records: [], owned, times: new Map(), pinTime: null };
   }
-  if (!repo) return { state: "unverified", repository, ...declared(model) };
+  if (!repo)
+    return { state: "unverified", repository, ...declared(model), times: new Map(), pinTime: null };
   if (!repository)
     refuse(
       "source_revision_missing",

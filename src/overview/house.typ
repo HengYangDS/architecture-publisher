@@ -240,6 +240,18 @@
   rect(width: 16pt, height: 10pt, radius: 3pt, stroke: (paint: rgb(_house.figure.boundary), thickness: 0.7pt, dash: (2pt, 1.6pt)))
 } else if entry.shape == "outside" {
   rect(width: 16pt, height: 10pt, radius: 3pt, fill: rgb(_house.figure.outside), stroke: 0.7pt + rgb(_house.figure.outsideStroke))
+} else if entry.shape == "band" {
+  rect(width: 16pt, height: 8pt, fill: rgb(entry.color))
+} else if entry.shape == "thickness" {
+  // Three strips of growing thickness, standing on one line as strips of different parts do.
+  box(height: 9pt, align(bottom, stack(dir: ltr, spacing: 2pt, ..(2pt, 4.5pt, 8pt).map(h =>
+    rect(width: 4pt, height: h, fill: rgb(_house.dye.mid))))))
+} else if entry.shape == "weight" {
+  // One short line per weight the plate draws, in the order of the files that evidence it.
+  stack(dir: ltr, spacing: 4pt, ..entry.counts.map(n => line(length: 12pt,
+    stroke: (paint: rgb(_house.palette.mid), thickness: (0.8pt, 1.2pt, 1.6pt).at(n - 1)))))
+} else if entry.shape == "hub" {
+  line(length: 16pt, stroke: (paint: rgb(entry.color), thickness: 1.6pt))
 } else {
   line(length: 16pt, stroke: (paint: rgb(if entry.shape == "retired" { _house.figure.retired } else { _house.palette.mid }),
     thickness: 1pt, dash: if entry.shape == "retired" { "dotted" } else { "dashed" }))

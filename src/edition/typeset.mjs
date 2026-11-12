@@ -31,13 +31,13 @@ const imageFile = (width, name) =>
  * Typeset a delivery's print edition.
  * @param {{ record: any, plates: Array<{ page: number, views: string[], svg: string }>, modelBytes: Buffer,
  *   composition: string | null, revision: string | null, date: string | null, time: number | null,
- *   widths: readonly number[], typst?: string }} input
+ *   widths: readonly number[], typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
 export async function typesetEdition(input) {
   const typst = input.typst ?? "typst";
   const version = await typstVersion(typst, "edition");
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
-  const staged = await stage(input.composition, input.modelBytes);
+  const staged = await stage(input.composition, input.modelBytes, input.tokens ?? null);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-edition-out-"));
   try {
     const own = path.join(staged.root, STAGED);

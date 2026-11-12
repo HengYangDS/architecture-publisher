@@ -71,11 +71,25 @@ async function typstFiles(directory) {
 }
 
 /**
+ * The house tokens as staged for one edition: the supply's file, with its palette, figure colours and dye replaced
+ * by the edition's resolved palette when it names one, so the class sets every page in the palette the model chose.
+ * @param {Buffer} supplied the house tokens as supplied
+ * @param {{ palette: object, figure: object, dye: object } | null | undefined} tokens
+ */
+function stagedTokens(supplied, tokens) {
+  if (!tokens) return supplied;
+  const house = JSON.parse(supplied.toString("utf8"));
+  const { palette, figure, dye } = tokens;
+  return Buffer.from(`${JSON.stringify({ ...house, palette, figure, dye }, null, 2)}\n`);
+}
+
+/**
  * Stage the composition's Typst files, when there is a composition, the class and the model in a new root.
  * @param {string | null} composition the composition's absolute path, or null when the model names none
  * @param {Buffer} modelBytes the model file as read
+ * @param {{ palette: object, figure: object, dye: object } | null} [tokens] the edition's resolved palette
  */
-export async function stage(composition, modelBytes) {
+export async function stage(composition, modelBytes, tokens = null) {
   const directory = composition ? path.dirname(composition) : null;
   const files = directory ? await typstFiles(directory) : [];
   const sources = await Promise.all(
@@ -93,7 +107,7 @@ export async function stage(composition, modelBytes) {
   await fs.mkdir(path.join(root, STAGED));
   const classBytes = await fs.readFile(CLASS);
   await fs.writeFile(path.join(root, STAGED, "house.typ"), classBytes);
-  const tokenBytes = await fs.readFile(TOKENS);
+  const tokenBytes = stagedTokens(await fs.readFile(TOKENS), tokens);
   await fs.writeFile(path.join(root, STAGED, "house.json"), tokenBytes);
   await fs.writeFile(path.join(root, STAGED, "model.json"), modelBytes);
   const own = composition
@@ -164,13 +178,13 @@ function refuseDiagnostics(stderr, roots) {
  * Check a model's overview before the edition sets it in place: the composition's lint, then Typst's reading of it
  * alone, every text box inside the live area and clear of the others, and every character drawn by a bundled face.
  * @param {{ composition: string, modelBytes: Buffer, revision: string | null, date: string | null,
- *   typst?: string }} input
+ *   typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
 export async function checkOverview(input) {
   const typst = input.typst ?? "typst";
   const version = await typstVersion(typst);
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
-  const staged = await stage(input.composition, input.modelBytes);
+  const staged = await stage(input.composition, input.modelBytes, input.tokens ?? null);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-out-"));
   try {
     const roots = [staged.root, await fs.realpath(staged.root)];

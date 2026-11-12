@@ -35,6 +35,38 @@
     "retired": "#8c968d",
     "shadow": "#2b2a24"
   },
+  "dye": {
+    "new": "#b9c9bb",
+    "mid": "#617465",
+    "old": "#324f3e"
+  },
+  "housePalette": "forest",
+  "palettes": {
+    "indigo": {
+      "ground": "#f6f5f1",
+      "ink": "#25282c",
+      "dye": ["#b7d8db", "#7099ae", "#334965"],
+      "accent": "#7a5534"
+    },
+    "persimmon": {
+      "ground": "#f6f4ef",
+      "ink": "#2b2622",
+      "dye": ["#e0d2bd", "#af9279", "#6c4d3c"],
+      "accent": "#3e5873"
+    },
+    "ink": {
+      "ground": "#f5f5f3",
+      "ink": "#232527",
+      "dye": ["#d5d8da", "#8f9296", "#3a3d41"],
+      "accent": "#66625a"
+    },
+    "forest": {
+      "ground": "#f5f3ed",
+      "ink": "#29372f",
+      "dye": ["#b9c9bb", "#617465", "#324f3e"],
+      "accent": "#845922"
+    }
+  },
   "plate": {
     "x": 48,
     "y": 112,

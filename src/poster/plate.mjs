@@ -3,19 +3,10 @@ import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
 import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf } from "../locale.mjs";
+import { boltBoxes } from "./bolts.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
-import { POSTER, figureMetrics, figureStyles } from "./tokens.mjs";
-
-/**
- * The width at which a text style keeps at most 80 characters on a line, so no
- * card's text runs a measure a reader loses the line in.
- * @param {{ measure: (text: string, style: any) => number }} typefaces
- * @param {{ size: number, weight: number, line: number }} style
- */
-function measureWidth(typefaces, style) {
-  return Math.ceil(typefaces.measure("n".repeat(POSTER.measure), style));
-}
+import { POSTER, figureMetrics, figureStyles, measureWidth } from "./tokens.mjs";
 
 /**
  * One plate: one view's figure in the edition's body. The plate tries every
@@ -69,7 +60,10 @@ function refusedLayout(error) {
   return typeof code === "string" && code.startsWith("layout_") ? code : null;
 }
 
-/** Wrappings and layouts already derived, per planned view. */
+/**
+ * Wrappings already derived, per planned view, and layouts, per style and
+ * planned view: a style sizes the boxes a layout places.
+ */
 const wrappings = new WeakMap();
 const layouts = new WeakMap();
 
@@ -77,12 +71,14 @@ const layouts = new WeakMap();
  * The layout of one set of rows at one type step and field width. A layout's
  * placement and channel routing depend on nothing else — not on the body or
  * where the figure is drawn — so every composition that asks again for the
- * same view, rows, step, width and centring reuses it.
+ * same style, view, rows, step, width and centring reuses it.
  * @returns {{ layout?: any, error?: any }}
  */
-function layoutFor(view, rows, metrics, key, boundaryName) {
-  if (!layouts.has(view)) layouts.set(view, new Map());
-  const known = layouts.get(view);
+function layoutFor(style, view, rows, metrics, key, boundaryName) {
+  if (!layouts.has(style)) layouts.set(style, new WeakMap());
+  const styled = layouts.get(style);
+  if (!styled.has(view)) styled.set(view, new Map());
+  const known = styled.get(view);
   if (!known.has(key)) {
     try {
       const placement = placementOf(view, rows, metrics);
@@ -124,24 +120,13 @@ function cardWidthOf(words, component, typefaces, styles, card) {
   return Math.ceil(width / 8) * 8;
 }
 
-/** How wide a view's widest card is at one type step. */
-function naturalWidth(words, view, typefaces, styles, card) {
-  return Math.max(
-    card.minimumWidth,
-    ...view.components.map((component) => cardWidthOf(words, component, typefaces, styles, card)),
-  );
-}
-
 /**
- * The layout metrics of one plate. The field bounds the cards and their text
- * sets their width; every card keeps its content height, so the figure reports
- * how large it really is.
+ * How cards size and set their parts at one type step: as wide as their text,
+ * as tall as their label and details within their padding, and broken where
+ * an atom of their text is wider than its line.
  */
-function candidateMetrics(input) {
-  const { model, view, typefaces, styles, metrics, field } = input;
-  const { card, wire, spacing } = metrics;
-  const words = wordsOf(model.locale);
-  const cardText = (component, width) => ({
+function cardBoxes(words, typefaces, styles, card) {
+  const text = (component, width) => ({
     name: typefaces.wrap(
       component.label,
       Math.min(
@@ -161,26 +146,49 @@ function candidateMetrics(input) {
     ),
   });
   return {
+    width: (component) => cardWidthOf(words, component, typefaces, styles, card),
+    height: (component, width) => {
+      const { name, details } = text(component, width);
+      return (
+        2 * card.pad +
+        name.length * styles.name.line +
+        (details.length ? card.detailGap + details.length * styles.detail.line : 0)
+      );
+    },
+    text,
+    broken: (component, width) => cardBroken(words, typefaces, styles, card, component, width),
+  };
+}
+
+/**
+ * The layout metrics of one plate. The field bounds the boxes and their text
+ * sets their width; every box keeps its content height, so the figure reports
+ * how large it really is. The style decides whether a part is a card or a bolt.
+ */
+function candidateMetrics(input) {
+  const { model, view, typefaces, styles, metrics, field, style } = input;
+  const { card, wire, spacing } = metrics;
+  const words = wordsOf(model.locale);
+  const boxes =
+    style.name === "bolts"
+      ? boltBoxes({ model, typefaces, styles, card, style })
+      : cardBoxes(words, typefaces, styles, card);
+  return {
     // The field already excludes the tier-label column, so it is the content width.
     contentWidth: () => field.width,
     card: {
       minWidth: card.minimumWidth,
+      // No box is wider than the view's widest box at its natural width.
       maxWidth: Math.min(
         card.maximumWidth,
         field.width - 2 * spacing.inset,
-        naturalWidth(words, view, typefaces, styles, card),
+        Math.max(card.minimumWidth, ...view.components.map(boxes.width)),
       ),
-      natural: (component) => cardWidthOf(words, component, typefaces, styles, card),
-      height: (component, width) => {
-        const { name, details } = cardText(component, width);
-        return (
-          2 * card.pad +
-          name.length * styles.name.line +
-          (details.length ? card.detailGap + details.length * styles.detail.line : 0)
-        );
-      },
+      natural: boxes.width,
+      height: boxes.height,
     },
-    cardText,
+    cardText: boxes.text,
+    broken: boxes.broken,
     label: (relation, maxWidth = wire.maximumLabel) => {
       const width = Math.min(maxWidth, wire.maximumLabel);
       const lines = [
@@ -222,6 +230,7 @@ function attempt(input) {
   // A wrapping the engine cannot wire is one rejected candidate, not a failure
   // of the view: another wrapping or step may still compose.
   const { layout, error } = layoutFor(
+    input.style,
     input.view,
     rows,
     input.metrics,
@@ -252,6 +261,7 @@ function attempt(input) {
       labelColumn: input.labelColumn ?? null,
       tierLabels: input.tierLabels ?? "column",
       offset,
+      style: input.style,
       cardText: input.metrics.cardText,
     });
   // The layout centres the span of its cards. A figure whose single-card rows
@@ -345,47 +355,57 @@ function labelsClear(rects) {
 }
 
 /**
- * The first atom of a card's label or details wider than the line it is set
- * on at that card's width, or null when every one fits. Card text wraps only
- * where its writing system breaks a line, so every atom of a card must fit it.
+ * The first part whose text breaks at the width the layout gives its box, or
+ * null when every part's text fits. Text wraps only where its writing system
+ * breaks a line, so every atom of a part's text must fit its line.
  * @param {any} input
- * @param {any} layout the layout, with every card's width
+ * @param {any} layout the layout, with every box's width
  * @returns {{ reason: string, id: string, width: number, room: number } | null}
  */
 function brokenText(input, layout) {
-  const { card } = input.figureMetrics;
-  const { typefaces, styles } = input;
-  const words = wordsOf(input.model.locale);
-  const units = (text) => atoms(text).map(({ text: unit }) => unit);
   for (const component of input.view.components) {
-    const width = layout.cards.get(component.id)?.width ?? layout.card.width;
-    const nameRoom = Math.min(
-      width - 2 * card.pad - card.icon - card.iconGap,
-      measureWidth(typefaces, styles.name),
+    const broken = input.metrics.broken(
+      component,
+      layout.cards.get(component.id)?.width ?? layout.card.width,
     );
-    const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
-    for (const word of units(component.label)) {
-      const measured = typefaces.measure(word, styles.name);
-      if (measured > nameRoom)
+    if (broken) return broken;
+  }
+  return null;
+}
+
+/**
+ * The first atom of a card's label or details wider than the line it is set
+ * on at that card's width, or null when every one fits.
+ * @returns {{ reason: string, id: string, width: number, room: number } | null}
+ */
+function cardBroken(words, typefaces, styles, card, component, width) {
+  const units = (text) => atoms(text).map(({ text: unit }) => unit);
+  const nameRoom = Math.min(
+    width - 2 * card.pad - card.icon - card.iconGap,
+    measureWidth(typefaces, styles.name),
+  );
+  const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
+  for (const word of units(component.label)) {
+    const measured = typefaces.measure(word, styles.name);
+    if (measured > nameRoom)
+      return {
+        reason: "label_broken",
+        id: component.id,
+        width: Math.ceil(measured),
+        room: Math.floor(nameRoom),
+      };
+  }
+  for (const [key, values] of component.details)
+    for (const word of units(detailText(words, key, values))) {
+      const measured = typefaces.measure(word, styles.detail);
+      if (measured > detailRoom)
         return {
-          reason: "label_broken",
+          reason: "detail_broken",
           id: component.id,
           width: Math.ceil(measured),
-          room: Math.floor(nameRoom),
+          room: Math.floor(detailRoom),
         };
     }
-    for (const [key, values] of component.details)
-      for (const word of units(detailText(words, key, values))) {
-        const measured = typefaces.measure(word, styles.detail);
-        if (measured > detailRoom)
-          return {
-            reason: "detail_broken",
-            id: component.id,
-            width: Math.ceil(measured),
-            room: Math.floor(detailRoom),
-          };
-      }
-  }
   return null;
 }
 
@@ -415,6 +435,7 @@ export function platesOf(input, plate) {
           tierLabels: input.tierLabels,
           boundaryName: input.boundaryName,
           figureMetrics: metrics,
+          style: input.style,
           metrics: {
             ...candidateMetrics({
               model: input.model,
@@ -423,6 +444,7 @@ export function platesOf(input, plate) {
               styles,
               metrics,
               field: plate.field,
+              style: input.style,
             }),
             centring,
             clearTurns,

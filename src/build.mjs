@@ -15,10 +15,11 @@ import { refuse } from "./refusal.mjs";
 import { bindSources } from "./sources/bind.mjs";
 import { measureCoverage, uncitedStatements } from "./sources/coverage.mjs";
 import { commitDate, commitOf, commitTime, releaseOf } from "./sources/git.mjs";
+import { editionStyle } from "./style.mjs";
 import { verifySupply } from "./supply.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 6;
+const DELIVERY_VERSION = 7;
 /** The media a delivery may carry: the print edition with its images, and the interactive page. */
 const MEDIA = Object.freeze(["edition", "page"]);
 /** The quality profiles a build may hold its media to. */
@@ -143,15 +144,19 @@ async function prepare(modelPath, options) {
   requireGlyphs(typefaces, drawnTexts(model));
   const binding = bindSources(model, options.repo);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
-  const warnings =
-    options.repo && binding.state === "none"
+  // The edition's style is chosen once, before the plan, since a view is admitted as its style draws it.
+  const { style, warnings: styled, record: styleRecord } = editionStyle(model, binding);
+  const warnings = [
+    ...(options.repo && binding.state === "none"
       ? [
           {
             code: "repo_unused",
             message: `--repo names ${options.repo}, but the model claims and cites no file, so none is verified there.`,
           },
         ]
-      : [];
+      : []),
+    ...styled,
+  ];
   const commit = commitFacts(model, options.repo);
   const overview = composition
     ? await checkOverview({
@@ -159,12 +164,15 @@ async function prepare(modelPath, options) {
         modelBytes: loaded.content,
         revision: model.repository?.revision ?? null,
         date: commit?.date ?? null,
+        tokens: style.tokens,
       })
     : null;
-  const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
+  const views = await planViews(model, async (view) =>
+    admitsView(model, view, typefaces, icons, style),
+  );
   const { quality } = options;
   // Each view is one plate of the edition, laid out for its body.
-  const plates = printed ? composePlates(model, views, typefaces, icons) : [];
+  const plates = printed ? composePlates(model, views, typefaces, icons, style) : [];
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const page = !media.includes("page")
     ? null
@@ -185,6 +193,8 @@ async function prepare(modelPath, options) {
     commit,
     icons,
     typefaces,
+    style,
+    styleRecord,
   };
 }
 
@@ -417,6 +427,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
           date: prepared.commit?.date ?? null,
           time: dated.time,
           widths: chosen.png,
+          tokens: prepared.style.tokens,
         });
     if (edition) {
       await fs.writeFile(path.join(staging, `${model.id}.pdf`), edition.pdf);
@@ -448,6 +459,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
       repository: prepared.model.repository,
       quality: chosen.quality,
       media: prepared.media,
+      style: prepared.styleRecord,
       sources: { state: prepared.binding.state, records: prepared.binding.records },
       supplies: {
         fonts: fonts.sha256,

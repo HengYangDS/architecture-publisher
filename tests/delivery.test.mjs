@@ -24,7 +24,13 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   assert.deepEqual(built.views, ["containers-tiers", "containers-automatic"]);
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
-  assert.equal(manifest.version, 6);
+  assert.equal(manifest.version, 7);
+  // Without a checkout no part can be woven, so the edition is set in cards, in the default palette.
+  assert.deepEqual([manifest.style.style, manifest.style.palette], ["cards", "indigo"]);
+  assert.deepEqual(
+    built.warnings.map(({ code }) => code),
+    ["style_fallback"],
+  );
   assert.deepEqual([manifest.quality, manifest.media], ["showcase", ["edition", "page"]]);
   assert.equal(manifest.model.locale, "en");
   assert.equal(manifest.model.id, "big-bank");
@@ -193,6 +199,11 @@ test("files verified against the checkout are recorded and cited on the page at 
     [["src/main.mjs", "client", ["r1"], "verified"]],
   );
   assert.match(manifest.sources.records[0].sha256, /^[0-9a-f]{64}$/u);
+  // Each cited file keeps its size and the date of its last change at the pin, and the edition weaves its parts.
+  assert.equal(typeof manifest.sources.records[0].bytes, "number");
+  assert.equal(manifest.sources.records[0].changed, manifest.edition.date);
+  assert.equal(manifest.style.style, "bolts");
+  assert.equal(manifest.style.bands.spans.length, 2);
   assert.equal(manifest.page.quality, "showcase");
   assert.deepEqual(manifest.evidence.components[0].files, ["src/"]);
   assert.deepEqual(manifest.evidence.relations[0].files, ["src/main.mjs"]);

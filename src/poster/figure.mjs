@@ -1,6 +1,7 @@
 import { presentation } from "../kinds.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
-import { POSTER } from "./tokens.mjs";
+import { boltHeight, drawBolt, hubOf, wireWidth } from "./bolts.mjs";
+import { POSTER, colorsOf, fixed } from "./tokens.mjs";
 
 /**
  * Draw one laid-out figure into SVG shapes and text runs, and report the
@@ -9,13 +10,14 @@ import { POSTER } from "./tokens.mjs";
  * its whole surface, as a reader sees it, and a wire is a line, not a wall.
  */
 
-const C = POSTER.color;
 /** Ink the balance measure reads: boxes that hold text are mass without darkness of their own. */
 const MASS = Object.freeze({ kind: "mass", weight: 0 });
 const CARD = Object.freeze({ kind: "mass", weight: DARKNESS.card });
-const stroke = (color) => ({ kind: "stroke", weight: DARKNESS.stroke * darkness(color) });
-const fixed = (value) => Math.round(value * 10) / 10;
-const DASH = Object.freeze({ planned: "6 4", retired: "1.5 3.5" });
+const stroke = (color, paper) => ({
+  kind: "stroke",
+  weight: DARKNESS.stroke * darkness(color, paper),
+});
+const DASH = POSTER.dash;
 
 /** A path through `points` with rounded corners. */
 function rounded(points, radius) {
@@ -99,12 +101,12 @@ const touches = (a, b) =>
  * @param {any} layout the justified layout
  * @param {any} input the figure's input, with its tier column
  * @param {{ at: (x: number) => number, down: (y: number) => number,
- *   text: Function, shapes: string[], rects: any[] }} draw
+ *   text: Function, shapes: string[], rects: any[], colors: ReturnType<typeof colorsOf> }} draw
  */
 function tierLabels(layout, input, draw) {
   const { styles, typefaces } = input;
   const column = input.labelColumn;
-  const { at, down, text, shapes, rects } = draw;
+  const { at, down, text, shapes, rects, colors: C } = draw;
   const labelWidth = column.width - 64;
   /** @type {Array<{ tier: string, label: string | null, rows: any[] }>} */
   const tiers = [];
@@ -214,7 +216,7 @@ function tierLabels(layout, input, draw) {
     shapes.push(
       `<path d="M${fixed(from)},${fixed(mark.y)} H${fixed(to)} V${fixed(mark.y + mark.height)} H${fixed(from)}" fill="none" stroke="${C.muted}" stroke-width="1.4"/>`,
     );
-    rects.push({ ...mark, ...stroke(C.muted), tier: true });
+    rects.push({ ...mark, ...stroke(C.muted, C.paper), tier: true });
   });
 }
 
@@ -225,11 +227,15 @@ function tierLabels(layout, input, draw) {
  *   labelColumn?: { x: number, y: number, width: number, height: number } | null,
  *   tierLabels?: "column" | "edges",
  *   offset?: number,
- *   cardText: (component: any, width: number) => { name: string[], details: string[] } }} input
+ *   style: import("./bolts.mjs").Style,
+ *   cardText: (component: any, width: number) => any }} input
  *   `offset` moves the figure across its field; its tier labels follow their rows.
+ *   `style` names how a part is drawn, as a card or a bolt, and the tokens it is drawn in.
  */
 export function drawFigure(layout, input) {
   const { model, view, styles, metrics, icons, typefaces, field } = input;
+  const C = colorsOf(input.style.tokens);
+  const bolts = input.style.name === "bolts";
   const shapes = [];
   const runs = [];
   /** @type {Array<{ x: number, y: number, width: number, height: number, tier?: boolean }>} */
@@ -254,7 +260,7 @@ export function drawFigure(layout, input) {
   // one more wire, and a full-width tint would cover the field and make every
   // page measure as full, hiding exactly the blank bands this page forbids.
   if (layout.labelled && input.labelColumn)
-    tierLabels(layout, input, { at, down, text, shapes, rects });
+    tierLabels(layout, input, { at, down, text, shapes, rects, colors: C });
 
   const boundary = layout.boundary;
   /** @type {{ x: number, y: number, width: number, height: number } | null} */
@@ -292,21 +298,55 @@ export function drawFigure(layout, input) {
     rects.push({ x: tabX, y: down(boundary.y) - 14, width: tabWidth, height: 28, ...MASS });
   }
 
+  // Bolts weigh each line by the files that evidence it, and draw the lines
+  // into the view's hub in the oldest dye, so a reader finds what the view
+  // draws on; cards draw every line alike.
+  const unit = styles.name.size / 24;
+  const hub = bolts ? hubOf(view) : null;
+  const components = new Map(view.components.map((component) => [component.id, component]));
+  // A bolt has no outline: in a row with a taller one it ends above its box's
+  // foot, and a wire into or out of that foot runs on up to one gap under the
+  // bolt, so it does not start or end in the paper beneath it.
+  const feet = bolts
+    ? [...layout.cards].map(([id, box]) => ({
+        box,
+        foot:
+          box.y +
+          boltHeight(input.cardText(components.get(id), box.width), styles) +
+          metrics.card.detailGap,
+      }))
+    : [];
+  const lift = ([x, y]) => {
+    const under = feet.find(
+      ({ box }) =>
+        Math.abs(box.y + box.height - y) < 0.5 && x > box.x - 0.5 && x < box.x + box.width + 0.5,
+    );
+    return [x, under ? Math.min(y, under.foot) : y];
+  };
+  const colorOf = (relations) =>
+    statusOf(relations) === "retired"
+      ? C.faint
+      : hub !== null && relations.every(({ to }) => to === hub)
+        ? C.dye[2]
+        : C.line;
   for (const { relations, points } of layout.paths) {
     const status = statusOf(relations);
     const dash = status ? ` stroke-dasharray="${DASH[status]}"` : "";
-    const moved = points.map(([x, y]) => [at(x), down(y)]);
-    const ink = stroke(status === "retired" ? C.faint : C.line);
+    const ends = [lift(points[0]), ...points.slice(1, -1), lift(points[points.length - 1])];
+    const moved = ends.map(([x, y]) => [at(x), down(y)]);
+    const color = colorOf(relations);
+    const weight = bolts ? wireWidth(model, relations, unit) : metrics.wire.stroke;
+    const ink = stroke(color, C.paper);
     shapes.push(
-      `<path d="${rounded(moved, metrics.wire.radius)}" fill="none" stroke="${status === "retired" ? C.faint : C.line}" ` +
-        `stroke-width="${metrics.wire.stroke}" stroke-linejoin="round" stroke-linecap="round"${dash}/>`,
+      `<path d="${rounded(moved, metrics.wire.radius)}" fill="none" stroke="${color}" ` +
+        `stroke-width="${weight}" stroke-linejoin="round" stroke-linecap="round"${dash}/>`,
     );
     for (const [x, y] of moved)
       rects.push({
-        x: x - metrics.wire.stroke,
-        y: y - metrics.wire.stroke,
-        width: 2 * metrics.wire.stroke,
-        height: 2 * metrics.wire.stroke,
+        x: x - weight,
+        y: y - weight,
+        width: 2 * weight,
+        height: 2 * weight,
         ...ink,
       });
     // A wire fills its whole run, not just its corners: a long horizontal or
@@ -314,11 +354,11 @@ export function drawFigure(layout, input) {
     for (let index = 1; index < moved.length; index += 1) {
       const [x1, y1] = moved[index - 1];
       const [x2, y2] = moved[index];
-      const width = Math.max(Math.abs(x2 - x1), 2 * metrics.wire.stroke);
-      const height = Math.max(Math.abs(y2 - y1), 2 * metrics.wire.stroke);
+      const width = Math.max(Math.abs(x2 - x1), 2 * weight);
+      const height = Math.max(Math.abs(y2 - y1), 2 * weight);
       rects.push({
-        x: Math.min(x1, x2) - metrics.wire.stroke,
-        y: Math.min(y1, y2) - metrics.wire.stroke,
+        x: Math.min(x1, x2) - weight,
+        y: Math.min(y1, y2) - weight,
         width,
         height,
         ...ink,
@@ -327,20 +367,38 @@ export function drawFigure(layout, input) {
   }
   for (const arrow of layout.arrows)
     shapes.push(
-      `<path d="${arrowHead({ ...arrow, x: at(arrow.x), y: down(arrow.y) }, metrics.wire.arrow)}" ` +
-        `fill="${statusOf(arrow.relations) === "retired" ? C.faint : C.line}"/>`,
+      `<path d="${arrowHead({ ...arrow, x: at(arrow.x), y: down(lift([arrow.x, arrow.y])[1]) }, metrics.wire.arrow)}" ` +
+        `fill="${colorOf(arrow.relations)}"/>`,
     );
 
+  if (bolts) {
+    for (const [id, box] of layout.cards) {
+      const component = components.get(id);
+      drawBolt(
+        {
+          x: at(box.x),
+          y: down(box.y),
+          width: box.width,
+          component,
+          text: input.cardText(component, box.width),
+          styles,
+          colors: C,
+        },
+        { text, shapes, rects, typefaces },
+      );
+    }
+    drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
+    return { shapes, runs, rects, frame };
+  }
   shapes.push(
     `<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="1.8" flood-color="${C.shadow}" flood-opacity="0.08"/></filter></defs>`,
   );
-  const components = new Map(view.components.map((component) => [component.id, component]));
   const { card: cardStyle } = metrics;
   for (const [id, card] of layout.cards) {
     const component = /** @type {any} */ (components.get(id));
     const style = presentation(model, component);
     const muted = style.outside || component.context;
-    const hue = POSTER.hue[/** @type {keyof typeof POSTER.hue} */ (style.category)];
+    const hue = C.hue[/** @type {keyof typeof C.hue} */ (style.category)];
     const dash =
       component.status && component.status !== "implemented"
         ? ` stroke-dasharray="${DASH[component.status]}"`
@@ -387,12 +445,26 @@ export function drawFigure(layout, input) {
       top = text("cards", line, x + cardStyle.pad, top, styles.detail, C.muted);
   }
 
+  drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
+  return { shapes, runs, rects, frame };
+}
+
+/**
+ * Set the relations' labels, each on a plate of paper that interrupts the
+ * wires it lies over, so it reads as a gap in the line.
+ * @param {any} layout
+ * @param {{ at: (x: number) => number, down: (y: number) => number,
+ *   text: Function, shapes: string[], rects: any[], colors: ReturnType<typeof colorsOf> }} draw
+ * @param {{ styles: any, metrics: any, typefaces: any }} input
+ */
+function drawLabels(layout, draw, input) {
+  const { at, down, text, shapes, rects, colors: C } = draw;
+  const { styles, metrics, typefaces } = input;
   for (const label of layout.labels) {
     const x = at(label.x);
     const y = down(label.y);
-    const fill = fillAt();
     shapes.push(
-      `<rect x="${fixed(x)}" y="${fixed(y)}" width="${fixed(label.width)}" height="${fixed(label.height)}" rx="6" fill="${fill}"/>`,
+      `<rect x="${fixed(x)}" y="${fixed(y)}" width="${fixed(label.width)}" height="${fixed(label.height)}" rx="6" fill="${C.paper}"/>`,
     );
     rects.push({ x, y, width: label.width, height: label.height, ...MASS });
     let top = y + metrics.wire.labelPadY;
@@ -408,5 +480,4 @@ export function drawFigure(layout, input) {
       );
     }
   }
-  return { shapes, runs, rects, frame };
 }
