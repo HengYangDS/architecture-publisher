@@ -7,6 +7,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- The specifications are validated with OpenSpec 2.0.0, which keeps the workflows and the validation; its
+  changes to agent skills and slash commands do not apply, as the repository configures no OpenSpec tool.
+
 ## [0.12.0] - 2026-11-12
 
 ### Added

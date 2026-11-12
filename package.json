@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@fission-ai/openspec": "1.16.0",
+    "@fission-ai/openspec": "2.0.0",
     "@likec4/language-services": "1.60.0",
     "@types/node": "26.6.6",
     "bundle-require": "5.1.0",
