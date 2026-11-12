@@ -16,7 +16,9 @@ remain pre-release contracts and may contain incompatible changes.
   and the bound. The reference gives two traditional palettes that pass them as examples.
 - With `strip` marks, the new default, each part is a strip as long as its code on one scale for the edition, with
   one segment per file it owns, sized by the file's share of its bytes and dyed by its age band; every strip has one
-  thickness. Every edition uses the same age bands, changed within a week, within three months and earlier, counted
+  thickness, and no strip is shortened to fit: a view's columns are at least as wide as its longest strip. The
+  largest part is 360 px long, or 240 px in an edition one of whose views cannot hold its strips at 360 px. Every
+  edition uses the same age bands, changed within a week, within three months and earlier, counted
   back from the pin. Each relation carries one tick per file it cites, up to five; the build checks that a cited file
   exists, not that it proves the relation. The relations into a view's hub are drawn in the oldest dye, and a strip
   plate's key shows the age bands with the pin's date, a scale bar and the ticks.
@@ -25,7 +27,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 - **Breaking**: the manifest is version 7. Each cited file records its size and the date of its last change at the
   pin, and its `style` records the edition's marks, the palette's id or `custom` with its Chinese and English names,
-  its resolved roles, and with strips the age bands' spans and the pin's date. Every default plate changes: a build that reads a checkout draws
+  its resolved roles, and with strips the age bands' spans, the pin's date and the length its largest part is drawn
+  at. Every default plate changes: a build that reads a checkout draws
   strips in indigo; one that reads none, or a model that claims no files, draws cards and warns `marks_fallback`,
   and a model that names `strip` without them is refused with `marks_need_files`. A model that wants cards sets
   `"edition": {"marks": "card"}`; the plates of 0.12 are not reproduced. On strip plates relation labels are set in

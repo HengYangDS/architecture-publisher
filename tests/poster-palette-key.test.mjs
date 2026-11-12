@@ -35,11 +35,11 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
     { shape: "band", band: 0, color: INDIGO.dye.new, label: "within 7 days of the commit" },
     { shape: "band", band: 2, color: INDIGO.dye.old, label: "earlier" },
     { shape: "reference", date: REFERENCE, label: "commit date 2026-11-10" },
-    // 20 KB on the scale where the largest part, 56 KB, is 480 px long.
+    // 20 KB on the scale where the largest part, 56 KB, is 360 px long.
     {
       shape: "length",
       bytes: 20000,
-      length: 171.4,
+      length: 128.6,
       thickness: 12,
       // A sample strip, dyed as the lightest strips are, so it reads as one of them and no louder.
       color: INDIGO.dye.new,
@@ -172,9 +172,9 @@ test("a group larger than every part sets the edition's scale, on its own plate 
     plates[views.findIndex((view) => view.origin === origin && view.id === id)];
   // 77 KB of the builder and the supplies is the longest strip; the supplies' 56 KB is 56/77 of it.
   const overview = plates[views.findIndex(({ origin }) => origin === "overview")];
-  assert.ok(Math.abs(lengthOf(stripOf(overview, "edition")) - 480) <= 0.15);
+  assert.ok(Math.abs(lengthOf(stripOf(overview, "edition")) - 360) <= 0.15);
   const members = at("group", "edition");
-  const expected = (480 * 56000) / 77000;
+  const expected = (360 * 56000) / 77000;
   assert.ok(Math.abs(lengthOf(stripOf(members, "supplies")) - expected) <= 0.15);
 });
 

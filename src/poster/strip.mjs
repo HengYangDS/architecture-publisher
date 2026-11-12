@@ -22,7 +22,7 @@ import { POSTER, colorsOf, fixed, measureWidth } from "./tokens.mjs";
  *   dye: { new: string, mid: string, old: string } }} Tokens
  * @typedef {{ bytes: number, files: ReadonlyArray<{ path: string, bytes: number, band: number }> }} Part
  * @typedef {{ name: "strip" | "card", tokens: Tokens, parts?: Map<string, Part>, most?: number,
- *   bands?: { spans: readonly number[] }, reference?: string }} Style
+ *   bands?: { spans: readonly number[] }, reference?: string, longest?: number }} Style
  */
 
 /** A part that owns no files. */
@@ -40,7 +40,13 @@ const EMPTY = Object.freeze({ bytes: 0, files: Object.freeze([]) });
  * 2 mm at A3, whatever its size or type step. A part that owns no files is a
  * dashed outline 40 px long, which reads as no strip, not as a short one.
  */
-const STRIP = Object.freeze({ longest: 480, shortest: 2, thickness: 12, empty: 40 });
+const STRIP = Object.freeze({ shortest: 2, thickness: 12, empty: 40 });
+
+/**
+ * The lengths, in px, an edition may draw its largest part at, longest first: a strip is never shortened to fit
+ * its column, so an edition whose views cannot hold its strips draws them all shorter, on one scale still.
+ */
+export const STRIP_LENGTHS = Object.freeze([360, 240]);
 
 /**
  * Ticks across a relation's line, in plate px: 10 px long, 5 px apart, the
@@ -227,14 +233,40 @@ function scaleOf(model, style) {
 }
 
 /**
+ * How long the edition draws its largest part, in px: the length the build chose, or the longest it may.
+ * @param {Style} style
+ */
+export const longestOf = (style) => style.longest ?? STRIP_LENGTHS[0];
+
+/**
+ * Plan and compose an edition at the first strip length that lays out every view: a view that cannot be laid out
+ * with the strips at one length is tried again with all of them shorter. Cards are planned once.
+ * @template T
+ * @param {Style} style
+ * @param {(style: Style) => Promise<T>} plan
+ * @param {readonly number[]} [lengths] the lengths still to try, longest first
+ * @returns {Promise<T>}
+ */
+export async function withStripLength(style, plan, lengths = STRIP_LENGTHS) {
+  if (style.name !== "strip") return plan(style);
+  const [longest, ...shorter] = lengths;
+  try {
+    return await plan({ ...style, longest });
+  } catch (error) {
+    if (/** @type {any} */ (error)?.code !== "plate_unfittable" || !shorter.length) throw error;
+    return withStripLength(style, plan, shorter);
+  }
+}
+
+/**
  * A strip's length in px: its part's bytes on the edition's scale, at least
  * the shortest strip; a part that owns no files is the empty outline's length.
  * @param {Part} part
  * @param {number} scale
  */
-function lengthOf(part, scale) {
+function lengthOf(part, scale, longest) {
   if (!part.files.length) return STRIP.empty;
-  return Math.max(STRIP.shortest, (STRIP.longest * part.bytes) / scale);
+  return Math.max(STRIP.shortest, (longest * part.bytes) / scale);
 }
 
 /**
@@ -301,6 +333,7 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
   const words = wordsOf(model.locale);
   const parts = /** @type {Map<string, Part>} */ (style.parts);
   const scale = scaleOf(model, style);
+  const longest = longestOf(style);
   const measure = (text, textStyle) => typefaces.measure(text, textStyle);
   const lines = {
     name: measureWidth(typefaces, styles.name),
@@ -340,16 +373,22 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
         : [],
       caption,
       part,
-      length: lengthOf(part, scale),
+      length: lengthOf(part, scale, longest),
       gap: card.detailGap,
     };
   };
   return {
+    // A strip is never shortened to fit, so no column of the view may be narrower than its longest strip.
+    least: (components) =>
+      Math.max(
+        0,
+        ...components.map((component) => lengthOf(factsOf(component).part, scale, longest)),
+      ),
     width: (component) => {
       const { part, caption, leading } = factsOf(component);
       const width = Math.max(
         card.minimumWidth,
-        lengthOf(part, scale),
+        lengthOf(part, scale, longest),
         Math.min(measure(component.label, styles.name), POSTER.cardMeasure.name * styles.name.size),
         captionWidth(caption),
         leading
@@ -554,7 +593,7 @@ export function stripKey(model, view, style) {
     key.push({
       shape: "length",
       bytes,
-      length: fixed((STRIP.longest * bytes) / scale),
+      length: fixed((longestOf(style) * bytes) / scale),
       thickness: STRIP.thickness,
       color: C.dye[0],
       label: words.length(size),

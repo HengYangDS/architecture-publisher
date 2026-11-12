@@ -22,7 +22,8 @@ claims no files, it SHALL draw a model that names no marks with cards and warn
 ### Requirement: Edition marks in the manifest
 
 The manifest SHALL record the edition's marks, the palette's name or `custom`,
-the resolved palette roles, the spans of its age bands and the pin's date.
+the resolved palette roles, and with strips the spans of its age bands, the
+pin's date and the length its largest part is drawn at.
 
 #### Scenario: A custom palette
 

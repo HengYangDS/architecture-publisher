@@ -27,7 +27,7 @@ import {
 // Strip marks: strips on one scale, their files, the ticks, the hub and the box a part keeps.
 
 /** The largest part's strip, in px: every other part's strip is as long for its share of the largest's bytes. */
-const LONGEST = 480;
+const LONGEST = 360;
 /** The bytes of the largest part of the strip work, the supplies. */
 const MOST = 56000;
 
@@ -134,7 +134,7 @@ test("every line is one weight, and the hub's lines and arrowheads are in the ol
   const arrows = arrowsOf(plate.svg);
   const into = arrows.filter(
     ({ x, y }) =>
-      x >= strip[0].x && x <= Math.max(right, strip[0].x + 480) && y < top && y > top - 40,
+      x >= strip[0].x && x <= Math.max(right, strip[0].x + LONGEST) && y < top && y > top - 40,
   );
   assert.ok(into.length > 0);
   for (const arrow of into) assert.equal(arrow.fill, INDIGO.dye.old);

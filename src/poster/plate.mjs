@@ -178,6 +178,7 @@ function candidateMetrics(input) {
     contentWidth: () => field.width,
     card: {
       minWidth: card.minimumWidth,
+      least: "least" in boxes ? boxes.least(view.components) : 0,
       // No box is wider than the view's widest box at its natural width.
       maxWidth: Math.min(
         card.maximumWidth,

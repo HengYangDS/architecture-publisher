@@ -20,6 +20,25 @@ SHALL be a short dashed outline. The key SHALL show a scale bar.
 - **WHEN** one part owns 200 KB and another 20 KB in the same edition
 - **THEN** the first strip is ten times as long as the second, on every plate
 
+### Requirement: Strips keep to their boxes
+
+A strip SHALL never be shortened to fit a column: no column of a view is
+narrower than its longest strip. When a view cannot hold the edition's strips,
+the edition SHALL draw every strip shorter, 360 px and then 240 px for its
+largest part, on one scale still, and plan its views again.
+
+#### Scenario: A strip keeps to its box
+
+- **WHEN** a view's columns would be narrower than its longest strip
+- **THEN** that layout is refused and the plate tries another wrapping, so no
+  strip runs past its box or the boundary
+
+#### Scenario: A shorter scale for the edition
+
+- **WHEN** a view cannot be laid out with strips of 360 px for the largest part
+- **THEN** every plate of the edition draws its strips at 240 px for the largest
+  part, and each key's sample strip shows that scale
+
 ### Requirement: Age bands
 
 Every edition SHALL divide its cited files into three age bands counted back

@@ -10,6 +10,7 @@ import { typesetEdition } from "./edition/typeset.mjs";
 import { checkOverview, typstVersion } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
 import { admitsView, composePlates } from "./poster/compose/plates.mjs";
+import { longestOf, withStripLength } from "./poster/strip.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { refuse } from "./refusal.mjs";
 import { bindSources } from "./sources/bind.mjs";
@@ -145,7 +146,7 @@ async function prepare(modelPath, options) {
   const binding = bindSources(model, options.repo);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
   // The edition's marks and palette are chosen once, before the plan, since a view is admitted as its marks draw it.
-  const { style, warnings: styled, record: styleRecord } = editionStyle(model, binding);
+  const { style: chosen, warnings: styled, record: chosenRecord } = editionStyle(model, binding);
   const warnings = [
     ...(options.repo && binding.state === "none"
       ? [
@@ -164,15 +165,25 @@ async function prepare(modelPath, options) {
         modelBytes: loaded.content,
         revision: model.repository?.revision ?? null,
         date: commit?.date ?? null,
-        tokens: style.tokens,
+        tokens: chosen.tokens,
       })
     : null;
-  const views = await planViews(model, async (view) =>
-    admitsView(model, view, typefaces, icons, style),
-  );
+  // Each view is one plate of the edition, laid out for its body, with the edition's strips as long as every view
+  // can hold them.
+  const { style, views, plates } = await withStripLength(chosen, async (drawn) => {
+    const planned = await planViews(model, async (view) =>
+      admitsView(model, view, typefaces, icons, drawn),
+    );
+    return {
+      style: drawn,
+      views: planned,
+      plates: printed ? composePlates(model, planned, typefaces, icons, drawn) : [],
+    };
+  });
+  // With strips, the manifest records the length the edition draws its largest part at.
+  const styleRecord =
+    style.name === "strip" ? { ...chosenRecord, longest: longestOf(style) } : chosenRecord;
   const { quality } = options;
-  // Each view is one plate of the edition, laid out for its body.
-  const plates = printed ? composePlates(model, views, typefaces, icons, style) : [];
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const page = !media.includes("page")
     ? null

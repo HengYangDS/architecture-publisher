@@ -275,7 +275,10 @@ in which palette. The page keeps Archify's own themes.
 a caption: the kind, then the number of files and their size. A strip is as
 long as the code its part owns, on one scale for the whole edition, so a part of
 200 KB is ten times as long as a part of 20 KB on every plate; a part with any
-bytes is at least 2 px long, and every strip has the same thickness. Each file
+bytes is at least 2 px long, and every strip has the same thickness. The
+largest part is 360 px long; a strip is never shortened to fit its column, so
+an edition one of whose views cannot hold its strips draws them all at 240 px.
+Each file
 the part owns is one segment, in path order, as wide as its share of the part's
 bytes and in the dye of its age band; a part that owns no files is a short
 dashed outline. With `card`, each part is a card with its kind's icon and

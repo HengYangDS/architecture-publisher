@@ -234,6 +234,8 @@ test("files verified against the checkout are recorded and cited on the page at 
       spans: [7 * 86400, 90 * 86400],
       reference: git("show", "-s", "--format=%cs", revision),
     },
+    // Its largest part is drawn at the longest length, since every view holds its strips at that length.
+    longest: 360,
   });
   assert.equal(manifest.page.quality, "showcase");
   assert.deepEqual(manifest.evidence.components[0].files, ["src/"]);

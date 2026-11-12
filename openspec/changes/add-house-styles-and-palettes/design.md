@@ -33,7 +33,11 @@ default plate needs to be truthful; the rest follows in its own Changes.
 A strip's length is `max × bytes / most`, `most` being the largest part of the
 edition and `max` one length for every plate, at least 2 px for a part with any
 bytes; the box is as wide as the larger of its text and its strip, so placement
-and every gate still run on boxes. Thickness is one constant: size has one
+and every gate still run on boxes. A strip is never shortened to fit: no column
+is narrower than its view's longest strip. `max` is 360 px, and 240 px for an
+edition one of whose views cannot hold its strips at 360 px; the first tries
+of the twelve published editions at 480 px refused three works, and 240 px
+holds them all. Thickness is one constant: size has one
 encoding, the one a reader compares best. Alternative rejected: length from the
 label and thickness from √bytes, which the committee measured at a lie factor
 of about 0.15.

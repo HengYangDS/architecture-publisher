@@ -386,7 +386,8 @@ version, the model id, title, language, digest and size, the declared
 repository, the build's quality and media, in `style` the edition's marks, its
 palette's id (`custom` for the model's own) with its Chinese and English
 names and its resolved ground, ink, dye steps and accent, and with strips the
-age bands' spans in seconds and the pin's date, every cited file with its
+age bands' spans in seconds, the pin's date and the length in px its largest
+part is drawn at, every cited file with its
 state, digest, size in bytes, the UTC date of its last change at the pin, owner
 and the relations that cite it, the digest of each bundled supply, each view
 with its tiers, members and plate number, the edition's file,
