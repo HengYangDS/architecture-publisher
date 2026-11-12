@@ -356,7 +356,6 @@ test("a bolts plate's key lists exactly the marks it shows", async () => {
     },
     { shape: "hub", color: INDIGO.dye.old, label: "draws on Supplies" },
     { shape: "boundary", label: "inside The print edition" },
-    { shape: "outside", label: "outside it" },
   ]);
 });
 
@@ -398,7 +397,7 @@ test("a band's name follows the edition's spans on the ladder", async () => {
   // A plate without evidenced relations draws no weights and has no hub to name.
   assert.deepEqual(
     plate.legend.map(({ shape }) => shape),
-    ["band", "thickness", "weight", "hub", "boundary", "outside"],
+    ["band", "thickness", "weight", "hub", "boundary"],
   );
   const bare = validateModel(
     minimalModel({

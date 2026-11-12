@@ -71,11 +71,12 @@ function legendOf(model, view, boundary, drawn) {
   }
   /** @type {Array<{ shape: string, label: string }>} */
   const rest = [];
-  if (boundary && bounded)
-    rest.push(
-      { shape: "boundary", label: words.inside(boundary) },
-      { shape: "outside", label: words.outside },
-    );
+  // Cards draw an outside part on its own grey card; a strip outside the boundary is told apart by where it
+  // stands alone, so the bolts key names the boundary only.
+  if (boundary && bounded) {
+    rest.push({ shape: "boundary", label: words.inside(boundary) });
+    if (drawn.name !== "bolts") rest.push({ shape: "outside", label: words.outside });
+  }
   const shown = [...view.components, ...view.relations];
   for (const status of /** @type {const} */ (["planned", "retired"]))
     if (shown.some((item) => item.status === status))
