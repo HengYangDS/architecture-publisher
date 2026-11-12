@@ -6,10 +6,7 @@ The publisher SHALL validate the model against its published schema and its
 references before any output. It SHALL refuse unknown fields, unsupported
 format versions, duplicate identifiers, empty labels, references to undeclared
 components or groups, relations whose endpoints are absent and invalid file
-paths, and it SHALL report every problem with its JSON path in one result. A
-model MAY carry `$schema`, a reference to the schema for its editor, which the
-publisher does not read. An unknown field's message SHALL name the nearest field
-that object has when one differs from it by at most a third of its letters.
+paths, and it SHALL report every problem with its JSON path in one result.
 
 #### Scenario: Several problems are reported together
 
@@ -28,6 +25,14 @@ that object has when one differs from it by at most a third of its letters.
 
 - **WHEN** a model declares version 1
 - **THEN** the build refuses and names `archpub migrate`
+
+## ADDED Requirements
+
+### Requirement: Help for an author's editor
+
+A model MAY carry `$schema`, a reference to the schema for its editor, which the
+publisher does not read. An unknown field's message SHALL name the nearest field
+that object has when one differs from it by at most a third of its letters.
 
 #### Scenario: A misspelt field
 

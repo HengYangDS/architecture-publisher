@@ -6,10 +6,8 @@ Every command SHALL accept `--json` and then print exactly one JSON object with
 `ok` and either its outputs or its diagnostics. The exit status SHALL be 0 on
 success, 1 for a refused input, 2 for a usage error and 3 for any other
 failure, whose JSON object SHALL carry the code `internal_error` and a message.
-`archpub --help` SHALL print the usage, `archpub <command> --help` that command's
-usage and `archpub --version` the package version, each with status 0. A result
-MAY carry `warnings`, each with a code and a message, which text output prints
-one to a line.
+A result MAY carry `warnings`, each with a code and a message, which text output
+prints one to a line.
 
 #### Scenario: A refused build with JSON output
 
@@ -30,12 +28,6 @@ one to a line.
 - **WHEN** `archpub --version --json` runs
 - **THEN** standard output holds one JSON object with `ok: true` and the
   package version
-
-#### Scenario: One command's usage
-
-- **WHEN** `archpub build --help` runs
-- **THEN** standard output holds the usage of `archpub build` and its options
-- **AND** the exit status is 0
 
 ### Requirement: Reading measure
 
@@ -82,10 +74,10 @@ be justified.
 A view with a summary whose figure wires worse at 80 percent of the body's
 width SHALL keep the full width and set its summary above the figure, under
 the plate's question, when the figure wires no worse at the height left below
-it than at the full body. The summary SHALL be set at 17 points in the
-summary's face within 32 em, justified when that takes no more lines than the
-publisher broke it into and reserved, and otherwise on the publisher's lines,
-flush left, without the heading for where each part lives or the paths.
+it than at the full body. The summary SHALL be set at 17 points within 32 em,
+justified when that takes no more lines than the publisher reserved and
+otherwise on the publisher's lines, flush left, without the heading for where
+each part lives or the paths.
 
 #### Scenario: A figure that cannot narrow but can shorten
 
@@ -105,3 +97,18 @@ flush left, without the heading for where each part lives or the paths.
 - **WHEN** a view's figure wires worse both at 80 percent of the width and below
   its summary
 - **THEN** the plate leaves its reading out, with the figure at the full body
+
+## ADDED Requirements
+
+### Requirement: Command help
+
+`archpub --help` SHALL print the usage, `archpub <command> --help` that
+command's usage, what it does and the options it takes, and `archpub --version`
+the package version, each with status 0. A usage error SHALL print the usage of
+the command it names.
+
+#### Scenario: One command's usage
+
+- **WHEN** `archpub build --help` runs
+- **THEN** standard output holds the usage of `archpub build` and its options
+- **AND** the exit status is 0

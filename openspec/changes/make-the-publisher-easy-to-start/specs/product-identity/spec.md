@@ -2,13 +2,12 @@
 
 ### Requirement: A release delivers a self-contained command
 
-Each release SHALL deliver, for every platform its CI verifies, one archive that
-holds the `archpub` command, the Node.js runtime and Typst it runs, the package
-and their licenses. The verified platforms SHALL be Linux and Windows on ARM64
-and x86-64 and macOS on ARM64; x86-64 SHALL be verified by GitHub's CI. It SHALL
-also deliver a mise declaration that names each archive with its SHA-256.
-Unpacked anywhere, the command SHALL run with only Git on the path and build the
-same bytes as the package on that platform. No other platform SHALL be offered.
+Each release SHALL deliver one archive for every platform its CI verifies,
+holding the `archpub` command, the Node.js and Typst it runs, the package and
+their licenses, and a mise declaration naming each archive with its SHA-256.
+The platforms SHALL be Linux and Windows on ARM64 and x86-64, x86-64 verified by
+GitHub's CI, and macOS on ARM64. Unpacked anywhere, the command SHALL run with
+only Git on the path and build the same bytes as the package on that platform.
 
 #### Scenario: A machine without Node.js builds a work
 
