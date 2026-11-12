@@ -234,7 +234,11 @@ peers: github: {
 		macos: {runner: "macos-15", system: "macos"}
 		windows: {runner: "windows-11-arm", system: "windows"}
 		"linux-x64": {runner: "ubuntu-24.04", system: "linux"}
-		"windows-x64": {runner: "windows-2025", system: "windows"}
+		// Hosted x86-64 Windows keeps the workspace on D: and the system temporary directory on C:, so
+		// mise-action's move of the mise it downloads into the workspace fails across the drives; its step
+		// takes the runner's temporary directory, on the workspace's drive. The runner context is not
+		// available in a job's env, only in a step's.
+		"windows-x64": {runner: "windows-2025", system: "windows", bootstrapEnv: {TEMP: "${{ runner.temp }}", TMP: "${{ runner.temp }}"}}
 	}
 	// A release tag publishes the package to npm through GitHub's OIDC once its owner has
 	// registered the package and set the repository variable.
@@ -298,7 +302,8 @@ compiled: github: {
 						defaults: run: shell: system.shell
 						if len(native.variables) > 0 {env: native.variables}
 						steps: list.Concat([
-							[peer.checkout, peer.bootstrap],
+							[peer.checkout],
+							[if target.bootstrapEnv == _|_ {peer.bootstrap}, if target.bootstrapEnv != _|_ {peer.bootstrap & {env: target.bootstrapEnv}}],
 							[for command in native.before_script {run: command}],
 							[for command in list.Concat([shared.toolPreparation, system.readerPrerequisites, shared.readerPreparation, shared.acceptance]) {run: command}],
 							[peer.artifacts],

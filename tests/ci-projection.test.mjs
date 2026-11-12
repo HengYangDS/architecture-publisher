@@ -282,6 +282,14 @@ test("GitHub alone also verifies Linux and Windows on x86-64 and publishes to np
       assert.deepEqual(job.env, twin.env);
       assert.deepEqual(steps(job), steps(twin));
     }
+  // Hosted x86-64 Windows keeps its system temporary directory on another drive than the workspace, so the
+  // mise-action step takes the runner's, which shares the workspace's drive.
+  for (const trust of ["review", "protected"]) {
+    const [, bootstrap] = github.jobs[`verify-windows-x64-${trust}`].steps;
+    assert.match(bootstrap.uses, /^jdx\/mise-action@/u);
+    assert.deepEqual(bootstrap.env, { TEMP: "${{ runner.temp }}", TMP: "${{ runner.temp }}" });
+    assert.equal(github.jobs[`verify-windows-${trust}`].steps[1].env, undefined);
+  }
   const publish = github.jobs["publish-npm"];
   assert.equal(publish.if, "${{ github.ref_type == 'tag' && vars.NPM_PUBLISH == 'enabled' }}");
   assert.deepEqual(publish.permissions, { contents: "read", "id-token": "write" });
