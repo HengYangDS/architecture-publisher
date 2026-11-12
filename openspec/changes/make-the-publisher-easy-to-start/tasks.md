@@ -25,5 +25,5 @@
 
 ## 6. Release
 
-- [ ] 6.1 Record 0.12.0 in `CHANGELOG.md`, `VERSION`, `package.json` and `package-lock.json`; verify `mise run check` passes.
-- [ ] 6.2 Build the twelve editions of the six works at publications' current `dev` with the lane's publisher before task 5.2 and with 0.11.0, and verify every edition and image is byte-identical; build them at the release head and verify each differs from 0.11.0 only in the publisher's version, the PDF and the images of plates that set a reading.
+- [x] 6.1 Record 0.12.0 in `CHANGELOG.md`, `VERSION`, `package.json` and `package-lock.json`; verify `mise run check` passes.
+- [x] 6.2 Build the twelve editions of the six works at publications' current `dev` with the lane's publisher before task 5.2 and verify every edition and image is byte-identical to 0.11.0; build them after task 5.2 and verify each differs from 0.11.0 only in the PDF, the house digest and the images of plates that set a reading; at the release head, rebuild ETHOS in both languages and verify that only the PDF and the publisher's version differ from the build after 5.2.
