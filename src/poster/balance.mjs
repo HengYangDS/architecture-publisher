@@ -1,5 +1,3 @@
-import { POSTER } from "./tokens.mjs";
-
 /**
  * Balance of a composed page, measured from what it prints. A page is still
  * geometry when it is measured: every element it draws is a rectangle of ink,
@@ -39,10 +37,14 @@ const luminance = (color) => {
   const [r, g, b] = [1, 3, 5].map((index) => Number.parseInt(color.slice(index, index + 2), 16));
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
-const PAPER = luminance(POSTER.color.paper);
 
-/** How much darker than the page a color prints, from 0 for paper to 1 for black. */
-export const darkness = (color) => Math.max(0, 1 - luminance(color) / PAPER);
+/**
+ * How much darker than its paper a color prints, from 0 for the paper to 1 for
+ * black. Each edition prints on its own palette's paper.
+ * @param {string} color
+ * @param {string} paper
+ */
+export const darkness = (color, paper) => Math.max(0, 1 - luminance(color) / luminance(paper));
 
 /**
  * Cells of the page covered by ink, and by mass alone: a cell is covered when

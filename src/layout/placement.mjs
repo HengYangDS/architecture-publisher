@@ -150,7 +150,7 @@ function placements(count, slots, compact) {
  * Choose row orders and positions with the minimum cost.
  * @param {{ rows: string[][], relations: any[], order: Map<string, number>,
  *   external: (id: string) => boolean, rowLimit: number, contentWidth: number,
- *   card: { minWidth: number, maxWidth: number }, columnGap: number, spread?: number,
+ *   card: { minWidth: number, maxWidth: number, least?: number }, columnGap: number, spread?: number,
  *   inset: number,
  *   clearance: number, labelWidth: (relation: any, maxWidth: number) => number,
  *   centring?: "all" | "inside" | null, lattices?: Map<string, any> }} input
@@ -182,7 +182,7 @@ export function placeRows(input) {
       result.cost + WEIGHT.spareColumn * (columns - minimum) + WEIGHT.narrowCard * cards * short;
     if (!best || cost < best.total) best = { ...result, total: cost };
   }
-  if (!best && cardWidth(input, minimum) >= input.card.minWidth) {
+  if (!best && cardWidth(input, minimum) >= narrowest(input)) {
     // The cards fit; only keeping outside components outside one boundary does not.
     const mixed = rows.flatMap((members, row) =>
       members.some(input.external) && members.some((id) => !input.external(id))
@@ -204,6 +204,15 @@ export function placeRows(input) {
         "Declare more tiers or split the view.",
     );
   return { ...best, relations };
+}
+
+/**
+ * The narrowest column a lattice may have: the minimum card, or wider where a box cannot be narrowed, as a strip
+ * as long as its part's code cannot (`least`).
+ * @param {{ card: { minWidth: number, least?: number } }} input
+ */
+function narrowest(input) {
+  return Math.max(input.card.minWidth, input.card.least ?? 0);
 }
 
 function cardWidth(input, columns) {
@@ -257,7 +266,7 @@ function latticeOf(input, relations, slots, optional) {
 
 function placeOnLattice(input, relations, columns, optional) {
   const width = cardWidth(input, columns);
-  if (width < input.card.minWidth) return null;
+  if (width < narrowest(input)) return null;
   const pitch = width + columnGap(input, columns, width);
   const slots = 2 * columns - 1;
   const lattice = latticeOf(input, relations, slots, optional);

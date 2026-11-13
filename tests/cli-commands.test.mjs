@@ -111,14 +111,18 @@ test("a checkout that the model gives nothing to read is named in a warning", as
   assert.equal(checked.exitCode, 0);
   assert.deepEqual(
     checked.body.warnings.map(({ code }) => code),
-    ["repo_unused"],
+    ["repo_unused", "marks_fallback"],
   );
   assert.match(
     (await runCli(["check", model, "--repo", root, "--media", "edition"])).output,
     /^warning: .*claims and cites no file/mu,
   );
+  // Without a checkout nothing is unused, but no part has a strip either.
   const unchecked = await json(["check", model, "--media", "edition"]);
-  assert.deepEqual(unchecked.body.warnings, []);
+  assert.deepEqual(
+    unchecked.body.warnings.map(({ code }) => code),
+    ["marks_fallback"],
+  );
 });
 
 test("build options outside their range are refused before anything is read", async () => {
@@ -180,7 +184,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   assert.equal(checked.body.coverage, null);
   assert.match(
     (await runCli(["check", model])).output,
-    /^page: 1 view admitted; files none\.\nUncited: \d+ components and \d+ relations\.\nPlate 01 \(architecture\): figure (100|80|65)% of the body(, beside its reading)?(; misses [a-zA-Z, ]+)?\.\n$/u,
+    /^page: 1 view admitted; files none\.\nUncited: \d+ components and \d+ relations\.\nPlate 01 \(architecture\): figure (100|80|65)% of the body(, beside its reading)?(; misses [a-zA-Z, ]+)?\.\nwarning: The edition draws its parts as cards[^\n]*\n$/u,
   );
 
   const out = path.join(root, "delivery");

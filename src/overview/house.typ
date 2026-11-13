@@ -240,13 +240,32 @@
   rect(width: 16pt, height: 10pt, radius: 3pt, stroke: (paint: rgb(_house.figure.boundary), thickness: 0.7pt, dash: (2pt, 1.6pt)))
 } else if entry.shape == "outside" {
   rect(width: 16pt, height: 10pt, radius: 3pt, fill: rgb(_house.figure.outside), stroke: 0.7pt + rgb(_house.figure.outsideStroke))
+} else if entry.shape == "band" {
+  rect(width: 16pt, height: 8pt, fill: rgb(entry.color))
+} else if entry.shape == "length" {
+  // A strip of the sample's size at the plate's own scale: as long and as thick as the plate draws a part that size.
+  rect(width: entry.length * _k, height: entry.thickness * _k, fill: rgb(entry.color))
+} else if entry.shape == "ticks" {
+  // A relation's line with its ticks as the plate draws them: each as long as on the plate and as far apart.
+  let (tick, gap, weight) = (entry.length * _k, entry.gap * _k, entry.weight * _k)
+  let span = (entry.count - 1) * gap
+  box(width: span + 12pt, height: tick, {
+    place(left + horizon, line(length: span + 12pt, stroke: (paint: rgb(entry.color), thickness: weight)))
+    for i in range(entry.count) {
+      place(dx: 6pt + i * gap, line(angle: 90deg, length: tick, stroke: (paint: rgb(entry.color), thickness: weight)))
+    }
+  })
+} else if entry.shape == "hub" {
+  line(length: 16pt, stroke: (paint: rgb(entry.color), thickness: 1.6pt))
 } else {
   line(length: 16pt, stroke: (paint: rgb(if entry.shape == "retired" { _house.figure.retired } else { _house.palette.mid }),
     thickness: 1pt, dash: if entry.shape == "retired" { "dotted" } else { "dashed" }))
 }))
 
 #let _key(entries) = place(top + left, dx: margin, dy: _e.key * 1pt - 10pt,
-  text(size: sizes.small, fill: soft, entries.map(entry => [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
+  text(size: sizes.small, fill: soft, entries.map(entry =>
+    // The pin's date stands in words alone: it dates the bands before it.
+    if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
 
 /// A plate's reading in the width its figure leaves: the view's summary, justified as prose at any width, then where
 /// each component it shows lives. When that is taller than the body the summary is

@@ -323,6 +323,51 @@
           "pattern": "[^/]\\.archify\\.md$"
         }
       ]
+    },
+    "edition": {
+      "description": "How the print edition draws its parts and in which palette; the build chooses either the model leaves out.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "marks": {
+          "description": "Each part as a strip of the files it owns, as long as its code (strip, the default with file facts), or as a card with its kind's icon (card).",
+          "enum": ["strip", "card"]
+        },
+        "palette": {
+          "description": "A built-in palette, indigo (the default), persimmon, soot or patina, or the model's own, which must pass the publisher's contrast, chroma, lightness and hue rules.",
+          "oneOf": [
+            {
+              "enum": ["indigo", "persimmon", "soot", "patina"]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["ground", "ink", "dye"],
+              "properties": {
+                "ground": {
+                  "$ref": "#/$defs/color"
+                },
+                "ink": {
+                  "$ref": "#/$defs/color"
+                },
+                "dye": {
+                  "description": "Three dye steps, from new to old.",
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "$ref": "#/$defs/color"
+                  }
+                },
+                "accent": {
+                  "description": "The accent; defaults to the oldest dye.",
+                  "$ref": "#/$defs/color"
+                }
+              }
+            }
+          ]
+        }
+      }
     }
   },
   "$defs": {
@@ -366,6 +411,10 @@
     },
     "status": {
       "enum": ["implemented", "planned", "retired"]
+    },
+    "color": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
     },
     "references": {
       "type": "array",

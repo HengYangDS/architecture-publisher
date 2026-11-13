@@ -3,9 +3,17 @@ import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { refuse } from "../../refusal.mjs";
 import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
+import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
-import { HOUSE, POSTER, figureStyles } from "../tokens.mjs";
+import { HOUSE, HOUSE_STYLE, POSTER, colorsOf, figureStyles } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
+
+/**
+ * What every composition of an edition's plates shares: the model, its
+ * typefaces and icons, and the style its parts are drawn in.
+ * @typedef {{ model: any, typefaces: any, icons: any,
+ *   style: import("../strip.mjs").Style }} Scene
+ */
 
 /**
  * The print edition's plates: each view composed alone for the edition's body,
@@ -35,33 +43,41 @@ export function gutterFor(typefaces, labels) {
 }
 
 /**
- * The legend's entries: the kinds present, then the boundary when a figure draws
- * one — some component outside it and some inside — and the statuses present.
+ * The legend's entries: for cards, the kinds present; for strips, the marks its
+ * strips and lines show; then the boundary when a figure draws one — some
+ * component outside it and some inside — and the statuses present.
+ * @param {any} model
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {string} boundary
+ * @param {import("../strip.mjs").Style} drawn the style the plate is drawn in
  */
-function legendOf(model, views, boundary) {
+function legendOf(model, view, boundary, drawn) {
   const words = wordsOf(model.locale);
-  const kinds = [];
-  const components = views.flatMap((view) => view.components);
+  const hue = colorsOf(drawn.tokens).hue;
+  /** @type {Array<{ shape?: string, kind?: string, label: string, icon?: string, color?: string }>} */
+  const kinds = drawn.name === "strip" ? stripKey(model, view, drawn) : [];
+  const components = view.components;
   const outside = components.filter((component) => presentation(model, component).outside);
   const bounded = outside.length > 0 && outside.length < components.length;
-  for (const component of components) {
+  for (const component of drawn.name === "strip" ? [] : components) {
     const style = presentation(model, component);
     if (kinds.some((entry) => entry.kind === style.kind)) continue;
     kinds.push({
       kind: style.kind,
       label: style.label,
       icon: style.icon,
-      color: POSTER.hue[style.category],
+      color: hue[/** @type {keyof typeof hue} */ (style.category)],
     });
   }
   /** @type {Array<{ shape: string, label: string }>} */
   const rest = [];
-  if (boundary && bounded)
-    rest.push(
-      { shape: "boundary", label: words.inside(boundary) },
-      { shape: "outside", label: words.outside },
-    );
-  const shown = views.flatMap((view) => [...view.components, ...view.relations]);
+  // Cards draw an outside part on its own grey card; a strip outside the boundary is told apart by where it
+  // stands alone, so the strip key names the boundary only.
+  if (boundary && bounded) {
+    rest.push({ shape: "boundary", label: words.inside(boundary) });
+    if (drawn.name !== "strip") rest.push({ shape: "outside", label: words.outside });
+  }
+  const shown = [...view.components, ...view.relations];
   for (const status of /** @type {const} */ (["planned", "retired"]))
     if (shown.some((item) => item.status === status))
       rest.push({ shape: status, label: words[status] });
@@ -89,18 +105,19 @@ const compare = (a, b) => {
 
 /**
  * How a plate's ink stands over the body: its figure's rectangles and its text,
- * each line box weighted by how dark it prints.
+ * each line box weighted by how dark it prints on the style's paper.
  * @param {any} one a composition of the plate
  * @param {any} typefaces
+ * @param {string} paper
  */
-function balanceOfPlate(one, typefaces, width, height) {
+function balanceOfPlate(one, typefaces, width, height, paper) {
   const text = (run) => ({
     x: run.x,
     y: run.top,
     width: Math.min(typefaces.measure(run.value, run.style), width - run.x),
     height: run.style.line,
     kind: /** @type {const} */ ("mass"),
-    weight: DARKNESS.text * darkness(run.color),
+    weight: DARKNESS.text * darkness(run.color, paper),
   });
   const body = { x: 0, y: 0, width, height };
   return balanceOf([...one.figure.rects, ...one.figure.runs.map(text)], body, body);
@@ -111,14 +128,13 @@ function balanceOfPlate(one, typefaces, width, height) {
  * type step and wrapping, with its rows centred over all cards, over the cards
  * inside the boundary, and uncentred, and with tier labels in one column or
  * before the edges their tiers start at, within the given width and height of the body.
- * @param {any} model
+ * @param {Scene} scene
  * @param {import("../../plan/views.mjs").View} view
- * @param {any} typefaces
- * @param {any} icons
  * @param {number} [width]
  * @param {number} [height]
  */
-function* compositions(model, view, typefaces, icons, width = BODY.width, height = BODY.height) {
+function* compositions(scene, view, width = BODY.width, height = BODY.height) {
+  const { model, typefaces, icons, style } = scene;
   const boundaryName = model.repository?.name ?? model.title;
   const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
     label ? [label] : [],
@@ -135,7 +151,7 @@ function* compositions(model, view, typefaces, icons, width = BODY.width, height
   for (const tierLabels of column ? ["column", "edges"] : ["column"])
     for (const centring of centrings) {
       const [one] = platesOf(
-        { model, typefaces, icons, boundaryName, centring, tierLabels },
+        { model, typefaces, icons, boundaryName, centring, tierLabels, style },
         plate,
       );
       if (one) yield { one, centring, tierLabels };
@@ -158,15 +174,16 @@ function unfittable(view) {
 }
 
 /**
- * Whether the edition's body admits a view: some composition lays it out, or the
- * view is refused with `plate_unfittable`.
+ * Whether the edition's body admits a view in the edition's style: some
+ * composition lays it out, or the view is refused with `plate_unfittable`.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} typefaces
  * @param {any} icons
+ * @param {import("../strip.mjs").Style} [style] cards in the house tokens unless given
  */
-export function admitsView(model, view, typefaces, icons) {
-  if (compositions(model, view, typefaces, icons).next().done) unfittable(view);
+export function admitsView(model, view, typefaces, icons, style = HOUSE_STYLE) {
+  if (compositions({ model, typefaces, icons, style }, view).next().done) unfittable(view);
   return { fits: true, width: BODY.width, height: BODY.height };
 }
 
@@ -174,24 +191,16 @@ export function admitsView(model, view, typefaces, icons) {
  * The best composition of a view within one width and height of the body: the fewest crossings, then the fewest
  * route defects, then the largest step, then the widest wrapping, then layered rows before flatter ones, then the
  * least of the body left blank; or null when none lays it out.
- * @param {any} model
+ * @param {Scene} scene
  * @param {import("../../plan/views.mjs").View} view
- * @param {any} typefaces
- * @param {any} icons
  * @param {number} width
  * @param {number} [height]
  */
-function bestWithin(model, view, typefaces, icons, width, height = BODY.height) {
+function bestWithin(scene, view, width, height = BODY.height) {
   const candidates = [];
-  for (const { one, centring, tierLabels } of compositions(
-    model,
-    view,
-    typefaces,
-    icons,
-    width,
-    height,
-  )) {
-    const balance = balanceOfPlate(one, typefaces, width, height);
+  const paper = scene.style.tokens.palette.paper;
+  for (const { one, centring, tierLabels } of compositions(scene, view, width, height)) {
+    const balance = balanceOfPlate(one, scene.typefaces, width, height, paper);
     const { crossings, routes } = one.layout.measures;
     const rank = [
       crossings,
@@ -222,18 +231,16 @@ const wiresNoWorse = (a, b) => compare(a.rank.slice(0, 2), b.rank.slice(0, 2)) <
 /**
  * A view's summary above its figure: its lines within the house's measure, and the figure at the full width below
  * them when it wires no worse there than at the full body; or null.
- * @param {any} model
+ * @param {Scene} scene
  * @param {import("../../plan/views.mjs").View} view
- * @param {any} typefaces
- * @param {any} icons
  * @param {any} full the best composition at the full width
  */
-function standfirstOf(model, view, typefaces, icons, full) {
-  const lines = typefaces.wrap(view.summary, STANDFIRST.measure, STANDFIRST.style);
+function standfirstOf(scene, view, full) {
+  const lines = scene.typefaces.wrap(view.summary, STANDFIRST.measure, STANDFIRST.style);
   const reserved =
     (lines.length * STANDFIRST.style.line + STANDFIRST.before) * HOUSE.plate.pixelsPerPoint;
   const height = BODY.height - Math.round(reserved);
-  const shorter = height > 0 ? bestWithin(model, view, typefaces, icons, BODY.width, height) : null;
+  const shorter = height > 0 ? bestWithin(scene, view, BODY.width, height) : null;
   return shorter && wiresNoWorse(shorter, full)
     ? { chosen: shorter, share: 1, reading: "above", standfirst: { lines } }
     : null;
@@ -244,21 +251,18 @@ function standfirstOf(model, view, typefaces, icons, full) {
  * fifth of the body, or more at no cost to its type, or else keeps the width and sets its summary above the
  * figure when that costs it no wiring; a view without one gives up only width its figure leaves, and only when one
  * of its components claims files to list.
- * @param {any} model
+ * @param {Scene} scene
  * @param {import("../../plan/views.mjs").View} view
- * @param {any} typefaces
- * @param {any} icons
  * @param {any} full the best composition at the full width
  * @returns {{ chosen: any, share: number, reading: string, standfirst?: { lines: string[] } }}
  */
-function widthOf(model, view, typefaces, icons, full) {
-  const within = (share) =>
-    bestWithin(model, view, typefaces, icons, Math.round(BODY.width * share));
+function widthOf(scene, view, full) {
+  const within = (share) => bestWithin(scene, view, Math.round(BODY.width * share));
   if (view.summary) {
     const wide = within(SHARES[1]);
     if (!wide || !wiresNoWorse(wide, full))
       return (
-        standfirstOf(model, view, typefaces, icons, full) ?? {
+        standfirstOf(scene, view, full) ?? {
           chosen: full,
           share: 1,
           reading: "omitted",
@@ -270,7 +274,7 @@ function widthOf(model, view, typefaces, icons, full) {
       : { chosen: wide, share: SHARES[1], reading: "set" };
   }
   const listed = view.components.some((component) => component.files?.length);
-  const reach = reachOf(full.one, typefaces) / BODY.width;
+  const reach = reachOf(full.one, scene.typefaces) / BODY.width;
   let result = { chosen: full, share: 1, reading: "none" };
   for (const share of SHARES.slice(1)) {
     if (!listed || reach > share) break;
@@ -284,19 +288,22 @@ function widthOf(model, view, typefaces, icons, full) {
 /**
  * Compose every view of a model as one plate each, its figure at the width the plate width rule gives it: the
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
+ * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
  * @param {any} icons
+ * @param {import("../strip.mjs").Style} [style] cards in the house tokens unless given
  */
-export function composePlates(model, views, typefaces, icons) {
+export function composePlates(model, views, typefaces, icons, style = HOUSE_STYLE) {
   const boundaryName = model.repository?.name ?? model.title;
+  const scene = { model, typefaces, icons, style };
   return views.map((view, index) => {
-    const full = bestWithin(model, view, typefaces, icons, BODY.width);
+    const full = bestWithin(scene, view, BODY.width);
     if (!full) unfittable(view);
-    const { chosen, share, reading, standfirst } = widthOf(model, view, typefaces, icons, full);
+    const { chosen, share, reading, standfirst } = widthOf(scene, view, full);
     const { one, centring, tierLabels, balance, width, height } = chosen;
-    const { kinds, rest } = legendOf(model, [view], boundaryName);
+    const { kinds, rest } = legendOf(model, view, boundaryName, style);
     return {
       page: index + 1,
       views: [view.id],
@@ -325,10 +332,7 @@ export function composePlates(model, views, typefaces, icons) {
         width: typefaces.measure(run.value, run.style),
         ...(run.component ? { component: run.component } : {}),
       })),
-      legend: [
-        ...kinds.map(({ kind, label, icon, color }) => ({ kind, label, icon, color })),
-        ...rest,
-      ],
+      legend: [...kinds, ...rest],
       composition: { step: one.step, wrap: one.limit, flat: one.flat, centring, tierLabels },
       measures: {
         crossings: one.layout.measures.crossings,

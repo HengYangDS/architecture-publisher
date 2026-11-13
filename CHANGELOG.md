@@ -9,6 +9,19 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- A model may choose how its print edition draws its parts and in which palette, in an optional `edition` object:
+  `marks` (画法), 条带 `strip` or 卡片 `card`, and `palette` (配色), one of 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`
+  and 铜绿 `patina`, or one of its own. A palette of its own is held to contrast, chroma, lightness and hue rules, its dye steps turning
+  through at most 60° of hue, and refused with `model_palette_rejected` at the colour that fails, with its measure
+  and the bound. The reference gives two traditional palettes that pass them as examples.
+- With `strip` marks, the new default, each part is a strip as long as its code on one scale for the edition, with
+  one segment per file it owns, sized by the file's share of its bytes and dyed by its age band; every strip has one
+  thickness, and no strip is shortened to fit: a view's columns are at least as wide as its longest strip. The
+  largest part is 360 px long, or 240 px in an edition one of whose views cannot hold its strips at 360 px. Every
+  edition uses the same age bands, changed within a week, within three months and earlier, counted
+  back from the pin. Each relation carries one tick per file it cites, up to five; the build checks that a cited file
+  exists, not that it proves the relation. The relations into a view's hub are drawn in the oldest dye, and a strip
+  plate's key shows the age bands with the pin's date, a scale bar and the ticks.
 - `archpub accept` sets a colophon page, `colophon.pdf`, beside the delivery: one page in the edition's size and
   language with a round acceptance mark in cinnabar, the publisher's word for accepted and the date on its rim and the
   reviewer's name across its band, and beside it an acceptance slip naming the reviewer, the time in UTC, the subject,
@@ -26,6 +39,16 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking**: the manifest is version 7. Each cited file records its size and the date of its last change at the
+  pin, and its `style` records the edition's marks, the palette's id or `custom` with its Chinese and English names,
+  its resolved roles, and with strips the age bands' spans, the pin's date and the length its largest part is drawn
+  at. Every default plate changes: a build that reads a checkout draws
+  strips in indigo; one that reads none, or a model that claims no files, draws cards and warns `marks_fallback`,
+  and a model that names `strip` without them is refused with `marks_need_files`. A model that wants cards sets
+  `"edition": {"marks": "card"}`; the plates of 0.12 are not reproduced. On strip plates relation labels are set in
+  the regular weight.
+- An overview composition is set in the edition's palette: `green` is the palette's oldest dye and `ochre` its
+  accent.
 - **Breaking:** the acceptance record is an [in-toto Statement v1] whose subjects are `manifest.json` and
   `colophon.pdf` by SHA-256 and whose predicate, `https://github.com/HengYangDS/architecture-publisher/acceptance/v2`,
   names the reviewer, the optional seal name and note, the time of acceptance, the model and the optional signing key.

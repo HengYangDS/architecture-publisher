@@ -60,24 +60,34 @@ explainer with one panel per view or the guide the model names.
    with a line range at the revision, and keep to four native diagrams. Check it
    with `archpub check model.json --repo <checkout>` until Archify's strict
    writing checks and its repository checks pass.
-8. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
+8. Choose the edition's look only if the user asks: an `edition` object with
+   `marks` (画法), 条带 `strip` (each part a strip as long as its code, its
+   segments the files it owns dyed by age, the default) or 卡片 `card`, and a
+   `palette` (配色), 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`, 铜绿
+   `patina` or the user's own colours, which the check holds to printable
+   contrast, chroma, lightness and hue and refuses with
+   `model_palette_rejected` at the colour that fails. A build without
+   `--repo`, or of a model that claims no files, draws cards and warns
+   `marks_fallback`, and refuses a model that names `strip` with
+   `marks_need_files`.
+9. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
    at the edition's every page, its plates and the overview, and at the page
    before showing them to the user. `--media edition` or `--media page` builds
    one medium while you work on it.
-9. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
-   the name the user gives, adding `--sign <private key>` when the user signs
-   with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
-   the name, `acceptance.json`, the record of who accepted which bytes and when,
-   and for a signed acceptance `acceptance.sig`. Acceptance does not certify
-   that the architecture is correct; do not report it as if it did. A name with
-   a character the house faces do not draw is refused with
-   `acceptance_name_unset`; ask the user for a name they draw for the mark,
-   which `--seal-name <name>` sets. Show the user the
-   colophon page, run `archpub verify <delivery>`, or for a signed acceptance
-   `archpub verify <delivery> --allowed-signers <file>` with the signers the user
-   keeps, then `archpub publish <delivery> --to <root>` to the destination the
-   user chose. A delivery accepted by an earlier release is refused with
-   `acceptance_version_unsupported` until the user accepts it again.
+10. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
+    the name the user gives, adding `--sign <private key>` when the user signs
+    with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
+    the name, `acceptance.json`, the record of who accepted which bytes and when,
+    and for a signed acceptance `acceptance.sig`. Acceptance does not certify
+    that the architecture is correct; do not report it as if it did. A name with
+    a character the house faces do not draw is refused with
+    `acceptance_name_unset`; ask the user for a name they draw for the mark,
+    which `--seal-name <name>` sets. Show the user the
+    colophon page, run `archpub verify <delivery>`, or for a signed acceptance
+    `archpub verify <delivery> --allowed-signers <file>` with the signers the user
+    keeps, then `archpub publish <delivery> --to <root>` to the destination the
+    user chose. A delivery accepted by an earlier release is refused with
+    `acceptance_version_unsupported` until the user accepts it again.
 
 To re-pin a work to a later commit, first run
 `archpub check model.json --repo <checkout> --against <commit>`. Its re-pin
