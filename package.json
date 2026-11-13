@@ -1,6 +1,6 @@
 {
   "name": "architecture-publisher",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Publish a repository's architecture model as a print edition and an interactive page",
   "license": "MIT",
   "repository": {

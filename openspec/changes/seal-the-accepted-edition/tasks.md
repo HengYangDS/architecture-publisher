@@ -14,4 +14,9 @@
 
 ## 4. Verification
 
-- [x] 4.1 Run `npm run check` and the full test suite; done when both pass; its static, coverage and package steps exited 0 with 254 of 256 tests passing and the 2 browser tests skipped.
+- [x] 4.1 Run `npm run check` and the full test suite; done when both pass; after the merge with the house styles and palettes, its static, coverage and package steps exit 0 with all 310 tests passing, the browser tests included.
+
+## 5. Release
+
+- [x] 5.1 Record 0.13.0 in `CHANGELOG.md`, `VERSION`, `package.json` and `package-lock.json` beside the merged house styles and palettes; done when `npm run check` passes with the browser tests run; it does, 310 of 310.
+- [x] 5.2 Build one publications work at the release head, accept it with an SSH signing key and verify it against an allowed-signers file; done when `archpub verify` passes and refuses the delivery after one byte of `acceptance.json` changes; DDWG in Chinese verifies, and a changed digit of its acceptance time is refused with `acceptance_signature_invalid`.
