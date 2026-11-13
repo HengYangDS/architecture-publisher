@@ -94,12 +94,15 @@ async function fingerprintOf(key) {
   return signer;
 }
 
-/** The armoured SSH signature of the acceptance record's exact bytes. */
+/**
+ * The armoured SSH signature of the acceptance record's exact bytes, its lines ending in a line feed on every
+ * platform: ssh-keygen for Windows ends them in carriage returns too, and the armour is the same signature either way.
+ */
 async function signRecord(key, bytes) {
   const signed = await sshKeygen(["-Y", "sign", "-f", key, "-n", NAMESPACE], bytes);
   if (!signed.ok)
     refuse("acceptance_sign_failed", `ssh-keygen cannot sign with ${key}: ${signed.stderr.trim()}`);
-  return signed.stdout;
+  return signed.stdout.replace(/\r\n/gu, "\n");
 }
 
 /** The time of acceptance in UTC to the second: SOURCE_DATE_EPOCH when the caller sets one, as a build reads it. */
