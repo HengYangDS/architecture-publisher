@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { USAGE, runCli } from "../src/cli/run.mjs";
 import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { repository } from "./fixtures/repository.mjs";
+import { SSH_KEYGEN } from "./fixtures/ssh.mjs";
 
 const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
 const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
@@ -210,26 +211,30 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   const allowed = path.join(root, "allowed-signers");
   const unsigned = await json(["verify", out, "--allowed-signers", allowed]);
   assert.deepEqual([unsigned.exitCode, unsigned.body.code], [1, "acceptance_signature_invalid"]);
-  // A signed acceptance of a copy names its signer, and verify checks it against the allowed signers.
-  const signed = path.join(root, "signed");
-  await fs.cp(out, signed, { recursive: true });
-  for (const file of ["acceptance.json", "colophon.pdf"]) await fs.rm(path.join(signed, file));
-  assert.match((await runCli(["accept", "--help"])).output, /acceptance\.sig/u);
-  const key = path.join(root, "key");
-  spawnSync("ssh-keygen", ["-q", "-t", "ed25519", "-N", "", "-f", key], { stdio: "ignore" });
-  await fs.writeFile(allowed, `Reviewer ${await fs.readFile(`${key}.pub`, "utf8")}`);
-  assert.match(
-    (await runCli(["accept", signed, "--reviewer", "Reviewer", "--sign", key])).output,
-    /^Accepted .* for Reviewer, signed by SHA256:\S+ in .*acceptance\.sig; the colophon page is /u,
-  );
-  assert.match(
-    (await runCli(["verify", signed])).output,
-    /, signed by SHA256:\S+, unchecked without --allowed-signers\.\n$/u,
-  );
-  assert.match(
-    (await runCli(["verify", signed, "--allowed-signers", allowed])).output,
-    /, signed by SHA256:\S+ and checked against the allowed signers\.\n$/u,
-  );
+  // A signed acceptance of a copy names its signer, and verify checks it against the allowed signers; a machine
+  // without ssh-keygen cannot sign, so there the step is skipped.
+  await t.test("a signed copy", async (step) => {
+    if (!SSH_KEYGEN) return step.skip("no ssh-keygen on the path");
+    const signed = path.join(root, "signed");
+    await fs.cp(out, signed, { recursive: true });
+    for (const file of ["acceptance.json", "colophon.pdf"]) await fs.rm(path.join(signed, file));
+    assert.match((await runCli(["accept", "--help"])).output, /acceptance\.sig/u);
+    const key = path.join(root, "key");
+    spawnSync("ssh-keygen", ["-q", "-t", "ed25519", "-N", "", "-f", key], { stdio: "ignore" });
+    await fs.writeFile(allowed, `Reviewer ${await fs.readFile(`${key}.pub`, "utf8")}`);
+    assert.match(
+      (await runCli(["accept", signed, "--reviewer", "Reviewer", "--sign", key])).output,
+      /^Accepted .* for Reviewer, signed by SHA256:\S+ in .*acceptance\.sig; the colophon page is /u,
+    );
+    assert.match(
+      (await runCli(["verify", signed])).output,
+      /, signed by SHA256:\S+, unchecked without --allowed-signers\.\n$/u,
+    );
+    assert.match(
+      (await runCli(["verify", signed, "--allowed-signers", allowed])).output,
+      /, signed by SHA256:\S+ and checked against the allowed signers\.\n$/u,
+    );
+  });
   const target = path.join(root, "published");
   const published = await runCli(["publish", out, "--to", target, "--version", "v1"]);
   assert.match(published.output, /^Published .*v1\.\n$/u);

@@ -5,7 +5,6 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { DELIVERY_FORMAT, digestTree } from "./build.mjs";
 import { typesetColophon } from "./edition/colophon.mjs";
-import { childEnvironment } from "./environment.mjs";
 import { refuse } from "./refusal.mjs";
 
 const ACCEPTANCE = "acceptance.json";
@@ -69,17 +68,16 @@ function diff(expected, actual) {
 }
 
 /**
- * Run ssh-keygen with the given standard input, closed after it, and a deadline. The agent's socket is passed with
- * the usual variables, so a key whose private half ssh-agent holds signs without a prompt.
+ * Run ssh-keygen with the given standard input, closed after it, and a deadline. It acts for the reviewer with the
+ * reviewer's own key, agent and OpenSSH setup, so it runs in the caller's whole environment: on Windows it fails
+ * without variables beyond those a publisher's other children need. A run that ends before reading its input is
+ * judged by its exit, not by the broken pipe the unread input leaves.
  * @param {string[]} args
  * @param {string | Buffer} input
  */
 async function sshKeygen(args, input) {
-  const agent = process.env.SSH_AUTH_SOCK;
-  const pending = run("ssh-keygen", args, {
-    env: childEnvironment(agent ? { SSH_AUTH_SOCK: agent } : {}),
-    timeout: 120_000,
-  });
+  const pending = run("ssh-keygen", args, { env: process.env, timeout: 120_000 });
+  pending.child.stdin?.on("error", () => {});
   pending.child.stdin?.end(input);
   return pending.then(
     ({ stdout }) => ({ ok: true, stdout, stderr: "" }),

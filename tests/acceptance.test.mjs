@@ -7,6 +7,7 @@ import test from "node:test";
 import { buildDelivery, digestTree } from "../src/build.mjs";
 import { acceptDelivery, publishDelivery, verifyAcceptance } from "../src/delivery.mjs";
 import { minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
+import { SSH_KEYGEN } from "./fixtures/ssh.mjs";
 
 const STATEMENT = "https://in-toto.io/Statement/v1";
 const PREDICATE = "https://github.com/HengYangDS/architecture-publisher/acceptance/v2";
@@ -196,6 +197,7 @@ test("acceptance writes an in-toto statement and a colophon page beside an uncha
 });
 
 test("a signed acceptance verifies for its reviewer with the allowed signers and is refused for any other", async (t) => {
+  if (!SSH_KEYGEN) return t.skip("no ssh-keygen on the path");
   const root = await workspace(t);
   const out = await editionDelivery(t, root);
   const keys = await temporaryDirectory(t, "archpub-keys-");
