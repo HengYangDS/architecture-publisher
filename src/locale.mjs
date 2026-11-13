@@ -22,7 +22,7 @@ export const DEFAULT_LOCALE = "en";
  *   files: (count: number, size: string) => string, ownsNoFiles: string,
  *   sinceCommit: (days: number) => string, within: (days: number) => string, earlier: string,
  *   committed: (date: string) => string, length: (size: string) => string, ticks: string,
- *   drawsOn: (part: string) => string,
+ *   leadsTo: (part: string) => string,
  * }} Words
  */
 
@@ -54,7 +54,7 @@ const WORDS = Object.freeze({
     committed: (date) => `commit date ${date}`,
     length: (size) => `${size}: a strip's length is the code a part owns`,
     ticks: "one tick per file the relation cites",
-    drawsOn: (part) => `draws on ${part}`,
+    leadsTo: (part) => `dark lines lead to ${part}`,
   }),
   "zh-CN": Object.freeze({
     editors: (names) => `编辑：${names.join("、")}`,
@@ -82,7 +82,7 @@ const WORDS = Object.freeze({
     committed: (date) => `提交日 ${date}`,
     length: (size) => `${size}：条长是组件拥有的代码量`,
     ticks: "每道刻痕：这条关系引用的一个源文件",
-    drawsOn: (part) => `指向${part}`,
+    leadsTo: (part) => `深色连线：通向${part}`,
   }),
   "zh-TW": Object.freeze({
     editors: (names) => `編輯：${names.join("、")}`,
@@ -110,7 +110,7 @@ const WORDS = Object.freeze({
     committed: (date) => `提交日 ${date}`,
     length: (size) => `${size}：條長是元件擁有的程式碼量`,
     ticks: "每道刻痕：這條關係引用的一個原始檔",
-    drawsOn: (part) => `指向${part}`,
+    leadsTo: (part) => `深色連線：通向${part}`,
   }),
   es: Object.freeze({
     editors: (names) => `Edición de ${names.join(", ")}`,
@@ -139,7 +139,7 @@ const WORDS = Object.freeze({
     committed: (date) => `fecha del commit ${date}`,
     length: (size) => `${size}: el largo de una tira es el código que posee un componente`,
     ticks: "una marca por cada archivo que cita la relación",
-    drawsOn: (part) => `recurre a ${part}`,
+    leadsTo: (part) => `las líneas oscuras llevan a ${part}`,
   }),
   ko: Object.freeze({
     editors: (names) => `편집: ${names.join(", ")}`,
@@ -167,7 +167,7 @@ const WORDS = Object.freeze({
     committed: (date) => `커밋 날짜 ${date}`,
     length: (size) => `${size}: 띠의 길이는 구성 요소가 가진 코드의 양`,
     ticks: "눈금 하나: 관계가 인용하는 파일 하나",
-    drawsOn: (part) => `${part}(으)로 향함`,
+    leadsTo: (part) => `짙은 선: ${part}(으)로 향함`,
   }),
 });
 

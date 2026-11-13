@@ -179,6 +179,19 @@ test("a Chinese model's legend words and generated details are Chinese", async (
   assert.deepEqual(overview.relations.at(-1).details, [["关系数", ["2"]]]);
 });
 
+test("a strip key's hub entry names its mark, the dark lines, and where they lead, in every language", () => {
+  const entries = Object.fromEntries(
+    LOCALES.map((locale) => [locale, wordsOf(locale).leadsTo("Supplies")]),
+  );
+  assert.deepEqual(entries, {
+    en: "dark lines lead to Supplies",
+    "zh-CN": "深色连线：通向Supplies",
+    "zh-TW": "深色連線：通向Supplies",
+    es: "las líneas oscuras llevan a Supplies",
+    ko: "짙은 선: Supplies(으)로 향함",
+  });
+});
+
 test("the page and its diagrams speak the model's language", async () => {
   const model = validateModel(
     minimalModel({ locale: "zh-CN", scope: "只含结账", limits: ["不含退款"] }),

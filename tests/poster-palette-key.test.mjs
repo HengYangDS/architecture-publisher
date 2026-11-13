@@ -54,7 +54,14 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
       color: INDIGO.palette.mid,
       label: "one tick per file the relation cites",
     },
-    { shape: "hub", color: INDIGO.dye.old, label: "draws on Supplies" },
+    // A line into the hub as the plate draws one: its weight, the oldest dye and its arrowhead.
+    {
+      shape: "hub",
+      color: INDIGO.dye.old,
+      weight: 1.6,
+      arrow: 8,
+      label: "dark lines lead to Supplies",
+    },
     { shape: "boundary", label: "inside The print edition" },
   ]);
 });
@@ -78,7 +85,7 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
       "提交日 2026-11-10",
       "20 KB：条长是组件拥有的代码量",
       "每道刻痕：这条关系引用的一个源文件",
-      "指向供给",
+      "深色连线：通向供给",
     ],
   );
 });

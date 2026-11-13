@@ -232,7 +232,7 @@
 
 /// A key entry's mark: a kind's icon, drawn as the figure draws it, or the style of the boundary, an outside system or
 /// a status. Marks are artifacts: the label beside each says what it is.
-#let _mark(entry) = pdf.artifact(box(baseline: 2pt, if "artwork" in entry {
+#let _sample(entry) = if "artwork" in entry {
   image(bytes("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='" + entry.color
     + "' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + entry.artwork + "</svg>"),
     format: "svg", width: 13pt)
@@ -256,16 +256,50 @@
     }
   })
 } else if entry.shape == "hub" {
-  line(length: 16pt, stroke: (paint: rgb(entry.color), thickness: 1.6pt))
+  // A relation's line into the hub as the plate draws it: its weight, its dye and its arrowhead.
+  let (weight, arrow) = (entry.weight * _k, entry.arrow * _k)
+  box(width: 16pt + arrow, height: arrow, {
+    place(left + horizon, line(length: 16pt + weight, stroke: (paint: rgb(entry.color), thickness: weight)))
+    place(left + top, dx: 16pt, polygon(fill: rgb(entry.color), (0pt, 0pt), (arrow, arrow / 2), (0pt, arrow)))
+  })
 } else {
   line(length: 16pt, stroke: (paint: rgb(if entry.shape == "retired" { _house.figure.retired } else { _house.palette.mid }),
     thickness: 1pt, dash: if entry.shape == "retired" { "dotted" } else { "dashed" }))
-}))
+}
 
-#let _key(entries) = place(top + left, dx: margin, dy: _e.key * 1pt - 10pt,
-  text(size: sizes.small, fill: soft, entries.map(entry =>
+/// A key entry's mark, centred on the middle of the text beside it, 0.36 em above the baseline: the middle of a
+/// capital of the sans and of a Han character alike, to within a third of a point at the key's size. Its box has no
+/// height, so no mark moves the line it stands in.
+#let _mark(entry) = pdf.artifact(context {
+  let sample = _sample(entry)
+  let size = measure(sample)
+  // The sample keeps its own size in a box of it: an image set in a box of no height would take none.
+  box(width: size.width, height: 0pt, place(left + horizon, dy: -0.36em, box(width: size.width, height: size.height, sample)))
+})
+
+/// A plate's key: one line set by its baseline, which stands at the frame's key line on every plate. A key longer
+/// than the body is wide breaks between two entries onto a second line, the two 16 points apart about the key's
+/// line; an entry is never broken. A key that needs a third line, or holds an entry wider than the body, is
+/// refused, since text is never shrunk.
+#let _key(entries, title) = {
+  let (pitch, body) = (16pt, page-width - 2 * margin)
+  let set-key = text.with(size: sizes.small, fill: soft, top-edge: "baseline", bottom-edge: "baseline")
+  let items = entries.map(entry =>
     // The pin's date stands in words alone: it dates the bands before it.
-    if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(5pt)#entry.label]).join(h(20pt))))
+    box(if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(5pt)#entry.label]))
+  let lines = block(width: body, {
+    set par(justify: false, leading: pitch, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
+    set-key(items.join(h(20pt, weak: true)))
+  })
+  context {
+    // Lines set by their baselines have no height of their own: one line measures nothing, two the pitch.
+    let height = measure(lines).height
+    if height > pitch + 0.5pt or items.any(item => measure(set-key(item)).width > body + 0.5pt) {
+      panic("edition_key_too_long: " + title)
+    }
+    place(top + left, dx: margin, dy: _e.key * 1pt - height / 2, lines)
+  }
+}
 
 /// A plate's reading in the width its figure leaves: the view's summary, justified as prose at any width, then where
 /// each component it shows lives. When that is taller than the body the summary is
@@ -487,7 +521,7 @@
     }
     _head(p.number, p.title, lead: p.question, label-style: (size: "title", font: display, fill: green))
     _plate(p, words)
-    _key(p.marks)
+    _key(p.marks, p.title)
     edition-foot()
   }
 }

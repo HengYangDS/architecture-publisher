@@ -2,7 +2,7 @@ import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf } from "../locale.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
-import { POSTER, colorsOf, fixed, measureWidth } from "./tokens.mjs";
+import { POSTER, colorsOf, figureMetrics, figureStyles, fixed, measureWidth } from "./tokens.mjs";
 
 /**
  * Strip marks: each part is drawn as its label, a strip made of the files
@@ -551,12 +551,15 @@ export function drawTicks(run, draw) {
   draw.rects.push({ x, y: top, width, height: run.style.line, kind: "mass", weight: 0 });
 }
 
+/** The arrowhead of the key's sample line: the one a plate draws at every type step but its largest. */
+const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
+
 /**
  * The key of a strip plate, only for what it shows, each mark a sample drawn
  * as the plate draws it: the age bands its strips hold, each named by its days
  * before the commit, and the date of the commit they are counted back from; a
  * strip of a round size on the edition's scale, when a part owns files; ticks,
- * when a relation cites files; and the hub the view draws on.
+ * when a relation cites files; and a line into the hub the view's relations lead to, with its arrowhead.
  * @param {any} model
  * @param {{ components: any[], relations: any[] }} view
  * @param {Style} style
@@ -612,7 +615,13 @@ export function stripKey(model, view, style) {
   const hub = hubOf(view);
   if (hub) {
     const { label } = view.components.find(({ id }) => id === hub);
-    key.push({ shape: "hub", color: C.dye[2], label: words.drawsOn(label) });
+    key.push({
+      shape: "hub",
+      color: C.dye[2],
+      weight: POSTER.wire.stroke,
+      arrow: KEY_ARROW,
+      label: words.leadsTo(label),
+    });
   }
   return key;
 }
