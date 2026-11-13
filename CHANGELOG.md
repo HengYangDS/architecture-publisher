@@ -7,6 +7,31 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- In an edition whose language is written without spaces between words, Chinese in either script, a part's details are
+  set as a justified paragraph is, on strip and card plates: they break wherever the script allows, inside a list's
+  item as between two, a last line takes the unit before it rather than hold one character alone, and each line except
+  a detail's last is spread to the measure the details wrap to, so a part's details share one right edge as the
+  edition's readings do. A line whose slack is more than a tenth of an em for each place it opens, such as one broken
+  before a long word, stays flush left. Details in English, Spanish and Korean editions stay flush left with their
+  items whole.
+- In such an edition a part's details are filled by the width Typst sets their lines in. A line of Han and letters
+  was measured in the CJK face alone, which is wider, and broke about a character early; it now holds what its
+  measure takes. A strip part's counts end at its box's edge for the same reason.
+- The engine measures Source Sans 3 and Source Serif 4 with their own pair kerning, as Typst sets them, so most runs
+  of letters measure a little narrower, in every language. A part's box may move by a step of the grid, and a plate
+  that only just could not take a larger type step, or set a tier on one row, may now do so.
+- The README's plate is built by 0.13.1, which justifies a plate's reading; it showed a 0.11.0 plate.
+- The install guide says that mise holds a release back for its first day and how to take the newest at once, and
+  names the Homebrew formula and the npm package.
+
+### Fixed
+
+- An edition whose figure text holds letters Typst kerns apart, as `format: (json)` or `package.json`, is no longer
+  refused with `edition_text_wider`. The font reader does not read the lookups where the house faces keep their
+  kerning, so the engine measured such a run narrower than Typst set it.
+
 ## [0.13.1] - 2026-11-13
 
 ### Security

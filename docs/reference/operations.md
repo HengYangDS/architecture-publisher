@@ -110,13 +110,12 @@ archpub --help | --version [--json]
 Exit status 0 means success, 1 a refused input, 2 a usage error and 3 an
 internal error, any other failure, such as a file the command cannot read or
 write. With `--json`, the command prints one JSON object: `{ "ok": true, ... }`
-with the result, `{ "ok": false, "code", "message", "problems" }` for a
-refusal, where each problem has a `code`, a JSON `path` into the model and a
-`message`, `{ "ok": false, "code": "usage", "message" }` for a usage error, or
-`{ "ok": false, "code": "internal_error", "message" }`. Without `--json`,
-the same result is one line of text, which `check` follows with a line for each
-report that has something to say, and a refusal lists each problem on its own
-line.
+with the result, `{ "ok": false, "code", "message", "problems" }` for a refusal,
+where each problem has a `code`, a JSON `path` into the model and a `message`,
+`{ "ok": false, "code": "usage", "message" }` for a usage error, or `{ "ok":
+false, "code": "internal_error", "message" }`. Without `--json`, the same result
+is one line of text, which `check` follows with a line for each report that has
+something to say, and a refusal lists each problem on its own line.
 
 ## Layout and media
 
@@ -204,8 +203,8 @@ figure would wire worse at that height too, it keeps the whole body and the
 manifest records its reading as left out. A summary above the figure carries
 neither the heading for where each part lives nor the paths. The engine
 measures the summary as Typst sets it, with a quarter em between Han and the
-letters and digits beside it and some full-width marks at half their width,
-but without the faces' kerning; should Typst need more lines than the engine
+letters and digits beside it, some full-width marks at half their width and
+the faces' own pair kerning; should Typst need more lines than the engine
 reserved, the plate sets the engine's lines flush left. A view without a summary gives up only width its
 figure leaves at the full width, at its own step, and only when one of its
 components claims files. Beside the figure, 40 points from it, the plate sets
@@ -240,19 +239,21 @@ from 112 to 826 points, the key at 848 and a foot of a rule and the work's
 title, release, revision and date, which links back to the contents. Prose is
 justified and hyphenated within a measure of 32 ems, in Source Serif 4 for
 titles and Source Sans 3 for text, with Noto Sans CJK SC for Han. Each plate's
-runs are set where the engine measured them; a run Typst sets wider, or a line
-of a summary above its figure that Typst sets wider than 32 ems, is refused
-with `edition_text_wider`, and a title longer than its line with
-`edition_title_too_long`. When the model declares `repository.browse`, each card
-title links to its component's first file at the pinned revision. Each plate is
-one figure with alt text of its title and question, its shapes and key are
-artifacts, and the model is attached as `model.json` with the relationship
-`source`, so the PDF conforms to PDF/A-3a and PDF/UA-1. Its title, authors,
-subject, keywords and language come from the model; it is dated by the
-revision's commit with `--repo`, otherwise by `SOURCE_DATE_EPOCH` when set, and
-otherwise by the time it is typeset, which the manifest records. Typst also
-renders the overview's page and each plate's page as PNG at each `--png` width,
-at width × 72 / 1600 pixels per inch.
+runs are set where the engine measured them, with the faces' kerning; in a
+Chinese edition a part's details wrap as a paragraph, a last line of one
+character taking the unit before it, and each line but a detail's last is spread
+to their measure unless its slack is over a tenth of an em for each place it
+opens. A run Typst sets wider, or a summary line above its figure wider than 32
+ems, is refused with `edition_text_wider`, a title longer than its line with
+`edition_title_too_long`. With `repository.browse`, a card's title links to its
+component's first file at the pinned revision. Each plate is a figure with alt
+text of its title and question, its shapes and key artifacts; the model is
+attached as `model.json` with the relationship `source`, so the PDF conforms to
+PDF/A-3a and PDF/UA-1. Its title, authors, subject, keywords and language come
+from the model; it is dated by the revision's commit with `--repo`, otherwise by
+`SOURCE_DATE_EPOCH` when set, and otherwise by the time it is typeset, which the
+manifest records. Typst also renders the overview's page and each plate's page
+as PNG at each `--png` width, at width × 72 / 1600 pixels per inch.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
 Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
@@ -349,14 +350,13 @@ and the same inputs give the same bytes.
 
 ## The guide
 
-When the model names a [guide](model.md#guide), the page is the guide. The
-build reads the draft and the files its `@diagram source=`, `@chart data=` and
-`@image path=` arguments name, each a regular file in the draft's own directory,
-and refuses a link, another path or a missing file. A draft whose `@meta` names
-a `repo_url` or `repo_revision` other than the model's repository URL and
-revision is refused. Archify validates and delivers the draft at the build's
-quality, with its writing checks strict at `showcase` and warnings at
-`standard`.
+When the model names a [guide](model.md#guide), the page is the guide. The build
+reads the draft and the files its `@diagram source=`, `@chart data=` and `@image
+path=` arguments name, each a regular file in the draft's own directory, and
+refuses a link, another path or a missing file. A draft whose `@meta` names a
+`repo_url` or `repo_revision` other than the model's repository URL and revision
+is refused. Archify validates and delivers the draft at the build's quality,
+with its writing checks strict at `showcase` and warnings at `standard`.
 
 With `--repo` and a model that names its repository URL and revision, the build
 hands Archify a temporary clone of the checkout that shares its objects, with

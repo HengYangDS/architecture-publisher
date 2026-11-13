@@ -24,17 +24,39 @@ mise use -g github:HengYangDS/architecture-publisher
 ```
 
 Each release has an archive for Linux and Windows on ARM64 and x86-64 and for
-macOS on ARM64. To pin a version by its checksums in a project instead, copy the
-release's `architecture-publisher-<version>.mise.toml` into the project's mise
+macOS on ARM64. By default mise does not offer a release in its first 24 hours,
+so on the day of a release this line installs the one before it. Name the
+version to take it at once:
+
+```sh
+mise use -g github:HengYangDS/architecture-publisher@<version>
+```
+
+That keeps the version you named. To follow the newest release without the wait
+instead, exempt this tool from it once and run the first line again:
+
+```sh
+mise settings add minimum_release_age_excludes github:HengYangDS/architecture-publisher
+```
+
+To pin a version by its checksums in a project instead, copy the release's
+`architecture-publisher-<version>.mise.toml` into the project's mise
 configuration, as the [operations reference](reference/operations.md#installation)
 shows.
 
-Without mise, download `archpub-<version>-<platform>.tar.gz` from the
+With [Homebrew](https://brew.sh) on macOS on ARM64 or on Linux, a formula
+installs the same archive:
+
+```sh
+brew install HengYangDS/tap/archpub
+```
+
+Without either, download `archpub-<version>-<platform>.tar.gz` from the
 [releases](https://github.com/HengYangDS/architecture-publisher/releases),
 unpack it anywhere and put its `archpub/bin` on your path. Where Node.js 22.13
-or later is already present, the release's `architecture-publisher-<version>.tgz`
-installs the same command with `npm install --global --ignore-scripts`; it needs
-Typst 0.15.1 on the path to build the print edition.
+or later is already present, `npm install --global --ignore-scripts architecture-publisher`
+installs the same command as an npm package; it needs Typst 0.15.1 on the path
+to build the print edition.
 
 `archpub --version` prints the installed version, and `archpub <command> --help`
 explains each command.
