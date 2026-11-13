@@ -15,7 +15,8 @@ configuration; architecture-publications declares the 0.2.0-beta.9 release decla
 **Non-Goals:**
 
 - Retiring repository gates that ETHOS composes, and the common CI template; each follows in its
-  own Change after a proof preview.
+  own Change after a proof preview. Until then the pipelines stay the repository's own, generated
+  from `.config/ci/pipeline.cue`, and `ethos lane project --check` reports no projection declared.
 - Moving the CI's Mise version.
 
 ## Decisions

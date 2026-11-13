@@ -7,6 +7,18 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-11-13
+
+### Security
+
+- Development, CI and the release archives run Node.js 26.13.1, a security release of the Node.js 26 line. The
+  archives carry the Node.js runtime the lock pins, so this release is how readers of the archives receive it.
+
+### Changed
+
+- The repository runs ETHOS 0.2.0-beta.9 through its published release declaration, locked like every other tool,
+  with 0.2.0-beta.6 kept as the rollback. The publisher's behaviour, model format and manifest do not change.
+
 ## [0.13.0] - 2026-11-13
 
 ### Added
@@ -944,6 +956,7 @@ remain pre-release contracts and may contain incompatible changes.
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
+[0.13.1]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.1
 [0.13.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.0
 [0.12.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.12.0
 [0.11.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.11.0
