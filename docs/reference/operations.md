@@ -10,9 +10,8 @@ relations:
 
 `archpub` turns one [Architecture Model](model.md) into a delivery: a print
 edition with one plate per view and one interactive page that answers its
-question view by view. This
-page lists the commands, what the build does, the delivery it writes and every
-refusal.
+question view by view. This page lists the commands, what the build does, the
+delivery it writes and every refusal.
 
 ## Installation
 
@@ -162,32 +161,31 @@ Each row wrapping is also laid out with channels that take more label rows so
 that no wire turns in a band beside another card than its own; a plate takes
 that taller figure when the body holds it and it has no more route defects.
 
-Each view is one plate: a figure laid out for the edition's body, 2256 × 1071
-px at two thirds of a point each, with no text below 14 px. Cards are as large
-as their text and never stretch; a sparse view is instead set at a larger type
+Each view is one plate: a figure laid out for the edition's body, 2256 × 1071 px
+at two thirds of a point each, with no text below 14 px. Cards are as large as
+their text and never stretch; a sparse view is instead set at a larger type
 step, up to 32 px labels and 24 px details. A plate tries every type step and
 row wrapping, with its rows centred over all its cards, over the cards inside
 the boundary, and uncentred, and with its numbered tier labels in one column
 before the figure or each before the edge its tier starts at. It takes the
-fewest crossings, then the fewest route defects, then the largest step, then
-the widest wrapping, then the least of the body left blank, and the manifest
-records its composition. A tier wrapped into several rows has its label level
-with its first row, beside a bracket that spans them all. Each plate is
-measured against four balance gates over the body: its largest blank rectangle
-covers at most 12 percent of it, no blank band 96 px or taller runs across it,
-at most 40 percent of it lies in empty squares of 240 px or more, and its
-centre of mass lies within 12 percent of the centre across and down. The gates
-a plate misses are recorded with their values and limits, not refused; a view
-no composition lays out is refused with `plate_unfittable`. Figure text is
-measured in Source Sans 3, its semibold for heavy text, and Noto Sans CJK SC
-for the characters the first lacks; lines break at spaces but not at no-break
-spaces, and between Han and Kana characters, keeping closing punctuation on the
-line before. A plate draws its parts with the edition's
-[marks](model.md#marks-and-palette), in its palette: a card draws its kind's
-Lucide icon, and a part drawn as a strip has a box as wide as the larger of its
-text and its strip, so placement and every gate run on boxes with either marks.
-A plate is drawn as the SVG of its shapes and a list of text runs, which the
-edition sets as text.
+fewest crossings, then the fewest route defects, then the largest step, then the
+widest wrapping, then the least of the body left blank, and the manifest records
+its composition. A tier wrapped into several rows has its label level with its
+first row, beside a bracket that spans them all. Each plate is measured against
+four balance gates over the body: its largest blank rectangle covers at most 12
+percent of it, no blank band 96 px or taller runs across it, at most 40 percent
+of it lies in empty squares of 240 px or more, and its centre of mass lies
+within 12 percent of the centre across and down. The gates a plate misses are
+recorded with their values and limits, not refused; a view no composition lays
+out is refused with `plate_unfittable`. Figure text is measured in Source Sans
+3, its semibold for heavy text, and Noto Sans CJK SC for the characters the
+first lacks; lines break at spaces but not at no-break spaces, and between Han
+and Kana characters, keeping closing punctuation on the line before. A plate
+draws its parts with the edition's [marks](model.md#marks-and-palette), in its
+palette: a card draws its kind's Lucide icon, and a part drawn as a strip has a
+box as wide as the larger of its text and its strip, so placement and every gate
+run on boxes with either marks. A plate is drawn as the SVG of its shapes and a
+list of text runs, which the edition sets as text.
 
 A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with
@@ -232,17 +230,20 @@ The print edition is typeset by Typst 0.15.1 with the house class into
   beside the view's reading when it leaves part of the body or below it when it
   keeps the full width, with a key of what its figure shows: with cards, the
   kinds, the boundary and the statuses; with strips, the age bands and the
-  pin's date, a scale bar, the citation ticks, the hub, the boundary and the
-  statuses.
+  pin's date, a scale bar, the citation ticks, a line into the hub, the
+  boundary and the statuses.
 
 Every page after the title page shares one frame: a head at the margin, a body
-from 112 to 826 points, the key at 848 and a foot of a rule and the work's
-title, release, revision and date, which links back to the contents. Prose is
-justified and hyphenated within a measure of 32 ems, in Source Serif 4 for
-titles and Source Sans 3 for text, with Noto Sans CJK SC for Han. Each plate's
-runs are set where the engine measured them; a run Typst sets wider, or a line
-of a summary above its figure that Typst sets wider than 32 ems, is refused
-with `edition_text_wider`, and a title longer than its line with
+from 112 to 826 points, the key and a foot of a rule and the work's title,
+release, revision and date, which links back to the contents. The key's baseline
+is at 850 points on every plate, each mark centred on its label's middle; a key
+wider than the body takes a second line, the two about 850 points, and one that
+two lines do not hold is refused with `edition_key_too_long`. Prose is justified
+and hyphenated within a measure of 32 ems, in Source Serif 4 for titles and
+Source Sans 3 for text, with Noto Sans CJK SC for Han. Each plate's runs are set
+where the engine measured them; a run Typst sets wider, or a line of a summary
+above its figure that Typst sets wider than 32 ems, is refused with
+`edition_text_wider`, and a title longer than its line with
 `edition_title_too_long`. When the model declares `repository.browse`, each card
 title links to its component's first file at the pinned revision. Each plate is
 one figure with alt text of its title and question, its shapes and key are
@@ -391,31 +392,30 @@ guidance keeps a page to four native diagrams.
 
 Nothing else is written at the top of the delivery.
 
-The manifest records its format and version 7, the publisher's name and
-version, the model id, title, language, digest and size, the declared
-repository, the build's quality and media, in `style` the edition's marks, its
-palette's id (`custom` for the model's own) with its Chinese and English
-names and its resolved ground, ink, dye steps and accent, and with strips the
-age bands' spans in seconds, the pin's date and the length in px its largest
-part is drawn at, every cited file with its
-state, digest, size in bytes, the UTC date of its last change at the pin, owner
-and the relations that cite it, the digest of each bundled supply, each view
-with its tiers, members and plate number, the edition's file,
-page count, Typst version, house class digest, release, date and what dated it,
-each plate with its number, views, share of the body, reading, images,
-composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft path and digest, each file it names,
-its writing level and whether its sources were verified, each
-view diagram's width, height, rows, sides, re-sided connections, pinned labels, whether its
-preview stands beside its steps, candidate count and Archify route measures,
-the files the page withholds, with the overview its composition's path and
-digest, the house class's digest, the Typst version, the revision's date and
-the number of texts, the details,
-status and files of every component and relation, and the path, size and
-SHA-256 of every artifact. It contains no host path or user name, and the
-edition's date is the revision's commit or `SOURCE_DATE_EPOCH`, so building the
-same model with the same version on one platform reproduces every byte; without
-either, the edition is dated when it is typeset and differs from build to
-build.
+The manifest records its format and version 7, the publisher's name and version,
+the model id, title, language, digest and size, the declared repository, the
+build's quality and media, in `style` the edition's marks, its palette's id
+(`custom` for the model's own) with its Chinese and English names and its
+resolved ground, ink, dye steps and accent, and with strips the age bands' spans
+in seconds, the pin's date and the length in px its largest part is drawn at,
+every cited file with its state, digest, size in bytes, the UTC date of its last
+change at the pin, owner and the relations that cite it, the digest of each
+bundled supply, each view with its tiers, members and plate number, the
+edition's file, page count, Typst version, house class digest, release, date and
+what dated it, each plate with its number, views, share of the body, reading,
+images, composition, measures and the gates it misses, the page's file, quality
+profile and gates, a guide's draft path and digest, each file it names, its
+writing level and whether its sources were verified, each view diagram's width,
+height, rows, sides, re-sided connections, pinned labels, whether its preview
+stands beside its steps, candidate count and Archify route measures, the files
+the page withholds, with the overview its composition's path and digest, the
+house class's digest, the Typst version, the revision's date and the number of
+texts, the details, status and files of every component and relation, and the
+path, size and SHA-256 of every artifact. It contains no host path or user name,
+and the edition's date is the revision's commit or `SOURCE_DATE_EPOCH`, so
+building the same model with the same version on one platform reproduces every
+byte; without either, the edition is dated when it is typeset and differs from
+build to build.
 
 ## Acceptance and publication
 
@@ -506,7 +506,7 @@ or Archify reported.
 | `plate_unfittable`                                                                      | A view cannot be laid out in the edition's body at any type step or row wrapping.                                                                                 |
 | `edition_typst_missing`, `edition_typst_version`                                        | The print edition needs Typst 0.15.1 on the path; checked before anything is written.                                                                             |
 | `edition_text_wider`, `edition_title_too_long`                                          | Typst sets a plate's text wider than the engine measured it, a line of a summary above its figure wider than 32 ems, or a plate's title longer than its line.     |
-| `edition_reading_too_long`                                                              | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure.                                                       |
+| `edition_reading_too_long`, `edition_key_too_long`                                      | A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure. A plate's key does not fit two lines of the body.     |
 | `edition_typst_warning`, `edition_typst_error`                                          | Typst warned or failed while setting the edition.                                                                                                                 |
 | `marks_need_files`                                                                      | The model asks for `strip` marks, but the build reads no checkout or the model claims no files.                                                                   |
 | `source_history_unavailable`                                                            | The checkout is shallow, or a cited file has no change in its history, so its age cannot be read.                                                                 |

@@ -7,6 +7,21 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- A plate's key is set by its baseline, at 850 points on every plate, and each of its marks is centred on the middle
+  of the label beside it. Marks stood on an edge 2 points below the baseline, so a band sat 2 points under its
+  label's middle and the hub's line 6, like an underline; and the key's tallest mark decided where its text stood,
+  846 points on a strip plate and 849 on a card plate.
+- A strip plate's key shows the hub by a line of the plate's own weight that ends in its arrowhead, and names the
+  mark: `dark lines lead to Supplies`, where it read `draws on Supplies` beside a bare stroke.
+
+### Fixed
+
+- A plate's key longer than the body is wide ran past the margin and off the page. It now breaks between two entries
+  onto a second line, the two set about the key's line, and a key that needs a third line, or holds an entry wider
+  than the body, is refused with `edition_key_too_long`.
+
 ## [0.13.1] - 2026-11-13
 
 ### Security
