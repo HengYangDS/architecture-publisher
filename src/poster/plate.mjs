@@ -2,7 +2,8 @@ import { layoutView, placementOf } from "../layout/grid.mjs";
 import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
 import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
-import { detailText, wordsOf } from "../locale.mjs";
+import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
+import { spreadOf } from "./spread.mjs";
 import { stripBoxes } from "./strip.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
@@ -125,26 +126,29 @@ function cardWidthOf(words, component, typefaces, styles, card) {
  * as tall as their label and details within their padding, and broken where
  * an atom of their text is wider than its line.
  */
-function cardBoxes(words, typefaces, styles, card) {
-  const text = (component, width) => ({
-    name: typefaces.wrap(
-      component.label,
-      Math.min(
-        width - 2 * card.pad - card.icon - card.iconGap,
-        measureWidth(typefaces, styles.name),
+function cardBoxes(words, typefaces, styles, card, unspaced) {
+  // Details to be spread are wrapped as paragraphs, by the width Typst sets their lines in.
+  const detailWidth = unspaced ? typefaces.typesetWidth : typefaces.measure;
+  const detailLines = unspaced ? typefaces.detailParagraph : typefaces.detailLines;
+  const text = (component, width) => {
+    // Every detail wraps to one measure, which its spread lines end at.
+    const measure = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
+    const details = component.details.map(([key, values]) =>
+      detailLines(words, key, values, measure, styles.detail),
+    );
+    return {
+      name: typefaces.wrap(
+        component.label,
+        Math.min(
+          width - 2 * card.pad - card.icon - card.iconGap,
+          measureWidth(typefaces, styles.name),
+        ),
+        styles.name,
       ),
-      styles.name,
-    ),
-    details: component.details.flatMap(([key, values]) =>
-      typefaces.detailLines(
-        words,
-        key,
-        values,
-        Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail)),
-        styles.detail,
-      ),
-    ),
-  });
+      details: details.flat(),
+      spread: spreadOf(details, measure, styles.detail, detailWidth, unspaced),
+    };
+  };
   return {
     width: (component) => cardWidthOf(words, component, typefaces, styles, card),
     height: (component, width) => {
@@ -156,7 +160,8 @@ function cardBoxes(words, typefaces, styles, card) {
       );
     },
     text,
-    broken: (component, width) => cardBroken(words, typefaces, styles, card, component, width),
+    broken: (component, width) =>
+      cardBroken(words, { typefaces, detailWidth }, styles, card, component, width),
   };
 }
 
@@ -172,7 +177,7 @@ function candidateMetrics(input) {
   const boxes =
     style.name === "strip"
       ? stripBoxes({ model, typefaces, styles, card, style })
-      : cardBoxes(words, typefaces, styles, card);
+      : cardBoxes(words, typefaces, styles, card, writtenUnspaced(model.locale));
   return {
     // The field already excludes the tier-label column, so it is the content width.
     contentWidth: () => field.width,
@@ -379,7 +384,7 @@ function brokenText(input, layout) {
  * on at that card's width, or null when every one fits.
  * @returns {{ reason: string, id: string, width: number, room: number } | null}
  */
-function cardBroken(words, typefaces, styles, card, component, width) {
+function cardBroken(words, { typefaces, detailWidth }, styles, card, component, width) {
   const units = (text) => atoms(text).map(({ text: unit }) => unit);
   const nameRoom = Math.min(
     width - 2 * card.pad - card.icon - card.iconGap,
@@ -398,7 +403,7 @@ function cardBroken(words, typefaces, styles, card, component, width) {
   }
   for (const [key, values] of component.details)
     for (const word of units(detailText(words, key, values))) {
-      const measured = typefaces.measure(word, styles.detail);
+      const measured = detailWidth(word, styles.detail);
       if (measured > detailRoom)
         return {
           reason: "detail_broken",

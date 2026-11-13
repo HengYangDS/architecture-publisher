@@ -11,7 +11,7 @@ import { countIn, readPdf } from "./fixtures/pdf.mjs";
 import { inkLines, readPng } from "./fixtures/png.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
-const { name } = figureStyles(POSTER.steps[0]);
+const { name, detail } = figureStyles(POSTER.steps[0]);
 const SHAPES =
   '<svg xmlns="http://www.w3.org/2000/svg" width="2256" height="1071" viewBox="0 0 2256 1071">' +
   '<rect x="20" y="20" width="300" height="80" rx="8" fill="#fbfaf6" stroke="#d6d1c4"/></svg>';
@@ -322,4 +322,59 @@ test("a summary above its figure is justified within the house measure in no mor
     ])
   ).png;
   assert.ok(fallback.bytes.equals(plain.bytes));
+});
+
+test("a run that holds pairs Typst kerns apart is set within the width the engine measured", async () => {
+  // An opening bracket before a j, and a period before one, are kerned apart; a run of them was refused as wider.
+  const text = "format: (json), package.json";
+  const run = {
+    ...plate(1).runs[0],
+    text,
+    size: detail.size,
+    weight: detail.weight,
+    width: typefaces.measure(text, detail),
+  };
+  const typeset = await edition([plate(1, { runs: [run] })]);
+  assert.ok(typeset.png.length >= 1);
+});
+
+test("a run that names a measure is spread to it, one already as wide is set as it is, and one wider is refused", async () => {
+  const chinese = validateModel(minimalModel({ locale: "zh-CN", editors: [{ name: "衡阳" }] }));
+  const line = "编排：每个视图排成图册正文区的一幅图版";
+  const natural = typefaces.measure(line, detail);
+  const run = (baseline, extra) => ({
+    text: line,
+    x: 40,
+    baseline,
+    size: detail.size,
+    weight: detail.weight,
+    color: "#29372f",
+    width: natural,
+    ...extra,
+  });
+  // Three lines of one text: flush left, spread to a measure a twelfth wider, and with a measure it already fills,
+  // to within the half point the class allows any run.
+  const measure = Math.round(natural * 1.08);
+  const runs = [run(200), run(240, { measure }), run(280, { measure: natural - 0.5 })];
+  const blank =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="2256" height="1071" viewBox="0 0 2256 1071"></svg>';
+  const [page] = (await edition([plate(1, { svg: blank, runs })], {}, chinese)).png;
+  // A plate pixel is a page pixel at 2400 px; the figure stands at the body's left and top.
+  const left = 48 * PX + 40;
+  const lines = inkLines(readPng(page.bytes), {
+    left: left - 4,
+    right: left + measure + 60,
+    top: BODY.top * PX + 200 - 2 * detail.size,
+    bottom: BODY.top * PX + 280 + detail.size,
+  });
+  assert.equal(lines.length, 3, `the three runs set ${lines.length} lines`);
+  const [flush, spread, full] = lines.map(({ right }) => right - left);
+  assert.ok(Math.abs(flush - natural) <= 3, `flush left ends at ${flush} of ${natural}`);
+  assert.ok(Math.abs(spread - measure) <= 3, `spread ends at ${spread} of ${measure}`);
+  assert.ok(Math.abs(full - natural) <= 3, `a full line ends at ${full} of ${natural}`);
+  // A line Typst sets wider than its measure by more than that is refused, as a run wider than its width is.
+  await assert.rejects(
+    edition([plate(1, { svg: blank, runs: [run(200, { measure: natural - 8 })] })], {}, chinese),
+    (error) => error.code === "edition_text_wider",
+  );
 });

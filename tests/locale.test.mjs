@@ -12,6 +12,7 @@ import {
   sentence,
   sentences,
   wordsOf,
+  writtenUnspaced,
 } from "../src/locale.mjs";
 import { editionWordsOf } from "../src/edition/words.mjs";
 import { diagramCandidates } from "../src/map/archify.mjs";
@@ -204,4 +205,13 @@ test("an import sets the words it supplies in the language it is asked for", asy
   assert.ok(model.relations.some(({ label }) => label === "使用"));
   // The import names no author: a model's attribution is its author's to give.
   assert.equal("attribution" in model, false);
+});
+
+test("Chinese is written without spaces between words; the other languages separate their words", () => {
+  assert.deepEqual(
+    LOCALES.filter((locale) => writtenUnspaced(locale)),
+    ["zh-CN", "zh-TW"],
+  );
+  // A model that names no language is read in English.
+  assert.equal(writtenUnspaced(null), false);
 });

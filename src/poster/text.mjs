@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { SPACE, atoms } from "../breaks.mjs";
-import { detailPieces } from "../locale.mjs";
+import { SPACE, atoms, joined, orphan } from "../breaks.mjs";
+import { detailPieces, detailText } from "../locale.mjs";
+import { kerningOf } from "./kerning.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -17,7 +18,8 @@ let loaded;
 /**
  * Load the faces text is measured in, once: the house's Source Sans 3, which the edition sets figure text in, and
  * Source Serif 4, which it sets a view's summary in, each followed by Noto Sans CJK SC for Han. Heavy text takes
- * Source Sans 3's semibold and the CJK face's bold.
+ * Source Sans 3's semibold and the CJK face's bold. The house faces are measured with their own pair kerning, as
+ * Typst sets them.
  */
 export async function loadTypefaces() {
   if (loaded) return loaded;
@@ -27,15 +29,18 @@ export async function loadTypefaces() {
     verifySupply("opentype"),
   ]);
   const opentype = await import(pathToFileURL(path.join(reader.root, "opentype.mjs")).href);
+  /** @type {Map<any, (left: number, right: number) => number>} */
+  const kerning = new Map();
   /** @param {any} supply @param {string} family @param {number} weight */
   const face = async (supply, family, weight) => {
     const file = supply.manifest.files.find(
       (entry) => entry.family === family && entry.weight === weight && entry.style !== "italic",
     );
     const bytes = await fs.readFile(path.join(supply.root, file.path));
-    return opentype.parse(
-      bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
-    );
+    const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    const parsed = opentype.parse(buffer);
+    if (supply === house) kerning.set(parsed, kerningOf(buffer));
+    return parsed;
   };
   const han = await face(fonts, "Noto Sans CJK SC", 400);
   /** @type {Array<[number | "serif", any[]]>} */
@@ -48,7 +53,7 @@ export async function loadTypefaces() {
     ["serif", [await face(house, "Source Serif 4", 400), han]],
   ];
   const chains = new Map(entries);
-  loaded = createTypefaces(chains);
+  loaded = createTypefaces(chains, kerning);
   return loaded;
 }
 
@@ -96,8 +101,11 @@ function halvedMarks(text) {
   return count;
 }
 
-/** @param {Map<number | "serif", any[]>} chains each weight's faces, and the summary's, in fallback order */
-function createTypefaces(chains) {
+/**
+ * @param {Map<number | "serif", any[]>} chains each weight's faces, and the summary's, in fallback order
+ * @param {Map<any, (left: number, right: number) => number>} kerning the pair kerning of each house face
+ */
+function createTypefaces(chains, kerning) {
   const weightOf = (style) => (style.face === "serif" ? "serif" : style.weight >= 600 ? 700 : 400);
   // A space between words draws nothing in any face; a no-break space is
   // drawn only by a face with a glyph of its own for it.
@@ -109,35 +117,35 @@ function createTypefaces(chains) {
    * The runs a text is set in at one weight, each with its face. A text one
    * face draws whole is set in the first such face; otherwise each word is, and
    * a word no face draws whole is set character by character in the first face
-   * that draws each one. The summary's face falls back character by character,
-   * as Typst does. Adjacent runs in one face are joined.
+   * that draws each one. The summary's face, and any line asked for as it is
+   * typeset, falls back character by character, as Typst does. Adjacent runs
+   * in one face are joined.
    */
   const runsKnown = new Map();
   /** @returns {Array<{ text: string, face: any }>} */
-  const runsOf = (text, style) => {
-    const key = `${weightOf(style)}\u0000${text}`;
+  const runsOf = (text, style, typeset = style.face === "serif") => {
+    const key = `${typeset}\u0000${weightOf(style)}\u0000${text}`;
     let runs = runsKnown.get(key);
     if (runs) return runs;
     const chain = /** @type {any[]} */ (chains.get(weightOf(style)));
     const whole = chain.find((face) => drawsAll(face, text));
     runs = [];
-    const pieces =
-      style.face === "serif"
-        ? Array.from(text, (character) => ({
-            text: character,
-            face: chain.find((each) => draws(each, character)) ?? chain[0],
-          }))
-        : whole
-          ? [{ text, face: whole }]
-          : (text.match(/\S+\s*|\s+/gu) ?? []).flatMap((word) => {
-              const face = chain.find((each) => drawsAll(each, word));
-              return face
-                ? [{ text: word, face }]
-                : Array.from(word, (character) => ({
-                    text: character,
-                    face: chain.find((each) => draws(each, character)) ?? chain[0],
-                  }));
-            });
+    const pieces = typeset
+      ? Array.from(text, (character) => ({
+          text: character,
+          face: chain.find((each) => draws(each, character)) ?? chain[0],
+        }))
+      : whole
+        ? [{ text, face: whole }]
+        : (text.match(/\S+\s*|\s+/gu) ?? []).flatMap((word) => {
+            const face = chain.find((each) => drawsAll(each, word));
+            return face
+              ? [{ text: word, face }]
+              : Array.from(word, (character) => ({
+                  text: character,
+                  face: chain.find((each) => draws(each, character)) ?? chain[0],
+                }));
+          });
     for (const piece of pieces) {
       const last = runs.at(-1);
       if (last && last.face === piece.face) last.text += piece.text;
@@ -151,18 +159,28 @@ function createTypefaces(chains) {
   // measures the same words and lines thousands of times while it tries its
   // candidates, so each advance is shaped once per face and size.
   const advances = new Map();
-  /** @param {string} text @param {TextStyle} style */
-  const measure = (text, style) => {
-    const key = `${weightOf(style)}\u0000${style.size}\u0000${text}`;
+  /**
+   * The width of a run in its face: its glyphs' advances and, in a house face, what the face's kerning adds between
+   * each two of them, which the font reader does not read.
+   * @param {{ text: string, face: any }} run @param {number} size
+   */
+  const runWidth = ({ text, face }, size) => {
+    const pairs = kerning.get(face);
+    if (!pairs) return face.getAdvanceWidth(text, size, { kerning: true });
+    const glyphs = face.stringToGlyphs(text);
+    let units = 0;
+    for (let index = 1; index < glyphs.length; index += 1)
+      units += pairs(glyphs[index - 1].index, glyphs[index].index);
+    return face.getAdvanceWidth(text, size, { kerning: false }) + (units * size) / face.unitsPerEm;
+  };
+  /** @param {string} text @param {TextStyle} style @param {boolean} typeset as Typst sets the line */
+  const advance = (text, style, typeset) => {
+    const key = `${typeset}\u0000${weightOf(style)}\u0000${style.size}\u0000${text}`;
     let width = advances.get(key);
     if (width === undefined) {
-      width = runsOf(text, style).reduce(
-        (sum, run) => sum + run.face.getAdvanceWidth(run.text, style.size, { kerning: true }),
-        0,
-      );
-      // The summary's lines are set by Typst, which spaces Han from the letters and digits beside it and sets some
-      // full-width marks in half their width.
-      if (style.face === "serif")
+      width = runsOf(text, style, typeset).reduce((sum, run) => sum + runWidth(run, style.size), 0);
+      // Typst spaces Han from the letters and digits beside it and sets some full-width marks in half their width.
+      if (typeset)
         width +=
           ((String(text).match(HAN_NEIGHBOUR) ?? []).length * style.size) / 4 -
           (halvedMarks(String(text)) * style.size) / 2;
@@ -170,6 +188,19 @@ function createTypefaces(chains) {
     }
     return width;
   };
+  /**
+   * The width a box allows a text: in the summary's face the width Typst sets it in, and in the figure's faces a
+   * width no narrower than that, since a line with Han in it is measured in the CJK face alone.
+   * @param {string} text @param {TextStyle} style
+   */
+  const measure = (text, style) => advance(text, style, style.face === "serif");
+  /**
+   * The width Typst sets a line in: each character in the first face that draws it, a quarter em between Han and the
+   * letter or digit beside it, and a full-width mark in half its width where it ends or starts the line or stands
+   * beside another.
+   * @param {string} text @param {TextStyle} style
+   */
+  const typesetWidth = (text, style) => advance(text, style, true);
 
   /**
    * Characters the bundled faces cannot draw, and those of scripts the
@@ -189,27 +220,36 @@ function createTypefaces(chains) {
    * Set pieces on lines greedily: each piece follows the line's last after its
    * gap while the line fits, and starts the next line otherwise.
    * @param {Array<{ text: string, gap: string }>} pieces
+   * @param {(text: string, style: TextStyle) => number} widthOf how wide a line is taken to be
+   * @returns {Array<Array<{ text: string, gap: string }>>} the pieces of each line
    */
-  function fill(pieces, width, style) {
+  function lay(pieces, width, style, widthOf) {
     const lines = [];
-    let line = "";
-    for (const { text: piece, gap } of pieces) {
-      const candidate = line ? `${line}${gap}${piece}` : piece;
-      if (!line || measure(candidate, style) <= width) line = candidate;
-      else {
+    let line = [];
+    let text = "";
+    for (const piece of pieces) {
+      const candidate = line.length ? `${text}${piece.gap}${piece.text}` : piece.text;
+      if (line.length && widthOf(candidate, style) > width) {
         lines.push(line);
-        line = piece;
+        line = [];
       }
+      text = line.length ? candidate : piece.text;
+      line.push(piece);
     }
-    if (line) lines.push(line);
+    if (line.length) lines.push(line);
     return lines;
   }
+
+  /** The lines pieces are set on, as text. */
+  const fill = (pieces, width, style, widthOf = measure) =>
+    lay(pieces, width, style, widthOf).map(joined);
 
   /**
    * Break text into lines between its atoms, where its writing system allows
    * a break, and inside an atom only when it is wider than the line.
    */
-  const wrap = (text, width, style) => fill(breakable(String(text), width, style), width, style);
+  const wrap = (text, width, style, widthOf = measure) =>
+    fill(breakable(String(text), width, style, widthOf), width, style, widthOf);
 
   /**
    * Atoms, with any atom wider than the line split into pieces that fit. A
@@ -217,24 +257,24 @@ function createTypefaces(chains) {
    * a path or an identifier breaks where a reader expects it to; only a piece
    * still wider than the line is split between characters.
    */
-  function breakable(text, width, style) {
+  function breakable(text, width, style, widthOf = measure) {
     return atoms(text).flatMap((atom) => {
-      if (measure(atom.text, style) <= width) return [atom];
+      if (widthOf(atom.text, style) <= width) return [atom];
       const pieces = [];
       let piece = "";
       for (const segment of softSegments(atom.text)) {
-        if (piece && measure(piece + segment, style) <= width) {
+        if (piece && widthOf(piece + segment, style) <= width) {
           piece += segment;
           continue;
         }
         if (piece) pieces.push(piece);
         piece = "";
-        if (measure(segment, style) <= width) {
+        if (widthOf(segment, style) <= width) {
           piece = segment;
           continue;
         }
         for (const character of segment) {
-          if (piece && measure(piece + character, style) > width) {
+          if (piece && widthOf(piece + character, style) > width) {
             pieces.push(piece);
             piece = "";
           }
@@ -260,10 +300,37 @@ function createTypefaces(chains) {
     ).flatMap((text) => (measure(text, style) > width ? wrap(text, width, style) : [text]));
   }
 
+  /**
+   * Wrap one named detail of a language written without spaces between words as a paragraph: wherever its script
+   * allows a break, inside a list item as between two, each line filled by the width Typst sets it in. An orphan
+   * does not make a line: a last line of one character takes the unit before it from the line above where the two
+   * fit the measure, which two that were the whole of the line above never do.
+   * @param {import("../locale.mjs").Words} words
+   */
+  function detailParagraph(words, name, values, width, style) {
+    const text = detailText(words, name, values);
+    const lines = lay(breakable(text, width, style, typesetWidth), width, style, typesetWidth);
+    const last = lines.at(-1);
+    const above = lines.at(-2);
+    if (last && above && orphan(joined(last))) {
+      const kept = [above[above.length - 1], ...last];
+      if (typesetWidth(joined(kept), style) <= width) lines.splice(-2, 2, above.slice(0, -1), kept);
+    }
+    return lines.map(joined);
+  }
+
   /** Top of a line box to its alphabetic baseline. */
   const baseline = (top, style) => top + (style.line - style.size) / 2 + style.size * 0.88;
 
-  return Object.freeze({ measure, missing, wrap, detailLines, baseline });
+  return Object.freeze({
+    measure,
+    typesetWidth,
+    missing,
+    wrap,
+    detailLines,
+    detailParagraph,
+    baseline,
+  });
 }
 
 /**

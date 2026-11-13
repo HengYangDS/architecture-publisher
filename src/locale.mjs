@@ -174,6 +174,15 @@ const WORDS = Object.freeze({
 /** The languages a model may name, in the order the reference lists them. */
 export const LOCALES = Object.freeze(Object.keys(WORDS));
 
+/** The languages written without spaces between words, whose lines spread evenly between their characters. */
+const UNSPACED = new Set(["zh-CN", "zh-TW"]);
+
+/**
+ * Whether a language is written without spaces between words.
+ * @param {string | null | undefined} locale
+ */
+export const writtenUnspaced = (locale) => UNSPACED.has(locale ?? DEFAULT_LOCALE);
+
 /**
  * The words of one language.
  * @param {string | null | undefined} locale

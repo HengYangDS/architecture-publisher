@@ -246,11 +246,21 @@ export function drawFigure(layout, input) {
   };
   const at = (x) => x + shifts.x;
   const down = (y) => y + shifts.y;
-  const text = (layer, value, x, top, style, color, component = null) => {
+  const text = (layer, value, x, top, style, color, component = null, set = null) => {
     // Runs carry the top of the line box, so the renderer and the balance
     // measure place the same line from the same number. A card's title names
-    // its component, so the edition can link it to the files it cites.
-    runs.push({ layer, value, x, top, style, color, ...(component ? { component } : {}) });
+    // its component, so the edition can link it to the files it cites; a line
+    // of details names the measure it is spread to, or the width it is set in.
+    runs.push({
+      layer,
+      value,
+      x,
+      top,
+      style,
+      color,
+      ...(component ? { component } : {}),
+      ...(set ?? {}),
+    });
     return top + style.line;
   };
   // Every plate that interrupts a wire is paper, so it reads as a gap in the line.
@@ -429,7 +439,7 @@ export function drawFigure(layout, input) {
         `height="${fixed(card.height - 2 * cardStyle.pad)}" rx="${cardStyle.bar / 2}" fill="${hue}"/>`,
     );
     rects.push({ x, y, width: card.width, height: card.height, ...CARD });
-    const { name, details } = input.cardText(component, card.width);
+    const { name, details, spread } = input.cardText(component, card.width);
     const labelTop = y + cardStyle.pad;
     shapes.push(
       iconMarkup(
@@ -456,8 +466,17 @@ export function drawFigure(layout, input) {
     // card shorter than its row's tallest keeps its spare height at its foot,
     // not between a name and what is said about it.
     top += details.length ? cardStyle.detailGap : 0;
-    for (const line of details)
-      top = text("cards", line, x + cardStyle.pad, top, styles.detail, C.muted);
+    for (const [index, line] of details.entries())
+      top = text(
+        "cards",
+        line,
+        x + cardStyle.pad,
+        top,
+        styles.detail,
+        C.muted,
+        null,
+        spread[index],
+      );
   }
 
   drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);

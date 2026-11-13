@@ -1,7 +1,8 @@
 import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
-import { detailText, wordsOf } from "../locale.mjs";
+import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
+import { spreadOf } from "./spread.mjs";
 import { POSTER, colorsOf, fixed, measureWidth } from "./tokens.mjs";
 
 /**
@@ -358,20 +359,24 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
   const captionWidth = ({ kind, count }) =>
     measure(kind, styles.detail) + 2 * styles.detail.size + measure(count, styles.detail);
   const leadingText = (leading) => detailText(words, leading[0], leading[1]);
+  const unspaced = writtenUnspaced(model.locale);
+  // A detail to be spread is wrapped as a paragraph, by the width Typst sets its lines in.
+  const detailWidth = unspaced ? typefaces.typesetWidth : typefaces.measure;
+  const detailLines = unspaced ? typefaces.detailParagraph : typefaces.detailLines;
   const text = (component, width) => {
     const { part, caption, leading } = factsOf(component);
+    // The leading detail wraps to one measure, which its spread lines end at.
+    const measured = Math.min(width, lines.detail);
+    const details = leading
+      ? detailLines(words, leading[0], leading[1], measured, styles.detail)
+      : [];
     return {
       name: typefaces.wrap(component.label, Math.min(width, lines.name), styles.name),
-      details: leading
-        ? typefaces.detailLines(
-            words,
-            leading[0],
-            leading[1],
-            Math.min(width, lines.detail),
-            styles.detail,
-          )
-        : [],
+      details,
+      spread: spreadOf([details], measured, styles.detail, detailWidth, unspaced),
       caption,
+      // The counts end at the box's edge, as a spread line does, so they are placed by the width they are set in.
+      counts: unspaced ? { set: typefaces.typesetWidth(caption.count, styles.detail) } : null,
       part,
       length: lengthOf(part, scale, longest),
       gap: card.detailGap,
@@ -418,7 +423,7 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
         })),
         ...(leading ? atoms(leadingText(leading)) : []).map(({ text: unit }) => ({
           reason: "detail_broken",
-          measured: measure(unit, styles.detail),
+          measured: detailWidth(unit, styles.detail),
           room: Math.min(width, lines.detail),
         })),
         { reason: "caption_broken", measured: captionWidth(caption), room: width },
@@ -451,11 +456,17 @@ export function drawStrip(marks, draw) {
   const { x, y, width, component, text, styles, colors: C } = marks;
   const { part, length, gap, caption } = text;
   const thickness = STRIP.thickness;
-  const block = (lines, top, style) =>
+  // A block of lines is as wide as its widest line is set: a spread line at its measure.
+  const block = (lines, top, style, spread = []) =>
     draw.rects.push({
       x,
       y: top,
-      width: Math.max(...lines.map((line) => draw.typefaces.measure(line, style))),
+      width: Math.max(
+        ...lines.map(
+          (line, index) =>
+            spread[index]?.measure ?? spread[index]?.set ?? draw.typefaces.measure(line, style),
+        ),
+      ),
       height: lines.length * style.line,
       kind: "mass",
       weight: 0,
@@ -505,13 +516,23 @@ export function drawStrip(marks, draw) {
   }
   top += thickness + gap;
   draw.text("cards", caption.kind, x, top, styles.detail, C.muted);
-  const count = draw.typefaces.measure(caption.count, styles.detail);
-  draw.text("cards", caption.count, x + width - count, top, styles.detail, C.muted);
+  const count = text.counts?.set ?? draw.typefaces.measure(caption.count, styles.detail);
+  draw.text(
+    "cards",
+    caption.count,
+    x + width - count,
+    top,
+    styles.detail,
+    C.muted,
+    null,
+    text.counts,
+  );
   draw.rects.push({ x, y: top, width, height: styles.detail.line, kind: "mass", weight: 0 });
   top += styles.detail.line;
   if (!text.details.length) return;
-  block(text.details, top, styles.detail);
-  for (const line of text.details) top = draw.text("cards", line, x, top, styles.detail, C.muted);
+  block(text.details, top, styles.detail, text.spread);
+  for (const [index, line] of text.details.entries())
+    top = draw.text("cards", line, x, top, styles.detail, C.muted, null, text.spread[index]);
 }
 
 /**

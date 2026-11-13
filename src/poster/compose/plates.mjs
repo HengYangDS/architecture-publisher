@@ -3,6 +3,7 @@ import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { refuse } from "../../refusal.mjs";
 import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
+import { setWidth } from "../spread.mjs";
 import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
 import { HOUSE, HOUSE_STYLE, POSTER, colorsOf, figureStyles } from "../tokens.mjs";
@@ -114,7 +115,7 @@ function balanceOfPlate(one, typefaces, width, height, paper) {
   const text = (run) => ({
     x: run.x,
     y: run.top,
-    width: Math.min(typefaces.measure(run.value, run.style), width - run.x),
+    width: Math.min(setWidth(run, typefaces), width - run.x),
     height: run.style.line,
     kind: /** @type {const} */ ("mass"),
     weight: DARKNESS.text * darkness(run.color, paper),
@@ -219,7 +220,7 @@ function bestWithin(scene, view, width, height = BODY.height) {
 function reachOf(one, typefaces) {
   const right = [
     ...one.figure.rects.map((rect) => rect.x + rect.width),
-    ...one.figure.runs.map((run) => run.x + typefaces.measure(run.value, run.style)),
+    ...one.figure.runs.map((run) => run.x + setWidth(run, typefaces)),
   ];
   const left = [...one.figure.rects, ...one.figure.runs].map((item) => item.x);
   return Math.max(...right) - Math.min(...left);
@@ -329,8 +330,10 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         size: run.style.size,
         weight: run.style.weight,
         color: run.color,
-        width: typefaces.measure(run.value, run.style),
+        // A line laid out by the width Typst sets it in reports that width, so the edition holds Typst to it.
+        width: run.set ?? typefaces.measure(run.value, run.style),
         ...(run.component ? { component: run.component } : {}),
+        ...(run.measure ? { measure: run.measure } : {}),
       })),
       legend: [...kinds, ...rest],
       composition: { step: one.step, wrap: one.limit, flat: one.flat, centring, tierLabels },

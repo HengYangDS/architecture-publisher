@@ -54,8 +54,12 @@ test("figure text is measured in Source Sans 3, its semibold for heavy text, and
   ]);
   const text = "Architecture Publisher";
   const { detail, name } = figureStyles(POSTER.steps[0]);
-  assert.equal(typefaces.measure(text, detail), width(regular, text, detail.size));
-  assert.equal(typefaces.measure(text, name), width(semibold, text, name.size));
+  // Typst 0.15.1 sets the text in 9278 and 9597 units of a thousand to the em: the faces' advances less their kerning.
+  const kerned = (units, size) => (units * size) / 1000;
+  assert.ok(Math.abs(typefaces.measure(text, detail) - kerned(9278, detail.size)) < 0.02);
+  assert.ok(Math.abs(typefaces.measure(text, name) - kerned(9597, name.size)) < 0.02);
+  assert.ok(typefaces.measure(text, detail) < width(regular, text, detail.size));
+  assert.ok(typefaces.measure(text, name) < width(semibold, text, name.size));
   assert.equal(typefaces.measure("数据", detail), width(han, "数据", detail.size));
 });
 
@@ -63,7 +67,43 @@ test("letters the CJK face lacks are measured in Source Sans 3 and not refused",
   const regular = await faceOf("house", "source-sans-3/SourceSans3-Regular.otf");
   const { detail } = figureStyles(POSTER.steps[0]);
   requireGlyphs(typefaces, [{ path: "/components/0/label", text: "Łódź" }]);
-  assert.equal(typefaces.measure("Łódź", detail), width(regular, "Łódź", detail.size));
+  const [measured, advances] = [
+    typefaces.measure("Łódź", detail),
+    width(regular, "Łódź", detail.size),
+  ];
+  assert.ok(
+    Math.abs(measured - advances) < 0.1 * detail.size,
+    `measured ${measured} of ${advances}`,
+  );
+});
+
+test("a line's typeset width is within a twentieth of an em of the width Typst sets it in, where its measure in one face is wider", () => {
+  // Typst 0.15.1 measured each line in the house faces, flush left: a letter in Source Sans 3 and Han in Noto Sans
+  // CJK SC within one line, a quarter em where Han meets a letter or digit, a mark that ends a line or stands beside
+  // another in half its width.
+  const set = [
+    ["存放：Archify、LikeC4 解析器、", 24, 400, 320.616],
+    ["第1版模型转成第3版", 24, 400, 239.856],
+    ["（可选）上游：「默认」，其余略。", 24, 400, 336],
+    ["校验：第 3 版模型，每个问题都给", 24, 400, 357.528],
+    ["命令：check、build、import", 18, 400, 224.226],
+    ["check, build and import", 18, 400, 178.65],
+    ["编排：每个视图排成图册正文区的一幅图版", 14, 400, 266],
+    ["LikeC4 导入器", 24, 600, 145.416],
+  ];
+  for (const [text, size, weight, typst] of set) {
+    const width = typefaces.typesetWidth(text, { size, weight, line: size * 1.4 });
+    // Typst kerns some pairs of letters closer than the engine reads from the face, by hundredths of an em a line.
+    assert.ok(
+      Math.abs(width - typst) <= 0.05 * size,
+      `${text} is set in ${typst}, measured ${width}`,
+    );
+  }
+  const mixed = { size: 24, weight: 400, line: 34 };
+  assert.ok(
+    typefaces.measure("存放：Archify、LikeC4 解析器、", mixed) > 320.616 + 24,
+    "a mixed line measured in the CJK face alone is more than a character wider than it is set",
+  );
 });
 
 test("plates are drawn in the house palette", async () => {
