@@ -430,70 +430,56 @@ the architecture is correct.
 
 The colophon page is one page in the edition's size and language, set by the
 house class with the pinned Typst and the house faces. Its round mark in
-cinnabar carries the publisher's word for accepted, such as ACCEPTED or 验收, and
-the date of acceptance on its rim, and the reviewer's name, or the seal name,
-straight across a band through its centre. The name takes the largest size
-between 7 and 13 percent of the mark's width at which it fits the band on one
-line, or else on two lines at that size, before any smaller size is tried; two
-lines break where they are most nearly even, at a space, after a hyphen or
-between Han, Kana or Hangul characters. The house faces draw Latin, Greek,
-Cyrillic, Han, Kana and Hangul; a name with another character is refused with
-`acceptance_name_unset`, which names the characters, and `--seal-name` gives the
-mark a name the faces draw. The slip then names the reviewer by the seal name
-too when no face draws the reviewer's own name. A name that does not fit two
-lines of the band at 7 percent is refused with `acceptance_name_too_long`. The
-mark carries nothing else, so two acceptances by one reviewer on one day carry
-the same mark.
+cinnabar carries the publisher's word for accepted, such as ACCEPTED or 验收,
+and the date on its rim, and the reviewer's name, or the seal name, across a
+band through its centre: at the largest size from 13 down to 7 percent of the
+mark's width that fits one line, or else two lines at that size, broken where
+they are most even. A name with a character the house faces (Latin, Greek,
+Cyrillic, Han, Kana and Hangul) do not draw is refused with
+`acceptance_name_unset`, and `--seal-name` gives the mark a name they draw,
+which the slip then uses too; a name too long for two lines at 7 percent is
+refused with `acceptance_name_too_long`. The mark carries nothing else.
 
-Beside the mark, the acceptance slip names the reviewer, the time of acceptance
-in UTC, the subject, which is the model's title and release, the commit the
-edition was built at, the manifest's SHA-256, the signing key's fingerprint or
-"Unsigned", and the note when there is one. Below it stand the sentence on what
-acceptance establishes and the files published with the edition that hold the
-record, with the command that checks them. Setting the same acceptance again
-gives the same bytes. A note with a character no house face draws is refused by
+Beside it, the acceptance slip names the reviewer, the UTC time of acceptance,
+the subject (the model's title and release), the commit, the manifest's
+SHA-256, the signing key's fingerprint or "Unsigned", and any note; below them
+stand the sentence on what acceptance establishes and the published files that
+hold the record, with the command that checks them. The same acceptance sets
+the same bytes. A note with a character no house face draws is refused by
 Typst's PDF/A check with `colophon_typst_error`.
 
 `acceptance.json` is an [in-toto Statement](https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md)
-version 1. Its two subjects are `manifest.json` and `colophon.pdf` with their
-SHA-256 digests, its `predicateType` is
-`https://github.com/HengYangDS/architecture-publisher/acceptance/v2`, and its
-predicate holds the `reviewer`, the `sealName` and `note` when given,
-`acceptedAt`, the UTC time to the second, the `model` id and, when signed, the
-`signer`, the signing key's fingerprint `SHA256:<base64>`. `SOURCE_DATE_EPOCH`
-sets the time of acceptance when the caller sets one.
+version 1 of `manifest.json` and `colophon.pdf` by SHA-256, with the
+`predicateType` `https://github.com/HengYangDS/architecture-publisher/acceptance/v2`
+and a predicate of `reviewer`, `sealName` and `note` when given, `acceptedAt`
+(UTC to the second, or `SOURCE_DATE_EPOCH`), the `model` id and, when signed,
+the `signer`'s fingerprint `SHA256:<base64>`.
 
-With `--sign <private key>`, `ssh-keygen -Y sign -n archpub-acceptance` signs
-the exact bytes of `acceptance.json`, and the armoured signature is written to
-`acceptance.sig`. `--sign` may name a public key whose private half ssh-agent
-holds; ssh-keygen runs with the caller's `SSH_AUTH_SOCK` beside the usual
-variables. A key ssh-keygen cannot use is refused with `acceptance_sign_failed`
-before anything is written.
+With `--sign <private key>`, or a public key whose private half ssh-agent holds
+through the caller's `SSH_AUTH_SOCK`, `ssh-keygen -Y sign -n archpub-acceptance`
+signs the exact bytes of `acceptance.json` into `acceptance.sig`; a key it
+cannot use is refused with `acceptance_sign_failed` before anything is written.
 
 `archpub verify` checks, and refuses at the first link that fails, every
 artifact against the manifest, the record's form and predicate version, its
 manifest digest, the colophon page's digest, that `acceptance.sig` is present
 exactly when the record names a signer and, with `--allowed-signers <file>`,
-the signature: `ssh-keygen -Y verify` must accept `acceptance.sig` over the
-bytes of `acceptance.json` for the reviewer as the principal in the namespace
-`archpub-acceptance`, made by the key the record names. The allowed signers file
-is ssh-keygen's, one principal and public key to a line, with a name that holds
-spaces in double quotes. The same check by hand is
+that `ssh-keygen -Y verify` accepts `acceptance.sig` over `acceptance.json` for
+the reviewer as principal in the namespace `archpub-acceptance`, by the key the
+record names. The file is ssh-keygen's, one principal and key to a line, a name
+with spaces in double quotes; by hand the check is
 `ssh-keygen -Y verify -f <file> -I <reviewer> -n archpub-acceptance -s acceptance.sig < acceptance.json`.
-Without `--allowed-signers` the result says whether the record is signed and
-leaves the signature unchecked.
+Without `--allowed-signers` the result says whether the record is signed.
 
 `archpub publish` verifies the delivery as `verify` does without signers and
 copies it with its colophon page, record and signature. The version defaults to
 the first 12 hexadecimal digits of the manifest digest. The copy is staged and
-verified before it is renamed into place. Publishing an identical delivery
-again changes nothing; a different delivery under an existing version is
-refused.
+verified before it is renamed into place; publishing an identical delivery
+again changes nothing, and a different one under an existing version is refused.
 
-A record of an earlier release, or a Statement of another version of the
-acceptance predicate, is refused by `verify` and `publish` with
-`acceptance_version_unsupported`. Remove it and accept the unchanged delivery
-again. Published versions keep their records as they are.
+`verify` and `publish` refuse a record of an earlier release or predicate
+version with `acceptance_version_unsupported`: remove it and accept the
+unchanged delivery again. Published versions keep their records.
 
 ## Refusals
 
