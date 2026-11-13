@@ -13,6 +13,10 @@ half again as heavy as the lines it stands for.
 The owner read the key on a Chinese plate, asked what the hub's entry meant, why its line sat like
 an underline, and whether the text sat high. Each was measured and each was so.
 
+The key is also placed without a width. A model names its own kinds, so nothing bounds how many a
+key lists; one longer than the body is wide would run past the margin and off the page. On the 82
+plates of the six publications works the longest ends 185 points short of the body's edge.
+
 ## What Changes
 
 - A plate's key is set by its baseline, at 850 points on every plate, whatever marks it holds.
@@ -22,6 +26,9 @@ an underline, and whether the text sat high. Each was measured and each was so.
   oldest dye, ending in the plate's arrowhead.
 - The hub's entry says what the mark shows, in each language: `dark lines lead to Host tools`,
   `深色连线：通向主机工具`.
+- A key longer than the body is wide breaks between two entries onto a second line, the two set
+  about the key's line; one that needs a third line, or holds an entry wider than the body, is
+  refused with `edition_key_too_long`.
 
 ## Capabilities
 
@@ -31,7 +38,8 @@ None.
 
 ### Modified Capabilities
 
-- `edition-delivery`: a plate's key stands on one baseline and its marks on one mid-line.
+- `edition-delivery`: a plate's key stands on one baseline and its marks on one mid-line, and a
+  key too long for one line takes a second or is refused.
 
 ## Impact
 

@@ -64,11 +64,32 @@ colour. Each language's entry now names the mark first: `dark lines lead to Host
 `深色连线：通向主机工具`, `深色連線：通向主機工具`, `las líneas oscuras llevan a Host tools`,
 `짙은 선: Host tools(으)로 향함`.
 
+### A key longer than the body takes a second line
+
+The class placed the key as text with no width, on a page whose margins it keeps itself, so a key
+longer than the body would run past the right margin and off the page, and nothing refused it. A
+model names its own kinds and a hub's entry holds a part's label, so a key has no greatest length.
+On the 82 plates of the six works the longest, on a plate of the work guidelines, ends at 1367
+points, where the body ends at 1552.
+
+The key is now a block as wide as the body. Each entry is a box, so a line breaks only between two
+entries, and the space between entries is dropped where a line ends. Its lines are set by their
+baselines 16 points apart, and the block is placed with its middle on the key's line: one line
+stands on 850 points, two on 842 and 858, whose Han ink stays 6 points clear of the body's foot
+and of the rule. A third line does not fit the band between them, and text is never shrunk, so a
+key that needs one is refused with `edition_key_too_long` and the plate's title, and so is a key
+with one entry wider than the body, which no line holds. Alternatives
+rejected: a smaller size for a long key, which the house does not do to any text; letting the
+engine cap what a key lists, which would leave marks on a plate unexplained.
+
 ## Risks / Trade-offs
 
 - [The key moves on every plate, so every edition's images change] → the change is 1 to 4 points
   of one line; the body and the foot stay where they are.
 - [A mark taller than the band] → the tallest, a card's icon, is 13 points in a band of 40.
+- [A model whose key needs a third line is refused where it built before, with the key off the
+  page] → the refusal names the plate; fewer kinds in the view, or shorter kind labels, bring it
+  back.
 
 ## Migration Plan
 
