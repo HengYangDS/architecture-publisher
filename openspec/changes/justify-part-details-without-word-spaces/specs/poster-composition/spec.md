@@ -1,22 +1,11 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: Plate drawing
+### Requirement: Runs of details without word spaces
 
-The engine SHALL draw a plate as an SVG of its shapes, with any icons as inline
-paths and no text, paper, head, key or notes, and SHALL report its text as runs:
-each run's text, position, size, weight, colour and the width it measured, the
-component whose title it is and, for a line to be spread, its measure. In an
-edition written without spaces between words a strip part's counts SHALL end at
-its box's edge, and they and each line of details SHALL report the width Typst
-sets them in. Its colours SHALL come from the edition's resolved palette only,
-and on a strip plate relation labels SHALL be set in the regular weight, so they
-read under the parts they join.
-
-#### Scenario: Shapes without text
-
-- **WHEN** a plate is drawn
-- **THEN** its SVG holds no text and no glyph outlines
-- **AND** every card label, detail and relation label is one of its runs
+In an edition whose language is written without spaces between words, the run
+of each line of a part's details SHALL report the width Typst sets the line in,
+and the run of a line to be spread SHALL also name its measure. A strip part's
+counts SHALL report that width too and SHALL end at their box's edge.
 
 #### Scenario: A line to be spread
 
@@ -32,6 +21,14 @@ read under the parts they join.
   detail's last line of Han and letters
 - **THEN** its run names no measure and reports the width Typst sets it in,
   narrower than the CJK face alone measures it
+
+#### Scenario: A strip part's counts
+
+- **WHEN** a Chinese strip plate sets a part's counts
+- **THEN** they end at the box's edge, and their run reports the width Typst
+  sets them in
+
+## MODIFIED Requirements
 
 ### Requirement: Faces of figure text
 
