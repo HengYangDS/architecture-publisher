@@ -19,7 +19,7 @@ what the code does. The rest is this Change:
 
 - `docs/research/` leaves the tree; Git keeps it. The one statement there that still binds the product and stands
   nowhere else, what the product must not become, moves into the product contract's boundaries.
-- `CHANGELOG.md` keeps the alpha releases' headings as plain text, without links to a private address.
+- `CHANGELOG.md` keeps the alpha releases' headings and drops their links to a private address.
 - A test refuses a tracked text file that names a private IPv4 address.
 - The 36 Changes archived before the first public release leave the tree; Git keeps them.
 - The unused CI image recipe leaves the tree, with the ignore line for a directory that does not exist.

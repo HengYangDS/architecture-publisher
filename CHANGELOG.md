@@ -16,8 +16,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
-- The headings of the alpha releases below are plain text: their links led to a private address. A test now refuses
-  a tracked text file that names a private IPv4 address.
+- The headings of the alpha releases below no longer link anywhere: their links led to a private address. A test now
+  refuses a tracked text file that names a private IPv4 address.
 
 ## [0.14.0] - 2026-11-14
 
@@ -493,7 +493,7 @@ remain pre-release contracts and may contain incompatible changes.
 - Raster source verification uses a platform-native, read-only Node entry; native Cargo and `wasm-bindgen` own
   compilation, and frozen renderer bytes and historical release artifacts remain unchanged.
 
-## 0.3.0-alpha.15 - 2026-10-04
+## [0.3.0-alpha.15] - 2026-10-04
 
 ### Added
 
@@ -521,7 +521,7 @@ remain pre-release contracts and may contain incompatible changes.
 - Inspect cards retain readable title and detail colors in idle, hover, selected and keyboard-focus states across every
   offered style and light/dark theme.
 
-## 0.3.0-alpha.14 - 2026-10-03
+## [0.3.0-alpha.14] - 2026-10-03
 
 ### Changed
 
@@ -531,14 +531,14 @@ remain pre-release contracts and may contain incompatible changes.
 - The CoreText asynchronous font-binding counterexample rejects an originally mismatched digest before compilation.
   Actual native font, request and output snapshot checks remain in the existing measurement case.
 
-## 0.3.0-alpha.13 - 2026-10-03
+## [0.3.0-alpha.13] - 2026-10-03
 
 ### Fixed
 
 - Raster third-party source notices identify the selected source archive and Cargo.lock instead of stale predecessor
   bindings. Required license text and renderer runtime bytes are preserved; supply checks reject mismatched headers.
 
-## 0.3.0-alpha.12 - 2026-10-03
+## [0.3.0-alpha.12] - 2026-10-03
 
 ### Fixed
 
@@ -546,7 +546,7 @@ remain pre-release contracts and may contain incompatible changes.
   an invented arrowhead or arrow terminal minimum. Arrowed and historical default-arrow checks, attachment, source-route
   direction and glyph clearance remain enforced.
 
-## 0.3.0-alpha.11 - 2026-10-03
+## [0.3.0-alpha.11] - 2026-10-03
 
 ### Fixed
 
@@ -554,7 +554,7 @@ remain pre-release contracts and may contain incompatible changes.
   measured containment are checked; unrelated nodes, internal primitive boundaries, text, routes and arrowheads remain
   obstacles. Ownerless scenes retain their existing behavior.
 
-## 0.3.0-alpha.10 - 2026-10-02
+## [0.3.0-alpha.10] - 2026-10-02
 
 ### Fixed
 
@@ -569,7 +569,7 @@ remain pre-release contracts and may contain incompatible changes.
 - Closeout separates completed archive prerequisites from later native lifecycle effects, without declaring an
   unexecuted archive or retirement.
 
-## 0.3.0-alpha.9 - 2026-10-02
+## [0.3.0-alpha.9] - 2026-10-02
 
 ### Added
 
@@ -609,7 +609,7 @@ remain pre-release contracts and may contain incompatible changes.
   Invalid-response fixtures preserve a finite live Worker for reclamation; actual premature exit remains cleanup
   uncertainty. Coverage scope and all four 95-percent thresholds remain unchanged.
 
-## 0.3.0-alpha.8 - 2026-10-02
+## [0.3.0-alpha.8] - 2026-10-02
 
 ### Changed
 
@@ -646,7 +646,7 @@ remain pre-release contracts and may contain incompatible changes.
 - Native Windows ARM64 CI shares the complete repository gate. Linux, macOS and Windows review/protected projections
   select distinct Runner trust roles.
 
-## 0.3.0-alpha.7 - 2026-10-01
+## [0.3.0-alpha.7] - 2026-10-01
 
 ### Fixed
 
@@ -656,7 +656,7 @@ remain pre-release contracts and may contain incompatible changes.
 - Native macOS CI uses one project-local GitLab resource group while retaining separate review and protected Runner
   identities. This removes job overlap, not every possible compiler stall; original failing jobs remain evidence.
 
-## 0.3.0-alpha.6 - 2026-10-01
+## [0.3.0-alpha.6] - 2026-10-01
 
 ### Added
 
@@ -728,7 +728,7 @@ remain pre-release contracts and may contain incompatible changes.
   and falls back to balanced placement only when a relation caption cannot clear the regular routes. Longer labels still
   require sufficient space rather than smaller text.
 
-## 0.3.0-alpha.5 - 2026-09-29
+## [0.3.0-alpha.5] - 2026-09-29
 
 ### Changed
 
@@ -774,7 +774,7 @@ remain pre-release contracts and may contain incompatible changes.
 - The unselected alternate interactive layout and its automatic camera behavior. The standalone reader keeps one
   complete graph, source lists, pan, zoom, and explicit Fit.
 
-## 0.3.0-alpha.4 - 2026-09-28
+## [0.3.0-alpha.4] - 2026-09-28
 
 ### Added
 
@@ -837,14 +837,14 @@ remain pre-release contracts and may contain incompatible changes.
 - Executable Provider process-tree supervision bounds ordinary descendants but is not an operating-system, filesystem,
   network, or credential sandbox.
 
-## 0.3.0-alpha.3 - 2026-09-24
+## [0.3.0-alpha.3] - 2026-09-24
 
 ### Fixed
 
 - Corrected the release-date mismatch caught by the signed-tag CI gate for `0.3.0-alpha.2` without changing that
   immutable tag or its source bytes.
 
-## 0.3.0-alpha.2 - 2026-09-24
+## [0.3.0-alpha.2] - 2026-09-24
 
 ### Changed
 
@@ -866,7 +866,7 @@ remain pre-release contracts and may contain incompatible changes.
 - Bounded worker cleanup preserves unrelated processes and treats an unobserved owned process tree as an unsuccessful
   materialization.
 
-## 0.3.0-alpha.1 - 2026-09-22
+## [0.3.0-alpha.1] - 2026-09-22
 
 ### Fixed
 
@@ -874,7 +874,7 @@ remain pre-release contracts and may contain incompatible changes.
   portable package identity through the uncompressed tar-content digest.
 - Hosted Linux verification no longer assumes that different gzip implementations reproduce macOS archive bytes.
 
-## 0.3.0-alpha.0 - 2026-09-22
+## [0.3.0-alpha.0] - 2026-09-22
 
 ### Added
 
@@ -910,7 +910,7 @@ remain pre-release contracts and may contain incompatible changes.
   isolated scratch state, and fail-closed identity checks. This boundary contains failures but is not an adversarial
   operating-system sandbox.
 
-## 0.2.0-alpha.0 - 2026-09-22
+## [0.2.0-alpha.0] - 2026-09-22
 
 ### Added
 
@@ -933,14 +933,14 @@ remain pre-release contracts and may contain incompatible changes.
   and clean-clone release checks.
 - Corrected self-Edition source inputs, typography, and conformance evidence.
 
-## 0.1.0-alpha.7 - 2026-09-20
+## [0.1.0-alpha.7] - 2026-09-20
 
 ### Added
 
 - Composed independent static and interactive artifacts into one semantic publication contract with separate medium
   qualification.
 
-## 0.1.0-alpha.6 - 2026-09-19
+## [0.1.0-alpha.6] - 2026-09-19
 
 ### Added
 
@@ -954,7 +954,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 - Completed raster worker input before synchronous execution.
 
-## 0.1.0-alpha.5 - 2026-09-19
+## [0.1.0-alpha.5] - 2026-09-19
 
 ### Added
 
@@ -964,31 +964,31 @@ remain pre-release contracts and may contain incompatible changes.
 
 - Enforced a deadline for signal-resistant raster workers.
 
-## 0.1.0-alpha.4 - 2026-09-19
+## [0.1.0-alpha.4] - 2026-09-19
 
 ### Added
 
 - Compiled source-bound changes and view obligations.
 
-## 0.1.0-alpha.3 - 2026-09-19
+## [0.1.0-alpha.3] - 2026-09-19
 
 ### Fixed
 
 - Aligned the retirement note while preserving continuous refresh alternatives.
 
-## 0.1.0-alpha.2 - 2026-09-18
+## [0.1.0-alpha.2] - 2026-09-18
 
 ### Fixed
 
 - Aligned semantic reading groups and refreshed stable renderer supply.
 
-## 0.1.0-alpha.1 - 2026-09-18
+## [0.1.0-alpha.1] - 2026-09-18
 
 ### Added
 
 - Published source-bound candidates with recoverable Edition replacement.
 
-## 0.1.0-alpha.0 - 2026-09-18
+## [0.1.0-alpha.0] - 2026-09-18
 
 ### Added
 

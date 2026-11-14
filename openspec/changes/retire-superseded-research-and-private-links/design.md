@@ -32,10 +32,11 @@ machine, a code-graph authority, an editor, a marketplace or a resident service.
 contract. Alternative rejected: keeping the pages with a banner, which keeps 2 MB of captures and nine private
 links for a history Git already holds.
 
-### Alpha headings keep their text and lose their links
+### Alpha headings keep their form and lose their links
 
-GitHub holds no tag before v0.4.0, so the 25 headings have no public target. Each stays as a heading without
-brackets, and its link definition goes.
+GitHub holds no tag before v0.4.0, so the 25 headings have no public target. Each keeps the bracketed form the
+repository paradigm requires of a release heading, and its link definition goes, so the brackets print as text.
+The first attempt dropped the brackets, and the proof refused the changelog.
 
 ### The guard reads what Git tracks
 
