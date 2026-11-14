@@ -1,0 +1,12 @@
+[[ownership]]
+id = "received-house-font-licenses"
+paths = [
+  "renderers/house/supply/source-sans-3/LICENSE",
+  "renderers/house/supply/source-serif-4/LICENSE",
+]
+format_owner = "immutable-carrier"
+format_command = "not-applicable:received-supply"
+format_check = "npm run test:coverage"
+validation_owner = "node-behavior"
+validation_command = "npm run test:coverage"
+mutation_policy = "forbidden"
