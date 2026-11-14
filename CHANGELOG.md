@@ -15,6 +15,8 @@ remain pre-release contracts and may contain incompatible changes.
   mistyped command or option names the nearest one.
 - A `check` or a `build` whose standard error is a terminal draws the step it is at there. With `--json`, or when
   standard error is a pipe or a file, it draws none, and standard output holds the same bytes either way.
+- `docs/reference/command-line.md`, a reference of what the command prints: its help and usage errors, exit statuses,
+  `--json` results, reports and progress. The operations reference keeps what each command does.
 
 ### Removed
 

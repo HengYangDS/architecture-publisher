@@ -18,4 +18,5 @@ the how-to guides; for every detail, the references.
 - [Roadmap details](roadmap.md): what each item of the queue does, and the protocols it runs by.
 - [Model reference](reference/model.md): every field of an Architecture Model.
 - [Operations reference](reference/operations.md): commands, layout, the delivery and refusals.
+- [Command line reference](reference/command-line.md): help, exit statuses, JSON results, reports and progress.
 - [Development and reference](reference/README.md): toolchain, configuration and verification.

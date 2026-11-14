@@ -99,6 +99,8 @@ checking, writing the guide and building, and leaves acceptance to the reviewer.
   Model.
 - [Operations reference](docs/reference/operations.md): commands, layout, the
   delivery and every refusal.
+- [Command line reference](docs/reference/command-line.md): help, exit
+  statuses, JSON results, reports and progress.
 - [Glossary](docs/glossary.md): the words the publisher uses.
 - [Product contract](docs/product-contract.md): inputs, outputs, quality floor
   and boundaries.
