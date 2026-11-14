@@ -17,8 +17,8 @@ mistyped command or option, name the nearest one.
 
 #### Scenario: A mistyped command
 
-- **WHEN** `archpub chek model.json` runs
-- **THEN** the output says that `chek` is unknown and names `check`
+- **WHEN** `archpub` is given the unknown command 'chek' with a model
+- **THEN** the output says `unknown command 'chek'` and names `check`
 - **AND** the exit status is 2
 
 ## ADDED Requirements
