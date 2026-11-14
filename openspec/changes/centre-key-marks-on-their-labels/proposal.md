@@ -29,6 +29,8 @@ plates of the six publications works the longest ends 185 points short of the bo
 - A key longer than the body is wide breaks between two entries onto a second line, the two set
   about the key's line; one that needs a third line, or holds an entry wider than the body, is
   refused with `edition_key_too_long`.
+- The release 0.14.0 is recorded with this Change: it carries the key, and the justified details
+  and kerned measures that landed before it.
 
 ## Capabilities
 

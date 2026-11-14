@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-14
+
 ### Changed
 
 - In an edition whose language is written without spaces between words, Chinese in either script, a part's details are
@@ -990,6 +992,7 @@ remain pre-release contracts and may contain incompatible changes.
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
+[0.14.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.14.0
 [0.13.1]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.1
 [0.13.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.0
 [0.12.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.12.0

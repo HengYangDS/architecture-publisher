@@ -16,3 +16,7 @@
 
 - [ ] 4.1 Build the publisher's own edition in English and Chinese and read each plate's key; measure the rows of one strip plate's and one card plate's key. Measure how far the key reaches on every plate of the twelve editions of the six works. Done when the measured centres agree, every key ends within the body and both are recorded here.
 - [ ] 4.2 Run `npm run check` with the browser tests. Done when it passes with no test output on standard error.
+
+## 5. Release
+
+- [ ] 5.1 Record 0.14.0 in `CHANGELOG.md`, `VERSION`, `package.json` and `package-lock.json`, beside the justified details and kerned measures already on dev. Done when `npm run check` passes at that version with the browser tests run.
