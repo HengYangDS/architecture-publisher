@@ -18,6 +18,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 - The headings of the alpha releases below no longer link anywhere: their links led to a private address. A test now
   refuses a tracked text file that names a private IPv4 address.
+- The repository runs ETHOS 0.2.0-beta.10 through its published release declaration, with 0.2.0-beta.9 kept as the
+  rollback. The format-selection policy returns with one row: the two received house-font licenses are immutable
+  carriers whose bytes the supply check verifies, because 0.2.0-beta.10's format selection does not yet leave
+  received files alone; the row goes when the repository binds a release that does. The publisher's behaviour, model
+  format and manifest do not change.
 
 ## [0.14.0] - 2026-11-14
 
