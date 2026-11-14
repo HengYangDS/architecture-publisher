@@ -27,6 +27,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The developer tools move to their newest stable releases: Prettier 3.10.1, ESLint 10.15.0,
+  markdownlint-cli2 0.24.1 and knip 6.45.1, with the `glob` and `minimatch` overrides at 14.0.6 and
+  11.0.8. None of them ships in the package, and Prettier 3.10.1 reformats no file.
 - **Breaking:** the text a command prints without `--json` is new: the help, the result of every command, refusals and
   usage errors. A result is a report with one marked line per fact, `◆` passed, `▲` needs attention, `■` refused and
   `●` noted, under a heading for each group, and it ends with the command to run next; a refusal names the model or
