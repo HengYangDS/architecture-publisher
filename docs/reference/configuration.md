@@ -12,18 +12,18 @@ Native tools own policy and parsing. Configuration lives in `.config`; the
 root npm scripts select the exact native carriers. ETHOS selects governance
 roles, not a duplicate quality or formatting implementation.
 
-| Owner                                                        | Native consumer                                                      |
-| ------------------------------------------------------------ | -------------------------------------------------------------------- |
-| `.config/checks/eslint/eslint.config.mjs`                    | `npm run check:lint`                                                 |
-| `.config/checks/typescript/tsconfig.json`                    | `npm run check:types`; Knip's native TypeScript project              |
-| `.config/checks/c8/.c8rc.json`                               | `npm run test:coverage`                                              |
-| `.config/checks/knip/knip.toml`                              | `npm run check:dead-code`                                            |
-| `.config/checks/markdownlint-cli2/.markdownlint-cli2.yaml`   | `npm run check:docs`                                                 |
-| `.config/checks/prettier/prettier.toml` and `prettierignore` | `npm run format` and `npm run check:format`                          |
-| `.config/checks/taplo/taplo.toml`                            | Native TOML formatting in the same fix and check commands            |
-| `.config/checks/format-selection/policy.toml`                | Native ETHOS carrier selection for three immutable research captures |
-| `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                                |
-| `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                      |
+| Owner                                                        | Native consumer                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `.config/checks/eslint/eslint.config.mjs`                    | `npm run check:lint`                                                |
+| `.config/checks/typescript/tsconfig.json`                    | `npm run check:types`; Knip's native TypeScript project             |
+| `.config/checks/c8/.c8rc.json`                               | `npm run test:coverage`                                             |
+| `.config/checks/knip/knip.toml`                              | `npm run check:dead-code`                                           |
+| `.config/checks/markdownlint-cli2/.markdownlint-cli2.yaml`   | `npm run check:docs`                                                |
+| `.config/checks/prettier/prettier.toml` and `prettierignore` | `npm run format` and `npm run check:format`                         |
+| `.config/checks/taplo/taplo.toml`                            | Native TOML formatting in the same fix and check commands           |
+| `.editorconfig`                                              | Prettier, for the character set and line endings of what it formats |
+| `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                               |
+| `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                     |
 
 The size ceilings are the ETHOS repository paradigm's: 500 effective lines for
 each code file and 500 nonblank lines for each authored Markdown document,
@@ -36,10 +36,6 @@ file selection remains repository-relative. Prettier ignore paths are relative
 to its ignore carrier, so relocation updates them without widening input
 selection.
 No forwarding file, private parser or host-specific path is needed.
-
-The format-selection policy declares three dated research SVG captures under
-`docs/research/evidence/` as immutable carriers that no formatter rewrites. They
-are history, not product fixtures. No wildcard excludes future figures.
 
 Knip's native Markdownlint plugin selects the same relocated configuration. Its
 default analysis covers development tools; strict production analysis starts

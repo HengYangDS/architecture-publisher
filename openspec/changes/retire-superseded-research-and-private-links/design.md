@@ -16,8 +16,7 @@ statements that no longer hold at 0.14.0, and for its place in the tree.
 
 - Rewriting history. Earlier commits, tags and released archives keep the bytes they have; the address in them is
   a private one that no outside reader can reach.
-- The archived Changes, which are OpenSpec's own record. Whether those older than the first public release should
-  leave the tree is a separate question, not yet checked against the proof gates.
+- The archived Changes since the first public release, which are the record of the product as it is.
 - Received material, which is pinned by digest and never edited.
 - The Linux CI image's Playwright version, which belongs with the next supply change.
 
@@ -40,15 +39,27 @@ brackets, and its link definition goes.
 
 ### The guard reads what Git tracks
 
-A test lists the tracked files with `git ls-files`, reads each that is text, and refuses an IPv4 address in
-10.0.0.0/8, 172.16.0.0/12 or 192.168.0.0/16, naming the file and line. Received material is read too: nothing
+A test lists the tracked files with `git ls-files`, reads each that is text, and refuses an IPv4 address in the
+three ranges RFC 1918 reserves, naming the file and line. This Change names the ranges by that RFC and not by
+their numbers, so that its own archive and the merged specification pass. Received material is read too: nothing
 there holds one today. Without a Git checkout, as in an unpacked package, the test is skipped. The CI projection's
 own assertion about GitHub's workflow uses the same pattern, so that no test names a host.
 
-### The migrator lives with the model
+### Archived Changes from before the first public release leave the tree
 
-`src/model/migrate.mjs` takes the file whole; `src/cli/run.mjs` and the migrator's test follow. The command and its
-behaviour do not change.
+Thirty-six Changes were archived between 15 September and 3 October, before 0.4.0 replaced the whole product.
+They specify Source Bundles, Claim Models, Candidates, Providers and Qualifications, none of which exists now;
+no tracked file outside the archive names any of them. Eight of the nine current specifications were written
+anew when the product was replaced, the specifications before them were removed then, and the ninth,
+`product-identity`, names no early part. Their 200 files leave the tree and Git keeps them. The 35 Changes archived since stay. The owner agreed
+to retire them.
+
+### The migrator stays an importer
+
+The inventory read `src/importers/model.mjs`, which migrates a model from an earlier version, as mislaid beside
+the LikeC4 importer. Moving it to `src/model/` failed the import layering: the command line may import the
+importers and not the model, so every conversion into a current model, from LikeC4 or from an earlier version, is
+an importer. The file stays where it is.
 
 ### The format-selection policy goes with its only rows
 
@@ -61,8 +72,8 @@ no row; an empty policy is no policy, so the file and its line in the configurat
   the boundary sentence was the one found, and it is moved before the pages go.
 - [The guard refuses a version string of four numbers that starts with 10] → the test is run over the tree before
   it lands; no tracked file has one.
-- [A proof gate needs the format-selection policy] → the document and format gates are run on the lane before it
-  is proved.
+- [A proof gate needs the format-selection policy or the early archive] → the document, format and OpenSpec gates
+  are run on the lane before it is proved.
 
 ## Migration Plan
 

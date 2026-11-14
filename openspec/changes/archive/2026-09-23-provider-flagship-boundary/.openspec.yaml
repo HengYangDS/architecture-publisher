@@ -1,5 +1,0 @@
-schema: spec-driven
-created: 2026-09-24
-goal: Prevent loss of authored media and false parity while retaining one
-  generic Publisher and source-product authority.
-skip_specs: true

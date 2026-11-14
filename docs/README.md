@@ -18,4 +18,3 @@ the how-to guides; for every detail, the references.
 - [Model reference](reference/model.md): every field of an Architecture Model.
 - [Operations reference](reference/operations.md): commands, layout, the delivery and refusals.
 - [Development and reference](reference/README.md): toolchain, configuration and verification.
-- [Research and evidence](research/README.md): how earlier releases were designed; historical.

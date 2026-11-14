@@ -7,6 +7,7 @@ import path from "node:path";
 import test from "node:test";
 import { parse } from "yaml";
 import { npmInvocation } from "./fixtures/npm-pack-report.mjs";
+import { privateAddressLines } from "./fixtures/private-address.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const owned = [
@@ -261,7 +262,7 @@ test("the selected peer invokes the shared quality and projection owners on all 
   }
   const githubPeer = exportCue("peers.github");
   assert(!JSON.stringify(githubPeer).includes("CI_JOB_TOKEN"));
-  assert(!JSON.stringify(github).includes("192.168.64.101"));
+  assert.deepEqual(privateAddressLines(JSON.stringify(github)), []);
 });
 
 test("GitHub alone also verifies Linux and Windows on x86-64 and publishes to npm only when enabled", async () => {

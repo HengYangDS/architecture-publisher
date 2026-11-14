@@ -1,5 +1,0 @@
-schema: spec-driven
-created: 2026-09-22
-goal: Restore exact-head proof after archive without reviving archived intent or
-  widening post-archive authority.
-skip_specs: true

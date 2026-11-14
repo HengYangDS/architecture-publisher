@@ -147,6 +147,10 @@ published delivery. Tests and checks never stand in for that acceptance.
   not produced.
 - A build needs no network, account or credential. Publication copies files
   locally; uploading to a Forge or a website is the caller's own step.
+- The publisher compiles a model and the files it cites into publications. It
+  is not a second intent store, a repository lifecycle, a workflow state
+  machine, a code-graph authority, an editor, a marketplace or a resident
+  service.
 
 ## Evolution
 
@@ -154,5 +158,3 @@ The model format is versioned (`format` and `version`), and an unsupported
 version is refused rather than reinterpreted. A change that refuses a model
 another release accepted, or that changes the bytes of an existing delivery, is
 a breaking release. Earlier releases and their deliveries stay as they were.
-The [research pages](research/README.md) record how earlier releases were
-designed; they are history, not this contract.
