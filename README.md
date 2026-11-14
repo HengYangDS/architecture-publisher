@@ -6,7 +6,7 @@ connection it draws against the code at one pinned commit.
 
 ![Plate 01 of Architecture Publisher's own edition: the parts one build passes through, from the author's model to a published delivery](docs/images/architecture-publisher-plate-01.png)
 
-_Plate 01 of the publisher's own edition, built by 0.11.0 from
+_Plate 01 of the publisher's own edition, built by 0.13.1 from
 [its model](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/architecture-publisher/README.md)._
 
 You write the model: the components, the connections between them and the
@@ -25,8 +25,9 @@ mise use -g github:HengYangDS/architecture-publisher
 [mise](https://mise.jdx.dev) installs the release archive for your machine:
 Linux and Windows on ARM64 or x86-64, or macOS on ARM64. It holds `archpub`
 with its own Node.js and Typst, so it needs only Git. The
-[how-to guides](docs/how-to.md#install-the-command) install it without mise or
-as an npm package.
+[how-to guides](docs/how-to.md#install-the-command) install it with Homebrew,
+as an npm package or from the archive alone, and say how to take a release on
+the day it is published.
 
 ## Quick start
 

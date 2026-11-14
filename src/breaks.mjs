@@ -72,6 +72,29 @@ export function atoms(text) {
 }
 
 /**
+ * How many places a justified line opens: after each character written without spaces between words and at each
+ * space between words, but not after the line's last character, which ends at the measure.
+ * @param {string} line
+ */
+export function openings(line) {
+  return Array.from(line)
+    .slice(0, -1)
+    .filter((character) => UNSPACED.test(character) || SPACE.test(character)).length;
+}
+
+/**
+ * Whether a line holds one character written without spaces between words, with or without the marks that open and
+ * close it: an orphan, which Chinese setting does not leave a line to.
+ * @param {string} line
+ */
+export function orphan(line) {
+  const characters = Array.from(line).filter(
+    (character) => !CLOSING.test(character) && !OPENING.test(character),
+  );
+  return characters.length === 1 && UNSPACED.test(characters[0]);
+}
+
+/**
  * Atoms set on one line.
  * @param {Atom[]} line
  */

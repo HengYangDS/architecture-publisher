@@ -357,8 +357,24 @@
   }
 }
 
+/// A line spread to a measure as a justified paragraph's line is: between the characters of a script written without
+/// word spaces, and at its spaces. A line already as wide as its measure is set as it is, since a paragraph would
+/// break it in two; one wider than its measure by more than half a point is refused.
+#let _spread(body, width, value) = context {
+  let natural = measure(body).width
+  if natural > width + 0.5pt { panic("edition_text_wider: " + value) }
+  if natural >= width { body } else {
+    box(width: width, {
+      set par(justify: true, leading: 0pt, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
+      body
+      linebreak(justify: true)
+    })
+  }
+}
+
 /// One plate: its shapes as an artifact, its runs as text at the engine's positions, its card titles linked to the
-/// files they cite, the whole one figure named by its title and question. Below a standfirst the figure keeps the
+/// files they cite, a run that names a measure spread to it, the whole one figure named by its title and question.
+/// Below a standfirst the figure keeps the
 /// height the engine composed it in and stands on the body's bottom.
 #let _plate(p, words) = {
   let body = page-width - 2 * margin
@@ -372,8 +388,10 @@
     for r in p.runs {
       let set-run = text.with(font: sans, size: r.size * _k, weight: if r.weight >= 600 { "semibold" } else { "regular" },
         fill: rgb(r.color), top-edge: "baseline", bottom-edge: "baseline")
-      place(top + left, dx: r.x * _k, dy: r.baseline * _k, set-run(r.text))
-      context if measure(set-run(r.text)).width > r.width * _k + 0.5pt { panic("edition_text_wider: " + r.text) }
+      place(top + left, dx: r.x * _k, dy: r.baseline * _k,
+        if "measure" in r { _spread(set-run(r.text), r.measure * _k, r.text) } else { set-run(r.text) })
+      // A spread run is checked against its measure where it is set; any other against the width the engine measured.
+      context if "measure" not in r and measure(set-run(r.text)).width > r.width * _k + 0.5pt { panic("edition_text_wider: " + r.text) }
       if "component" in r and r.component in p.links {
         place(top + left, dx: r.x * _k, dy: (r.baseline - r.size) * _k,
           link(p.links.at(r.component), box(width: r.width * _k, height: r.size * 1.3 * _k)))

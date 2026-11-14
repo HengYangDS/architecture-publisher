@@ -208,7 +208,7 @@ test("a cards plate in indigo draws every colour from its tokens", async () => {
   assert.ok(plate.legend.some(({ kind }) => kind === "supply"));
 });
 
-test("cards in the house tokens draw the plates Architecture Publisher 0.12 drew", async () => {
+test("cards in the house tokens draw the plates of no style named, pinned by their digest", async () => {
   const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
   bank.components[1].status = "planned";
   bank.components[2].status = "retired";
@@ -220,8 +220,9 @@ test("cards in the house tokens draw the plates Architecture Publisher 0.12 drew
       .createHash("sha256")
       .update(JSON.stringify(plates.map(({ svg, runs }) => ({ svg, runs }))))
       .digest("hex");
-  // Captured from 0.12.0's engine, before styles and palettes.
-  const drawn = "9ddb126b2fa312f5a8afa44d952bf523f42dd87ac32d3fefc221b935fed6599c";
+  // Captured from the engine as it measures with the house faces' kerning. Without the kerning the digest is
+  // 0.12.0's, 9ddb126b…, from before styles and palettes: nothing else has moved a card plate since.
+  const drawn = "58357267d9ad99373e33af41b63f67ae09896146ee3d16ccaa9d67fc718b47b4";
   const unnamed = await platesIn(model);
   assert.equal(digest(unnamed.plates), drawn);
   const named = await platesIn(model, { name: "card", tokens: HOUSE_TOKENS });
