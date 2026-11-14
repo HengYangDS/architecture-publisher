@@ -29,6 +29,10 @@ says which plates a change touched.
   relation, emphasis, the system boundary, the citation count, and the planned and the retired pattern, both marked
   as not yet tested by a work. Each row states what the page does for it, as data on which nothing refuses. The
   figure, the key, the reference page and the tests read the table. A model cannot name, add or change a row.
+- **BREAKING:** every plate's page picture changes. A figure was set so that its picture lost one column of
+  pixels, at the delivered widths on its middle, and a line standing there was drawn at a third of its weight or
+  not at all. The figure is now placed so that the picture keeps every column and row, at any width, and a test
+  holds every straight piece of a row to one weight.
 - Two new warnings, neither a refusal. `citation_count_touches` names the plate and the relation whose count found
   no clear place along its line; the plate is still built. `line_row_untested` names the plates that draw a planned
   or a retired part or relation, once for each of the two rows.
@@ -47,8 +51,7 @@ says which plates a change touched.
 
 Not in this Change:
 
-- The row "one weight for every piece". Its cause is a pixel column lost at the page's middle, which was found and
-  is not yet explained.
+- The key's icons, which lose a texel column at some places as the figure did; they return with `one-anatomy`.
 - A dash-dot boundary, which no cell of the trial drew.
 - The page's expression of the rows, beyond the table's column of data.
 - The smallest type of a figure (14 px in the drawing space, 11.2 px on a 1920 px page), which the first step left

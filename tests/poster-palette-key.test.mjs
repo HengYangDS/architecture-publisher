@@ -45,22 +45,21 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
       color: INDIGO.dye.new,
       label: "20 KB: a strip's length is the code a part owns",
     },
+    // A count as the plate sets one: figures of the smallest type in the line colour.
     {
-      shape: "ticks",
+      shape: "count",
       count: 3,
-      length: 10,
-      gap: 5,
-      weight: 1.6,
+      size: 14,
       color: INDIGO.palette.mid,
-      label: "one tick per file the relation cites",
+      label: "number: the source files this relation cites",
     },
-    // A line into the hub as the plate draws one: its weight, the oldest dye and its arrowhead.
+    // A line into the hub as the plate draws one: twice a line's weight, the oldest dye and the larger arrowhead.
     {
       shape: "hub",
       color: INDIGO.dye.old,
-      weight: 1.6,
-      arrow: 8,
-      label: "dark lines lead to Supplies",
+      weight: 3.2,
+      arrow: 11.6,
+      label: "heavy lines lead to Supplies",
     },
     { shape: "boundary", label: "inside The print edition" },
   ]);
@@ -84,8 +83,8 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
       "更早",
       "提交日 2026-11-10",
       "20 KB：条长是组件拥有的代码量",
-      "每道刻痕：这条关系引用的一个源文件",
-      "深色连线：通向供给",
+      "数字：这条关系引用的源文件数",
+      "粗线：通向供给",
     ],
   );
 });
@@ -117,9 +116,9 @@ test("a band is named by its days before the commit, and the key shows only what
   } = await platesIn(stripModel(), undated);
   assert.deepEqual(
     plain.legend.map(({ shape }) => shape),
-    ["band", "length", "ticks", "hub", "boundary"],
+    ["band", "length", "count", "hub", "boundary"],
   );
-  // A plate whose parts own no files and whose relations cite none draws no strips or ticks to key.
+  // A plate whose parts own no files and whose relations cite none draws no strips or counts to key.
   const bare = validateModel(
     minimalModel({
       components: [

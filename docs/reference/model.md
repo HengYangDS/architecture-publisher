@@ -290,14 +290,14 @@ file's age is the time from its last change at or before the pin to the pin.
 The bands are the same for every edition, so two editions can be compared; the
 newest takes the palette's palest dye and the oldest its darkest.
 
-With strips, every relation's line has one weight and carries one tick across
-it, near its source, for each file the relation cites, up to five, with the
-count written beside more. The build checks that a cited file exists at the
-pin, not that it proves the relation. The part with the most incoming relations
-of a view, when it has at least three and more than any other part, is the
-view's hub, and the relations into it are drawn in the oldest dye. A plate's key
-names only what its figure shows: the age bands with the pin's date, a scale
-bar, the ticks, the hub, the boundary and the statuses.
+With strips, every relation's line carries the number of files the relation
+cites, near its source. The build checks that a cited file exists at the pin,
+not that it proves the relation. The part with the most incoming relations of a
+view, when it has at least three and more than any other part, is the view's
+hub, and the relations into it are drawn twice as heavy, in the oldest dye. A
+plate's key names only what its figure shows: the age bands with the pin's date,
+a scale bar, the count, the hub, the boundary and the statuses. The weights and
+patterns are the rows of the [line values](lines.md).
 
 `palette` (配色) names a built-in palette or gives one of your own. Each built-in is
 named for the dye or pigment its colours come from:

@@ -115,14 +115,14 @@ export const POSTER = Object.freeze({
     plateGap: 40,
   }),
   /**
-   * Dashes: a planned part or relation is drawn in long dashes and a retired
-   * one in dots; a part that owns no files is an outline in short dashes.
+   * A part that owns no files is an outline in short dashes. The weights and
+   * patterns of relations, statuses and the boundary are rows of the table of
+   * lines, read through `linesOf`.
    */
-  dash: Object.freeze({ planned: "6 4", retired: "1.5 3.5", empty: "3 2" }),
+  dash: Object.freeze({ empty: "3 2" }),
   wire: Object.freeze({
     arrow: 9,
     radius: 7,
-    stroke: 1.6,
     labelPadX: 9,
     labelPadY: 4,
     maximumLabel: 250,
@@ -183,6 +183,36 @@ export function colorsOf({ palette, figure, dye }) {
   });
 }
 
+/**
+ * The values a plate draws its lines with, from a table of lines: the house's
+ * own, or a copy a test gives. Each value is read where a plate first draws
+ * with it, and a row the table lacks is an error that names it.
+ * @param {{ rows: Record<string, any> }} [table]
+ */
+export function linesOf(table = HOUSE.lines) {
+  const row = (id) => {
+    if (!table.rows[id]) throw new Error(`The table of lines has no row "${id}".`);
+    return table.rows[id];
+  };
+  const pattern = (id) => row(id).dash.join(" ");
+  return Object.freeze({
+    /** The stroke of a relation's line, and of one that carries emphasis. */
+    stroke: (emphasis = false) => row("relation").stroke * (emphasis ? row("emphasis").factor : 1),
+    /** How many times as large the arrowhead of a line is when it carries emphasis. */
+    arrow: (emphasis = false) => (emphasis ? row("emphasis").arrow : 1),
+    boundary: () => ({ stroke: row("boundary").stroke, dash: pattern("boundary") }),
+    /** The pattern of a planned or a retired part or relation. */
+    status: (status) => pattern(status),
+    /** The shape of a row's sample in the key, or null for a row the key does not hold. */
+    key: (id) => row(id).key,
+    /** The rows no work has tested, with the shape each is keyed by. */
+    untested: () =>
+      Object.entries(table.rows).flatMap(([id, { tested, key, meaning }]) =>
+        tested ? [] : [{ id, key, meaning }],
+      ),
+  });
+}
+
 /** A coordinate as an SVG writes it, to a tenth of a pixel. */
 export const fixed = (value) => Math.round(value * 10) / 10;
 
@@ -225,7 +255,7 @@ export function figureStyles(step, strips = false) {
     edgeDetail: style(step.detail),
     tier: style(step.detail, { weight: 700 }),
     note: style(POSTER.floor, { weight: 700 }),
-    tick: style(POSTER.floor),
+    count: style(POSTER.floor),
     boundary: style(Math.min(24, Math.max(step.name, 20)), { weight: 700 }),
   });
 }

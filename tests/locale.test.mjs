@@ -180,16 +180,27 @@ test("a Chinese model's legend words and generated details are Chinese", async (
   assert.deepEqual(overview.relations.at(-1).details, [["关系数", ["2"]]]);
 });
 
-test("a strip key's hub entry names its mark, the dark lines, and where they lead, in every language", () => {
+test("a strip key's hub entry names its mark, the heavy lines, and where they lead, in every language", () => {
   const entries = Object.fromEntries(
     LOCALES.map((locale) => [locale, wordsOf(locale).leadsTo("Supplies")]),
   );
   assert.deepEqual(entries, {
-    en: "dark lines lead to Supplies",
-    "zh-CN": "深色连线：通向Supplies",
-    "zh-TW": "深色連線：通向Supplies",
-    es: "las líneas oscuras llevan a Supplies",
-    ko: "짙은 선: Supplies(으)로 향함",
+    en: "heavy lines lead to Supplies",
+    "zh-CN": "粗线：通向Supplies",
+    "zh-TW": "粗線：通向Supplies",
+    es: "las líneas gruesas llevan a Supplies",
+    ko: "굵은 선: Supplies(으)로 향함",
+  });
+});
+
+test("a strip key's count entry names its mark, the number, and what it counts, in every language", () => {
+  const entries = Object.fromEntries(LOCALES.map((locale) => [locale, wordsOf(locale).cited]));
+  assert.deepEqual(entries, {
+    en: "number: the source files this relation cites",
+    "zh-CN": "数字：这条关系引用的源文件数",
+    "zh-TW": "數字：這條關係引用的原始檔數",
+    es: "número: los archivos fuente que cita esta relación",
+    ko: "숫자: 이 관계가 인용하는 소스 파일 수",
   });
 });
 

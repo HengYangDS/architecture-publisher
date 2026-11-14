@@ -115,6 +115,12 @@ test("card titles link to the files they cite, and the edition names its editors
   const { text } = readPdf(typeset.pdf);
   assert.match(text, /Yang HENG/u);
   assert.match(text, /pdfaid:part/u);
+  // A plate's figure stands in a canvas that reaches below the page; every page keeps the page's size.
+  assert.equal(countIn(typeset.pdf, /\/MediaBox ?\[/gu) >= 2, true);
+  assert.equal(
+    countIn(typeset.pdf, /\/MediaBox ?\[/gu),
+    countIn(typeset.pdf, /\/MediaBox ?\[0 0 1600 900\]/gu),
+  );
   assert.ok(text.includes(JSON.stringify(model)), "the model is attached byte for byte");
   assert.deepEqual(
     typeset.png.map(({ file }) => file),

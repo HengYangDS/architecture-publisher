@@ -15,7 +15,7 @@ command does is in the [operations reference](operations.md#commands).
 
 `archpub --help` lists the commands under the role that runs them: the author's
 `check`, `build`, `scaffold guide`, `import likec4` and `migrate`, the
-reviewer's `accept` and `verify`, the publisher's `publish`, and under
+reviewer's `compare`, `accept` and `verify`, the publisher's `publish`, and under
 `Every role` the `skill` and `help` that any of them runs. `archpub <command>
 --help` prints that command's usage, what it does and the options it takes,
 `--json` among them; an option the command cannot run without stands in the
@@ -106,6 +106,81 @@ problem on a line with its path:
 │
 └  Exit status 1: refused
 ```
+
+## Comparison of two deliveries
+
+`archpub compare <delivery> <delivery>` first checks each delivery against its
+own manifest, as `accept` does, and refuses a directory that is no delivery or
+whose files changed after its build, naming the delivery and each such file. It
+then compares, byte for byte, every file the two manifests list and the
+manifests themselves, and writes nothing. A file differs when its bytes do or
+when one delivery alone holds it. The acceptance record, its signature and the
+colophon page are not compared: `accept` writes them after the build, with the
+reviewer and the time, so a delivery compares the same before and after it is
+accepted.
+
+The exit status is 0 whether or not the deliveries differ: a difference is a
+finding, not a refusal, and a program reads `identical`. With `--json` the
+result of two deliveries that differ in one plate's image is
+
+```json
+{
+  "ok": true,
+  "first": "/work/first",
+  "second": "/work/second",
+  "identical": false,
+  "plates": [
+    {
+      "page": 2,
+      "views": ["containers-automatic"],
+      "files": [
+        { "path": "images/02-containers-automatic.png", "first": "<sha256>", "second": "<sha256>" }
+      ]
+    }
+  ],
+  "files": [{ "path": "manifest.json", "first": "<sha256>", "second": "<sha256>" }]
+}
+```
+
+`plates` holds each plate with a page image that differs, in the order of the
+plates' numbers: its `page`, its `views` and, under `files`, its images that
+differ, at every width delivered. These are the plates a reviewer looks at.
+`files` holds every other file that differs, the files of the whole edition:
+the print edition, the page and what it loads, the overview's images and the
+manifest, which records every file's digest and so differs whenever a file
+does. Each file carries its SHA-256 in the `first` and in the `second`
+delivery, and `null` for a delivery that does not hold it. `first` and `second`
+are the two directories as whole paths. `identical` is true exactly when
+`plates` and `files` are empty.
+
+The report names both deliveries, then each plate that differs by its number
+and views, as a check names it, and the files of the whole edition that differ.
+Its closing line counts them, or says that the deliveries are identical:
+
+```text
+┌  archpub compare · build/first
+│
+│  Deliveries
+◆  First   build/first · its files match its manifest
+◆  Second  build/second · its files match its manifest
+│
+│  Plates that differ
+▲  02  containers-automatic · images/02-containers-automatic.png differs
+│
+│  Files of the whole edition that differ
+▲  manifest.json  differs
+│
+└  1 plate and 1 file of the whole edition differ.
+```
+
+Two builds of one model are the same bytes only when one platform built them
+with one date source: the pinned commit under `--repo`, or one
+`SOURCE_DATE_EPOCH` without it. The bundled example built twice so, by one
+commit of the publisher, was the same in all five of its files, the manifest
+among them, so the comparison leaves out no file and no field of a build. The
+manifest records neither the platform nor the publisher's commit, so the
+command cannot tell whether two builds are comparable; the reviewer knows how
+each was built.
 
 ## Progress
 

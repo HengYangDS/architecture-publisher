@@ -80,7 +80,10 @@ explainer with one panel per view or the guide the model names.
    one medium while you work on it.
 10. The reviewer accepts, and the author of a work does not review it. Unless you
     hold the reviewer's role for this work, stop here and hand the delivery over.
-    Holding it, run `archpub accept <delivery> --reviewer <name>` with
+    Holding it, and given an earlier build of the same work, first run
+    `archpub compare <earlier-delivery> <delivery>`: it names the plates whose
+    images differ, which are the ones to look at before accepting. Then
+    run `archpub accept <delivery> --reviewer <name>` with
     the name your delegation gives, adding `--sign <key>` when the user signs
     with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
     the name, `acceptance.json`, the record of who accepted which bytes and when,

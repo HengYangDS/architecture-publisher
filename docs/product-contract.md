@@ -186,7 +186,7 @@ moves back. Items marked as work on the publications are finished there and tick
       finished there on 2026-11-15: its `trials/2026-11-15-outcome.md` says what each trial decided. The stop line
       was not reached: a reader with a work's model and guide text beside the repository did better than one with
       the repository alone.
-- [ ] `line-table`: a command that compares two deliveries, and one table of line weights and patterns that holds
+- [x] `line-table`: a command that compares two deliveries, and one table of line weights and patterns that holds
       only the rows the experiments passed.
 - [ ] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered
       byte changes.

@@ -1,7 +1,8 @@
 import { presentation } from "../kinds.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
-import { drawStrip, drawTicks, hubOf, stripHeight, tickRuns } from "./strip.mjs";
-import { POSTER, colorsOf, fixed } from "./tokens.mjs";
+import { drawLines } from "./lines.mjs";
+import { drawStrip, stripHeight } from "./strip.mjs";
+import { colorsOf, fixed, linesOf } from "./tokens.mjs";
 
 /**
  * Draw one laid-out figure into SVG shapes and text runs, and report the
@@ -17,58 +18,6 @@ const stroke = (color, paper) => ({
   kind: "stroke",
   weight: DARKNESS.stroke * darkness(color, paper),
 });
-const DASH = POSTER.dash;
-
-/** A path through `points` with rounded corners. */
-function rounded(points, radius) {
-  let d = `M${fixed(points[0][0])},${fixed(points[0][1])}`;
-  for (let i = 1; i < points.length - 1; i += 1) {
-    const [px, py] = points[i - 1];
-    const [cx, cy] = points[i];
-    const [nx, ny] = points[i + 1];
-    const r = Math.min(radius, Math.hypot(cx - px, cy - py) / 2, Math.hypot(nx - cx, ny - cy) / 2);
-    d +=
-      ` L${fixed(cx - Math.sign(cx - px) * r)},${fixed(cy - Math.sign(cy - py) * r)}` +
-      ` Q${fixed(cx)},${fixed(cy)} ${fixed(cx + Math.sign(nx - cx) * r)},${fixed(cy + Math.sign(ny - cy) * r)}`;
-  }
-  const last = points.at(-1);
-  return `${d} L${fixed(last[0])},${fixed(last[1])}`;
-}
-
-function arrowHead({ x, y, direction }, size) {
-  const a = size;
-  const shapes = {
-    down: [
-      [x, y],
-      [x - a / 2, y - a],
-      [x + a / 2, y - a],
-    ],
-    up: [
-      [x, y],
-      [x - a / 2, y + a],
-      [x + a / 2, y + a],
-    ],
-    right: [
-      [x, y],
-      [x - a, y - a / 2],
-      [x - a, y + a / 2],
-    ],
-    left: [
-      [x, y],
-      [x + a, y - a / 2],
-      [x + a, y + a / 2],
-    ],
-  };
-  const [p, q, r] = shapes[/** @type {keyof typeof shapes} */ (direction)];
-  return `M${fixed(p[0])},${fixed(p[1])} L${fixed(q[0])},${fixed(q[1])} L${fixed(r[0])},${fixed(r[1])} Z`;
-}
-
-const statusOf = (relations) =>
-  relations.some(({ status }) => status === "retired")
-    ? "retired"
-    : relations.some(({ status }) => status === "planned")
-      ? "planned"
-      : null;
 
 function iconMarkup(icons, name, x, y, size, color) {
   return (
@@ -235,6 +184,7 @@ function tierLabels(layout, input, draw) {
 export function drawFigure(layout, input) {
   const { model, view, styles, metrics, icons, typefaces, field } = input;
   const C = colorsOf(input.style.tokens);
+  const lines = linesOf(input.style.lines);
   const strips = input.style.name === "strip";
   const shapes = [];
   const runs = [];
@@ -275,6 +225,8 @@ export function drawFigure(layout, input) {
   const boundary = layout.boundary;
   /** @type {{ x: number, y: number, width: number, height: number } | null} */
   let frame = null;
+  /** What a relation's count may not touch: the boundary's edges and name, the parts and the relations' labels. */
+  const marks = [];
   if (boundary) {
     // The frame is not ink a reader sees as filled, so the balance measure does
     // not count it; text set beside the figure still keeps clear of it.
@@ -295,25 +247,28 @@ export function drawFigure(layout, input) {
           : [];
       }),
     );
+    const edge = lines.boundary();
     let tabX = at(boundary.x + 24);
     while (crossings.some((x) => at(x) > tabX - 12 && at(x) < tabX + tabWidth + 12)) tabX += 12;
     shapes.push(
       `<rect x="${fixed(at(boundary.x))}" y="${fixed(down(boundary.y))}" width="${fixed(boundary.width)}" ` +
-        `height="${fixed(boundary.height)}" rx="18" fill="none" stroke="${C.boundary}" stroke-width="1.4" stroke-dasharray="8 5"/>`,
+        `height="${fixed(boundary.height)}" rx="18" fill="none" stroke="${C.boundary}" stroke-width="${edge.stroke}" stroke-dasharray="${edge.dash}"/>`,
     );
     shapes.push(
       `<rect x="${fixed(tabX)}" y="${fixed(down(boundary.y) - 14)}" width="${fixed(tabWidth)}" height="28" rx="7" fill="${fillAt()}"/>`,
     );
     text("figure", boundary.name, tabX + 12, down(boundary.y) - 13, styles.boundary, C.ink);
     rects.push({ x: tabX, y: down(boundary.y) - 14, width: tabWidth, height: 28, ...MASS });
+    const [left, top] = [at(boundary.x), down(boundary.y)];
+    marks.push(
+      { x: tabX, y: top - 14, width: tabWidth, height: 28 },
+      { x: left, y: top, width: boundary.width, height: 0 },
+      { x: left, y: top + boundary.height, width: boundary.width, height: 0 },
+      { x: left, y: top, width: 0, height: boundary.height },
+      { x: left + boundary.width, y: top, width: 0, height: boundary.height },
+    );
   }
 
-  // Strip plates tick each line once per file its relation cites, and draw the lines
-  // into the view's hub in the oldest dye, so a reader finds what the view
-  // draws on; cards draw every line alike. Every line is one weight.
-  const hub = strips ? hubOf(view) : null;
-  const ticks = strips ? tickRuns(model, layout) : new Map();
-  const labelled = layout.labels.map((label) => ({ ...label, x: at(label.x), y: down(label.y) }));
   const components = new Map(view.components.map((component) => [component.id, component]));
   // A strip part has no outline: in a row with a taller one it ends above its
   // box's foot, and a wire into or out of that foot runs on up to one gap under
@@ -334,67 +289,38 @@ export function drawFigure(layout, input) {
     );
     return [x, under ? Math.min(y, under.foot) : y];
   };
-  const colorOf = (relations) =>
-    statusOf(relations) === "retired"
-      ? C.faint
-      : hub !== null && relations.every(({ to }) => to === hub)
-        ? C.dye[2]
-        : C.line;
-  for (const [index, { relations, points }] of layout.paths.entries()) {
-    const status = statusOf(relations);
-    const dash = status ? ` stroke-dasharray="${DASH[status]}"` : "";
-    const ends = [lift(points[0]), ...points.slice(1, -1), lift(points[points.length - 1])];
-    const moved = ends.map(([x, y]) => [at(x), down(y)]);
-    const color = colorOf(relations);
-    const weight = metrics.wire.stroke;
-    const ink = stroke(color, C.paper);
-    shapes.push(
-      `<path d="${rounded(moved, metrics.wire.radius)}" fill="none" stroke="${color}" ` +
-        `stroke-width="${weight}" stroke-linejoin="round" stroke-linecap="round"${dash}/>`,
-    );
-    for (const [x, y] of moved)
-      rects.push({
-        x: x - weight,
-        y: y - weight,
-        width: 2 * weight,
-        height: 2 * weight,
-        ...ink,
-      });
-    // A wire fills its whole run, not just its corners: a long horizontal or
-    // vertical stretch is ink a reader sees, so the balance measure counts it.
-    for (let index = 1; index < moved.length; index += 1) {
-      const [x1, y1] = moved[index - 1];
-      const [x2, y2] = moved[index];
-      const width = Math.max(Math.abs(x2 - x1), 2 * weight);
-      const height = Math.max(Math.abs(y2 - y1), 2 * weight);
-      rects.push({
-        x: Math.min(x1, x2) - weight,
-        y: Math.min(y1, y2) - weight,
-        width,
-        height,
-        ...ink,
-      });
-    }
-    for (const { count, reverse } of ticks.get(index) ?? [])
-      drawTicks(
-        {
-          points: reverse ? moved.toReversed() : moved,
-          count,
-          color,
-          radius: metrics.wire.radius,
-          weight,
-          style: styles.tick,
-          paper: C.paper,
-          labels: labelled,
-        },
-        { text, shapes, rects, typefaces },
-      );
-  }
-  for (const arrow of layout.arrows)
-    shapes.push(
-      `<path d="${arrowHead({ ...arrow, x: at(arrow.x), y: down(lift([arrow.x, arrow.y])[1]) }, metrics.wire.arrow)}" ` +
-        `fill="${colorOf(arrow.relations)}"/>`,
-    );
+  // A count keeps clear of a strip part's marks, which end above its box's foot, and of every relation's label.
+  for (const { box, foot } of feet)
+    marks.push({
+      x: at(box.x),
+      y: down(box.y),
+      width: box.width,
+      height: foot - metrics.card.detailGap - box.y,
+    });
+  for (const label of layout.labels)
+    marks.push({ x: at(label.x), y: down(label.y), width: label.width, height: label.height });
+  const { rows, touching } = drawLines(layout, {
+    model,
+    view,
+    strips,
+    styles,
+    metrics,
+    typefaces,
+    colors: C,
+    lines,
+    at,
+    down,
+    lift,
+    text,
+    shapes,
+    rects,
+    marks,
+  });
+  if (boundary) rows.add("boundary");
+  // A planned or a retired part is drawn in its status's pattern, as a relation is.
+  for (const { status } of view.components)
+    if (status && status !== "implemented") rows.add(status);
+  const drawn = { lines: [...rows], touching };
 
   if (strips) {
     for (const [id, box] of layout.cards) {
@@ -408,12 +334,13 @@ export function drawFigure(layout, input) {
           text: input.cardText(component, box.width),
           styles,
           colors: C,
+          lines,
         },
         { text, shapes, rects, typefaces },
       );
     }
     drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
-    return { shapes, runs, rects, frame };
+    return { shapes, runs, rects, frame, ...drawn };
   }
   shapes.push(
     `<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="1.8" flood-color="${C.shadow}" flood-opacity="0.08"/></filter></defs>`,
@@ -426,7 +353,7 @@ export function drawFigure(layout, input) {
     const hue = C.hue[/** @type {keyof typeof C.hue} */ (style.category)];
     const dash =
       component.status && component.status !== "implemented"
-        ? ` stroke-dasharray="${DASH[component.status]}"`
+        ? ` stroke-dasharray="${lines.status(component.status)}"`
         : "";
     const x = at(card.x);
     const y = down(card.y);
@@ -480,7 +407,7 @@ export function drawFigure(layout, input) {
   }
 
   drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
-  return { shapes, runs, rects, frame };
+  return { shapes, runs, rects, frame, ...drawn };
 }
 
 /**

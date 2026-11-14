@@ -6,7 +6,7 @@ import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
 import { setWidth } from "../spread.mjs";
 import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
-import { HOUSE, HOUSE_STYLE, POSTER, colorsOf, figureStyles } from "../tokens.mjs";
+import { HOUSE, HOUSE_STYLE, POSTER, colorsOf, figureStyles, linesOf } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
 
 /**
@@ -45,22 +45,22 @@ export function gutterFor(typefaces, labels) {
 
 /**
  * The legend's entries: for cards, the kinds present; for strips, the marks its
- * strips and lines show; then the boundary when a figure draws one — some
- * component outside it and some inside — and the statuses present.
+ * strips and lines show; then an entry for each further row of the table of
+ * lines the figure draws, by the shape the table names for it: the boundary,
+ * and the statuses present.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {string} boundary
  * @param {import("../strip.mjs").Style} drawn the style the plate is drawn in
+ * @param {readonly string[]} rows the rows of the table of lines the figure draws
  */
-function legendOf(model, view, boundary, drawn) {
+function legendOf(model, view, boundary, drawn, rows) {
   const words = wordsOf(model.locale);
   const hue = colorsOf(drawn.tokens).hue;
+  const lines = linesOf(drawn.lines);
   /** @type {Array<{ shape?: string, kind?: string, label: string, icon?: string, color?: string }>} */
-  const kinds = drawn.name === "strip" ? stripKey(model, view, drawn) : [];
-  const components = view.components;
-  const outside = components.filter((component) => presentation(model, component).outside);
-  const bounded = outside.length > 0 && outside.length < components.length;
-  for (const component of drawn.name === "strip" ? [] : components) {
+  const kinds = drawn.name === "strip" ? stripKey(model, view, drawn, rows) : [];
+  for (const component of drawn.name === "strip" ? [] : view.components) {
     const style = presentation(model, component);
     if (kinds.some((entry) => entry.kind === style.kind)) continue;
     kinds.push({
@@ -72,17 +72,51 @@ function legendOf(model, view, boundary, drawn) {
   }
   /** @type {Array<{ shape: string, label: string }>} */
   const rest = [];
+  const keyed = (row) => (rows.includes(row) ? lines.key(row) : null);
   // Cards draw an outside part on its own grey card; a strip outside the boundary is told apart by where it
   // stands alone, so the strip key names the boundary only.
-  if (boundary && bounded) {
-    rest.push({ shape: "boundary", label: words.inside(boundary) });
+  const frame = keyed("boundary");
+  if (frame) {
+    rest.push({ shape: frame, label: words.inside(boundary) });
     if (drawn.name !== "strip") rest.push({ shape: "outside", label: words.outside });
   }
-  const shown = [...view.components, ...view.relations];
-  for (const status of /** @type {const} */ (["planned", "retired"]))
-    if (shown.some((item) => item.status === status))
-      rest.push({ shape: status, label: words[status] });
+  for (const status of /** @type {const} */ (["planned", "retired"])) {
+    const shape = keyed(status);
+    if (shape) rest.push({ shape, label: words[status] });
+  }
   return { kinds, rest };
+}
+
+/**
+ * What a build says of its plates' lines: each relation whose count of cited files has no clear place, by plate,
+ * and each row of the table of lines that a plate draws and no work has tested.
+ * @param {Array<{ page: number, lines: string[], touching: string[] }>} plates
+ * @param {import("../strip.mjs").Style} style the style the plates are drawn in
+ * @returns {Array<{ code: string, path?: string, message: string }>}
+ */
+export function lineWarnings(plates, style) {
+  const number = ({ page }) => String(page).padStart(2, "0");
+  const touching = plates.flatMap((plate) =>
+    plate.touching.map((id) => ({
+      code: "citation_count_touches",
+      path: `/plates/${number(plate)}/relations/${id}`,
+      message: `Plate ${number(plate)}: the number of files relation ${id} cites has no clear place and touches another mark.`,
+    })),
+  );
+  const untested = linesOf(style.lines)
+    .untested()
+    .flatMap(({ id, meaning }) => {
+      const drawing = plates.filter(({ lines }) => lines.includes(id)).map(number);
+      return drawing.length
+        ? [
+            {
+              code: "line_row_untested",
+              message: `Plates ${drawing.join(", ")} draw the pattern of ${meaning}, which no work has tested.`,
+            },
+          ]
+        : [];
+    });
+  return [...touching, ...untested];
 }
 
 /**
@@ -304,7 +338,7 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
     if (!full) unfittable(view);
     const { chosen, share, reading, standfirst } = widthOf(scene, view, full);
     const { one, centring, tierLabels, balance, width, height } = chosen;
-    const { kinds, rest } = legendOf(model, view, boundaryName, style);
+    const { kinds, rest } = legendOf(model, view, boundaryName, style, one.figure.lines);
     return {
       page: index + 1,
       views: [view.id],
@@ -336,6 +370,8 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         ...(run.measure ? { measure: run.measure } : {}),
       })),
       legend: [...kinds, ...rest],
+      lines: one.figure.lines,
+      touching: one.figure.touching,
       composition: { step: one.step, wrap: one.limit, flat: one.flat, centring, tierLabels },
       measures: {
         crossings: one.layout.measures.crossings,

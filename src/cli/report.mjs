@@ -4,6 +4,8 @@ import { styleText } from "node:util";
 import { cancel, intro, log, outro, taskLog } from "@clack/prompts";
 import stringWidth from "fast-string-width";
 import { wrapAnsi } from "fast-wrap-ansi";
+import { comparisonReport } from "./comparison.mjs";
+import { attention, count, near, noted, passed, refused, series } from "./facts.mjs";
 
 /**
  * The report contract of the command line: what a command found or did, for a reader at a terminal. A report has
@@ -20,10 +22,7 @@ const LINE = Object.freeze({
   noted: log.info,
 });
 
-/**
- * @typedef {{ state: keyof typeof LINE, label: string, value: string }} Fact
- * @typedef {{ heading: string, facts: Fact[] }} Group
- */
+/** @typedef {import("./facts.mjs").Group} Group */
 
 /**
  * The stream a report is written to, as far as its width goes.
@@ -35,16 +34,6 @@ const NARROWEST = 20;
 
 /** What a closing line opens with when it names the command to run next. */
 const NEXT = "Next: ";
-
-/**
- * A path a command wrote or read, as a reader in the working directory would type it: relative when it lies inside
- * that directory, and as it is otherwise. A result keeps the whole path; a report prints the one that fits a line.
- * @param {string} file
- */
-function near(file) {
-  const relative = path.relative(process.cwd(), file);
-  return relative && !relative.startsWith("..") ? relative : file;
-}
 
 /**
  * A message that names paths, with each path inside the working directory printed relative to it, as `near` does
@@ -70,27 +59,6 @@ const argument = (file) => (/\s/u.test(file) ? `"${file}"` : file);
 /** A title that names a command's subject: the command and, when it was given one, its first argument as typed. */
 const titled = (command, subject) =>
   subject ? `archpub ${command} · ${subject}` : `archpub ${command}`;
-
-/** @param {keyof typeof LINE} state */
-const fact =
-  (state) =>
-  /** @returns {Fact} */
-  (/** @type {string} */ label, /** @type {string | number} */ value) => ({
-    state,
-    label,
-    value: String(value),
-  });
-const passed = fact("passed");
-const attention = fact("attention");
-const refused = fact("refused");
-const noted = fact("noted");
-
-/** "1 view", "2 views". */
-const count = (number, noun) => `${number} ${noun}${number === 1 ? "" : "s"}`;
-
-/** "a", "a and b", "a, b and c". */
-const series = (items) =>
-  items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 
 /** A cited range as ` 10:12`, or nothing for a whole file. */
 const range = (lines) => (lines ? ` ${lines[0]}:${lines[1]}` : "");
@@ -478,6 +446,9 @@ const RESULT = Object.freeze({
       ],
       closing: `${NEXT}archpub check ${argument(near(result.out))}`,
     }),
+  // The title names the first delivery as it was typed; the report's first group names both.
+  compare: (result, subject) =>
+    draw({ title: titled("compare", subject), ...comparisonReport(result) }),
   accept: (result) =>
     draw({
       title: `archpub accept · ${near(result.directory)}`,

@@ -35,7 +35,6 @@ unfinished then leaves the table and returns to the queue, and `fact-layer` open
   missing values, type sizes and typefaces in the table (invariants 5, 7 and the rest of 8).
 - A change of the manifest's format: the design's budget raises it in `fact-layer` and `roles-and-records` only.
 - The rule that a maintenance Change changes no byte of the twelve editions: a maintenance Change of its own.
-- One weight for every straight piece of a row; see "The light pieces at the page's middle".
 
 ## Decisions
 
@@ -130,16 +129,26 @@ relation, with the plate's number and the relation's id. Rejected: a new gate in
 views that fit today and raise the line count of `src/layout`; a refusal, which would add to the cost the author's
 timing found in `plate_unfittable`; and a new measure in the manifest, which would raise its format.
 
-### The light pieces at the page's middle
+### One weight for every piece: the figure stands in a square canvas
 
-`2026-11-15-comparison.md` found two vertical pieces at x = 1200.00 of 2400 at a third of their weight. The lines
-half reproduced it on a plate made for the purpose: the page
-picture lacks one column of the plate at the figure's middle at all three widths, and one row at 2400 px, and a
-line on the pixel centre beside the middle is light too. So pixel centres, the remedy first drafted, would not cure
-it, and nothing is moved. Why the typesetter loses the column is an inference from the measurements; its source was
-not read. The lane has half a working day to establish the cause or to write down what it ruled out. The row "one
-weight for every piece" is out of the table either way, and a cause not established in that time returns to the
-queue as a line of its own. Rejected: moving pieces on a guess.
+`2026-11-15-comparison.md` found two vertical pieces at x = 1200.00 of 2400 at a third of their weight. The cause
+was established inside the half working day this Change gave it. A plate's figure reaches the page as one SVG
+image. Typst's PNG export draws an SVG image into a texture as many texels wide and high as the image is in pixels,
+rounded up, and paints each pixel from its nearest texel. A figure set at the margin is a fraction of a pixel
+smaller than its texture, so one column of texels is left out, at the three delivered widths on the figure's
+middle, and at 2400 px one row. A native mark at the same place loses nothing, and the released 0.14.0 has the
+loss. On the plate the trial read, the hub's line on the middle was 2 px wide beside neighbours of 3.2 px, and at
+960 px two lines on the middle were not drawn.
+
+The figure's SVG is therefore nested, unchanged, in a square canvas as wide as the page less a hair and set at the
+page's origin. Its texture is then exactly as wide and as high as the picture is wide, at any width, so each pixel
+is one texel. The canvas reaches below the page, where it holds nothing and the page cuts it off; the figure keeps
+its size and place, in the PDF too. `tests/line-row-weight.test.mjs` reads twelve pieces at the three widths and a
+census of sloped lines at two widths a caller might name. Every plate's page picture changes.
+
+Rejected: moving lines to pixel centres, which the measurements showed would not cure it; a `shape-rendering`
+hint, which erased the line; a canvas of the page's own proportions, which keeps every column and loses a row
+wherever nine sixteenths of the width is not whole; and narrowing `--png` to multiples of sixteen.
 
 ### `archpub compare` is a command of its own, built on what `verify` already does
 
@@ -240,10 +249,13 @@ sample book and the six works. Rejected: an acceptance of form by eye from a hol
 
 - [The oldest dye colours the files of the oldest age band and the lines into the hub: two meanings on one plate]
   → a conflict the plates already have; width now carries the hub and the dye repeats it. Left to `one-anatomy`.
-- [One column of every plate is missing from its picture at the figure's middle. On plate 05 the hub's line at the
-  page's middle is drawn 2 px wide where its three neighbours are 3.2 px, with a smaller head, and at 960 px two
-  relations' lines at the middle are not drawn] → this Change does not cure it and moves nothing on a guess; task
-  1.2 writes the cause or what was ruled out, and the reviewer's list names the pieces on the middle column.
+- [The key's icons are SVG images in the text's flow and still lose a texel column at some places: 10 of 24 marks
+  read at 2400 px, 9 at 1920 and 3 at 960] → measured and not cured here, since an icon has no known offset to
+  nest it at; it returns to the queue with `one-anatomy`, which redraws the key's marks.
+- [The canvas reaches 700 pt below the page in the PDF] → it holds nothing there, Typst's compile to PDF/A-3a and
+  PDF/UA-1 accepts it, and a test holds the page at 1600 by 900 pt; no validator outside Typst was run.
+- [The loss is Typst's, and a later Typst may change how it draws an image] → the test reads pictures, not the
+  placement, so it fails if the loss returns under any placement.
 - [At the largest type step two enlarged heads at neighbouring ports stand 0.8 px apart by the prototype's
   arithmetic (`trees/README.md`); no built plate was checked for it] → the reviewer's list names the case.
 - [The key's words for the count and the heavy line in `zh-TW`, `es` and `ko` were written by the author and read

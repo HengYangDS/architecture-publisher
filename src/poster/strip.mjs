@@ -2,8 +2,17 @@ import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
+import { hubOf } from "./lines.mjs";
 import { spreadOf } from "./spread.mjs";
-import { POSTER, colorsOf, figureMetrics, figureStyles, fixed, measureWidth } from "./tokens.mjs";
+import {
+  POSTER,
+  colorsOf,
+  figureMetrics,
+  figureStyles,
+  fixed,
+  linesOf,
+  measureWidth,
+} from "./tokens.mjs";
 
 /**
  * Strip marks: each part is drawn as its label, a strip made of the files
@@ -12,7 +21,7 @@ import { POSTER, colorsOf, figureMetrics, figureStyles, fixed, measureWidth } fr
  * bytes on one scale for the whole edition, and every strip is equally thick,
  * so size is read from length alone; each file is one segment of it, as long
  * as its share of the part's bytes and dyed by how recently it changed. A
- * relation's line carries one tick per file it cites. A part's box stays a
+ * relation's line carries the number of files it cites. A part's box stays a
  * rectangle, as wide as the larger of its text and its strip, so placement,
  * routing and every gate are the cards' engine.
  *
@@ -23,7 +32,9 @@ import { POSTER, colorsOf, figureMetrics, figureStyles, fixed, measureWidth } fr
  *   dye: { new: string, mid: string, old: string } }} Tokens
  * @typedef {{ bytes: number, files: ReadonlyArray<{ path: string, bytes: number, band: number }> }} Part
  * @typedef {{ name: "strip" | "card", tokens: Tokens, parts?: Map<string, Part>, most?: number,
- *   bands?: { spans: readonly number[] }, reference?: string, longest?: number }} Style
+ *   bands?: { spans: readonly number[] }, reference?: string, longest?: number,
+ *   lines?: { rows: Record<string, any> } }} Style
+ *   `lines` is a table of lines to draw with in place of the house's own.
  */
 
 /** A part that owns no files. */
@@ -50,152 +61,10 @@ const STRIP = Object.freeze({ shortest: 2, thickness: 12, empty: 40 });
 export const STRIP_LENGTHS = Object.freeze([360, 240]);
 
 /**
- * Ticks across a relation's line, in plate px: 10 px long, 5 px apart, the
- * first 12 px from where its run starts, at most five; past five, or where the
- * run is too short to hold them, the count is written beside them.
- */
-const TICK = Object.freeze({ length: 10, gap: 5, from: 12, most: 5 });
-
-/**
  * The paper between two files of a strip, in px. A file narrower than it would
  * be a seam, not a thread, so it merges into a neighbour of its band.
  */
 const SEAM = 1;
-
-/**
- * How many files a relation cites: its own, or for an overview's relation,
- * every file the model's relations it stands for cite.
- * @param {{ relations: Array<{ id: string, files: string[] }> }} model
- * @param {{ files: string[], relations?: string[] }} relation
- */
-export function citedFiles(model, relation) {
-  if (!relation.relations) return relation.files.length;
-  const ids = new Set(relation.relations);
-  return new Set(model.relations.filter(({ id }) => ids.has(id)).flatMap(({ files }) => files))
-    .size;
-}
-
-/**
- * Where each relation's ticks stand: on the part of its line no other
- * relation shares, from its source's end. A relation that shares its first
- * run with others, as a fan out of one part does, takes them on its own
- * branch, from where it leaves the others. Each run is a path of the layout,
- * keyed by its index, with whether its ticks start from its last point.
- * @param {{ relations: Array<{ id: string, files: string[] }> }} model
- * @param {{ cards: Map<string, { x: number, y: number, width: number, height: number }>,
- *   paths: Array<{ relations: any[], points: number[][] }> }} layout
- * @returns {Map<number, Array<{ count: number, reverse: boolean }>>}
- */
-export function tickRuns(model, layout) {
-  const near = (a, b) => Math.abs(a - b) < 0.5;
-  const within = (value, low, high) => value > low - 0.5 && value < high + 0.5;
-  // A line ends on a part's top or foot, or on its side for a relation along a row.
-  /** @param {number[]} point */
-  const cardAt = ([x, y]) =>
-    [...layout.cards].find(
-      ([, box]) =>
-        ((near(y, box.y) || near(y, box.y + box.height)) && within(x, box.x, box.x + box.width)) ||
-        ((near(x, box.x) || near(x, box.x + box.width)) && within(y, box.y, box.y + box.height)),
-    )?.[0];
-  /** @type {Map<any, Array<{ index: number, last: boolean, card: string | undefined }>>} */
-  const own = new Map();
-  layout.paths.forEach(({ relations, points }, index) => {
-    for (const last of [false, true]) {
-      const card = cardAt(points[last ? points.length - 1 : 0]);
-      const ending = relations.filter(({ from, to }) => from === card || to === card);
-      if (ending.length === 1)
-        own.set(ending[0], [...(own.get(ending[0]) ?? []), { index, last, card }]);
-    }
-  });
-  /** @type {Map<number, Array<{ count: number, reverse: boolean }>>} */
-  const runs = new Map();
-  for (const [relation, ends] of own) {
-    const count = citedFiles(model, relation);
-    if (!count) continue;
-    const source = ends.find(({ card }) => card === relation.from);
-    // Without a run of its own at its source, its run ends at its target: the ticks start from the other end.
-    const { index, last } = source ?? { ...ends[0], last: !ends[0].last };
-    runs.set(index, [...(runs.get(index) ?? []), { count, reverse: last }]);
-  }
-  return runs;
-}
-
-/**
- * The ticks along a line from its first point, one per file up to five, each
- * across the line and clear of its corners, of its far end, where an
- * arrowhead or the next part stands, and of the relation labels set over it,
- * whose paper would hide them; and, when the ticks alone do not give the
- * count, where it is written: beside the last tick, or at the middle of the
- * line's first run when none fits.
- * @param {number[][]} points
- * @param {number} count
- * @param {number} radius the radius of the line's corners
- * @param {Array<{ x: number, y: number, width: number, height: number }>} [labels]
- * @returns {{ ticks: number[][][], note: { x: number, y: number, vertical: boolean } | null }}
- */
-export function ticksAlong(points, count, radius, labels = []) {
-  const covered = (x, y) =>
-    labels.some(
-      (label) =>
-        x > label.x - 2 &&
-        x < label.x + label.width + 2 &&
-        y > label.y - 2 &&
-        y < label.y + label.height + 2,
-    );
-  const wanted = Math.min(count, TICK.most);
-  const half = TICK.length / 2;
-  /** @type {number[][][]} */
-  const ticks = [];
-  /** @type {{ x: number, y: number, vertical: boolean } | null} */
-  let last = null;
-  /** @type {number} */
-  let at = TICK.from;
-  let start = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    const [x1, y1] = points[index - 1];
-    const [x2, y2] = points[index];
-    const length = Math.hypot(x2 - x1, y2 - y1);
-    const vertical = Math.abs(x2 - x1) < Math.abs(y2 - y1);
-    at = Math.max(at, start + (index > 1 ? radius : 0));
-    const end = start + length - (index < points.length - 1 ? radius : TICK.from);
-    for (; at <= end && ticks.length < wanted; at += TICK.gap) {
-      const share = (at - start) / length;
-      const [x, y] = [x1 + (x2 - x1) * share, y1 + (y2 - y1) * share];
-      if (covered(x, y)) continue;
-      // Across the line: its direction turned a quarter, half a tick each way.
-      const [dx, dy] = [((y2 - y1) / length) * half, (-(x2 - x1) / length) * half];
-      ticks.push([
-        [x - dx, y - dy],
-        [x + dx, y + dy],
-      ]);
-      last = { x, y, vertical };
-    }
-    start += length;
-  }
-  if (ticks.length === count) return { ticks, note: null };
-  const [[x1, y1], [x2, y2]] = points;
-  const middle = {
-    x: (x1 + x2) / 2,
-    y: (y1 + y2) / 2,
-    vertical: Math.abs(x2 - x1) < Math.abs(y2 - y1),
-  };
-  return { ticks, note: last ?? middle };
-}
-
-/**
- * The part of a view that most of its relations end at, when at least three
- * do and more than at any other part: the view's hub, whose relations a reader
- * follows in the oldest dye. A tie has no hub.
- * @param {{ relations: Array<{ to: string }> }} view
- * @returns {string | null}
- */
-export function hubOf(view) {
-  /** @type {Map<string, number>} */
-  const counts = new Map();
-  for (const { to } of view.relations) counts.set(to, (counts.get(to) ?? 0) + 1);
-  const [first = ["", 0], second = ["", 0]] = [...counts].sort((a, b) => b[1] - a[1]);
-  return first[1] >= 3 && first[1] > second[1] ? first[0] : null;
-}
 
 /**
  * The files a part owns: its own, or for a group the overview draws, its
@@ -449,7 +318,7 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
  * darkness their runs carry.
  * @param {{ x: number, y: number, width: number, component: any,
  *   text: ReturnType<ReturnType<typeof stripBoxes>["text"]>, styles: any,
- *   colors: ReturnType<typeof colorsOf> }} marks
+ *   colors: ReturnType<typeof colorsOf>, lines: ReturnType<typeof linesOf> }} marks
  * @param {{ text: Function, shapes: string[], rects: any[], typefaces: any }} draw
  */
 export function drawStrip(marks, draw) {
@@ -503,7 +372,7 @@ export function drawStrip(marks, draw) {
   if (!segments.length || status) {
     draw.shapes.push(
       `<rect x="${fixed(x)}" y="${fixed(top)}" width="${fixed(length)}" height="${fixed(thickness)}" fill="none" ` +
-        `stroke="${C.line}" stroke-width="1" stroke-dasharray="${POSTER.dash[status ?? "empty"]}"/>`,
+        `stroke="${C.line}" stroke-width="1" stroke-dasharray="${status ? marks.lines.status(status) : POSTER.dash.empty}"/>`,
     );
     draw.rects.push({
       x,
@@ -535,43 +404,6 @@ export function drawStrip(marks, draw) {
     top = draw.text("cards", line, x, top, styles.detail, C.muted, null, text.spread[index]);
 }
 
-/**
- * Tick a relation's run, from its first point, in its line's colour and
- * weight; past five ticks, or where the run is too short for them all, the
- * count is set beside them in the smallest type, right of a run that falls and
- * above one that crosses. Ticks are strokes and the count is text to the
- * balance measure.
- * @param {{ points: number[][], count: number, color: string, radius: number, weight: number,
- *   style: any, paper: string, labels: Array<{ x: number, y: number, width: number, height: number }> }} run
- * @param {{ text: Function, shapes: string[], rects: any[], typefaces: any }} draw
- */
-export function drawTicks(run, draw) {
-  const { ticks, note } = ticksAlong(run.points, run.count, run.radius, run.labels);
-  const ink = { kind: "stroke", weight: DARKNESS.stroke * darkness(run.color, run.paper) };
-  if (ticks.length)
-    draw.shapes.push(
-      `<path d="${ticks.map(([[x1, y1], [x2, y2]]) => `M${fixed(x1)},${fixed(y1)} L${fixed(x2)},${fixed(y2)}`).join(" ")}" ` +
-        `stroke="${run.color}" stroke-width="${run.weight}" fill="none"/>`,
-    );
-  for (const [[x1, y1], [x2, y2]] of ticks)
-    draw.rects.push({
-      x: Math.min(x1, x2) - run.weight / 2,
-      y: Math.min(y1, y2) - run.weight / 2,
-      width: Math.abs(x2 - x1) + run.weight,
-      height: Math.abs(y2 - y1) + run.weight,
-      ...ink,
-    });
-  if (!note) return;
-  const value = String(run.count);
-  const width = draw.typefaces.measure(value, run.style);
-  const clear = TICK.length / 2 + 4;
-  const [x, top] = note.vertical
-    ? [note.x + clear, note.y - run.style.line / 2]
-    : [note.x - width / 2, note.y - clear - run.style.line];
-  draw.text("labels", value, x, top, run.style, run.color);
-  draw.rects.push({ x, y: top, width, height: run.style.line, kind: "mass", weight: 0 });
-}
-
 /** The arrowhead of the key's sample line: the one a plate draws at every type step but its largest. */
 const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
 
@@ -579,14 +411,17 @@ const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
  * The key of a strip plate, only for what it shows, each mark a sample drawn
  * as the plate draws it: the age bands its strips hold, each named by its days
  * before the commit, and the date of the commit they are counted back from; a
- * strip of a round size on the edition's scale, when a part owns files; ticks,
- * when a relation cites files; and a line into the hub the view's relations lead to, with its arrowhead.
+ * strip of a round size on the edition's scale, when a part owns files; a count,
+ * when the figure sets one; and a line into the hub, as heavy as the figure draws
+ * one and with its arrowhead, when the figure draws one. A row of the table of
+ * lines is keyed by the shape the table names for it.
  * @param {any} model
  * @param {{ components: any[], relations: any[] }} view
  * @param {Style} style
+ * @param {readonly string[]} drawn the rows of the table of lines the figure draws
  * @returns {Array<{ shape: string, label: string, [field: string]: unknown }>}
  */
-export function stripKey(model, view, style) {
+export function stripKey(model, view, style, drawn) {
   const words = wordsOf(model.locale);
   const C = colorsOf(style.tokens);
   const parts = /** @type {Map<string, Part>} */ (style.parts);
@@ -623,24 +458,19 @@ export function stripKey(model, view, style) {
       label: words.length(size),
     });
   }
-  if (view.relations.some((relation) => citedFiles(model, relation) > 0))
-    key.push({
-      shape: "ticks",
-      count: 3,
-      length: TICK.length,
-      gap: TICK.gap,
-      weight: POSTER.wire.stroke,
-      color: C.line,
-      label: words.ticks,
-    });
-  const hub = hubOf(view);
+  const lines = linesOf(style.lines);
+  const keyed = (row) => (drawn.includes(row) ? lines.key(row) : null);
+  const count = keyed("citations");
+  if (count)
+    key.push({ shape: count, count: 3, size: POSTER.floor, color: C.line, label: words.cited });
+  const hub = keyed("emphasis");
   if (hub) {
-    const { label } = view.components.find(({ id }) => id === hub);
+    const { label } = view.components.find(({ id }) => id === hubOf(view));
     key.push({
-      shape: "hub",
+      shape: hub,
       color: C.dye[2],
-      weight: POSTER.wire.stroke,
-      arrow: KEY_ARROW,
+      weight: lines.stroke(true),
+      arrow: fixed(KEY_ARROW * lines.arrow(true)),
       label: words.leadsTo(label),
     });
   }

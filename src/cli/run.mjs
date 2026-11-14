@@ -4,7 +4,12 @@ import { fileURLToPath } from "node:url";
 import { stripVTControlCharacters, styleText } from "node:util";
 import { Command, CommanderError, InvalidArgumentError } from "commander";
 import { buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
-import { acceptDelivery, publishDelivery, verifyAcceptance } from "../delivery.mjs";
+import {
+  acceptDelivery,
+  compareDeliveries,
+  publishDelivery,
+  verifyAcceptance,
+} from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
 import { migrateModel } from "../importers/model.mjs";
 import { Refusal } from "../refusal.mjs";
@@ -210,6 +215,25 @@ function commands({ version: current, write, action, listener }) {
     );
 
   program.commandsGroup("Reviewer:");
+  command(
+    program,
+    "compare",
+    "Report which files of two deliveries differ in bytes, plate by plate, and write nothing",
+  )
+    .argument("<delivery>", "the first delivery's directory")
+    .argument("<delivery>", "the second delivery's directory")
+    .addHelpText(
+      "after",
+      [
+        "",
+        "Each delivery is first checked against its own manifest. Every file a manifest",
+        "lists is compared, and the manifest itself. A delivery's acceptance record, its",
+        "signature and its colophon page are not compared: accepting writes them after",
+        "the build. Two builds of one model are the same bytes only when one platform",
+        "built them with one date source.",
+      ].join("\n"),
+    )
+    .action(action("compare", (first, second) => compareDeliveries(first, second)));
   command(
     program,
     "accept",

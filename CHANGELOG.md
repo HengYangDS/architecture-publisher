@@ -17,6 +17,18 @@ remain pre-release contracts and may contain incompatible changes.
   standard error is a pipe or a file, it draws none, and standard output holds the same bytes either way.
 - `docs/reference/command-line.md`, a reference of what the command prints: its help and usage errors, exit statuses,
   `--json` results, reports and progress. The operations reference keeps what each command does.
+- `archpub compare <delivery> <delivery>`, under the reviewer's heading of the help, reports which files of two
+  deliveries differ in bytes: each plate with a page image that differs, by its number and views, and apart from the
+  plates the files of the whole edition, the manifest among them. It checks each delivery against its own manifest
+  first, writes nothing, and exits with status 0 whether or not the deliveries differ. With `--json` the result holds
+  `identical`, `plates` and `files`, each file with its SHA-256 in either delivery. An acceptance record, its
+  signature and the colophon page are not compared.
+- The weights and patterns of relations' lines, of the two statuses and of the system boundary are one table, the
+  `lines` section of `src/house.json`, which the figure, the key and the tests read and the new reference page
+  `docs/reference/lines.md` shows. A model cannot name or change a value of it.
+- A build or a check warns `line_row_untested` when its plates draw a planned or a retired part or relation: no work
+  has yet tested those two patterns on a screen. It warns `citation_count_touches`, with the plate and the relation,
+  when a relation's count of cited files finds no clear place along its line; the plate is still built.
 
 ### Removed
 
@@ -27,6 +39,21 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** with `strip` marks a relation's cited files are written as a number near its source, and ticks are no
+  longer drawn. Readers of the roadmap's first trial read a number right 54 times in 54 and ticks 88 times in 162.
+- **Breaking:** relations into a view's hub are drawn twice as heavy, still in the oldest dye, and end inside an
+  arrowhead 1.45 times as large; a planned relation into the hub is heavy too, and a retired one is unchanged. Colour
+  alone no longer tells the hub's lines apart. The key says "heavy lines lead to" the hub, in the five languages.
+- **Breaking:** a plate's key holds the sample of a line's row exactly when its figure draws the row, and the samples
+  of the hub's line, the count and the boundary are drawn at the plate's own weight, size, dash and gap. The key mark
+  `ticks` is replaced by `count`.
+- **Breaking:** every plate's page picture changes. A figure was placed so that Typst's PNG export left out one column
+  of its pixels, at the delivered widths on the figure's middle, and at 2400 px one row: a line standing there was
+  drawn at a third of its weight, and at 960 px not at all. The figure now stands in a square canvas at the page's
+  origin, so the picture keeps every column and row at any width; the page and the figure keep their sizes, in the PDF
+  too.
+- A delivery that does not match its manifest is refused by name: `accept`, `verify` and `publish` say which
+  delivery's files differ and which `manifest.json` is not JSON or no delivery's. The refusal codes are unchanged.
 - **Breaking:** the text a command prints without `--json` is new: the help, the result of every command, refusals and
   usage errors. A result is a report with one marked line per fact, `◆` passed, `▲` needs attention, `■` refused and
   `●` noted, under a heading for each group, and it ends with the command to run next; a refusal names the model or

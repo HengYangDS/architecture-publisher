@@ -71,7 +71,7 @@ export function editionRecord(input) {
       alt: words.plate(number, plate.title, plate.question),
       runs: plate.runs,
       // A kind's mark is its icon; every other mark is its legend entry as the plate drew it, so the house class
-      // sets each sample (a band's dye, a strip's length, the ticks) at the plate's own scale.
+      // sets each sample (a band's dye, a strip's length, a count) at the plate's own scale.
       marks: plate.legend.map((entry) =>
         entry.icon
           ? { label: entry.label, artwork: icons.artwork(entry.icon), color: entry.color }

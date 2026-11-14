@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { validateModel } from "../src/model/load.mjs";
-import { hubOf } from "../src/poster/strip.mjs";
 import { admitsView } from "../src/poster/compose/plates.mjs";
-import { POSTER } from "../src/poster/tokens.mjs";
+import { hubOf } from "../src/poster/lines.mjs";
+import { TABLE } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import {
   typefaces,
@@ -23,7 +23,14 @@ import {
   lengthOf,
 } from "./fixtures/strips.mjs";
 
-// Strip marks: strips on one scale, their files, the hub and the box a part keeps; the ticks are in poster-strip-ticks.
+// Strip marks: strips on one scale, their files, the hub and the box a part keeps; the counts are in
+// poster-line-counts.
+
+/** The patterns the table of lines gives a planned and a retired part or relation. */
+const DASH = Object.freeze({
+  planned: TABLE.rows.planned.dash.join(" "),
+  retired: TABLE.rows.retired.dash.join(" "),
+});
 
 /** The largest part's strip, in px: every other part's strip is as long for its share of the largest's bytes. */
 const LONGEST = 360;
@@ -115,18 +122,28 @@ test("a part that owns no files is an empty dashed strip of a fixed short length
   assert.ok(empty.dash);
   assert.deepEqual([empty.width, empty.height], [40, 12]);
   assert.ok(plate.runs.some(({ text }) => text === "owns no files"));
-  // No icons, no card boxes and no bars: the plate draws strips, wires, ticks and labels.
+  // No icons, no card boxes and no bars: the plate draws strips, wires and labels.
   assert.doesNotMatch(plate.svg, /<g transform|filter=|<text/u);
 });
 
-test("every line is one weight, and the hub's lines and arrowheads are in the oldest dye", async () => {
+/** Whether a wire has an end at a distance from a point, to a tenth of a pixel. */
+const endsAt = ({ points }, { x, y }, distance = 0) =>
+  [points[0], points.at(-1)].some(
+    ([px, py]) => Math.abs(Math.hypot(px - x, py - y) - distance) < 0.11,
+  );
+
+test("the lines into the hub are twice as heavy, in the oldest dye, each ending inside a larger arrowhead", async () => {
   const {
     plates: [plate],
   } = await platesIn(stripModel(), stripStyle());
   const wires = wiresOf(plate.svg);
-  assert.deepEqual([...new Set(wires.map(({ width }) => width))], [POSTER.wire.stroke]);
-  assert.ok(wires.some(({ stroke }) => stroke === INDIGO.dye.old));
-  assert.ok(wires.some(({ stroke }) => stroke === INDIGO.palette.mid));
+  const { relation, emphasis } = TABLE.rows;
+  const heavy = wires.filter(({ width }) => width === relation.stroke * emphasis.factor);
+  const light = wires.filter(({ width }) => width === relation.stroke);
+  assert.equal(heavy.length + light.length, wires.length);
+  assert.ok(heavy.length > 0 && light.length > 0);
+  for (const { stroke, dash } of heavy) assert.deepEqual([stroke, dash], [INDIGO.dye.old, null]);
+  for (const { stroke } of light) assert.equal(stroke, INDIGO.palette.mid);
   const strip = stripOf(plate, "supplies");
   const right = strip[0].x + lengthOf(strip);
   const top = labelOf(plate, "supplies").baseline;
@@ -135,10 +152,51 @@ test("every line is one weight, and the hub's lines and arrowheads are in the ol
     ({ x, y }) =>
       x >= strip[0].x && x <= Math.max(right, strip[0].x + LONGEST) && y < top && y > top - 40,
   );
-  assert.ok(into.length > 0);
-  for (const arrow of into) assert.equal(arrow.fill, INDIGO.dye.old);
-  for (const arrow of arrows.filter((arrow) => !into.includes(arrow)))
+  const others = arrows.filter((arrow) => !into.includes(arrow));
+  assert.ok(into.length > 0 && others.length > 0);
+  const [ordinary, ...further] = [...new Set(others.map(({ size }) => size))];
+  assert.deepEqual(further, []);
+  for (const arrow of into) {
+    assert.equal(arrow.fill, INDIGO.dye.old);
+    assert.equal(arrow.size, Math.round(ordinary * emphasis.arrow * 10) / 10);
+    // A heavy line stops half a head short of the tip, inside the head, and no line's round cap reaches the tip.
+    assert.ok(heavy.some((wire) => endsAt(wire, arrow, arrow.size / 2)));
+    assert.ok(!wires.some((wire) => endsAt(wire, arrow)));
+  }
+  for (const arrow of others) {
     assert.equal(arrow.fill, INDIGO.palette.mid);
+    assert.ok(light.some((wire) => endsAt(wire, arrow)));
+  }
+});
+
+test("a planned relation into the hub is heavy in its dashes, and a retired one keeps its colour, weight and dots", async () => {
+  const model = stripModel("en", {}, { icons: "planned", stages: "retired" });
+  const {
+    plates: [plate],
+  } = await platesIn(model, stripStyle());
+  const wires = wiresOf(plate.svg);
+  const { relation, emphasis } = TABLE.rows;
+  const planned = wires.filter(({ dash }) => dash === DASH.planned);
+  const retired = wires.filter(({ dash }) => dash === DASH.retired);
+  assert.ok(planned.length > 0 && retired.length > 0);
+  for (const { stroke, width } of planned)
+    assert.deepEqual([stroke, width], [INDIGO.dye.old, relation.stroke * emphasis.factor]);
+  for (const { stroke, width } of retired)
+    assert.deepEqual([stroke, width], [INDIGO.figure.retired, relation.stroke]);
+  // The retired line keeps the arrowhead of every other line, in its own colour.
+  const arrows = arrowsOf(plate.svg);
+  const sizes = [...new Set(arrows.map(({ size }) => size))].sort((a, b) => a - b);
+  assert.equal(sizes.length, 2);
+  for (const arrow of arrows.filter(({ fill }) => fill === INDIGO.figure.retired))
+    assert.equal(arrow.size, sizes[0]);
+  assert.deepEqual(plate.lines.toSorted(), [
+    "boundary",
+    "citations",
+    "emphasis",
+    "planned",
+    "relation",
+    "retired",
+  ]);
 });
 
 test("a view's hub draws three relations or more and strictly more than any other part", () => {
@@ -160,11 +218,11 @@ test("a planned or retired part's strip is outlined in its status's dashes", asy
     plates: [plate],
   } = await platesIn(model, stripStyle());
   const outlines = rectsOf(plate.svg).filter(({ fill }) => fill === "none");
-  assert.ok(outlines.some(({ dash }) => dash === POSTER.dash.retired));
-  assert.ok(outlines.some(({ dash }) => dash === POSTER.dash.planned));
+  assert.ok(outlines.some(({ dash }) => dash === DASH.retired));
+  assert.ok(outlines.some(({ dash }) => dash === DASH.planned));
   // A retired part's label is muted, as on a card, and its outline is as long as its strip.
   assert.equal(labelOf(plate, "record").color, INDIGO.palette.soft);
-  const retired = outlines.find(({ dash }) => dash === POSTER.dash.retired);
+  const retired = outlines.find(({ dash }) => dash === DASH.retired);
   assert.ok(Math.abs(retired.width - lengthOf(stripOf(plate, "record"))) <= 0.15);
   assert.deepEqual(
     plate.legend.slice(-2).map(({ shape }) => shape),

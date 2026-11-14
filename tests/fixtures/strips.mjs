@@ -101,7 +101,8 @@ export const files = (count) => Array.from({ length: count }, (_, index) => `src
 
 /**
  * A small work: a builder that composes plates, runs Typst and loads fonts; four parts draw
- * on the supplies, each of those relations citing three files or more.
+ * on the supplies, each of those relations citing three files or more. `statuses` gives a part
+ * or one of the four relations into the supplies a status, by id.
  */
 export function stripModel(locale = "en", extra = {}, statuses = {}) {
   const zh = locale === "zh-CN";
@@ -132,10 +133,38 @@ export function stripModel(locale = "en", extra = {}, statuses = {}) {
       ],
       relations: [
         { id: "composes", from: "builder", to: "composer", label: "composes", files: files(2) },
-        { id: "fonts", from: "builder", to: "supplies", label: "loads fonts", files: files(3) },
-        { id: "icons", from: "composer", to: "supplies", label: "loads icons", files: files(3) },
-        { id: "faces", from: "words", to: "supplies", label: "reads faces", files: files(4) },
-        { id: "stages", from: "record", to: "supplies", label: "stages", files: files(3) },
+        {
+          id: "fonts",
+          from: "builder",
+          to: "supplies",
+          label: "loads fonts",
+          files: files(3),
+          ...status("fonts"),
+        },
+        {
+          id: "icons",
+          from: "composer",
+          to: "supplies",
+          label: "loads icons",
+          files: files(3),
+          ...status("icons"),
+        },
+        {
+          id: "faces",
+          from: "words",
+          to: "supplies",
+          label: "reads faces",
+          files: files(4),
+          ...status("faces"),
+        },
+        {
+          id: "stages",
+          from: "record",
+          to: "supplies",
+          label: "stages",
+          files: files(3),
+          ...status("stages"),
+        },
         { id: "sets", from: "composer", to: "words", label: "sets words", files: files(1) },
         { id: "writes", from: "composer", to: "record", label: "writes" },
         { id: "runs", from: "builder", to: "typst", label: "runs Typst", files: files(1) },
@@ -170,32 +199,35 @@ export const rectsOf = (svg) =>
     dash: /stroke-dasharray="([^"]+)"/u.exec(rest)?.[1] ?? null,
   }));
 
-/** The wires a plate draws: their colour and width. */
+/** The wires a plate draws: their colour, width and dashes, and the points their path names. */
 export const wiresOf = (svg) =>
-  [...svg.matchAll(/<path d="[^"]+" fill="none" stroke="([^"]+)" stroke-width="([\d.]+)"/gu)].map(
-    ([, stroke, width]) => ({ stroke, width: number(width) }),
-  );
-
-/**
- * The ticks a plate draws across its lines, one group per relation: their colour, width and
- * each tick's two ends.
- */
-export const ticksOf = (svg) =>
   [
-    ...svg.matchAll(/<path d="([^"]+)" stroke="([^"]+)" stroke-width="([\d.]+)" fill="none"\/>/gu),
-  ].map(([, d, stroke, width]) => ({
+    ...svg.matchAll(
+      /<path d="([^"]+)" fill="none" stroke="([^"]+)" stroke-width="([\d.]+)"[^>]*?(?: stroke-dasharray="([^"]+)")?\/>/gu,
+    ),
+  ].map(([, d, stroke, width, dash]) => ({
     stroke,
     width: number(width),
-    ticks: [...d.matchAll(/M([\d.-]+),([\d.-]+) L([\d.-]+),([\d.-]+)/gu)].map((match) =>
-      match.slice(1).map(number),
-    ),
+    dash: dash ?? null,
+    points: [...d.matchAll(/([\d.-]+),([\d.-]+)/gu)].map(([, x, y]) => [number(x), number(y)]),
   }));
 
-/** The arrowheads a plate draws: the tip and the fill. */
+/** The arrowheads a plate draws: the tip, the fill and the size, the length of the side opposite the tip. */
 export const arrowsOf = (svg) =>
-  [...svg.matchAll(/<path d="M([\d.]+),([\d.]+) L[^"]+Z" fill="([^"]+)"\/>/gu)].map(
-    ([, x, y, fill]) => ({ x: number(x), y: number(y), fill }),
-  );
+  [
+    ...svg.matchAll(
+      /<path d="M([\d.-]+),([\d.-]+) L([\d.-]+),([\d.-]+) L([\d.-]+),([\d.-]+) Z" fill="([^"]+)"\/>/gu,
+    ),
+  ].map(([, x, y, qx, qy, rx, ry, fill]) => ({
+    x: number(x),
+    y: number(y),
+    fill,
+    size: Math.round(Math.hypot(number(rx) - number(qx), number(ry) - number(qy)) * 10) / 10,
+  }));
+
+/** The counts of cited files a plate sets by its lines: runs of figures in the regular weight. */
+export const countsOf = (plate) =>
+  plate.runs.filter(({ text, weight }) => /^\d+$/u.test(text) && weight === 400);
 
 /** The label run of a part: its last line, under which its strip is drawn. */
 export const labelOf = (plate, id) => plate.runs.filter(({ component }) => component === id).at(-1);

@@ -20,8 +20,8 @@ const BLANK =
 const STRIPS = [
   { shape: "band", band: 0, color: "#b7d8db", label: "HHHH" },
   { shape: "length", bytes: 20000, length: 128.6, thickness: 12, color: "#b7d8db", label: "HHHH" },
-  { shape: "ticks", count: 3, length: 10, gap: 5, weight: 1.6, color: "#617465", label: "HHHH" },
-  { shape: "hub", color: "#334965", weight: 1.6, arrow: 8, label: "HHHH" },
+  { shape: "count", count: 3, size: 14, color: "#617465", label: "HHHH" },
+  { shape: "hub", color: "#334965", weight: 3.2, arrow: 11.6, label: "HHHH" },
   { shape: "boundary", label: "HHHH" },
   { shape: "planned", label: "HHHH" },
 ];
@@ -122,6 +122,75 @@ test("every mark of a key is centred on the capitals beside it, whatever its hei
   const hub = marks[3];
   const tall = hub.bottom - hub.top + 1;
   assert.ok(Math.abs(tall - STRIPS[3].arrow) <= 2, `the hub's mark is ${tall} px tall`);
+});
+
+/** The red of a colour, the channel the pictures are read in. */
+const red = (color) => Number.parseInt(color.slice(1, 3), 16);
+
+/**
+ * The darkness of each pixel from one point of a page picture over a number of steps, across or down: its distance
+ * from the paper as a share of a colour's distance from the paper.
+ */
+function darknessFrom(image, [x, y], [dx, dy], steps, color) {
+  const { width, channels, pixels } = image;
+  const paper = pixels[(Math.round(HOUSE.edition.bodyBottom * PX) + 2) * width * channels];
+  return Array.from({ length: steps }, (_, step) => {
+    const pixel = pixels[((y + step * dy) * width + x + step * dx) * channels];
+    return Math.min(1, Math.max(0, (paper - pixel) / (paper - red(color))));
+  });
+}
+
+test("the key sets a count as a figure at the plate's size, a hub line at the plate's weight and the boundary in the plate's dashes", async () => {
+  const image = await pageOf(STRIPS);
+  const marks = keyOf(image).filter((_, index) => index % 2 === 0);
+  const [count, hub, boundary] = [marks[2], marks[3], marks[4]];
+  // A figure of the plate's 14 px type stands as tall as its capitals, some 9 px, and half as wide; a line would not.
+  const [tall, wide] = [count.bottom - count.top + 1, count.right - count.left + 1];
+  assert.ok(tall >= 8 && tall <= 11, `the count's figure is ${tall} px tall`);
+  assert.ok(wide >= 5 && wide <= 9, `the count's figure is ${wide} px wide`);
+  // The hub's line, read across at a column before its arrowhead, is as heavy as the plate's line into a hub.
+  const sum = (values) => values.reduce((total, value) => total + value, 0);
+  const heavy = sum(
+    darknessFrom(image, [hub.left + 6, hub.top], [0, 1], hub.bottom - hub.top + 1, STRIPS[3].color),
+  );
+  assert.ok(Math.abs(heavy - STRIPS[3].weight) <= 0.4, `the hub's line is ${heavy} px heavy`);
+  // The boundary's sample has the weight of the boundary's row in the table, read across its left edge between
+  // its round corners where a dash covers it, and its dash and gap, read along its lower edge, which holds one
+  // whole dash between two gaps.
+  const { stroke, dash } = HOUSE.lines.rows.boundary;
+  const straight = Array.from(
+    { length: boundary.bottom - boundary.top - 11 },
+    (_, row) => boundary.top + 6 + row,
+  );
+  const edge = Math.max(
+    ...straight.map((row) =>
+      sum(darknessFrom(image, [boundary.left - 2, row], [1, 0], 8, HOUSE.figure.boundary)),
+    ),
+  );
+  assert.ok(Math.abs(edge - stroke) <= 0.25, `the boundary's edge is ${edge} px heavy`);
+  const lower = darknessFrom(
+    image,
+    [boundary.left, boundary.bottom - 1],
+    [1, 0],
+    boundary.right - boundary.left + 1,
+    HOUSE.figure.boundary,
+  );
+  const stretches = lower
+    .map((value) => (value >= 0.5 ? "#" : " "))
+    .join("")
+    .match(/#+| +/gu);
+  const whole = stretches.slice(1, -1);
+  assert.ok(
+    whole.some(
+      (stretch, index) =>
+        stretch.startsWith("#") &&
+        Math.abs(stretch.length - dash[0]) <= 1 &&
+        [whole[index - 1], whole[index + 1]].every(
+          (gap) => gap !== undefined && Math.abs(gap.length - dash[1]) <= 1,
+        ),
+    ),
+    `the boundary's lower edge reads ${JSON.stringify(stretches)}`,
+  );
 });
 
 test("a key's text stands on the baseline at 850 points, whether its marks are icons or strips", async () => {

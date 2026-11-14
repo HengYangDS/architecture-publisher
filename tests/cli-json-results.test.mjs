@@ -62,6 +62,9 @@ test("every command keeps the fields of its JSON body and its exit status", asyn
     ],
     [["accept", out, "--reviewer", "Reviewer"], 1, refusal],
     [["verify", out], 0, [...accepted, "signer", "signature"]],
+    // An accepted delivery is compared as any other; its acceptance is no part of the comparison.
+    [["compare", out, out], 0, ["ok", "first", "second", "identical", "plates", "files"]],
+    [["compare", out, root], 1, refusal],
     [
       ["publish", out, "--to", published, "--version", "v1"],
       0,

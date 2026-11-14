@@ -237,7 +237,10 @@
     + "' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + entry.artwork + "</svg>"),
     format: "svg", width: 13pt)
 } else if entry.shape == "boundary" {
-  rect(width: 16pt, height: 10pt, radius: 3pt, stroke: (paint: rgb(_house.figure.boundary), thickness: 0.7pt, dash: (2pt, 1.6pt)))
+  // The boundary as the plate draws it: the weight, the dash and the gap of its row in the table of lines.
+  let row = _house.lines.rows.boundary
+  rect(width: 16pt, height: 10pt, radius: 3pt, stroke: (paint: rgb(_house.figure.boundary), thickness: row.stroke * _k,
+    dash: row.dash.map(length => length * _k)))
 } else if entry.shape == "outside" {
   rect(width: 16pt, height: 10pt, radius: 3pt, fill: rgb(_house.figure.outside), stroke: 0.7pt + rgb(_house.figure.outsideStroke))
 } else if entry.shape == "band" {
@@ -245,18 +248,12 @@
 } else if entry.shape == "length" {
   // A strip of the sample's size at the plate's own scale: as long and as thick as the plate draws a part that size.
   rect(width: entry.length * _k, height: entry.thickness * _k, fill: rgb(entry.color))
-} else if entry.shape == "ticks" {
-  // A relation's line with its ticks as the plate draws them: each as long as on the plate and as far apart.
-  let (tick, gap, weight) = (entry.length * _k, entry.gap * _k, entry.weight * _k)
-  let span = (entry.count - 1) * gap
-  box(width: span + 12pt, height: tick, {
-    place(left + horizon, line(length: span + 12pt, stroke: (paint: rgb(entry.color), thickness: weight)))
-    for i in range(entry.count) {
-      place(dx: 6pt + i * gap, line(angle: 90deg, length: tick, stroke: (paint: rgb(entry.color), thickness: weight)))
-    }
-  })
+} else if entry.shape == "count" {
+  // A relation's count of cited files as the plate sets it: its figures at their size, in the line's colour.
+  text(font: sans, size: entry.size * _k, weight: "regular", fill: rgb(entry.color), top-edge: "cap-height",
+    bottom-edge: "baseline", str(entry.count))
 } else if entry.shape == "hub" {
-  // A relation's line into the hub as the plate draws it: its weight, its dye and its arrowhead.
+  // A relation's line into the hub as the plate draws it: its weight, its dye and its arrowhead, which it ends inside.
   let (weight, arrow) = (entry.weight * _k, entry.arrow * _k)
   box(width: 16pt + arrow, height: arrow, {
     place(left + horizon, line(length: 16pt + weight, stroke: (paint: rgb(entry.color), thickness: weight)))
@@ -376,6 +373,18 @@
 /// files they cite, a run that names a measure spread to it, the whole one figure named by its title and question.
 /// Below a standfirst the figure keeps the
 /// height the engine composed it in and stands on the body's bottom.
+///
+/// The shapes reach the page nested, unchanged, in a square canvas as wide as the page less a hair, set at the
+/// page's origin. Typst's PNG export draws an SVG image into a texture as many texels wide and high as the image
+/// is in pixels, rounded up, and paints each pixel from its nearest texel. An image set at the margin is a
+/// fraction of a pixel smaller than its texture at most picture widths, and one column or row of texels is then
+/// left out, with the line that stands there: at the delivered widths the column at the figure's middle. A canvas
+/// a hair under the page's width in both directions has a texture of exactly the picture's width in both, at any
+/// width a caller names, so each pixel is one texel; a canvas of the page's own height would not, since nine
+/// sixteenths of a width is seldom whole. The canvas reaches below the page, where it holds nothing and the page
+/// cuts it off. It shows as many of the figure's px as it is wide in points at the figure's scale, so the figure
+/// keeps its size and its place, in the PDF too.
+#let _hair = 0.01pt
 #let _plate(p, words) = {
   let body = page-width - 2 * margin
   let width = p.figureWidth * _k
@@ -384,7 +393,11 @@
   if width < body - 1pt { _reading(p, words, margin + width + 40pt, body - width - 40pt, height) }
   if p.standfirst != none { _standfirst(p.standfirst, p.summary) }
   place(top + left, dx: margin, dy: figure-top, figure(alt: p.alt, box(width: width, height: height, {
-    place(pdf.artifact(image(p.file, width: width)))
+    let canvas = (width: page-width - _hair, height: page-width - _hair)
+    let shown = (canvas.width / _k, canvas.height / _k).map(str)
+    place(top + left, dx: -margin, dy: -figure-top, pdf.artifact(image(bytes("<svg xmlns='http://www.w3.org/2000/svg' width='"
+      + shown.at(0) + "' height='" + shown.at(1) + "' viewBox='-" + str(margin / _k) + " -" + str(figure-top / _k) + " "
+      + shown.join(" ") + "'>" + read(p.file) + "</svg>"), format: "svg", width: canvas.width, height: canvas.height)))
     for r in p.runs {
       let set-run = text.with(font: sans, size: r.size * _k, weight: if r.weight >= 600 { "semibold" } else { "regular" },
         fill: rgb(r.color), top-edge: "baseline", bottom-edge: "baseline")

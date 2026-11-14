@@ -110,6 +110,23 @@ and an icon's strokes, are outside the table.
 - **WHEN** a plate is built from a copy of the table in which every weight is one quarter heavier
 - **THEN** every relation's line and the boundary on the plate are one quarter heavier
 
+### Requirement: One weight for every piece of a row
+
+On a plate's page picture every straight piece of one row of the table SHALL have one weight, wherever on the
+figure it stands: no piece draws less than three quarters of the ink of its row's median piece, and none is absent.
+This SHALL hold at the delivered widths and at any width a caller names, because the figure is placed so that the
+picture keeps every column and row of it.
+
+#### Scenario: A piece on the figure's middle column
+
+- **WHEN** a relation's line has an upright piece on the figure's middle column
+- **THEN** on the pictures 2400, 1920 and 960 px wide that piece has the weight of the row's other pieces
+
+#### Scenario: A width a caller names
+
+- **WHEN** an edition's pictures are asked for at 1012 px
+- **THEN** the picture leaves out no column and no row of the figure
+
 ### Requirement: Each invariant's test fails on a broken table
 
 For each invariant above and for the key's rule that it holds exactly the rows its figure draws, the tests SHALL

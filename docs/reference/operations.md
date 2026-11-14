@@ -56,6 +56,7 @@ archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>
 archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub scaffold guide <model.json> --out <directory> [--json]
 archpub migrate <model.json> --out <model.json> [--json]
+archpub compare <delivery> <delivery> [--json]
 archpub accept <delivery> --reviewer <name> [--seal-name <name>] [--note <text>] [--sign <key>] [--json]
 archpub verify <delivery> [--allowed-signers <file>] [--json]
 archpub publish <delivery> --to <root> [--version <name>] [--json]
@@ -112,8 +113,7 @@ archpub --help | --version [--json]
   record and signature to `<root>/<model id>/<version>/`, in any directory the
   caller names.
 
-What a command prints is the subject of the
-[command line reference](command-line.md): its help and usage errors, its exit
+What a command prints is the subject of the [command line reference](command-line.md): its help and usage errors, its exit
 statuses, its `--json` result, the report it draws for a reader at a terminal,
 and its progress.
 
@@ -230,7 +230,7 @@ The print edition is typeset by Typst 0.15.1 with the house class into
   beside the view's reading when it leaves part of the body or below it when it
   keeps the full width, with a key of what its figure shows: with cards, the
   kinds, the boundary and the statuses; with strips, the age bands and the
-  pin's date, a scale bar, the citation ticks, a line into the hub, the
+  pin's date, a scale bar, a count of cited files, a line into the hub, the
   boundary and the statuses.
 
 Every page after the title page shares one frame: a head at the margin, a body

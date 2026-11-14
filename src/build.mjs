@@ -9,7 +9,7 @@ import { editionRecord } from "./edition/record.mjs";
 import { typesetEdition } from "./edition/typeset.mjs";
 import { checkOverview, typstVersion } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
-import { admitsView, composePlates } from "./poster/compose/plates.mjs";
+import { admitsView, composePlates, lineWarnings } from "./poster/compose/plates.mjs";
 import { longestOf, withStripLength } from "./poster/strip.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { refuse } from "./refusal.mjs";
@@ -187,6 +187,7 @@ async function prepare(modelPath, options, listener) {
       plates: composePlates(model, planned, typefaces, icons, drawn),
     };
   });
+  warnings.push(...lineWarnings(plates, style));
   // With strips, the manifest records the length the edition draws its largest part at.
   const styleRecord =
     style.name === "strip" ? { ...chosenRecord, longest: longestOf(style) } : chosenRecord;

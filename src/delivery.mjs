@@ -39,15 +39,18 @@ async function verifyDelivery(directory) {
   try {
     manifest = JSON.parse(bytes.toString("utf8"));
   } catch {
-    refuse("delivery_manifest_invalid", `${MANIFEST} is not JSON.`);
+    refuse("delivery_manifest_invalid", `${path.join(directory, MANIFEST)} is not JSON.`);
   }
   if (manifest?.format !== DELIVERY_FORMAT)
-    refuse("delivery_manifest_invalid", `${MANIFEST} is not an Architecture Publisher delivery.`);
+    refuse(
+      "delivery_manifest_invalid",
+      `${path.join(directory, MANIFEST)} is not an Architecture Publisher delivery.`,
+    );
   const present = await digestTree(directory, new Set([MANIFEST, ACCEPTANCE, SIGNATURE, COLOPHON]));
   if (JSON.stringify(present) !== JSON.stringify(manifest.artifacts))
     refuse(
       "delivery_changed",
-      "The delivery's files differ from its manifest.",
+      `The files of ${directory} differ from its manifest.`,
       diff(manifest.artifacts, present).map((message) => ({ code: "delivery_changed", message })),
     );
   return { manifest, manifestSha256: sha256(bytes) };
@@ -65,6 +68,60 @@ function diff(expected, actual) {
       .filter(([file, digest]) => listed.has(file) && listed.get(file) !== digest)
       .map(([file]) => `${file} changed`),
   ];
+}
+
+/**
+ * Compare two deliveries, each first checked against its own manifest as an acceptance checks it. A file differs
+ * when its bytes do or when one delivery alone holds it. A plate's page images, at every width, are reported under
+ * the plate, by its number and views; every other file a manifest lists, and the manifest itself, as a file of the
+ * whole edition. The acceptance record, its signature and the colophon page are no part of a build: accepting
+ * writes them afterwards, with the reviewer and the time, so they are not compared. Nothing is written.
+ * @param {string} first
+ * @param {string} second
+ */
+export async function compareDeliveries(first, second) {
+  const deliveries = [await verifyDelivery(first), await verifyDelivery(second)];
+  const [held, found] = deliveries.map(
+    ({ manifest, manifestSha256 }) =>
+      new Map([
+        ...manifest.artifacts.map((file) => [file.path, file.sha256]),
+        [MANIFEST, manifestSha256],
+      ]),
+  );
+  // A page image belongs to the plate either manifest records it under; a manifest that records no plate's
+  // images leaves them among the files of the whole edition.
+  const plateOf = new Map(
+    deliveries.flatMap(({ manifest }) =>
+      (manifest.plates ?? []).flatMap((plate) =>
+        (plate.images ?? []).map(({ file }) => [file, plate]),
+      ),
+    ),
+  );
+  const plates = new Map();
+  const files = [];
+  for (const file of [...new Set([...held.keys(), ...found.keys()])].sort()) {
+    const differing = {
+      path: file,
+      first: held.get(file) ?? null,
+      second: found.get(file) ?? null,
+    };
+    if (differing.first === differing.second) continue;
+    const plate = plateOf.get(file);
+    if (!plate) files.push(differing);
+    else {
+      // Plates stand in the order of their numbers, however many digits a number has.
+      const key = `${String(plate.page).padStart(8, "0")} ${plate.views.join("+")}`;
+      if (!plates.has(key)) plates.set(key, { page: plate.page, views: plate.views, files: [] });
+      plates.get(key).files.push(differing);
+    }
+  }
+  return {
+    first: path.resolve(first),
+    second: path.resolve(second),
+    identical: !plates.size && !files.length,
+    plates: [...plates.keys()].sort().map((key) => plates.get(key)),
+    files,
+  };
 }
 
 /**

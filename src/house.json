@@ -70,6 +70,67 @@
       "accent": "#754d36"
     }
   },
+  "lines": {
+    "widths": [2400, 1920, 960],
+    "levels": { "weight": 2 },
+    "rows": {
+      "relation": {
+        "meaning": "a relation between two parts",
+        "channel": "weight",
+        "stroke": 1.6,
+        "question": "Which part acts on which?",
+        "tested": true,
+        "key": null,
+        "page": "a connection's line, as the page's renderer draws it"
+      },
+      "emphasis": {
+        "meaning": "a relation into the view's hub",
+        "channel": "weight",
+        "factor": 2,
+        "arrow": 1.45,
+        "question": "Which part do most relations lead to?",
+        "tested": true,
+        "key": "hub",
+        "page": null
+      },
+      "boundary": {
+        "meaning": "the edge of the described repository",
+        "channel": "pattern",
+        "stroke": 1.4,
+        "dash": [8, 5],
+        "question": "Is part X inside the described repository?",
+        "tested": true,
+        "key": "boundary",
+        "page": "a region around the parts inside, as the page's renderer draws it"
+      },
+      "citations": {
+        "meaning": "the files a relation cites",
+        "channel": "number",
+        "question": "How many files does the model cite for the relation?",
+        "tested": true,
+        "key": "count",
+        "page": null
+      },
+      "planned": {
+        "meaning": "a planned part or relation",
+        "channel": "pattern",
+        "dash": [6, 4],
+        "question": "Is X built, planned or retired?",
+        "tested": false,
+        "key": "planned",
+        "page": "a dashed line for a relation, the same as a retired one"
+      },
+      "retired": {
+        "meaning": "a retired part or relation",
+        "channel": "pattern",
+        "dash": [1.5, 3.5],
+        "question": "Is X built, planned or retired?",
+        "tested": false,
+        "key": "retired",
+        "page": "a dashed line for a relation, the same as a planned one"
+      }
+    }
+  },
   "plate": {
     "x": 48,
     "y": 112,

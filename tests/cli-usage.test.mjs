@@ -14,6 +14,7 @@ test("usage errors exit with status 2 and say what is wrong", async () => {
     [["check", "--color", "red"], "unknown option '--color'"],
     [["check", "model.json", "--repo"], "option '--repo <checkout>' argument missing"],
     [["verify"], "missing required argument 'delivery'"],
+    [["compare", "delivery"], "missing required argument 'delivery'"],
     [
       ["verify", "delivery", "--allowed-signers"],
       "option '--allowed-signers <file>' argument missing",
@@ -119,6 +120,7 @@ const REQUIRED = [
     ["--out <model.json>", "--id <id>"],
   ],
   [["migrate"], ["--out <model.json>"]],
+  [["compare"], []],
   [["accept"], ["--reviewer <name>"]],
   [["verify"], []],
   [["publish"], ["--to <root>"]],
@@ -226,7 +228,7 @@ test("help groups the commands by the role that runs them, and version answers w
   // A heading names a role, never a kind of holder; what every role runs stands under one heading.
   assert.deepEqual(roles, {
     Author: ["check", "build", "scaffold guide", "import likec4", "migrate"],
-    Reviewer: ["accept", "verify"],
+    Reviewer: ["compare", "accept", "verify"],
     Publisher: ["publish"],
     "Every role": ["skill", "help"],
   });
@@ -253,6 +255,7 @@ test("each command explains itself with --help", async () => {
   for (const [args, usage] of [
     [["build"], "Usage: archpub build --out <directory> [options] <model.json>"],
     [["check"], "Usage: archpub check [options] <model.json>"],
+    [["compare"], "Usage: archpub compare [options] <delivery> <delivery>"],
     [["accept"], "Usage: archpub accept --reviewer <name> [options] <delivery>"],
     [["verify"], "Usage: archpub verify [options] <delivery>"],
     [["publish"], "Usage: archpub publish --to <root> [options] <delivery>"],
@@ -283,6 +286,14 @@ test("each command explains itself with --help", async () => {
   assert.doesNotMatch((await runCli(["accept", "--help"])).output, /--repo/u);
   assert.doesNotMatch(build, /--against/u);
   assert.match((await runCli(["check", "--help"])).output, /--against <revision> /u);
+  // A comparison explains each of its two arguments and the files it leaves out.
+  const compare = (await runCli(["compare", "--help"])).output;
+  assert.match(compare, /\n {2}delivery +the first delivery's directory\n/u);
+  assert.match(compare, /\n {2}delivery +the second delivery's directory\n/u);
+  assert.match(
+    compare.replace(/\s+/gu, " "),
+    /acceptance record, its signature and its colophon page are not compared/u,
+  );
   // Accept and verify explain the options of acceptance.
   assert.match((await runCli(["accept", "--help"])).output, /--sign <key> /u);
   assert.match((await runCli(["verify", "--help"])).output, /--allowed-signers <file> /u);
