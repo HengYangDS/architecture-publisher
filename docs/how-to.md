@@ -130,7 +130,7 @@ archpub accept <delivery> --reviewer "<name>"
 archpub publish <delivery> --to <root>
 ```
 
-Only the person named accepts. `accept` refuses a delivery whose files changed
+Only the reviewer named accepts. `accept` refuses a delivery whose files changed
 since the build, and `publish` copies only an accepted delivery, to
 `<root>/<model id>/<version>/`.
 
@@ -142,5 +142,5 @@ archpub skill
 
 prints the agent Skill that ships with the installed version: how to agree on
 the reader's question, claim files, plan views, check, write the guide, build
-and hand the work to a person to accept. Give it to your agent, or install it
+and hand the work to a reviewer to accept. Give it to your agent, or install it
 where your agent reads Skills.

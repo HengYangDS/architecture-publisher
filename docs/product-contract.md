@@ -35,8 +35,8 @@ speaks: English, Simplified and Traditional Chinese, Spanish and Korean.
 
 ## Inputs
 
-- One [Architecture Model](reference/model.md): a JSON file written by a person
-  or an agent, or imported from a LikeC4 workspace with `archpub import likec4`.
+- One [Architecture Model](reference/model.md): a JSON file its author writes,
+  or imports from a LikeC4 workspace with `archpub import likec4`.
 - Optionally, a checkout of the described repository. With `--repo`, the files
   each component claims are resolved at the model's pinned revision through Git,
   without fetching, prompting or changing the checkout: each file in the scope
@@ -136,6 +136,11 @@ reviewer and the manifest digest. `archpub publish` copies only an accepted
 delivery to `<root>/<model id>/<version>/` and never replaces a different
 published delivery. Tests and checks never stand in for that acceptance.
 
+A work passes through three roles: its author writes the model, its reviewer accepts a delivery and its
+reader uses it. A role is what its holder is given, what it hands over and the record it leaves. Any holder
+able to do the work may take a role, human, agent or team, and the record names the holder; nothing in the
+product depends on which kind of holder it is.
+
 ## Boundaries
 
 - The publisher draws what the model states; it does not discover components,
@@ -158,3 +163,46 @@ The model format is versioned (`format` and `version`), and an unsupported
 version is refused rather than reinterpreted. A change that refuses a model
 another release accepted, or that changes the bytes of an existing delivery, is
 a breaking release. Earlier releases and their deliveries stay as they were.
+
+### Queue
+
+The product is built in the order below, one item at a time. The Change `queue-the-roadmap-and-name-roles`, kept
+in `openspec/changes/archive/`, records the design behind each item, its acceptance and the line at which it
+stops. Every Change's proposal ends with the item it serves, as `Queue: <item>`, or with `Queue: maintenance`
+when it changes no product behaviour; `tests/evolution-queue.test.mjs` refuses a Change that names no item, an
+item not listed here, or an item that an unfinished one precedes, and a maintenance Change that changes the
+layout, plate, page, overview or edition source. A new direction joins the list by a commit that says what it
+moves back. Items marked as work on the publications are finished there and ticked by the next Change here.
+[Roadmap details](roadmap.md) says what each item does.
+
+- [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
+      more than the check proves.
+- [ ] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
+      and for agents alike. The owner put it here on 2026-11-14: 「archpub 的 cli 在屏幕上看起来好丑」「利用好成熟工具
+      和框架，减少手撸」. It moves `paper-and-experiments` back by its own length.
+- [ ] `paper-and-experiments`: no product code. The reviewer's procedure and its seeded checks, the question
+      matrices of three works, the table of what each mark on a plate now means, the reader experiment, the author's
+      timing, and the comparison of lines on screen with a first figure-reading check. Work on the publications.
+- [ ] `line-table`: a command that compares two deliveries, and one table of line weights and patterns that holds
+      only the rows the experiments passed.
+- [ ] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered
+      byte changes.
+- [ ] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
+      the reader experiment supports.
+- [ ] `sample-book`: one work set by hand as a whole book: its contents are the question table, silence is
+      printed, and one page compares the publisher's own plates with Archify's. The owner's first look. Work on the
+      publications.
+- [ ] `model-four`: the model's one new version: questions, written statements, line ranges, the strength and
+      origin of evidence; style moves beside the model; `check` reports each question-table entry's state.
+- [ ] `one-anatomy`: one anatomy for every part, its regions drawn where the part has the fact; the choice
+      between strips and cards goes.
+- [ ] `blocks-by-question`: the page blocks the sample book used and no others; the edition set by question.
+- [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and the verdict on each
+      statement; the reviewer's Skill.
+- [ ] `six-works`: the six works completed, set anew and accepted, each named from its own repository. The
+      owner's second look. Work on the publications.
+- [ ] `freeze-and-foreign-work`: the model, manifest and acceptance formats held still for one cycle, and one
+      work on a repository that is not the owner's, written by an agent from the Skill alone.
+
+Until `freeze-and-foreign-work` is finished the product takes no new palette, style, composition or typeface, no
+binding an author can write, no new channel of distribution, platform or language, and no service.

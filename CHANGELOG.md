@@ -16,6 +16,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The product contract holds the roadmap as one queue, and a test holds every Change to its order: a proposal
+  ends with the queue item it serves, or with `maintenance`.
+- The README says what the check proves: that the files a part claims and a connection cites exist at the
+  pinned commit. The contract states the roles a work passes through, which any holder able to do the work
+  may take; the documents, the Skill and the schema name the reviewer and the editors where they named a person.
 - The headings of the alpha releases below no longer link anywhere: their links led to a private address. A test now
   refuses a tracked text file that names a private IPv4 address.
 

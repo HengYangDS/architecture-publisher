@@ -74,8 +74,10 @@ explainer with one panel per view or the guide the model names.
    at the edition's every page, its plates and the overview, and at the page
    before showing them to the user. `--media edition` or `--media page` builds
    one medium while you work on it.
-10. Only the user accepts. Run `archpub accept <delivery> --reviewer <name>` with
-    the name the user gives, adding `--sign <private key>` when the user signs
+10. The reviewer accepts, and the author of a work does not review it. Unless you
+    hold the reviewer's role for this work, stop here and hand the delivery over.
+    Holding it, run `archpub accept <delivery> --reviewer <name>` with
+    the name your delegation gives, adding `--sign <private key>` when the user signs
     with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
     the name, `acceptance.json`, the record of who accepted which bytes and when,
     and for a signed acceptance `acceptance.sig`. Acceptance does not certify

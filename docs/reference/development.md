@@ -50,7 +50,7 @@ an override stays only while `npm audit` reports an advisory without it.
 
 On 2026-10-25 the lock audit reported six affected development-package entries,
 one high, one moderate and four low, from four distinct advisories in npm's
-bundled `ip-address` and `undici` and in Markdownlint's KaTeX. The human
+bundled `ip-address` and `undici` and in Markdownlint's KaTeX. The owner
 accepted those findings for trusted development input, isolated execution and
 disabled installation scripts. The 0.4 retirement has since removed packages
 from the lock; rerun `npm audit` before a release and reassess any change.
@@ -81,7 +81,10 @@ edition, the page's
 diagrams and its delivery through the vendored Archify, deliveries, acceptance,
 publication, the
 LikeC4 importer, the command line, the packed and installed package, module
-boundaries, the version projection and the CI projection.
+boundaries, the version projection and the CI projection. `tests/evolution-queue.test.mjs`
+holds every active Change to the queue of the product contract, and
+`tests/role-neutral-wording.test.mjs` refuses wording that presumes who holds a
+role.
 
 One test needs an explicit selection and otherwise skips; a skip is not
 evidence. `tests/map-browser.test.mjs` opens delivered pages in Chromium at

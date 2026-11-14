@@ -140,7 +140,7 @@ will.
 
 ## 5. Accept and publish
 
-A person accepts a delivery; a build never does.
+A reviewer accepts a delivery; a build never does.
 
 ```sh
 archpub accept delivery --reviewer "Your Name"

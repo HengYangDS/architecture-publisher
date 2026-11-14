@@ -11,7 +11,7 @@ relations:
 An Architecture Model is one JSON file that describes the architecture to
 publish: its components, the relations between them, how the reader sees them,
 the repository files each component owns and the files that support each
-relation. A person or an agent writes
+relation. Its author writes
 it, or `archpub import likec4` converts a LikeC4 workspace into one. The
 publisher never infers architecture from code; the model is the only source of
 meaning.
@@ -71,7 +71,7 @@ kinds, details and views.
 | `summary`    | no       | A short answer under the question on the title page; the page's conclusion.                    |
 | `scope`      | no       | What the model covers and leaves out; beside the edition's contents and the page's scope.      |
 | `limits`     | no       | Known limits of the description, each one text; printed with the scope.                        |
-| `editors`    | no       | The people who edited the model, each a `name` and an optional `url`: the edition's authors.   |
+| `editors`    | no       | The editors of the model, each a `name` and an optional `url`: the edition's authors.          |
 | `license`    | no       | The licence of the model and its editions, as an SPDX expression such as `MIT`.                |
 | `repository` | no       | The described repository: `name`, optional `url` and `browse`, and the full commit `revision`. |
 | `kinds`      | no       | Kind catalog keyed by kind id.                                                                 |

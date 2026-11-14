@@ -34,7 +34,7 @@
       "$ref": "#/$defs/text"
     },
     "editors": {
-      "description": "The people who edited this model, each by name and optionally a URL.",
+      "description": "The editors of this model, each by name and optionally a URL.",
       "type": "array",
       "minItems": 1,
       "items": {

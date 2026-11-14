@@ -1,8 +1,8 @@
 # Architecture Publisher
 
 Architecture Publisher turns an explicit model of a repository's architecture
-into a print edition and an interactive page, and checks every part and every
-connection it draws against the code at one pinned commit.
+into a print edition and an interactive page, and checks that every file its
+parts claim and its connections cite exists at one pinned commit.
 
 ![Plate 01 of Architecture Publisher's own edition: the parts one build passes through, from the author's model to a published delivery](docs/images/architecture-publisher-plate-01.png)
 
@@ -14,7 +14,7 @@ files that show each one, or you import a LikeC4 workspace. `archpub` reads
 those files at the commit the model pins, lays each view out as a plate with
 no overlaps, and delivers a PDF of one plate per view, a picture of each page,
 a standalone page that walks through the system, and a manifest that binds
-every byte to its inputs. A person accepts the delivery before it is published.
+every byte to its inputs. A named reviewer accepts the delivery before it is published.
 
 ## Install
 
@@ -58,7 +58,7 @@ builds a first work from an empty directory in about fifteen minutes.
   the model, every file read, every bundled supply and every file written;
   with `--repo`, which dates the edition by the pinned commit, the same model
   and version reproduce every byte on one platform.
-- **A person accepts.** `accept` refuses a delivery that changed since it was
+- **A named reviewer accepts.** `accept` refuses a delivery that changed since it was
   built, and records who accepted it.
 
 ## Published works
@@ -86,7 +86,7 @@ archpub skill
 
 prints the agent Skill that ships with the installed version. It walks an agent
 through agreeing on the reader's question, claiming files, planning views,
-checking, writing the guide and building, and leaves acceptance to a person.
+checking, writing the guide and building, and leaves acceptance to the reviewer.
 
 ## Documentation
 
