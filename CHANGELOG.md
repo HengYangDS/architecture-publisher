@@ -7,6 +7,15 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- `archpub --help` groups the commands by the role that runs them, the author, the reviewer and the publisher, with
+  `skill` and `help` under `Every role`; every help lists `--json` among its options, and an option a command cannot
+  run without stands in its usage line and is marked as required; `archpub help [command]` prints a command's help. A
+  mistyped command or option names the nearest one.
+- A `check` or a `build` whose standard error is a terminal draws the step it is at there. With `--json`, or when
+  standard error is a pipe or a file, it draws none, and standard output holds the same bytes either way.
+
 ### Removed
 
 - `docs/research/`, seven pages and 22 captures that described designs earlier releases replaced; the product
@@ -16,6 +25,21 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** the text a command prints without `--json` is new: the help, the result of every command, refusals and
+  usage errors. A result is a report with one marked line per fact, `◆` passed, `▲` needs attention, `■` refused and
+  `●` noted, under a heading for each group, and it ends with the command to run next; a refusal names the model or
+  the delivery it was given and lists each problem on a line with its path. A plate that misses a balance gate names
+  what was measured and its limit, and the components and relations no view draws or no file backs are named. No line
+  but the last is wider than the terminal: a longer value or title continues beside the guide, and a path inside the
+  working directory is printed relative to it; the command to run next stays one line, so that it is copied whole, and
+  after a check with `--repo` it names that checkout. Nothing that parsed the old sentences will match. The `--json`
+  results, their fields and the exit statuses are unchanged, except that a usage error's `message` is now commander's,
+  as in `unknown command 'chek'` with `(Did you mean check?)`; match its `code`, which stays `usage`.
+- The command line is built on commander for commands, options, help and usage errors, and on clack for reports and
+  progress, with fast-wrap-ansi and fast-string-width to fit a report to the terminal. The package declares the four
+  as dependencies and bundles them with the three packages they depend on, so
+  the npm package and each release archive stay self-contained; an archive carries each bundled licence in
+  `archpub/licenses/`. Only modules under `src/cli/` may import them, which a test holds.
 - The product contract holds the roadmap as one queue, and a test holds every Change to its order: a proposal
   ends with the queue item it serves, or with `maintenance`.
 - The README says what the check proves: that the files a part claims and a connection cites exist at the

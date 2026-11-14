@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { checkModel } from "../src/build.mjs";
 import { runCli } from "../src/cli/run.mjs";
+import { reportLines } from "./fixtures/report-lines.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { bindSources, ownershipAt } from "../src/sources/bind.mjs";
 import { measureCoverage } from "../src/sources/coverage.mjs";
@@ -153,18 +154,26 @@ test("check reads a guide's citations for the worklist and prints it", async (t)
   const args = ["check", model, "--repo", root, "--against", "main", "--media", "edition"];
   const { exitCode, output } = await runCli(args);
   assert.equal(exitCode, 0);
-  const lines = output.split("\n");
-  assert.deepEqual(lines.slice(lines.indexOf("Re-pin worklist:")), [
-    "Re-pin worklist:",
-    "  Alpha (a): src/a/x.go moved to src/b/x.go, owned by b; takes in src/a/new.go.",
-    "  Beta (b): 1 modified; takes in src/b/x.go.",
-    "  Old (old): src/old/only.go deleted.",
-    "  Relations whose files changed: a-b (1 file) and b-old (1 file).",
-    `  Refused at ${head.slice(0, 7)}: src/old/ of old owns no file; src/rel/gone.go of b-old is gone.`,
-    "  Newly uncovered: tools/new.go.",
-    "  Guide citations: 2: 1 shifted and 1 touched.",
-    "    shifted: @source cite docs/cite.md 10:12 to 12:14",
-    "    touched: @source touch docs/touch.md 10:12",
-    "",
+  const lines = reportLines(output);
+  const worklist = lines.findIndex(
+    ([kind, text]) => kind === "heading" && text === "Re-pin worklist",
+  );
+  const warnings = lines.findIndex(([kind, text]) => kind === "heading" && text === "Warnings");
+  assert.deepEqual(lines.slice(worklist, warnings), [
+    ["heading", "Re-pin worklist"],
+    ["attention", "Alpha (a)", "src/a/x.go moved to src/b/x.go, owned by b; now owns src/a/new.go"],
+    ["attention", "Beta (b)", "1 file modified; now owns src/b/x.go"],
+    ["attention", "Old (old)", "src/old/only.go deleted"],
+    ["attention", "Relations", "files changed in a-b (1 file) and b-old (1 file)"],
+    [
+      "refused",
+      `Refused at ${head.slice(0, 7)}`,
+      "src/old/ of old owns no file; src/rel/gone.go of b-old is gone",
+    ],
+    ["attention", "Newly uncovered", "tools/new.go"],
+    ["heading", "Citations"],
+    ["attention", "Guide", "2 citations: 1 shifted and 1 touched"],
+    ["attention", "shifted", "@source cite docs/cite.md 10:12 to 12:14"],
+    ["attention", "touched", "@source touch docs/touch.md 10:12"],
   ]);
 });

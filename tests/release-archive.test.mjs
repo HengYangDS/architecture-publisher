@@ -145,6 +145,50 @@ test("an archive holds the command, its runtime, Typst, the package and their li
   assert.deepEqual(assemble(inputs("macos-arm64")).bytes, archive);
 });
 
+test("an archive carries the package's bundled libraries and each one's licence", () => {
+  const file = (name, text) => ({ path: `package/${name}`, mode: 0o644, data: bytes(text) });
+  const bundling = (...extra) =>
+    gzip(
+      writeTar([
+        file("package.json", JSON.stringify({ version: "9.9.9" })),
+        file("src/cli/main.mjs", "console.log(1);\n"),
+        file("node_modules/commander/package.json", "{}"),
+        file("node_modules/commander/index.js", "export {};\n"),
+        file("node_modules/commander/LICENSE", "commander licence"),
+        file("node_modules/@clack/prompts/package.json", "{}"),
+        file("node_modules/@clack/prompts/LICENSE", "clack licence"),
+        file("node_modules/@clack/prompts/dist/license.mjs", "export {};\n"),
+        file("node_modules/sisteransi/package.json", "{}"),
+        ...extra,
+      ]),
+    );
+  const licensed = bundling(file("node_modules/sisteransi/license", "sisteransi licence"));
+  const entries = readTar(
+    gunzip(assemble({ ...inputs("macos-arm64"), packageArchive: licensed }).bytes),
+  );
+  const names = entries.map((entry) => entry.path);
+  const library = "archpub/lib/architecture-publisher/node_modules";
+  for (const name of ["commander/index.js", "@clack/prompts/LICENSE", "sisteransi/license"])
+    assert.ok(names.includes(`${library}/${name}`), name);
+  assert.deepEqual(
+    entries
+      .filter((entry) => entry.data && entry.path.startsWith("archpub/licenses/"))
+      .map(({ path: name, mode, data }) => [name, mode, new TextDecoder().decode(data)]),
+    [
+      ["archpub/licenses/@clack/prompts/LICENSE", 0o644, "clack licence"],
+      ["archpub/licenses/commander/LICENSE", 0o644, "commander licence"],
+      ["archpub/licenses/node/LICENSE", 0o644, "node license"],
+      ["archpub/licenses/sisteransi/license", 0o644, "sisteransi licence"],
+      ["archpub/licenses/typst/LICENSE", 0o644, "typst license"],
+      ["archpub/licenses/typst/NOTICE", 0o644, "typst notice"],
+    ],
+  );
+  // A bundled library that ships no licence is refused by name.
+  assert.throws(() => assemble({ ...inputs("macos-arm64"), packageArchive: bundling() }), {
+    message: "archive_license_missing:sisteransi",
+  });
+});
+
 test("a Windows archive starts the command from a batch launcher with CRLF lines", () => {
   const windows = `${LOCK}
 [tools.typst."platforms.windows-arm64"]

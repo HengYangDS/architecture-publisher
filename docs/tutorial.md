@@ -116,15 +116,32 @@ archpub check model.json --repo shop
 ```
 
 ```text
-shop: 1 view admitted; files verified.
-Plate 01 (order-path): figure 65% of the body, beside its reading; misses emptyShare, blankBand and holes.
-Coverage at b371a1b: 3 of 3 files owned, 0 uncovered, 0 excluded.
+┌  archpub check · shop
+│
+│  Model
+◆  Views  1 view admitted
+◆  Files  3 files verified
+│
+│  Plates
+▲  01  order-path · figure 65% of the body, beside its reading · misses
+│      emptyShare 0.377 (limit 0.12), blankBand 224 (limit 96) and holes 0.78
+│      (limit 0.4)
+│
+│  Coverage at b371a1b
+◆  Files  3 of 3 owned, 0 uncovered, 0 excluded
+│
+└  Next: archpub build model.json --repo shop --out <directory>
 ```
 
 Your commit differs from `b371a1b`. The check read every claimed and cited file
-at the pinned commit and wrote nothing. Three parts leave most of a plate blank, so the plate misses balance
-gates; that is recorded for the reviewer, not refused. Misspell a field, such
-as `labl`, and the check refuses the model and names the field you meant.
+at the pinned commit and wrote nothing; on a terminal it shows the step it is at
+while it runs. Each line is one fact: `◆` marks what passed and `▲` what needs
+attention, and a value longer than the terminal continues under its own column.
+Three parts leave most of a plate blank, so the plate misses balance gates, each
+printed with what was measured and its limit; that is recorded for the reviewer,
+not refused. Misspell a field, such as `labl`, and the check refuses the model:
+each problem is one line marked `■` with its path, and the line of
+`/components/1/labl` names the field you meant.
 
 ## 4. Build the work
 

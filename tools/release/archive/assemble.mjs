@@ -3,7 +3,8 @@ import { gunzip, gzip, readTar, writeTar } from "./tar.mjs";
 
 /**
  * One self-contained archive of the `archpub` command for one platform: its
- * launcher, the Node.js and Typst it runs, the package and their licenses.
+ * launcher, the Node.js and Typst it runs, the package with the libraries it
+ * bundles, and their licenses.
  */
 
 const TOP = "archpub";
@@ -71,6 +72,33 @@ export function launchers() {
   return { posix, windows };
 }
 
+/** A library the package bundles, by its manifest in the packed package: `package/node_modules/<name>/package.json`. */
+const BUNDLED_MANIFEST = /^package\/node_modules\/((?:@[^/]+\/)?[^/]+)\/package\.json$/u;
+
+/** A licence, copying or notice file at the top of a bundled library. */
+const BUNDLED_NOTICE =
+  /^package\/node_modules\/((?:@[^/]+\/)?[^/]+)\/((?:licen[cs]e|copying|notice)(?:[._-][^/]*)?)$/iu;
+
+/**
+ * The licence files of the libraries a packed package bundles, each as an entry of the archive's `licenses/`;
+ * a bundled library that ships none is refused by name.
+ * @param {{ path: string, data: Uint8Array }[]} packaged the files of the packed package
+ */
+function bundledLicenses(packaged) {
+  const notices = packaged.flatMap((entry) => {
+    const [, name, file] = BUNDLED_NOTICE.exec(entry.path) ?? [];
+    return name
+      ? [{ name, path: `${TOP}/licenses/${name}/${file}`, mode: 0o644, data: entry.data }]
+      : [];
+  });
+  for (const entry of packaged) {
+    const [, name] = BUNDLED_MANIFEST.exec(entry.path) ?? [];
+    if (name && !notices.some((notice) => notice.name === name))
+      throw Error(`archive_license_missing:${name}`);
+  }
+  return notices.map(({ path, mode, data }) => ({ path, mode, data }));
+}
+
 const directoriesOf = (paths) => {
   const directories = new Set();
   for (const file of paths) {
@@ -112,6 +140,7 @@ export function assemble({ platform, platforms, packageArchive, node, typst, mti
     { path: `${TOP}/licenses/node/LICENSE`, mode: 0o644, data: node.license },
     { path: `${TOP}/licenses/typst/LICENSE`, mode: 0o644, data: typst.license },
     { path: `${TOP}/licenses/typst/NOTICE`, mode: 0o644, data: typst.notice },
+    ...bundledLicenses(packaged),
     ...packaged.map((entry) => ({
       path: `${PACKAGE}/${entry.path.slice("package/".length)}`,
       mode: 0o644,

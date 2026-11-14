@@ -177,12 +177,15 @@ moves back. Items marked as work on the publications are finished there and tick
 
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
-- [ ] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
+- [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
       and for agents alike. The owner put it here on 2026-11-14: 「archpub 的 cli 在屏幕上看起来好丑」「利用好成熟工具
       和框架，减少手撸」. It moves `paper-and-experiments` back by its own length.
-- [ ] `paper-and-experiments`: no product code. The reviewer's procedure and its seeded checks, the question
+- [x] `paper-and-experiments`: no product code. The reviewer's procedure and its seeded checks, the question
       matrices of three works, the table of what each mark on a plate now means, the reader experiment, the author's
-      timing, and the comparison of lines on screen with a first figure-reading check. Work on the publications.
+      timing, and the comparison of lines on screen with a first figure-reading check. Work on the publications,
+      finished there on 2026-11-15: its `trials/2026-11-15-outcome.md` says what each trial decided. The stop line
+      was not reached: a reader with a work's model and guide text beside the repository did better than one with
+      the repository alone.
 - [ ] `line-table`: a command that compares two deliveries, and one table of line weights and patterns that holds
       only the rows the experiments passed.
 - [ ] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered

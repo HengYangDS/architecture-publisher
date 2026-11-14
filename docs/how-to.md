@@ -58,8 +58,9 @@ or later is already present, `npm install --global --ignore-scripts architecture
 installs the same command as an npm package; it needs Typst 0.15.1 on the path
 to build the print edition.
 
-`archpub --version` prints the installed version, and `archpub <command> --help`
-explains each command.
+`archpub --version` prints the installed version, `archpub --help` lists the
+commands under the role that runs them, and `archpub <command> --help` explains
+each command.
 
 ## Start from a LikeC4 workspace
 
@@ -106,7 +107,7 @@ archpub check model.json --repo <checkout> --against <commit>
 ```
 
 The re-pin worklist names, for each component, the files that changed, moved or
-went and the files its claims now take in; the relations whose files changed;
+went and the files it now owns; the relations whose files changed;
 what a build at that commit would refuse; the newly uncovered files; and every
 guide citation that shifted, moved, was touched or is gone. Update the model and
 the guide for each, move every shifted citation to its new range, reread every

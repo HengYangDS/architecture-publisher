@@ -40,7 +40,9 @@ archpub publish delivery --to <publication-root>
 
 `check` validates the model, reads every file it claims and cites at the pinned
 commit and lays out every plate, without writing anything. `build` writes the
-delivery. Only an accepted delivery is published, under
+delivery. Each command reports what passed, what needs attention and the
+command to run next, or one JSON object with `--json`; `archpub --help` lists
+the commands by the role that runs them. Only an accepted delivery is published, under
 `<publication-root>/<model id>/<version>/`. The [tutorial](docs/tutorial.md)
 builds a first work from an empty directory in about fifteen minutes.
 

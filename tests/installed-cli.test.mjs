@@ -35,9 +35,39 @@ test("the packed publisher installs, relocates and builds with its own verified 
   assert.ok(packed.includes("supplies/likec4/parser.mjs"));
   assert.ok(packed.includes("skills/architecture-publisher/SKILL.md"));
   assert.ok(!packed.some((file) => /^(tests|tools|build)\//u.test(file)));
+  // The package bundles the libraries its command line is built on, as the lock records them, each with its licence.
+  const lock = JSON.parse(await fs.readFile(path.join(root, "package-lock.json"), "utf8"));
+  const bundled = Object.entries(lock.packages).filter(([, entry]) => entry.inBundle);
+  for (const name of ["node_modules/@clack/prompts", "node_modules/commander"])
+    assert.ok(
+      bundled.some(([lockPath]) => lockPath === name),
+      `the lock bundles no ${name}`,
+    );
+  for (const [lockPath] of bundled) {
+    assert.ok(packed.includes(`${lockPath}/package.json`), `the package holds no ${lockPath}`);
+    assert.ok(
+      packed.some((file) => file.toLowerCase().startsWith(`${lockPath}/licen`)),
+      `the package holds no licence of ${lockPath}`,
+    );
+  }
 
   const relocated = path.join(directory, "relocated");
   await fs.rename(consumer, relocated);
+  // Each bundled library is installed inside the package at the version the lock records.
+  const installed = path.join(relocated, "node_modules/architecture-publisher");
+  for (const [lockPath, entry] of bundled)
+    assert.equal(
+      JSON.parse(await fs.readFile(path.join(installed, lockPath, "package.json"), "utf8")).version,
+      entry.version,
+      lockPath,
+    );
+  // The installed command prints its help from the libraries it carries, with the npm cache empty and offline.
+  const help = spawnSync(process.execPath, [path.join(installed, "src/cli/main.mjs"), "--help"], {
+    cwd: relocated,
+    encoding: "utf8",
+  });
+  assert.equal(help.status, 0, help.stderr);
+  assert.match(help.stdout, /^Usage: archpub /u);
   // The smallest model still runs every bundled supply, Archify included.
   const model = await writeModel(t, minimalModel());
   const out = path.join(directory, "delivery");

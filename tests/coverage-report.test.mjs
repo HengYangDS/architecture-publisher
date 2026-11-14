@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { checkModel } from "../src/build.mjs";
 import { runCli } from "../src/cli/run.mjs";
+import { reportLines } from "./fixtures/report-lines.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
 import { measureCoverage, uncitedStatements } from "../src/sources/coverage.mjs";
@@ -242,20 +243,48 @@ test("check prints coverage and currency with --repo and --against", async (t) =
   assert.deepEqual(body.coverage.files, { scope: 6, owned: 3, uncovered: 3, excluded: 1 });
   assert.deepEqual(body.coverage.currency.against, { revision: "main", commit: head });
   assert.deepEqual(body.statements.uncited, { components: [], relations: ["b-a"] });
-  const text = (await runCli(args)).output.split("\n");
-  assert.deepEqual(text.slice(1), [
-    "Uncited: 0 components and 1 relation.",
+  const lines = reportLines((await runCli(args)).output);
+  /** The gates a plate misses, each with what was measured and its limit, as the report names them. */
+  const missed = ({ misses }) => {
+    const named = misses.map(({ measure, value, limit }) => `${measure} ${value} (limit ${limit})`);
+    return `${named.slice(0, -1).join(", ")} and ${named.at(-1)}`;
+  };
+  assert.deepEqual(
+    body.plates[0].misses.map(({ measure }) => measure),
+    ["emptyShare", "blankBand", "holes"],
+  );
+  // The command to run next names the checkout the check read.
+  assert.deepEqual(lines.at(-1), [
+    "closing",
+    `Next: archpub build ${model} --repo ${root} --out <directory>`,
+  ]);
+  assert.deepEqual(lines.slice(4, -1), [
+    ["attention", "Uncited", "1 relation (b-a)"],
+    ["heading", "Plates"],
     // The two components each claim a file, and their figure leaves the body's width, so it sits beside its reading.
-    "Plate 01 (architecture): figure 65% of the body, beside its reading; misses emptyShare, blankBand and holes.",
-    `Coverage at ${pinned.slice(0, 7)}: 3 of 6 files owned, 3 uncovered, 1 excluded.`,
-    "Largest uncovered: src/tools/ (2 files).",
-    "Matching no file: src/generated/. Cited outside the scope: 1 file.",
-    `Currency against main at ${head.slice(0, 7)}: 2 commits since the pin; 1 file unchanged, 1 modified, 1 moved and 1 deleted.`,
-    "Re-pin worklist:",
-    "  Alpha (a): 1 modified; src/b.mjs moved to src/lib/b.mjs, under no claim.",
-    "  Beta (b): src/c.mjs deleted.",
-    `  Refused at ${head.slice(0, 7)}: src/b.mjs of a owns no file; src/c.mjs of b owns no file.`,
-    "  Newly uncovered: src/lib/b.mjs.",
-    "",
+    [
+      "attention",
+      "01",
+      `architecture · figure 65% of the body, beside its reading · misses ${missed(body.plates[0])}`,
+    ],
+    ["heading", `Coverage at ${pinned.slice(0, 7)}`],
+    ["attention", "Files", "3 of 6 owned, 3 uncovered, 1 excluded"],
+    ["attention", "Largest uncovered", "src/tools/ (2 files)"],
+    ["attention", "Matching no file", "src/generated/"],
+    ["attention", "Cited outside the scope", "1 file"],
+    ["heading", `Currency against main at ${head.slice(0, 7)}`],
+    ["attention", "Commits", "2 commits since the pin"],
+    ["attention", "Files", "1 file unchanged, 1 modified, 1 moved and 1 deleted"],
+    ["heading", "Re-pin worklist"],
+    ["attention", "Alpha (a)", "1 file modified; src/b.mjs moved to src/lib/b.mjs, under no claim"],
+    ["attention", "Beta (b)", "src/c.mjs deleted"],
+    [
+      "refused",
+      `Refused at ${head.slice(0, 7)}`,
+      "src/b.mjs of a owns no file; src/c.mjs of b owns no file",
+    ],
+    ["attention", "Newly uncovered", "src/lib/b.mjs"],
+    ...(body.warnings.length ? [["heading", "Warnings"]] : []),
+    ...body.warnings.map(({ code, path: where, message }) => ["attention", where ?? code, message]),
   ]);
 });

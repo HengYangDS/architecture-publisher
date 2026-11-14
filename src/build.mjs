@@ -38,6 +38,7 @@ const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
  * standard delivers the closest pages as drafts that record what they miss.
  * @typedef {{ repo?: string | null, media?: readonly string[], png?: readonly number[],
  *   quality?: string }} BuildOptions
+ * @typedef {(step: string) => void} StepListener told each step of a check or a build as it is reached
  */
 
 /**
@@ -128,11 +129,13 @@ async function compositionOf(modelPath, named) {
 
 /**
  * Validate, bind, plan and compose without writing anything. Only the media
- * the build delivers are composed.
+ * the build delivers are composed. The listener is told each step as it is reached.
  * @param {string} modelPath
  * @param {ReturnType<typeof buildOptions>} options
+ * @param {StepListener} listener
  */
-async function prepare(modelPath, options) {
+async function prepare(modelPath, options, listener) {
+  listener("reading the model");
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
@@ -143,6 +146,7 @@ async function prepare(modelPath, options) {
   const composition =
     printed && model.overview ? await compositionOf(modelPath, model.overview) : null;
   requireGlyphs(typefaces, drawnTexts(model));
+  listener("verifying files");
   const binding = bindSources(model, options.repo);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
   // The edition's marks and palette are chosen once, before the plan, since a view is admitted as its marks draw it.
@@ -170,14 +174,17 @@ async function prepare(modelPath, options) {
     : null;
   // Each view is one plate of the edition, laid out for its body, with the edition's strips as long as every view
   // can hold them.
+  listener("planning views");
   const { style, views, plates } = await withStripLength(chosen, async (drawn) => {
     const planned = await planViews(model, async (view) =>
       admitsView(model, view, typefaces, icons, drawn),
     );
+    if (!printed) return { style: drawn, views: planned, plates: [] };
+    listener("laying out the plates");
     return {
       style: drawn,
       views: planned,
-      plates: printed ? composePlates(model, planned, typefaces, icons, drawn) : [],
+      plates: composePlates(model, planned, typefaces, icons, drawn),
     };
   });
   // With strips, the manifest records the length the edition draws its largest part at.
@@ -185,7 +192,9 @@ async function prepare(modelPath, options) {
     style.name === "strip" ? { ...chosenRecord, longest: longestOf(style) } : chosenRecord;
   const { quality } = options;
   // The page is the work's guide when the model names one, and the generated page otherwise.
-  const page = !media.includes("page")
+  const paged = media.includes("page");
+  if (paged) listener("preparing the page");
+  const page = !paged
     ? null
     : model.guide
       ? await guidePage(model, modelPath, { quality, repo: options.repo })
@@ -315,11 +324,12 @@ function plateSummary(plate, widths) {
  * Check a model end to end without writing: validation, files, plan, layout and admission,
  * then what the plan leaves undrawn, what claims or cites no file and, with a checkout, the model's
  * coverage of it and, with `against`, its currency and re-pin worklist, which reads the guide's
- * citations when the model names a guide.
+ * citations when the model names a guide. A listener is told each step as the check reaches it.
  * @param {string} modelPath
  * @param {BuildOptions & { against?: string | null }} [options]
+ * @param {StepListener} [listener]
  */
-export async function checkModel(modelPath, options = {}) {
+export async function checkModel(modelPath, options = {}, listener = () => {}) {
   const chosen = buildOptions(options);
   const against = options.against ?? null;
   if (against !== null && !chosen.repo)
@@ -327,7 +337,7 @@ export async function checkModel(modelPath, options = {}) {
       "coverage_repository_missing",
       "Measuring currency needs the repository checkout that --repo names.",
     );
-  const prepared = await prepare(modelPath, chosen);
+  const prepared = await prepare(modelPath, chosen, listener);
   const { model } = prepared;
   // The worklist classifies the guide's citations, read here when the page was not prepared.
   const guided = against !== null && model.guide;
@@ -389,17 +399,19 @@ export async function digestTree(root, skip = new Set()) {
 
 /**
  * Build a delivery into `out`, which must not exist. Output is staged beside it
- * and moved into place only when complete.
+ * and moved into place only when complete. A listener is told each step as the
+ * build reaches it.
  * @param {string} modelPath
  * @param {string} out
  * @param {BuildOptions} [options]
+ * @param {StepListener} [listener]
  */
-export async function buildDelivery(modelPath, out, options = {}) {
+export async function buildDelivery(modelPath, out, options = {}, listener = () => {}) {
   const chosen = buildOptions(options);
   const target = path.resolve(out);
   if (await exists(target))
     refuse("delivery_exists", `The output ${target} already exists; choose a new directory.`);
-  const prepared = await prepare(modelPath, chosen);
+  const prepared = await prepare(modelPath, chosen, listener);
   const parent = path.dirname(target);
   await fs.mkdir(parent, { recursive: true });
   const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
@@ -413,7 +425,9 @@ export async function buildDelivery(modelPath, out, options = {}) {
       : epoch && /^\d+$/u.test(epoch)
         ? { by: "SOURCE_DATE_EPOCH", time: Number(epoch) }
         : { by: "typesetting", time: null };
-    const edition = !prepared.media.includes("edition")
+    const printed = prepared.media.includes("edition");
+    if (printed) listener("typesetting the edition");
+    const edition = !printed
       ? null
       : await typesetEdition({
           record: editionRecord({
@@ -446,6 +460,7 @@ export async function buildDelivery(modelPath, out, options = {}) {
       for (const { file, bytes } of edition.png)
         await fs.writeFile(path.join(staging, file), bytes);
     }
+    if (prepared.page) listener("delivering the page");
     const page = !prepared.page
       ? null
       : prepared.page.kind === "guide"

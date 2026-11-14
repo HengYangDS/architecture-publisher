@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { runCli } from "../src/cli/run.mjs";
+import { reportLines } from "./fixtures/report-lines.mjs";
 import { migrateModel } from "../src/importers/model.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
@@ -113,10 +114,15 @@ test("migrate writes a new file and refuses one that exists", async (t) => {
   const out = path.join(directory, "model.json");
   const written = await runCli(["migrate", input, "--out", out]);
   assert.equal(written.exitCode, 0);
-  assert.equal(
-    written.output,
-    `Wrote ${out}: components claim 2 files, relations cite 1 file.\nkept with a: README.md, no longer cited by b\n`,
-  );
+  assert.deepEqual(reportLines(written.output), [
+    ["title", `archpub migrate · ${input}`],
+    ["heading", "Model"],
+    ["passed", "Claims", "components claim 2 files"],
+    ["passed", "Citations", "relations cite 1 file"],
+    ["passed", "File", out],
+    ["noted", "Kept with a", "README.md, no longer cited by b"],
+    ["closing", `Next: archpub check ${out}`],
+  ]);
   assert.equal(JSON.parse(await fs.readFile(out, "utf8")).version, 3);
   await fs.writeFile(out, "kept\n");
   const refused = await runCli(["migrate", input, "--out", out, "--json"]);

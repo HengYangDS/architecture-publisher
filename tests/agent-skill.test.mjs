@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { USAGE, runCli } from "../src/cli/run.mjs";
+import { runCli } from "../src/cli/run.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const SKILL = path.join(root, "skills/architecture-publisher/SKILL.md");
@@ -50,8 +50,21 @@ test("every command, option and refusal code the Skill names exists", async () =
     for (const option of span.match(/--[a-z]+(?:-[a-z]+)*/gu) ?? [])
       assert.ok(names(help.output, option), `${span} names ${option}`);
   }
+  // An option the Skill names on its own is one that some command's help explains.
+  const helps = [];
+  for (const command of [
+    ["check"],
+    ["build"],
+    ["scaffold", "guide"],
+    ["import", "likec4"],
+    ["migrate"],
+    ["accept"],
+    ["verify"],
+    ["publish"],
+  ])
+    helps.push((await runCli([...command, "--help"])).output);
   for (const span of named.filter((one) => one.startsWith("--")))
-    assert.ok(names(USAGE, span.split(" ")[0]), span);
+    assert.ok(names(helps.join("\n"), span.split(" ")[0]), span);
   const codes = named.filter((span) => /^[a-z]+(?:_[a-z]+)+$/u.test(span));
   const sources = (await textsUnder(path.join(root, "src"))).join("\n");
   for (const code of codes)

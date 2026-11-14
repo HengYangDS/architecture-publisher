@@ -12,15 +12,18 @@ status, under one rendering contract. The same division exists for Node.js.
 
 ## What Changes
 
-- **BREAKING:** the texts a person reads change: the help, the reports of `check` and `build`, refusals and usage
-  errors. The `--json` results, their fields and the exit statuses do not change, except that a usage error's
+- **BREAKING:** the texts a reader at a terminal reads change: the help, every command's report, refusals and
+  usage errors. The `--json` results, their fields and the exit statuses do not change, except that a usage error's
   `message` is now commander's.
 - Commands, options, help, version and usage errors come from commander. The help groups the commands by the role
-  that runs them: author, reviewer, publisher and agent. A mistyped command or option names the nearest one.
-- Reports come from clack: one line per fact with a mark for passed, needs attention and refused, grouped under
-  headings, with the next command to run at the end. A refusal lists each problem with its path.
+  that runs them, author, reviewer and publisher, with `skill` and `help` under a heading for every role. A mistyped
+  command or option names the nearest one.
+- Reports come from clack: one line per fact with a mark for passed, needs attention, refused or noted, grouped
+  under headings, with the next command to run at the end. A refusal lists each problem with its path. No line of
+  a report is wider than the terminal, and a path inside the working directory is printed relative to it.
 - A build or a check on a terminal shows the step it is at. Nothing of it reaches a pipe, a file or `--json`.
-- The package declares commander and clack as dependencies and bundles them, so the release archive and the npm
+- The package declares commander and clack as dependencies, with the two libraries clack wraps and measures text
+  with, and bundles them, so the release archive and the npm
   package stay self-contained. The rule that shipped modules import only Node.js and the publisher's own modules
   now admits the bundled dependencies in the command line's own directory and nowhere else.
 

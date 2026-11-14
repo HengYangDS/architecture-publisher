@@ -248,7 +248,7 @@ Before moving `repository.revision` to a later commit, check the model with
 worklist from the model's claims resolved at both commits:
 
 - each component's owned files that are modified, moved, with the component
-  their new path falls to, or deleted, and the files its claims take in;
+  their new path falls to, or deleted, and the files it now owns;
 - each relation's cited files that changed;
 - the claims that would own no file and the relation files that would be gone,
   which a build at the later commit refuses;

@@ -9,7 +9,11 @@ Use this Skill to describe a repository's architecture in an Architecture Model
 and publish it with `archpub`. The model states the architecture; `archpub`
 only draws and verifies what the model states. `archpub skill` prints this
 Skill as it ships with the installed version, and `archpub <command> --help`
-explains each command.
+explains each command. Give every command `--json` and read its one JSON
+object: `ok`, the result's fields or a refusal's `code`, `message` and
+`problems`, and the exit status, 0 done, 1 refused, 2 usage, 3 internal.
+Without `--json` the same result is a report for a reader at a terminal, one
+marked line per fact; do not parse it.
 
 A build delivers two media from one model: the print edition, a PDF with one
 plate per view and an image of each page, and the page, an interactive
@@ -77,7 +81,7 @@ explainer with one panel per view or the guide the model names.
 10. The reviewer accepts, and the author of a work does not review it. Unless you
     hold the reviewer's role for this work, stop here and hand the delivery over.
     Holding it, run `archpub accept <delivery> --reviewer <name>` with
-    the name your delegation gives, adding `--sign <private key>` when the user signs
+    the name your delegation gives, adding `--sign <key>` when the user signs
     with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets
     the name, `acceptance.json`, the record of who accepted which bytes and when,
     and for a signed acceptance `acceptance.sig`. Acceptance does not certify
@@ -94,7 +98,7 @@ explainer with one panel per view or the guide the model names.
 To re-pin a work to a later commit, first run
 `archpub check model.json --repo <checkout> --against <commit>`. Its re-pin
 worklist names, per component, the files that changed, moved or went and the
-files its claims now take in, the relations whose files changed, what a build
+files it now owns, the relations whose files changed, what a build
 there would refuse, the newly uncovered files and every guide citation that
 shifted, moved, was touched or is gone. Update the claims, relations and prose
 for each, move every shifted citation to its new range, reread every touched

@@ -42,8 +42,13 @@ status 2 and a JSON body with `code: "usage"`; the message is commander's, such 
 ### Help by role
 
 The commands are grouped under Author (`check`, `build`, `scaffold guide`, `import likec4`, `migrate`), Reviewer
-(`accept`, `verify`), Publisher (`publish`) and Agents (`skill`). The contract's roles are the headings, and the
-headings say nothing of who holds a role.
+(`accept`, `verify`) and Publisher (`publish`); `skill` and `help` stand under `Every role`, since any of the
+three runs them. The contract's roles are the headings, and a heading names a role, never a kind of holder. Every
+help lists `--json` among its options, though the option is taken out before commander parses. An option a
+command cannot run without stands in its usage line and ends in `(required)`; both are derived from the options
+commander holds as mandatory, so a new one cannot be forgotten. The options `check` shares with `build` are
+defined once, with the verb as the variable: a build delivers media and draws images, a check checks the media and
+names the images, since it writes nothing.
 
 ### One module holds the report contract
 
@@ -51,7 +56,11 @@ headings say nothing of who holds a role.
 title line with the command and its subject; groups of facts, each one line with a mark, a label and a value; the
 marks are those clack draws for success, warning and error; a refusal's problems each on a line with its path; a
 closing line with the next command when there is one. A plate that misses a balance gate is marked as needing
-attention, so the fact the sentences buried is on the screen.
+attention, so the fact the sentences buried is on the screen; it names what was measured and the limit, and says
+when the limit is only reached, without the module knowing any measure by name. The title names the model's id for
+a check and a build and the command's first argument as typed for every other command and for a refusal; what a
+command wrote stands in its facts. The guide's citations stand in a group of their own after the re-pin worklist,
+whose long labels would leave a cited path no room on its line.
 
 ### Progress goes to the terminal alone
 
@@ -60,9 +69,28 @@ the model, verifying files, planning views, laying out each plate, typesetting, 
 line passes a listener only when standard error is a terminal and `--json` is absent, and draws it with clack's
 task log on standard error. Standard output carries the same bytes with or without it.
 
+### Lines fit the terminal, and paths are printed as typed
+
+A terminal breaks a line that is too long wherever it ends, and the broken line loses the guide at its left. The
+report module therefore wraps every value and the title to the stream's width: its `columns` when it is a
+terminal, and 80 otherwise. The closing line is not wrapped: what follows `Next:` is a command, and a copied
+command must stay one command, which a line broken by the report would not; it stands after the frame's end,
+where the terminal's own fold loses no guide. It measures and wraps with `fast-string-width` and `fast-wrap-ansi`, which
+clack itself depends on and which count a Han character as two columns; they are declared as dependencies of their
+own, at the versions the lock already held, so that the module imports what the package declares. Rejected: a
+wrapper and a width table of our own.
+
+A path a command wrote is printed relative to the working directory when it lies inside it, which is how the
+reader typed it and what fits a line; the `--json` result keeps the whole path. A path outside the working
+directory is printed whole and may take more than one line. In the command after `Next:` a path that holds a space
+stands between double quotes; nothing else is quoted, since no one quoting suits every shell.
+
+A fact is marked as passed, needing attention, refused, or noted. The fourth mark is for a fact that is neither
+good nor bad, such as an acceptance without a signature.
+
 ### The dependencies are bundled
 
-`package.json` lists both under `dependencies` and `bundleDependencies`, so `npm pack` puts them, with what they
+`package.json` lists the four under `dependencies` and `bundleDependencies`, so `npm pack` puts them, with what they
 depend on, into the package the archive is assembled from; the lock records each tarball's integrity. Their
 licences join the archive's `licenses/`. The import test admits the bundled packages for modules under `src/cli/`
 and still refuses them everywhere else, so the model, the layout and the renderers keep to Node.js alone.
@@ -74,8 +102,9 @@ and still refuses them everywhere else, so the model, the layout and the rendere
   reports at 80 and 120 columns, with and without colour, before the lane is proved.
 - [A bundled dependency changes the bytes of the package and its size] → the packed size is measured before and
   after and recorded in the tasks; the archive test compares the bundled files with the lock.
-- [Progress lines leak into captured output] → a test runs the executable with standard error as a pipe and as a
-  pseudo-terminal and compares standard output byte for byte.
+- [Progress lines leak into captured output] → a test runs the executable with standard error as a pipe and with
+  standard error answering as a terminal, through a preloaded module, and compares standard output byte for byte.
+  A real pseudo-terminal is not used: Node.js has none of its own, and the test must run on Windows.
 - [commander's messages differ from the ones agents may match on] → the JSON `code` stays `usage` for all of them;
   the CHANGELOG lists the change under Breaking.
 

@@ -84,5 +84,17 @@
   },
   "engines": {
     "node": ">=22.13"
-  }
+  },
+  "dependencies": {
+    "@clack/prompts": "1.9.0",
+    "commander": "15.1.0",
+    "fast-string-width": "3.0.2",
+    "fast-wrap-ansi": "0.2.2"
+  },
+  "bundleDependencies": [
+    "@clack/prompts",
+    "commander",
+    "fast-string-width",
+    "fast-wrap-ansi"
+  ]
 }

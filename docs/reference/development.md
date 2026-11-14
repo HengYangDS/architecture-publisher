@@ -33,6 +33,18 @@ installation or scripts. Every CI job uses the same locked selection in its own
 ignored tool cache. The installed package itself needs only Node.js 22.13 or
 later.
 
+The package has four runtime dependencies: commander and `@clack/prompts`, which
+the command line is built on, and `fast-wrap-ansi` and `fast-string-width`,
+which wrap and measure a report's text and are clack's own dependencies at the
+versions the lock already held. `package.json` lists the four under
+`dependencies` and `bundleDependencies`, so `npm pack` puts them, with the three
+packages they depend on, into the package; the lock marks each as `inBundle`
+with its integrity. `tests/module-boundaries.test.mjs` admits the first two in
+modules under `src/cli/`, the other two in `src/cli/report.mjs` alone, and
+refuses all four in every other unit, `tests/installed-cli.test.mjs`
+holds the packed package to the lock's bundled entries, each with its licence,
+and the release archive copies each bundled licence into `archpub/licenses/`.
+
 `npm run check:package` invokes npm's selected absolute CLI entrypoint to pack
 with lifecycle scripts disabled, then checks the resulting archive through
 publint's tarball API. Its temporary archive is removed on success or failure.
@@ -80,8 +92,9 @@ covers the model, source binding, reading plan, layout, plates, the print
 edition, the page's
 diagrams and its delivery through the vendored Archify, deliveries, acceptance,
 publication, the
-LikeC4 importer, the command line, the packed and installed package, module
-boundaries, the version projection and the CI projection. `tests/evolution-queue.test.mjs`
+LikeC4 importer, the command line with its reports and its progress, the packed
+and installed package, module boundaries, the version projection and the CI
+projection. `tests/evolution-queue.test.mjs`
 holds every active Change to the queue of the product contract, and
 `tests/role-neutral-wording.test.mjs` refuses wording that presumes who holds a
 role.
