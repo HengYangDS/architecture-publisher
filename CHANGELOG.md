@@ -9,6 +9,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- `docs/research/`, the studies, measurements and records that decisions rest on, one page each in one form: letter
+  height by viewing distance, text on projected pages, the layout of pages that are mostly text, tidiness built in and
+  measured, links and outlines in the PDFs Typst writes, the record of the committee of 2026-11-15 on the edition's
+  forms, the room-size fit of the works' views, and what the second hand-set proof showed. A page records and decides
+  nothing; a decision in a Change's design names the page it rests on.
 - `archpub --help` groups the commands by the role that runs them, the author, the reviewer and the publisher, with
   `skill` and `help` under `Every role`; every help lists `--json` among its options, and an option a command cannot
   run without stands in its usage line and is marked as required; `archpub help [command]` prints a command's help. A
