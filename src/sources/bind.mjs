@@ -238,6 +238,48 @@ function resolved(model, root, commit) {
 }
 
 /**
+ * Read files at a revision by path, beside the binding and as it reads its records: each path that is a file there
+ * with its digest, its size and the day of its last change, in the order asked for. A path that is no file at the
+ * revision is left out and nothing is refused for it: whoever cites it decides what its absence means. Git is only
+ * read, and what is read here joins no binding.
+ * @param {string} repo the checkout
+ * @param {string} revision the revision the files are read at
+ * @param {readonly string[]} paths
+ * @returns {Map<string, { sha256: string, bytes: number, changed: string }>}
+ */
+export function readAtPin(repo, revision, paths) {
+  const root = path.resolve(repo);
+  const commit = commitOf(root, revision, "source_revision_unknown");
+  // A path with a line break names no object in a batch of one name a line.
+  const asked = [...new Set(paths)].filter((file) => !file.includes("\n"));
+  const named = (files) => `${files.map((file) => `${commit}:${file}`).join("\n")}\n`;
+  // A name Git finds is answered with its object's id, type and size; any other answer is of no file there.
+  const answers = readGit(root, ["cat-file", "--batch-check"], named(asked))
+    .stdout.toString("utf8")
+    .split("\n");
+  const files = asked.filter((file, index) => /^[0-9a-f]+ blob \d+$/u.test(answers[index]));
+  if (!files.length) return new Map();
+  const objects = parseBatch(
+    readGit(root, ["cat-file", "--batch"], named(files)).stdout,
+    files.length,
+  );
+  const times = changeTimes(root, commit, files, files);
+  return new Map(
+    files.map((file, index) => {
+      const object = /** @type {Buffer} */ (objects[index]);
+      return [
+        file,
+        {
+          sha256: createHash("sha256").update(object).digest("hex"),
+          bytes: object.length,
+          changed: utcDate(/** @type {number} */ (times.get(file))),
+        },
+      ];
+    }),
+  );
+}
+
+/**
  * Bind the files a model claims and cites to its revision without changing the repository. With
  * a checkout, every file in the scope is given to the component whose claim is most specific and
  * every cited file is recorded with its digest, size, last change, owner and citing relations,

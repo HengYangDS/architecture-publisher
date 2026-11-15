@@ -5,8 +5,49 @@ import { fixed } from "./tokens.mjs";
  * The lines of a figure's relations: each drawn in the weight and pattern the
  * table of lines gives its row, with its arrowhead, and on a strip plate with
  * the number of files its relation cites. The count and the view's hub are
- * read from the view's measured facts; nothing is measured here.
+ * read from the view's measured facts; nothing is measured here. The drawing
+ * hands back, beside what it draws, each path it stroked with the relations it
+ * is stroked for, in the numbers the SVG writes.
  */
+
+/**
+ * The part a point of a line stands on, by the layout's boxes: a line ends on a part's top or foot, or on its side
+ * for a relation along a row.
+ * @param {{ cards: Map<string, { x: number, y: number, width: number, height: number }> }} layout
+ * @returns {(point: number[]) => string | undefined}
+ */
+function partAt(layout) {
+  const near = (a, b) => Math.abs(a - b) < 0.5;
+  const within = (value, low, high) => value > low - 0.5 && value < high + 0.5;
+  return ([x, y]) =>
+    [...layout.cards].find(
+      ([, box]) =>
+        ((near(y, box.y) || near(y, box.y + box.height)) && within(x, box.x, box.x + box.width)) ||
+        ((near(x, box.x) || near(x, box.x + box.width)) && within(y, box.y, box.y + box.height)),
+    )?.[0];
+}
+
+/**
+ * The relations a path is stroked for. Every path of a wire carries all the wire's relations: of them, a path that
+ * ends on a part is stroked for those that end on that part, so a fan's branch is its own relation's and its trunk
+ * every relation's; a path that ends on no part of theirs, as a fan's bar does, is stroked for them all.
+ * @param {{ relations: any[], points: number[][] }} path a path of the layout
+ * @param {(point: number[]) => string | undefined} standsOn
+ */
+function strokedFor({ relations, points }, standsOn) {
+  const ends = [standsOn(points[0]), standsOn(points[points.length - 1])];
+  const own = relations.filter(({ from, to }) => ends.includes(from) || ends.includes(to));
+  return own.length ? own : relations;
+}
+
+/** A relation as a path's report names it: its ends, its label and, for an overview's line, the relations it stands for. */
+const named = ({ id, from, to, label, relations }) => ({
+  id,
+  from,
+  to,
+  label,
+  ...(relations ? { relations } : {}),
+});
 
 /**
  * Where each relation's count of cited files stands: on the part of its line
@@ -21,16 +62,7 @@ import { fixed } from "./tokens.mjs";
  * @returns {Map<number, Array<{ id: string, count: number, reverse: boolean }>>}
  */
 export function citationRuns(cited, layout) {
-  const near = (a, b) => Math.abs(a - b) < 0.5;
-  const within = (value, low, high) => value > low - 0.5 && value < high + 0.5;
-  // A line ends on a part's top or foot, or on its side for a relation along a row.
-  /** @param {number[]} point */
-  const cardAt = ([x, y]) =>
-    [...layout.cards].find(
-      ([, box]) =>
-        ((near(y, box.y) || near(y, box.y + box.height)) && within(x, box.x, box.x + box.width)) ||
-        ((near(x, box.x) || near(x, box.x + box.width)) && within(y, box.y, box.y + box.height)),
-    )?.[0];
+  const cardAt = partAt(layout);
   /** @type {Map<any, Array<{ index: number, last: boolean, card: string | undefined }>>} */
   const own = new Map();
   layout.paths.forEach(({ relations, points }, index) => {
@@ -218,8 +250,10 @@ const toward = ([x, y], [tx, ty], by) => {
  *   marks: Array<{ x: number, y: number, width: number, height: number }> }} scene
  *   `marks` are the parts, labels and frame a count may not touch; `facts` are the edition's measured facts, which
  *   a strip plate reads its view's hub and counts from.
- * @returns {{ rows: Set<string>, touching: string[] }} the rows of the table drawn, and the relations whose
- *   count has no clear place
+ * @returns {{ rows: Set<string>, touching: string[],
+ *   paths: Array<{ relations: ReturnType<typeof named>[], points: number[][] }> }} the rows of the table drawn, the
+ *   relations whose count has no clear place, and each path stroked, in the order drawn, with the relations it is
+ *   stroked for and the points its path is written from
  */
 export function drawLines(layout, scene) {
   const { view, strips, styles, metrics, typefaces, colors: C, lines } = scene;
@@ -270,6 +304,8 @@ export function drawLines(layout, scene) {
   const runs = seen ? citationRuns(seen.cited, layout) : new Map();
   /** @type {string[]} */
   const touching = [];
+  const standsOn = partAt(layout);
+  const stroked = [];
   for (const [index, { relations, heavy, moved, weight }] of paths.entries()) {
     const status = statusOf(relations);
     const dash = status ? ` stroke-dasharray="${lines.status(status)}"` : "";
@@ -294,6 +330,10 @@ export function drawLines(layout, scene) {
       `<path d="${rounded(drawn, metrics.wire.radius)}" fill="none" stroke="${color}" ` +
         `stroke-width="${weight}" stroke-linejoin="round" stroke-linecap="round"${dash}/>`,
     );
+    stroked.push({
+      relations: strokedFor(layout.paths[index], standsOn).map(named),
+      points: drawn.map(([x, y]) => [fixed(x), fixed(y)]),
+    });
     for (const [x, y] of moved)
       rects.push({ x: x - weight, y: y - weight, width: 2 * weight, height: 2 * weight, ...ink });
     // A wire fills its whole run, not just its corners: a long horizontal or
@@ -328,5 +368,5 @@ export function drawLines(layout, scene) {
         `fill="${color}"/>`,
     );
   }
-  return { rows, touching };
+  return { rows, touching, paths: stroked };
 }

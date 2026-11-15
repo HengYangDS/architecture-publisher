@@ -42,3 +42,51 @@ export const count = (number, noun) => `${number} ${noun}${number === 1 ? "" : "
 /** "a", "a and b", "a, b and c". */
 export const series = (items) =>
   items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+
+/**
+ * The data a build would write, in the counts a check reports of it: the statements and how many of them name
+ * files that were read at the pin, the facts, the evidence, the plates whose faces were held to their views and,
+ * of a guide, how many of its figures' nodes and connections were matched to the model.
+ * @param {{ statements: { components: number, relations: number, groups: number, cited: number,
+ *   unchecked: number, uncited: number }, facts: number, evidence: { paths: number, ranges: number },
+ *   faces: readonly object[], figures?: { matched: { nodes: number, connections: number },
+ *     unmatched: { nodes: readonly object[], connections: readonly object[] } } }} data
+ * @returns {Group}
+ */
+export function dataGroup({ statements, facts, evidence, faces, figures }) {
+  const { components, relations, groups, cited, unchecked, uncited } = statements;
+  const matched = (found, missed, noun) => `${found} of ${count(found + missed.length, noun)}`;
+  return {
+    heading: "Data",
+    facts: [
+      noted(
+        "Statements",
+        `${series([
+          count(components, "component"),
+          count(relations, "relation"),
+          count(groups, "group"),
+        ])}: ${cited} cited, ${unchecked} unchecked and ${uncited} uncited`,
+      ),
+      noted("Facts", count(facts, "fact")),
+      noted(
+        "Evidence",
+        `${count(evidence.paths, "path")} with ${count(evidence.ranges, "cited range")}`,
+      ),
+      ...(faces.length
+        ? [passed("Faces", `${count(faces.length, "plate")}, each its view's statements`)]
+        : []),
+      ...(figures
+        ? [
+            noted(
+              "Guide figures",
+              `${matched(figures.matched.nodes, figures.unmatched.nodes, "node")} and ${matched(
+                figures.matched.connections,
+                figures.unmatched.connections,
+                "connection",
+              )} matched to the model`,
+            ),
+          ]
+        : []),
+    ],
+  };
+}

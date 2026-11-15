@@ -220,7 +220,14 @@ test("a signed acceptance verifies for its reviewer with the allowed signers and
     await assert.rejects(acceptDelivery(out, { reviewer: "Yang HENG", sign: key }), {
       code: "acceptance_sign_failed",
     });
-  assert.deepEqual((await fs.readdir(out)).sort(), ["images", "manifest.json", "minimal.pdf"]);
+  assert.deepEqual((await fs.readdir(out)).sort(), [
+    "images",
+    "manifest.json",
+    "minimal.json",
+    "minimal.md",
+    "minimal.pdf",
+    "model.json",
+  ]);
 
   const unsigned = await copyOf(out, "unsigned");
   await acceptDelivery(unsigned, { reviewer: "Yang HENG" });

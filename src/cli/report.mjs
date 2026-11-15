@@ -5,7 +5,7 @@ import { cancel, intro, log, outro, taskLog } from "@clack/prompts";
 import stringWidth from "fast-string-width";
 import { wrapAnsi } from "fast-wrap-ansi";
 import { comparisonReport } from "./comparison.mjs";
-import { attention, count, near, noted, passed, refused, series } from "./facts.mjs";
+import { attention, count, dataGroup, near, noted, passed, refused, series } from "./facts.mjs";
 
 /**
  * The report contract of the command line: what a command found or did, for a reader at a terminal. A report has
@@ -345,6 +345,7 @@ function checkReport(result, model, typed) {
         ],
       },
       { heading: "Plates", facts: result.plates.map(plateFact) },
+      dataGroup(result.data),
       ...(result.coverage ? coverageGroups(result.coverage) : []),
       warningGroup(result.warnings),
     ],

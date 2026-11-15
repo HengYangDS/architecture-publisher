@@ -34,6 +34,7 @@ test("every command keeps the fields of its JSON body and its exit status", asyn
     "guide",
     "overview",
     "statements",
+    "data",
     "coverage",
     "warnings",
   ];

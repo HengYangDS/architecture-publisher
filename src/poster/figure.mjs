@@ -9,6 +9,9 @@ import { colorsOf, fixed, linesOf } from "./tokens.mjs";
  * rectangle each element fills, as mass or as a stroke and with its darkness.
  * The balance gate measures those rectangles, so a card counts as filled across
  * its whole surface, as a reader sees it, and a wire is a line, not a wall.
+ * Beside them it reports what it drew, for the edition's data: each part with
+ * the rectangle it set, each path stroked with its relations, and each
+ * relation label with its box, in the order drawn and the numbers the SVG writes.
  */
 
 /** Ink the balance measure reads: boxes that hold text are mass without darkness of their own. */
@@ -299,7 +302,7 @@ export function drawFigure(layout, input) {
     });
   for (const label of layout.labels)
     marks.push({ x: at(label.x), y: down(label.y), width: label.width, height: label.height });
-  const { rows, touching } = drawLines(layout, {
+  const { rows, touching, paths } = drawLines(layout, {
     view,
     strips,
     facts: input.style.facts,
@@ -321,11 +324,15 @@ export function drawFigure(layout, input) {
   for (const { status } of view.components)
     if (status && status !== "implemented") rows.add(status);
   const drawn = { lines: [...rows], touching };
+  /** @type {Array<{ id: string, group?: boolean, box: { x: number, y: number, width: number, height: number } }>} */
+  const parts = [];
+  const report = (component, box) =>
+    parts.push({ id: component.id, ...(component.group ? { group: true } : {}), box });
 
   if (strips) {
     for (const [id, box] of layout.cards) {
       const component = components.get(id);
-      drawStrip(
+      const set = drawStrip(
         {
           x: at(box.x),
           y: down(box.y),
@@ -338,9 +345,10 @@ export function drawFigure(layout, input) {
         },
         { text, shapes, rects, typefaces },
       );
+      report(component, set);
     }
-    drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
-    return { shapes, runs, rects, frame, ...drawn };
+    const labels = drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
+    return { shapes, runs, rects, frame, ...drawn, report: { parts, paths, labels } };
   }
   shapes.push(
     `<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="1.8" flood-color="${C.shadow}" flood-opacity="0.08"/></filter></defs>`,
@@ -366,6 +374,7 @@ export function drawFigure(layout, input) {
         `height="${fixed(card.height - 2 * cardStyle.pad)}" rx="${cardStyle.bar / 2}" fill="${hue}"/>`,
     );
     rects.push({ x, y, width: card.width, height: card.height, ...CARD });
+    report(component, { x: fixed(x), y: fixed(y), width: card.width, height: card.height });
     const { name, details, spread } = input.cardText(component, card.width);
     const labelTop = y + cardStyle.pad;
     shapes.push(
@@ -406,13 +415,14 @@ export function drawFigure(layout, input) {
       );
   }
 
-  drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
-  return { shapes, runs, rects, frame, ...drawn };
+  const labels = drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
+  return { shapes, runs, rects, frame, ...drawn, report: { parts, paths, labels } };
 }
 
 /**
  * Set the relations' labels, each on a plate of paper that interrupts the
- * wires it lies over, so it reads as a gap in the line.
+ * wires it lies over, so it reads as a gap in the line, and hand back each
+ * label's relations with the box of its plate.
  * @param {any} layout
  * @param {{ at: (x: number) => number, down: (y: number) => number,
  *   text: Function, shapes: string[], rects: any[], colors: ReturnType<typeof colorsOf> }} draw
@@ -421,9 +431,15 @@ export function drawFigure(layout, input) {
 function drawLabels(layout, draw, input) {
   const { at, down, text, shapes, rects, colors: C } = draw;
   const { styles, metrics, typefaces } = input;
+  /** @type {Array<{ relations: string[], box: { x: number, y: number, width: number, height: number } }>} */
+  const set = [];
   for (const label of layout.labels) {
     const x = at(label.x);
     const y = down(label.y);
+    set.push({
+      relations: label.relations.map(({ id }) => id),
+      box: { x: fixed(x), y: fixed(y), width: fixed(label.width), height: fixed(label.height) },
+    });
     shapes.push(
       `<rect x="${fixed(x)}" y="${fixed(y)}" width="${fixed(label.width)}" height="${fixed(label.height)}" rx="6" fill="${C.paper}"/>`,
     );
@@ -441,4 +457,5 @@ function drawLabels(layout, draw, input) {
       );
     }
   }
+  return set;
 }

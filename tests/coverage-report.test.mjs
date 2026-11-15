@@ -267,6 +267,16 @@ test("check prints coverage and currency with --repo and --against", async (t) =
       "01",
       `architecture · figure 65% of the body, beside its reading · misses ${missed(body.plates[0])}`,
     ],
+    // The data a build would write, counted: the files the statements name were read at the pin.
+    ["heading", "Data"],
+    [
+      "noted",
+      "Statements",
+      "2 components, 2 relations and 0 groups: 3 cited, 0 unchecked and 1 uncited",
+    ],
+    ["noted", "Facts", `${body.data.facts} facts`],
+    ["noted", "Evidence", "4 paths with 0 cited ranges"],
+    ["passed", "Faces", "1 plate, each its view's statements"],
     ["heading", `Coverage at ${pinned.slice(0, 7)}`],
     ["attention", "Files", "3 of 6 owned, 3 uncovered, 1 excluded"],
     ["attention", "Largest uncovered", "src/tools/ (2 files)"],

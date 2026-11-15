@@ -161,16 +161,15 @@ export async function readGuide(draftPath) {
 }
 
 /**
- * The guide as the page: read, held to the model's repository and validated by Archify at the
- * build's quality, with strict writing checks at showcase and warnings at standard. With a
- * checkout and a model that names its repository URL and revision, every repository source the
- * guide cites is verified at that revision.
+ * The guide as the page: as the build read it, held to the model's repository and validated by
+ * Archify at the build's quality, with strict writing checks at showcase and warnings at standard.
+ * With a checkout and a model that names its repository URL and revision, every repository source
+ * the guide cites is verified at that revision.
  * @param {any} model
- * @param {string} modelPath
+ * @param {Awaited<ReturnType<typeof readGuide>>} guide the guide as read
  * @param {{ quality: "showcase" | "standard", repo: string | null }} options
  */
-export async function guidePage(model, modelPath, options) {
-  const guide = await readGuide(path.resolve(path.dirname(modelPath), model.guide));
+export async function guidePage(model, guide, options) {
   const declared = draftRepository(guide.text);
   const repository = model.repository;
   if (

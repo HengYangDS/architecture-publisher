@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import test from "node:test";
 import { loadIcons } from "../src/icons.mjs";
 import { loadModel, validateModel } from "../src/model/load.mjs";
+import { plateFace } from "../src/pinned/face.mjs";
 import { planViews } from "../src/plan/views.mjs";
 import { admitsView, composePlates, gutterFor } from "../src/poster/compose/plates.mjs";
 import { loadTypefaces, requireGlyphs } from "../src/poster/text.mjs";
@@ -15,6 +16,7 @@ import {
   graphModel,
   minimalModel,
 } from "./fixtures/models.mjs";
+import { differences } from "./fixtures/pinned-face.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 
@@ -29,6 +31,12 @@ async function platesOf(model) {
 }
 
 const loaded = async (file) => (await loadModel(file, { icon: icons.has })).model;
+
+/** Every plate's figure reports the components, groups and relations of its view, and no other. */
+function reportsItsView(views, plates) {
+  for (const [index, plate] of plates.entries())
+    assert.deepEqual(differences(views[index], plateFace(plate.report)), {}, plate.views[0]);
+}
 
 /** Big Bank's tiered containers plate, its view given the summary. */
 async function tieredBank(summary) {
@@ -97,6 +105,7 @@ test("an edition plate's legend names the kinds its figures show, each with its 
     assert.deepEqual(new Set(kinds), shown, `plate ${plate.page}`);
     for (const entry of plate.legend) assert.equal(typeof entry.label, "string");
   }
+  reportsItsView(views, plates);
 });
 
 test("a narrow view's figure takes 65 percent of the body, and a wide view without a summary keeps all of it", async () => {
@@ -180,19 +189,21 @@ test("a summary above its figure is broken within 32 em at 17 points, and one th
 });
 
 test("the ETHOS proof plane is an edition plate of its own", async () => {
-  const { plates } = await platesOf(await loaded(ETHOS_PROOF_PLANE_MODEL));
+  const { views: planned, plates } = await platesOf(await loaded(ETHOS_PROOF_PLANE_MODEL));
   assert.deepEqual(
     plates.map(({ views }) => views),
     [["overview"], ["proof"]],
   );
+  reportsItsView(planned, plates);
 });
 
 test("the publisher's own model plates each view without crossings, its overview's tier labels in one column", async () => {
-  const { plates } = await platesOf(await loaded(SELF_MODEL));
+  const { views: planned, plates } = await platesOf(await loaded(SELF_MODEL));
   assert.deepEqual(
     plates.map(({ views }) => views),
     [["overview"], ["layout"], ["media"]],
   );
+  reportsItsView(planned, plates);
   for (const plate of plates) assert.equal(plate.measures.crossings, 0, plate.views[0]);
   // The overview's five tiers start at different columns; their numbered
   // labels still stand in one straight column.

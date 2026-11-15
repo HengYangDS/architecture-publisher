@@ -148,9 +148,26 @@ test("check, build, accept, publish and import run end to end", async (t) => {
       ["attention", "Uncited"],
       ["heading", "Plates"],
       [plate.misses.length ? "attention" : "passed", "01"],
+      ["heading", "Data"],
+      ["noted", "Statements"],
+      ["noted", "Facts"],
+      ["noted", "Evidence"],
+      ["passed", "Faces"],
       ["heading", "Warnings"],
       ["attention", "marks_fallback"],
       ["closing", `Next: archpub build ${model} --out <directory>`],
+    ],
+  );
+  // The data a build would write is counted: every statement names no file, and the one plate's face was held.
+  const counted = checked.body.data;
+  assert.deepEqual(
+    report.slice(8, 12).map(([, , value]) => value),
+    [
+      `${counted.statements.components} components, ${counted.statements.relations} relations and 0 groups: ` +
+        `0 cited, 0 unchecked and ${counted.statements.uncited} uncited`,
+      `${counted.facts} facts`,
+      "0 paths with 0 cited ranges",
+      "1 plate, each its view's statements",
     ],
   );
   assert.deepEqual([report[2][2], report[3][2]], ["1 view admitted", "none claimed or cited"]);
@@ -163,7 +180,7 @@ test("check, build, accept, publish and import run end to end", async (t) => {
     report[6][2],
     /^architecture · figure (100|80|65)% of the body(, beside its reading)?( · misses [a-zA-Z0-9., ()-]+)?$/u,
   );
-  assert.match(report[8][2], /^The edition draws its parts as cards/u);
+  assert.match(report[13][2], /^The edition draws its parts as cards/u);
 
   const out = path.join(root, "delivery");
   const delivered = reportLines((await runCli(["build", model, "--out", out])).output);

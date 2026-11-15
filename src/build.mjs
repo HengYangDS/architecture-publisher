@@ -1,10 +1,19 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import {
+  deliveryManifest,
+  diagramSummary,
+  overviewSummary,
+  plateSummary,
+  PNG_WIDTHS,
+  viewSummary,
+} from "./manifest.mjs";
+import { guideOf, pinnedEdition, requireDeliveryNames } from "./projection.mjs";
 import { editionFacts } from "./facts/edition.mjs";
 import { loadIcons } from "./icons.mjs";
 import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs";
-import { deliverGuide, guideCitations, guidePage, guideSummary, readGuide } from "./map/guide.mjs";
+import { deliverGuide, guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
 import { editionRecord } from "./edition/record.mjs";
 import { typesetEdition } from "./edition/typeset.mjs";
@@ -20,14 +29,12 @@ import { commitDate, commitOf, commitTime, releaseOf } from "./sources/git.mjs";
 import { editionStyle } from "./style.mjs";
 import { verifySupply } from "./supply.mjs";
 
-export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-const DELIVERY_VERSION = 7;
+export { DELIVERY_FORMAT } from "./manifest.mjs";
 /** The media a delivery may carry: the print edition with its images, and the interactive page. */
 const MEDIA = Object.freeze(["edition", "page"]);
 /** The quality profiles a build may hold its media to. */
 const QUALITIES = Object.freeze(["showcase", "standard"]);
-/** The width the edition's images are rendered at by default, and the widest they may be. */
-const PNG_WIDTHS = Object.freeze([2400]);
+/** The widest the edition's images may be rendered. */
 const MAXIMUM_WIDTH = 6000;
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
@@ -140,6 +147,8 @@ async function prepare(modelPath, options, listener) {
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
   const { model } = loaded;
+  // A delivery names its files by the model's id: an id that takes the name of another file ends the work here.
+  requireDeliveryNames(model.id);
   const { media } = options;
   const printed = media.includes("edition");
   // The edition is typeset by the pinned Typst; the page needs none.
@@ -152,6 +161,9 @@ async function prepare(modelPath, options, listener) {
   // The pin is read once, and every fact a plate, the record or the page shows is measured from it and the binding
   // here, before the plan: a view is admitted as its marks draw it.
   const commit = commitFacts(model, options.repo);
+  // The guide is read whichever media are built: its citations are evidence and its draft ends the reader file. With
+  // a checkout, a file it cites that the pin does not hold ends the work here.
+  const guide = await guideOf(model, modelPath, binding, commit && options.repo);
   const facts = editionFacts(model, binding, commit);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
   // The edition's marks and palette are chosen once, before the plan, since a view is admitted as its marks draw it.
@@ -201,10 +213,10 @@ async function prepare(modelPath, options, listener) {
   if (paged) listener("preparing the page");
   const page = !paged
     ? null
-    : model.guide
-      ? await guidePage(model, modelPath, { quality, repo: options.repo })
+    : guide
+      ? await guidePage(model, guide, { quality, repo: options.repo })
       : await explainerPage(model, views, { quality, owned: facts.owned });
-  return {
+  const held = {
     loaded,
     model,
     binding,
@@ -221,7 +233,11 @@ async function prepare(modelPath, options, listener) {
     typefaces,
     style,
     styleRecord,
+    guide,
+    publisher: await publisherVersion(),
   };
+  // The pinned edition is gathered and held to its invariants before a check reports and before a build writes.
+  return { ...held, pinned: pinnedEdition(held, options.png) };
 }
 
 /**
@@ -238,91 +254,6 @@ function commitFacts(model, repo) {
     date: commitDate(root, commit),
     time: commitTime(root, commit),
     release: releaseOf(root, commit),
-  };
-}
-
-/** The overview's inputs and Typst's reading of them, for the manifest and the check. */
-function overviewSummary(model, overview) {
-  return {
-    composition: { path: model.overview, sha256: overview.composition },
-    house: overview.house,
-    typst: overview.typst,
-    date: overview.date,
-    texts: overview.texts.length,
-  };
-}
-
-function viewSummary(view, plates) {
-  const plate = plates.find((one) => one.views.includes(view.id));
-  return {
-    id: view.id,
-    title: view.title,
-    question: view.question,
-    origin: view.origin,
-    tiers: view.tiers?.map(({ id }) => id) ?? null,
-    components: view.components.map(({ id }) => id),
-    relations: view.relations.map(({ id }) => id),
-    plate: plate?.page ?? null,
-  };
-}
-
-/** One view's diagram on the interactive page: its shape and Archify's route measures. */
-function diagramSummary(diagram) {
-  return {
-    view: diagram.view,
-    rows: diagram.rows,
-    width: diagram.width,
-    height: diagram.height,
-    sides: diagram.sides,
-    resided: diagram.resided,
-    pinned: diagram.pinned,
-    beside: diagram.beside,
-    candidates: diagram.candidates,
-    metrics: diagram.metrics,
-  };
-}
-
-/**
- * The evidence behind every component and relation, which the delivery keeps
- * out of its drawings: details, statuses and the files each one claims or cites.
- * @param {any} model
- */
-function evidenceOf(model) {
-  const element = (item) => ({
-    id: item.id,
-    label: item.label,
-    ...(item.status ? { status: item.status } : {}),
-    details: Object.fromEntries(item.details),
-    files: item.files,
-  });
-  return {
-    components: model.components.map((component) => ({
-      ...element(component),
-      kind: component.kind,
-    })),
-    relations: model.relations.map((relation) => ({
-      ...element(relation),
-      from: relation.from,
-      to: relation.to,
-    })),
-  };
-}
-
-/** One plate's images, composition and measures, and the balance gates it misses, for the manifest. */
-function plateSummary(plate, widths) {
-  const name = `${String(plate.page).padStart(2, "0")}-${plate.views.join("+")}`;
-  return {
-    page: plate.page,
-    views: plate.views,
-    share: plate.share,
-    reading: plate.reading,
-    images: widths.map((width) => ({
-      width,
-      file: width === PNG_WIDTHS[0] ? `images/${name}.png` : `images/${name}-${width}.png`,
-    })),
-    composition: plate.composition,
-    measures: plate.measures,
-    ...(plate.misses.length ? { misses: plate.misses } : {}),
   };
 }
 
@@ -345,14 +276,8 @@ export async function checkModel(modelPath, options = {}, listener = () => {}) {
     );
   const prepared = await prepare(modelPath, chosen, listener);
   const { model } = prepared;
-  // The worklist classifies the guide's citations, read here when the page was not prepared.
-  const guided = against !== null && model.guide;
-  const entries = !guided
-    ? null
-    : prepared.page?.kind === "guide"
-      ? prepared.page.entries
-      : (await readGuide(path.resolve(path.dirname(modelPath), model.guide))).entries;
-  const citations = entries ? guideCitations(entries) : [];
+  // The worklist classifies the guide's citations.
+  const citations = prepared.guide?.citations ?? [];
   return {
     model: { id: model.id, sha256: prepared.loaded.sha256 },
     quality: chosen.quality,
@@ -368,6 +293,7 @@ export async function checkModel(modelPath, options = {}, listener = () => {}) {
       undrawn: undrawnStatements(model, prepared.views),
       uncited: uncitedStatements(model),
     },
+    data: prepared.pinned.counts,
     coverage: chosen.repo
       ? measureCoverage(model, prepared.binding, chosen.repo, { against, citations })
       : null,
@@ -474,72 +400,20 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
       verifySupply("house"),
       verifySupply("opentype"),
     ]);
-    const manifest = {
-      format: DELIVERY_FORMAT,
-      version: DELIVERY_VERSION,
-      publisher: { name: "architecture-publisher", version: await publisherVersion() },
-      model: {
-        id: prepared.model.id,
-        title: prepared.model.title,
-        locale: prepared.model.locale,
-        sha256: prepared.loaded.sha256,
-        bytes: prepared.loaded.bytes,
-      },
-      repository: prepared.model.repository,
-      quality: chosen.quality,
-      media: prepared.media,
-      style: prepared.styleRecord,
-      sources: { state: prepared.binding.state, records: prepared.binding.records },
-      supplies: {
-        fonts: fonts.sha256,
-        house: house.sha256,
-        opentype: opentype.sha256,
-        icons: prepared.icons.supplySha256,
-        ...(page ? { archify: page.supplySha256 } : {}),
-      },
-      views: prepared.views.map((view) => viewSummary(view, prepared.plates)),
-      edition: edition
-        ? {
-            file: `${model.id}.pdf`,
-            pages: edition.pages,
-            typst: edition.typst,
-            house: edition.house,
-            release: prepared.commit?.release ?? null,
-            date: prepared.commit?.date ?? null,
-            dated: dated.by,
-            ...(overview
-              ? {
-                  image: chosen.png.map((width) =>
-                    width === PNG_WIDTHS[0]
-                      ? "images/00-overview.png"
-                      : `images/00-overview-${width}.png`,
-                  ),
-                }
-              : {}),
-          }
-        : null,
-      plates: prepared.plates.map((plate) => plateSummary(plate, chosen.png)),
-      page:
-        !page || !prepared.page
-          ? null
-          : prepared.page.kind === "guide"
-            ? {
-                file: `${model.id}.html`,
-                quality: page.receipt.quality,
-                gates: page.receipt.gates,
-                guide: guideSummary(prepared.page),
-              }
-            : {
-                file: `${model.id}.html`,
-                quality: page.receipt.quality,
-                gates: page.receipt.gates,
-                diagrams: prepared.page.diagrams.map(diagramSummary),
-                withheld: prepared.page.withheld,
-              },
-      ...(overview ? { overview: overviewSummary(prepared.model, overview) } : {}),
-      evidence: evidenceOf(prepared.model),
+    // With the edition typeset each plate's page is known: the pinned edition is gathered again and written.
+    const pinned = pinnedEdition(prepared, chosen.png, edition?.platePages);
+    for (const [file, bytes] of pinned.files) await fs.writeFile(path.join(staging, file), bytes);
+    const manifest = deliveryManifest({
+      prepared,
+      chosen,
+      edition,
+      page,
+      dated,
+      publisher: prepared.publisher,
+      supplies: { fonts, house, opentype },
+      pinned,
       artifacts: await digestTree(staging),
-    };
+    });
     await fs.writeFile(
       path.join(staging, "manifest.json"),
       `${JSON.stringify(manifest, null, 2)}\n`,

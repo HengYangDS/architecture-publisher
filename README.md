@@ -13,7 +13,8 @@ You write the model: the components, the connections between them and the
 files that show each one, or you import a LikeC4 workspace. `archpub` reads
 those files at the commit the model pins, lays each view out as a plate with
 no overlaps, and delivers a PDF of one plate per view, a picture of each page,
-a standalone page that walks through the system, and a manifest that binds
+a standalone page that walks through the system, the model with its data and a
+reader file for a reader that works from text, and a manifest that binds
 every byte to its inputs. A named reviewer accepts the delivery before it is published.
 
 ## Install
@@ -57,7 +58,7 @@ builds a first work from an empty directory in about fifteen minutes.
   horizontal or vertical; a wire through a card, a shared segment or a touching label
   rejects the layout, and a view no layout can draw is refused, never shrunk.
 - **The same inputs give the same bytes.** The manifest records the digest of
-  the model, every file read, every bundled supply and every file written;
+  the model, every bundled supply and every file written, and the data the digest of every file read;
   with `--repo`, which dates the edition by the pinned commit, the same model
   and version reproduce every byte on one platform.
 - **A named reviewer accepts.** `accept` refuses a delivery that changed since it was
@@ -99,6 +100,8 @@ checking, writing the guide and building, and leaves acceptance to the reviewer.
   Model.
 - [Operations reference](docs/reference/operations.md): commands, layout, the
   delivery and every refusal.
+- [Data and reader file reference](docs/reference/data.md): the model, the data
+  and the reader file every delivery holds.
 - [Command line reference](docs/reference/command-line.md): help, exit
   statuses, JSON results, reports and progress.
 - [Glossary](docs/glossary.md): the words the publisher uses.

@@ -29,6 +29,24 @@ remain pre-release contracts and may contain incompatible changes.
 - A build or a check warns `line_row_untested` when its plates draw a planned or a retired part or relation: no work
   has yet tested those two patterns on a screen. It warns `citation_count_touches`, with the plate and the relation,
   when a relation's count of cited files finds no clear place along its line; the plate is still built.
+- **Breaking:** every delivery holds three more files at its top, whichever media it carries: `model.json`, the model
+  the build read, byte for byte; `<model id>.json`, the pinned edition as data, with the work, the pin, the views,
+  every component, relation and group with its origin, every measured fact, one evidence table and each plate's
+  record; and `<model id>.md`, the reader file, which states every statement once under its id with its files and
+  facts, in the model's language, and ends with the guide's text, unchanged. The manifest lists them among its
+  artifacts, so `verify`, `accept`, `compare` and `publish` cover them. The print edition, its images and the page
+  are the bytes they were. The new reference page `docs/reference/data.md` describes the three files.
+- The data's evidence table holds each path the model claims or cites and each path the guide cites once, with its
+  state, digest, size, last change, owner, the relations that cite it and the line ranges the guide cites in it. With
+  `--repo`, the paths only the guide cites are read at the pin; they are not counted among the files read.
+- A plate's record in the data holds its data face: each component, group and relation the drawing reports it drew,
+  with its box or the stretches of its line in the plate's drawing space, beside the plate's page, images, the frame
+  of its figure on the page and its scale.
+- The diagrams of a guide are matched to the model: a node to the components that own the files it cites, a
+  connection to the relations between them. The data lists the matches and what matched nothing; nothing is refused.
+- `archpub check --json` carries `data`, the counts of what a build would write: statements by type and as `cited`,
+  `unchecked` and `uncited`, facts, paths and cited ranges of evidence, each plate's face and a guide's matched
+  figures. The report prints them as a `Data` group.
 
 ### Removed
 
@@ -92,6 +110,25 @@ remain pre-release contracts and may contain incompatible changes.
   of `archpub check --json` keep their fields. One refusal changes its precedence: a model that claims and cites no
   file, asks for `strip` marks and names a revision its checkout lacks is refused with `source_revision_unknown`, where
   it was refused with `marks_need_files`.
+- **Breaking:** the manifest is version 8. It names the model's file, the data's file with its counts under `data`
+  and the reader file with its size and number of statements under `reader`; `sources` holds the binding's `state`
+  and the `count` of its files. `sources.records` and `evidence` are gone from it: read `evidence` of
+  `<model id>.json` where `sources.records` was read, and its `statements` where `evidence` of the manifest was read.
+  A delivery of an earlier release keeps verifying, comparing and publishing; `archpub compare` of one with a
+  delivery of this release lists the manifest and the three files the earlier one lacks.
+- **Breaking:** a model that names a guide has the guide read for every medium, since the reader file carries its
+  draft and the data its citations. A guide that is absent now refuses a build or a check with `--media edition`,
+  with `guide_missing`, where it was refused only when the page was built.
+- **Breaking:** with `--repo`, a build or a check refuses with `guide_file_missing` a guide's citation of a path that
+  is no file at the model's revision, whichever media it delivers; only Archify refused it, with `page_refused`, when
+  the page was built. Without `--repo` the path's row of evidence is `unverified`.
+- **Breaking:** a build or a check of a model whose id is `model`, `manifest`, `acceptance` or `colophon` is refused
+  with `delivery_name_taken`: its data or its print edition would take the name of another file of the delivery.
+  Nothing refused such an id before; a model named `colophon` built, and `verify` and `accept` then reported
+  `delivery_changed`.
+- A build or a check refuses, before anything is written, with `reader_ids_differ` when the statements the reader
+  file lists are not the model's, with `data_face_differs` when a plate's face is not its view's statements, and with
+  `projection_fact_unknown` when a plate, the reader file or the generated page holds what the data lacks.
 
 ## [0.14.0] - 2026-11-14
 

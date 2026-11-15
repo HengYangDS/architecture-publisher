@@ -10,7 +10,8 @@ import { verifySupply } from "../supply.mjs";
 
 /**
  * The print edition: the house class typesets a delivery's record, its plates and its overview in one pass into a
- * PDF that conforms to PDF/A-3a and PDF/UA-1, and renders the overview's and plates' pages as PNG images.
+ * PDF that conforms to PDF/A-3a and PDF/UA-1, and renders the overview's and plates' pages as PNG images. It hands
+ * back, with them, the page of the PDF each plate stands on.
  */
 
 const run = promisify(execFile);
@@ -144,6 +145,10 @@ export async function typesetEdition(input) {
       house: staged.house,
       pdf: await fs.readFile(pdfFile),
       pages: pages.length ? Math.max(...pages.map(([, page]) => page)) : 2,
+      // Each plate's page in the PDF, counted from 1, in the edition's order; the overview's page is no plate.
+      platePages: shown
+        .filter(([label]) => label !== "plate-00")
+        .map(([label, page]) => ({ number: Number(label.slice("plate-".length)), page })),
       png,
     };
   } finally {

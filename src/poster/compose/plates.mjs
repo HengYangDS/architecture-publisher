@@ -324,6 +324,7 @@ function widthOf(scene, view, full) {
  * Compose every view of a model as one plate each, its figure at the width the plate width rule gives it: the
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
  * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
+ * Each plate carries its figure's report of what it drew, as the drawing handed it back.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
@@ -372,6 +373,7 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
       legend: [...kinds, ...rest],
       lines: one.figure.lines,
       touching: one.figure.touching,
+      report: one.figure.report,
       composition: { step: one.step, wrap: one.limit, flat: one.flat, centring, tierLabels },
       measures: {
         crossings: one.layout.measures.crossings,

@@ -90,14 +90,22 @@ The coverage gate selects every `.mjs` module under `src/`
 and requires 95 percent of statements, lines, branches and functions. The suite
 covers the model, source binding, the measured facts, reading plan, layout, plates, the print
 edition, the page's
-diagrams and its delivery through the vendored Archify, deliveries, acceptance,
+diagrams and its delivery through the vendored Archify, deliveries with their data and reader file, acceptance,
 publication, the
 LikeC4 importer, the command line with its reports and its progress, the packed
 and installed package, module boundaries, the version projection and the CI
 projection. The unit `facts` (`src/facts`) measures every fact a plate draws that its
 author did not state; `tests/module-boundaries.test.mjs` lets it import no other unit, lets
 no unit that draws import it or `sources`, and refuses a measure of its catalogue defined or
-called anywhere else. `tests/evolution-queue.test.mjs`
+called anywhere else. The unit `pinned` (`src/pinned`) writes the data and the reader file of a
+delivery, builds the evidence table and a plate's face, and holds the three invariants of
+projection; it imports `locale` and `refusal` alone and is handed everything else as values. Two flat
+units stand beside the build: `manifest` (`src/manifest.mjs`) assembles the manifest and the summaries a
+check reports, and `projection` (`src/projection.mjs`) gathers the pinned edition from what the build
+prepared, has `sources` read at the pin the files only the guide cites and refuses a model id that takes a
+delivery's file name. `projection` is the one unit that imports `pinned`. They are flat modules, and no
+`src/build/` directory, because `.gitignore` holds an unanchored `build/`, which Git and the format
+check would then pass over. `tests/evolution-queue.test.mjs`
 holds every active Change to the queue of the product contract, and
 `tests/role-neutral-wording.test.mjs` refuses wording that presumes who holds a
 role.

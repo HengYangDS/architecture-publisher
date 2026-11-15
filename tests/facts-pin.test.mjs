@@ -23,7 +23,10 @@ const readJson = async (file) => JSON.parse(await fs.readFile(file, "utf8"));
 async function manifestOf(t, model, checkout) {
   const out = path.join(await temporaryDirectory(t, "archpub-pin-"), "delivery");
   await buildDelivery(await writeModel(t, model), out, { repo: checkout, media: ["edition"] });
-  return readJson(path.join(out, "manifest.json"));
+  const manifest = await readJson(path.join(out, "manifest.json"));
+  // The record of each file read at the pin stands in the data the manifest names.
+  const { evidence } = await readJson(path.join(out, manifest.data.file));
+  return { ...manifest, evidence };
 }
 
 test("a revision the checkout lacks is refused before the marks are chosen", async (t) => {
@@ -63,7 +66,7 @@ test("an edition whose parts claim files is dated by the pin's commit in its key
   // The one file was last changed by the pin's commit: its record names the commit's UTC day.
   const time = Number(git("show", "-s", "--format=%ct", revision));
   assert.deepEqual(
-    manifest.sources.records.map(({ path: file, changed }) => [file, changed]),
+    manifest.evidence.map(({ path: file, changed }) => [file, changed]),
     [["src/main.mjs", new Date(time * 1000).toISOString().slice(0, 10)]],
   );
 });

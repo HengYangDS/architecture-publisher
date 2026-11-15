@@ -4,8 +4,9 @@ import { editionRecord } from "../src/edition/record.mjs";
 import { typesetEdition } from "../src/edition/typeset.mjs";
 import { loadIcons } from "../src/icons.mjs";
 import { validateModel } from "../src/model/load.mjs";
+import { plateFrame } from "../src/pinned/face.mjs";
 import { loadTypefaces } from "../src/poster/text.mjs";
-import { POSTER, figureStyles } from "../src/poster/tokens.mjs";
+import { HOUSE, POSTER, figureStyles } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { countIn, readPdf } from "./fixtures/pdf.mjs";
 import { inkLines, readPng } from "./fixtures/png.mjs";
@@ -106,8 +107,20 @@ test("eleven plates' contents fit one page, and seventeen continue on a second",
   const eleven = await edition(Array.from({ length: 11 }, (_, index) => plate(index + 1)));
   // Title page, one contents page, eleven plates.
   assert.equal(eleven.pages, 13);
+  // Each plate's page is handed back: the first after the title page and the contents, the last on the last page.
+  assert.deepEqual(
+    [eleven.platePages.length, eleven.platePages[0], eleven.platePages.at(-1)],
+    [11, { number: 1, page: 3 }, { number: 11, page: 13 }],
+  );
   const seventeen = await edition(Array.from({ length: 17 }, (_, index) => plate(index + 1)));
   assert.equal(seventeen.pages, 20);
+  assert.deepEqual(
+    [seventeen.platePages[0], seventeen.platePages.at(-1)],
+    [
+      { number: 1, page: 4 },
+      { number: 17, page: 20 },
+    ],
+  );
 });
 
 test("card titles link to the files they cite, and the edition names its editors and carries its model", async () => {
@@ -236,6 +249,25 @@ test("a summary above its figure is set in its lines at the claim column, and th
   );
   const typeset = await edition([above]);
   assert.equal(typeset.pages, 3);
+  // The frame the data gives this plate is where the class set its figure, below the summary: inside the card's
+  // rectangle the plate's image holds the card's fill, and a little under the rectangle the paper.
+  const frame = plateFrame(above, HOUSE);
+  assert.deepEqual([frame.y, frame.height], [826 - 650, 650]);
+  const image = readPng(typeset.png[0].bytes);
+  const pixel = (x, y) => {
+    const scale = image.width / HOUSE.page.width;
+    const row = Math.round((frame.y + y / frame.pixelsPerPoint) * scale);
+    const column = Math.round((frame.x + x / frame.pixelsPerPoint) * scale);
+    const at = (row * image.width + column) * image.channels;
+    return [...image.pixels.subarray(at, at + 3)];
+  };
+  const near = (a, b) => a.every((value, index) => Math.abs(value - b[index]) <= 2);
+  assert.equal(
+    near(pixel(250, 85), [0xfb, 0xfa, 0xf6]),
+    true,
+    `the card's fill, not ${pixel(250, 85)}`,
+  );
+  assert.equal(near(pixel(250, 112), [0xf5, 0xf3, 0xed]), true, `paper, not ${pixel(250, 112)}`);
   // The same plate without its summary differs: the summary is set, and the figure moves down.
   const [bare] = (await edition([plate(1)])).png;
   assert.ok(!typeset.png[0].bytes.equals(bare.bytes));

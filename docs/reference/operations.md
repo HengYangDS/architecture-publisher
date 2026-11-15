@@ -70,8 +70,8 @@ archpub --help | --version [--json]
   plans the views, composes each view as a plate of the edition, checks the
   overview's composition and checks each diagram and the page with Archify, and writes no delivery; Archify's work files stay
   in a temporary directory that it removes. It lists the components and
-  relations that no planned view draws, the components that claim no file and
-  the relations that cite none. For each plate it reports its figure's share
+  relations that no planned view draws, the components that claim no file,
+  the relations that cite none and the counts of the [data](data.md) a build would write. For each plate it reports its figure's share
   of the body, whether its reading is set beside it, set above it or left out,
   and the balance gates it misses. With
   `--repo`, it reports the model's [coverage](model.md#coverage) of the
@@ -83,7 +83,7 @@ archpub --help | --version [--json]
   every artifact is written, so a refused build leaves nothing behind.
 - `--media` names the media to deliver, `edition`, the print edition with its
   images, and `page`; by default both. A build composes only what it delivers,
-  so `--media edition` runs no Archify and `--media page` needs no Typst.
+  so `--media edition` runs no Archify and `--media page` needs no Typst; a guide the model names is read for either.
   `--png` names the widths of the edition's images, comma-separated, from 1 to
   6000 px, by default 2400. `--quality` is `showcase`, the default, or
   `standard`, which delivers a draft instead of refusing a page diagram that
@@ -368,7 +368,7 @@ that commit and pins its code excerpts; the clone is removed once the page is
 written, and the checkout is only read. Archify recognizes repositories on
 `github.com`, `gitlab.com` and `gitee.com`; a guide whose repository is a
 self-hosted GitLab names `repo_provider=gitlab` in its `@meta`. Without
-`--repo`, the guide's sources are recorded as declared.
+`--repo`, or when no page is built, the guide's sources are recorded as declared.
 
 `archpub scaffold guide` writes the page the publisher generates as a starting
 guide: `guide.archify.md` and one architecture document per view. Its prose is
@@ -386,37 +386,35 @@ guidance keeps a page to four native diagrams.
 | `images/00-overview.png`    | The overview's page at 2400 px wide, when the model names a composition. |
 | `images/NN-<view>.png`      | Plate `NN`'s page at 2400 px wide, numbered from 01 in reading order.    |
 | `images/<name>-<width>.png` | The overview's or a plate's page at each other width `--png` names.      |
-| `manifest.json`             | The build record.                                                        |
+| `model.json`                | The model the build read, byte for byte; in every delivery.              |
+| `<model id>.json`           | The pinned edition as [data](data.md); in every delivery.                |
+| `<model id>.md`             | The [reader file](data.md#the-reader-file); in every delivery.           |
+| `manifest.json`             | The build record, which names every file above with its digest.          |
 | `acceptance.json`           | The acceptance record `archpub accept` writes; absent until then.        |
 | `acceptance.sig`            | The record's SSH signature, when the reviewer signs it.                  |
 | `colophon.pdf`              | The colophon page `archpub accept` sets; absent until then.              |
 
 Nothing else is written at the top of the delivery.
 
-The manifest records its format and version 7, the publisher's name and version,
-the model id, title, language, digest and size, the declared repository, the
-build's quality and media, in `style` the edition's marks, its palette's id
-(`custom` for the model's own) with its Chinese and English names and its
-resolved ground, ink, dye steps and accent, and with strips the age bands' spans
-in seconds, the pin's date and the length in px its largest part is drawn at,
-every cited file with its state, digest, size in bytes, the UTC date of its last
-change at the pin, owner and the relations that cite it, the digest of each
-bundled supply, each view with its tiers, members and plate number, the
-edition's file, page count, Typst version, house class digest, release, date and
-what dated it, each plate with its number, views, share of the body, reading,
-images, composition, measures and the gates it misses, the page's file, quality
-profile and gates, a guide's draft path and digest, each file it names, its
-writing level and whether its sources were verified, each view diagram's width,
-height, rows, sides, re-sided connections, pinned labels, whether its preview
-stands beside its steps, candidate count and Archify route measures, the files
-the page withholds, with the overview its composition's path and digest, the
-house class's digest, the Typst version, the revision's date and the number of
-texts, the details, status and files of every component and relation, and the
-path, size and SHA-256 of every artifact. It contains no host path or user name,
-and the edition's date is the revision's commit or `SOURCE_DATE_EPOCH`, so
-building the same model with the same version on one platform reproduces every
-byte; without either, the edition is dated when it is typeset and differs from
-build to build.
+The manifest records its format and version 8, the publisher's name and version, the model id, title, language,
+digest, size and file, the declared repository, the build's quality and media, in `style` the edition's marks, its
+palette's id (`custom` for the model's own) with its Chinese and English names and its resolved ground, ink, dye
+steps and accent, and with strips the age bands' spans in seconds, the pin's date and the length in px its largest
+part is drawn at, in `sources` the binding's state and the count of the files it recorded, the digest of each
+bundled supply, each view with its tiers, members and plate number, the edition's file, page count, Typst version,
+house class digest, release, date and what dated it, each plate with its number, views, share of the body, reading,
+images, composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft
+path and digest, each file it names, its writing level and whether its sources were verified, each view diagram's
+width, height, rows, sides, re-sided connections, pinned labels, whether its preview stands beside its steps,
+candidate count and Archify route measures, the files the page withholds, with the overview its composition's path
+and digest, the house class's digest, the Typst version, the revision's date and the number of texts, in `data` the
+data's file with its counts of statements, facts, rows and cited ranges of evidence, each plate's face and a guide's
+matched figures, in `reader` the reader file's name, size in bytes and number of statements, and the path, size and
+SHA-256 of every artifact. The record of each cited file and the details, status and files of every component and
+relation stand once, in the [data](data.md), and no longer in the manifest. It contains no host path or user name,
+and the edition's date is the revision's commit or `SOURCE_DATE_EPOCH`, so building the same model with the same
+version on one platform reproduces every byte; without either, the edition is dated when it is typeset and differs
+from build to build. `archpub check --json` carries the manifest's counts of the data under `data`.
 
 ## Acceptance and publication
 
@@ -521,13 +519,15 @@ or Archify reported.
 | `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`              | A character no face draws, or a Typst warning or error, at the composition's line.                                                                                |
 | `page_measures_missing`                                                                 | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                                                                         |
 | `page_refused`                                                                          | Archify did not validate or deliver the page.                                                                                                                     |
-| `guide_missing`, `guide_file_invalid`                                                   | The guide is missing, or a file it names is a link, outside its directory or missing.                                                                             |
+| `guide_missing`, `guide_file_invalid`, `guide_file_missing`                             | The guide is missing, whichever media are built; a file it names is a link, outside its directory or missing; with `--repo`, a file it cites is not at the pin.   |
 | `guide_repository_mismatch`, `guide_repository_unavailable`                             | The guide names another repository or revision, or its checkout cannot be cloned.                                                                                 |
 | `scaffold_output_exists`                                                                | `scaffold guide --out` already exists.                                                                                                                            |
 | `migrate_version_unsupported`, `migrate_source_unknown`, `migrate_output_exists`        | The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists.                                                                     |
 | `attribution_not_migrated`                                                              | The model's attribution names no editors; declare `editors` beside it first.                                                                                      |
 | `supply_invalid`                                                                        | A bundled supply failed its digest.                                                                                                                               |
 | `delivery_exists`                                                                       | `--out` already exists.                                                                                                                                           |
+| `delivery_name_taken`                                                                   | The model's id is `model`, `manifest`, `acceptance` or `colophon`, so two files of its delivery would share one name; give the model another id.                  |
+| `reader_ids_differ`, `data_face_differs`, `projection_fact_unknown`                     | The reader file, a plate's face or another projection differs from the model or the [data](data.md#what-is-held-before-anything-is-written); nothing is written.  |
 | `delivery_manifest_missing`, `delivery_manifest_invalid`, `delivery_entry_invalid`      | The directory is not a delivery.                                                                                                                                  |
 | `delivery_changed`                                                                      | An artifact differs from the manifest.                                                                                                                            |
 | `acceptance_reviewer_missing`, `acceptance_exists`                                      | Name a reviewer; a delivery is accepted once, so a record, colophon page or signature already beside it is refused.                                               |

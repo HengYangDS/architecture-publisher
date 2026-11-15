@@ -73,6 +73,13 @@ whole path; the command to run next quotes a path that holds a space.
 ▲  02  containers-automatic · figure 100% of the body · misses emptyShare 0.124
 │      (limit 0.12)
 │
+│  Data
+●  Statements  8 components, 10 relations and 0 groups: 0 cited, 0 unchecked and
+│              18 uncited
+●  Facts       21 facts
+●  Evidence    0 paths with 0 cited ranges
+◆  Faces       2 plates, each its view's statements
+│
 │  Warnings
 ▲  marks_fallback  The edition draws its parts as cards: a strip is drawn from
 │                  the files a part owns, and this build reads none.
@@ -85,7 +92,9 @@ misses a balance gate, a statement no view draws or a file no component owns,
 `■` what is refused and `●` a plain note. A plate that misses a gate names it
 with what was measured and the limit, as in `emptyShare 0.182 (limit 0.12)`,
 and says `reached` after a limit the measure only equals; the components and
-relations that no view draws or that cite no file are named. With `--against`,
+relations that no view draws or that cite no file are named. The `Data` group
+holds the counts of the [data](data.md) a build would write, which `--json`
+carries under `data`. With `--against`,
 the guide's citations follow the re-pin worklist in a group of their own: how
 many met each fate, then each citation that is not the same under its fate. Every state has its own mark; colour
 repeats it where the terminal has colour and carries nothing else, and

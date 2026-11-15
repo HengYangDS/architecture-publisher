@@ -115,7 +115,7 @@ may not connect a component to itself.
   64 characters, contain no colon and are not plain numbers. A component's
   details are printed on its card on the plate; on the page, its diagram card shows
   the first detail it holds whole, or none, and its step lists every detail. A
-  relation's details are printed under its label. The manifest's evidence lists
+  relation's details are printed under its label. The delivery's data lists
   every detail.
 - `status` is `implemented`, `planned` or `retired`. On plates, planned
   components and relations are drawn dashed and retired ones dotted and muted;
@@ -168,8 +168,8 @@ component; each names one file.
 With `--repo <checkout>`, `archpub check` and `archpub build` read the files at
 `repository.revision` through Git without fetching, prompting or changing the
 checkout. Each file in the [coverage scope](#coverage) goes to its owner, and
-every owned file and every file a relation cites is recorded in the manifest
-with its digest, its owner and the relations that cite it; that record is the
+every owned file and every file a relation cites is recorded in the delivery's
+[data](data.md#the-evidence-table) with its digest, its owner and the relations that cite it; that record is the
 edition's lock. A claim that owns no file in the scope, because the scope leaves
 its files out, none exists or deeper claims take them all, or a relation file
 the revision lacks, refuses the build with its JSON path. Without `--repo`, every

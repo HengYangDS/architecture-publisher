@@ -253,3 +253,179 @@ export function sentences(words, texts) {
   }
   return out;
 }
+
+/**
+ * The words the publisher sets in a reader file: its headings, the labels of its head and the sentences of its
+ * closing parts. The keys a reader file shares with the data are written alike in every language and are not
+ * here: ids, paths, the type words `component`, `relation` and `group`, the origins, property names and units.
+ * @typedef {{
+ *   lead: (id: string, locale: string, version: string) => string,
+ *   pin: string, model: string, data: string, statements: string, delivery: string, keys: string,
+ *   scope: string, question: string, unselected: string, notCovered: string, checking: string, guide: string,
+ *   excluded: string, unplated: (heading: string, count: number) => string, noEdition: string, noGuide: string,
+ *   noCheckout: string, beyond: string, notCarried: string, transitional: string, verify: string, check: string,
+ * }} ReaderWords
+ */
+
+/** @type {Readonly<Record<string, Readonly<ReaderWords>>>} */
+const READER_WORDS = Object.freeze({
+  en: Object.freeze({
+    lead: (id, locale, version) =>
+      `Reader file of the work \`${id}\` in \`${locale}\`, written by Architecture Publisher ${version}.`,
+    pin: "Pin",
+    model: "Model",
+    data: "Data",
+    statements: "Statements",
+    delivery: "Also in this delivery",
+    keys: "Keys: `stated` was written by the author; `measured (pin)` was measured by the publisher in the checkout at the pin, and `measured (model)` counted from the model. A statement is `cited` when the files it names were read at the pin, `unchecked` when the build had no checkout to read them in, and `uncited` when it names no file.",
+    scope: "Scope and limits",
+    question: "The question",
+    unselected: "Statements no view selects",
+    notCovered: "Not covered",
+    checking: "Checking again",
+    guide: "The guide's text",
+    excluded: "Paths the model's scope excludes",
+    unplated: (heading, count) =>
+      `No plate draws the statements listed under "${heading}" (${count}).`,
+    noEdition: "This delivery holds no print edition, so no plate draws a statement.",
+    noGuide: "The model names no guide, so this file carries none.",
+    noCheckout:
+      "The build had no checkout of the repository: no file was read at the pin, and every statement that names files is unchecked.",
+    beyond:
+      "This file lists components, relations and groups and no other written statement, and it judges no statement supported.",
+    notCarried:
+      "The text of an overview page and of a guide's diagram documents is not carried; the files those diagrams cite stand in the data's evidence table, and the facts of single files in the data alone.",
+    transitional:
+      "The last part is the guide as its author wrote it, unchanged to the end of this file; it is a transitional part, which shrinks when the guide's sentences enter the model.",
+    verify: "Verify the files of this delivery against its manifest",
+    check: "Check the model against a checkout at the pin",
+  }),
+  "zh-CN": Object.freeze({
+    lead: (id, locale, version) =>
+      `作品 \`${id}\` 的读者文件，语言 \`${locale}\`，由 Architecture Publisher ${version} 写出。`,
+    pin: "钉定版本",
+    model: "模型",
+    data: "数据",
+    statements: "陈述",
+    delivery: "本交付另含",
+    keys: "键的含义：`stated` 为作者所写；`measured (pin)` 为出版工具在钉定版本的检出中测得，`measured (model)` 为从模型数得。陈述所列文件均已在钉定版本读到，记为 `cited`；构建没有检出可读，记为 `unchecked`；未列任何文件，记为 `uncited`。",
+    scope: "范围与限度",
+    question: "问题",
+    unselected: "没有视图选入的陈述",
+    notCovered: "本文件未收入的内容",
+    checking: "再次核对",
+    guide: "导览原文",
+    excluded: "模型范围排除的路径",
+    unplated: (heading, count) => `「${heading}」下所列陈述（${count} 条）没有图版绘出。`,
+    noEdition: "本交付不含印刷版，因此没有图版绘出任何陈述。",
+    noGuide: "模型未指明导览，本文件不附导览。",
+    noCheckout: "构建时没有仓库检出：未在钉定版本读取任何文件，凡列有文件的陈述均未核对。",
+    beyond: "本文件只列组件、关系和分组，不列其他成文陈述，也不判定任何陈述是否得到支持。",
+    notCarried:
+      "总览页的文字和导览各图文档的文字未收入；这些图引用的文件见数据中的证据表，单个文件的事实只见于数据。",
+    transitional:
+      "最后一部分是作者所写的导览，原样直到文件末尾；这是过渡形式，导览的句子进入模型后将缩短。",
+    verify: "按清单核对本交付的文件",
+    check: "在钉定版本的检出上核对模型",
+  }),
+  "zh-TW": Object.freeze({
+    lead: (id, locale, version) =>
+      `作品 \`${id}\` 的讀者檔案，語言 \`${locale}\`，由 Architecture Publisher ${version} 寫出。`,
+    pin: "釘定版本",
+    model: "模型",
+    data: "資料",
+    statements: "陳述",
+    delivery: "本交付另含",
+    keys: "鍵的含義：`stated` 為作者所寫；`measured (pin)` 為出版工具在釘定版本的檢出中測得，`measured (model)` 為從模型數得。陳述所列檔案均已在釘定版本讀到，記為 `cited`；建置沒有檢出可讀，記為 `unchecked`；未列任何檔案，記為 `uncited`。",
+    scope: "範圍與限度",
+    question: "問題",
+    unselected: "沒有視圖選入的陳述",
+    notCovered: "本檔案未收入的內容",
+    checking: "再次核對",
+    guide: "導覽原文",
+    excluded: "模型範圍排除的路徑",
+    unplated: (heading, count) => `「${heading}」下所列陳述（${count} 條）沒有圖版繪出。`,
+    noEdition: "本交付不含印刷版，因此沒有圖版繪出任何陳述。",
+    noGuide: "模型未指明導覽，本檔案不附導覽。",
+    noCheckout: "建置時沒有儲存庫檢出：未在釘定版本讀取任何檔案，凡列有檔案的陳述均未核對。",
+    beyond: "本檔案只列元件、關係和分組，不列其他成文陳述，也不判定任何陳述是否得到支持。",
+    notCarried:
+      "總覽頁的文字和導覽各圖文件的文字未收入；這些圖引用的檔案見資料中的證據表，單一檔案的事實只見於資料。",
+    transitional:
+      "最後一部分是作者所寫的導覽，原樣直到檔案末尾；這是過渡形式，導覽的句子進入模型後將縮短。",
+    verify: "按清單核對本交付的檔案",
+    check: "在釘定版本的檢出上核對模型",
+  }),
+  es: Object.freeze({
+    lead: (id, locale, version) =>
+      `Archivo de lectura de la obra \`${id}\` en \`${locale}\`, escrito por Architecture Publisher ${version}.`,
+    pin: "Revisión fijada",
+    model: "Modelo",
+    data: "Datos",
+    statements: "Enunciados",
+    delivery: "También en esta entrega",
+    keys: "Claves: `stated` lo escribió el autor; `measured (pin)` lo midió el publicador en la copia de trabajo en la revisión fijada, y `measured (model)` lo contó a partir del modelo. Un enunciado es `cited` cuando los archivos que nombra se leyeron en la revisión fijada, `unchecked` cuando la compilación no tenía copia de trabajo donde leerlos y `uncited` cuando no nombra ningún archivo.",
+    scope: "Alcance y límites",
+    question: "La pregunta",
+    unselected: "Enunciados que ninguna vista selecciona",
+    notCovered: "Lo que este archivo no cubre",
+    checking: "Comprobar de nuevo",
+    guide: "El texto de la guía",
+    excluded: "Rutas que el alcance del modelo excluye",
+    unplated: (heading, count) =>
+      `Ninguna lámina dibuja los enunciados listados en «${heading}» (${count}).`,
+    noEdition:
+      "Esta entrega no contiene edición impresa, así que ninguna lámina dibuja un enunciado.",
+    noGuide: "El modelo no nombra ninguna guía, así que este archivo no lleva ninguna.",
+    noCheckout:
+      "La compilación no tenía copia de trabajo del repositorio: no se leyó ningún archivo en la revisión fijada, y todo enunciado que nombra archivos queda sin comprobar.",
+    beyond:
+      "Este archivo lista componentes, relaciones y grupos y ningún otro enunciado escrito, y no juzga respaldado ningún enunciado.",
+    notCarried:
+      "No se incluye el texto de la página del panorama ni el de los documentos de diagramas de la guía; los archivos que citan esos diagramas están en la tabla de evidencia de los datos, y los hechos de archivos individuales solo en los datos.",
+    transitional:
+      "La última parte es la guía tal como la escribió su autor, sin cambios hasta el final de este archivo; es una parte transitoria, que se acorta cuando las frases de la guía entran en el modelo.",
+    verify: "Verificar los archivos de esta entrega con su manifiesto",
+    check: "Comprobar el modelo con una copia de trabajo en la revisión fijada",
+  }),
+  ko: Object.freeze({
+    lead: (id, locale, version) =>
+      `작품 \`${id}\`의 독자 파일, 언어 \`${locale}\`, Architecture Publisher ${version} 작성.`,
+    pin: "고정 리비전",
+    model: "모델",
+    data: "데이터",
+    statements: "진술",
+    delivery: "이 전달물에 함께 있는 파일",
+    keys: "키: `stated`는 저자가 쓴 것이고, `measured (pin)`은 출판 도구가 고정 리비전의 체크아웃에서 측정한 것이며, `measured (model)`은 모델에서 센 것입니다. 진술이 명시한 파일을 고정 리비전에서 모두 읽었으면 `cited`, 빌드에 읽을 체크아웃이 없었으면 `unchecked`, 파일을 명시하지 않았으면 `uncited`입니다.",
+    scope: "범위와 한계",
+    question: "질문",
+    unselected: "어떤 뷰도 선택하지 않은 진술",
+    notCovered: "이 파일이 다루지 않는 것",
+    checking: "다시 확인하기",
+    guide: "가이드 원문",
+    excluded: "모델의 범위가 제외하는 경로",
+    unplated: (heading, count) =>
+      `"${heading}" 아래의 진술(${count}개)은 어떤 도판도 그리지 않습니다.`,
+    noEdition: "이 전달물에는 인쇄판이 없으므로 어떤 도판도 진술을 그리지 않습니다.",
+    noGuide: "모델이 가이드를 지정하지 않아 이 파일에는 가이드가 없습니다.",
+    noCheckout:
+      "빌드에 저장소 체크아웃이 없었습니다. 고정 리비전에서 읽은 파일이 없으며, 파일을 명시한 모든 진술은 확인되지 않았습니다.",
+    beyond:
+      "이 파일은 구성 요소, 관계, 그룹만 나열하고 그 밖의 서술된 진술은 나열하지 않으며, 어떤 진술도 뒷받침되었다고 판정하지 않습니다.",
+    notCarried:
+      "개요 페이지의 글과 가이드 도표 문서의 글은 싣지 않습니다. 그 도표가 인용하는 파일은 데이터의 증거 표에 있고, 개별 파일의 사실은 데이터에만 있습니다.",
+    transitional:
+      "마지막 부분은 저자가 쓴 그대로의 가이드이며 이 파일 끝까지 바뀌지 않습니다. 가이드의 문장이 모델에 들어가면 줄어드는 과도기적 부분입니다.",
+    verify: "매니페스트로 이 전달물의 파일을 검증",
+    check: "고정 리비전의 체크아웃으로 모델을 확인",
+  }),
+});
+
+/**
+ * The reader file's words of one language.
+ * @param {string | null | undefined} locale
+ * @returns {Readonly<ReaderWords>}
+ */
+export function readerWordsOf(locale) {
+  return READER_WORDS[locale ?? DEFAULT_LOCALE] ?? READER_WORDS[DEFAULT_LOCALE];
+}

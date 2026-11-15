@@ -17,7 +17,11 @@ marked line per fact; do not parse it.
 
 A build delivers two media from one model: the print edition, a PDF with one
 plate per view and an image of each page, and the page, an interactive
-explainer with one panel per view or the guide the model names.
+explainer with one panel per view or the guide the model names. Whichever media
+it carries, a delivery also holds `model.json`, the model as read,
+`<model id>.json`, the pinned edition as data, and `<model id>.md`, the reader file: a reader that works
+from text starts from the reader file, which lists every statement under its
+id with its files and facts and ends with the guide's text.
 
 1. Agree on the reader's question and the scope with the user: which system,
    which parts and what the work must explain. Record known gaps as `limits`.
@@ -77,7 +81,10 @@ explainer with one panel per view or the guide the model names.
 9. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
    at the edition's every page, its plates and the overview, and at the page
    before showing them to the user. `--media edition` or `--media page` builds
-   one medium while you work on it.
+   one medium while you work on it; the guide the model names is read for
+   either, so a guide that is not there yet is refused with `guide_missing`. A
+   model whose id is `model`, `manifest`, `acceptance` or `colophon` is refused
+   with `delivery_name_taken`: give it another id.
 10. The reviewer accepts, and the author of a work does not review it. Unless you
     hold the reviewer's role for this work, stop here and hand the delivery over.
     Holding it, and given an earlier build of the same work, first run

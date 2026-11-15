@@ -14,9 +14,9 @@ Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
 delivery: a print edition, one PDF with a plate for each view and the overview
 its author composes with the house class when the model names one, its pages as
-images, one interactive page that answers the model's question, and a manifest
-that binds every artifact to its inputs and keeps the evidence the drawings
-leave out. The page
+images, one interactive page that answers the model's question, the model, the
+pinned edition as data and a reader file for a reader that works from text, and
+a manifest that binds every artifact to its inputs. The page
 is the guide its author writes when the model names one, and otherwise answers
 the question view by view.
 
@@ -59,8 +59,9 @@ A model may live anywhere, including in a separate publications repository.
 5. **Compose** each view as one plate and **typeset** the print edition and its
    images with Typst; **explain** the model on one page of the vendored Archify:
    the guide the model names, or one native diagram per view.
-6. **Deliver** the artifacts and the manifest into a new directory, staged and
-   renamed into place only when complete.
+6. **Deliver** the artifacts, the model, the data, the reader file and the
+   manifest into a new directory, staged and renamed into place only when
+   complete, after the reader file and every plate's face are held to the model.
 
 The same model, repository revision and publisher version produce the same
 bytes on one platform; without a checkout, the print edition is reproducible
@@ -74,6 +75,17 @@ one standalone `<model id>.html`; in `images/`, the overview's page as
 widths the caller names; and `manifest.json`. A build may deliver either medium
 alone. The [operations reference](reference/operations.md#the-delivery) lists
 the manifest fields.
+
+Every delivery, whichever media it carries, also holds `model.json`, the model
+the build read, byte for byte; `<model id>.json`, the pinned edition as data:
+the work, the pin, the views, every component, relation and group with its
+origin, every measured fact, one evidence table of every file the model claims
+or cites and every range the guide cites, and for each plate what it drew and
+where; and `<model id>.md`, the reader file, which states the same statements
+and facts as text in the model's language and ends with the guide's text. The
+build refuses when the reader file's statements are not the model's, when a
+plate's face is not its view's statements, or when a projection holds what the
+data lacks. The [data reference](reference/data.md) describes the three files.
 
 The print edition opens with a title page of the work's name, question and
 summary and a byline of its release, editors, licence and publisher, then
@@ -97,8 +109,9 @@ beside the list of its panels. Each view is a panel with its native Archify
 diagram, which opens Archify's full interactive viewer, and one step per
 component with every one of its details and, when the model names its
 repository URL and revision, its first file that Archify will cite, at that
-revision. The manifest keeps every detail, status, claim, cited file, owner,
-digest and verification state.
+revision. The data keeps every detail, status, claim, cited file, owner,
+digest and verification state, each once; the manifest names the data and the
+reader file with their digests and counts, and no longer repeats them.
 
 ## Quality floor
 
@@ -191,7 +204,7 @@ moves back. Items marked as work on the publications are finished there and tick
       their reading fell one answer short of its line.
 - [x] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered
       byte changes.
-- [ ] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
+- [x] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
       the reader experiment supports.
 - [ ] `sample-book`: one work set by hand as a whole book: its contents are the question table, silence is
       printed, and one page compares the publisher's own plates with Archify's. The owner's first look. Work on the

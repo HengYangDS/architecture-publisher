@@ -285,7 +285,8 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
  * and its caption, then its leading detail. A box taller than its marks, in a row
  * with a taller one, keeps its spare height at its foot. The strip's segments
  * are mass as dark as their dye; the label, caption and detail are mass whose
- * darkness their runs carry.
+ * darkness their runs carry. It hands back the rectangle the marks are set in:
+ * from the label's top to the foot of the last line, as wide as the box.
  * @param {{ x: number, y: number, width: number, component: any,
  *   text: ReturnType<ReturnType<typeof stripBoxes>["text"]>, styles: any,
  *   colors: ReturnType<typeof colorsOf>, lines: ReturnType<typeof linesOf> }} marks
@@ -368,10 +369,12 @@ export function drawStrip(marks, draw) {
   );
   draw.rects.push({ x, y: top, width, height: styles.detail.line, kind: "mass", weight: 0 });
   top += styles.detail.line;
-  if (!text.details.length) return;
-  block(text.details, top, styles.detail, text.spread);
-  for (const [index, line] of text.details.entries())
-    top = draw.text("cards", line, x, top, styles.detail, C.muted, null, text.spread[index]);
+  if (text.details.length) {
+    block(text.details, top, styles.detail, text.spread);
+    for (const [index, line] of text.details.entries())
+      top = draw.text("cards", line, x, top, styles.detail, C.muted, null, text.spread[index]);
+  }
+  return { x: fixed(x), y: fixed(y), width: fixed(width), height: fixed(top - y) };
 }
 
 /** The arrowhead of the key's sample line: the one a plate draws at every type step but its largest. */

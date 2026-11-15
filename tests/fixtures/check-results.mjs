@@ -22,6 +22,25 @@ export const ATTENDED = {
     undrawn: { components: ["x"], relations: [] },
     uncited: { components: [], relations: [] },
   },
+  data: {
+    statements: { components: 6, relations: 5, groups: 1, cited: 9, unchecked: 0, uncited: 2 },
+    facts: 31,
+    evidence: { paths: 7, ranges: 1 },
+    faces: [
+      { plate: 1, components: 3, groups: 1, relations: 4 },
+      { plate: 2, components: 4, groups: 0, relations: 5 },
+      { plate: 3, components: 2, groups: 0, relations: 1 },
+      { plate: 4, components: 1, groups: 0, relations: 0 },
+    ],
+    figures: {
+      state: "verified",
+      matched: { nodes: 2, connections: 1 },
+      unmatched: {
+        nodes: [{ file: "parts.architecture.json", id: "parts-readme" }],
+        connections: [],
+      },
+    },
+  },
   coverage: {
     revision: "1234567890abcdef",
     files: { scope: 6, owned: 3, uncovered: 3, excluded: 1 },
@@ -104,6 +123,12 @@ export const TIDY = {
   statements: {
     undrawn: { components: [], relations: [] },
     uncited: { components: [], relations: [] },
+  },
+  data: {
+    statements: { components: 2, relations: 1, groups: 0, cited: 0, unchecked: 0, uncited: 3 },
+    facts: 1,
+    evidence: { paths: 0, ranges: 0 },
+    faces: [],
   },
   coverage: {
     revision: "1234567890abcdef",

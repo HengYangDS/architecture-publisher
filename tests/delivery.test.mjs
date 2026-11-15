@@ -33,7 +33,7 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   assert.deepEqual(built.views, ["containers-tiers", "containers-automatic"]);
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
-  assert.equal(manifest.version, 7);
+  assert.equal(manifest.version, 8);
   // Without a checkout no part has a strip, so the edition draws cards, in the default palette.
   const { marks, palette, names, bands } = manifest.style;
   assert.deepEqual([marks, palette, names, bands], ["card", "indigo", INDIGO, null]);
@@ -56,9 +56,12 @@ test("a delivery holds the print edition, its images, the page and a manifest of
     manifest.artifacts.map(({ path: file }) => file),
     [
       "big-bank.html",
+      "big-bank.json",
+      "big-bank.md",
       "big-bank.pdf",
       "images/01-containers-tiers.png",
       "images/02-containers-automatic.png",
+      "model.json",
     ],
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
@@ -107,12 +110,14 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   const automatic = manifest.page.diagrams[1].metrics;
   assert.equal(automatic.tangles + automatic.joins + automatic.hugs, 0);
   assert.deepEqual(manifest.page.withheld, []);
-  // The evidence the drawings leave out stays in the manifest.
-  const customer = manifest.evidence.components.find(({ id }) => id === "customer");
+  // The evidence the drawings leave out stands in the data, once, and no longer in the manifest.
+  const data = await readJson(path.join(out, "big-bank.json"));
+  const customer = data.statements.components.find(({ id }) => id === "customer");
   assert.equal(customer.kind, "person");
   assert.equal(typeof customer.details, "object");
-  assert.equal(manifest.evidence.relations.length, 10);
-  assert.equal(built.artifacts, 4);
+  assert.equal(data.statements.relations.length, 10);
+  assert.equal("evidence" in manifest, false);
+  assert.equal(built.artifacts, 7);
   // Without the checkout, the edition is dated when it is typeset; with SOURCE_DATE_EPOCH, two builds are the same
   // bytes.
   assert.equal(manifest.edition.dated, "typesetting");
@@ -205,9 +210,12 @@ test("files verified against the checkout are recorded and cited on the page at 
   assert.equal(manifest.sources.state, "verified");
   assert.deepEqual([manifest.edition.release, manifest.edition.dated], ["v1.2.0", "commit"]);
   assert.match(manifest.edition.date, /^\d{4}-\d{2}-\d{2}$/u);
-  // A cited file is recorded once, with its digest, its owner and the relations that cite it.
+  // A cited file is recorded once, in the data, with its digest, its owner and the relations that cite it; the
+  // manifest keeps the binding's state and the number of files it recorded.
+  assert.deepEqual(manifest.sources, { state: "verified", count: 1 });
+  const data = await readJson(path.join(out, "page.json"));
   assert.deepEqual(
-    manifest.sources.records.map(({ path: file, owner, relations: citing, state }) => [
+    data.evidence.map(({ path: file, owner, relations: citing, state }) => [
       file,
       owner,
       citing,
@@ -215,15 +223,12 @@ test("files verified against the checkout are recorded and cited on the page at 
     ]),
     [["src/main.mjs", "client", ["r1"], "verified"]],
   );
-  assert.match(manifest.sources.records[0].sha256, /^[0-9a-f]{64}$/u);
+  assert.match(data.evidence[0].sha256, /^[0-9a-f]{64}$/u);
   // Each cited file keeps its size and the date of its last change at the pin, and the edition draws its parts from them.
-  assert.equal(typeof manifest.sources.records[0].bytes, "number");
+  assert.equal(typeof data.evidence[0].bytes, "number");
   // The change date is the commit's UTC day; the edition's date is the committer's own, which may differ by one.
   const changedAt = Number(git("log", "-1", "--format=%ct", "--", "src/main.mjs"));
-  assert.equal(
-    manifest.sources.records[0].changed,
-    new Date(changedAt * 1000).toISOString().slice(0, 10),
-  );
+  assert.equal(data.evidence[0].changed, new Date(changedAt * 1000).toISOString().slice(0, 10));
   // The edition draws strips by default, in the model's own palette, with the fixed bands dated by the pin's day as
   // its committer recorded it, the day the edition's foot prints.
   assert.deepEqual(manifest.style, {
@@ -239,8 +244,8 @@ test("files verified against the checkout are recorded and cited on the page at 
     longest: 360,
   });
   assert.equal(manifest.page.quality, "showcase");
-  assert.deepEqual(manifest.evidence.components[0].files, ["src/"]);
-  assert.deepEqual(manifest.evidence.relations[0].files, ["src/main.mjs"]);
+  assert.deepEqual(data.statements.components[0].files, ["src/"]);
+  assert.deepEqual(data.statements.relations[0].files, ["src/main.mjs"]);
   const page = await fs.readFile(path.join(out, "page.html"), "utf8");
   assert.ok(page.includes(`"repository":{"url":"${url}","revision":"${revision}"}`));
   // A component's first file is the first file its first claim holds at the revision.

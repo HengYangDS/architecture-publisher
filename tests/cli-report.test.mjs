@@ -5,6 +5,18 @@ import { Refusal } from "../src/refusal.mjs";
 import { ATTENDED, TIDY, terminal } from "./fixtures/check-results.mjs";
 import { reportLines } from "./fixtures/report-lines.mjs";
 
+/** The data of the tidy check, as its report states it: no plate was drawn and the model names no guide. */
+const TIDY_DATA = [
+  ["heading", "Data"],
+  [
+    "noted",
+    "Statements",
+    "2 components, 1 relation and 0 groups: 0 cited, 0 unchecked and 3 uncited",
+  ],
+  ["noted", "Facts", "1 fact"],
+  ["noted", "Evidence", "0 paths with 0 cited ranges"],
+];
+
 test("a check's report marks what passed, what needs attention and what a build would refuse", () => {
   assert.deepEqual(reportLines(reportResult("check", ATTENDED, "model.json")), [
     ["title", "archpub check · shop"],
@@ -21,6 +33,16 @@ test("a check's report marks what passed, what needs attention and what a build 
     ],
     ["passed", "03", "last · figure 65% of the body, its reading left out"],
     ["passed", "04", "bare · figure 50% of the body"],
+    ["heading", "Data"],
+    [
+      "noted",
+      "Statements",
+      "6 components, 5 relations and 1 group: 9 cited, 0 unchecked and 2 uncited",
+    ],
+    ["noted", "Facts", "31 facts"],
+    ["noted", "Evidence", "7 paths with 1 cited range"],
+    ["passed", "Faces", "4 plates, each its view's statements"],
+    ["noted", "Guide figures", "2 of 3 nodes and 1 of 1 connection matched to the model"],
     ["heading", "Coverage at 1234567"],
     ["attention", "Files", "3 of 6 owned, 3 uncovered, 1 excluded"],
     ["attention", "Largest uncovered", "src/tools/ (2 files), docs/ (1 file)"],
@@ -82,6 +104,7 @@ test("a check with nothing to attend to marks every fact as passed", () => {
     ["heading", "Model"],
     ["passed", "Views", "1 view admitted"],
     ["noted", "Files", "none claimed or cited"],
+    ...TIDY_DATA,
     ["heading", "Coverage at 1234567"],
     ["passed", "Files", "2 of 2 owned, 0 uncovered, 0 excluded"],
     ["heading", "Currency against main at abcdef1"],
@@ -104,6 +127,7 @@ test("a check with nothing to attend to marks every fact as passed", () => {
     ["passed", "Views", "1 view admitted"],
     ["attention", "Files", "1 file unverified without --repo"],
     ["attention", "Uncited", "1 component (a) and 2 relations (a-b, b-a)"],
+    ...TIDY_DATA,
   ]);
   const cited = structuredClone(TIDY);
   cited.coverage.currency.worklist.citations.push({
