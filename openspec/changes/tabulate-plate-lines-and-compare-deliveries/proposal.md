@@ -86,16 +86,19 @@ and `fact-layer` opens as planned.
 - The comparison: `src/delivery.mjs`, `src/cli/run.mjs`, `src/cli/report.mjs`, and the new `src/cli/comparison.mjs`
   and `src/cli/facts.mjs`.
 - Tests: the new `tests/line-table.test.mjs`, `tests/line-facts.test.mjs`, `tests/line-pairwise.test.mjs`,
-  `tests/poster-line-counts.test.mjs`, `tests/delivery-compare.test.mjs` and `tests/fixtures/line-tables.mjs`;
+  `tests/poster-line-counts.test.mjs`, `tests/line-row-weight.test.mjs`, `tests/delivery-compare.test.mjs` and
+  `tests/fixtures/line-tables.mjs`;
   `tests/poster-strip-ticks.test.mjs` removed; `tests/poster-strip.test.mjs`, `tests/poster-palette-key.test.mjs`,
   `tests/edition-key.test.mjs`, `tests/edition-key-line.test.mjs`, `tests/locale.test.mjs`,
-  `tests/fixtures/strips.mjs`, `tests/cli-usage.test.mjs` and `tests/cli-json-results.test.mjs` changed.
+  `tests/edition-class.test.mjs`, `tests/fixtures/strips.mjs`, `tests/cli-usage.test.mjs` and
+  `tests/cli-json-results.test.mjs` changed.
 - Documents: `docs/reference/lines.md` (new), `docs/reference/command-line.md`, `docs/reference/model.md`,
-  `docs/reference/operations.md`, `docs/README.md`, the Skill, `docs/product-contract.md` (the queue's tick) and
+  `docs/reference/operations.md`, `docs/README.md`, the Skill (`skills/architecture-publisher/SKILL.md`),
+  `docs/product-contract.md` (the queue's tick) and
   `CHANGELOG.md`.
 
-Every strip plate with a hub or a cited relation differs from 0.14.0, and so does every plate whose key holds the
-boundary. The Chinese editions of the six works are rebuilt once and compared with the same works built from the
-lane's base.
+Every plate's page picture differs from 0.14.0, since the figure is placed anew; strip plates with a hub or a cited
+relation differ in what they draw as well, and so does every plate whose key holds the boundary. The Chinese
+editions of the six works are checked from the lane beside the same works checked by 0.14.0.
 
 Queue: `line-table`.
