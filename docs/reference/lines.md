@@ -23,9 +23,9 @@ line or other number; with no such place it stands at the first and the result c
 `citation_count_touches`, which names the plate and the relation.
 
 The `emphasis` row stands by the owner's ruling of 2026-11-15 and not by its reading. When the rebuilt plate was
-read, every reading named the hub, and two of eighteen gave one of the parts that lead to it with a wrong
-character in its name, both on the image 960 px wide: 34 answers right of 36, where the line set beforehand asked
-for 35.
+read, every reading named the hub, and two of eighteen gave the name of one of the parts that lead to it with one
+character wrong or left out, both on the image 960 px wide: 34 answers right of 36, where the line set beforehand
+asked for 35.
 
 The rows marked "not yet tested by a work" keep the patterns they had: none of the works that were read states a
 status, and a planned line's dashes are too near the boundary's to be told from them by the measure the trials

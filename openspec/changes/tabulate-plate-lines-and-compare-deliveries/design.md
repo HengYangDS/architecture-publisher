@@ -237,8 +237,8 @@ publications before any reading, and a row whose items fall below its line is ta
 line set after the readings, which no reading could fail.
 
 The readings of the rebuilt plate met the lines of the count (54 of 54) and of the unchanged items (54 of 54) and
-missed the hub's by one answer: 34 of 36. Every reading named the hub; two readings of one holder at 960 px gave one
-of the four parts that lead to it with a wrong character in its name. By the line the `emphasis` row would have
+missed the hub's by one answer: 34 of 36. Every reading named the hub; two readings of one holder at 960 px gave the
+name of one of the four parts that lead to it with one character wrong or left out. By the line the `emphasis` row would have
 left the table. The line was not moved and the miss was not explained away: it was put to the owner, who ruled on
 2026-11-15 「保留加粗」. The row stays as the owner's decision, the queue's entry and the reference of the lines say
 so, and the record of the readings quotes the ruling.
