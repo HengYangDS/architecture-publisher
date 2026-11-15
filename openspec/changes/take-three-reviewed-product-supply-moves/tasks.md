@@ -7,9 +7,13 @@
 
 ## 2. Moves
 
-- [ ] 2.1 Pin `lucide-static` 1.73.0, move the icon policy and generate the icon supply again; done
+- [x] 2.1 Pin `lucide-static` 1.73.0, move the icon policy and generate the icon supply again; done
       when `mise run check` passes, the icon check names no changed artwork of a compared work, and
-      `archpub compare` reports every work identical.
+      `archpub compare` reports every work identical. `mise run check` passes (6+396 tests pass, 0+2
+      skipped); 37 icons added, none removed, 19 redrawn, none of them among the 44 icons the works
+      and examples name; `archpub compare` reports, in each of the three works, no plate and one
+      file, `manifest.json`, whose only difference is `.supplies.icons`, the icon supply's digest;
+      the owner approved that change on 2026-11-15 (「允许升级」).
 - [x] 2.2 Pin `playwright-core` 1.65.1; done when `mise run check` passes with the browser test run
       against a browser and `archpub compare` reports every work identical. `mise run check` passes
       with the browser test run against Google Chrome (6+398 tests pass, 0+0 skipped);
