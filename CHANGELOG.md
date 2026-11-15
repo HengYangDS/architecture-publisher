@@ -44,6 +44,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The icons are generated from `lucide-static` 1.73.0. The bundled example, the LikeC4 shop and the
+  publisher's own work in Chinese build the same bytes as before.
+- The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No
+  delivered byte changes.
 - **Breaking:** with `strip` marks a relation's cited files are written as a number near its source, and ticks are no
   longer drawn. Readers of the roadmap's first trial read a number right 54 times in 54 and ticks 88 times in 162.
 - **Breaking:** relations into a view's hub are drawn twice as heavy, still in the oldest dye, and end inside an
