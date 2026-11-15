@@ -1,3 +1,11 @@
+---
+subject: architecture-publisher:lines
+role: reference
+state: canonical
+relations:
+  governed_by: ../product-contract.md
+---
+
 # Line values
 
 A plate's lines are drawn from one table inside the product, the `lines` section of `src/house.json`. The figure,
