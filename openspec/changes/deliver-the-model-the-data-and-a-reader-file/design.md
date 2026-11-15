@@ -102,26 +102,12 @@ and prints their digest, and two forms of one model in a delivery would need a r
 
 ### The data is the identity projection: what the build holds, written once, in the order it holds it
 
-`<model id>.json` has these members, in this order. Keys stand in a fixed order and lists in one order each, so two
-builds of one state give the same bytes: the work's fields and the statements in the model's order, the views in
-the plan's, the catalogue and the facts in the layer's, the evidence by path and the plates by number.
-
-| Member       | Holds                                                                                            |
-| ------------ | ------------------------------------------------------------------------------------------------ |
-| `delivery`   | the delivery's format and version, as the manifest states them                                   |
-| `publisher`  | name and version                                                                                 |
-| `work`       | id, language, title, question, summary, scope, limits, editors, licence, coverage                |
-| `model`      | `file`, digest, size, format and version of the model                                            |
-| `pin`        | the declared repository; the binding's state; date and release when measured                     |
-| `views`      | each planned view: id, title, question, summary, origin, tiers, the ids it selects, its plate    |
-| `statements` | `components`, `relations`, `groups`: each with its id, text, details, status when stated, origin |
-| `catalogue`  | the properties of the layer: name, kinds of subject, unit, origin, measured from, spans          |
-| `facts`      | every fact of the layer: property, subject, value, unit, origin, measured from                   |
-| `evidence`   | the evidence table                                                                               |
-| `guide`      | the guide's path, digest and named files, whether its sources were verified, its matched figures |
-| `overview`   | the overview's composition and images, and `face: false`                                         |
-| `plates`     | each plate: number, views, page, images, frame, scales, face                                     |
-| `media`      | the media the build delivered                                                                    |
+`<model id>.json` has these members, in this order: `delivery`, `publisher`, `work`, `model`, `pin`, `views`,
+`statements`, `catalogue`, `facts`, `evidence`, `guide`, `overview`, `plates` and `media`. What each holds, and
+the keys of a statement and of a fact, are described under "The data" in `docs/reference/data.md`. Keys stand in
+a fixed order and lists in one order each, so two builds of one state give the same bytes: the work's fields and
+the statements in the model's order, the views in the plan's, the catalogue and the facts in the layer's, the
+evidence by path and the plates by number.
 
 A relation's text is written `source —label→ target` with the two ids and the model's label, in `statements` and in
 every face. Every statement's `origin` is `stated`: the author wrote it. A fact's origin is the layer's. A member a
@@ -154,104 +140,6 @@ Rejected: a format name and version for the data, which is a fourth format where
 Rejected: naming the member for views `questions` now. The model has views that carry a question; a question that
 selects statements by id and answers entries of the question table is what `model-four` defines.
 
-Worked example, from the work `aigw-client` in English (`publications/aigw-client/en/model.json` of the
-publications; 21 components, 40 relations, 6 views). Ids, labels, paths and the model's digest and size are the
-work's own; the values marked `…` and every number of a fact, a digest of a file, a date and a count are
-placeholders.
-
-```json
-{
-  "delivery": { "format": "architecture-publisher.delivery", "version": 8 },
-  "publisher": { "name": "architecture-publisher", "version": "…" },
-  "work": {
-    "id": "aigw-client",
-    "locale": "en",
-    "title": "AIGW Client Projection",
-    "question": "How does AIGW turn one reviewed configuration into guarded client files in every admitted client?"
-  },
-  "model": {
-    "file": "model.json",
-    "sha256": "4b8d6e30229fbf56adce893fb887c21062e7d48e6951ff563cc1a10c6de96da5",
-    "bytes": 36083,
-    "format": "architecture-publisher.model",
-    "version": 3
-  },
-  "pin": {
-    "repository": { "name": "aigw-cli", "revision": "ed8b2fed94ef569f0f2d7fdfd2ec3259c65e37e2" },
-    "state": "verified",
-    "date": "…",
-    "release": "…"
-  },
-  "views": [
-    {
-      "id": "overview",
-      "question": "How does one reviewed configuration become guarded client files in each admitted client?",
-      "origin": "declared",
-      "components": [
-        "commands",
-        "use-cases",
-        "synchronization",
-        "configuration-store",
-        "adapter-seam",
-        "…"
-      ],
-      "groups": [],
-      "relations": ["synchronization-configuration-store", "synchronization-adapter-seam", "…"],
-      "plate": 1
-    }
-  ],
-  "statements": {
-    "components": [
-      {
-        "id": "synchronization",
-        "label": "Synchronization",
-        "kind": "coordinator",
-        "details": {
-          "converges": ["client selections and their client files"],
-          "commits": ["one configuration transition with guarded compensation"]
-        },
-        "files": ["internal/app/synchronization/"],
-        "origin": "stated"
-      }
-    ],
-    "relations": [
-      {
-        "id": "synchronization-configuration-store",
-        "from": "synchronization",
-        "to": "configuration-store",
-        "label": "persists",
-        "text": "synchronization —persists→ configuration-store",
-        "details": {},
-        "files": ["internal/app/synchronization/preview.go", "…"],
-        "origin": "stated"
-      }
-    ],
-    "groups": []
-  },
-  "facts": [
-    {
-      "property": "owned-bytes",
-      "of": { "kind": "part", "id": "synchronization" },
-      "value": 0,
-      "unit": "bytes",
-      "origin": "measured",
-      "from": "pin"
-    },
-    {
-      "property": "cited-files",
-      "of": { "kind": "relation", "id": "synchronization-configuration-store" },
-      "value": 5,
-      "unit": "files",
-      "origin": "measured",
-      "from": "model"
-    }
-  ]
-}
-```
-
-The second fact's value is real: the relation names five files in the model. A fact whose value is a list, such as
-a part's `owned-files`, is stated in the reader file by its length.
-
 ### One evidence table, keyed by path, gathered where the build already reads
 
 Evidence is in four places today: a component's and a relation's `files` in the model; the binding's records, which
@@ -259,14 +147,8 @@ resolve them at the pin (`src/sources/bind.mjs`); the guide's `@source` lines an
 nodes, with line ranges (`guideCitations` in `src/map/guide.mjs`); and the manifest, which repeats the first two as
 `evidence` and `sources.records`. The print edition has no source table yet.
 
-The delivery writes one table, `evidence` in the data. Each path stands once, in path order:
-
-- `path`, and `state`: `verified` when the build read it at the pin, `unverified` otherwise.
-- `sha256`, `bytes` and `changed`, the date of its last change at the pin, when verified.
-- `owner`, the component whose claim holds it, when one does.
-- `relations`, the ids of the relations that cite it.
-- `ranges`, each range the guide cites in it: `lines` as first and last line, or none for the whole file, and
-  `where` it is cited (`@source readme-what`, `parts.architecture.json/components/1/sources/0`).
+The delivery writes one table, `evidence` in the data. Each path stands once, in path order; the keys of a row
+are described under "The evidence table" in `docs/reference/data.md`.
 
 Its rows are the binding's records, plus the paths only the guide cites, which the binding does not read today.
 With a checkout those are read at the pin by `readAtPin` in `src/sources/bind.mjs`, with Git only read, so that
@@ -295,48 +177,13 @@ model, with ids and digests, and made half of each model (`openspec/changes/arch
 This table is written by the build from what it reads, and no author sees or keeps it. The Change of `fact-layer`
 holds no note on that removal, so the comparison rests on that archive's proposal alone.
 
-```json
-"evidence": [
-  {
-    "path": "README.md",
-    "state": "verified",
-    "sha256": "…",
-    "bytes": 0,
-    "changed": "…",
-    "relations": [],
-    "ranges": [{ "lines": [3, 6], "where": "@source readme-what" }]
-  },
-  {
-    "path": "internal/app/synchronization/transaction.go",
-    "state": "verified",
-    "sha256": "…",
-    "bytes": 0,
-    "changed": "…",
-    "owner": "synchronization",
-    "relations": ["synchronization-adapter-seam", "synchronization-configuration-store"],
-    "ranges": [{ "lines": [41, 119], "where": "parts.architecture.json/components/1/sources/0" }]
-  }
-]
-```
-
-The paths, ids, ranges and places are the work's own; `README.md` lies outside the model's coverage scope, so no
-component owns it.
-
 ### A plate's data face lives in the data, and is what the drawing reports
 
-Each entry of `plates` holds the plate's number, its views, its page in the PDF, its images with their widths, and:
-
-- `frame`: where the figure stands on its page, in points from the page's top left corner, with its width and
-  height, and `pixelsPerPoint`, the scale of the figure's drawing space (1.5 in `src/house.json`). An element at
-  `x` in the drawing space stands at `frame.x + x / pixelsPerPoint` points on the page, and at that many points
-  times `width / 1600` pixels in an image of that width.
-- `scales`: for each property the plate draws on a scale, the property, its unit, the value at the scale's end and
-  the length it is drawn at, as the style records them today (`longest`, the largest part's bytes); an empty list
-  for a plate of cards.
-- `face`: `components`, `groups` and `relations`. A component or group entry holds its `id` and its `box` in the
-  drawing space. A relation entry holds its `id`, the ids of its two ends, its `segments` and its `label`, the box
-  of its label or `null` when the figure sets none, and either its `text` as `source —label→ target` or, when the
-  overview draws several relations as one line, the `relations` it stands for.
+Each entry of `plates` holds the plate's number, its views, its page in the PDF, its images with their widths,
+its `frame`, its `scales` and its `face`; their keys are described under "A plate's record and face" in
+`docs/reference/data.md`. `pixelsPerPoint`, the scale of the figure's drawing space, is 1.5 in
+`src/house.json`, and the scales are written as the style records them today (`longest`, the largest part's
+bytes).
 
 `segments` is a list of point lists: every stretch the relation is stroked on, in drawing order. The first draft
 had one list `points`; one relation can be stroked on a trunk it shares with others and on a branch of its own, so
@@ -369,35 +216,8 @@ numbers are exact.
 The overview's page is set by hand in `overview.typ`; its marks are tied to no statement and it has no face. The
 data names its composition and its images under `overview` and says `face: false`.
 
-```json
-"plates": [
-  {
-    "number": 1,
-    "views": ["overview"],
-    "page": 3,
-    "images": [{ "width": 2400, "file": "images/01-overview.png" }],
-    "frame": { "x": 48, "y": 112, "width": 1504, "height": 714, "pixelsPerPoint": 1.5 },
-    "scales": [{ "property": "owned-bytes", "unit": "bytes", "value": 0, "length": 0 }],
-    "face": {
-      "components": [{ "id": "synchronization", "box": { "x": 0, "y": 0, "width": 0, "height": 0 } }],
-      "groups": [],
-      "relations": [
-        {
-          "id": "synchronization-configuration-store",
-          "from": "synchronization",
-          "to": "configuration-store",
-          "text": "synchronization —persists→ configuration-store",
-          "segments": [[[0, 0], [0, 0]]],
-          "label": { "x": 0, "y": 0, "width": 0, "height": 0 }
-        }
-      ]
-    }
-  }
-]
-```
-
-Every `0` is a placeholder. The frame is that of a figure that keeps the whole body: `x: 48` and `y: 112` are the
-page's margin and the body's top in `src/house.json`, and a figure under a summary set above it starts lower.
+The frame of a figure that keeps the whole body has `x: 48` and `y: 112`, the page's margin and the body's top
+in `src/house.json`; a figure under a summary set above it starts lower.
 
 ### "Equals its view's statement set" is a comparison of two sets with different sources
 
@@ -476,47 +296,8 @@ before "not covered". When the guide's sentences have entered the model as state
 what is left, and the design's acceptance, "delete the explainer script, and the reader file and the edition are
 still complete", is then tested.
 
-Worked example, the same work; every `…` is a placeholder:
-
-```markdown
-# AIGW Client Projection
-
-Reader file of the work `aigw-client` in `en`, written by Architecture Publisher ….
-
-- Pin: `aigw-cli` `ed8b2fed94ef569f0f2d7fdfd2ec3259c65e37e2` · state verified · date … · release `…`
-- Model: `model.json` · version 3 · bytes 36083 · sha256 `4b8d6e30229fbf56adce893fb887c21062e7d48e6951ff563cc1a10c6de96da5`
-- Data: `aigw-client.json` · sha256 `…`
-- Statements: components 21 · relations 40 · groups 0 · cited 61 · unchecked 0 · uncited 0
-- Also in this delivery: `aigw-client.pdf`, `images/`, `aigw-client.html`, `manifest.json`
-- measured (pin): `largest-part` … bytes · `files-read` … files
-
-Keys: `stated` was written by the author; …
-
-## How does one reviewed configuration become guarded client files in each admitted client?
-
-- view `overview` · plate 1 · `images/01-overview.png`
-- measured (model): `hub` `adapter-seam` part
-- component `synchronization`: Synchronization, coordinator · stated · files `internal/app/synchronization/`
-  - converges: client selections and their client files
-  - commits: one configuration transition with guarded compensation
-  - measured (pin): `owned-files` … paths · `owned-bytes` … bytes
-- relation `synchronization-configuration-store`: synchronization —persists→ configuration-store · stated · files `internal/app/synchronization/preview.go`, …
-  - measured (model): `cited-files` 5 files
-
-## Not covered
-
-…
-
-## Checking again
-
-…
-
-## The guide's text
-
-# How does AIGW keep every AI client of a team in step with one reviewed configuration? {#guide}
-
-AIGW is a local-first control plane for a team's AI clients.[](source:readme-what) …
-```
+The parts, a statement's item, a line of facts and the lines of the head and of a view are described, each with
+its form, under "The reader file" in `docs/reference/data.md`.
 
 ### The publisher's words are in the model's language; keys are not translated
 

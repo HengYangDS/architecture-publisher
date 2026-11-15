@@ -163,6 +163,10 @@ its absence; without a checkout no file has an owner and nothing is matched.
 6. What the file does not cover, and the two commands that check the delivery again.
 7. When the model names a guide, one heading and then the guide's draft, byte for byte, to the end of the file.
 
+Each line of the head is a list item: the publisher's word for it, a colon, and its fields parted by `·`, the
+other files of the delivery by commas. A view's line is `` - view `<id>` · plate <number> · `<image>` ``, and
+`` - view `<id>` `` when no edition is built.
+
 A statement's item is ``- <type> `<id>`: <text> · <fields>``. The type is `component`, `group` or `relation`. The
 text is a component's or a group's label, with a component's kind, or a relation's `<from> —<label>→ <to>`. The
 fields are its status when stated, its origin and its `files` or `members`. Beneath it stand each detail the model
