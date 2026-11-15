@@ -44,7 +44,7 @@ The draft's open questions were decided on 2026-11-15 by the landing owner, each
 A summary was put to the owner, who answered 「按你建议的方式。同意」. It named three
 decisions: lines into the hub drawn as the measured cell drew them, cited files as a number in place of ticks, and
 the pass line of the figure-reading check fixed before any reading. Those three are the owner's; the others were
-not put to the owner one by one. One rule stands behind all of them. The queue admits "only the rows the
+not put to the owner one by one. One rule stands behind all of them. The queue admitted "only the rows the
 experiments passed", so a row is drawn exactly as the cell that was measured and read drew it, and a variant no
 cell drew is a new hypothesis that is not built here.
 
@@ -235,6 +235,13 @@ items right at least 35 of 36, citation items at least 50 of 54, and the items t
 at least 51 of 54. The baseline was 35, 28 and 51 (`2026-11-15-comparison.md`). The line is committed to the
 publications before any reading, and a row whose items fall below its line is taken out of the table. Rejected: a
 line set after the readings, which no reading could fail.
+
+The readings of the rebuilt plate met the lines of the count (54 of 54) and of the unchanged items (54 of 54) and
+missed the hub's by one answer: 34 of 36. Every reading named the hub; two readings of one holder at 960 px gave one
+of the four parts that lead to it with a wrong character in its name. By the line the `emphasis` row would have
+left the table. The line was not moved and the miss was not explained away: it was put to the owner, who ruled on
+2026-11-15 「保留加粗」. The row stays as the owner's decision, the queue's entry and the reference of the lines say
+so, and the record of the readings quotes the ruling.
 
 ### A reading of rebuilt plates gives a verdict on each item, not an acceptance
 
