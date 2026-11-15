@@ -1,3 +1,9 @@
+## Purpose
+
+Hold in one table the weights, patterns and marks a plate draws its lines with, each row admitted by a trial or
+reported as untested, so that the figure, the key, the documents and the tests read one source and one value of a
+channel has one meaning.
+
 ## ADDED Requirements
 
 ### Requirement: One table of line values
