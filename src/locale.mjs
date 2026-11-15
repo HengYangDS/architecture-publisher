@@ -336,7 +336,7 @@ const READER_WORDS = Object.freeze({
     data: "資料",
     statements: "陳述",
     delivery: "本交付另含",
-    keys: "鍵的含義：`stated` 為作者所寫；`measured (pin)` 為出版工具在釘定版本的檢出中測得，`measured (model)` 為從模型數得。陳述所列檔案均已在釘定版本讀到，記為 `cited`；建置沒有檢出可讀，記為 `unchecked`；未列任何檔案，記為 `uncited`。",
+    keys: "鍵的含義：`stated` 為作者所寫；`measured (pin)` 為出版工具在釘定版本的簽出中測得，`measured (model)` 為從模型數得。陳述所列檔案均已在釘定版本讀到，記為 `cited`；建置沒有簽出可讀，記為 `unchecked`；未列任何檔案，記為 `uncited`。",
     scope: "範圍與限度",
     question: "問題",
     unselected: "沒有視圖選入的陳述",
@@ -347,24 +347,24 @@ const READER_WORDS = Object.freeze({
     unplated: (heading, count) => `「${heading}」下所列陳述（${count} 條）沒有圖版繪出。`,
     noEdition: "本交付不含印刷版，因此沒有圖版繪出任何陳述。",
     noGuide: "模型未指明導覽，本檔案不附導覽。",
-    noCheckout: "建置時沒有儲存庫檢出：未在釘定版本讀取任何檔案，凡列有檔案的陳述均未核對。",
+    noCheckout: "建置時沒有儲存庫簽出：未在釘定版本讀取任何檔案，凡列有檔案的陳述均未核對。",
     beyond: "本檔案只列元件、關係和分組，不列其他成文陳述，也不判定任何陳述是否得到支持。",
     notCarried:
       "總覽頁的文字和導覽各圖文件的文字未收入；這些圖引用的檔案見資料中的證據表，單一檔案的事實只見於資料。",
     transitional:
       "最後一部分是作者所寫的導覽，原樣直到檔案末尾；這是過渡形式，導覽的句子進入模型後將縮短。",
     verify: "按清單核對本交付的檔案",
-    check: "在釘定版本的檢出上核對模型",
+    check: "在釘定版本的簽出上核對模型",
   }),
   es: Object.freeze({
     lead: (id, locale, version) =>
-      `Archivo de lectura de la obra \`${id}\` en \`${locale}\`, escrito por Architecture Publisher ${version}.`,
+      `Archivo del lector de la obra \`${id}\` en \`${locale}\`, escrito por Architecture Publisher ${version}.`,
     pin: "Revisión fijada",
     model: "Modelo",
     data: "Datos",
     statements: "Enunciados",
     delivery: "También en esta entrega",
-    keys: "Claves: `stated` lo escribió el autor; `measured (pin)` lo midió el publicador en la copia de trabajo en la revisión fijada, y `measured (model)` lo contó a partir del modelo. Un enunciado es `cited` cuando los archivos que nombra se leyeron en la revisión fijada, `unchecked` cuando la compilación no tenía copia de trabajo donde leerlos y `uncited` cuando no nombra ningún archivo.",
+    keys: "Claves: `stated` lo escribió el autor; `measured (pin)` lo midió la herramienta de publicación en la copia de trabajo de la revisión fijada, y `measured (model)` lo contó a partir del modelo. Un enunciado es `cited` cuando los archivos que nombra se leyeron en la revisión fijada, `unchecked` cuando la compilación no tenía copia de trabajo donde leerlos y `uncited` cuando no nombra ningún archivo.",
     scope: "Alcance y límites",
     question: "La pregunta",
     unselected: "Enunciados que ninguna vista selecciona",
@@ -380,11 +380,11 @@ const READER_WORDS = Object.freeze({
     noCheckout:
       "La compilación no tenía copia de trabajo del repositorio: no se leyó ningún archivo en la revisión fijada, y todo enunciado que nombra archivos queda sin comprobar.",
     beyond:
-      "Este archivo lista componentes, relaciones y grupos y ningún otro enunciado escrito, y no juzga respaldado ningún enunciado.",
+      "Este archivo lista componentes, relaciones y grupos y ningún otro enunciado escrito, y no da por respaldado ningún enunciado.",
     notCarried:
       "No se incluye el texto de la página del panorama ni el de los documentos de diagramas de la guía; los archivos que citan esos diagramas están en la tabla de evidencia de los datos, y los hechos de archivos individuales solo en los datos.",
     transitional:
-      "La última parte es la guía tal como la escribió su autor, sin cambios hasta el final de este archivo; es una parte transitoria, que se acorta cuando las frases de la guía entran en el modelo.",
+      "La última parte es la guía tal como la escribió su autor, sin cambios hasta el final de este archivo; es una parte transitoria, que se acortará cuando las frases de la guía entren en el modelo.",
     verify: "Verificar los archivos de esta entrega con su manifiesto",
     check: "Comprobar el modelo con una copia de trabajo en la revisión fijada",
   }),
@@ -395,7 +395,7 @@ const READER_WORDS = Object.freeze({
     model: "모델",
     data: "데이터",
     statements: "진술",
-    delivery: "이 전달물에 함께 있는 파일",
+    delivery: "이 산출물에 함께 있는 파일",
     keys: "키: `stated`는 저자가 쓴 것이고, `measured (pin)`은 출판 도구가 고정 리비전의 체크아웃에서 측정한 것이며, `measured (model)`은 모델에서 센 것입니다. 진술이 명시한 파일을 고정 리비전에서 모두 읽었으면 `cited`, 빌드에 읽을 체크아웃이 없었으면 `unchecked`, 파일을 명시하지 않았으면 `uncited`입니다.",
     scope: "범위와 한계",
     question: "질문",
@@ -406,17 +406,17 @@ const READER_WORDS = Object.freeze({
     excluded: "모델의 범위가 제외하는 경로",
     unplated: (heading, count) =>
       `"${heading}" 아래의 진술(${count}개)은 어떤 도판도 그리지 않습니다.`,
-    noEdition: "이 전달물에는 인쇄판이 없으므로 어떤 도판도 진술을 그리지 않습니다.",
+    noEdition: "이 산출물에는 인쇄판이 없으므로 어떤 도판도 진술을 그리지 않습니다.",
     noGuide: "모델이 가이드를 지정하지 않아 이 파일에는 가이드가 없습니다.",
     noCheckout:
       "빌드에 저장소 체크아웃이 없었습니다. 고정 리비전에서 읽은 파일이 없으며, 파일을 명시한 모든 진술은 확인되지 않았습니다.",
     beyond:
       "이 파일은 구성 요소, 관계, 그룹만 나열하고 그 밖의 서술된 진술은 나열하지 않으며, 어떤 진술도 뒷받침되었다고 판정하지 않습니다.",
     notCarried:
-      "개요 페이지의 글과 가이드 도표 문서의 글은 싣지 않습니다. 그 도표가 인용하는 파일은 데이터의 증거 표에 있고, 개별 파일의 사실은 데이터에만 있습니다.",
+      "개요 페이지의 글과 가이드 다이어그램 문서의 글은 싣지 않습니다. 그 다이어그램이 인용하는 파일은 데이터의 증거 표에 있고, 개별 파일의 사실은 데이터에만 있습니다.",
     transitional:
-      "마지막 부분은 저자가 쓴 그대로의 가이드이며 이 파일 끝까지 바뀌지 않습니다. 가이드의 문장이 모델에 들어가면 줄어드는 과도기적 부분입니다.",
-    verify: "매니페스트로 이 전달물의 파일을 검증",
+      "마지막 부분은 저자가 쓴 가이드를 그대로 이 파일 끝까지 실은 것입니다. 가이드의 문장이 모델에 들어가면 줄어드는 과도기적 부분입니다.",
+    verify: "매니페스트로 이 산출물의 파일을 검증",
     check: "고정 리비전의 체크아웃으로 모델을 확인",
   }),
 });

@@ -345,6 +345,8 @@ test("the plates stand by number with their keys in one order, and a check's pla
   assert.deepEqual(paged.facts, data.facts);
   assert.deepEqual(paged.evidence, data.evidence);
   assert.ok(paged.views.every((view) => !("plate" in view)));
+  // A caller that holds no plates may leave the member out: the data is the one of an empty list.
+  assert.deepEqual(editionData({ ...input, plates: undefined, media: ["page"] }), paged);
 });
 
 test("the data is written as JSON with a two-space indent and one final newline, the same bytes twice", async () => {

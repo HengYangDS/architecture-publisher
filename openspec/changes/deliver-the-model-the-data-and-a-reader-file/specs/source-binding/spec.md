@@ -29,3 +29,25 @@ model's claims, and compute the SHA-256 digest of every owned file and of every 
 - **WHEN** one component claims `src/cli/` and another `src/cli/credential/`
 - **THEN** the data's evidence table records `src/cli/credential/read.mjs` as owned by the second and
   `src/cli/main.mjs` by the first
+
+## ADDED Requirements
+
+### Requirement: A file is verified only when its own bytes were read
+
+With a repository checkout, the publisher SHALL record a file as verified only when it read that file's own bytes
+at the model's revision. A build or a check SHALL refuse with `source_read_failed`, naming the file, a file in a
+component's scope or cited by a relation whose object the checkout does not hold or whose read Git does not
+finish, and a tracked file in a component's scope whose path holds a line break.
+
+#### Scenario: An object the checkout does not hold
+
+- **WHEN** a component's claim holds a file at the revision and the checkout does not hold that file's object, as
+  in a partial clone
+- **THEN** a build and a check are refused with `source_read_failed`, naming the file
+- **AND** the file is not recorded, as verified or otherwise
+
+#### Scenario: A path that holds a line break
+
+- **WHEN** a tracked file whose name holds a line break lies in a component's scope
+- **THEN** a build and a check are refused with `source_read_failed` before any file is read, naming the path with
+  its line break written as `\n`

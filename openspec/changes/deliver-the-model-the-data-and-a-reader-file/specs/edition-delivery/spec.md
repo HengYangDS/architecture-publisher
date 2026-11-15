@@ -57,8 +57,8 @@ path, size and digest.
 
 #### Scenario: An earlier delivery
 
-- **WHEN** `archpub verify`, `archpub compare` or `archpub publish` is given a delivery whose manifest states
-  version 7
+- **WHEN** `archpub verify`, `archpub accept`, `archpub compare` or `archpub publish` is given a delivery whose
+  manifest states version 7
 - **THEN** the command treats it as before this version, and refuses nothing for its version
 
 ## ADDED Requirements

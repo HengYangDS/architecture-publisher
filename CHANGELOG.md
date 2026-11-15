@@ -134,6 +134,14 @@ remain pre-release contracts and may contain incompatible changes.
   file lists are not the model's, with `data_face_differs` when a plate's face is not its view's statements, and with
   `projection_fact_unknown` when a plate, the reader file or the generated page holds what the data lacks.
 
+### Fixed
+
+- With `--repo`, a build or a check refuses with `source_read_failed`, naming the file, a file in a component's scope
+  or cited by a relation that it cannot read at the model's revision. A checkout that lacked the file's object, as a
+  partial clone does, recorded the file as `verified` with the digest and size of the word `missing`; a file whose
+  name holds a line break was read as two names and recorded as `verified` with the bytes of another file. A record
+  is `verified` only when the file's own bytes were read.
+
 ## [0.14.0] - 2026-11-14
 
 ### Changed

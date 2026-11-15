@@ -9,6 +9,7 @@ import { acceptDelivery, compareDeliveries, publishDelivery } from "../src/deliv
 import { editionFacts } from "../src/facts/edition.mjs";
 import { archifyIds } from "../src/map/archify.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
+import { json } from "./fixtures/command-line.mjs";
 import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { groupedWork } from "./fixtures/pinned-face.mjs";
 import { README, repository } from "./fixtures/repository.mjs";
@@ -214,6 +215,59 @@ test("a delivery holds the model, the data and the reader file, and its manifest
       ["page.md", true],
     ],
   );
+  // The commands take an earlier release's delivery as they did before this version: it is accepted and published
+  // with nothing refused for its version, its manifest is not rewritten, and it gains none of the three files.
+  const stated = await fs.readFile(path.join(again, "manifest.json"));
+  const accepted = await json(["accept", again, "--reviewer", "Reviewer"]);
+  assert.deepEqual(
+    [accepted.exitCode, accepted.body.ok, accepted.body.manifest],
+    [0, true, sha256(stated)],
+  );
+  const issued = await json(["publish", again, "--to", path.join(root, "published")]);
+  assert.deepEqual([issued.exitCode, issued.body.ok, issued.body.copied], [0, true, true]);
+  assert.notEqual(issued.body.target, published.target);
+  assert.deepEqual(
+    (await digestTree(issued.body.target)).map(({ path: file }) => file),
+    [
+      "acceptance.json",
+      "colophon.pdf",
+      "images/01-architecture-240.png",
+      "manifest.json",
+      "page.pdf",
+    ],
+  );
+  assert.ok((await fs.readFile(path.join(issued.body.target, "manifest.json"))).equals(stated));
+  assert.equal(JSON.parse(stated.toString("utf8")).version, 7);
+});
+
+test("a model named `models` checks and builds, and its delivery holds the model, the data and the reader file apart", async (t) => {
+  const model = await writeModel(t, minimalModel({ id: "models" }));
+  const out = path.join(await temporaryDirectory(t, "archpub-data-"), "models");
+  const options = { media: ["edition"], png: [240] };
+  // The refusal is for the four ids that name a file of the delivery alike; `models` names none of them.
+  assert.equal((await checkModel(model, options)).model.id, "models");
+  await buildDelivery(model, out, options);
+  const manifest = await readJson(path.join(out, "manifest.json"));
+  assert.deepEqual(
+    [manifest.model.file, manifest.data.file, manifest.reader.file],
+    ["model.json", "models.json", "models.md"],
+  );
+  assert.deepEqual((await fs.readdir(out)).filter((name) => /^models?\./u.test(name)).sort(), [
+    "model.json",
+    "models.json",
+    "models.md",
+    "models.pdf",
+  ]);
+  assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
+  // Three files, each its own: the model as the build read it, the data that names it, and the reader file.
+  const [read, data, reader] = await Promise.all(
+    ["model.json", "models.json", "models.md"].map((file) => fs.readFile(path.join(out, file))),
+  );
+  assert.ok(read.equals(await fs.readFile(model)));
+  const held = JSON.parse(data.toString("utf8"));
+  assert.deepEqual([held.work.id, held.model.file], ["models", "model.json"]);
+  assert.ok(reader.includes(sha256(data)));
+  assert.equal(new Set([read, data, reader].map(sha256)).size, 3);
 });
 
 test("a delivery of the page alone holds the three files, and without a checkout no digest, size or date", async (t) => {

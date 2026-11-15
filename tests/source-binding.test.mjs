@@ -234,6 +234,60 @@ test("history that never adds a cited file, or that Git cannot read, is refused"
   );
 });
 
+/** Where a fixture repository keeps the loose object of a file at a commit, made writable. */
+async function objectOf({ root, git }, commit, file) {
+  const id = git("rev-parse", `${commit}:${file}`);
+  const object = path.join(root, ".git/objects", id.slice(0, 2), id.slice(2));
+  await fs.chmod(object, 0o644);
+  return object;
+}
+
+test("a file whose object Git cannot read is refused, never recorded as read", async (t) => {
+  // A checkout that lacks a file's object, as a partial clone does: Git lists the file and answers it missing.
+  const partial = await repository(t);
+  await fs.rm(await objectOf(partial, partial.revision, "src/main.mjs"));
+  assert.throws(
+    () => bindSources(claimingModel(partial.revision, [["src/"]]), partial.root),
+    (error) => error.code === "source_read_failed" && error.message.includes("src/main.mjs"),
+  );
+  // An object Git begins to read and cannot finish ends the read itself.
+  const torn = await repository(t);
+  const lines = Array.from({ length: 400 }, (_, index) => `export const n${index} = ${index};\n`);
+  await fs.writeFile(path.join(torn.root, "src/large.mjs"), lines.join(""));
+  torn.git("add", ".");
+  const pinned = commitAt(torn.root, "2026-02-01T00:00:00Z", "--message=second");
+  const object = await objectOf(torn, pinned, "src/large.mjs");
+  const stored = await fs.readFile(object);
+  await fs.writeFile(object, stored.subarray(0, stored.length >> 1));
+  assert.throws(
+    () => bindSources(claimingModel(pinned, [["src/"]]), torn.root),
+    (error) => error.code === "source_read_failed" && error.message.includes("cited files"),
+  );
+});
+
+test("a file whose name holds a line break is refused before any read, never recorded under another's bytes", async (t) => {
+  // The index is given the entry itself, so no working tree has to hold such a name. Read one name a line, its
+  // first line names `src/main.mjs`; its own bytes are the read-me's.
+  const { root, git, revision } = await repository(t);
+  const broken = "src/main.mjs\nextra";
+  const readme = git("rev-parse", `${revision}:README.md`);
+  git("update-index", "--add", "--cacheinfo", `100644,${readme},${broken}`);
+  const pinned = commitAt(root, "2026-02-01T00:00:00Z", "--message=second");
+  const refused = (error) =>
+    error.code === "source_read_failed" && error.message.includes(JSON.stringify(broken));
+  // In a component's scope: the claim of the directory holds it.
+  assert.throws(() => bindSources(claimingModel(pinned, [["src/"]]), root), refused);
+  // Without the object of the file read before it, a batch read would refuse that file first: the refusal still
+  // names the path with the break, so nothing was read.
+  await fs.rm(await objectOf({ root, git }, pinned, "src/main.mjs"));
+  assert.throws(() => bindSources(claimingModel(pinned, [["src/"]]), root), refused);
+  // Cited by a relation: a model's validation refuses such a path, so the binding is handed it past validation.
+  assert.throws(() => claimingModel(pinned, [["README.md"]], [broken]), { code: "model_invalid" });
+  const citing = claimingModel(pinned, [["README.md"]]);
+  const relations = [{ ...citing.relations[0], files: [broken] }];
+  assert.throws(() => bindSources({ ...citing, relations }, root), refused);
+});
+
 test("each file in the scope belongs to its most specific claim", async (t) => {
   const { root, pinned } = await globRepository(t);
   const model = claimingModel(

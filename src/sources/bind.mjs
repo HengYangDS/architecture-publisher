@@ -4,27 +4,44 @@ import { refuse } from "../refusal.mjs";
 import { commitOf, readGit } from "./git.mjs";
 import { directoriesOf, scopeAt } from "./scope.mjs";
 
-/** Parse `git cat-file --batch` output into one record per requested object. */
-function parseBatch(output, count) {
-  const records = [];
+/** How Git answers a name that is a file it can read: the object's id, its type and its size in bytes. */
+const BLOB = /^[0-9a-f]+ blob (\d+)$/u;
+
+/** The name Git reads a file by at a commit, one to a line of a batch. */
+const namesAt = (commit, files) => `${files.map((file) => `${commit}:${file}`).join("\n")}\n`;
+
+/**
+ * The bytes of each file at a commit, in order, from one read of one name a line. A path that holds a line break
+ * would be read as two names, so it is refused before anything is read. Git answers a name whose object it does
+ * not hold as missing and one that names no file with another type: either is refused, as is a read Git does not
+ * finish, so that no file is recorded as read under bytes that are not its own.
+ * @param {string} root
+ * @param {string} commit
+ * @param {readonly string[]} files
+ */
+function readFiles(root, commit, files) {
+  const broken = files.filter((file) => file.includes("\n")).map((file) => JSON.stringify(file));
+  if (broken.length)
+    refuse(
+      "source_read_failed",
+      `Git could not read ${broken.join(", ")}: a path that holds a line break cannot be read by name.`,
+    );
+  const batch = readGit(root, ["cat-file", "--batch"], namesAt(commit, files));
+  if (batch.status !== 0) refuse("source_read_failed", "Git could not read the cited files.");
+  const output = batch.stdout;
   let offset = 0;
-  for (let index = 0; index < count; index += 1) {
+  return files.map((file) => {
     const end = output.indexOf(10, offset);
-    const header = output.subarray(offset, end).toString("utf8");
-    offset = end + 1;
-    const parts = header.split(" ");
-    if (parts.length !== 3) {
-      records.push("missing");
-      continue;
-    }
-    const bytes = Number(parts[2]);
-    records.push(parts[1] === "blob" ? output.subarray(offset, offset + bytes) : parts[1]);
-    offset += bytes + 1;
-  }
-  return records;
+    const size = Number(BLOB.exec(output.subarray(offset, end).toString("utf8"))?.[1]);
+    const bytes = output.subarray(end + 1, end + 1 + size);
+    if (bytes.length !== size) refuse("source_read_failed", `Git could not read ${file}.`);
+    offset = end + 1 + size + 1;
+    return bytes;
+  });
 }
 
-const byRecordPath = (a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
+/** Records in path order; no two records share a path. */
+const byRecordPath = (a, b) => (a.path < b.path ? -1 : 1);
 
 /** A time in seconds since the epoch as its UTC date, `YYYY-MM-DD`. */
 const utcDate = (time) => new Date(time * 1000).toISOString().slice(0, 10);
@@ -203,17 +220,11 @@ function resolved(model, root, commit) {
     );
   const cited = citations(model);
   const files = [...new Set([...winning.keys(), ...cited.keys()])].sort();
-  const batch = readGit(
-    root,
-    ["cat-file", "--batch"],
-    `${files.map((file) => `${commit}:${file}`).join("\n")}\n`,
-  );
-  if (batch.status !== 0) refuse("source_read_failed", "Git could not read the cited files.");
-  const objects = parseBatch(batch.stdout, files.length);
+  const objects = readFiles(root, commit, files);
   const claims = model.components.flatMap(({ files: claimed }) => claimed);
   const times = changeTimes(root, commit, [...new Set([...claims, ...cited.keys()])], files);
   const records = files.map((file, index) => {
-    const object = /** @type {Buffer} */ (objects[index]);
+    const object = objects[index];
     const claim = winning.get(file);
     return {
       path: file,
@@ -252,21 +263,17 @@ export function readAtPin(repo, revision, paths) {
   const commit = commitOf(root, revision, "source_revision_unknown");
   // A path with a line break names no object in a batch of one name a line.
   const asked = [...new Set(paths)].filter((file) => !file.includes("\n"));
-  const named = (files) => `${files.map((file) => `${commit}:${file}`).join("\n")}\n`;
   // A name Git finds is answered with its object's id, type and size; any other answer is of no file there.
-  const answers = readGit(root, ["cat-file", "--batch-check"], named(asked))
+  const answers = readGit(root, ["cat-file", "--batch-check"], namesAt(commit, asked))
     .stdout.toString("utf8")
     .split("\n");
-  const files = asked.filter((file, index) => /^[0-9a-f]+ blob \d+$/u.test(answers[index]));
+  const files = asked.filter((file, index) => BLOB.test(answers[index]));
   if (!files.length) return new Map();
-  const objects = parseBatch(
-    readGit(root, ["cat-file", "--batch"], named(files)).stdout,
-    files.length,
-  );
+  const objects = readFiles(root, commit, files);
   const times = changeTimes(root, commit, files, files);
   return new Map(
     files.map((file, index) => {
-      const object = /** @type {Buffer} */ (objects[index]);
+      const object = objects[index];
       return [
         file,
         {

@@ -83,7 +83,8 @@ again.
   written into the data.
 - `source-binding`, `architecture-model` and `interactive-map`: four requirements said that the manifest records
   each cited file, carries every statement's details, status and files, and keeps what the page does not print.
-  The data holds them now; what the binding, the model and the page do is unchanged.
+  The data holds them now; what the model and the page do is unchanged. The binding gains one requirement: a file
+  it cannot read at the revision is refused, and never recorded as verified.
 
 `poster-composition` and `overview-page` keep every requirement as it reads, and the model's format is untouched.
 
@@ -97,7 +98,8 @@ languages; the reference page `docs/reference/data.md`. Changed: `src/build.mjs`
 manifest's version and records, the `data` key of a check; it ends at 372 effective lines, from 491),
 `src/poster/figure.mjs`, `src/poster/lines.mjs`, `src/poster/strip.mjs` and `src/poster/compose/plates.mjs` (the
 drawing reports what it drew and where), `src/edition/typeset.mjs` (hands back each plate's page),
-`src/sources/bind.mjs` (`readAtPin` reads the files only the guide cites at the pin), `src/cli/facts.mjs` and
+`src/sources/bind.mjs` (`readAtPin` reads the files only the guide cites at the pin, and a file the binding cannot
+read is refused), `src/cli/facts.mjs` and
 `src/cli/report.mjs` (the check's `Data` group), `tests/module-boundaries.test.mjs`, the tests of deliveries,
 acceptance, the command's results and reports, and the tests of the edition's class and plates. Documents:
 `docs/product-contract.md` (Outputs, the queue's tick), `docs/reference/operations.md` (the delivery's table, the

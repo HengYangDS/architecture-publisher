@@ -642,6 +642,29 @@ reader file differ with the media of the build.
   view is planned or the page prepared; the guide is read once there and handed to the page. The state `unverified`
   stays in the table: it is every row's state without a checkout.
 
+### A file is recorded as verified only when its own bytes were read
+
+- **Rests on:** two demonstrations on the binding as it stood before this decision. A checkout that lacked the
+  object of a claimed file, as a partial clone does, bound the model with `state: verified` and recorded the file
+  under the digest of the word "missing", `ffa63583dfa6706b87d284b86b0d693a161e4840aad2c5cf6b5d27c3b9621f7d`, and 7
+  bytes: Git answers such a name as missing, and the reading kept that word as the file's bytes. A tracked file
+  named `src/main.mjs`, a line break, `extra`, whose bytes were the read-me's, was read in a batch of one name a
+  line and recorded as `verified` under the digest and the 23 bytes of `src/main.mjs`. Both readings predate this
+  Change.
+- **Considered:** (a) record such a file as `unverified` beside the verified rows; (b) leave it for a later Change;
+  (c) refuse.
+- **Chosen because:** (c). The evidence table's `verified` must mean read at the pin, and this Change makes that
+  table a delivered file: a row that says `verified` over bytes that are not the file's own is the one thing the
+  table must not hold. (a) would mix two states in a build with a checkout, where every other file that is absent
+  at the pin is refused. (b) would deliver the falsehood in the first release that delivers the table.
+- **Applies to:** every read of the binding, for a check and a build: the files in the components' scope, the files
+  relations cite and the paths only the guide cites, through the one function `readFiles` in
+  `src/sources/bind.mjs`. The refusal is `source_read_failed` and names the file: an answer of Git that is no file
+  of its stated size, a read Git does not finish, and, before anything is read, a path that holds a line break,
+  named with the break written as `\n`. A model's validation refuses a line break in a path the model states, so
+  that case arises from a tracked file inside a claimed directory. A guide's citation of such a path is left out of
+  the read, as before, and refused as `guide_file_missing`.
+
 ### No link from the page or the print edition in this Change
 
 The page is the guide as its author wrote it, or Archify's document; the print edition's bytes are held equal
