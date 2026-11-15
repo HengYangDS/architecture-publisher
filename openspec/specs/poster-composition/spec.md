@@ -456,21 +456,6 @@ before the pin. The key SHALL name the bands and the pin's date.
 - **THEN** the three files fall in three different bands, the same bands every
   edition uses
 
-### Requirement: Citation ticks and the hub
-
-With `strip` marks, every relation's line SHALL be drawn at one weight with one
-tick across it near its source for each file the relation cites, up to five
-ticks and the count written beside more. The part with the most incoming
-relations of a view, when it has at least three and more than any other part,
-SHALL be the hub, and the relations into it SHALL be drawn in the oldest dye.
-
-#### Scenario: A hub and its citations
-
-- **WHEN** four relations of a view end at the supplies and one of them cites two
-  files
-- **THEN** those four lines are in the oldest dye, that line carries two ticks,
-  and the key names the supplies
-
 ### Requirement: Marks keep the gates
 
 A plate with either marks SHALL pass the same containment, balance, type floor,
@@ -509,3 +494,46 @@ counts SHALL report that width too and SHALL end at their box's edge.
 - **WHEN** a Chinese strip plate sets a part's counts
 - **THEN** they end at the box's edge, and their run reports the width Typst
   sets them in
+
+### Requirement: Citation counts and the hub
+
+With `strip` marks, a relation that cites files SHALL carry their number once near its source, in the smallest
+figure type and its line's colour, and no tick. The part with the most incoming relations of a view, when it has at
+least three and more than any other, SHALL be the hub. A relation into the hub, unless retired, SHALL be drawn with
+the value table's emphasis, in the oldest dye, ending inside its arrowhead. A count with no clear place SHALL raise
+`citation_count_touches`.
+
+#### Scenario: A hub and its citations
+
+- **WHEN** four relations of a view end at the supplies and one of them cites two files
+- **THEN** those four lines are drawn at twice the weight of the view's other lines, in the oldest dye, each ending
+  inside an arrowhead 1.45 times as large as the other lines'
+- **AND** that line carries the number 2 near its source and no tick
+- **AND** the key names the supplies
+
+#### Scenario: A relation that cites one file
+
+- **WHEN** a relation cites one file
+- **THEN** its line carries the number 1
+
+#### Scenario: A relation that cites no file
+
+- **WHEN** a relation cites no file
+- **THEN** its line carries no number
+
+#### Scenario: A planned relation into the hub
+
+- **WHEN** a planned relation ends at the hub
+- **THEN** it is drawn at twice the weight, in the oldest dye and in the pattern of a planned relation
+
+#### Scenario: A retired relation into the hub
+
+- **WHEN** a retired relation ends at the hub
+- **THEN** it is drawn at the weight, in the colour and in the pattern of a retired relation
+
+#### Scenario: A count with no clear place
+
+- **WHEN** no place along a relation's own line holds its figures clear of every part, relation label, line, the
+  boundary and every other count
+- **THEN** the count stands at the first place from the source end and the plate is still built
+- **AND** the result carries the warning `citation_count_touches` with the plate's number and the relation's id
