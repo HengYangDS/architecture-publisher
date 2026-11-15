@@ -171,6 +171,8 @@ Weak, as said to the owner with the proof:
   files stand by reference. It applies to the booklet; the presentation quotes nothing, and the data is unchanged by
   it: it holds the full text of every cited range. It is kept with the other decisions in the working material until
   it enters a Change's design.
+- **The open part of ruling R7**, ruled on 2026-11-16, rests on piece P together with the
+  [room-size fit](room-size-plate-fit.md): one base and one plate for each claim the author records.
 - **For the model** (queue item `model-four`): each sentence of a view names the relations it asserts, and the check
   reports relations no sentence names.
 - **For the engine**: one layout per view with every part placed once, and a draw pass per sentence that changes
