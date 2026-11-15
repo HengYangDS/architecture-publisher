@@ -15,9 +15,11 @@ import {
 import { BROKEN, TABLE } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
+import { recordFacts } from "./fixtures/record-facts.mjs";
 import {
   HOUSE_TOKENS,
   icons,
+  lineFacts,
   platesIn,
   rectsOf,
   stripModel,
@@ -59,15 +61,13 @@ async function pictureOf(model, plate) {
     model,
     plates,
     icons,
-    owned: new Map(),
-    files: 0,
+    facts: recordFacts(),
     modelSha256: "0".repeat(64),
     publisher: "0.14.0",
     typst: "0.15.1",
     overview: false,
     page: "strips.html",
-    commit: null,
-    release: null,
+    time: null,
   });
   const typeset = await typesetEdition({
     record,
@@ -134,7 +134,7 @@ async function linesIn(table) {
   const colors = colorsOf(HOUSE_TOKENS);
   const shapes = [];
   drawLines(layout, {
-    model: { relations },
+    facts: lineFacts({ relations }),
     view: { relations },
     strips: true,
     styles,

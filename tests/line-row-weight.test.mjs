@@ -15,7 +15,8 @@ import {
 import { TABLE } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
-import { HOUSE_TOKENS, icons, typefaces, wiresOf } from "./fixtures/strips.mjs";
+import { recordFacts } from "./fixtures/record-facts.mjs";
+import { HOUSE_TOKENS, icons, lineFacts, typefaces, wiresOf } from "./fixtures/strips.mjs";
 
 // Every straight piece of one row of the table of lines has one weight on a page picture, wherever on the figure
 // it stands: on the figure's middle column and middle row as anywhere else. A piece is read as the screen trial
@@ -80,7 +81,7 @@ function figureOf() {
   drawLines(
     { cards: new Map(), paths, arrows: [] },
     {
-      model: { relations },
+      facts: lineFacts({ relations }),
       view: { relations },
       strips: true,
       styles,
@@ -124,15 +125,13 @@ async function picturesOf(svg, widths) {
     model,
     plates,
     icons,
-    owned: new Map(),
-    files: 0,
+    facts: recordFacts(),
     modelSha256: "0".repeat(64),
     publisher: "0.14.0",
     typst: "0.15.1",
     overview: false,
     page: "strips.html",
-    commit: null,
-    release: null,
+    time: null,
   });
   const typeset = await typesetEdition({
     record,

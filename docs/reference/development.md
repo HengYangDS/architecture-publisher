@@ -88,13 +88,16 @@ passes its exact carrier. See [configuration ownership](configuration.md).
 
 The coverage gate selects every `.mjs` module under `src/`
 and requires 95 percent of statements, lines, branches and functions. The suite
-covers the model, source binding, reading plan, layout, plates, the print
+covers the model, source binding, the measured facts, reading plan, layout, plates, the print
 edition, the page's
 diagrams and its delivery through the vendored Archify, deliveries, acceptance,
 publication, the
 LikeC4 importer, the command line with its reports and its progress, the packed
 and installed package, module boundaries, the version projection and the CI
-projection. `tests/evolution-queue.test.mjs`
+projection. The unit `facts` (`src/facts`) measures every fact a plate draws that its
+author did not state; `tests/module-boundaries.test.mjs` lets it import no other unit, lets
+no unit that draws import it or `sources`, and refuses a measure of its catalogue defined or
+called anywhere else. `tests/evolution-queue.test.mjs`
 holds every active Change to the queue of the product contract, and
 `tests/role-neutral-wording.test.mjs` refuses wording that presumes who holds a
 role.

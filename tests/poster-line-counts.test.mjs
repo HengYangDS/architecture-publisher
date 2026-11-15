@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { citedFiles, viewFacts } from "../src/facts/view.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { lineWarnings } from "../src/poster/compose/plates.mjs";
-import { citationRuns, citedFiles, drawCount, placesAlong } from "../src/poster/lines.mjs";
+import { citationRuns, drawCount, placesAlong } from "../src/poster/lines.mjs";
 import { POSTER } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import {
@@ -167,7 +168,13 @@ test("a relation's count is read on its own run, from its source's end", () => {
       line([none], [470, 50], [470, 100], [290, 100], [290, 150]),
     ],
   };
-  const runs = citationRuns({ relations: [] }, layout);
+  // Each relation's count, as the layer measures it for a view of the four.
+  const { cited } = viewFacts(
+    { relations: [] },
+    { id: "fan", relations: [ab, ac, cd, none] },
+    null,
+  );
+  const runs = citationRuns(cited, layout);
   assert.deepEqual(
     [...runs].sort(([a], [b]) => a - b),
     [

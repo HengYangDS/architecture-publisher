@@ -1,6 +1,7 @@
 /**
- * Age bands: every edition sorts its cited files into new, middling and old by the same two spans counted back from
- * its pin, so the dyes of one edition read like those of any other and two editions can be compared.
+ * Age bands: every edition sorts the files its parts own into new, middling and old by the same two spans counted
+ * back from its pin, so the dyes of one edition read like those of any other and two editions can be compared. The
+ * spans are the definition of the property `file-age-band`.
  */
 
 const DAY = 24 * 60 * 60;

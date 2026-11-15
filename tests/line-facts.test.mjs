@@ -3,7 +3,7 @@ import test from "node:test";
 import { drawLines } from "../src/poster/lines.mjs";
 import { POSTER, colorsOf, figureMetrics, figureStyles, linesOf } from "../src/poster/tokens.mjs";
 import { BROKEN, TABLE } from "./fixtures/line-tables.mjs";
-import { INDIGO, files, typefaces } from "./fixtures/strips.mjs";
+import { INDIGO, files, lineFacts, typefaces } from "./fixtures/strips.mjs";
 
 // A bound channel follows its fact: with the layout held, a change of the hub changes the weight of the lines
 // into the old and the new hub and nothing else, and one more cited file changes one number and nothing else.
@@ -57,7 +57,7 @@ function drawn(targets, table = TABLE, cited = {}, marks = []) {
   const shapes = [];
   const runs = [];
   const { touching } = drawLines(layout, {
-    model: { relations },
+    facts: lineFacts({ relations }),
     view: { relations },
     strips: true,
     styles,

@@ -189,7 +189,7 @@ moves back. Items marked as work on the publications are finished there and tick
 - [x] `line-table`: a command that compares two deliveries, and one table of line weights and patterns. It holds
       the rows the experiments passed, and heavy lines into a view's hub, which the owner kept on 2026-11-15 after
       their reading fell one answer short of its line.
-- [ ] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered
+- [x] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered
       byte changes.
 - [ ] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
       the reader experiment supports.

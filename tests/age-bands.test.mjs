@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BANDS, bandOf } from "../src/sources/ages.mjs";
+import { BANDS, bandOf } from "../src/facts/ages.mjs";
 
 const DAY = 24 * 60 * 60;
 

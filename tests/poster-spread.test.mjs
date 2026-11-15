@@ -7,7 +7,7 @@ import { SPREAD_OPENING, setWidth, spreadOf } from "../src/poster/spread.mjs";
 import { loadTypefaces } from "../src/poster/text.mjs";
 import { HOUSE_STYLE } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
-import { INDIGO, part, platesIn } from "./fixtures/strips.mjs";
+import { INDIGO, part, platesIn, stripStyle } from "./fixtures/strips.mjs";
 
 // In a language written without spaces between words, a part's details are set as a justified paragraph is: lines
 // filled by the width Typst sets them in, no last line of one character alone, and every line but a detail's last
@@ -35,7 +35,9 @@ const modelIn = (locale, details) =>
 /** A strip style in which part `a` owns one file. */
 const strips = () => {
   const parts = new Map([["a", part([["src/a.mjs", 3000, 0]])]]);
-  return { name: "strip", tokens: INDIGO, parts, most: 3000, bands: { spans: [604800, 7776000] } };
+  const style = stripStyle(INDIGO, parts);
+  // The edition names no date for its pin.
+  return { ...style, facts: { ...style.facts, date: null } };
 };
 
 /** The runs of a plate that set part of the given text, top to bottom. */

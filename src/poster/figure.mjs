@@ -300,9 +300,9 @@ export function drawFigure(layout, input) {
   for (const label of layout.labels)
     marks.push({ x: at(label.x), y: down(label.y), width: label.width, height: label.height });
   const { rows, touching } = drawLines(layout, {
-    model,
     view,
     strips,
+    facts: input.style.facts,
     styles,
     metrics,
     typefaces,

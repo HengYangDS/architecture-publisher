@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { CATALOGUE } from "../src/facts/catalogue.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const source = path.join(root, "src");
@@ -17,6 +18,7 @@ const ALLOWED = Object.freeze({
   kinds: ["icons", "locale"],
   model: ["locale", "model", "refusal"],
   sources: ["environment", "refusal", "sources"],
+  facts: ["facts"],
   plan: ["locale", "model", "refusal"],
   layout: ["layout", "refusal"],
   poster: ["breaks", "kinds", "layout", "locale", "poster", "refusal", "supply"],
@@ -24,9 +26,10 @@ const ALLOWED = Object.freeze({
   overview: ["environment", "overview", "refusal", "supply"],
   edition: ["edition", "environment", "locale", "overview", "refusal", "supply"],
   importers: ["locale", "model", "refusal", "supply"],
-  style: ["model", "refusal", "sources"],
+  style: ["model", "refusal"],
   build: [
     "edition",
+    "facts",
     "icons",
     "map",
     "model",
@@ -153,6 +156,58 @@ test("every unit imports only the units below it", async () => {
         ALLOWED[unitOf(file)].includes(unitOf(target)),
         `${path.relative(source, file)} may not import ${path.relative(source, target)}`,
       );
+});
+
+/**
+ * The measures the drawing code held before the layer of facts: none may return under its old name, whatever the
+ * catalogue calls its successor.
+ */
+const FORMER_MEASURES = Object.freeze(["citedFiles", "hubOf", "partOf", "scaleOf", "bandOf"]);
+
+/** Every name a measure goes by: the catalogue's and the former ones, each once. */
+const MEASURES = Object.freeze([
+  ...new Set([...CATALOGUE.map(({ measure }) => measure), ...FORMER_MEASURES]),
+]);
+
+/** The source of a module without its comments, where a measure may be named freely. */
+const code = (text) => text.replace(/\/\*[\s\S]*?\*\//gu, "").replace(/^\s*\/\/.*$/gmu, "");
+
+/**
+ * The measures a module's source defines or calls, by name: a function or a binding of that name, or a call of
+ * it, as a function or as a method.
+ * @param {string} text
+ * @param {readonly string[]} names
+ */
+const measuresIn = (text, names) =>
+  names.filter((name) =>
+    new RegExp(`\\b(?:function|const|let|var)\\s+${name}\\b|\\b${name}\\s*\\(`, "u").test(
+      code(text),
+    ),
+  );
+
+test("no module outside the layer of facts defines or calls a measure", async () => {
+  const found = [];
+  for (const file of await modules(source)) {
+    if (unitOf(file) === "facts") continue;
+    const measures = measuresIn(await fs.readFile(file, "utf8"), MEASURES);
+    if (measures.length)
+      found.push(
+        `${path.relative(root, file).split(path.sep).join("/")} measures ${measures.join(", ")}`,
+      );
+  }
+  assert.deepEqual(found, []);
+});
+
+test("a measure put back is found however it is written, and a word in a comment or a field is not", () => {
+  assert.deepEqual(measuresIn("export function hubOf(view) {}", MEASURES), ["hubOf"]);
+  assert.deepEqual(measuresIn("const scaleOf = (model) => 1;", MEASURES), ["scaleOf"]);
+  assert.deepEqual(measuresIn("return lines.citedFiles (model, relation);", MEASURES), [
+    "citedFiles",
+  ]);
+  assert.deepEqual(
+    measuresIn("/** As hubOf(view) did. */\nconst { pinDate } = binding;", MEASURES),
+    [],
+  );
 });
 
 test("the import graph has no cycles", async () => {

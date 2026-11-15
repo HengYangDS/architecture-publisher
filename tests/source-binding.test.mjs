@@ -72,8 +72,6 @@ test("models without files bind nothing, and without a checkout every declared p
       ["b", []],
     ]),
     times: new Map(),
-    pinTime: null,
-    pinDate: null,
   });
   const model = claimingModel("a".repeat(40), [["src/", "README.md"]], ["src/main.mjs"]);
   const binding = bindSources(model, null);
@@ -85,7 +83,7 @@ test("models without files bind nothing, and without a checkout every declared p
     { path: "src/main.mjs", ...unread, owner: null, relations: ["a-b"], state: "unverified" },
   ]);
   assert.deepEqual(Object.keys(binding.records[0]), FIELDS);
-  assert.deepEqual([binding.times, binding.pinTime, binding.pinDate], [new Map(), null, null]);
+  assert.deepEqual(binding.times, new Map());
   // Without the tree a directory cannot be read, so a component is known to own only the files it names.
   assert.deepEqual(binding.owned.get("a"), ["README.md"]);
 });
@@ -125,9 +123,8 @@ test("files are read at the revision, not from the work tree", async (t) => {
       ["src/main.mjs", pinTime],
     ]),
   );
-  assert.equal(binding.pinTime, pinTime);
-  // The pin's date is the one its committer recorded, as the edition's foot prints it.
-  assert.equal(binding.pinDate, git("show", "-s", "--format=%cs", revision));
+  // The pin's own time and date are read once, by the build, and are no part of the binding.
+  assert.deepEqual(Object.keys(binding), ["state", "repository", "records", "owned", "times"]);
   assert.deepEqual(Object.keys(binding.records[0]), FIELDS);
 });
 
@@ -195,7 +192,6 @@ test("each file's size and last change are read from the history at the pin", as
       ["src/side.mjs", secondsAt("2026-03-01T00:00:00Z")],
     ]),
   );
-  assert.equal(binding.pinTime, secondsAt("2026-04-30T23:59:59Z"));
 });
 
 test("a shallow clone is refused rather than dated by the commit it was cut at", async (t) => {
@@ -252,7 +248,11 @@ test("each file in the scope belongs to its most specific claim", async (t) => {
     },
   );
   const binding = bindSources(model, root);
-  const read = { sha256: sha256("x\n"), bytes: 2, changed: dayOf(binding.pinTime) };
+  // The one commit is every file's last change.
+  const pinTime = Number(
+    execFileSync("git", ["-C", root, "show", "-s", "--format=%ct", pinned], { encoding: "utf8" }),
+  );
+  const read = { sha256: sha256("x\n"), bytes: 2, changed: dayOf(pinTime) };
   assert.deepEqual(binding.records, [
     { path: "src/A_TEST.GO", ...read, owner: "a", relations: [], state: "verified" },
     { path: "src/a.go", ...read, owner: "a", relations: [], state: "verified" },

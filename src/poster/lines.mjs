@@ -4,36 +4,9 @@ import { fixed } from "./tokens.mjs";
 /**
  * The lines of a figure's relations: each drawn in the weight and pattern the
  * table of lines gives its row, with its arrowhead, and on a strip plate with
- * the number of files its relation cites.
+ * the number of files its relation cites. The count and the view's hub are
+ * read from the view's measured facts; nothing is measured here.
  */
-
-/**
- * How many files a relation cites: its own, or for an overview's relation,
- * every file the model's relations it stands for cite.
- * @param {{ relations: Array<{ id: string, files: string[] }> }} model
- * @param {{ files: string[], relations?: string[] }} relation
- */
-export function citedFiles(model, relation) {
-  if (!relation.relations) return relation.files.length;
-  const ids = new Set(relation.relations);
-  return new Set(model.relations.filter(({ id }) => ids.has(id)).flatMap(({ files }) => files))
-    .size;
-}
-
-/**
- * The part of a view that most of its relations end at, when at least three
- * do and more than at any other part: the view's hub, whose relations a reader
- * follows by their weight. A tie has no hub.
- * @param {{ relations: Array<{ to: string }> }} view
- * @returns {string | null}
- */
-export function hubOf(view) {
-  /** @type {Map<string, number>} */
-  const counts = new Map();
-  for (const { to } of view.relations) counts.set(to, (counts.get(to) ?? 0) + 1);
-  const [first = ["", 0], second = ["", 0]] = [...counts].sort((a, b) => b[1] - a[1]);
-  return first[1] >= 3 && first[1] > second[1] ? first[0] : null;
-}
 
 /**
  * Where each relation's count of cited files stands: on the part of its line
@@ -41,12 +14,13 @@ export function hubOf(view) {
  * first run with others, as a fan out of one part does, takes it on its own
  * branch, from where it leaves the others. Each run is a path of the layout,
  * keyed by its index, with whether it is read from its last point.
- * @param {{ relations: Array<{ id: string, files: string[] }> }} model
+ * @param {(relation: { id: string }) => number | undefined} cited the number of files a relation cites, as the
+ *   view's facts hold it
  * @param {{ cards: Map<string, { x: number, y: number, width: number, height: number }>,
  *   paths: Array<{ relations: any[], points: number[][] }> }} layout
  * @returns {Map<number, Array<{ id: string, count: number, reverse: boolean }>>}
  */
-export function citationRuns(model, layout) {
+export function citationRuns(cited, layout) {
   const near = (a, b) => Math.abs(a - b) < 0.5;
   const within = (value, low, high) => value > low - 0.5 && value < high + 0.5;
   // A line ends on a part's top or foot, or on its side for a relation along a row.
@@ -70,7 +44,7 @@ export function citationRuns(model, layout) {
   /** @type {Map<number, Array<{ id: string, count: number, reverse: boolean }>>} */
   const runs = new Map();
   for (const [relation, ends] of own) {
-    const count = citedFiles(model, relation);
+    const count = cited(relation);
     if (!count) continue;
     const source = ends.find(({ card }) => card === relation.from);
     // Without a run of its own at its source, its run ends at its target: it is read from the other end.
@@ -236,19 +210,22 @@ const toward = ([x, y], [tx, ty], by) => {
  * heavy too; a retired one keeps its faint colour, its weight and its dots.
  * Cards draw every line alike.
  * @param {any} layout
- * @param {{ model: any, view: any, strips: boolean, styles: any, metrics: any, typefaces: any,
+ * @param {{ view: any, strips: boolean, facts?: import("./strip.mjs").Facts, styles: any, metrics: any,
+ *   typefaces: any,
  *   colors: any, lines: ReturnType<typeof import("./tokens.mjs").linesOf>,
  *   at: (x: number) => number, down: (y: number) => number, lift: (point: any) => number[],
  *   text: Function, shapes: string[], rects: any[],
  *   marks: Array<{ x: number, y: number, width: number, height: number }> }} scene
- *   `marks` are the parts, labels and frame a count may not touch.
+ *   `marks` are the parts, labels and frame a count may not touch; `facts` are the edition's measured facts, which
+ *   a strip plate reads its view's hub and counts from.
  * @returns {{ rows: Set<string>, touching: string[] }} the rows of the table drawn, and the relations whose
  *   count has no clear place
  */
 export function drawLines(layout, scene) {
-  const { model, view, strips, styles, metrics, typefaces, colors: C, lines } = scene;
+  const { view, strips, styles, metrics, typefaces, colors: C, lines } = scene;
   const { at, down, lift, text, shapes, rects } = scene;
-  const hub = strips ? hubOf(view) : null;
+  const seen = strips ? /** @type {import("./strip.mjs").Facts} */ (scene.facts).view(view) : null;
+  const hub = seen ? seen.hub : null;
   const emphasised = (relations) =>
     hub !== null && statusOf(relations) !== "retired" && relations.every(({ to }) => to === hub);
   const colorOf = (relations) =>
@@ -290,7 +267,7 @@ export function drawLines(layout, scene) {
     const [x, y] = [Math.min(...xs), Math.min(...ys)];
     marks.push({ x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y });
   }
-  const runs = strips ? citationRuns(model, layout) : new Map();
+  const runs = seen ? citationRuns(seen.cited, layout) : new Map();
   /** @type {string[]} */
   const touching = [];
   for (const [index, { relations, heavy, moved, weight }] of paths.entries()) {

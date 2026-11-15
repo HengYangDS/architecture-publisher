@@ -84,6 +84,14 @@ remain pre-release contracts and may contain incompatible changes.
   carriers whose bytes the supply check verifies, because 0.2.0-beta.10's format selection does not yet leave
   received files alone; the row goes when the repository binds a release that does. The publisher's behaviour, model
   format and manifest do not change.
+- The facts a plate draws that its author did not state are measured in one unit, `src/facts`: a part's owned files,
+  their bytes and each file's share and age band, the bytes of the edition's largest part, the pin's date and release,
+  the number of files read, the files a relation cites, a view's hub and the age bands it shows. The plates, the
+  edition's record and the page read that layer and measure nothing, which a test holds; the pin's date and time are
+  read once. No delivery changes: an edition built before and after is the same bytes, and the manifest and the result
+  of `archpub check --json` keep their fields. One refusal changes its precedence: a model that claims and cites no
+  file, asks for `strip` marks and names a revision its checkout lacks is refused with `source_revision_unknown`, where
+  it was refused with `marks_need_files`.
 
 ## [0.14.0] - 2026-11-14
 

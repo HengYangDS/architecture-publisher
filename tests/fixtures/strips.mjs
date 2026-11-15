@@ -1,6 +1,8 @@
 /** Shared models, styles and SVG readers for the strip-plate tests. */
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
+import { editionFacts } from "../../src/facts/edition.mjs";
+import { viewFacts } from "../../src/facts/view.mjs";
 import { loadIcons } from "../../src/icons.mjs";
 import { validateModel } from "../../src/model/load.mjs";
 import { planViews } from "../../src/plan/views.mjs";
@@ -44,9 +46,6 @@ export const INDIGO = Object.freeze({
 });
 export const DYES = [INDIGO.dye.new, INDIGO.dye.mid, INDIGO.dye.old];
 
-/** A week and three months, in seconds: the edition's two band boundaries. */
-const SPANS = Object.freeze([7 * 86400, 90 * 86400]);
-
 /** The day of the pin's commit, which the key dates the ages from. */
 export const REFERENCE = "2026-11-10";
 
@@ -87,15 +86,48 @@ export const PARTS = new Map([
   ],
 ]);
 
-/** A strip style over the given tokens and parts. */
-export const stripStyle = (tokens = INDIGO, parts = PARTS) => ({
+/** The pin's commit time, and how long before it a file of each band last changed, in seconds. */
+const PINNED = 1_794_000_000;
+const AGES = Object.freeze([0, 30 * 86400, 400 * 86400]);
+
+/** A model of parts alone: one that draws an overview gives its own, for its groups and the relations they stand for. */
+const PARTS_ALONE = Object.freeze({
+  groups: [],
+  get relations() {
+    throw new Error("An overview's facts need the model: give it to stripStyle.");
+  },
+});
+
+/**
+ * The edition's facts over the given parts, measured by the layer from a binding made by hand: each part owns its
+ * files, read at a pin with the bytes and the age band the part names for them. `model` gives the layer the groups
+ * and relations of a work whose overview is drawn.
+ */
+function stripFacts(parts = PARTS, model = PARTS_ALONE) {
+  const read = [...parts.values()].flatMap(({ files: owned }) => owned);
+  return editionFacts(
+    model,
+    {
+      state: "verified",
+      records: read.map(({ path, bytes }) => ({ path, bytes })),
+      times: new Map(read.map(({ path, band }) => [path, PINNED - AGES[band]])),
+      owned: new Map(
+        [...parts].map(([id, { files: owned }]) => [id, owned.map(({ path }) => path)]),
+      ),
+    },
+    { date: REFERENCE, time: PINNED, release: null },
+  );
+}
+
+/** A strip style over the given tokens and parts, and the model of a work whose overview is drawn. */
+export const stripStyle = (tokens = INDIGO, parts = PARTS, model = PARTS_ALONE) => ({
   name: "strip",
   tokens,
-  parts,
-  most: Math.max(...[...parts.values()].map(({ bytes }) => bytes)),
-  bands: { spans: SPANS },
-  reference: REFERENCE,
+  facts: stripFacts(parts, model),
 });
+
+/** The facts of the views of a model given by its relations alone, as a strip plate's lines read them. */
+export const lineFacts = (model) => ({ view: (view) => viewFacts(model, view, null) });
 
 export const files = (count) => Array.from({ length: count }, (_, index) => `src/f${index}.mjs`);
 

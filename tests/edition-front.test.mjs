@@ -12,6 +12,7 @@ import { validateModel } from "../src/model/load.mjs";
 import { CJK, STAGED, stage } from "../src/overview/typeset.mjs";
 import { verifySupply } from "../src/supply.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
+import { recordFacts } from "./fixtures/record-facts.mjs";
 
 const run = promisify(execFile);
 const icons = await loadIcons();
@@ -53,15 +54,13 @@ async function queryEdition(t, model, selector) {
     model,
     plates: [],
     icons,
-    owned: new Map(),
-    files: 0,
+    facts: recordFacts({ date: "2026-11-06" }),
     modelSha256: "0".repeat(64),
     publisher: "0.10.1",
     typst: "0.15.1",
     overview: true,
     page: "minimal.html",
-    commit: { date: "2026-11-06", time: 1793918078 },
-    release: null,
+    time: 1793918078,
   });
   const staged = await stage(composition, Buffer.from(JSON.stringify(model)));
   t.after(() => fs.rm(staged.root, { recursive: true, force: true }));

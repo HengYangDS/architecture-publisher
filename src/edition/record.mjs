@@ -22,17 +22,23 @@ function linkOf(browse, revision, file) {
 /**
  * The edition's record.
  * @param {{
- *   model: any, plates: any[], icons: any, owned: Map<string, string[]>, files: number,
+ *   model: any, plates: any[], icons: any,
+ *   facts: { owned: (id: string) => readonly string[], read: number, date: string | null,
+ *     release: string | null },
  *   modelSha256: string, publisher: string, typst: string, overview: boolean, page: string,
- *   commit: { date: string | null, time: number } | null, release: string | null,
+ *   time: number | null,
  * }} input
+ *   `facts` are the edition's measured facts: each part's files in claim order, the first of which its title links
+ *   to, the number of files read, and the pin's date and release. `time` is the time the edition is dated by, in
+ *   seconds, or none.
  */
 export function editionRecord(input) {
-  const { model, plates, icons, owned, commit, release } = input;
+  const { model, plates, icons, facts, time: datedAt } = input;
+  const { release } = facts;
   const words = editionWordsOf(model.locale);
   const repository = model.repository;
   const short = repository ? repository.revision.slice(0, 7) : null;
-  const date = commit?.date ?? null;
+  const { date } = facts;
   const editors = model.editors.map(({ name }) => name);
   const subject = `${repository?.name ?? model.title}${release ? ` ${release}` : ""}`;
   const at = short ? `${short}${date ? ` · ${date}` : ""}` : null;
@@ -41,7 +47,7 @@ export function editionRecord(input) {
     const links = {};
     for (const run of plate.runs) {
       if (!run.component || !repository) continue;
-      const url = linkOf(repository.browse, repository.revision, owned.get(run.component)?.[0]);
+      const url = linkOf(repository.browse, repository.revision, facts.owned(run.component)[0]);
       if (url) links[run.component] = url;
     }
     // Beside a figure that leaves part of the body: the view's summary, and where each component it shows lives,
@@ -97,19 +103,20 @@ export function editionRecord(input) {
     limits: model.limits,
     editors,
     keywords: [...new Set([model.id, repository?.name ?? model.id])],
-    committed: commit
-      ? (() => {
-          const time = new Date(commit.time * 1000);
-          return [
-            time.getUTCFullYear(),
-            time.getUTCMonth() + 1,
-            time.getUTCDate(),
-            time.getUTCHours(),
-            time.getUTCMinutes(),
-            time.getUTCSeconds(),
-          ];
-        })()
-      : null,
+    committed:
+      datedAt !== null
+        ? (() => {
+            const time = new Date(datedAt * 1000);
+            return [
+              time.getUTCFullYear(),
+              time.getUTCMonth() + 1,
+              time.getUTCDate(),
+              time.getUTCHours(),
+              time.getUTCMinutes(),
+              time.getUTCSeconds(),
+            ];
+          })()
+        : null,
     subject: { date },
     byline: [
       { label: words.subject, value: subject, note: at },
@@ -131,9 +138,7 @@ export function editionRecord(input) {
     facts: [
       { label: words.subject, value: at ? `${subject} · ${at}` : subject, url: null },
       ...(url ? [{ label: words.repository, value: url.replace(/^https?:\/\//u, ""), url }] : []),
-      ...(input.files
-        ? [{ label: words.read, value: words.readValue(input.files), url: null }]
-        : []),
+      ...(facts.read ? [{ label: words.read, value: words.readValue(facts.read), url: null }] : []),
       {
         label: words.model,
         value: `${model.id} · SHA-256 ${input.modelSha256.slice(0, 16)}…`,

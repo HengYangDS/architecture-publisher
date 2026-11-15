@@ -60,7 +60,8 @@ function readingOrder(view, diagram) {
  * @param {any[]} views
  * @param {any[]} diagrams one chosen diagram per view, in plan order
  * @param {Set<string>} [withheld] files the page may not cite
- * @param {Map<string, string[]>} [owned] each component's files in citation order
+ * @param {(id: string) => readonly string[]} [owned] each component's files in citation order, as the layer of
+ *   measured facts holds them; without one, as the model names them
  */
 export function explainerDraft(
   model,
@@ -93,9 +94,7 @@ export function explainerDraft(
   const names = new Map();
   const sourceId = (file) => `source-${cited.indexOf(file) + 1}`;
   const sourceOf = (component) => {
-    const [first] = repository
-      ? (owned.get(component.id) ?? []).filter((file) => !withheld.has(file))
-      : [];
+    const [first] = repository ? owned(component.id).filter((file) => !withheld.has(file)) : [];
     if (first && !cited.includes(first)) {
       cited.push(first);
       names.set(first, component.label);
@@ -181,10 +180,12 @@ export function explainerDraft(
  * since a claimed directory holds files only the revision lists.
  * @param {any} model
  */
-const claimedFiles = (model) =>
-  new Map(
+const claimedFiles = (model) => {
+  const claims = new Map(
     model.components.map(({ id, files }) => [id, files.filter((claim) => !claim.endsWith("/"))]),
   );
+  return (id) => claims.get(id) ?? [];
+};
 
 /** The file a diagram's document is written to beside the draft. */
 const diagramFile = (diagramId) => `${diagramId}.architecture.json`;
@@ -217,8 +218,8 @@ export async function writePage(page, directory) {
  * page's.
  * @param {any} model
  * @param {any[]} views
- * @param {{ quality?: "showcase" | "standard", owned?: Map<string, string[]> }} [options]
- *   `owned` holds each component's files in citation order, as binding resolved them
+ * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[] }} [options]
+ *   `owned` gives each component's files in citation order, as the layer of measured facts holds them
  */
 export async function explainerPage(model, views, options = {}) {
   const quality = options.quality ?? "showcase";

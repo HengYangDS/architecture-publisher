@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { hubOf } from "../src/facts/view.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { admitsView } from "../src/poster/compose/plates.mjs";
-import { hubOf } from "../src/poster/lines.mjs";
 import { TABLE } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import {

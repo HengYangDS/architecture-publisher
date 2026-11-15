@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { editionRecord } from "../src/edition/record.mjs";
+import { recordFacts } from "./fixtures/record-facts.mjs";
 import { icons, platesIn, stripModel, stripStyle } from "./fixtures/strips.mjs";
 
 // The edition sets a strip plate's key from its record: each mark carries what the house class needs to draw a
@@ -13,15 +14,13 @@ test("an edition's key marks carry the date, the sample strip and the count the 
     model,
     plates,
     icons,
-    owned: new Map(),
-    files: 0,
+    facts: recordFacts(),
     modelSha256: "0".repeat(64),
     publisher: "0.13.0",
     typst: "0.15.1",
     overview: false,
     page: "minimal.html",
-    commit: null,
-    release: null,
+    time: null,
   });
   const marks = record.plates[0].marks;
   const legend = plates[0].legend;

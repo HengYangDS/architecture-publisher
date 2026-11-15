@@ -91,7 +91,8 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
 
 test("a band is named by its days before the commit, and the key shows only what the plate draws", async () => {
   const parts = new Map([["words", part([["src/locale.mjs", 400, 1]])]]);
-  const style = { ...stripStyle(INDIGO, parts), bands: { spans: [7 * 86400, 365 * 86400] } };
+  const measured = stripStyle(INDIGO, parts);
+  const style = { ...measured, facts: { ...measured.facts, spans: [7 * 86400, 365 * 86400] } };
   const {
     plates: [plate],
   } = await platesIn(stripModel(), style);
@@ -110,7 +111,7 @@ test("a band is named by its days before the commit, and the key shows only what
     ],
   );
   // Without a reference date the bands are still named, undated.
-  const undated = { ...style, reference: undefined };
+  const undated = { ...style, facts: { ...style.facts, date: null } };
   const {
     plates: [plain],
   } = await platesIn(stripModel(), undated);
@@ -130,7 +131,7 @@ test("a band is named by its days before the commit, and the key shows only what
   );
   const {
     plates: [empty],
-  } = await platesIn(bare, { ...style, parts: new Map(), most: 0 });
+  } = await platesIn(bare, stripStyle(INDIGO, new Map()));
   assert.deepEqual(empty.legend, []);
   assert.equal(rectsOf(empty.svg).filter(({ fill }) => fill === "none").length, 2);
 });
@@ -142,7 +143,7 @@ test("an overview's group is made of its members' files in path order", async ()
   // The words own no files here, so the group is made of the composer's and the record's.
   const parts = new Map(PARTS);
   parts.delete("words");
-  const style = stripStyle(INDIGO, parts);
+  const style = stripStyle(INDIGO, parts, model);
   // The whole work fits one plate; set aside, it is planned as an overview and a view of its group.
   const views = await planViews(model, async (view) =>
     view.origin === "complete"
@@ -167,7 +168,7 @@ test("a group larger than every part sets the edition's scale, on its own plate 
   const model = stripModel("en", {
     groups: [{ id: "edition", label: "Edition", members: ["builder", "supplies"] }],
   });
-  const style = stripStyle();
+  const style = stripStyle(INDIGO, PARTS, model);
   const views = await planViews(model, async (view) =>
     view.origin === "complete"
       ? { fits: false, width: 0, height: 0 }

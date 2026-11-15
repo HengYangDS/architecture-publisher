@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { editionFacts } from "./facts/edition.mjs";
 import { loadIcons } from "./icons.mjs";
 import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs";
 import { deliverGuide, guideCitations, guidePage, guideSummary, readGuide } from "./map/guide.mjs";
@@ -148,9 +149,13 @@ async function prepare(modelPath, options, listener) {
   requireGlyphs(typefaces, drawnTexts(model));
   listener("verifying files");
   const binding = bindSources(model, options.repo);
+  // The pin is read once, and every fact a plate, the record or the page shows is measured from it and the binding
+  // here, before the plan: a view is admitted as its marks draw it.
+  const commit = commitFacts(model, options.repo);
+  const facts = editionFacts(model, binding, commit);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
   // The edition's marks and palette are chosen once, before the plan, since a view is admitted as its marks draw it.
-  const { style: chosen, warnings: styled, record: chosenRecord } = editionStyle(model, binding);
+  const { style: chosen, warnings: styled, record: chosenRecord } = editionStyle(model, facts);
   const warnings = [
     ...(options.repo && binding.state === "none"
       ? [
@@ -162,7 +167,6 @@ async function prepare(modelPath, options, listener) {
       : []),
     ...styled,
   ];
-  const commit = commitFacts(model, options.repo);
   const overview = composition
     ? await checkOverview({
         composition,
@@ -199,11 +203,12 @@ async function prepare(modelPath, options, listener) {
     ? null
     : model.guide
       ? await guidePage(model, modelPath, { quality, repo: options.repo })
-      : await explainerPage(model, views, { quality, owned: binding.owned });
+      : await explainerPage(model, views, { quality, owned: facts.owned });
   return {
     loaded,
     model,
     binding,
+    facts,
     warnings,
     media,
     views,
@@ -435,16 +440,13 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
             model,
             plates: prepared.plates,
             icons: prepared.icons,
-            owned: prepared.binding.owned,
-            files: prepared.binding.records.length,
+            facts: prepared.facts,
             modelSha256: prepared.loaded.sha256,
             publisher: await publisherVersion(),
             typst: "0.15.1",
             overview: Boolean(overview),
             page: `${model.id}.html`,
-            commit:
-              prepared.commit ?? (dated.time === null ? null : { date: null, time: dated.time }),
-            release: prepared.commit?.release ?? null,
+            time: dated.time,
           }),
           plates: prepared.plates,
           modelBytes: prepared.loaded.content,

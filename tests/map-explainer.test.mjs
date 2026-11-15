@@ -129,9 +129,8 @@ test("the page draft answers the model's question view by view and cites files a
     ["web", ["src/web/a.go", "src/web/b.go"]],
     ["store", []],
   ]);
-  assert.deepEqual(explainerDraft(model, views, diagrams, new Set(), owned).cited, [
-    "src/web/a.go",
-  ]);
+  const held = (id) => owned.get(id) ?? [];
+  assert.deepEqual(explainerDraft(model, views, diagrams, new Set(), held).cited, ["src/web/a.go"]);
   // Steps follow the diagram's rows from the top, left to right, not the model's order.
   const fanned = validateModel(
     graphModel(3, [

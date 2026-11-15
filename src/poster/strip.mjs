@@ -2,7 +2,6 @@ import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
-import { hubOf } from "./lines.mjs";
 import { spreadOf } from "./spread.mjs";
 import {
   POSTER,
@@ -23,22 +22,30 @@ import {
  * as its share of the part's bytes and dyed by how recently it changed. A
  * relation's line carries the number of files it cites. A part's box stays a
  * rectangle, as wide as the larger of its text and its strip, so placement,
- * routing and every gate are the cards' engine.
+ * routing and every gate are the cards' engine. Every size, share, age band,
+ * count and hub is read from the layer of measured facts the style carries;
+ * this module binds a fact to a length, a dye or a word and measures none.
  *
  * @typedef {{ palette: { paper: string, ink: string, green: string, mid: string, soft: string,
  *     rule: string, ochre: string },
  *   figure: { card: string, cardStroke: string, outside: string, outsideStroke: string,
  *     outsideMark: string, boundary: string, retired: string, shadow: string },
  *   dye: { new: string, mid: string, old: string } }} Tokens
- * @typedef {{ bytes: number, files: ReadonlyArray<{ path: string, bytes: number, band: number }> }} Part
- * @typedef {{ name: "strip" | "card", tokens: Tokens, parts?: Map<string, Part>, most?: number,
- *   bands?: { spans: readonly number[] }, reference?: string, longest?: number,
+ * @typedef {{ bytes: number,
+ *   files: ReadonlyArray<{ path: string, bytes: number, band: number, share: number }> }} Part
+ *   A part as the layer holds it for a strip: its bytes and its files in path order, each with its bytes, its age
+ *   band and its share of the part.
+ * @typedef {{ hub: string | null, cited: (relation: { id: string }) => number | undefined,
+ *   bands: ReadonlySet<number> }} ViewFacts
+ *   A view's facts: its hub, the number of files each of its relations cites, and the age bands its parts hold.
+ * @typedef {{ part: (component: { id: string, group?: boolean }) => Part | null, scale: number | null,
+ *   date: string | null, spans: readonly number[], view: (view: any) => ViewFacts }} Facts
+ *   The edition's measured facts as a strip plate reads them: each part, the bytes of the largest part, which is the
+ *   scale of every strip, the pin's date, the two spans of the age bands, and each view's facts.
+ * @typedef {{ name: "strip" | "card", tokens: Tokens, facts?: Facts, longest?: number,
  *   lines?: { rows: Record<string, any> } }} Style
  *   `lines` is a table of lines to draw with in place of the house's own.
  */
-
-/** A part that owns no files. */
-const EMPTY = Object.freeze({ bytes: 0, files: Object.freeze([]) });
 
 /**
  * A strip's measures in plate px, which the edition sets at one size on every
@@ -65,42 +72,6 @@ export const STRIP_LENGTHS = Object.freeze([360, 240]);
  * be a seam, not a thread, so it merges into a neighbour of its band.
  */
 const SEAM = 1;
-
-/**
- * The files a part owns: its own, or for a group the overview draws, its
- * members' files in path order.
- * @param {any} model
- * @param {Map<string, Part>} parts
- * @param {{ id: string, group?: boolean }} component
- * @returns {Part}
- */
-function partOf(model, parts, component) {
-  const own = parts.get(component.id);
-  if (own) return own;
-  if (!component.group) return EMPTY;
-  const files = model.groups
-    .find(({ id }) => id === component.id)
-    .members.flatMap((id) => parts.get(id)?.files ?? [])
-    .sort((a, b) => (a.path < b.path ? -1 : 1));
-  return { bytes: files.reduce((sum, { bytes }) => sum + bytes, 0), files };
-}
-
-/**
- * The bytes the longest strip of an edition stands for: its largest part's,
- * or a group's that the overview draws, when the group's members together own
- * more. Every plate measures its strips on it, so one length is one size
- * across the edition.
- * @param {any} model
- * @param {Style} style
- */
-function scaleOf(model, style) {
-  const parts = /** @type {Map<string, Part>} */ (style.parts);
-  return Math.max(
-    1,
-    /** @type {number} */ (style.most),
-    ...model.groups.map((group) => partOf(model, parts, { id: group.id, group: true }).bytes),
-  );
-}
 
 /**
  * How long the edition draws its largest part, in px: the length the build chose, or the longest it may.
@@ -141,9 +112,8 @@ function lengthOf(part, scale, longest) {
 
 /**
  * A part's strip across its length: one segment per file in path order, as
- * wide as its share of the part's bytes, in its band. A file narrower than a
- * seam merges into a neighbour of its band; a part of empty files shares its
- * length evenly.
+ * wide as its share of the part, in its band. A file narrower than a seam
+ * merges into a neighbour of its band.
  * @param {Part} part
  * @param {number} length
  */
@@ -151,7 +121,7 @@ function segmentsOf(part, length) {
   /** @type {Array<{ band: number, width: number }>} */
   const segments = [];
   for (const file of part.files) {
-    const width = length * (part.bytes > 0 ? file.bytes / part.bytes : 1 / part.files.length);
+    const width = length * file.share;
     const last = segments.at(-1);
     if (last && last.band === file.band && (width < SEAM || last.width < SEAM)) last.width += width;
     else segments.push({ band: file.band, width });
@@ -201,8 +171,8 @@ export function stripHeight({ name, details, gap }, styles) {
  */
 export function stripBoxes({ model, typefaces, styles, card, style }) {
   const words = wordsOf(model.locale);
-  const parts = /** @type {Map<string, Part>} */ (style.parts);
-  const scale = scaleOf(model, style);
+  const facts = /** @type {Facts} */ (style.facts);
+  const scale = /** @type {number} */ (facts.scale);
   const longest = longestOf(style);
   const measure = (text, textStyle) => typefaces.measure(text, textStyle);
   const lines = {
@@ -213,7 +183,7 @@ export function stripBoxes({ model, typefaces, styles, card, style }) {
   const known = new Map();
   const factsOf = (component) => {
     if (!known.has(component)) {
-      const part = partOf(model, parts, component);
+      const part = /** @type {Part} */ (facts.part(component));
       const count = part.files.length
         ? words.files(part.files.length, kilobytes(part.bytes))
         : words.ownsNoFiles;
@@ -424,30 +394,21 @@ const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
 export function stripKey(model, view, style, drawn) {
   const words = wordsOf(model.locale);
   const C = colorsOf(style.tokens);
-  const parts = /** @type {Map<string, Part>} */ (style.parts);
-  const shown = new Set(
-    view.components.flatMap((component) =>
-      partOf(model, parts, component).files.map(({ band }) => band),
-    ),
-  );
+  const facts = /** @type {Facts} */ (style.facts);
+  const seen = facts.view(view);
+  const shown = seen.bands;
   // A band is named by its days before the commit, never by a calendar word
   // such as "this week", which would read from the day the plate is read.
-  const [newest, middle] = /** @type {{ spans: readonly number[] }} */ (style.bands).spans.map(
-    (span) => Math.round(span / 86400),
-  );
+  const [newest, middle] = facts.spans.map((span) => Math.round(span / 86400));
   const names = [words.sinceCommit(newest), words.within(middle), words.earlier];
   /** @type {Array<{ shape: string, label: string, [field: string]: unknown }>} */
   const key = [0, 1, 2]
     .filter((band) => shown.has(band))
     .map((band) => ({ shape: "band", band, color: C.dye[band], label: names[band] }));
-  if (shown.size && style.reference)
-    key.push({
-      shape: "reference",
-      date: style.reference,
-      label: words.committed(style.reference),
-    });
+  if (shown.size && facts.date)
+    key.push({ shape: "reference", date: facts.date, label: words.committed(facts.date) });
   if (shown.size) {
-    const scale = scaleOf(model, style);
+    const scale = /** @type {number} */ (facts.scale);
     const { bytes, size } = sampleOf(scale);
     key.push({
       shape: "length",
@@ -465,7 +426,7 @@ export function stripKey(model, view, style, drawn) {
     key.push({ shape: count, count: 3, size: POSTER.floor, color: C.line, label: words.cited });
   const hub = keyed("emphasis");
   if (hub) {
-    const { label } = view.components.find(({ id }) => id === hubOf(view));
+    const { label } = view.components.find(({ id }) => id === seen.hub);
     key.push({
       shape: hub,
       color: C.dye[2],

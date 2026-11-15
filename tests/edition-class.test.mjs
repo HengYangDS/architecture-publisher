@@ -9,6 +9,7 @@ import { POSTER, figureStyles } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { countIn, readPdf } from "./fixtures/pdf.mjs";
 import { inkLines, readPng } from "./fixtures/png.mjs";
+import { recordFacts } from "./fixtures/record-facts.mjs";
 
 const [typefaces, icons] = await Promise.all([loadTypefaces(), loadIcons()]);
 const { name, detail } = figureStyles(POSTER.steps[0]);
@@ -75,15 +76,18 @@ async function edition(plates, extra = {}, subject = model) {
     model: subject,
     plates,
     icons,
-    owned: new Map([["a", ["src/a.mjs"]]]),
-    files: 1,
+    facts: recordFacts({
+      owned: new Map([["a", ["src/a.mjs"]]]),
+      read: 1,
+      date: "2026-11-06",
+      release: "v1.0.0",
+    }),
     modelSha256: "0".repeat(64),
     publisher: "0.10.0",
     typst: "0.15.1",
     overview: false,
     page: "minimal.html",
-    commit: { date: "2026-11-06", time: 1793918078 },
-    release: "v1.0.0",
+    time: 1793918078,
   });
   return typesetEdition({
     record,
@@ -135,15 +139,13 @@ test("without a checkout the foot names the title and revision and no date, and 
     editionRecord({
       plates: [],
       icons,
-      owned: new Map(),
-      files: 0,
+      facts: recordFacts(),
       modelSha256: "0".repeat(64),
       publisher: "0.10.0",
       typst: "0.15.1",
       overview: false,
       page: "minimal.html",
-      commit: null,
-      release: null,
+      time: null,
       ...input,
     });
   const pinned = record({ model });
@@ -162,15 +164,13 @@ test("a narrowed plate sets its view's summary and where each component lives, a
     model,
     plates: [narrowed(summary)],
     icons,
-    owned: new Map([["a", ["src/a.mjs"]]]),
-    files: 1,
+    facts: recordFacts({ owned: new Map([["a", ["src/a.mjs"]]]), read: 1 }),
     modelSha256: "0".repeat(64),
     publisher: "0.10.0",
     typst: "0.15.1",
     overview: false,
     page: "minimal.html",
-    commit: null,
-    release: null,
+    time: null,
   });
   const [set] = record.plates;
   assert.deepEqual(
@@ -221,15 +221,13 @@ test("a summary above its figure is set in its lines at the claim column, and th
     model,
     plates: [above],
     icons,
-    owned: new Map([["a", ["src/a.mjs"]]]),
-    files: 1,
+    facts: recordFacts({ owned: new Map([["a", ["src/a.mjs"]]]), read: 1 }),
     modelSha256: "0".repeat(64),
     publisher: "0.11.0",
     typst: "0.15.1",
     overview: false,
     page: "minimal.html",
-    commit: null,
-    release: null,
+    time: null,
   });
   const [set] = record.plates;
   assert.deepEqual(

@@ -7,6 +7,7 @@ import { validateModel } from "../src/model/load.mjs";
 import { HOUSE } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
+import { recordFacts } from "./fixtures/record-facts.mjs";
 
 // A plate's key is one line: its text stands on one baseline on every plate, and each mark, whatever its height, is
 // centred on the middle of the text beside it. The pictures are read back row by row.
@@ -51,15 +52,13 @@ async function pageOf(legend, locale = "en") {
     model,
     plates,
     icons,
-    owned: new Map(),
-    files: 0,
+    facts: recordFacts(),
     modelSha256: "0".repeat(64),
     publisher: "0.13.1",
     typst: "0.15.1",
     overview: false,
     page: "minimal.html",
-    commit: null,
-    release: null,
+    time: null,
   });
   const typeset = await typesetEdition({
     record,

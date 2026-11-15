@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { commitDate, commitOf, commitTime, readGit } from "./git.mjs";
+import { commitOf, readGit } from "./git.mjs";
 import { directoriesOf, scopeAt } from "./scope.mjs";
 
 /** Parse `git cat-file --batch` output into one record per requested object. */
@@ -234,21 +234,15 @@ function resolved(model, root, commit) {
       ),
     ]),
   );
-  return {
-    records,
-    owned,
-    times,
-    pinTime: commitTime(root, commit),
-    pinDate: commitDate(root, commit),
-  };
+  return { records, owned, times };
 }
 
 /**
  * Bind the files a model claims and cites to its revision without changing the repository. With
  * a checkout, every file in the scope is given to the component whose claim is most specific and
  * every cited file is recorded with its digest, size, last change, owner and citing relations,
- * beside each file's change time and the revision's time and date; without one, the declared paths are recorded
- * unverified and no time is known.
+ * beside each file's change time; without one, the declared paths are recorded unverified and no time is known.
+ * The revision's own time and date are read once, by the build.
  * @param {any} model
  * @param {string | null} repo
  */
@@ -265,8 +259,6 @@ export function bindSources(model, repo) {
       records: [],
       owned,
       times: new Map(),
-      pinTime: null,
-      pinDate: null,
     };
   }
   if (!repo)
@@ -275,8 +267,6 @@ export function bindSources(model, repo) {
       repository,
       ...declared(model),
       times: new Map(),
-      pinTime: null,
-      pinDate: null,
     };
   if (!repository)
     refuse(
