@@ -74,7 +74,7 @@ Decision D4, taken by the chair on 2026-11-15 and kept in `build/runtime/work/st
 checks, for every edition: an outline whose entries are the book's parts and each page's claim; a contents page with
 a link to every page; every internal cross-reference a link; every statement id a destination, so that the booklet
 and the presentation can point at the same id; and the external links (the repository's files at the pin) as
-absolute URLs where the viewer can reach them. It goes to the queue item `blocks-by-question` (the page classes and
+absolute URLs where the viewer can reach them. It goes to the queue item `figure-pages` (the page classes and
 their pointers), to a maintenance item for the interactive page's cross-links, and to the build's own check for the
 outline and the destinations.
 

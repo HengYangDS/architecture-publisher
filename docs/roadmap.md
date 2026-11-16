@@ -47,6 +47,32 @@ From the committee's appendix A [language 6], with the round 4 additions in the 
 | Reader file against arm B                                                                                                                                                                                       | Step 3                             | The E1 rerun of step 3                                                                                                        |
 | Whether text statements carry a lifecycle; `person` renamed                                                                                                                                                     | Concepts                           | Step 5a                                                                                                                       |
 
+## After the sample edition
+
+Added on 2026-11-16. The table above and the execution details below are the committee's of 2026-11-14 and stand
+as written; this section says what changed after step 4, as the design provides: the order from step 5 on is
+sorted again by step 4's results, and the owner's feedback enters as one commit to the queue.
+
+Step 4 reached its stop line: the owner rejected the form. Two sample editions had been set by hand from the
+design's sentence that the product fixes "a set of statements with evidence": 27 questions, each answered by
+statements (2 figures in the 30 pages of the presentation edition, none in the 189 pages of the booklet). The
+owner, on 2026-11-16: 「产品定位应该是架构图，以图为主，不是堆砌文字吧？」「文字的部分只是辅助？」「整个产品定位本来就
+应该是以图为主的」. A third proof sets the same work as figures: 16 of 18 pages are figures, and the contents page
+says for each question which figure answers it. The design of the Change `read-the-queue-figures-first` holds the
+decisions; the research pages under [research](research/README.md) hold what was measured and what was withdrawn.
+
+| Step                                          | As written on 2026-11-14                                                                      | As read now                                                                                                                                                                                                |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 4, `sample-book`                              | The full book of one work: a question page for each entry, plates as time allows              | One work as figures: a figure page for each view and each of the guide's diagrams, the question table as contents, gaps and silence said there; then the booklet in the same form                          |
+| 5a, `model-four`                              | Questions, text statements, line ranges, strength, source and basis category enter the schema | The same matter enters as what a figure needs: a view's claims and the relations each asserts, the guide's diagrams as figures, the questions a figure answers, statements as the notes of parts and lines |
+| 5b, `one-anatomy`                             | One anatomy, three detail levels, automatic type-size tiers deleted                           | The same, with sizes derived from a declared viewing condition and each figure's reach stated                                                                                                              |
+| 5c, `figure-pages` (was `blocks-by-question`) | Blocks and sections by question                                                               | The figure page, the contents by question and the table of terms; statements in full in an appendix, the reader file and the data                                                                          |
+
+What no longer holds in the rows above: "Blocks, sections by question" as the edition's order; a "whole-page tier
+and zoom tier" as typed sizes; "a statement list in which every statement … carries its id" as pages of the book
+(the list is the data's). The acceptance of step 4 is read with its form: a reviewer of another origin checks
+every figure page, and the figure-reading check runs on every figure.
+
 ## Reader experiment protocol
 
 The protocol of E1, committed before the run [critic 4, agent 2, product 3, engineering 9]. The round 4

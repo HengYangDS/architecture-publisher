@@ -12,6 +12,13 @@ A research page. It records whether the layout engine, as it is, places a view o
 set at room size, for all 41 views of the six works, in Chinese and in English. It measures layout only: no plate was
 drawn. It decides nothing.
 
+**Note of 2026-11-16.** The run stands as a measurement; the requirement it tested does not. After the owner's
+question 「是不是在错误假设前提下得到的结论」 (gloss: "was that not a conclusion from wrong premises?") the chair withdrew "nothing a
+room must read stands under the 24 pt tier" as applied to relation labels, and the ruling of 04:3x that "What follows"
+reports. What the numbers still show: with names at 32 pt, 34 of 41 Chinese views are placed with labels at 16 pt and
+17 with every label at 24 pt, so the labels, not the parts, are what large type cannot carry. See [reach of type on
+figures](reach-of-type-on-figures.md).
+
 ## Question
 
 The committee's ruling R7 of 2026-11-15 says that on a presentation plate nothing a room must read stands under the
@@ -282,7 +289,7 @@ design, and the owner can turn it. In short:
   booklet's plate shown on the presentation page as it is.
 - The reason the ruling gives: the run shows that the labels, not the parts, are what a room size cannot carry. Most
   views keep their places with names at the room tier, and few do once every label is there too.
-- It goes to the queue items `model-four`, `one-anatomy` and `blocks-by-question`. See the
+- It goes to the queue items `model-four`, `one-anatomy` and `figure-pages`. See the
   [committee's record](edition-forms-committee-2026-11-15.md) and, for the hand-set plates,
   [what the second proof showed](second-proof.md).
 

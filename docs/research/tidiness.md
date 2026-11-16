@@ -210,8 +210,8 @@ The working note orders three layers; none is in the product.
 It applies to the pages and plates of the edition. The committee's ruling R9 names the measure in its geometry
 acceptance (zero findings or recorded exceptions; repeated things placed by typed columns only); see the
 [committee's record](edition-forms-committee-2026-11-15.md). The layers are to enter the queue items `one-anatomy`
-and `blocks-by-question`, each by its Change's design; the box check is proposed as a third property of
-`blocks-by-question`'s geometry acceptance, beside the floors and the tidiness measure. The alignment rules for
+and `figure-pages`, each by its Change's design; the box check is proposed as a third property of
+`figure-pages`'s geometry acceptance, beside the floors and the tidiness measure. The alignment rules for
 tables that the construction follows are on the page [layout of pages that are mostly text](text-page-layout.md).
 
 Still to do, by the queue's holder: judge the census findings on the other pages of the book, label three pages of

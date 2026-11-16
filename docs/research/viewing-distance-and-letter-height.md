@@ -14,6 +14,13 @@ numbers and practice and decides nothing; the decisions that rest on it are name
 page, [text on projected pages](text-on-projected-pages.md), holds the other half of the same study: how much text
 such a page holds and how its lines are set.
 
+**Note of 2026-11-16.** The owner asked: 「投影屏要求 24 磅那一点再斟酌下」「是不是在错误假设前提下得到的结论」 (gloss: "weigh again the point that a
+projection screen requires 24 pt"; "was that not a conclusion from wrong premises?"). The chair then withdrew two
+things this page reports under "What follows": ruling R5's default of four image heights, and ruling R6's tiers as
+type sizes typed into a scale. Nothing of the study is withdrawn. What stands, in the chair's words, is the relation
+itself: a character's size is its visual angle times the distance. Sizes are now to be derived: see [reach of type on
+figures](reach-of-type-on-figures.md).
+
 ## Question
 
 Of the pages of text in a hand-set sample book, the owner asked on 2026-11-15:

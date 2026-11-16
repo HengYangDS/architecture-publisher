@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- `docs/research/reach-of-type-on-figures.md`: to what distance the text of a figure can be read, measured on the
+  82 plates the product makes today and on two views built under two viewing conditions.
 - `docs/research/`, the studies, measurements and records that decisions rest on, one page each in one form: letter
   height by viewing distance, text on projected pages, the layout of pages that are mostly text, tidiness built in and
   measured, links and outlines in the PDFs Typst writes, the record of the committee of 2026-11-15 on the edition's
@@ -62,6 +64,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The queue of the product contract is read figures first, after the owner rejected the form of two sample
+  editions set as pages of statements: `sample-book`, `model-four` and `one-anatomy` are restated, and
+  `blocks-by-question` becomes `figure-pages`. `docs/roadmap.md` says how the steps after the sample edition were
+  sorted again, and six research pages say which of their premises were withdrawn.
 - The icons are generated from `lucide-static` 1.73.0. The bundled example, the LikeC4 shop and the
   publisher's own work in Chinese build the same bytes as before.
 - The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No

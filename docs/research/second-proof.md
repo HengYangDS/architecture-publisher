@@ -13,6 +13,12 @@ what was set, what was checked and how, what was read from a simulated distance,
 not foresee. It decides nothing; the decisions that rest on it are named under "What follows". The proof is trial
 material and none of it is in the product.
 
+**Note of 2026-11-16.** The owner asked: 「为什么那个 booklet 和 presentation 里大量都是文字？」 (gloss: "why are that booklet and
+that presentation mostly text?"). The chair's reading: this proof inverted the product, since 2 of the presentation's
+30 pages and none of the booklet's 189 are figures. As a form it is superseded, for the presentation, by a third proof
+with figures first: 12 pages, 10 of them figures; the booklet under that reading is not begun. The measurements on
+this page stand. The third proof lies in `build/runtime/work/sample-book/proof-3/` (ignored, local).
+
 ## Question
 
 The committee's ruling of 2026-11-15 ordered a proof by hand before any number enters the product (R10; see the

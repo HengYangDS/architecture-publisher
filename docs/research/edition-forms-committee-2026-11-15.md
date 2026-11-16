@@ -12,6 +12,13 @@ A research page. It records what a committee was asked, what its seats answered,
 owner decided. It decides nothing itself, and nothing in it is in the product: each ruling enters through its queue
 item's Change, whose design repeats it as Rests on / Considered / Chosen because / Applies to.
 
+**Note of 2026-11-16.** After the owner's words 「整个产品定位本来就应该是以图为主的」 (gloss: "the whole product's positioning should
+have been figures first all along") the chair reads R2, R3, R4 and R8 again: a statement page is no page class of the
+presentation but a fallback the author must justify. After the owner's question 「是不是在错误假设前提下得到的结论」 (gloss: "was that
+not a conclusion from wrong premises?") the chair withdrew R5's default of 4 image heights, R6's tiers as typed sizes,
+and R7's "nothing under the 24 pt tier" for relation labels with the ruling of 04:3x on its open part. Decision D7
+takes their place: see [reach of type on figures](reach-of-type-on-figures.md).
+
 ## Question
 
 After a hand-set sample book of 37 pages was sent to the owner on 2026-11-15, the owner delegated the open decisions:

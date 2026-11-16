@@ -15,6 +15,12 @@ Legibility by visual angle is on the companion pages
 [letter height by viewing distance](viewing-distance-and-letter-height.md) and
 [text on projected pages](text-on-projected-pages.md), and is not repeated here.
 
+**Note of 2026-11-16.** The owner said: 「产品定位应该是架构图，以图为主，不是堆砌文字吧？」「文字的部分只是辅助？」 (gloss: "the product's positioning
+should be architecture figures, figures first, not text heaped up, surely?"; "the text part only assists?"). On these
+words the chair decided that a presentation page is one figure, one sentence of claim and the evidence marks, and that
+a table stands only where the matter is words. So this page's subject is set aside for the presentation; the study
+stands as a study of pages of text. For type on figures see [reach of type on figures](reach-of-type-on-figures.md).
+
 ## Question
 
 On 2026-11-15 the owner asked for a study:

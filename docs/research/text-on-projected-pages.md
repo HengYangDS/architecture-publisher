@@ -14,6 +14,12 @@ requirements say about setting lines of Chinese text. It gives numbers and pract
 second half of one study; the first half, [letter height by viewing distance](viewing-distance-and-letter-height.md),
 holds the floors and the arithmetic that the capacity table below starts from.
 
+**Note of 2026-11-16.** The owner said: 「产品定位应该是架构图，以图为主，不是堆砌文字吧？」「文字的部分只是辅助？」 (gloss: "the product's positioning
+should be architecture figures, figures first, not text heaped up, surely?"; "the text part only assists?"). On these
+words the chair decided that statement lists leave the presentation and that a statement page is a fallback the author
+must justify. So this page's subject, pages of text in the presentation, is set aside; the study stands as a study of
+such pages. For type on figures see [reach of type on figures](reach-of-type-on-figures.md).
+
 ## Question
 
 When letters reach the floors that a room asks for, how many characters does a page hold; how many words do pages

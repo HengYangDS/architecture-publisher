@@ -188,6 +188,12 @@ layout, plate, page, overview or edition source. A new direction joins the list 
 moves back. Items marked as work on the publications are finished there and ticked by the next Change here.
 [Roadmap details](roadmap.md) says what each item does.
 
+The items are read by what the product is: it draws. A work is its figures, and what the product writes, a
+figure's claim, the notes of its parts and lines, the reader file and the data, assists them. The owner said so on
+2026-11-16, on seeing two sample editions set as pages of statements: 「产品定位应该是架构图，以图为主，不是堆砌文字
+吧？」「文字的部分只是辅助？」. The Change `read-the-queue-figures-first`, kept in `openspec/changes/archive/`,
+records how four items were restated; covering more of a system means more kinds of figures.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -206,14 +212,21 @@ moves back. Items marked as work on the publications are finished there and tick
       byte changes.
 - [x] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
       the reader experiment supports.
-- [ ] `sample-book`: one work set by hand as a whole book: its contents are the question table, silence is
-      printed, and one page compares the publisher's own plates with Archify's. The owner's first look. Work on the
-      publications.
-- [ ] `model-four`: the model's one new version: questions, written statements, line ranges, the strength and
-      origin of evidence; style moves beside the model; `check` reports each question-table entry's state.
-- [ ] `one-anatomy`: one anatomy for every part, its regions drawn where the part has the fact; the choice
-      between strips and cards goes.
-- [ ] `blocks-by-question`: the page blocks the sample book used and no others; the edition set by question.
+- [ ] `sample-book`: one work set by hand, figures first: every body page is one figure under one sentence, the
+      contents are the question table and say which figure answers each question, and a question without a
+      figure and the work's silence are said there. The owner's first look, on 2026-11-16, rejected the form of
+      two proofs set as statements; the third is set this way. Work on the publications.
+- [ ] `model-four`: the model's one new version: each view's claims and the relations each asserts, the guide's
+      diagrams as figures of the edition, the questions a figure answers, and statements with their line ranges
+      and the strength and origin of their evidence as the notes of a figure's parts and lines; style moves
+      beside the model; `check` reports each question-table entry as answered by a figure, by a table, not yet
+      or not by this work.
+- [ ] `one-anatomy`: one anatomy for every part, its regions drawn where the part has the fact; type sizes
+      derived from a declared viewing condition and a table of least visual angles, levels of detail in place of
+      steps of smaller type, and each figure's reach stated; the choice between strips and cards goes.
+- [ ] `figure-pages`: the page classes the sample book used and no others: the figure page, the contents by
+      question and the table of terms; the edition set figure by figure, as a presentation edition and as a
+      booklet; the statements in full in an appendix, the reader file and the data.
 - [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and the verdict on each
       statement; the reviewer's Skill.
 - [ ] `six-works`: the six works completed, set anew and accepted, each named from its own repository. The
