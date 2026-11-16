@@ -9,6 +9,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- Three research pages on the edition's figures: `docs/research/figure-language.md` maps the figure language by
+  dimension, with what was studied, what the product draws and where each piece went;
+  `docs/research/static-architecture-pictures.md` is the study of 2026-11-01; and
+  `docs/research/figure-prototypes.md` records every prototype of 2026-11-11 to 2026-11-15 with what was kept and
+  cut, beside 26 pictures.
+- A test refuses a model schema that holds a property of position, and the queue's test refuses a Change of a
+  queue item whose design names no page of `docs/research/`.
 - `docs/research/`, the studies, measurements and records that decisions rest on, one page each in one form: letter
   height by viewing distance, text on projected pages, the layout of pages that are mostly text, tidiness built in and
   measured, links and outlines in the PDFs Typst writes, the record of the committee of 2026-11-15 on the edition's
@@ -62,6 +69,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The product contract says that no input states where anything stands, and that an overview composition, which
+  its author places by coordinates, stays only until the publisher draws the overview from the model. Its
+  Evolution section states the end state the queue leads to, and the items `composable-parts`, `compositions` and
+  `carriers` are worded against it.
 - The product contract says what the edition and the page are each for, and that each medium draws its own figures;
   the edition's landscape pages are made to be shown as slides. Its queue orders the open items by the dimensions of
   the edition's figure language: parts that compose, a portrait edition, compositions, carriers, palette and style,
