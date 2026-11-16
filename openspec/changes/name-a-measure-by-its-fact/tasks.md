@@ -9,6 +9,6 @@
 
 ## 3. Record
 
-- [ ] 3.1 Record the change under `Unreleased` in `CHANGELOG.md` as breaking. Done when `npm run check` passes.
-- [ ] 3.2 Build the Chinese and English editions of the work on the documents repository and of one other work, and read each plate's key. Done when every key says size and files, and the build's own measures are unchanged against `dev`.
-- [ ] 3.3 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.
+- [x] 3.1 Record the change under `Unreleased` in `CHANGELOG.md` as breaking. Done when `npm run check:static` passes; the whole suite runs with the lane's proof. Recorded as the first breaking entry under Changed; the static check passes in the lane.
+- [x] 3.2 Build the Chinese and English editions of the work on the documents repository and of one other work, and read each plate's key. Done when every key says size and files, and the build's own measures are unchanged against `dev`. Built with the lane's source and with `dev`'s: the documents work and the work on ETHOS, each in Chinese and English, 34 plates. On every plate the key says size and files and names no code; the compositions and measures of all 34 plates equal `dev`'s, and no other text differs.
+- [x] 3.3 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it. Rehearsed at the head that ticks this task.
