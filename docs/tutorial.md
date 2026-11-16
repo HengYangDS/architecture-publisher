@@ -8,7 +8,7 @@ relations:
 
 # Publish your first architecture
 
-In about fifteen minutes you will describe a small repository in an
+In this tutorial you will describe a small repository in an
 Architecture Model, check it against the code, build its print edition and its
 page, and accept and publish the result. You need `archpub` on your path, which
 the [how-to guides](how-to.md#install-the-command) install, and Git.

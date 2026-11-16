@@ -146,6 +146,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Fixed
 
+- The research pages state their numbers, times and attributions as an independent review of 2026-11-16 found
+  them: a number that was derived again says from what, one whose source could not be traced says so, a pick or a
+  preference of the owner's is called that, and a ruling of the committee of 2026-11-15 is named as its chair's.
+  Six pages say under their title which rulings they report were withdrawn on that day. `README.md` and the
+  tutorial no longer say that a first work takes about fifteen minutes, which nobody had timed.
 - With `--repo`, a build or a check refuses with `source_read_failed`, naming the file, a file in a component's scope
   or cited by a relation that it cannot read at the model's revision. A checkout that lacked the file's object, as a
   partial clone does, recorded the file as `verified` with the digest and size of the word `missing`; a file whose

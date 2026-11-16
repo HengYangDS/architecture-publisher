@@ -45,7 +45,7 @@ delivery. Each command reports what passed, what needs attention and the
 command to run next, or one JSON object with `--json`; `archpub --help` lists
 the commands by the role that runs them. Only an accepted delivery is published, under
 `<publication-root>/<model id>/<version>/`. The [tutorial](docs/tutorial.md)
-builds a first work from an empty directory in about fifteen minutes.
+builds a first work from an empty directory.
 
 ## What it guarantees
 
