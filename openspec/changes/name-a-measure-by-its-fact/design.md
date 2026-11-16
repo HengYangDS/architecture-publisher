@@ -38,13 +38,13 @@ the owned bytes are Markdown.
    - Chosen because: a size in kilobytes is what the key's sample already prints beside the words, and a reader
      of any repository understands it; the types of a part's files are not a fact the layer measures.
    - Applies to: the five languages.
-3. The requirement on strips says what a strip measures and how narrow files are drawn.
+3. The requirements on strips say what a strip measures and how narrow files are drawn.
    - Rests on: `src/poster/strip.mjs`: a file narrower than a seam is drawn as one segment with a neighbour of its
      band, which the requirement did not say.
    - Considered: leaving the requirement's sentence "each owned file is one segment".
    - Chosen because: the reading page that `composable-parts` adds teaches from this requirement, and a reader of
      another origin found the shorter sentence untrue of a built plate.
-   - Applies to: the requirement, renamed "Strips sized by their files".
+   - Applies to: the requirement, renamed "Strips sized by their files", and a new one, "Narrow files of a strip".
 
 ## Risks / Trade-offs
 

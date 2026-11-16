@@ -28,7 +28,8 @@ None.
 ### Modified Capabilities
 
 - `measured-facts`: a new requirement, "The words of a measure follow its fact".
-- `poster-composition`: the requirement "Strips sized by their code" is renamed "Strips sized by their files".
+- `poster-composition`: the requirement "Strips sized by their code" is renamed "Strips sized by their files"
+  and says that the files are of any type; a new requirement, "Narrow files of a strip".
 
 ## Impact
 
