@@ -8,6 +8,12 @@ relations:
 
 # Layout of pages that are mostly text
 
+**Note of 2026-11-16.** This page studies pages that are mostly text. Of the rulings its "What follows" reports, R2
+and R4 describe pages of statements and a booklet of statements and were set aside that day with the second proof,
+after the owner's words of 08:06:21 and 08:06:24: 「产品定位应该是架构图，以图为主，不是堆砌文字吧？」「文字的部分只是辅助？」 (glosses: "the product's
+positioning should be architecture figures, figures first, not text heaped up, surely?"; "the text part only
+assists?"). R6's tiers as typed sizes were withdrawn the same day. The page stands as a record of what was read.
+
 A research page. It records what typographic practice, vendors' type systems, style guides and accessibility
 guidance say about a page of text that is shown in a room and must also stand alone, about tables, about alignment
 and consistency, and about a portrait booklet read on a screen. It gives numbers and practice and decides nothing.
@@ -64,9 +70,10 @@ Gestalt papers and the Westheimer papers were not read.
 
 - **Number of sizes and ratio.** Vendors ship a _scale_, not a licence to use every step: Material 3 has 15 styles
   (11–57 sp), Apple tvOS 9 (23–76 pt), Carbon 7 fixed headings (14–54 px). Where a ratio is stated: Tim Brown's
-  modular scale uses the golden ratio 1.618 (10 → 16.18 → 26.18 → 42.36). Material's adjacent steps inside a group
-  run about 1.25; Carbon's headings about 1.3–1.4 _downward_ from 54 (54, 42, 32, 28, 20). Bringhurst asks for "a
-  modest set of distinct and related intervals". No source found states how many levels a reader discriminates.
+  modular scale uses the golden ratio 1.618 (10 → 16.18 → 26.18 → 42.36). Material's adjacent steps inside a group run
+  from 1.09 to 1.375 (about 1.25 in Display only); Carbon's headings step by 1.29, 1.31, 1.14 and 1.40 _downward_ from
+  54 (54, 42, 32, 28, 20). Bringhurst asks for "a modest set of distinct and related intervals". No source found
+  states how many levels a reader discriminates.
 - **A standalone presentation page** in the assertion-evidence literature is one sentence headline (1–2 lines, 8–14
   words, 28 pt, sans) over one piece of visual evidence; the slidedoc literature replaces that with 50–70 characters
   a line, 100 words a page (250 "dense"), a 4 × 3 grid, and a headline of 6–10 words.
@@ -110,11 +117,11 @@ sizes: iOS/iPadOS 17/11, macOS 13/10, tvOS 29/23, visionOS 17/12, watchOS 16/12 
 | Caption 1  | Medium  | 25        | 32           |
 | Caption 2  | Medium  | 23        | 30           |
 
-Nine styles spanning 76 to 23 pt (a factor of 3.3); the step from one adjacent level to the next is about 1.2–1.35.
-Two levels share 38 pt and differ only in weight. The macOS table runs 26, 22, 17, 15, 13, 12, 11, and then four
-styles at 10 pt — size gives out and weight carries the rest. On hierarchy: "Adjust font weight, size, and color
-as needed to emphasize important information"; "Minimize the number of typefaces you use"; "In general, avoid light
-font weights … avoid Ultralight, Thin, and Light".
+Nine styles spanning 76 to 23 pt (a factor of 3.3); the steps from one size to the next are 1.33, 1.19, 1.26, 1.23,
+1.07, 1.16 and 1.09. Two levels share 38 pt and differ only in weight. The macOS table runs 26, 22, 17, 15, 13, 12,
+11, and then four styles at 10 pt — size gives out and weight carries the rest. On hierarchy: "Adjust font weight,
+size, and color as needed to emphasize important information"; "Minimize the number of typefaces you use"; "In
+general, avoid light font weights … avoid Ultralight, Thin, and Light".
 
 **IBM Carbon, "Type sets"**. **[fetch]** <https://carbondesignsystem.com/elements/typography/type-sets/>. Two sets:
 productive, base 14 px, "fixed headings, because product pages hold dense information inside containers, where
@@ -135,10 +142,10 @@ Fifteen styles in five roles of three sizes each:
 | Body     | 16    | 14     | 12    |
 | Label    | 14    | 12     | 11    |
 
-Steps within a role are about 1.15–1.30. An "emphasized" twin of each style exists (Medium or Bold) for "selection,
-actions, headlines, or other editorial treatments" — hierarchy by weight at the same size. The m3.material.io page
-the design guidance lives on returned only its title to the fetch tool; line heights and tracking were **[not
-reached]**.
+Steps within a role run from 1.09 to 1.375; only Display's two are about 1.25 (1.27 and 1.25). An "emphasized" twin of
+each style exists (Medium or Bold) for "selection, actions, headlines, or other editorial treatments" — hierarchy by
+weight at the same size. The m3.material.io page the design guidance lives on returned only its title to the fetch
+tool; line heights and tracking were **[not reached]**.
 
 **Microsoft PowerPoint and Google Slides default theme sizes.** Not confirmed that day. A search found only a
 secondary guide giving 60 pt section headers and 24 pt body for PowerPoint, and no source giving Google Slides'
@@ -441,8 +448,8 @@ item of this study.
 ### Chinese presentation typography
 
 **Standards.** clreq gives no point sizes for body or headings (the portion read covers characters, punctuation,
-mixed text, not size). **[fetch]** GB/T 9704 gives print公文 numbers only (3号 = 16 pt, 28 × 22), excluded by the
-owner as print. **No standard found** for Chinese font size on a projection, in Chinese or international form.
+mixed text, not size). **[fetch]** GB/T 9704 gives print公文 numbers only (3号 = 16 pt, 28 × 22), excluded by the owner
+as a small format. **No standard found** for Chinese font size on a projection, in Chinese or international form.
 **[prior note]** for GB/T 9704.
 
 **Studies.** Legibility of Chinese at a distance: Wu 2012, projected Chinese 41.9 mm high read at 16′, 24′ and 48′
@@ -488,8 +495,9 @@ The study sets its sources side by side; where they disagree it says about what,
   both add weight-based emphasis rather than more sizes; Carbon fixes seven heading sizes. Bringhurst's "modest
   set" and the absence of any measured maximum leave the count open.
 - **Fixed layout versus reflow.** The EPUB accessibility note and GDS both push toward reflowable; the slidedoc
-  practice is fixed, page-shaped, and grid-bound. The owner's form — a fixed portrait booklet — sits on the side
-  the accessibility guidance discourages, which is a fact about the sources, not a verdict.
+  practice is fixed, page-shaped, and grid-bound. The portrait booklet the owner proposed to add, when it is set as
+  fixed pages (the word is not the owner's), sits on the side the accessibility guidance discourages, which is a fact
+  about the sources, not a verdict.
 - **Chinese body size on screen.** Practitioner Chinese sources say 24号 and up for projection; the studies give
   20.5–25.4′ thresholds by face and 24–48′ for projected reading; the two are not the same measure (size in 号 vs
   angle), so the numbers cannot be compared without the arithmetic on the companion page.
@@ -535,4 +543,7 @@ It applies to the statement pages of the presentation edition and to the booklet
 Written 2026-11-15 as a research note for the maintainer, from sources opened that day. Working material:
 `build/runtime/work/sample-book/book/redesign/RESEARCH-layout.md`, ignored and local to one checkout. Written up for
 this directory on 2026-11-16 by the author of the documents lane; the findings are carried over with their marks, and
-nothing was fetched again.
+nothing was fetched again. Corrected later that day after an independent review (`build/runtime/work/audit-20261116/`,
+ignored and local): the step ratios, recomputed from the tables on this page where the study's note said about 1.25,
+about 1.3–1.4, about 1.2–1.35 and about 1.15–1.30, and two attributions to the owner; the note under the title was
+added.

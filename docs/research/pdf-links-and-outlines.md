@@ -13,7 +13,8 @@ decides nothing; the decision that rests on it is named under "What follows".
 
 ## Question
 
-On 2026-11-15, having chosen two PDF forms of the edition from one source, the owner said:
+On 2026-11-15 at 17:22:02, having picked at 17:19:24 the chair's option B on how the edition's two PDF forms relate
+(one source, two depths, in the chair's wording), the owner said:
 
 > 「而且 pdf 版应该做好跳转链接吧」
 
@@ -60,7 +61,7 @@ No viewer was used. The working note cites no documentation of Typst and no PDF 
 | The target printed in words and numbers (page number, statement id)    | Depends on no viewer                             | Nothing recorded         |
 | Both: a link that also prints its target                               | The ruling's choice: nothing depends on a viewer | Nothing recorded         |
 
-The committee's ruling R9 takes the third: a link across files also prints its target in words and number, so that
+The chair's ruling R9 takes the third: a link across files also prints its target in words and number, so that
 nothing depends on a viewer. One seat adds that projected pages have no links.
 
 Decision D4 of the same day first added that Acrobat and most desktop viewers follow a relative-file URI and that
@@ -99,4 +100,5 @@ as a destination reached from both files.
 Measured 2026-11-15 by the queue's holder. Working material: `build/runtime/work/tidy/pdf-links-test.md` and decision
 D4 in `build/runtime/work/style-research/round-5/DECISIONS.md`, both ignored and local to one checkout. Written up
 for this directory on 2026-11-16 by the author of the documents lane, and brought in line the same day with decision
-D4 as amended.
+D4 as amended. The time and the attribution in "Question" were corrected on 2026-11-16 from the ledger of the owner's
+words.

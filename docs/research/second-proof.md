@@ -8,6 +8,15 @@ relations:
 
 # What the second proof showed
 
+**Note of 2026-11-16.** The form this page measures was set aside that day: a presentation of statement pages (2 of
+its 30 pages are plates) and a booklet of statements (189 pages, no plate). The owner asked at 08:06:21
+「产品定位应该是架构图，以图为主，不是堆砌文字吧？」 and at 08:07:07 「为什么那个 booklet 和 presentation 里大量都是文字？」 (glosses: "the product's
+positioning should be architecture figures, figures first, not text heaped up, surely?"; "why is so much of that
+booklet and that presentation text?"). On the owner's question of 08:29:16, 「是不是在错误假设前提下得到的结论」 (gloss: "is that a
+conclusion reached under wrong premises?"), the chair withdrew ruling R6's tiers as sizes typed into a scale (scale B
+of this proof, 40 / 28 / 24 / 16) and the ruling on R7's open part, which rested on piece P. Decision D6, on what such
+a booklet quotes, directs no work. The page stands as a record of what was measured.
+
 A research page. It records what a hand-set proof of the edition's two PDF forms showed, part by part, on one work:
 what was set, what was checked and how, what was read from a simulated distance, and what the proof's own rules did
 not foresee. It decides nothing; the decisions that rest on it are named under "What follows". The proof is trial
@@ -15,7 +24,7 @@ material and none of it is in the product.
 
 ## Question
 
-The committee's ruling of 2026-11-15 ordered a proof by hand before any number enters the product (R10; see the
+The chair's ruling of 2026-11-15 ordered a proof by hand before any number enters the product (R10; see the
 [committee's record](edition-forms-committee-2026-11-15.md)). Set by the ruling's trial values, does a presentation
 page hold what the ruling says it holds; can its text be recovered as it appears from 4 and 6 image heights; and
 what does a whole proof, a presentation and a booklet from one data set, show that the rules did not foresee?
@@ -32,25 +41,30 @@ what does a whole proof, a presentation and a booklet from one data set, show th
 
 Working material under `build/runtime/work/sample-book/proof-2/`, ignored and local to one checkout. The review by
 the queue's holder was read in full; the setters' notes, the pages, the build script and the check outputs it names
-were not opened. Decision D6 was read in `build/runtime/work/style-research/round-5/DECISIONS.md`.
+were not opened. For the corrections of 2026-11-16 the heads of the setters' notes of parts 1, 4 and 5, the files' own
+times, the names and times of the holder's build logs, the list of the readings' directory and the data under
+`book/data/` were read. Decision D6 was read in `build/runtime/work/style-research/round-5/DECISIONS.md`.
 
-| Part         | When (CST)                | What was set                                                                                                                              | By                            |
-| ------------ | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| 1            | 2026-11-15, about 22:1x   | One statement page, the question `binds-whom`, in scale A (48 / 32 / 24 / 16) and scale B (40 / 28 / 24 / 16), with three room renderings | A setter agent, in 30 minutes |
-| S            | 22:15 to 22:41            | The statement page's second version and a table page (`terms`)                                                                            | A setter agent                |
-| P            | 22:15 to 22:56            | One view, `overview` (nine parts, fourteen relations), as two plates on one fixed base                                                    | A setter agent                |
-| 4 and 5      | 23:5x to 2026-11-16 01:47 | The whole proof for one work from one data set: a presentation of 30 pages and a booklet of 189 pages of 1008 × 1344 pt                   | Not stated in the review      |
-| The holder's | 2026-11-16 01:53 to 02:04 | Changes to the quoting rule, the pointer's words, the key and the build's checks                                                          | The queue's holder            |
+| Part         | When (CST)                                                                                      | What was set                                                                                                                              | By                                              |
+| ------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| 1            | 2026-11-15, 21:33 to 22:03                                                                      | One statement page, the question `binds-whom`, in scale A (48 / 32 / 24 / 16) and scale B (40 / 28 / 24 / 16), with three room renderings | A setter agent, in 30 minutes                   |
+| S            | 22:15 to 22:41                                                                                  | The statement page's second version and a table page (`terms`)                                                                            | A setter agent                                  |
+| P            | 22:15 to 22:56                                                                                  | One view, `overview` (nine parts, fourteen relations), as two plates on one fixed base                                                    | A setter agent                                  |
+| 4 and 5      | 2026-11-16: part 4, 00:13 to 01:09; part 5, 01:12 to 01:39; the amendment of D6, 01:42 to 01:47 | The whole proof for one work from one data set: a presentation of 30 pages and a booklet of 189 pages of 1008 × 1344 pt                   | One setter for each part, by the setters' notes |
+| The holder's | 2026-11-16 01:53 to 02:04                                                                       | Changes to the quoting rule, the pointer's words, the key and the build's checks                                                          | The queue's holder                              |
 
 **Checks.** The tidiness measure was rerun by the holder on the PDFs of parts 1, S and P; each part has its own
 check script, reported as 28 of 28 (part 1), 23 of 23 (S) and 27 of 27 (P). The whole proof's build passes on 60
-sources; the holder ran it four times, the last at 02:02, and looked at eleven pages.
+sources; the review says the holder ran it four times, the last at 02:02, and looked at eleven pages. The logs hold
+three holder builds of 2026-11-16 (ended 01:48:37, 01:53:15 and 02:03:39) and a fourth of 08:16:07 that day, later
+than the review's last change (07:52:39); which is right could not be told.
 
 **Readings from a simulated distance.** 2026-11-15, 22:07 to 22:18 CST. A model of another origin than the setters,
 one session for each image, was given nothing but the page as it appears at a distance: the page cropped from the
 room rendering at its simulated pixel size, 1713 × 963 px for 4 image heights and 1144 × 644 px for 6. It was asked
 to transcribe every text exactly, to say what it could not read, and to state the page's point, what the work does
-not vouch for, and what the marks mean. The answers were compared with the data by script, whitespace set aside.
+not vouch for, and what the marks mean. The review says the answers were compared with the data by script, whitespace
+set aside; no comparing script lies with the readings (nine files, three for each image, none a script).
 
 ## Findings
 
@@ -78,10 +92,10 @@ The readings:
 | Scale B, 6 H | exact | 5 of 5 exact                                                           | 5 of 5        | exact                              | stated rightly                |
 
 Against the fail conditions the ruling set: none at 4 H; at 6 H one misread character on scale A and none on scale
-B. Scale B at 4 H was not run. The owner chose scale B before these readings were compared. The review's own
-judgement of them: one reading for each image, by a model, of a small image, is a harsh proxy for a reader at the
-back of a room and not a measurement of one; one misread on the larger scale and none on the smaller says the
-difference between the scales is within this reader's noise.
+B. Scale B at 4 H was not run. The owner's preference for page B (2026-11-15 22:11:55) came before these readings were
+compared. The review's own judgement of them: one reading for each image, by a model, of a small image, is a harsh
+proxy for a reader at the back of a room and not a measurement of one; one misread on the larger scale and none on the
+smaller says the difference between the scales is within this reader's noise.
 
 To change, from part 1:
 
@@ -131,10 +145,12 @@ and the wrong row is the lighter; the budget rule counts tiers, so that no page 
 
 - Presentation, 30 pages: contents, two plates of `overview`, a page for each of the 27 questions. Booklet, 189
   pages: contents, 27 sections, the source table, the review's findings.
-- The booklet's first whole build came out at 699 pages. Measured from its data: 154 distinct cited passages hold
-  7,287 lines, of which 53 whole-file citations hold 5,899 (one file has 885 lines); the median ranged passage has
-  11 lines and 81 of 154 have at most 12; passages were printed once in every section that cites them, 25,732 lines
-  in all.
+- The booklet's first whole build came out at 699 pages. Re-derived from its data on 2026-11-16
+  (`booklet_section.ranges` of the 27 section files under `book/data/`): 149 distinct cited ranges hold 7,191 lines,
+  of which 52 whole-file citations hold 5,878 (one file has 885 lines); the median ranged passage has 10 lines (the
+  median of all 149 is 11) and 80 of 149 have at most 12; passages were printed once in every section that cites them,
+  25,732 lines in all. This page and decision D6 first gave 154 passages, 7,287 lines, 53 and 5,899, a median of 11
+  and 81 of 154; where those figures came from could not be traced.
 - The key carried two marks with the same words on the findings and two sections. A mark is built of two meanings,
   so the key now has the base marks and the cross alone, and a check refuses two key entries with the same words.
 - The holder's first repair of the key overran the key's line on pages 94, 167 and 182: one entry over the next,
@@ -206,4 +222,6 @@ Set and reviewed 2026-11-15 to 2026-11-16 by setter agents and the queue's holde
 origin. Working material: `build/runtime/work/sample-book/proof-2/` and the pages sent for review under
 `build/review/sample-book-20261115/proof-2/`, both ignored and local to one checkout. Written up for this directory
 on 2026-11-16 by the author of the documents lane, and brought in line the same day with the decisions, the ruling and
-the review as amended.
+the review as amended. Corrected later that day after an independent review (`build/runtime/work/audit-20261116/`,
+ignored and local): the times of parts 1, 4 and 5, the counts of cited ranges, what the build logs and the readings'
+directory hold, and the wording of the owner's preference; the note under the title was added.

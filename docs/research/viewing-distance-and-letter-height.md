@@ -8,6 +8,13 @@ relations:
 
 # Letter height by viewing distance, for pages shown in a room
 
+**Note of 2026-11-16.** Two things this page reports under "What follows" were withdrawn that day: ruling R5's default
+of four image heights, and ruling R6's tiers as type sizes typed into a scale, whose 24 pt tier ruling R7 had made the
+floor of what a room must read. The chair withdrew them on the owner's words of 08:28:59 and 08:29:16:
+「投影屏要求 24 磅那一点再斟酌下」「是不是在错误假设前提下得到的结论」 (glosses: "weigh again the point that a projection screen requires 24 pt"; "is
+that a conclusion reached under wrong premises?"). The room standard read here gives a formula between an element's
+height and the distance and names no distance. The page stands as a record of what was read and calculated.
+
 A research page. It records what standards, studies and practice say about how large a letter must be to be read
 from the farthest seat, and the arithmetic that turns those figures into sizes on the edition's page. It gives
 numbers and practice and decides nothing; the decisions that rest on it are named under "What follows". A companion
@@ -22,9 +29,9 @@ Of the pages of text in a hand-set sample book, the owner asked on 2026-11-15:
 
 Gloss, made for this page: "With large stretches of text, is it really suited to a large screen and to projection?"
 
-Put as a question about letters: is text as that book set it (12 to 13 pt for 81 % of its characters, statements at
-16 pt, on a page 900 pt high) legible for the farthest reader in a room, and what height of letter do standards and
-studies ask for at a given distance, for Latin and for Chinese?
+Put as a question about letters: is text as that book set it (12 to 13 pt for 81 % of the characters of its page 28
+and for about 71 % over its 37 pages, statements at 16 pt, on a page 900 pt high) legible for the farthest reader in a
+room, and what height of letter do standards and studies ask for at a given distance, for Latin and for Chinese?
 
 ## Short answer
 
@@ -119,11 +126,11 @@ Three things the arithmetic shows:
 ### The study's own summary
 
 - **As the sample book was set, no.** With the farthest reader at 4 image heights, the 12–13 pt text (81 % of the
-  characters) subtends 10.5–11.4′ as Chinese character height and 8.0–8.7′ as Latin capital height; the 16 pt
-  statements 14.1′ and 10.7′. That is under the 16′ floor for Latin capitals, the 20′ (or 25′) reported for CJK and
-  the 15′ advised for projection; only the 10′ hard limit of two standards is met, by the Chinese text and by the
-  capitals of the 16 pt statements, not by Latin text at 12–13 pt. At a desk the 12–13 pt Chinese is 23.6–25.6′ on a
-  27-inch monitor at 60 cm and 14.7–15.9′ on a 14-inch laptop at 50 cm.
+  characters of page 28, about 71 % over the book's 37 pages) subtends 10.5–11.4′ as Chinese character height and
+  8.0–8.7′ as Latin capital height; the 16 pt statements 14.1′ and 10.7′. That is under the 16′ floor for Latin
+  capitals, the 20′ (or 25′) reported for CJK and the 15′ advised for projection; only the 10′ hard limit of two
+  standards is met, by the Chinese text and by the capitals of the 16 pt statements, not by Latin text at 12–13 pt. At
+  a desk the 12–13 pt Chinese is 23.6–25.6′ on a 27-inch monitor at 60 cm and 14.7–15.9′ on a 14-inch laptop at 50 cm.
 - **Sizes that reach the floors at 4 H on the 900 pt page:** Latin 24 pt (capitals at 16′) and 30–33 pt (20–22′);
   Chinese 23 pt (20′) and 28.5–40 pt (25–35′). At 6 H multiply by 1.5, at 8 H by 2.
 
@@ -412,10 +419,11 @@ a Change's design; see the [committee's record](edition-forms-committee-2026-11-
 - **The reaches of the tiers**, by the ruling's reading of the same standard: an element's height is 0.5 % of the
   image's height for each image height of distance, so a letter of h pt on the 900 pt page reaches h / 4.5 image
   heights. R5 gives the claim about 9 H, statements 6 H, labels and keys 4.7 H; since 2026-11-16 the ruling says
-  these are the reaches of scale A (48 / 32 / 24 / 16) and gives those of scale B (40 / 28 / 24 / 16), the owner's
-  choice, with the Han face's 0.875 em: the claim 7.8 H (40 pt em, 35 pt letter), statements 5.4 H (28 pt em, 24.5 pt
-  letter), labels and keys 4.7 H (24 pt em, 21 pt letter), fine print 3.1 H. So at 4 H every room tier is read, and
-  at the far row of a deep room (6 H) the claim is read and the statements and labels are not, by the standard.
+  these are the reaches of scale A (48 / 32 / 24 / 16) and gives those of scale B (40 / 28 / 24 / 16), the scale of
+  the page the owner preferred of the two shown, with the Han face's 0.875 em: the claim 7.8 H (40 pt em, 35 pt
+  letter), statements 5.4 H (28 pt em, 24.5 pt letter), labels and keys 4.7 H (24 pt em, 21 pt letter), fine print
+  3.1 H. So at 4 H every room tier is read, and at the far row of a deep room (6 H) the claim is read and the
+  statements and labels are not, by the standard.
 - **Decision D5** of the queue's holder separates how far the reader sits (a visual angle, in image heights) from how
   coarse the worst screen is (pixels, a lower bound only): no resolution changes legibility at a distance. D5 gives 13
   pt on the 900 pt page as 12.4′ at four image heights and, since it was reconciled with this study on 2026-11-16,
@@ -460,3 +468,7 @@ Written 2026-11-15 as a research note for the maintainer, from sources opened th
 own. Working material: `build/runtime/work/sample-book/book/redesign/RESEARCH.md`, ignored and local to one checkout.
 Written up for this directory on 2026-11-16 by the author of the documents lane; the findings are carried over with
 their marks, and nothing was fetched again. Brought in line the same day with the ruling and decision D5 as amended.
+Corrected later that day after an independent review (`build/runtime/work/audit-20261116/`, ignored and local): 81 %
+is the share of 12 to 13 pt type on page 28 as the holder measured it; a recount from the book's PDF (characters by
+type size, white space left out) gives 80.0 % on page 28, 70.9 % over the 37 pages and 26 % to 95 % by page. The note
+under the title was added and the wording of the owner's preference corrected.

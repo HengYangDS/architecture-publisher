@@ -54,7 +54,7 @@ instances?
 
 - A page is tidy when things of one kind share their values; untidiness is the near miss or an unexplained difference.
 - Each thing the owner saw had one cause in the page's construction, and a construction exists that cannot produce it.
-- A measure reading the finished PDF reports near misses: on six labelled pages 17 of 19 true findings, none false.
+- A measure reading the finished PDF reports near misses; on the six pages it was calibrated on, 17 of 19, none false.
 - An overrun, a thing in another's place, is no near miss: the measure is blind to it, so the page's boxes are checked.
 - Only six pages are judged, and the measure sees edges: not ink, not ugly but consistent spacing, not meaning.
 
@@ -94,12 +94,13 @@ Its rules, as the note names them:
 look at the page found that it missed was added. Judged from 13 rendered crops and from coordinates. `budget`
 findings are counts and were not judged.
 
-**The tests.** Nine tests, run 2026-11-15 21:07, all passing in 3.648 s. They assert: each fixture reports the
-defect the owner saw (the eight rings' `stack`, the ring's `variation`, the 36 and 21 swatches' `stack`) and the two
-rebuilt pages do not; every label reported is found by rule and place, every false finding is absent, and a labelled
-page reports nothing unlabelled; a tidy table made with Typst reports nothing, a table whose third row stands 3 pt
-out of line reports its mark and its code, a list whose pitch alternates by 1 pt reports it; a sidecar accepts a
-finding only by rule, place and a reason.
+**The tests.** Nine tests, run 2026-11-15 21:07 (the result file was written at 21:07:18), all passing in 3.648 s.
+`tidy.py` was last changed at 22:45:00 that day, after that run and after the census (21:07:28); no run of the script
+as it stands is on record. They assert: each fixture reports the defect the owner saw (the eight rings' `stack`, the
+ring's `variation`, the 36 and 21 swatches' `stack`) and the two rebuilt pages do not; every label reported is found
+by rule and place, every false finding is absent, and a labelled page reports nothing unlabelled; a tidy table made
+with Typst reports nothing, a table whose third row stands 3 pt out of line reports its mark and its code, a list
+whose pitch alternates by 1 pt reports it; a sidecar accepts a finding only by rule, place and a reason.
 
 **The census.** The calibrated measure run over two editions; a page "has a finding" when it has one of `stack`,
 `numbers`, `baseline`, `pitch`, `margin`.
@@ -129,9 +130,10 @@ two values that are almost equal and not equal, or a difference nobody explains.
 | True, missed by the first version (M)   | 13     | 0 reported    | 11 reported, 2 missed                         |
 | False (F)                               | 25     | 25 reported   | 0 reported                                    |
 
-The two still missed are both in the key of page 9: two notes of one row on baselines 4.7 pt apart (neither is in a
-column, and `baseline` compares only cells of columns), and two notes that begin 3.2 pt apart (two items are no
-column).
+The six pages are the ones the rules were calibrated on, so 17 of 19 reported and none false describe a fit to those
+pages, not accuracy on a page the measure has not seen. The two still missed are both in the key of page 9: two notes
+of one row on baselines 4.7 pt apart (neither is in a column, and `baseline` compares only cells of columns), and two
+notes that begin 3.2 pt apart (two items are no column).
 
 ### Census with the calibrated measure
 
@@ -207,7 +209,7 @@ The working note orders three layers; none is in the product.
 3. **In the product.** The same measures become properties the product tests on every delivered plate and page,
    beside its existing gates, and the value table gains the scale of spaces and the alignment of each region.
 
-It applies to the pages and plates of the edition. The committee's ruling R9 names the measure in its geometry
+It applies to the pages and plates of the edition. The chair's ruling R9 (of the committee of 2026-11-15) names the measure in its geometry
 acceptance (zero findings or recorded exceptions; repeated things placed by typed columns only); see the
 [committee's record](edition-forms-committee-2026-11-15.md). The layers are to enter the queue items `one-anatomy`
 and `blocks-by-question`, each by its Change's design; the box check is proposed as a third property of
@@ -240,5 +242,7 @@ primitives into the kit of the redesigned pages and make the measure a step of t
 2026-11-15, by the queue's holder, after the owner's remarks on the hand-set sample book; the second kind of fault
 added on 2026-11-16 from the second proof. Working material: `build/runtime/work/tidy/` (the note, the measure, its
 tests, the labelled set, the crops, the census) and `build/runtime/work/sample-book/proof-2/`, both ignored and
-local to one checkout. Written up for this directory on 2026-11-16 by the author of the documents lane, and brought
-in line the same day with the owner's rulings and the review as amended.
+local to one checkout. Written up for this directory on 2026-11-16 by the author of the documents lane, and brought in
+line the same day with the owner's rulings and the review as amended. Corrected later that day after an independent
+review (`build/runtime/work/audit-20261116/`, ignored and local): the calibration set is named as such, and the file
+times of the script, the test result and the census are given.

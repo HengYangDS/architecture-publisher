@@ -8,13 +8,20 @@ relations:
 
 # Room-size fit of the six works' views
 
+**Note of 2026-11-16.** The requirement this run tested was withdrawn that day: ruling R7's "nothing a room must read
+stands under the 24 pt tier" as applied to relation labels, and with it the ruling on R7's open part that "What
+follows" reports. The chair withdrew both on the owner's words of 08:28:59 and 08:29:16:
+「投影屏要求 24 磅那一点再斟酌下」「是不是在错误假设前提下得到的结论」 (glosses: "weigh again the point that a projection screen requires 24 pt"; "is
+that a conclusion reached under wrong premises?"). The run stands as a measurement, and this page as a record of what
+was measured.
+
 A research page. It records whether the layout engine, as it is, places a view on one page when names and labels are
 set at room size, for all 41 views of the six works, in Chinese and in English. It measures layout only: no plate was
 drawn. It decides nothing.
 
 ## Question
 
-The committee's ruling R7 of 2026-11-15 says that on a presentation plate nothing a room must read stands under the
+The chair's ruling R7 of 2026-11-15 says that on a presentation plate nothing a room must read stands under the
 24 pt tier, and left unruled what becomes of a view that does not fit. That waited for a run of the works' 41 views
 in both languages at the trial sizes, reporting wiring beside fit. This page is that run. Its question: at room
 sizes, which views does the layout place on one page, and how are they wired?
@@ -280,8 +287,13 @@ design, and the owner can turn it. In short:
   other.
 - Considered beside these: smaller labels until a view fits and a split by the build, both refused before; and the
   booklet's plate shown on the presentation page as it is.
-- The reason the ruling gives: the run shows that the labels, not the parts, are what a room size cannot carry. Most
-  views keep their places with names at the room tier, and few do once every label is there too.
+- The reason the ruling gave: the run shows that the labels, not the parts, are what a room size cannot carry; most
+  views keep their places with names at the room tier, and few do once every label is there too. The run does not show
+  that. With names at 32 pt, 34 Chinese views fit when labels, kinds, numbers, the boundary's name and the wiring
+  scale are those of the product's largest step (`room-a-names`), and 17 when all are at room size (`room-a`): the two
+  variants differ in five things at once, among them the size that wires, gaps and channels scale from (32 against
+  48 px), and for each of the 24 Chinese views that `room-a` refuses the leading reason is channel unroutable. The run
+  does not separate labels from the wiring scale.
 - It goes to the queue items `model-four`, `one-anatomy` and `blocks-by-question`. See the
   [committee's record](edition-forms-committee-2026-11-15.md) and, for the hand-set plates,
   [what the second proof showed](second-proof.md).
@@ -335,14 +347,17 @@ at. From the
 ruling of the open part: the fit of a plate that labels only the relations its claim asserts was not measured, since
 the run's variants label every relation or set every label small; that measure needs, for each view, the relations
 each claim asserts, which no model records yet. And of the sizes: the variants set names at 32 pt, a tier of the
-ruling's first scale; the ruling speaks of names "at the room tier" without naming it under the scale the owner chose
-afterwards, and no variant sets names at another size than 32 and 36 pt.
+ruling's first scale; the ruling speaks of names "at the room tier" without naming it under scale B, which the chair
+took afterwards on the owner's preference between two pages, and no variant sets names at another size than 32 and
+36 pt.
 
 ## Record
 
-Measured from 2026-11-15 to 2026-11-16 (the run ended at 04:22 CST) by the queue's holder, for the committee's ruling
+Measured from 2026-11-15 to 2026-11-16 (the run ended at 04:22 CST) by the queue's holder, for the chair's ruling
 R7. Each record is one run. Working material: `build/runtime/work/room-fit/` (`RESULT.md` with the full cells,
 `NOTES.md`, the scripts, the diffs of the variants and the records and per-view logs under `out/`), ignored and local
 to one checkout; the result file calls the variants' copies residue that can be removed once it is read. Written up
 for this directory on 2026-11-16 by the author of the documents lane, first from one work and then from the full run,
-and brought in line with ruling R7 as it stood at 04:25 CST.
+and brought in line with ruling R7 as it stood at 04:25 CST. Corrected later that day after an independent review
+(`build/runtime/work/audit-20261116/`, ignored and local): what the run shows of labels, and the wording of the
+owner's preference; the note under the title was added.

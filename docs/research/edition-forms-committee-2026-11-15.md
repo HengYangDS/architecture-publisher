@@ -8,8 +8,19 @@ relations:
 
 # The committee of 2026-11-15 on the edition's forms: a record
 
+**Note of 2026-11-16.** The rulings on this page are the chair's, over a committee that did not converge; none is the
+owner's and none binds the product. That day R2, R3, R4 and R8, which describe pages of statements and a booklet of
+statements, were set aside with the second proof, after the owner's words of 08:06:21 「产品定位应该是架构图，以图为主，不是堆砌文字吧？」 and
+of 08:15:50 「整个产品定位本来就应该是以图为主的」 (glosses: "the product's positioning should be architecture figures, figures first,
+not text heaped up, surely?"; "the whole product's positioning should have been figures first from the start"). On the
+owner's words of 08:28:59 and 08:29:16, 「投影屏要求 24 磅那一点再斟酌下」「是不是在错误假设前提下得到的结论」 (glosses: "weigh again the point that a
+projection screen requires 24 pt"; "is that a conclusion reached under wrong premises?"), the chair withdrew R5's
+default of four image heights, R6's tiers as typed sizes, and R7's floor of 24 pt for relation labels with the ruling
+on its open part. R1 stands as a list of carriers, R9's tidiness measure and links stand as checks, and R10's order is
+overtaken. The page stands as a record of what was asked, voted and ruled.
+
 A research page. It records what a committee was asked, what its seats answered, what the chair ruled and what the
-owner decided. It decides nothing itself, and nothing in it is in the product: each ruling enters through its queue
+owner said. It decides nothing itself, and nothing in it is in the product: each ruling enters through its queue
 item's Change, whose design repeats it as Rests on / Considered / Chosen because / Applies to.
 
 ## Question
@@ -47,10 +58,10 @@ which viewing conditions, and what belongs on it at all. Five questions followed
 
 ## Short answer
 
-- The owner ruled above the committee: for people, a room first; a landscape form and a portrait booklet, one source.
+- The owner said: people first; landscape for presenting first, a portrait booklet too; and picked the chair's option B.
 - The chair ruled R1 to R10; no ruling was agreed by all seven seats; six of seven took the dissent's one change.
-- Every number is a **trial** value until the hand-set proof is read; between two scales the owner preferred B.
-- With scale B, by the standard, a far row at 6 H reads the claim and not the statements; the owner's choice stands.
+- Every number is a **trial** value until the hand-set proof is read; of the two pages shown the owner preferred B.
+- With scale B, by the standard, a far row at 6 H reads the claim and not the statements; the tiers are withdrawn.
 - No page has been read at a distance except by a model, and the Han floor of 20′ is second-hand.
 
 ## What was read
@@ -58,28 +69,29 @@ which viewing conditions, and what belongs on it at all. Five questions followed
 All of it is working material of 2026-11-15 under `build/runtime/work/committee-20261115/`, which is ignored and
 local to one checkout.
 
-| Material                                 | What it is                                                                                                                                                                                                                             | How it was read for this page                                           |
-| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `RULING.md`                              | The chair's ruling R1 to R10 as amended after round 2, with the owner's later choice of scale entered under R6 the chair's paragraph of 2026-11-16 on what that choice changes in R3 and R5, and the open part of R7 as ruled that day | In full                                                                 |
-| `OWNER-RULINGS.md`                       | The owner's sentences, verbatim, in the order received, each followed by the chair's reading marked as a reading                                                                                                                       | In full                                                                 |
-| `dissent/`                               | One dissent on the draft ruling, by a reviewer of another origin who took no part in the rounds                                                                                                                                        | In full                                                                 |
-| `round2/TALLY.md`                        | The votes of seven seats on the draft, with refusals and conditions quoted verbatim                                                                                                                                                    | In full                                                                 |
-| `DOSSIER.md`                             | The chair's brief to the seats: the mandate, facts, the five questions, the chair's leaning, the procedure                                                                                                                             | In part: the mandate, the questions, the leaning and the procedure      |
-| `round1/`, `round2/` papers of the seats | Seven position papers and seven votes                                                                                                                                                                                                  | Not read; the tally quotes the round 2 refusals and conditions verbatim |
-| The two studies the ruling names         | [Letter height by viewing distance](viewing-distance-and-letter-height.md) and its companions                                                                                                                                          | See those pages                                                         |
-| The second proof's review                | [What the second proof showed](second-proof.md)                                                                                                                                                                                        | See that page                                                           |
+| Material                                 | What it is                                                                                                                                                                                                                                              | How it was read for this page                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `RULING.md`                              | The chair's ruling R1 to R10 as amended after round 2, with the owner's later preference between two pages entered under R6, the chair's paragraph of 2026-11-16 on what taking scale B changes in R3 and R5, and the open part of R7 as ruled that day | In full                                                                 |
+| `OWNER-RULINGS.md`                       | The owner's sentences, verbatim, in the order received, each followed by the chair's reading marked as a reading                                                                                                                                        | In full                                                                 |
+| `dissent/`                               | One dissent on the draft ruling, by a reviewer of another origin who took no part in the rounds                                                                                                                                                         | In full                                                                 |
+| `round2/TALLY.md`                        | The votes of seven seats on the draft, with refusals and conditions quoted verbatim                                                                                                                                                                     | In full                                                                 |
+| `DOSSIER.md`                             | The chair's brief to the seats: the mandate, facts, the five questions, the chair's leaning, the procedure                                                                                                                                              | In part: the mandate, the questions, the leaning and the procedure      |
+| `round1/`, `round2/` papers of the seats | Seven position papers and seven votes                                                                                                                                                                                                                   | Not read; the tally quotes the round 2 refusals and conditions verbatim |
+| The two studies the ruling names         | [Letter height by viewing distance](viewing-distance-and-letter-height.md) and its companions                                                                                                                                                           | See those pages                                                         |
+| The second proof's review                | [What the second proof showed](second-proof.md)                                                                                                                                                                                                         | See that page                                                           |
 
 How the committee worked: seven seats (`product`, `room`, `typography`, `infodesign`, `agent-native`, `engineering`,
 `critic`), each writing alone in round 1; in round 2 each voted on the chair's draft (agree, agree with conditions,
 refuse). The dissent says of the seats: "Seven papers from one model are
 advice, not seven independent validations." The committee advises; the chair rules; the owner can turn any of it.
 
-## What the owner decided
+## What the owner said
 
 Verbatim, in the order received, each with an English gloss made for this page. A gloss is a translation and not the
 owner's words.
 
-Recorded at 16:10 CST, one message, sentence by sentence:
+Eight messages of the owner, 2026-11-15 15:53:02 to 15:58:02 CST, in the order sent (the chair's record of them was
+written at 16:10):
 
 > 「图册首先服务于 talks, presentation, reports 等方面，不同协作者之间沟通交流讨论，以及向上汇报，向下教学，最主要优先服务于人类阅读者的场景，其次才是 agents」
 
@@ -121,10 +133,11 @@ be long passages of text heaped up."
 Gloss: "Then there is the size of type: titles may be large; whether some explanations take a smaller size; type
 size and style, typesetting, composition and layout can also be studied, for best practice."
 
-and, with it: 「如果有不明白的，可以再问我」 (gloss: "If anything is unclear, ask me again").
+and at 15:58:27, as the argument of the command `/grill-me`: 「如果有不明白的，可以再问我」 (gloss: "If anything is unclear, ask me
+again").
 
-Later the same day, on the relation of the two forms, to the chair's three options (A one content set twice; B one
-source, two depths; C the portrait as an appendix):
+At 17:19:24 CST, on the relation of the two forms, to the chair's three options (A one content set twice; B one
+source, two depths; C the portrait as an appendix), then at 17:22:02 and 17:22:45:
 
 > 「选 B，继续」
 >
@@ -134,11 +147,15 @@ source, two depths; C the portrait as an appendix):
 
 Glosses: "Choose B; go on." "And the PDF edition should have its jump links done properly." "Overall, for now it is
 three: HTML, PDF landscape and PDF portrait?" The chair answered the last: yes, three for people, with the reader
-file and the data beside them. The decisions file of the same day puts the choice of B at about 16:45 CST.
+file and the data beside them. The owner's part of the first is the pick. The wording of the options was the chair's,
+put at 16:44:53, which is the time the decisions file first gave for the pick ("about 16:45"). By the chair's record
+of its own message, option B also said that a landscape page stands alone when forwarded and that the booklet holds
+every statement, its sources and the tables: those clauses are the chair's proposal, picked as a whole, and not
+choices the owner made one by one.
 
 On tidiness, the owner's sentences are quoted on the page [Tidiness, built in and measured](tidiness.md).
 
-Recorded at 22:13 CST, shown the first page of the second proof in two scales (A: claim 48, statements 32; B: claim
+At 22:11:55 CST, shown the first page of the second proof in two scales (A: claim 48, statements 32; B: claim
 40, statements 28; both with a 24 pt tier and 16 pt fine print) and three renderings of the page as seen from 4 and
 6 image heights:
 
@@ -175,17 +192,19 @@ Numbers the ruling gives beside these:
   and the labels are not. Those reaches are scale A's: the chair said so in the ruling on 2026-11-16 and added the
   reaches of scale B, which follow. The booklet declares its fit on a screen, and its body holds the floors there
   without zoom.
-- The reaches of scale B, the owner's choice, by the same reading of the standard: an element's height is 0.5 % of
-  the image's height for each image height of distance, so a letter of h pt on the 900 pt page reaches h / 4.5 image
-  heights; with the Han face's 0.875 em the claim reaches 7.8 H (40 pt em, 35 pt letter), statements 5.4 H (28 pt em,
-  24.5 pt letter), labels and keys 4.7 H (24 pt em, 21 pt letter), fine print 3.1 H. So at the default profile of
-  4 H every room tier is read, and at the far row of a deep room (6 H) the claim is read and the statements and
-  labels are not, by the standard. R5's sentence that statements are read at 6 H does not hold for scale B. The
-  ruling says that the owner chose B on the pages and their renderings at 4 H and 6 H, that the choice stands, and
-  that this consequence is said to the owner with the proof.
-- R6 as decided by the owner: scale B, 40 / 28 / 24 / 16, is the proof's scale; capacity follows from it: six lines
-  of the statement tier on a statement page, a two-line statement counting as two and, by the chair's paragraph of
-  2026-11-16, a table's rows counting as lines.
+- The reaches of scale B, the scale of the page the owner preferred, by the same reading of the standard: an element's
+  height is 0.5 % of the image's height for each image height of distance, so a letter of h pt on the 900 pt page
+  reaches h / 4.5 image heights; with the Han face's 0.875 em the claim reaches 7.8 H (40 pt em, 35 pt letter),
+  statements 5.4 H (28 pt em, 24.5 pt letter), labels and keys 4.7 H (24 pt em, 21 pt letter), fine print 3.1 H. So at
+  the default profile of 4 H every room tier is read, and at the far row of a deep room (6 H) the claim is read and
+  the statements and labels are not, by the standard. R5's sentence that statements are read at 6 H does not hold for
+  scale B. The ruling first said that the owner chose B on the pages and their renderings at 4 H and 6 H and that the
+  choice stands; since 2026-11-16 it says that the owner preferred page B of the two pages shown, that what the owner
+  looked at is not known, and that this consequence was to be said to the owner with the proof.
+- R6 after the owner's sentence of 22:11:55, a preference between the two pages shown and not a decision on a type
+  scale: the chair took scale B, 40 / 28 / 24 / 16, as the proof's scale; capacity follows from it: six lines of the
+  statement tier on a statement page, a two-line statement counting as two and, by the chair's paragraph of
+  2026-11-16, a table's rows counting as lines. The tiers were withdrawn on 2026-11-16 (see the note under the title).
 - R7: the question of a view that does not fit waited for a run of the works' 41 views in both languages at the trial
   sizes, reporting wiring beside fit, and for one hand-set layered plate; on the one work measured at the time, five
   of six views fit at 32 and 24 pt, tightly, and four wired worse.
@@ -276,14 +295,14 @@ artifacts.
 
 ## What was compared
 
-| Matter                             | Options                                                                                                  | What speaks for and against                                                                                                                                                                                                                                                                                                                                  | Outcome                                                                                                      |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| Relation of the two forms          | A one content set twice; B one source, two depths; C the portrait as an appendix                         | A carries the presentation's sparseness into the booklet or the booklet's density into the presentation; C, a booklet of only what does not fit a room, cannot be read as a publication; B lets the landscape argue and the portrait hold the complete account                                                                                               | The owner chose B                                                                                            |
-| Who selects what a page shows      | The build prints the first statements that fit; the author records the set and the build prints or fails | A cut by capacity moves with language and type scale and would fall on a different statement in each language; an author's order need not express importance; recording costs author effort, which is untimed                                                                                                                                                | The author's recorded set (R3 as amended)                                                                    |
-| The viewing condition              | A default profile from a published standard; a profile gated on a stated or measured room                | The default serves rooms nobody here will see and does not wait on review; against it, nobody has observed the distance and the far row puts the 24 pt Han face under the second-hand 20′ floor                                                                                                                                                              | Default of 4 H, another profile may be declared                                                              |
-| The type scale                     | A: 48 / 32 / 24 / 16; B: 40 / 28 / 24 / 16                                                               | A's statement letter is 28 pt, 17.8′ at 6 H, and its body is full with five one-line statements; B's is 24.5 pt, 15.6′ at 6 H, with room for six. In three readings by a model, A at 6 H had one character misread and B none, a difference the review calls within that reader's noise; by the standard, scale A's statements reach 6 H and scale B's 5.4 H | The owner preferred B                                                                                        |
-| Labels on a plate that is too full | Smaller labels; labels as a zoom tier; numbers and a register; fewer labels                              | A line without its verb says only "connected", and that tier is what the booklet's plate is for; the ruling admits no circled numbers or register for what a room reads; fewer labels keep the relations the claim asserts labelled and leave the others to the booklet's plate                                                                              | Fewer labels (R7)                                                                                            |
-| A view that does not fit at all    | Layers on one fixed base; a refusal the author answers; a split by the build                             | A split by the build is excluded. The full run shows, in the ruling's words, that the labels, not the parts, are what a room size cannot carry; the fit of a plate that labels only its claim's relations is not measured                                                                                                                                    | Ruled on 2026-11-16: one base and a plate for each recorded claim; a refusal by name that the author answers |
+| Matter                             | Options                                                                                                  | What speaks for and against                                                                                                                                                                                                                                                                                                                                                                                                                                            | Outcome                                                                                                                              |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Relation of the two forms          | A one content set twice; B one source, two depths; C the portrait as an appendix                         | A carries the presentation's sparseness into the booklet or the booklet's density into the presentation; C, a booklet of only what does not fit a room, cannot be read as a publication; B lets the landscape argue and the portrait hold the complete account                                                                                                                                                                                                         | The owner picked B; the options' wording was the chair's                                                                             |
+| Who selects what a page shows      | The build prints the first statements that fit; the author records the set and the build prints or fails | A cut by capacity moves with language and type scale and would fall on a different statement in each language; an author's order need not express importance; recording costs author effort, which is untimed                                                                                                                                                                                                                                                          | The author's recorded set (R3 as amended)                                                                                            |
+| The viewing condition              | A default profile from a published standard; a profile gated on a stated or measured room                | The default serves rooms nobody here will see and does not wait on review; against it, nobody has observed the distance and the far row puts the 24 pt Han face under the second-hand 20′ floor                                                                                                                                                                                                                                                                        | Default of 4 H, another profile may be declared                                                                                      |
+| The type scale                     | A: 48 / 32 / 24 / 16; B: 40 / 28 / 24 / 16                                                               | A's statement letter is 28 pt, 17.8′ at 6 H, and its body is full with five one-line statements; B's is 24.5 pt, 15.6′ at 6 H, with room for six. In three readings by a model, A at 6 H had one character misread and B none, a difference the review calls within that reader's noise; by the standard, scale A's statements reach 6 H and scale B's 5.4 H                                                                                                           | The owner preferred B                                                                                                                |
+| Labels on a plate that is too full | Smaller labels; labels as a zoom tier; numbers and a register; fewer labels                              | A line without its verb says only "connected", and that tier is what the booklet's plate is for; the ruling admits no circled numbers or register for what a room reads; fewer labels keep the relations the claim asserts labelled and leave the others to the booklet's plate                                                                                                                                                                                        | Fewer labels (R7)                                                                                                                    |
+| A view that does not fit at all    | Layers on one fixed base; a refusal the author answers; a split by the build                             | A split by the build is excluded. The ruling said that the full run shows that the labels, not the parts, are what a room size cannot carry; the run does not show it: the variant with small labels differs from the one with large labels in five things at once, among them the size that wires, gaps and channels scale from, so the run does not separate labels from the wiring scale; the fit of a plate that labels only its claim's relations is not measured | Ruled on 2026-11-16: one base and a plate for each recorded claim; a refusal by name that the author answers. Withdrawn the same day |
 
 ## What follows, and where it applies
 
@@ -296,8 +315,8 @@ artifacts.
 - Decisions taken by the queue's holder under the same delegation rest partly on this record and are kept in
   `build/runtime/work/style-research/round-5/DECISIONS.md` (ignored, local) until each enters a Change's design:
   D1 (a statement about the future cites the pin, like every other), D2 (no separate "roles" composition), D3 (one
-  source, two depths, on the owner's choice of B), D4 (links and outline; see [PDF links](pdf-links-and-outlines.md)),
-  D5 (resolution is neither the page nor the viewing condition; see
+  source, two depths, on the owner's pick of the chair's option B), D4 (links and outline; see
+  [PDF links](pdf-links-and-outlines.md)), D5 (resolution is neither the page nor the viewing condition; see
   [letter height](viewing-distance-and-letter-height.md)) and D6 (what the booklet quotes of the pin; see
   [the second proof](second-proof.md)).
 
@@ -323,8 +342,8 @@ artifacts.
 - The booklet's page is not designed.
 - The fit of a plate that labels only the relations its claim asserts: not measured; the run's variants label every
   relation or set every label small.
-- The owner's answer to what scale B means at 6 H; the ruling says the consequence is said to the owner with the
-  proof.
+- The owner's answer to what scale B means at 6 H; the ruling says the consequence was to be said to the owner with
+  the proof.
 
 ## Record
 
@@ -332,5 +351,8 @@ artifacts.
 reviewer of another origin. Working material: `build/runtime/work/committee-20261115/` (`RULING.md`,
 `OWNER-RULINGS.md`, `DOSSIER.md`, `round1/`, `round2/`, `dissent/`), ignored and local to one checkout. Written up
 for this directory on 2026-11-16 by the author of the documents lane, from those files, and brought in line the same
-day with the paragraph the chair added to the ruling on R3 and R5 and with the open part of R7 as ruled after the
-full run.
+day with the paragraph the chair added to the ruling on R3 and R5 and with the open part of R7 as ruled after the full
+run. Corrected on 2026-11-16 after an independent review of that day (`build/runtime/work/audit-20261116/`, ignored
+and local), from the ledger of the owner's words and the three working records as corrected by 17:50 CST: the times,
+the attribution of the owner's pick and preference, and what the room-size run shows; the note under the title was
+added.

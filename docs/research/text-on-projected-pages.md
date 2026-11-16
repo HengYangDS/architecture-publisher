@@ -8,6 +8,13 @@ relations:
 
 # Text on projected pages: how much a page holds, and how its lines are set
 
+**Note of 2026-11-16.** This page studies pages of text shown in a room. The rulings its "What follows" reports, R2
+and R3 with a capacity counted in lines of a typed tier, describe pages of statements and were set aside that day with
+the second proof, after the owner's words of 08:06:21 and 08:06:24: 「产品定位应该是架构图，以图为主，不是堆砌文字吧？」「文字的部分只是辅助？」 (glosses:
+"the product's positioning should be architecture figures, figures first, not text heaped up, surely?"; "the text part
+only assists?"). The typed tiers were withdrawn the same day. The page stands as a record of what was read and
+calculated.
+
 A research page. It records how much text a page holds when its letters are large enough for a room, how much text
 pages shown to an audience carry in practice, what experiments on narrated talks measured, and what the published
 requirements say about setting lines of Chinese text. It gives numbers and practice and decides nothing. It is the
@@ -236,9 +243,10 @@ The study sets its sources side by side and weighs none of them.
 Nothing here is in the product; see the [committee's record](edition-forms-committee-2026-11-15.md).
 
 - **Ruling R2** makes a presentation page one claim and one exhibit, and **ruling R3** a declared capacity per page
-  class. R3's first trial value was withdrawn on 2026-11-16: the capacity is six lines of the statement tier at the
-  scale the owner chose, a two-line statement counting as two and a table's rows counting as lines. The dissent to the
-  draft notes that the support for assertion and evidence is for narrated talks and does not establish silent reading.
+  class. R3's first trial value was withdrawn on 2026-11-16: the capacity is six lines of the statement tier at scale
+  B, the scale of the page the owner preferred of the two shown, a two-line statement counting as two and a table's
+  rows counting as lines. The dissent to the draft notes that the support for assertion and evidence is for narrated
+  talks and does not establish silent reading.
 - The second proof measured what a statement page holds at the trial scales; see
   [what the second proof showed](second-proof.md).
 - The figures for line length and pitch bear on statement pages and on the booklet; the page on
@@ -264,4 +272,6 @@ pages read at reading distance and are given for their numbers, not as models.
 Written 2026-11-15 as a research note for the maintainer, from sources opened that day; the capacity arithmetic is the
 study's own. Working material: `build/runtime/work/sample-book/book/redesign/RESEARCH.md`, ignored and local to one
 checkout. Written up for this directory on 2026-11-16 by the author of the documents lane; the findings are carried
-over with their marks, and nothing was fetched again. Brought in line the same day with the ruling as amended.
+over with their marks, and nothing was fetched again. Brought in line the same day with the ruling as amended. The
+note under the title was added later that day, and the wording of the owner's preference corrected, after an
+independent review (`build/runtime/work/audit-20261116/`, ignored and local).
