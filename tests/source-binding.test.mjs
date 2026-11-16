@@ -235,6 +235,31 @@ test("history that never adds a cited file, or that Git cannot read, is refused"
 });
 
 /** Where a fixture repository keeps the loose object of a file at a commit, made writable. */
+/** Git run in a checkout with what it is given on standard input; its answer without the line's end. */
+function gitWith(root, input, ...args) {
+  const env = { ...process.env, GIT_CONFIG_NOSYSTEM: "1" };
+  return execFileSync("git", ["-C", root, ...args], { input, env })
+    .toString("utf8")
+    .trim();
+}
+
+/** A tree object written from its entries (mode, name, object id), which are given in Git's order. */
+function treeOf(root, entries) {
+  const raw = entries.map(([mode, name, id]) =>
+    Buffer.concat([Buffer.from(`${mode} ${name}\0`), Buffer.from(id, "hex")]),
+  );
+  return gitWith(root, Buffer.concat(raw), "hash-object", "-t", "tree", "-w", "--stdin");
+}
+
+/** A commit of a tree's entries upon a parent, written as objects, with the branch moved to it. */
+function commitOfTree(root, parent, entries) {
+  const identity = ["-c", "user.name=Test", "-c", "user.email=test@example.invalid"];
+  const tree = treeOf(root, entries);
+  const commit = gitWith(root, "", ...identity, "commit-tree", tree, "-p", parent, "-m", "second");
+  gitWith(root, "", "update-ref", "refs/heads/main", commit);
+  return commit;
+}
+
 async function objectOf({ root, git }, commit, file) {
   const id = git("rev-parse", `${commit}:${file}`);
   const object = path.join(root, ".git/objects", id.slice(0, 2), id.slice(2));
@@ -266,13 +291,22 @@ test("a file whose object Git cannot read is refused, never recorded as read", a
 });
 
 test("a file whose name holds a line break is refused before any read, never recorded under another's bytes", async (t) => {
-  // The index is given the entry itself, so no working tree has to hold such a name. Read one name a line, its
-  // first line names `src/main.mjs`; its own bytes are the read-me's.
+  // The commit is written as objects, so that no index and no working tree has to hold such a name: Git for
+  // Windows refuses it an index entry. Read one name a line, its first line names `src/main.mjs`; its own bytes
+  // are the read-me's.
   const { root, git, revision } = await repository(t);
   const broken = "src/main.mjs\nextra";
-  const readme = git("rev-parse", `${revision}:README.md`);
-  git("update-index", "--add", "--cacheinfo", `100644,${readme},${broken}`);
-  const pinned = commitAt(root, "2026-02-01T00:00:00Z", "--message=second");
+  const pinned = commitOfTree(root, revision, [
+    ["100644", "README.md", git("rev-parse", `${revision}:README.md`)],
+    [
+      "40000",
+      "src",
+      treeOf(root, [
+        ["100644", "main.mjs", git("rev-parse", `${revision}:src/main.mjs`)],
+        ["100644", "main.mjs\nextra", git("rev-parse", `${revision}:README.md`)],
+      ]),
+    ],
+  ]);
   const refused = (error) =>
     error.code === "source_read_failed" && error.message.includes(JSON.stringify(broken));
   // In a component's scope: the claim of the directory holds it.
