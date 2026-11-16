@@ -1,11 +1,11 @@
 ## 1. Test first
 
-- [ ] 1.1 Add `tests/measured-words.test.mjs`: every language holds the words of the same properties, each a property of the catalogue; the words of a fact in bytes name a size and those of a fact in files name files; a plate of a part whose only file is Markdown names no code in its key. Done when the test fails on the product's present words for the two sentences and for the missing table.
-- [ ] 1.2 Move the words of a measure under their properties in `src/locale.mjs`, word the two sentences truly in five languages, and have `src/poster/strip.mjs` take a key entry's words by its property. Done when the new test passes and `tests/locale.test.mjs` and `tests/poster-palette-key.test.mjs` hold the new wording.
+- [x] 1.1 Add `tests/measured-words.test.mjs`: every language holds the words of the same properties, each a property of the catalogue; the words of a fact in bytes name a size and those of a fact in files name files; a plate of a part whose only file is Markdown names no code in its key. Done when the test fails on the product's present words for the two sentences and for the missing table. With the words regrouped and unchanged, two of its three cases failed, the first on `en owned-bytes: 20 KB: a strip's length is the code a part owns`; the case of the table passed once the table existed and had failed before it on the missing export.
+- [x] 1.2 Move the words of a measure under their properties in `src/locale.mjs`, word the two sentences truly in five languages, and have `src/poster/strip.mjs` take a key entry's words by its property. Done when the new test passes and `tests/locale.test.mjs` and `tests/poster-palette-key.test.mjs` hold the new wording. The three files pass, 23 of 23.
 
 ## 2. Documents
 
-- [ ] 2.1 Say in `docs/reference/model.md` and `skills/architecture-publisher/SKILL.md` that a strip is as long as the files its part owns are large. Done when no tracked document outside `docs/research/` and the changelog's history says that a strip measures code.
+- [x] 2.1 Say in `docs/reference/model.md` and `skills/architecture-publisher/SKILL.md` that a strip is as long as the files its part owns are large. Done when no tracked document outside `docs/research/` and the changelog's history says that a strip measures code. The reference, the Skill and two comments of `src/poster/strip.mjs` are corrected; a search of `src`, `tests`, `docs/reference`, `skills` and the README finds no such wording.
 
 ## 3. Record
 

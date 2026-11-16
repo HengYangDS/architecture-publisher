@@ -69,8 +69,8 @@ id with its files and facts and ends with the guide's text.
    with `archpub check model.json --repo <checkout>` until Archify's strict
    writing checks and its repository checks pass.
 8. Choose the edition's look only if the user asks: an `edition` object with
-   `marks` (画法), 条带 `strip` (each part a strip as long as its code, its
-   segments the files it owns dyed by age, the default) or 卡片 `card`, and a
+   `marks` (画法), 条带 `strip` (each part a strip as long as its files are
+   large, its segments those files dyed by age, the default) or 卡片 `card`, and a
    `palette` (配色), 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`, 铜绿
    `patina` or the user's own colours, which the check holds to printable
    contrast, chroma, lightness and hue and refuses with

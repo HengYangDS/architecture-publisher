@@ -71,6 +71,11 @@ remain pre-release contracts and may contain incompatible changes.
   publisher's own work in Chinese build the same bytes as before.
 - The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No
   delivered byte changes.
+- **Breaking:** a plate's key says what its marks measure and no more, in all five languages: a strip's length is the
+  size of a part's files, where it said the code a part owns, and the number beside a relation counts the files the
+  relation cites, where it said source files. The publisher measures the bytes of every file a part owns, of any
+  type. The words of a measure are kept under the property of the fact they speak of, and a test holds them to the
+  catalogue of facts. Every plate's key text changes; no figure and no measure does.
 - **Breaking:** with `strip` marks a relation's cited files are written as a number near its source, and ticks are no
   longer drawn. Readers of the roadmap's first trial read a number right 54 times in 54 and ticks 88 times in 162.
 - **Breaking:** relations into a view's hub are drawn twice as heavy, still in the oldest dye, and end inside an

@@ -1,6 +1,6 @@
 import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
-import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
+import { detailText, measureWordsOf, wordsOf, writtenUnspaced } from "../locale.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
 import { spreadOf } from "./spread.mjs";
 import {
@@ -49,13 +49,13 @@ import {
 
 /**
  * A strip's measures in plate px, which the edition sets at one size on every
- * page, so one px of strip is one share of code on every plate. The largest
+ * page, so one px of strip is one share of bytes on every plate. The largest
  * part is 480 px long: as long as a label at the largest type step may run
  * (16 em of 32 px is 512 px), so it widens its box little at that step, and
  * well inside the widest box (760 px) and the narrowest field a plate gives a
  * figure (65 percent of the body less the tier column, about 1186 px), so it
  * fits at every step; on the page it is 320 pt, 84 mm at A3. A part that owns
- * any code is at least 2 px, so it never vanishes. Every strip is 12 px thick,
+ * any bytes is at least 2 px, so it never vanishes. Every strip is 12 px thick,
  * 2 mm at A3, whatever its size or type step. A part that owns no files is a
  * dashed outline 40 px long, which reads as no strip, not as a short one.
  */
@@ -395,7 +395,8 @@ const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
  * @returns {Array<{ shape: string, label: string, [field: string]: unknown }>}
  */
 export function stripKey(model, view, style, drawn) {
-  const words = wordsOf(model.locale);
+  // Each entry takes its words by the property of the fact it speaks of.
+  const measures = measureWordsOf(model.locale);
   const C = colorsOf(style.tokens);
   const facts = /** @type {Facts} */ (style.facts);
   const seen = facts.view(view);
@@ -403,13 +404,14 @@ export function stripKey(model, view, style, drawn) {
   // A band is named by its days before the commit, never by a calendar word
   // such as "this week", which would read from the day the plate is read.
   const [newest, middle] = facts.spans.map((span) => Math.round(span / 86400));
-  const names = [words.sinceCommit(newest), words.within(middle), words.earlier];
+  const bands = measures["file-age-band"];
+  const names = [bands.newest(newest), bands.middle(middle), bands.oldest];
   /** @type {Array<{ shape: string, label: string, [field: string]: unknown }>} */
   const key = [0, 1, 2]
     .filter((band) => shown.has(band))
     .map((band) => ({ shape: "band", band, color: C.dye[band], label: names[band] }));
   if (shown.size && facts.date)
-    key.push({ shape: "reference", date: facts.date, label: words.committed(facts.date) });
+    key.push({ shape: "reference", date: facts.date, label: measures["pin-date"](facts.date) });
   if (shown.size) {
     const scale = /** @type {number} */ (facts.scale);
     const { bytes, size } = sampleOf(scale);
@@ -419,14 +421,20 @@ export function stripKey(model, view, style, drawn) {
       length: fixed((longestOf(style) * bytes) / scale),
       thickness: STRIP.thickness,
       color: C.dye[0],
-      label: words.length(size),
+      label: measures["owned-bytes"](size),
     });
   }
   const lines = linesOf(style.lines);
   const keyed = (row) => (drawn.includes(row) ? lines.key(row) : null);
   const count = keyed("citations");
   if (count)
-    key.push({ shape: count, count: 3, size: POSTER.floor, color: C.line, label: words.cited });
+    key.push({
+      shape: count,
+      count: 3,
+      size: POSTER.floor,
+      color: C.line,
+      label: measures["cited-files"],
+    });
   const hub = keyed("emphasis");
   if (hub) {
     const { label } = view.components.find(({ id }) => id === seen.hub);
@@ -435,7 +443,7 @@ export function stripKey(model, view, style, drawn) {
       color: C.dye[2],
       weight: lines.stroke(true),
       arrow: fixed(KEY_ARROW * lines.arrow(true)),
-      label: words.leadsTo(label),
+      label: measures.hub(label),
     });
   }
   return key;

@@ -5,7 +5,7 @@ import test from "node:test";
 import { validateModel } from "../src/model/load.mjs";
 import { planViews } from "../src/plan/views.mjs";
 import { admitsView, composePlates } from "../src/poster/compose/plates.mjs";
-import { wordsOf } from "../src/locale.mjs";
+import { measureWordsOf, wordsOf } from "../src/locale.mjs";
 import { BIG_BANK_MODEL, minimalModel } from "./fixtures/models.mjs";
 import {
   typefaces,
@@ -43,7 +43,7 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
       thickness: 12,
       // A sample strip, dyed as the lightest strips are, so it reads as one of them and no louder.
       color: INDIGO.dye.new,
-      label: "20 KB: a strip's length is the code a part owns",
+      label: "20 KB: a strip's length is the size of a part's files",
     },
     // A count as the plate sets one: figures of the smallest type in the line colour.
     {
@@ -51,7 +51,7 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
       count: 3,
       size: 14,
       color: INDIGO.palette.mid,
-      label: "number: the source files this relation cites",
+      label: "number: the files this relation cites",
     },
     // A line into the hub as the plate draws one: twice a line's weight, the oldest dye and the larger arrowhead.
     {
@@ -82,8 +82,8 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
       "提交前 90 日内",
       "更早",
       "提交日 2026-11-10",
-      "20 KB：条长是组件拥有的代码量",
-      "数字：这条关系引用的源文件数",
+      "20 KB：条长是组件拥有的文件大小",
+      "数字：这条关系引用的文件数",
       "粗线：通向供给",
     ],
   );
@@ -107,7 +107,7 @@ test("a band is named by its days before the commit, and the key shows only what
     plate.legend.slice(1, 3).map(({ shape, bytes, label }) => [shape, bytes ?? null, label]),
     [
       ["reference", null, "commit date 2026-11-10"],
-      ["length", 200, "200 B: a strip's length is the code a part owns"],
+      ["length", 200, "200 B: a strip's length is the size of a part's files"],
     ],
   );
   // Without a reference date the bands are still named, undated.
@@ -235,8 +235,9 @@ test("a caption counts one file in the singular in every language that has one",
   assert.equal(wordsOf("es").files(1, "2 KB"), "1 archivo, 2 KB");
   assert.equal(wordsOf("es").files(3, "2 KB"), "3 archivos, 2 KB");
   // A band of one day, were an edition to count one, reads in the singular too.
-  assert.equal(wordsOf("en").sinceCommit(1), "within 1 day of the commit");
-  assert.equal(wordsOf("en").within(1), "within 1 day");
-  assert.equal(wordsOf("es").sinceCommit(1), "en el día previo al commit");
-  assert.equal(wordsOf("es").within(1), "en el día previo");
+  const bands = (locale) => measureWordsOf(locale)["file-age-band"];
+  assert.equal(bands("en").newest(1), "within 1 day of the commit");
+  assert.equal(bands("en").middle(1), "within 1 day");
+  assert.equal(bands("es").newest(1), "en el día previo al commit");
+  assert.equal(bands("es").middle(1), "en el día previo");
 });
