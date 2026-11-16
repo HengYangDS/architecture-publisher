@@ -26,7 +26,7 @@ Inside it lies the question of type sizes, which the study names and answers in 
 - Strong pictures have one dominant structure that fits the system, bands aligned to it, and text at its subject.
 - Contrast comes from lightness, never colour alone. The line hierarchy is a proposal; projector figures are modelled.
 - No tool lays out such a picture: choosing and placing spine, tracks and bands stays the product's own work.
-- A machine can gate size, contrast, collisions and completeness; fit to the system's organizing idea needs a person.
+- A machine can gate size, contrast, collisions and completeness; fit to the system's organizing idea needs a reviewer's judgement.
 
 ## What was read or measured
 
@@ -399,7 +399,7 @@ At most four line weights, each at least 1.5× the next; one accent; everything 
 | Slide applications                             | PowerPoint 2019+ on Windows and 2021+ on Mac insert SVG, and since 2016 keep images at full quality by default; Keynote has inserted and broken apart SVG since 13.1. Not verified: how Keynote and PowerPoint import markers, dashes, `<use>` and clipping, and whether they read an SVG `<title>` as alt text |
 | For clean import (_proposal_, untested)        | A static SVG, styling as attributes rather than CSS, explicit width, height and viewBox, and no live text, markers, `<use>`, masks, filters or patterns                                                                                                                                                         |
 
-### Section 11: checks, what a machine can gate and what needs a person
+### Section 11: checks, what a machine can gate and what needs a reviewer
 
 Readers' experiments mainly support crossings, bends, path straightness and crossing angle; standard formulas exist for
 many more properties (Purchase 2002; Mooney et al., GD 2025).
@@ -421,7 +421,7 @@ many more properties (Purchase 2002; Mooney et al., GD 2025).
 | 11  | Clutter compared with an accepted baseline (Rosenholtz et al. 2007), not a fixed cut-off                                                                                                               |
 | 12  | Selection budget: elements shown against elements in the model, with every aggregate showing its count                                                                                                 |
 
-**Needs a person:**
+**Needs a reviewer's judgement** (the study's word for that reviewer is "person"):
 
 - Does the dominant structure fit the system's organizing idea?
 - A timed task on the projected picture: can viewers name the main flow, the bands and the boundary? Tasks, not
@@ -531,7 +531,7 @@ Each open point stands here once; those the study marks at a source are also mar
   inference, and so is the projector risk of muted palettes; no study was found that tests a spine-and-bands layout with
   software audiences.
 - A timed task with viewers and a look through a real projector in a lit room: section 11 lists both among the checks
-  that need a person, and the study reports neither as done.
+  that need a reviewer's judgement, and the study reports neither as done.
 - Methods the study does not give: how each source was read, beyond its marks; how the reference picture's text runs and
   sizes were read from a PNG; the tool or formula behind the contrast and OKLCH figures, and how the models of section 7
   were built; how the sizes of outlined text (section 9) and the font sizes other than the two subsets (section 6) were

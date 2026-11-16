@@ -219,7 +219,8 @@ to the print edition. The page in a browser is another medium and keeps Archify'
 - That the joined card, the key in the head and the reading page hold on the other five works and in English.
 - A portrait form with figures first: no prototype exists; the one portrait booklet built was text.
 - Whether the page uses Archify to the full.
-- That a person reads the edition as intended: the reader trials used agents, and no person was tested.
+- That a reader other than an agent reads the edition as intended: the reader trials used agents, and no person
+  was tested.
 - The owner agreed with the end state "in the main"; which part the owner would word otherwise is not known.
 
 ## Record
