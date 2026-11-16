@@ -11,7 +11,7 @@ import {
   statementsOfFace,
   stripWork,
 } from "./fixtures/pinned-face.mjs";
-import { platesIn, stripOf, wiresOf } from "./fixtures/strips.mjs";
+import { outlineOf, platesIn, stripOf, wiresOf } from "./fixtures/strips.mjs";
 
 const house = JSON.parse(await fs.readFile(new URL("../src/house.json", import.meta.url), "utf8"));
 const [strips, cards, grouped] = [await stripWork(), await cardWork(), await groupedWork()];
@@ -173,7 +173,7 @@ test("the reported boxes and points are the numbers the plate's SVG writes", () 
   }
 });
 
-test("a strip part's box is the rectangle its label, strip and caption are set in", () => {
+test("a part's box is its card: its label, its strip and its caption stand within it", () => {
   const [plate] = strips.plates;
   const face = plateFace(plate.report);
   assert.deepEqual(face.components.map(({ id }) => id).toSorted(), [
@@ -185,24 +185,39 @@ test("a strip part's box is the rectangle its label, strip and caption are set i
     "words",
   ]);
   for (const { id, box } of face.components) {
-    const strip = stripOf(plate, id);
-    const [first, last] = [strip[0], strip.at(-1)];
+    // The box is the part's outline, as the SVG writes it.
+    const outline = outlineOf(plate, id);
+    assert.deepEqual(box, {
+      x: outline.x,
+      y: outline.y,
+      width: outline.width,
+      height: outline.height,
+    });
     const label = plate.runs.find(({ component }) => component === id);
-    assert.equal(first.x, box.x, `${id}: the strip starts at the box's left edge`);
-    // A run keeps the engine's own number, which the box rounds as the SVG does.
-    assert.equal(
-      Math.abs(label.x - box.x) < 0.06,
-      true,
-      `${id}: the label starts at the box's left edge`,
-    );
-    assert.equal(box.y < label.baseline && label.baseline < first.y, true);
-    assert.equal(last.x + last.width <= box.x + box.width + 0.11, true);
-    // The caption is the nearest line under the strip at the box's left edge: it stands inside the box.
+    assert.equal(box.x < label.x && box.y < label.baseline, true, `${id}: the label`);
+    // Typst owns no file, so its card holds no strip; every other part's strip starts one padding inside the box.
+    const strip = id === "typst" ? null : stripOf(plate, id);
+    const [first, last] = strip ? [strip[0], strip.at(-1)] : [null, null];
+    if (first) {
+      assert.equal(first.x > box.x && label.baseline < first.y, true, `${id}: the strip`);
+      assert.equal(last.x + last.width < box.x + box.width, true, `${id}: the strip's end`);
+    }
+    // The label starts at the card's left padding, where its strip does.
+    if (first) assert.ok(Math.abs(label.x - first.x) < 0.06, `${id}: the label's left edge`);
+    // The caption is the nearest line under the label, its kind's label after the kind's icon: it stands inside
+    // the box.
     const [caption] = plate.runs
-      .filter((run) => Math.abs(run.x - box.x) < 0.06 && run.baseline > first.y)
-      .toSorted((a, b) => a.baseline - b.baseline);
-    const foot = box.y + box.height;
-    assert.equal(first.y + first.height < caption.baseline && caption.baseline <= foot, true, id);
+      .filter(
+        (run) =>
+          !run.component &&
+          run.x > label.x &&
+          run.x < box.x + box.width &&
+          run.baseline > label.baseline &&
+          run.baseline < box.y + box.height,
+      )
+      .toSorted((a, b) => a.baseline - b.baseline || a.x - b.x);
+    assert.ok(caption, `${id}: no caption in its box`);
+    if (first) assert.equal(first.y + first.height < caption.baseline, true, id);
   }
 });
 

@@ -1,13 +1,11 @@
 import { layoutView, placementOf } from "../layout/grid.mjs";
 import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
-import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
-import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
-import { spreadOf } from "./spread.mjs";
-import { stripBoxes } from "./strip.mjs";
+import { wordsOf } from "../locale.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
-import { POSTER, figureMetrics, figureStyles, measureWidth } from "./tokens.mjs";
+import { partBoxes } from "./part.mjs";
+import { POSTER, figureMetrics, figureStyles } from "./tokens.mjs";
 
 /**
  * One plate: one view's figure in the edition's body. The plate tries every
@@ -93,97 +91,21 @@ function layoutFor(style, view, rows, metrics, key, boundaryName) {
 }
 
 /**
- * How wide one card is at one type step: wide enough to set its label and each
- * of its details on one line, within the card measures, and no wider. A card as
- * wide as its field divides into is a panel of paper around a short line; a
- * card as wide as its text reads as a card.
- * @param {import("../locale.mjs").Words} words
- * @param {any} component
- * @param {any} typefaces
- * @param {any} styles
- * @param {any} card the card metrics at this step
- */
-function cardWidthOf(words, component, typefaces, styles, card) {
-  const name = POSTER.cardMeasure.name * styles.name.size;
-  const detail = POSTER.cardMeasure.detail * styles.detail.size;
-  const width = Math.max(
-    card.minimumWidth,
-    Math.min(typefaces.measure(component.label, styles.name), name) +
-      card.icon +
-      card.iconGap +
-      2 * card.pad,
-    ...component.details.map(
-      ([key, values]) =>
-        Math.min(typefaces.measure(detailText(words, key, values), styles.detail), detail) +
-        2 * card.pad,
-    ),
-  );
-  return Math.ceil(width / 8) * 8;
-}
-
-/**
- * How cards size and set their parts at one type step: as wide as their text,
- * as tall as their label and details within their padding, and broken where
- * an atom of their text is wider than its line.
- */
-function cardBoxes(words, typefaces, styles, card, unspaced) {
-  // Details to be spread are wrapped as paragraphs, by the width Typst sets their lines in.
-  const detailWidth = unspaced ? typefaces.typesetWidth : typefaces.measure;
-  const detailLines = unspaced ? typefaces.detailParagraph : typefaces.detailLines;
-  const text = (component, width) => {
-    // Every detail wraps to one measure, which its spread lines end at.
-    const measure = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
-    const details = component.details.map(([key, values]) =>
-      detailLines(words, key, values, measure, styles.detail),
-    );
-    return {
-      name: typefaces.wrap(
-        component.label,
-        Math.min(
-          width - 2 * card.pad - card.icon - card.iconGap,
-          measureWidth(typefaces, styles.name),
-        ),
-        styles.name,
-      ),
-      details: details.flat(),
-      spread: spreadOf(details, measure, styles.detail, detailWidth, unspaced),
-    };
-  };
-  return {
-    width: (component) => cardWidthOf(words, component, typefaces, styles, card),
-    height: (component, width) => {
-      const { name, details } = text(component, width);
-      return (
-        2 * card.pad +
-        name.length * styles.name.line +
-        (details.length ? card.detailGap + details.length * styles.detail.line : 0)
-      );
-    },
-    text,
-    broken: (component, width) =>
-      cardBroken(words, { typefaces, detailWidth }, styles, card, component, width),
-  };
-}
-
-/**
- * The layout metrics of one plate. The field bounds the boxes and their text
- * sets their width; every box keeps its content height, so the figure reports
- * how large it really is. The style decides whether a part is a card or a strip.
+ * The layout metrics of one plate. The field bounds the boxes and their regions
+ * set their width; every box keeps its content height, so the figure reports
+ * how large it really is. Every part is one card, with the regions it has the facts for.
  */
 function candidateMetrics(input) {
   const { model, view, typefaces, styles, metrics, field, style } = input;
   const { card, wire, spacing } = metrics;
   const words = wordsOf(model.locale);
-  const boxes =
-    style.name === "strip"
-      ? stripBoxes({ model, typefaces, styles, card, style })
-      : cardBoxes(words, typefaces, styles, card, writtenUnspaced(model.locale));
+  const boxes = partBoxes({ model, typefaces, styles, card, style });
   return {
     // The field already excludes the tier-label column, so it is the content width.
     contentWidth: () => field.width,
     card: {
       minWidth: card.minimumWidth,
-      least: "least" in boxes ? boxes.least(view.components) : 0,
+      least: boxes.least(view.components),
       // No box is wider than the view's widest box at its natural width.
       maxWidth: Math.min(
         card.maximumWidth,
@@ -379,47 +301,11 @@ function brokenText(input, layout) {
   return null;
 }
 
-/**
- * The first atom of a card's label or details wider than the line it is set
- * on at that card's width, or null when every one fits.
- * @returns {{ reason: string, id: string, width: number, room: number } | null}
- */
-function cardBroken(words, { typefaces, detailWidth }, styles, card, component, width) {
-  const units = (text) => atoms(text).map(({ text: unit }) => unit);
-  const nameRoom = Math.min(
-    width - 2 * card.pad - card.icon - card.iconGap,
-    measureWidth(typefaces, styles.name),
-  );
-  const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
-  for (const word of units(component.label)) {
-    const measured = typefaces.measure(word, styles.name);
-    if (measured > nameRoom)
-      return {
-        reason: "label_broken",
-        id: component.id,
-        width: Math.ceil(measured),
-        room: Math.floor(nameRoom),
-      };
-  }
-  for (const [key, values] of component.details)
-    for (const word of units(detailText(words, key, values))) {
-      const measured = detailWidth(word, styles.detail);
-      if (measured > detailRoom)
-        return {
-          reason: "detail_broken",
-          id: component.id,
-          width: Math.ceil(measured),
-          room: Math.floor(detailRoom),
-        };
-    }
-  return null;
-}
-
 /** Every composition of one plate, best first. */
 export function platesOf(input, plate) {
   const found = [];
   for (const [index, step] of POSTER.steps.entries()) {
-    const styles = figureStyles(step, input.style.name === "strip");
+    const styles = figureStyles(step);
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
       const { centring } = input;

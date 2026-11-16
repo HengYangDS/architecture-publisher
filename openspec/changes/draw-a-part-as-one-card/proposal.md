@@ -20,7 +20,9 @@ part is one card of regions, each drawn where the part has the fact.
   costs its plate a type step.
 - A plate's key lists no kind: each card names its kind beside the kind's icon. The key keeps what a card cannot
   say where it stands: the strip's scale, bands and date, the count beside a relation, the hub's line, the
-  statuses and the ground of a part outside the repository.
+  statuses and the ground of a part outside the repository. A neighbour that a group's view shows as context
+  stands on the same ground inside the repository, and the key says of it that it lies outside the group; it
+  used to say "outside" of both.
 - **BREAKING** The manifest's `style` no longer records `marks`. The manifest stays at version 8, which no
   release has shipped yet.
 
@@ -34,8 +36,8 @@ None.
 
 - `architecture-model`: "Edition marks and palette" is removed and "Edition palette" added.
 - `edition-delivery`: "Plate head and key" and "Key samples from the value table" change; "Edition marks in the
-  manifest" becomes "Edition palette in the manifest"; "Mark defaults and fallback" is removed and "A part without
-  file facts" added.
+  manifest" becomes "Edition palette in the manifest"; "Mark defaults and fallback" is removed; "A part without
+  file facts" and "The grounds in a key" are added.
 - `poster-composition`: new requirements "One part" and "A caption that breaks"; "Cards as large as their text",
   "Strips sized by their files" and "Strips keep to their boxes" change; "Runs of details without word spaces"
   becomes "Runs of a part's text without word spaces"; "Marks keep the gates" is removed.

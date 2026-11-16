@@ -60,7 +60,7 @@ date and the length its largest part is drawn at. It SHALL record no marks.
 #### Scenario: An edition without file facts
 
 - **WHEN** a model is built without `--repo`
-- **THEN** the manifest's style records the palette and no bands, no date and no length
+- **THEN** the manifest's style records the palette, null for its bands, and no length
 
 ## RENAMED Requirements
 
@@ -68,6 +68,23 @@ date and the length its largest part is drawn at. It SHALL record no marks.
 - TO: `### Requirement: Edition palette in the manifest`
 
 ## ADDED Requirements
+
+### Requirement: The grounds in a key
+
+A plate's key SHALL say of each sort of part on the outside ground what is true of it, exactly when the plate shows
+one: of a part outside the repository, the edition's word for outside; of a neighbour that a group's view shows as
+context, which lies inside the repository, that it stands outside the group.
+
+#### Scenario: A part outside the repository
+
+- **WHEN** a plate shows an external tool and no context neighbour
+- **THEN** its key holds the outside ground once, with the word for outside
+
+#### Scenario: A group's view
+
+- **WHEN** a group's view shows two neighbours as context and no part outside the repository
+- **THEN** its key holds the outside ground once, with the words for a neighbour outside the group, and does not
+  say that anything lies outside the repository
 
 ### Requirement: A part without file facts
 

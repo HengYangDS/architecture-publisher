@@ -26,7 +26,7 @@ test("a minimal model normalizes with defaults", () => {
     kind: null,
   });
   assert.equal(model.views, null);
-  assert.deepEqual(model.edition, { marks: null, palette: null });
+  assert.deepEqual(model.edition, { palette: null });
   assert.ok(Object.isFrozen(model.components[0]));
 });
 
@@ -414,9 +414,10 @@ test("a misspelt field names the field it is nearest to", () => {
     messageAt(minimalModel({ edition: { palettes: "indigo" } }), "/edition/palettes"),
     "is not a model field; did you mean palette?",
   );
+  // An edition takes a palette alone, and `mark` is near no field of it.
   assert.equal(
     messageAt(minimalModel({ edition: { mark: "strip" } }), "/edition/mark"),
-    "is not a model field; did you mean marks?",
+    "is not a model field",
   );
   // Nothing in the model format is near enough to suggest.
   assert.equal(messageAt(minimalModel({ extra: true }), "/extra"), "is not a model field");

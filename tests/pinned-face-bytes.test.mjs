@@ -20,26 +20,27 @@ const works = { strips: await stripWork(), cards: await cardWork(), grouped: awa
 const typeset = await typesetWork(works.grouped);
 
 /**
- * The SHA-256 of what the small works drew before a drawing reported anything: recorded once from the source as
- * the queue item `fact-layer` left it, by the same fixture. The drawing gained a report beside what it draws, and
- * no shape, run or key may differ. The bytes of a PDF and of its images are those of one platform's Typst and
- * fonts, so no digest of them is held here: `archpub compare` of whole editions, before and after, holds them.
+ * The SHA-256 of what the small works draw: recorded once from the source, by the same fixture, when every part
+ * became one card, with its strip where it owns files, its kind's icon in its caption and no kind in its key. A
+ * drawing reports what it draws beside it, and no shape, run or key may differ. The bytes of a PDF and of its
+ * images are those of one platform's Typst and fonts, so no digest of them is held here: `archpub compare` of
+ * whole editions, before and after, holds them.
  */
 const BEFORE = Object.freeze({
-  "strips/01-architecture.svg": "7768f56bdc352255f968d4d630dfbfcfac3271702945268db2b4188d7f3d702c",
-  "strips/01-architecture.runs": "c1d6ee2994b73b713405b7cab8e28f3c7998b3046ee6bb7a04b7a5e75311fa88",
+  "strips/01-architecture.svg": "cab615964bc731e242e47e304440bdb4144e1889471a78c8f31175f014802e3a",
+  "strips/01-architecture.runs": "d1040b057a52e2a5750acb70d334057f608617be0685fa8516fa5ebe983f6d38",
   "strips/01-architecture.legend":
-    "8d4ef71a69f693b88580f7b3bd744cf4016c6b489eaf38f4b1a81d7bb0b66aac",
-  "cards/01-architecture.svg": "60d03a1f08f1e4bd52fe2072703f8ea5c42e183169a05fb68494c67fe73b70bb",
-  "cards/01-architecture.runs": "a6a2ab9a9d5a8556603ff809d439cf73d037b004ec9859f17df31e17635d59a5",
+    "f86a0361dfe21c3848ad617f7ba833e0173f128f31e83f5c9e6ce319c090746b",
+  "cards/01-architecture.svg": "8177542c4d6cbf7b02967ee96e9e13d5f1a4f6920b1e632ba92eda834e23b5fe",
+  "cards/01-architecture.runs": "adad0c2cdfb30a007a30dd02fe6bedec0ac530d75d8e1e8cd79c86d9b7dfce43",
   "cards/01-architecture.legend":
-    "4a4ed2497ce4de2e0a0963164602437e6ffe1cbac295f6f5ebb47e9d4a8206f0",
-  "grouped/01-overview.svg": "19faf6ba5258faaf057a07c12e4f87e4d292f76b88fd00012d049d919f4e4320",
-  "grouped/01-overview.runs": "7075a3be0c3550944ed3efd1ae2cfd1dab528963e4108c83ce05d5326029f3db",
-  "grouped/01-overview.legend": "75b20bb8593032715ab2c9b5bca66451d1c74ebf03da12b4c689a6fea12110eb",
-  "grouped/02-pipeline.svg": "7768f56bdc352255f968d4d630dfbfcfac3271702945268db2b4188d7f3d702c",
-  "grouped/02-pipeline.runs": "c1d6ee2994b73b713405b7cab8e28f3c7998b3046ee6bb7a04b7a5e75311fa88",
-  "grouped/02-pipeline.legend": "8d4ef71a69f693b88580f7b3bd744cf4016c6b489eaf38f4b1a81d7bb0b66aac",
+    "94d7fe87bc178be13a4cc84d870e3e21cbe9b9578d1814f1ad465f8fbab5e453",
+  "grouped/01-overview.svg": "58dd57e66ab39dd9e99ce030fe31dc625bce3444cc603af7c8bb8e07933f6f08",
+  "grouped/01-overview.runs": "627a020e6f4a5a724fbaf0dc28446b3963895b1285d83b262ed41920892b76db",
+  "grouped/01-overview.legend": "1fa050d2d12352cadf960a7ce01b9813b877672de85430db5701d6e28273acd7",
+  "grouped/02-pipeline.svg": "dd99d769ca88cd5221d9c16dd8ac992761d8414c7a726695ef584f6ddc19eebc",
+  "grouped/02-pipeline.runs": "d1040b057a52e2a5750acb70d334057f608617be0685fa8516fa5ebe983f6d38",
+  "grouped/02-pipeline.legend": "f86a0361dfe21c3848ad617f7ba833e0173f128f31e83f5c9e6ce319c090746b",
 });
 
 test("a drawing that reports what it drew draws the same bytes: shapes, runs and keys", () => {
@@ -101,10 +102,11 @@ test("a plate's frame and scale place an element of its face on the plate's imag
   };
   const rgb = (hex) => [1, 3, 5].map((at) => parseInt(hex.slice(at, at + 2), 16));
   const near = (a, b) => a.every((value, index) => Math.abs(value - b[index]) <= 3);
-  // The supplies' strip starts with a file of the oldest band: its dye stands where the frame says it does.
+  // The supplies' strip starts with a file of the oldest band, one padding inside the part's box: its dye stands
+  // where the frame says it does.
   const [first] = stripOf(plate, "supplies");
   const { box } = face.components.find(({ id }) => id === "supplies");
-  assert.equal(first.x, box.x);
+  assert.ok(first.x > box.x && first.x - box.x <= 24, `${first.x} in a box from ${box.x}`);
   const inside = pixel(first.x + first.width / 2, first.y + first.height / 2);
   assert.equal(near(inside, rgb(INDIGO.dye.old)), true, `the strip's dye, not ${inside}`);
   // A little left of the part's box, and a little above its strip, the dye does not stand.

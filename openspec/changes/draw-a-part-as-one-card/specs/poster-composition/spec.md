@@ -39,7 +39,8 @@ candidate.
 In an edition whose language is written without spaces between words, the run
 of each line of a part's details SHALL report the width Typst sets the line in,
 and the run of a line to be spread SHALL also name its measure. A part's count
-SHALL report that width too and SHALL end at its card's padding.
+SHALL report that width too and, on its kind's line, SHALL end at its card's
+right padding.
 
 #### Scenario: A line to be spread
 
@@ -58,9 +59,9 @@ SHALL report that width too and SHALL end at its card's padding.
 
 #### Scenario: A part's count
 
-- **WHEN** a Chinese plate sets a part's count
-- **THEN** it ends at the card's padding, and its run reports the width Typst
-  sets it in
+- **WHEN** a Chinese plate sets a part's count on its kind's line
+- **THEN** it ends at the card's right padding, and its run reports the width
+  Typst sets it in
 
 ## MODIFIED Requirements
 

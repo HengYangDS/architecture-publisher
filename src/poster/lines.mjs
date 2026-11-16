@@ -3,8 +3,8 @@ import { fixed } from "./tokens.mjs";
 
 /**
  * The lines of a figure's relations: each drawn in the weight and pattern the
- * table of lines gives its row, with its arrowhead, and on a strip plate with
- * the number of files its relation cites. The count and the view's hub are
+ * table of lines gives its row, with its arrowhead, and where the edition draws
+ * strips with the number of files its relation cites. The count and the view's hub are
  * read from the view's measured facts; nothing is measured here. The drawing
  * hands back, beside what it draws, each path it stroked with the relations it
  * is stroked for, in the numbers the SVG writes.
@@ -234,31 +234,31 @@ const toward = ([x, y], [tx, ty], by) => {
 };
 
 /**
- * Draw every relation's line and arrowhead, and on a strip plate each
- * relation's count of cited files. Strip plates draw the lines into the view's
- * hub with emphasis, so a reader finds what the view draws on: at the table's
- * heavier stroke, in the oldest dye, with a larger arrowhead that the line
- * ends inside, so no round cap shows beside it. A planned line into the hub is
- * heavy too; a retired one keeps its faint colour, its weight and its dots.
- * Cards draw every line alike.
+ * Draw every relation's line and arrowhead, and with the edition's measured
+ * facts each relation's count of cited files. With those facts the lines into
+ * the view's hub are drawn with emphasis, so a reader finds what the view
+ * draws on: at the table's heavier stroke, in the oldest dye, with a larger
+ * arrowhead that the line ends inside, so no round cap shows beside it. A
+ * planned line into the hub is heavy too; a retired one keeps its faint colour,
+ * its weight and its dots. Without them every line is drawn alike.
  * @param {any} layout
- * @param {{ view: any, strips: boolean, facts?: import("./strip.mjs").Facts, styles: any, metrics: any,
+ * @param {{ view: any, facts?: import("./strip.mjs").Facts | null, styles: any, metrics: any,
  *   typefaces: any,
  *   colors: any, lines: ReturnType<typeof import("./tokens.mjs").linesOf>,
- *   at: (x: number) => number, down: (y: number) => number, lift: (point: any) => number[],
+ *   at: (x: number) => number, down: (y: number) => number,
  *   text: Function, shapes: string[], rects: any[],
  *   marks: Array<{ x: number, y: number, width: number, height: number }> }} scene
- *   `marks` are the parts, labels and frame a count may not touch; `facts` are the edition's measured facts, which
- *   a strip plate reads its view's hub and counts from.
+ *   `marks` are the parts, labels and frame a count may not touch; `facts` are the edition's measured facts where
+ *   it draws strips, which the lines read their view's hub and counts from, or none.
  * @returns {{ rows: Set<string>, touching: string[],
  *   paths: Array<{ relations: ReturnType<typeof named>[], points: number[][] }> }} the rows of the table drawn, the
  *   relations whose count has no clear place, and each path stroked, in the order drawn, with the relations it is
  *   stroked for and the points its path is written from
  */
 export function drawLines(layout, scene) {
-  const { view, strips, styles, metrics, typefaces, colors: C, lines } = scene;
-  const { at, down, lift, text, shapes, rects } = scene;
-  const seen = strips ? /** @type {import("./strip.mjs").Facts} */ (scene.facts).view(view) : null;
+  const { view, styles, metrics, typefaces, colors: C, lines } = scene;
+  const { at, down, text, shapes, rects } = scene;
+  const seen = scene.facts ? scene.facts.view(view) : null;
   const hub = seen ? seen.hub : null;
   const emphasised = (relations) =>
     hub !== null && statusOf(relations) !== "retired" && relations.every(({ to }) => to === hub);
@@ -267,16 +267,15 @@ export function drawLines(layout, scene) {
   const arrows = layout.arrows.map((arrow) => {
     const heavy = emphasised(arrow.relations);
     const size = metrics.wire.arrow * lines.arrow(heavy);
-    const tip = { ...arrow, x: at(arrow.x), y: down(lift([arrow.x, arrow.y])[1]) };
+    const tip = { ...arrow, x: at(arrow.x), y: down(arrow.y) };
     return { heavy, size, tip, corners: headOf(tip, size), color: colorOf(arrow.relations) };
   });
   const paths = layout.paths.map(({ relations, points }) => {
-    const ends = [lift(points[0]), ...points.slice(1, -1), lift(points[points.length - 1])];
     const heavy = emphasised(relations);
     return {
       relations,
       heavy,
-      moved: ends.map(([x, y]) => [at(x), down(y)]),
+      moved: points.map(([x, y]) => [at(x), down(y)]),
       weight: lines.stroke(heavy),
     };
   });

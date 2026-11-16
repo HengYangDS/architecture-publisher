@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
-import { MARKS, PALETTES, resolvePalette } from "../src/model/edition.mjs";
+import { PALETTES, resolvePalette } from "../src/model/edition.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { minimalModel, problemsOf } from "./fixtures/models.mjs";
 
@@ -35,11 +35,10 @@ function refusalOf(edition) {
   assert.fail("the model was accepted");
 }
 
-test("an edition chooses from two marks and the house's palettes, in its order", () => {
-  assert.deepEqual(MARKS, ["strip", "card"]);
+test("an edition chooses from the house's palettes, in its order", () => {
   assert.deepEqual(PALETTES, ["indigo", "persimmon", "soot", "patina"]);
   assert.deepEqual(PALETTES, Object.keys(HOUSE.palettes));
-  assert.ok(Object.isFrozen(MARKS) && Object.isFrozen(PALETTES));
+  assert.ok(Object.isFrozen(PALETTES));
   // Each built-in is named for the dye or pigment it comes from, in Chinese and in English.
   assert.deepEqual(
     PALETTES.map((id) => [HOUSE.palettes[id].name["zh-CN"], HOUSE.palettes[id].name.en]),
@@ -52,12 +51,11 @@ test("an edition chooses from two marks and the house's palettes, in its order",
   );
 });
 
-test("the published schema lists the same marks and palettes", async () => {
+test("the published schema lists the same palettes", async () => {
   const schema = await readJson(new URL("../src/model/schema.json", import.meta.url));
   const { edition } = schema.properties;
   assert.equal(edition.additionalProperties, false);
-  assert.deepEqual(Object.keys(edition.properties), ["marks", "palette"]);
-  assert.deepEqual(edition.properties.marks.enum, MARKS);
+  assert.deepEqual(Object.keys(edition.properties), ["palette"]);
   const [named, custom] = edition.properties.palette.oneOf;
   assert.deepEqual(named.enum, PALETTES);
   assert.deepEqual(custom.required, ["ground", "ink", "dye"]);
@@ -65,15 +63,11 @@ test("the published schema lists the same marks and palettes", async () => {
   assert.equal(custom.additionalProperties, false);
 });
 
-test("a model names its marks and palette, and an edition it leaves out is null", () => {
-  assert.deepEqual(editionOf({ marks: "card", palette: "persimmon" }), {
-    marks: "card",
-    palette: "persimmon",
-  });
-  assert.deepEqual(editionOf({ marks: "strip" }), { marks: "strip", palette: null });
-  assert.deepEqual(editionOf({}), { marks: null, palette: null });
+test("a model names its palette, and an edition it leaves out is null", () => {
+  assert.deepEqual(editionOf({ palette: "persimmon" }), { palette: "persimmon" });
+  assert.deepEqual(editionOf({}), { palette: null });
   const model = validateModel(minimalModel());
-  assert.deepEqual(model.edition, { marks: null, palette: null });
+  assert.deepEqual(model.edition, { palette: null });
   assert.ok(Object.isFrozen(model) && Object.isFrozen(model.edition));
 });
 
@@ -226,10 +220,11 @@ test("a measure that rounds onto its bound is shown one step past it", () => {
   ]);
 });
 
-test("an edition's shape, marks, palette name and colours are checked before its rules", () => {
+test("an edition's shape, palette name and colours are checked before its rules", () => {
+  // `marks` once chose between two ways of drawing a part: it is refused by name, whatever it holds.
   assert.deepEqual(refusalOf({ marks: "loom", palettes: "indigo" }), [
+    "model_field_retired /edition/marks: is no longer a model field: every part is drawn as one card, with its strip where it owns files; remove it",
     "model_field_unknown /edition/palettes: is not a model field; did you mean palette?",
-    "model_marks_unknown /edition/marks: must be one of strip, card",
   ]);
   assert.deepEqual(refusalOf({ style: "cards" }), [
     "model_field_unknown /edition/style: is not a model field",
@@ -260,11 +255,11 @@ test("an edition's shape, marks, palette name and colours are checked before its
   );
 });
 
-test("a model may name its edition's marks and palette", () => {
-  const model = validateModel(minimalModel({ edition: { marks: "card", palette: "soot" } }));
-  assert.deepEqual(model.edition, { marks: "card", palette: "soot" });
+test("a model may name its edition's palette", () => {
+  const model = validateModel(minimalModel({ edition: { palette: "soot" } }));
+  assert.deepEqual(model.edition, { palette: "soot" });
   assert.deepEqual(problemsOf(minimalModel({ edition: { marks: "woven", palettes: "indigo" } })), [
+    "model_field_retired /edition/marks",
     "model_field_unknown /edition/palettes",
-    "model_marks_unknown /edition/marks",
   ]);
 });

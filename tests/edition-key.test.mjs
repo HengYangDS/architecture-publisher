@@ -4,7 +4,7 @@ import { editionRecord } from "../src/edition/record.mjs";
 import { recordFacts } from "./fixtures/record-facts.mjs";
 import { icons, platesIn, stripModel, stripStyle } from "./fixtures/strips.mjs";
 
-// The edition sets a strip plate's key from its record: each mark carries what the house class needs to draw a
+// The edition sets a plate's key from its record: each mark carries what the house class needs to draw a
 // true sample beside its words.
 
 test("an edition's key marks carry the date, the sample strip and the count the plate draws", async () => {
@@ -24,11 +24,9 @@ test("an edition's key marks carry the date, the sample strip and the count the 
   });
   const marks = record.plates[0].marks;
   const legend = plates[0].legend;
-  // Every mark keeps the fields of its legend entry; only a kind's icon is swapped for its artwork.
-  assert.deepEqual(
-    marks.filter(({ artwork }) => !artwork),
-    legend.filter(({ icon }) => !icon),
-  );
+  // Every mark is its legend entry, with its fields; the key holds no kind's icon.
+  assert.deepEqual(marks, legend);
+  assert.ok(marks.every((mark) => !("artwork" in mark) && !("icon" in mark)));
   assert.deepEqual(
     marks
       .filter(({ shape }) => ["reference", "length", "count"].includes(shape))

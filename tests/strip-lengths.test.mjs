@@ -6,7 +6,8 @@ import { STRIP_LENGTHS, longestOf, withStripLength } from "../src/poster/strip.m
 // An edition keeps one scale for its strips. When a view cannot hold them at the longest length, every strip of the
 // edition is drawn shorter and the views are planned again, until one length lays out every view.
 
-const strips = { name: "strip", tokens: {} };
+/** A style whose facts hold a largest part, so its edition draws strips. */
+const strips = { tokens: {}, facts: { scale: 56000 } };
 const unfittable = () => refuse("plate_unfittable", "The view cannot be laid out.");
 
 test("the edition's strips are as long as the first length that lays out every view", async () => {
@@ -32,9 +33,11 @@ test("a view that no length lays out, or any other refusal, refuses the build", 
   );
 });
 
-test("cards have no strips to shorten and are planned once", async () => {
-  let calls = 0;
-  const cards = { name: "card", tokens: {} };
-  assert.equal(await withStripLength(cards, async (style) => (calls++, style)), cards);
-  assert.equal(calls, 1);
+test("an edition that draws no strip has none to shorten and is planned once", async () => {
+  // Without measured facts, and with facts that hold no largest part, as a build without a checkout has them.
+  for (const bare of [{ tokens: {} }, { tokens: {}, facts: { scale: null } }]) {
+    let calls = 0;
+    assert.equal(await withStripLength(bare, async (style) => (calls++, style)), bare);
+    assert.equal(calls, 1);
+  }
 });

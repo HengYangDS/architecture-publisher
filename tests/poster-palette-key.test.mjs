@@ -25,12 +25,13 @@ import {
   REFERENCE,
 } from "./fixtures/strips.mjs";
 
-// The strip plate's key and words, and the colours a palette gives either style.
+// The key and words of a plate whose parts carry strips, and the colours a palette gives a plate.
 
-test("a strip plate's key lists exactly the marks it shows, each with a real sample", async () => {
+test("a plate's key lists exactly the marks it shows, each with a real sample", async () => {
   const {
     plates: [plate],
   } = await platesIn(stripModel(), stripStyle());
+  // No kind: a card names its own kind beside the kind's icon.
   assert.deepEqual(plate.legend, [
     { shape: "band", band: 0, color: INDIGO.dye.new, label: "within 7 days of the commit" },
     { shape: "band", band: 2, color: INDIGO.dye.old, label: "earlier" },
@@ -62,10 +63,12 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
       label: "heavy lines lead to Supplies",
     },
     { shape: "boundary", label: "inside The print edition" },
+    // Typst stands outside the boundary, on the ground of a part outside it.
+    { shape: "outside", label: "outside it" },
   ]);
 });
 
-test("a strip plate in Chinese sets its captions and key in Chinese", async () => {
+test("a plate in Chinese sets its captions and key in Chinese", async () => {
   // One file of every band, so the key names all three.
   const parts = new Map(PARTS);
   parts.set("words", part([["src/locale.mjs", 6000, 1]]));
@@ -73,8 +76,10 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
     plates: [plate],
   } = await platesIn(stripModel("zh-CN"), stripStyle(INDIGO, parts));
   const texts = plate.runs.map(({ text }) => text);
-  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "不拥有文件", "阶段", "外部工具"])
+  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "阶段", "外部工具"])
     assert.ok(texts.includes(text), text);
+  // A part that owns no file has no count and no words in its place.
+  assert.ok(!texts.includes("不拥有文件"));
   assert.deepEqual(
     plate.legend.slice(0, 7).map(({ label }) => label),
     [
@@ -117,7 +122,7 @@ test("a band is named by its days before the commit, and the key shows only what
   } = await platesIn(stripModel(), undated);
   assert.deepEqual(
     plain.legend.map(({ shape }) => shape),
-    ["band", "length", "count", "hub", "boundary"],
+    ["band", "length", "count", "hub", "boundary", "outside"],
   );
   // A plate whose parts own no files and whose relations cite none draws no strips or counts to key.
   const bare = validateModel(
@@ -132,8 +137,13 @@ test("a band is named by its days before the commit, and the key shows only what
   const {
     plates: [empty],
   } = await platesIn(bare, stripStyle(INDIGO, new Map()));
+  // Its key holds nothing: its two parts name their one kind in their captions, and neither has a strip.
   assert.deepEqual(empty.legend, []);
-  assert.equal(rectsOf(empty.svg).filter(({ fill }) => fill === "none").length, 2);
+  assert.equal(empty.runs.filter(({ text }) => text === "component").length, 2);
+  assert.deepEqual(
+    rectsOf(empty.svg).filter(({ fill, height }) => fill === "none" || height === 12),
+    [],
+  );
 });
 
 test("an overview's group is made of its members' files in path order", async () => {
@@ -185,11 +195,10 @@ test("a group larger than every part sets the edition's scale, on its own plate 
   assert.ok(Math.abs(lengthOf(stripOf(members, "supplies")) - expected) <= 0.15);
 });
 
-test("a cards plate in indigo draws every colour from its tokens", async () => {
-  const style = { ...stripStyle(), name: "card" };
+test("a plate in indigo draws every colour from its tokens", async () => {
   const {
     plates: [plate],
-  } = await platesIn(stripModel(), style);
+  } = await platesIn(stripModel(), stripStyle());
   const tokens = new Set([
     ...Object.values(INDIGO.palette),
     ...Object.values(INDIGO.figure),
@@ -203,12 +212,13 @@ test("a cards plate in indigo draws every colour from its tokens", async () => {
   for (const color of drawn) assert.ok(tokens.has(color), color);
   for (const color of [INDIGO.figure.card, INDIGO.figure.outside, INDIGO.palette.mid])
     assert.ok(drawn.has(color), color);
-  // Cards keep their icons, boxes and kinds.
+  // Every part keeps its icon and its box and names its kind in its caption, and the key lists no kind.
   assert.match(plate.svg, /filter="url\(#lift\)"/u);
-  assert.ok(plate.legend.some(({ kind }) => kind === "supply"));
+  assert.ok(plate.runs.some(({ text }) => text === "vendored supply"));
+  assert.ok(!plate.legend.some((entry) => "kind" in entry));
 });
 
-test("cards in the house tokens draw the plates of no style named, pinned by their digest", async () => {
+test("the house tokens draw the plates of no style given, pinned by their digest", async () => {
   const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
   bank.components[1].status = "planned";
   bank.components[2].status = "retired";
@@ -220,12 +230,13 @@ test("cards in the house tokens draw the plates of no style named, pinned by the
       .createHash("sha256")
       .update(JSON.stringify(plates.map(({ svg, runs }) => ({ svg, runs }))))
       .digest("hex");
-  // Captured from the engine as it measures with the house faces' kerning. Without the kerning the digest is
-  // 0.12.0's, 9ddb126b…, from before styles and palettes: nothing else has moved a card plate since.
-  const drawn = "58357267d9ad99373e33af41b63f67ae09896146ee3d16ccaa9d67fc718b47b4";
+  // Captured from the engine when every part became one card, its kind's icon in its caption: a change that means
+  // to move no plate drawn without measured facts leaves this digest as it is. Until then it was 58357267…, the
+  // cards of 0.12.0 as the house faces' kerning measures them.
+  const drawn = "2693d24b80d88c3f39cd2219c38ad138ec5feb852be2bf16de7a342f6d7d3df8";
   const unnamed = await platesIn(model);
   assert.equal(digest(unnamed.plates), drawn);
-  const named = await platesIn(model, { name: "card", tokens: HOUSE_TOKENS });
+  const named = await platesIn(model, { tokens: HOUSE_TOKENS });
   assert.equal(digest(named.plates), drawn);
   assert.deepEqual(named.plates, unnamed.plates);
 });

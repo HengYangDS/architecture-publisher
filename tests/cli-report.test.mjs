@@ -71,7 +71,11 @@ test("a check's report marks what passed, what needs attention and what a build 
     ["attention", "moved", "@source move docs/move.md to docs/moved.md"],
     ["attention", "gone", "@source gone docs/gone.md 3:4"],
     ["heading", "Warnings"],
-    ["attention", "marks_fallback", "The edition draws its parts as cards."],
+    [
+      "attention",
+      "line_row_untested",
+      "Plates 01 draw the pattern of a planned relation, which no work has tested.",
+    ],
     ["attention", "model.c4:24", "Skipped."],
     ["closing", "Next: archpub build model.json --out <directory>"],
   ]);
@@ -219,7 +223,12 @@ test("each command's result names what was done and the command to run next", ()
     views: ["index", "internals"],
     plates: 2,
     artifacts: 9,
-    warnings: [{ code: "marks_fallback", message: "The edition draws its parts as cards." }],
+    warnings: [
+      {
+        code: "line_row_untested",
+        message: "Plates 01 draw the pattern of a planned relation, which no work has tested.",
+      },
+    ],
   };
   assert.deepEqual(reportLines(reportResult("build", built, "model.json")), [
     ["title", "archpub build · shop"],
@@ -230,7 +239,11 @@ test("each command's result names what was done and the command to run next", ()
     ["passed", "Files", "9 files"],
     ["passed", "Directory", "/work/delivery"],
     ["heading", "Warnings"],
-    ["attention", "marks_fallback", "The edition draws its parts as cards."],
+    [
+      "attention",
+      "line_row_untested",
+      "Plates 01 draw the pattern of a planned relation, which no work has tested.",
+    ],
     ["closing", "Next: archpub accept /work/delivery --reviewer <name>"],
   ]);
   const labels = (media) =>

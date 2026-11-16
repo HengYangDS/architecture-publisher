@@ -29,14 +29,13 @@ async function manifestOf(t, model, checkout) {
   return { ...manifest, evidence };
 }
 
-test("a revision the checkout lacks is refused before the marks are chosen", async (t) => {
+test("a revision the checkout lacks is refused before the edition's style is resolved", async (t) => {
   const { root: checkout } = await repository(t);
-  // The model claims and cites no file, so no file is bound at the revision; it asks for strips.
+  // The model claims and cites no file, so no file is bound at the revision.
   const model = await writeModel(
     t,
     minimalModel({
       repository: { name: "fixture", url: URL, revision: "f".repeat(40) },
-      edition: { marks: "strip" },
     }),
   );
   await assert.rejects(checkModel(model, { repo: checkout }), { code: "source_revision_unknown" });
@@ -56,7 +55,7 @@ test("an edition whose parts claim files is dated by the pin's commit in its key
     }),
     checkout,
   );
-  assert.equal(manifest.style.marks, "strip");
+  assert.equal(manifest.style.longest, 360);
   // The key's commit date and the bands' spans, as the style records them.
   assert.deepEqual(manifest.style.bands, { spans: [7 * 86400, 90 * 86400], reference: date });
   assert.deepEqual(
@@ -80,7 +79,7 @@ test("an edition whose model cites no file is dated by the pin's commit all the 
     pageModel({ repository: { name: "fixture", url: URL, revision } }),
     checkout,
   );
-  assert.deepEqual([manifest.sources.state, manifest.style.marks], ["none", "card"]);
+  assert.deepEqual([manifest.sources.state, "marks" in manifest.style], ["none", false]);
   assert.equal(manifest.style.bands, null);
   assert.deepEqual(
     [manifest.edition.date, manifest.edition.dated, manifest.edition.release],
@@ -138,6 +137,6 @@ test("the key and the foot name the pin's date as its committer recorded it, wit
   // A model that claims and cites no file binds nothing at the checkout; its edition is dated all the same.
   const bare = validateModel(pageModel({ repository: { name: "fixture", url: URL, revision } }));
   const unbound = layerAt(bare, checkout);
-  assert.equal(editionStyle(bare, unbound).style.name, "card");
+  assert.equal(editionStyle(bare, unbound).record.bands, null);
   assert.equal(footOf(bare, unbound, []), words.foot(bare.title, null, short, date));
 });

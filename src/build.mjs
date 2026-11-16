@@ -20,7 +20,7 @@ import { typesetEdition } from "./edition/typeset.mjs";
 import { checkOverview, typstVersion } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
 import { admitsView, composePlates, lineWarnings } from "./poster/compose/plates.mjs";
-import { longestOf, withStripLength } from "./poster/strip.mjs";
+import { longestOf, measuredOf, withStripLength } from "./poster/strip.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { refuse } from "./refusal.mjs";
 import { bindSources } from "./sources/bind.mjs";
@@ -159,26 +159,24 @@ async function prepare(modelPath, options, listener) {
   listener("verifying files");
   const binding = bindSources(model, options.repo);
   // The pin is read once, and every fact a plate, the record or the page shows is measured from it and the binding
-  // here, before the plan: a view is admitted as its marks draw it.
+  // here, before the plan: a view is admitted as its parts are drawn.
   const commit = commitFacts(model, options.repo);
   // The guide is read whichever media are built: its citations are evidence and its draft ends the reader file. With
   // a checkout, a file it cites that the pin does not hold ends the work here.
   const guide = await guideOf(model, modelPath, binding, commit && options.repo);
   const facts = editionFacts(model, binding, commit);
   // A checkout the model gives no file to verify is named, not refused: a model may be checked before it claims any.
-  // The edition's marks and palette are chosen once, before the plan, since a view is admitted as its marks draw it.
-  const { style: chosen, warnings: styled, record: chosenRecord } = editionStyle(model, facts);
-  const warnings = [
-    ...(options.repo && binding.state === "none"
+  // The edition's palette is resolved once, before the plan, since a view is admitted in the edition's one style.
+  const { style: chosen, record: chosenRecord } = editionStyle(model, facts);
+  const warnings =
+    options.repo && binding.state === "none"
       ? [
           {
             code: "repo_unused",
             message: `--repo names ${options.repo}, but the model claims and cites no file, so none is verified there.`,
           },
         ]
-      : []),
-    ...styled,
-  ];
+      : [];
   const overview = composition
     ? await checkOverview({
         composition,
@@ -204,9 +202,10 @@ async function prepare(modelPath, options, listener) {
     };
   });
   warnings.push(...lineWarnings(plates, style));
-  // With strips, the manifest records the length the edition draws its largest part at.
-  const styleRecord =
-    style.name === "strip" ? { ...chosenRecord, longest: longestOf(style) } : chosenRecord;
+  // Where the edition draws strips, the manifest records the length it draws its largest part at.
+  const styleRecord = measuredOf(style)
+    ? { ...chosenRecord, longest: longestOf(style) }
+    : chosenRecord;
   const { quality } = options;
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const paged = media.includes("page");

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 
 /**
- * The edition's marks and palette: how a model names them, the rules a palette it gives itself
+ * The edition's palette: how a model names it, the rules a palette it gives itself
  * must meet, and the tokens every palette resolves to. Colours are measured in OKLab and OKLCH,
  * whose lightness tells the dye steps apart even on a photocopy, and in WCAG 2 contrast against
  * the ground, the measure readers' tools report.
@@ -10,12 +10,18 @@ import fs from "node:fs";
 /** The built-in palettes, read once; the poster tokens read the same file. */
 const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
-/** How a part is drawn: as a strip of the files it owns, or as a card with its kind's icon. */
-export const MARKS = Object.freeze(["strip", "card"]);
 /** The built-in palettes, in the house's order. */
 export const PALETTES = Object.freeze(Object.keys(HOUSE.palettes));
 const DEFAULT_PALETTE = "indigo";
-const NO_EDITION = Object.freeze({ marks: null, palette: null });
+const NO_EDITION = Object.freeze({ palette: null });
+/**
+ * The fields an edition once took and no longer takes, each with what its refusal says: `marks` chose between a
+ * strip and a card for every part, which are now one part.
+ */
+const RETIRED = Object.freeze({
+  marks:
+    "is no longer a model field: every part is drawn as one card, with its strip where it owns files; remove it",
+});
 const COLOR = /^#[0-9a-f]{6}$/iu;
 /** The seal's cinnabar: no colour of a palette may be mistaken for it. */
 const CINNABAR = "#a93d31";
@@ -270,21 +276,25 @@ function readPalette(value, problems) {
 }
 
 /**
- * Validate a model's optional `edition` into its marks and palette, each null when the model
- * leaves it to the build. Problems are added to the model's one collection, at JSON pointers
- * under `/edition`.
+ * Validate a model's optional `edition` into its palette, null when the model leaves it to the
+ * build. Problems are added to the model's one collection, at JSON pointers under `/edition`; a
+ * field the edition no longer takes is refused by its name, with what replaced it.
  * @param {unknown} value
  * @param {{ add: Function, fields: Function }} problems
- * @returns {Readonly<{ marks: string | null, palette: string | Readonly<Roles> | null }>}
+ * @returns {Readonly<{ palette: string | Readonly<Roles> | null }>}
  */
 export function readEdition(value, problems) {
-  if (value === undefined || !problems.fields(value, "/edition", [], ["marks", "palette"]))
-    return NO_EDITION;
-  const edition = /** @type {{ marks?: string, palette?: unknown }} */ (value);
-  const marks = edition.marks !== undefined && MARKS.includes(edition.marks) ? edition.marks : null;
-  if (marks === null && edition.marks !== undefined)
-    problems.add("model_marks_unknown", "/edition/marks", `must be one of ${MARKS.join(", ")}`);
-  return Object.freeze({ marks, palette: readPalette(edition.palette, problems) });
+  if (value === undefined) return NO_EDITION;
+  let taken = value;
+  if (isRecord(value)) {
+    const given = /** @type {Record<string, unknown>} */ (value);
+    for (const [field, message] of Object.entries(RETIRED))
+      if (field in given) problems.add("model_field_retired", `/edition/${field}`, message);
+    taken = Object.fromEntries(Object.entries(given).filter(([field]) => !(field in RETIRED)));
+  }
+  if (!problems.fields(taken, "/edition", [], ["palette"])) return NO_EDITION;
+  const edition = /** @type {{ palette?: unknown }} */ (taken);
+  return Object.freeze({ palette: readPalette(edition.palette, problems) });
 }
 
 /** A palette's tokens mixed from its roles, named as the 0.12 house names them. */

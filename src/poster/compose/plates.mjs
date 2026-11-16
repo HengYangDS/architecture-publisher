@@ -6,7 +6,7 @@ import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
 import { setWidth } from "../spread.mjs";
 import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
-import { HOUSE, HOUSE_STYLE, POSTER, colorsOf, figureStyles, linesOf } from "../tokens.mjs";
+import { HOUSE, HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
 
 /**
@@ -44,10 +44,11 @@ export function gutterFor(typefaces, labels) {
 }
 
 /**
- * The legend's entries: for cards, the kinds present; for strips, the marks its
- * strips and lines show; then an entry for each further row of the table of
- * lines the figure draws, by the shape the table names for it: the boundary,
- * and the statuses present.
+ * The key's entries: what a plate shows and cannot say where it stands. First the marks its strips and lines show,
+ * where the edition draws strips. Then the boundary, where the figure draws it, by the shape the table of lines
+ * names for its row; the ground of a part outside it, where the view shows a part on that ground; and the statuses
+ * present, each by its row's shape. The key lists no kind, since every card sets its kind's icon before the kind's
+ * label.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {string} boundary
@@ -56,35 +57,23 @@ export function gutterFor(typefaces, labels) {
  */
 function legendOf(model, view, boundary, drawn, rows) {
   const words = wordsOf(model.locale);
-  const hue = colorsOf(drawn.tokens).hue;
   const lines = linesOf(drawn.lines);
-  /** @type {Array<{ shape?: string, kind?: string, label: string, icon?: string, color?: string }>} */
-  const kinds = drawn.name === "strip" ? stripKey(model, view, drawn, rows) : [];
-  for (const component of drawn.name === "strip" ? [] : view.components) {
-    const style = presentation(model, component);
-    if (kinds.some((entry) => entry.kind === style.kind)) continue;
-    kinds.push({
-      kind: style.kind,
-      label: style.label,
-      icon: style.icon,
-      color: hue[/** @type {keyof typeof hue} */ (style.category)],
-    });
-  }
-  /** @type {Array<{ shape: string, label: string }>} */
-  const rest = [];
   const keyed = (row) => (rows.includes(row) ? lines.key(row) : null);
-  // Cards draw an outside part on its own grey card; a strip outside the boundary is told apart by where it
-  // stands alone, so the strip key names the boundary only.
+  const key = stripKey(model, view, drawn, rows);
   const frame = keyed("boundary");
-  if (frame) {
-    rest.push({ shape: frame, label: words.inside(boundary) });
-    if (drawn.name !== "strip") rest.push({ shape: "outside", label: words.outside });
-  }
+  if (frame) key.push({ shape: frame, label: words.inside(boundary) });
+  // Two sorts of part stand on the outside ground, and the key says of each what is true of it: a part outside
+  // the repository stands outside the boundary's frame; a neighbour that a group's view shows as context lies
+  // inside the repository and outside the group.
+  if (view.components.some((component) => presentation(model, component).outside))
+    key.push({ shape: "outside", label: words.outside });
+  if (view.components.some((component) => component.context))
+    key.push({ shape: "outside", label: words.context });
   for (const status of /** @type {const} */ (["planned", "retired"])) {
     const shape = keyed(status);
-    if (shape) rest.push({ shape, label: words[status] });
+    if (shape) key.push({ shape, label: words[status] });
   }
-  return { kinds, rest };
+  return key;
 }
 
 /**
@@ -215,7 +204,7 @@ function unfittable(view) {
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} typefaces
  * @param {any} icons
- * @param {import("../strip.mjs").Style} [style] cards in the house tokens unless given
+ * @param {import("../strip.mjs").Style} [style] the house tokens and no measured facts unless given
  */
 export function admitsView(model, view, typefaces, icons, style = HOUSE_STYLE) {
   if (compositions({ model, typefaces, icons, style }, view).next().done) unfittable(view);
@@ -329,7 +318,7 @@ function widthOf(scene, view, full) {
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
  * @param {any} icons
- * @param {import("../strip.mjs").Style} [style] cards in the house tokens unless given
+ * @param {import("../strip.mjs").Style} [style] the house tokens and no measured facts unless given
  */
 export function composePlates(model, views, typefaces, icons, style = HOUSE_STYLE) {
   const boundaryName = model.repository?.name ?? model.title;
@@ -339,7 +328,7 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
     if (!full) unfittable(view);
     const { chosen, share, reading, standfirst } = widthOf(scene, view, full);
     const { one, centring, tierLabels, balance, width, height } = chosen;
-    const { kinds, rest } = legendOf(model, view, boundaryName, style, one.figure.lines);
+    const legend = legendOf(model, view, boundaryName, style, one.figure.lines);
     return {
       page: index + 1,
       views: [view.id],
@@ -370,7 +359,7 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         ...(run.component ? { component: run.component } : {}),
         ...(run.measure ? { measure: run.measure } : {}),
       })),
-      legend: [...kinds, ...rest],
+      legend,
       lines: one.figure.lines,
       touching: one.figure.touching,
       report: one.figure.report,

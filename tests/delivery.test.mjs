@@ -34,13 +34,11 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
   assert.equal(manifest.version, 8);
-  // Without a checkout no part has a strip, so the edition draws cards, in the default palette.
-  const { marks, palette, names, bands } = manifest.style;
-  assert.deepEqual([marks, palette, names, bands], ["card", "indigo", INDIGO, null]);
-  assert.deepEqual(
-    built.warnings.map(({ code }) => code),
-    ["marks_fallback"],
-  );
+  // Without a checkout no part has a strip, which is no fallback to warn of; the palette is the default.
+  const { palette, names, bands } = manifest.style;
+  assert.deepEqual([palette, names, bands], ["indigo", INDIGO, null]);
+  assert.ok(!("marks" in manifest.style) && !("longest" in manifest.style));
+  assert.deepEqual(built.warnings, []);
   assert.deepEqual([manifest.quality, manifest.media], ["showcase", ["edition", "page"]]);
   assert.equal(manifest.model.locale, "en");
   assert.equal(manifest.model.id, "big-bank");
@@ -175,12 +173,10 @@ test("check reports the plan without writing and invalid models leave no partial
     minimalModel({ relations: [{ id: "x", from: "a", to: "zz", label: "y" }] }),
   );
   await assert.rejects(buildDelivery(bad, path.join(root, "never")), { code: "model_invalid" });
-  // Strips are drawn from the files a checkout holds: a model that asks for them without one is refused.
+  // A model no longer chooses how its parts are drawn: one that names `edition.marks` is refused as invalid.
   const strips = await writeModel(t, minimalModel({ edition: { marks: "strip" } }));
-  await assert.rejects(checkModel(strips), { code: "marks_need_files" });
-  await assert.rejects(buildDelivery(strips, path.join(root, "never")), {
-    code: "marks_need_files",
-  });
+  await assert.rejects(checkModel(strips), { code: "model_invalid" });
+  await assert.rejects(buildDelivery(strips, path.join(root, "never")), { code: "model_invalid" });
   assert.deepEqual(await fs.readdir(root), []);
 });
 
@@ -229,10 +225,9 @@ test("files verified against the checkout are recorded and cited on the page at 
   // The change date is the commit's UTC day; the edition's date is the committer's own, which may differ by one.
   const changedAt = Number(git("log", "-1", "--format=%ct", "--", "src/main.mjs"));
   assert.equal(data.evidence[0].changed, new Date(changedAt * 1000).toISOString().slice(0, 10));
-  // The edition draws strips by default, in the model's own palette, with the fixed bands dated by the pin's day as
-  // its committer recorded it, the day the edition's foot prints.
+  // The edition draws a strip in each part that owns files, in the model's own palette, with the fixed bands dated
+  // by the pin's day as its committer recorded it, the day the edition's foot prints.
   assert.deepEqual(manifest.style, {
-    marks: "strip",
     palette: "custom",
     names: null,
     roles: SAPPAN,
