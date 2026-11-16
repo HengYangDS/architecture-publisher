@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { queueItem, queueProblems, readQueue } from "./fixtures/evolution-queue.mjs";
+import { queueItem, queueProblems, readQueue, researchPages } from "./fixtures/evolution-queue.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const queue = [
@@ -11,6 +11,8 @@ const queue = [
   { id: "second", done: false },
   { id: "third", done: false },
 ];
+const held = ["parts.md", "lines.md"];
+const rests = ["parts.md"];
 
 test("a queue is read in order with what is finished, and a proposal's queue line names its item", () => {
   const contract =
@@ -24,25 +26,36 @@ test("a queue is read in order with what is finished, and a proposal's queue lin
 });
 
 test("a Change is held to the queue's order, and maintenance to the source outside the drawing", () => {
-  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "second" }]), []);
-  assert.deepEqual(
-    queueProblems(
-      queue,
-      [{ name: "a", item: "second" }].map((c) => ({ ...c, item: null })),
-    ),
-    ["a names no queue item"],
-  );
-  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "fourth" }]), [
+  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "second", rests }], held), []);
+  assert.deepEqual(queueProblems(queue, [{ name: "a", item: null, rests }], held), [
+    "a names no queue item",
+  ]);
+  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "fourth", rests }], held), [
     "a names fourth, which the queue does not hold",
   ]);
-  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "third" }]), [
+  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "third", rests }], held), [
     "a names third while second is unfinished",
   ]);
   const changed = ["docs/how-to.md", "src/poster/figure.mjs", "src/cli/run.mjs"];
-  assert.deepEqual(queueProblems(queue, [{ name: "m", item: "maintenance", changed }]), [
+  assert.deepEqual(queueProblems(queue, [{ name: "m", item: "maintenance", changed }], held), [
     "m is maintenance and changes src/poster/figure.mjs",
   ]);
-  assert.deepEqual(queueProblems(queue, [{ name: "p", item: "second", changed }]), []);
+  assert.deepEqual(queueProblems(queue, [{ name: "p", item: "second", changed, rests }], held), []);
+});
+
+test("the design of a queue item's Change names a research page the repository holds", () => {
+  const design =
+    "Rests on: `docs/research/parts.md`, and docs/research/parts.md again; see docs/research/README.md.";
+  assert.deepEqual(researchPages(design), ["parts.md"]);
+  assert.deepEqual(researchPages("Rests on: the owner's words."), []);
+  assert.deepEqual(queueProblems(queue, [{ name: "a", item: "second" }], held), [
+    "a names second and its design names no research page",
+  ]);
+  assert.deepEqual(
+    queueProblems(queue, [{ name: "a", item: "second", rests: ["parts.md", "gone.md"] }], held),
+    ["a rests on docs/research/gone.md, which the repository does not hold"],
+  );
+  assert.deepEqual(queueProblems(queue, [{ name: "m", item: "maintenance" }], held), []);
 });
 
 /** The files this checkout changes against dev, or nothing where no dev is known, as in a hosted job. */
@@ -76,12 +89,18 @@ test("the contract holds a queue, and every active Change names an item in its o
   const directory = path.join(root, "openspec/changes");
   const entries = await fs.readdir(directory, { withFileTypes: true }).catch(() => []);
   const changed = changedAgainstDev();
+  const pages = (await fs.readdir(path.join(root, "docs/research")))
+    .filter((name) => name.endsWith(".md") && name !== "README.md")
+    .sort();
   const changes = [];
   for (const entry of entries.filter((each) => each.isDirectory() && each.name !== "archive"))
     changes.push({
       name: entry.name,
       item: queueItem(await fs.readFile(path.join(directory, entry.name, "proposal.md"), "utf8")),
       changed,
+      rests: researchPages(
+        await fs.readFile(path.join(directory, entry.name, "design.md"), "utf8").catch(() => ""),
+      ),
     });
-  assert.deepEqual(queueProblems(held, changes), []);
+  assert.deepEqual(queueProblems(held, changes, pages), []);
 });

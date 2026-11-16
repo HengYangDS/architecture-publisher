@@ -1,7 +1,7 @@
 ## 1. Tests first
 
-- [ ] 1.1 Extend `tests/evolution-queue.test.mjs` with the cases of a queue item's Change whose design names no research page and one that names a page the repository lacks; watch them fail; then make `tests/fixtures/evolution-queue.mjs` pass them. Done when the file's tests pass and fail again with the rule removed.
-- [ ] 1.2 Add `tests/model-states-no-position.test.mjs`. Done when it passes on the tracked schema and fails when a property `x` is added to `src/model/schema.json`, which is then removed.
+- [x] 1.1 Extend `tests/evolution-queue.test.mjs` with the cases of a queue item's Change whose design names no research page and one that names a page the repository lacks; watch them fail; then make `tests/fixtures/evolution-queue.mjs` pass them. Done when the file's tests pass and fail again with the rule removed. Without the rule the new case failed alone (5 of 6 passed); with it 6 of 6 pass.
+- [x] 1.2 Add `tests/model-states-no-position.test.mjs`. Done when it passes on the tracked schema and fails when a property `x` is added to a copy of `src/model/schema.json`. It passes on the tracked schema; on a copy with `views[].x` it fails and names `/properties/views/items/properties/x`.
 
 ## 2. Research pages
 
