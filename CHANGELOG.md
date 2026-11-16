@@ -62,6 +62,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The product contract says what the edition and the page are each for, and that each medium draws its own figures;
+  the edition's landscape pages are made to be shown as slides. Its queue orders the open items by the dimensions of
+  the edition's figure language: parts that compose, a portrait edition, compositions, carriers, palette and style,
+  and the page. The items on a sample book set by hand, statements in the model and pages by question leave it, with
+  the rule against new palettes, styles and compositions.
 - The icons are generated from `lucide-static` 1.73.0. The bundled example, the LikeC4 shop and the
   publisher's own work in Chinese build the same bytes as before.
 - The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No

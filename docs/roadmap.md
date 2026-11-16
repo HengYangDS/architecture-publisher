@@ -16,6 +16,12 @@ and called the design below. A committee of eight wrote both on 2026-11-14; its 
 ledgers cited here, is the maintainer's local evidence and is not in the repository. Bracketed marks name the
 committee's seats, and a number after a seat, as in [language 6], is that seat's condition or comment number.
 
+On 2026-11-16 the Change `order-the-queue-by-the-figure-language` ordered the queue's open items anew. Steps 0 to 3
+of this document are finished, and it stands as their record. Steps 4 to 8, and the rows of the tables below that
+land in them, direct no work: the sample edition set by hand, statements and a question table in the model and on
+pages, the freeze of styles and compositions, and the six works as an item of this queue. The queue in the product
+contract says what is built next.
+
 ## Design items by step
 
 From the committee's appendix A [language 6], with the round 4 additions in the last eight rows.

@@ -20,6 +20,17 @@ a manifest that binds every artifact to its inputs. The page
 is the guide its author writes when the model names one, and otherwise answers
 the question view by view.
 
+A delivery is figures first, and its text assists them. The print edition is
+for people who explain a system to other people, in a talk, a report or a
+lesson: its pages are landscape, made for a screen or a projector, and serve as
+slides. The page is interactive and is for a reader who explores it at a screen
+of their own; it does not suit a formal presentation or a publication. The two
+media serve different occasions and are designed apart. Each draws its own
+figures: the edition's plates are the publisher's engine's and the page's
+diagrams are Archify's, and nothing drawn for one is carried into the other.
+The data and the reader file serve a reader that works from text, an agent
+first.
+
 The model says what the architecture is: components, relations, their details
 and the repository files that support them. Architecture Publisher owns how that
 meaning becomes a clear figure: rows, placement, routing, typography and the
@@ -161,8 +172,9 @@ product depends on which kind of holder it is.
 - `archpub check` reports what a model draws, cites and covers of its
   repository, and how far the repository has moved since its revision. These
   are counts for the author and the reviewer; they never refuse a model.
-- The media are the print edition and the page. Slides and mobile layouts are
-  not produced.
+- The media are the print edition and the page. The edition's landscape pages
+  are made to be shown as slides; no file of a slide program and no mobile
+  layout is produced.
 - A build needs no network, account or credential. Publication copies files
   locally; uploading to a Forge or a website is the caller's own step.
 - The publisher compiles a model and the files it cites into publications. It
@@ -179,47 +191,48 @@ a breaking release. Earlier releases and their deliveries stay as they were.
 
 ### Queue
 
-The product is built in the order below, one item at a time. The Change `queue-the-roadmap-and-name-roles`, kept
-in `openspec/changes/archive/`, records the design behind each item, its acceptance and the line at which it
-stops. Every Change's proposal ends with the item it serves, as `Queue: <item>`, or with `Queue: maintenance`
-when it changes no product behaviour; `tests/evolution-queue.test.mjs` refuses a Change that names no item, an
-item not listed here, or an item that an unfinished one precedes, and a maintenance Change that changes the
-layout, plate, page, overview or edition source. A new direction joins the list by a commit that says what it
-moves back. Items marked as work on the publications are finished there and ticked by the next Change here.
-[Roadmap details](roadmap.md) says what each item does.
+The product is built in the order below, one item at a time. Every Change's proposal ends with the item it serves,
+as `Queue: <item>`, or with `Queue: maintenance` when it changes no product behaviour;
+`tests/evolution-queue.test.mjs` refuses a Change that names no item, an item not listed here, or an item that an
+unfinished one precedes, and, where a `dev` ref is known, a maintenance Change that changes the layout, plate,
+page, overview or edition source. A new direction joins the list by a commit that says what it moves back.
+
+The open items follow the dimensions of the edition's figure language: its parts, the edition's forms, the
+composition of a view, the carriers of what a work covers, and palette and style; the page is a line of its own.
+The Change `order-the-queue-by-the-figure-language`, kept in `openspec/changes/archive/`, records why, and what
+became of the items it removed. The design of the Change `queue-the-roadmap-and-name-roles` is the record of the
+six finished items and directs none of the open ones; [Roadmap details](roadmap.md) holds its detail. An item is
+accepted on the published works as the product builds them, with what its own gates record of every plate.
 
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
-      and for agents alike. The owner put it here on 2026-11-14: 「archpub 的 cli 在屏幕上看起来好丑」「利用好成熟工具
-      和框架，减少手撸」. It moves `paper-and-experiments` back by its own length.
+      and for agents alike.
 - [x] `paper-and-experiments`: no product code. The reviewer's procedure and its seeded checks, the question
       matrices of three works, the table of what each mark on a plate now means, the reader experiment, the author's
       timing, and the comparison of lines on screen with a first figure-reading check. Work on the publications,
-      finished there on 2026-11-15: its `trials/2026-11-15-outcome.md` says what each trial decided. The stop line
-      was not reached: a reader with a work's model and guide text beside the repository did better than one with
-      the repository alone.
-- [x] `line-table`: a command that compares two deliveries, and one table of line weights and patterns. It holds
-      the rows the experiments passed, and heavy lines into a view's hub, which the owner kept on 2026-11-15 after
-      their reading fell one answer short of its line.
+      finished there on 2026-11-15: its `trials/2026-11-15-outcome.md` says what each trial decided. In one run an
+      agent reader with a work's model and guide text beside the repository did better than one with the
+      repository alone; no person was tested.
+- [x] `line-table`: a command that compares two deliveries, and one table of line weights and patterns, with heavy
+      lines into a view's hub.
 - [x] `fact-layer`: the facts a plate draws, measured in one layer that every projection reads; no delivered
       byte changes.
 - [x] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
       the reader experiment supports.
-- [ ] `sample-book`: one work set by hand as a whole book: its contents are the question table, silence is
-      printed, and one page compares the publisher's own plates with Archify's. The owner's first look. Work on the
-      publications.
-- [ ] `model-four`: the model's one new version: questions, written statements, line ranges, the strength and
-      origin of evidence; style moves beside the model; `check` reports each question-table entry's state.
-- [ ] `one-anatomy`: one anatomy for every part, its regions drawn where the part has the fact; the choice
-      between strips and cards goes.
-- [ ] `blocks-by-question`: the page blocks the sample book used and no others; the edition set by question.
-- [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and the verdict on each
-      statement; the reviewer's Skill.
-- [ ] `six-works`: the six works completed, set anew and accepted, each named from its own repository. The
-      owner's second look. Work on the publications.
-- [ ] `freeze-and-foreign-work`: the model, manifest and acceptance formats held still for one cycle, and one
-      work on a repository that is not the owner's, written by an agent from the Skill alone.
-
-Until `freeze-and-foreign-work` is finished the product takes no new palette, style, composition or typeface, no
-binding an author can write, no new channel of distribution, platform or language, and no service.
+- [ ] `composable-parts`: a part is a card of regions that compose: its outline, its name and kind, the strip of
+      what it owns, its counts and its details, each drawn where the part has the fact. Cards and strips are no
+      longer two exclusive ways of drawing a part. A planned part that owns no file yet has no strip.
+- [ ] `portrait-edition`: the edition in a second form, portrait pages for publication as a booklet read on a
+      screen, beside the landscape pages for presenting; figures first in both, and each form named for what it is.
+- [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author; a
+      plate's blank space and balance are improved by that choice and no longer only recorded.
+- [ ] `carriers`: figures of the edition's own for what a work covers beyond its structure: its history and its
+      plans in time, the change between two pins, the structure of its repository, the course of a mechanism, and
+      an important part opened.
+- [ ] `palettes-and-styles`: style moves beside the model, and the house gains a further style.
+- [ ] `page`: the page measured against what Archify offers, and what it leaves unused taken up.
+- [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and what was judged; the
+      reviewer's Skill.
+- [ ] `foreign-work`: one work on a repository that is not the maintainer's, written by an agent from the Skill
+      alone.
