@@ -348,6 +348,11 @@ ground, `ink` the ink, `green` the oldest dye and `ochre` the accent.
 
 ## Overview
 
+An overview composition is the one input in which an author places marks by
+coordinates; a model itself states no position. It stays until the publisher
+draws the overview from the model, the `carriers` item of the
+[queue](../product-contract.md#queue).
+
 `overview` names the work's overview composition: a Typst file, relative to the
 model and within its directory, that sets one 16:9 page with the publisher's
 house class; the print edition sets it in place after its contents, so its
