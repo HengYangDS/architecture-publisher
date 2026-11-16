@@ -37,8 +37,7 @@ None.
 
 ### Modified Capabilities
 
-- `product-identity`: the requirement "The roadmap is one queue in the contract" gains the rule that the design of
-  a Change of a queue item names a research page.
+- `product-identity`: a new requirement, "A queue item's Change rests on research".
 - `architecture-model`: a new requirement, "A model states no position".
 
 ## Impact
