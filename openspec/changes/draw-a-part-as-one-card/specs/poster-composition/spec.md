@@ -207,12 +207,11 @@ again.
 
 ### Requirement: Citation counts and the hub
 
-In an edition with file facts, a relation that cites files SHALL carry their number once near its source, in the
-smallest figure type and its line's colour, and no tick. The part with the most incoming relations of a view, when
-it has at least three and more than any other, SHALL be the hub. A relation into the hub, unless retired, SHALL be
-drawn with the value table's emphasis, in the oldest dye, ending inside its arrowhead. A count with no clear place
-SHALL raise `citation_count_touches`. In an edition without file facts every line SHALL be drawn alike and carry no
-number.
+With file facts, a relation that cites files SHALL carry their number once near its source, in the smallest figure
+type and its line's colour, and no tick, and the part with the most incoming relations of a view, when it has at
+least three and more than any other, SHALL be the hub. A relation into the hub, unless retired, SHALL be drawn with
+the value table's emphasis, in the oldest dye, ending inside its arrowhead. A count with no clear place SHALL raise
+`citation_count_touches`.
 
 #### Scenario: A hub and its citations
 
