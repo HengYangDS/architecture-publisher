@@ -6,4 +6,4 @@
 ## 2. Acceptance
 
 - [x] 2.1 Run the checks that need no ticket: the remember test, the module boundaries, lint, types and dead code. Done when all pass. They pass. The whole suite runs once, in the proof's behaviour gate, under the proof's ticket; its duration there stands beside the 1864 s at which the first Change's proof stopped.
-- [ ] 2.2 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.
+- [x] 2.2 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it. The rehearsal at the commit before this tick refused only the open task; it is run again at the lane's head before the archive, and its record stands in `solve-once/run/rehearsal.json`.
