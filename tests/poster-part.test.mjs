@@ -12,6 +12,7 @@ import { minimalModel } from "./fixtures/models.mjs";
 import {
   INDIGO,
   PARTS,
+  countsOf,
   icons,
   iconsOf,
   labelOf,
@@ -185,6 +186,13 @@ test("a build without a checkout draws every part's outline and no strip, and wa
   // Each caption names its part's kind, and none counts files.
   assert.ok(plate.runs.some(({ text }) => text === "vendored supply"));
   assert.ok(!plate.runs.some(({ text }) => /\bfiles?, /u.test(text)));
+  // Without file facts no line carries a number and none is drawn heavier for a hub, though four relations of the
+  // view end at the supplies and cite files.
+  assert.deepEqual(countsOf(plate), []);
+  assert.deepEqual(
+    plate.lines.filter((row) => row === "citations" || row === "emphasis"),
+    [],
+  );
   // The key holds no entry of a strip: the boundary and the ground of the part outside it, and no kind.
   assert.deepEqual(plate.legend, [
     { shape: "boundary", label: "inside The print edition" },

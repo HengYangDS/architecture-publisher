@@ -39,10 +39,16 @@ function reportsItsView(views, plates) {
     assert.deepEqual(differences(views[index], plateFace(plate.report)), {}, plate.views[0]);
 }
 
-/** The plate of the ETHOS work's proof plane, its views given the summary. */
+/**
+ * The plate of the ETHOS work's proof plane, its views given the summary and its parts longer names. Under their
+ * own names the figure wires alike at the full width and at 80 percent of the body, one crossing and no route
+ * defect, so the summary is set beside it; 18 characters more to each name widen the cards until the figure has
+ * a route defect at 80 percent that it has not at the full width.
+ */
 async function proofPlane(summary) {
   const ethos = JSON.parse(await fs.readFile(ETHOS_PROOF_PLANE_MODEL, "utf8"));
   for (const view of ethos.views) view.summary = summary;
+  for (const component of ethos.components) component.label += " of one exact HEAD";
   return (await platesOf(validateModel(ethos))).plates.find(({ views: [id] }) => id === "proof");
 }
 
@@ -155,12 +161,18 @@ test("a view with a summary gives up a fifth of the body, or keeps it and sets i
   const self = JSON.parse(await fs.readFile(SELF_MODEL, "utf8"));
   for (const view of self.views) view.summary = `What the ${view.id} view shows.`;
   const plates = (await platesOf(validateModel(self))).plates;
-  // The media view keeps its step at 80 percent and loses one at 65 percent, and keeps that width as before.
+  // The layout view is set at the largest type step at the full width and at 80 percent of the body, and three
+  // steps smaller at 65 percent, so it gives up a fifth and no more.
+  const layout = plates.find(({ views: [id] }) => id === "layout");
+  assert.deepEqual([layout?.share, layout?.width, layout?.reading], [0.8, 1805, "set"]);
+  assert.equal(layout?.standfirst, undefined);
+  // The media view is set at the largest step at 65 percent as at 80, with the one route defect it has at the full
+  // width and no crossing, so it gives up more of the body at no cost to its type.
   const media = plates.find(({ views: [id] }) => id === "media");
-  assert.deepEqual([media?.share, media?.width, media?.reading], [0.8, 1805, "set"]);
-  assert.equal(media?.standfirst, undefined);
-  // The ETHOS proof plane wires worse at 80 percent of the body than at its full width, and no worse at the full
-  // width below a one-line summary, so the figure keeps the full width and gives up the top of the body.
+  assert.deepEqual([media?.share, media?.width, media?.reading], [0.65, 1466, "set"]);
+  // The ETHOS proof plane with its longer names has one crossing and no route defect at the full width, a route
+  // defect more at 80 percent of the body, and none more at the full width below a one-line summary, so the figure
+  // keeps the full width and gives up the top of the body.
   const plane = await proofPlane("What the proof view shows.");
   assert.deepEqual([plane?.share, plane?.width, plane?.reading], [1, BODY.width, "above"]);
   assert.deepEqual(plane?.standfirst?.lines, ["What the proof view shows."]);
@@ -169,8 +181,8 @@ test("a view with a summary gives up a fifth of the body, or keeps it and sets i
 });
 
 test("a summary above its figure is broken within 32 em at 17 points, and one that leaves too little height is left out", async () => {
-  // Two lines: the proof plane's figure wires no worse at the full width below them, and worse below six times as
-  // many.
+  // Two lines: the proof plane's figure, with its longer names, wires at the full width below them as it does in
+  // the whole body, one crossing and no route defect, where at 80 percent of the body it has a route defect more.
   const long =
     "Each stage of the proof plane hands its evidence to the next one down, and every stage keeps its own record of what it checked.";
   const plane = await proofPlane(long);
@@ -181,7 +193,8 @@ test("a summary above its figure is broken within 32 em at 17 points, and one th
   for (const line of plane.standfirst.lines)
     assert.ok(typefaces.measure(line, serif) <= 32 * 17, line);
   assert.equal(plane.height, BODY.height - (plane.standfirst.lines.length * 24 + 16) * 1.5);
-  // A summary that leaves the figure less than half the body cannot keep its wiring there.
+  // Six times the summary is eleven lines, which leave the figure 651 px of the body's 1071: none of its
+  // compositions is laid out in that height, so the summary is left out and the figure keeps the body.
   const omitted = await proofPlane(`${long} `.repeat(6).trim());
   assert.deepEqual(
     [omitted?.reading, omitted?.height, omitted?.standfirst],
@@ -226,11 +239,12 @@ test("the tier-label column is as wide as its labels need and no wider than its 
 });
 
 test("tier labels stand before the edge their tier starts at when that leaves less of the plate blank", async () => {
-  // AIGW's authority view starts its tiers at different edges: labels in one
-  // column leave paper between it and the tiers that start further in, so the
-  // plate sets each label before its own tier's edge.
+  // AIGW's overview starts its tiers at different edges, the four inside the
+  // boundary at the boundary's edge and the clients outside it further left:
+  // labels in one column leave paper between it and the tiers that start
+  // further in, so the plate sets each label before its own tier's edge.
   const { plates } = await platesOf(await loaded(AIGW_MODEL));
-  const plate = plates.find(({ views: [id] }) => id === "authority");
+  const plate = plates.find(({ views: [id] }) => id === "overview");
   assert.equal(plate?.composition.tierLabels, "edges");
   const numbers = tierNumbers(plate, "x");
   assert.ok(numbers.length > 1);

@@ -340,8 +340,10 @@ test("check, build, accept, publish and import run end to end", async (t) => {
 });
 
 test("check names each plate's share of the body and a plate that left its reading out", async (t) => {
-  // The ETHOS proof plane would wire worse at 80 percent of the body, so its summary finds no room beside it.
+  // The ETHOS proof plane with longer names would wire worse at 80 percent of the body, with a route defect it has
+  // not at the full width, so its summary finds no room beside it. Under its own names it wires alike at both.
   const ethos = JSON.parse(await fs.readFile(ETHOS_PROOF_PLANE_MODEL, "utf8"));
+  for (const component of ethos.components) component.label += " of one exact HEAD";
   for (const view of ethos.views) view.summary = `What the ${view.id} view shows.`;
   const model = await writeModel(t, ethos);
   const checked = await json(["check", model, "--media", "edition"]);
