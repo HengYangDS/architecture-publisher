@@ -60,3 +60,18 @@ test("every language sets every word of the reader file in its own words", () =>
   assert.equal(readerWordsOf(undefined), english);
   assert.equal(readerWordsOf("xx"), english);
 });
+
+test("in Chinese a checkout the build reads is named as a directory, not by the bare verb", () => {
+  // 检出 alone is what git does; the thing a build reads files in is the directory it leaves (2026-11-18).
+  for (const [locale, verb, directory] of [
+    ["zh-CN", "检出", "检出目录"],
+    ["zh-TW", "簽出", "簽出目錄"],
+  ]) {
+    const words = readerWordsOf(locale);
+    for (const key of ["keys", "noCheckout", "check"]) {
+      const text = /** @type {string} */ (words[key]);
+      assert.ok(text.includes(directory), `${locale} ${key} names the directory`);
+      assert.equal(text.split(verb).length, text.split(directory).length, `${locale} ${key}`);
+    }
+  }
+});
