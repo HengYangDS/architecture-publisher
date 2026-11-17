@@ -91,7 +91,7 @@ test("the acceptance slip names the reviewer, the time, the subject, the commit,
   assert.deepEqual(
     chinese.facts.map(({ label, value }) => [label, value]),
     [
-      ["验收人", "Yang HENG"],
+      ["审阅者", "Yang HENG"],
       ["验收时间", "2026-11-12 08:30:15 UTC"],
       ["对象", "Minimal v1.2.0"],
       ["提交", REVISION],
@@ -100,11 +100,11 @@ test("the acceptance slip names the reviewer, the time, the subject, the commit,
       ["备注", "已通读"],
     ],
   );
-  assert.equal(chinese.scope, "验收记载谁在何时接受了哪些字节，并不证明架构正确。");
+  assert.equal(chinese.scope, "验收记录写明谁在何时验收了哪些字节，并不证明架构正确。");
   // The page names the files published with the edition, the signature among them only when there is one.
   assert.equal(
     chinese.note,
-    "随本版发布的验收记录（acceptance.json 与 acceptance.sig）载有本页与清单的 SHA-256，可用 archpub verify 核验。",
+    "随本图册出版的验收记录（acceptance.json 与 acceptance.sig）载有本页与清单的 SHA-256，可用 archpub verify 核验。",
   );
   // The commit is named as a commit, in the slip as in the foot.
   assert.equal(chinese.foot, "Minimal v1.2.0，提交 aaaaaaa，2026-11-06");

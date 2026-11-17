@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
@@ -10,6 +9,7 @@ import { childEnvironment } from "../src/environment.mjs";
 import { loadIcons } from "../src/icons.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { CJK, STAGED, stage } from "../src/overview/typeset.mjs";
+import { everyBlock } from "./fixtures/overview-statements.mjs";
 import { verifySupply } from "../src/supply.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { recordFacts } from "./fixtures/record-facts.mjs";
@@ -24,32 +24,20 @@ const modelOf = (locale, title) =>
     minimalModel({
       locale,
       title,
-      overview: "overview.typ",
+      overview: everyBlock(),
       editors: [{ name: "Yang HENG" }],
       license: "MIT",
       repository: { name: "minimal", url: "https://github.com/o/minimal.git", revision: REVISION },
     }),
   );
 
-/** A composition with the house masthead, as a work sets one. */
-const COMPOSITION = [
-  '#import "/archpub/house.typ": *',
-  "#show: overview",
-  "#masthead([最小], [两个组件和一次调用], [用来测试总览的模型。])",
-  "#imprint([每个元素都注明出处。])",
-].join("\n");
-
 /**
- * Stage a model's edition as the publisher typesets it, with its overview, and evaluate a query of the typeset
+ * Stage a model's edition as the publisher typesets it, with the overview drawn from its statement, and evaluate a query of the typeset
  * document: what the house class records, read back from Typst.
  * @param {any} model
  * @param {string} selector a Typst selector, such as `<archpub-box>`
  */
 async function queryEdition(t, model, selector) {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-front-"));
-  t.after(() => fs.rm(directory, { recursive: true, force: true }));
-  const composition = path.join(directory, "overview.typ");
-  await fs.writeFile(composition, COMPOSITION);
   const record = editionRecord({
     model,
     plates: [],
@@ -62,14 +50,20 @@ async function queryEdition(t, model, selector) {
     page: "minimal.html",
     time: 1793918078,
   });
-  const staged = await stage(composition, Buffer.from(JSON.stringify(model)));
+  const staged = await stage(Buffer.from(JSON.stringify(model)));
   t.after(() => fs.rm(staged.root, { recursive: true, force: true }));
   const own = path.join(staged.root, STAGED);
   await fs.writeFile(path.join(own, "edition.json"), JSON.stringify(record));
   const entry = path.join(own, "edition.typ");
   await fs.writeFile(
     entry,
-    `#import "house.typ": edition\n#edition(json("edition.json"), overview: include "/${staged.entry}")\n`,
+    [
+      '#import "house.typ": edition',
+      '#import "drawn.typ": drawn',
+      '#let r = json("edition.json")',
+      '#edition(r, overview: drawn(json("model.json").overview, written-from: none))',
+      "",
+    ].join("\n"),
   );
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
   const { stdout } = await run(
@@ -105,7 +99,7 @@ test("a Chinese edition's overview masthead sets its build line in the model's l
   const texts = (await queryEdition(t, modelOf("zh-CN", "最小"), "<archpub-box>")).map(
     ({ text }) => text,
   );
-  assert.ok(texts.includes("构建于 aaaaaaa · 2026-11-06"), texts.join(" | "));
+  assert.ok(texts.includes("构建自提交 aaaaaaa · 2026-11-06"), texts.join(" | "));
   assert.ok(!texts.some((text) => text.startsWith("As built")), texts.join(" | "));
 });
 

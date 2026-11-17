@@ -73,6 +73,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The publisher's own Chinese words read as written Chinese, not as translated English: the pinned commit is 固定的提交,
+  the guide 导读, the delivery 交付物, the print edition 图册, the reviewer 审阅者 and the licence 许可证; the reader file's
+  legend is 标记说明, and a part without files says 没有所属文件. Simplified and Traditional Chinese alike.
 - **Breaking:** The publisher draws the overview from what the model states of it, as it sets the title and contents
   pages: a claim and a lead; a course of steps with their stations, forks of siblings with no order, stretches on
   parallel tracks counted or named, spurs beside it, labelled stretches, lines between points and a text; and blocks of further courses, lists, tables, groups of lists

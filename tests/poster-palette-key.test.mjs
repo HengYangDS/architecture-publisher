@@ -73,7 +73,7 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
     plates: [plate],
   } = await platesIn(stripModel("zh-CN"), stripStyle(INDIGO, parts));
   const texts = plate.runs.map(({ text }) => text);
-  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "不拥有文件", "阶段", "外部工具"])
+  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "没有所属文件", "阶段", "外部工具"])
     assert.ok(texts.includes(text), text);
   assert.deepEqual(
     plate.legend.slice(0, 7).map(({ label }) => label),
@@ -82,7 +82,7 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
       "提交前 90 日内",
       "更早",
       "提交日 2026-11-10",
-      "20 KB：条长是组件拥有的文件大小",
+      "20 KB：条长是组件所属文件的大小",
       "数字：这条关系引用的文件数",
       "粗线：通向供给",
     ],

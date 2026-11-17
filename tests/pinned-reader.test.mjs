@@ -393,7 +393,7 @@ test("a Chinese work has Chinese headings and sentences, and the keys of every l
   // A label of the head ends as the language ends a label; an item's own mark is the same in every language.
   assert.ok(zh.text.includes("- 陈述：components 4 · relations 4 · groups 1 · cited 4"));
   assert.ok(zh.text.includes("- 模型范围排除的路径：\n  - `**/*_test.go`: 测试不属于架构。\n"));
-  assert.ok(zh.text.includes("- 按清单核对本交付的文件：`archpub verify <delivery>`\n"));
+  assert.ok(zh.text.includes("- 按清单核验本交付物的文件：`archpub verify <delivery>`\n"));
   // The commands are written alike in every language.
   assert.ok(zh.text.includes("`archpub verify <delivery>`"));
   assert.ok(zh.text.includes("`archpub check model.json --repo <checkout>`"));
