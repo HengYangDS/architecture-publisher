@@ -439,13 +439,18 @@ test("a pinned edition gathered before typesetting carries no page, and a face t
     citations: [],
     read: new Map(),
   };
-  const model = { ...work.model, overview: "overview.typ", guide: "guide/guide.archify.md" };
+  const statement = {
+    claim: "A claim.",
+    lead: "A lead.",
+    course: { steps: [{ id: "a", label: "A" }] },
+  };
+  const model = { ...work.model, overview: statement, guide: "guide/guide.archify.md" };
   const { data, reader } = pinnedEdition(
-    { ...held(work.plates), model, overview: {}, guide },
+    { ...held(work.plates), model, overview: { statement: "5".repeat(64) }, guide },
     [2400, 960],
   );
   assert.deepEqual(data.overview, {
-    composition: "overview.typ",
+    statement: "5".repeat(64),
     images: [
       { width: 2400, file: "images/00-overview.png" },
       { width: 960, file: "images/00-overview-960.png" },

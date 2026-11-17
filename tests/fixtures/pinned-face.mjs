@@ -87,7 +87,7 @@ export const IMAGE_WIDTH = 960;
  * @param {{ model: any, style: { tokens: any } | null, plates: any[] }} work
  * @param {string | null} [composition] the path of an overview's composition
  */
-export function typesetWork({ model, style, plates }, composition = null) {
+export function typesetWork({ model, style, plates }, statement = null) {
   const time = 1_794_000_000;
   const record = editionRecord({
     model,
@@ -97,15 +97,14 @@ export function typesetWork({ model, style, plates }, composition = null) {
     modelSha256: "0".repeat(64),
     publisher: "0.0.0",
     typst: "0.0.0",
-    overview: Boolean(composition),
+    overview: Boolean(statement),
     page: `${model.id}.html`,
     time,
   });
   return typesetEdition({
     record,
     plates,
-    modelBytes: Buffer.from(JSON.stringify(model)),
-    composition,
+    modelBytes: Buffer.from(JSON.stringify(statement ? { ...model, overview: statement } : model)),
     revision: null,
     date: "2026-11-10",
     time,

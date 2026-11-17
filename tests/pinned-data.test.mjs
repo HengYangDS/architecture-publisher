@@ -52,9 +52,10 @@ test("the data holds its members in one order, and only those the build holds", 
   assert.deepEqual(data.model, { file: "model.json", ...input.file });
   assert.deepEqual(Object.keys(data.model), ["file", "sha256", "bytes", "format", "version"]);
   assert.deepEqual(data.media, ["edition", "page"]);
-  // A model without a guide has no such member; an overview set by hand stands before the plates, without a face.
+  // A model without a guide has no such member; the overview, drawn from the model's statement, stands before the
+  // plates under its statement's digest, without a face.
   const overview = {
-    composition: "overview.typ",
+    statement: "5".repeat(64),
     images: [{ width: 2400, file: "images/00-overview.png" }],
   };
   const other = editionData({ ...input, guide: null, overview });

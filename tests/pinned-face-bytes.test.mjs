@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import path from "node:path";
 import test from "node:test";
 import { plateEntry } from "../src/pinned/face.mjs";
 import {
@@ -11,7 +10,6 @@ import {
   stripWork,
   typesetWork,
 } from "./fixtures/pinned-face.mjs";
-import { temporaryDirectory } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
 import { INDIGO, stripOf } from "./fixtures/strips.mjs";
 
@@ -59,20 +57,18 @@ test("the typeset edition hands back each plate's page in the PDF, counted from 
   assert.equal(typeset.pages, 4);
 });
 
-test("an overview's page moves every plate one page on and is no plate itself", async (t) => {
-  const composition = path.join(await temporaryDirectory(t), "overview.typ");
-  await fs.writeFile(
-    composition,
-    [
-      '#import "/archpub/house.typ": *',
-      "#show: overview",
-      "#masthead([The print edition], [What turns the views into the print edition?], [A small work.])",
-      "#head(48pt, 140pt, [The builder])",
-      '#tx(48pt, 170pt, label-of("builder"), weight: "semibold")',
-      "#imprint([Each element's source is in the interactive atlas.])",
-    ].join("\n"),
-  );
-  const withOverview = await typesetWork(works.grouped, composition);
+test("an overview's page moves every plate one page on and is no plate itself", async () => {
+  // The overview a model states, drawn by the publisher: a claim, a lead and a course of two steps.
+  const withOverview = await typesetWork(works.grouped, {
+    claim: "What turns the views into the print edition?",
+    lead: "A small work.",
+    course: {
+      steps: [
+        { id: "model", label: "The model" },
+        { id: "edition", label: "The edition" },
+      ],
+    },
+  });
   assert.deepEqual(withOverview.platePages, [
     { number: 1, page: 4 },
     { number: 2, page: 5 },
