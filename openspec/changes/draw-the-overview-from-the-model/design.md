@@ -1,0 +1,80 @@
+## Context
+
+`docs/research/overview-pages.md` reads the six hand-placed overview pages: the same few blocks on one grid, and a
+small set of relations that their positions express. Today a model names a Typst file in `overview`; the publisher
+stages it with the house class (`src/overview/house.typ`), refuses imports, styles and missing files, typesets it,
+reads back every text's glyph box and refuses text outside the live area or over other text
+(`src/overview/checks.mjs`). The title and contents pages are already the publisher's: `edition()` in the house
+class sets them from the edition's record, by measure, with no input that places anything.
+`docs/research/figure-language.md` records the end state the owner agreed with on 2026-11-17: one model in, one
+complete edition out, no page placed by hand.
+
+## Goals / Non-Goals
+
+**Goals:**
+
+- The overview drawn by the publisher from what the model states, as the title and contents pages are.
+- Every relation that a hand-placed page expressed by position stated by a field, so no meaning is lost.
+- The same gates as today, and one more: a page too tall for its blocks is refused, naming the block.
+
+**Non-Goals:**
+
+- A graph of the model's parts as the overview's flow: a view the plate engine draws. Two works use one; they state
+  a course or show the graph on its plate.
+- A choice among compositions of the overview page: one grid, as the six pages share it.
+- The portrait form: `portrait-edition`.
+
+## Decisions
+
+1. The model states the overview as blocks of a few kinds, none with a position.
+   - Rests on: `docs/research/overview-pages.md` ("The blocks", "What a position expresses").
+   - Considered: keeping the composition and moving its coordinates into a style; a free list of figures each
+     naming a kind.
+   - Chosen because: the six pages hold the same few blocks; a block kind that the publisher knows can be laid out
+     by measure, and its relations stated as fields (a step's stations, its tracks, a line's ends, the block a note
+     belongs to).
+   - Applies to: `overview` in the model: `claim`, `lead`, `course` (`steps`, `lines`), `courses`, `facts` (lists,
+     tables and groups of lists, in order).
+2. The publisher lays the blocks out on one grid, in Typst, by measure.
+   - Rests on: `docs/research/overview-pages.md` ("The grid"), and the house class's title and contents pages,
+     which are set this way today.
+   - Considered: computing every position in the engine, as plates are, and handing Typst a list of placed runs.
+   - Chosen because: the page is text in rows and columns, which Typst sets and measures natively; the plate engine
+     solves routing between boxes, which the overview does not need. The text boxes are read back and checked as
+     before.
+   - Applies to: band 1 the course at the content width; the other blocks in order, in rows of two halves or three
+     thirds: a course or a table takes a half, lists and groups take a third, and a row of two lists takes halves. A
+     page taller than the live area is refused with `overview_too_tall` and the first block that does not fit.
+3. A mark carries one meaning, and only marks with a meaning are drawn.
+   - Rests on: `docs/research/overview-pages.md` ("What a position expresses", the last item: every reader asked
+     what ring, tick and disc meant, and no page said).
+   - Considered: keeping three kinds of mark with a key.
+   - Chosen because: a mark nobody can read is noise; a station is a station.
+   - Applies to: a station is a ring; the course's first and last stations are larger rings; a stretch on parallel
+     tracks is drawn as thinner lines beside the course; a line between steps is drawn over the course with its
+     sentence; the outcome that leaves a course is drawn in the accent, with its sentence.
+4. A step or a station may name a part of the model, and then prints the model's label.
+   - Rests on: `docs/research/overview-pages.md` (five of six pages retype the names of parts).
+   - Chosen because: a name stated once cannot drift; a part named that does not exist is refused at the model's
+     path with `model_reference_unknown`.
+5. The composition is retired, not kept beside the statement.
+   - Rests on: the contract's Product paragraph ("no other input of its kind is added", and the composition "stays
+     until the publisher draws the overview from the model").
+   - Considered: accepting both forms for a release.
+   - Chosen because: two ways to state one page is the choice the edition marks were; a model that names a `.typ`
+     file is refused with `model_overview_composition_retired`, which says what replaced it.
+   - Applies to: the schema, the staging and its three refusals, the manifest's composition record.
+6. The queue gains `overview` before the rest of `composable-parts`.
+   - Rests on: the owner's words of 2026-11-17 13:20 and the holder's decision under the owner's delegation of
+     2026-11-15 to order the work; `docs/research/figure-language.md` ("What follows for the product").
+   - Applies to: the contract's queue and the item `carriers`, which no longer names the overview.
+
+## Risks / Trade-offs
+
+- A page set by measure may not fit what an author fitted by hand → the statement is checked against the grid by
+  the build, which names the block that does not fit; the six works are converted and built in this Change's
+  acceptance.
+- Retiring the composition breaks every published work until its models carry statements → the publications move
+  with the release that holds this Change, in one Change of their own.
+- Marks without a meaning are dropped, so a page loses the difference between a record and a check that its author
+  meant → the station's note says it in words.

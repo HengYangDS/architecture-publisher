@@ -1,0 +1,21 @@
+## 1. The queue and the model
+
+- [ ] 1.1 Put the item `overview` in the contract's queue before the rest of `composable-parts`, reword `carriers` and the Product paragraph, and add the research page `docs/research/overview-pages.md`. Done when `tests/evolution-queue.test.mjs` passes with this Change active.
+- [ ] 1.2 Test first that a model states an overview of every kind of block and validates, that a string in `overview` is refused with `model_overview_composition_retired`, that a part named that the model lacks is refused at its path, and that no overview property states a position; then the schema and the validation. Done when the tests fail on the present source and then pass.
+
+## 2. The drawing
+
+- [ ] 2.1 Test first that a statement with every kind of block is drawn as one page whose text all stands in the live area and over no other text, whose course draws one ring a station with larger ends and no tick or disc, and whose further course and table stand in one row; then draw the overview in the house class from the statement. Done when the tests fail on the present source and then pass.
+- [ ] 2.2 Test first that a statement too tall for the page is refused with `overview_too_tall`, naming the first block that does not fit; then the refusal. Done when the test fails and then passes.
+- [ ] 2.3 Retire the composition's staging and its refusals, and record the statement's digest in the manifest. Done when no source names a composition and `npm test` passes.
+
+## 3. Documents
+
+- [ ] 3.1 Bring the model and operations references, the Skill, the glossary and the changelog to the statement. Done when `npm run check:static` passes and no tracked document outside `docs/research/` and the changelog's history tells an author to write a composition.
+
+## 4. Acceptance on the works
+
+- [ ] 4.1 State ETHOS's overview in both languages from its hand-placed page, build it, and set the two pages side by side for the owner. Done when both build and the pair stands in the work directory.
+- [ ] 4.2 State and build the other five works' overviews in both languages. Done when all twelve build, with every refusal listed.
+- [ ] 4.3 Run the key, grounds and tidiness checks on the twelve pages, and give them to a reader of another origin with the statements. Done when the reader reports no finding, or each finding is corrected and read again.
+- [ ] 4.4 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.
