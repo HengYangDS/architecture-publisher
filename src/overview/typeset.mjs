@@ -171,7 +171,7 @@ function refuseDiagnostics(stderr, roots) {
 /**
  * Check a model's overview before the edition sets it in place: Typst's drawing of it alone from the statement,
  * every text box inside the live area and clear of the others, and every character drawn by a bundled face. Hands
- * back the texts and the marks it drew.
+ * back the texts, the boxes read back and the marks it drew.
  * @param {{ modelBytes: Buffer, writtenFrom?: string | null, revision: string | null, date: string | null,
  *   typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
@@ -232,6 +232,7 @@ export async function checkOverview(input) {
       house: staged.house,
       date: input.date,
       texts: boxes.map(({ text }) => text),
+      boxes,
       marks,
     };
   } finally {

@@ -33,8 +33,12 @@ complete edition out, no page placed by hand.
    - Chosen because: the six pages hold the same few blocks; a block kind that the publisher knows can be laid out
      by measure, and its relations stated as fields (a step's stations, its tracks, a line's ends, the block a note
      belongs to).
-   - Applies to: `overview` in the model: `claim`, `lead`, `course` (`steps`, `lines`), `courses`, `facts` (lists,
-     tables and groups of lists, in order).
+   - Applies to: `overview` in the model: `claim`, `lead`, `course` (`steps`, `lines`, `text`) and `blocks`, in the
+     order the page sets them: further courses, lists, tables, groups of lists and headed texts, each with an
+     optional text. A step's stations may include forks, whose branches are siblings with no order (a fan to
+     clients, providers or topics, a split into two outputs), and run on tracks counted or named. A line joins
+     points: a station, a branch or a step without stations; a step that holds stations is a run, not a point.
+     Readers who stated the six pages found these four missing from the first form of the statement.
 2. The publisher lays the blocks out on one grid, in Typst, by measure.
    - Rests on: `docs/research/overview-pages.md` ("The grid"), and the house class's title and contents pages,
      which are set this way today.
@@ -42,17 +46,26 @@ complete edition out, no page placed by hand.
    - Chosen because: the page is text in rows and columns, which Typst sets and measures natively; the plate engine
      solves routing between boxes, which the overview does not need. The text boxes are read back and checked as
      before.
-   - Applies to: band 1 the course at the content width; the other blocks in order, in rows of two halves or three
-     thirds: a course or a table takes a half, lists and groups take a third, and a row of two lists takes halves. A
-     page taller than the live area is refused with `overview_too_tall` and the first block that does not fit.
+   - Applies to: band 1 the course at the content width; the other blocks in the order stated: a course, a table or
+     a group takes a half; a run of lists and headed texts takes the rows of thirds and halves with the least height
+     in all, measured at each spacing; headed texts stated one after another share a cell, as the hand-placed pages
+     stacked them; a list of six items or more, each one line in half its width, stands in two columns, as the
+     publisher's own page set its refusals. An item follows the one before at a line's pitch and a small gap.
+     A station takes one cell of its step and a fork one for each branch; a fork's branches stand side by side
+     under the course on a bar that leaves it. Lines between points take the highest channel their spans keep clear
+     of; a step without stations sets its text under the course beside the stations' notes. The page is laid out at the house's spacing and, when that reaches
+     below the foot, at a closer spacing with notes and texts a size smaller, as a plate tries its type steps; a page
+     that fits at neither is refused with `overview_too_tall` and the first block that does not fit. The six works'
+     pages, stated from their hand-placed compositions, are drawn and pass the page's checks in both languages.
 3. A mark carries one meaning, and only marks with a meaning are drawn.
    - Rests on: `docs/research/overview-pages.md` ("What a position expresses", the last item: every reader asked
      what ring, tick and disc meant, and no page said).
    - Considered: keeping three kinds of mark with a key.
    - Chosen because: a mark nobody can read is noise; a station is a station.
-   - Applies to: a station is a ring; the course's first and last stations are larger rings; a stretch on parallel
-     tracks is drawn as thinner lines beside the course; a line between steps is drawn over the course with its
-     sentence; the outcome that leaves a course is drawn in the accent, with its sentence.
+   - Applies to: a station is a ring; the course's first and last stations are larger rings; a fork's branches are
+     smaller rings on the bar under the course; a stretch on parallel tracks is drawn as thinner lines beside the
+     course; a line between points is drawn over the course with its sentence; the outcome that leaves a course is
+     drawn in the accent, with its sentence.
 4. A step or a station may name a part of the model, and then prints the model's label.
    - Rests on: `docs/research/overview-pages.md` (five of six pages retype the names of parts).
    - Chosen because: a name stated once cannot drift; a part named that does not exist is refused at the model's

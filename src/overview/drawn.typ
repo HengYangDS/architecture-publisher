@@ -15,14 +15,17 @@
 #let _limit = (_house.edition.rule - 16) * 1pt
 #let _gutter = 48pt
 #let _head-pitch = 22pt
+/// The fewest items of a list that may stand in two columns.
+#let _list-columns = 6
 #let _track = 22pt
 
 /// The spacings of the page, at the house's spacing (0) and at the closer one (1): the gaps between the regions of a
-/// band and between rows, and the size and pitch of notes, texts and the items of facts.
+/// band and between rows, and the size and pitch of notes, texts and the items of facts. An item of a fact follows
+/// the one before it at the pitch of a line and its spacing's item gap, so a list reads as one text in two columns.
 #let _spacing = (
-  (head: 20pt, note: 20pt, channel: 24pt, label: 26pt, line: 18pt, under: 26pt, text: 28pt, row: 30pt, item: 22pt,
+  (head: 20pt, note: 20pt, channel: 24pt, label: 26pt, line: 18pt, under: 26pt, text: 28pt, row: 30pt, item: 8pt,
     first: 26pt, size: "text", pitch: 16pt),
-  (head: 18pt, note: 18pt, channel: 20pt, label: 22pt, line: 14pt, under: 22pt, text: 20pt, row: 20pt, item: 14pt,
+  (head: 18pt, note: 18pt, channel: 20pt, label: 22pt, line: 14pt, under: 22pt, text: 20pt, row: 20pt, item: 6pt,
     first: 22pt, size: "small", pitch: 14pt),
 )
 
@@ -59,7 +62,9 @@
 /// The course across the first band from `top`: hands back its bottom and its content. Needs context.
 #let _course(course, top, g) = {
   let steps = course.steps
-  let weights = steps.map(s => calc.max(1, s.at("stations", default: ()).len()))
+  // A station takes one cell of its step and a fork one for each branch, so a step is as wide as what it holds.
+  let weight-of(station) = station.at("branches", default: (none,)).len()
+  let weights = steps.map(s => calc.max(1, s.at("stations", default: ()).map(weight-of).sum(default: 0)))
   let total = weights.sum()
   let spans = ()
   let x = _left
@@ -68,22 +73,45 @@
     spans.push((x: x, w: w))
     x += w
   }
-  // Every point of the course in order: a step without stations is one point, named by its heading.
+  // A step's tracks, counted or named; named tracks take a column for their names before the step's stations.
+  let tracks-of(step) = {
+    let t = step.at("tracks", default: 1)
+    if type(t) == array { t.len() } else { t }
+  }
+  let names-of(step) = {
+    let t = step.at("tracks", default: none)
+    if type(t) == array { t } else { () }
+  }
+  let name-room(step) = {
+    let names = names-of(step)
+    if names.len() == 0 { 0pt } else { calc.max(..names.map(n => _natural(n, size: "small"))) + 30pt }
+  }
+  // Every point of the course in order: a step without stations is one point, named by its heading; a fork is one
+  // point whose branches hang below the course.
   let points = ()
+  let members = ()
   for (i, step) in steps.enumerate() {
     let span = spans.at(i)
     let stations = step.at("stations", default: ())
-    let tracks = step.at("tracks", default: 1)
+    let tracks = tracks-of(step)
     if stations.len() == 0 {
-      points.push((x: span.x + 8pt, step: i, item: step, named: false, cell: span.w, tracks: 1))
+      points.push((x: span.x + 8pt, step: i, item: step, named: false, fork: none, cell: span.w, tracks: 1))
     } else {
-      let cell = span.w / stations.len()
-      for (k, station) in stations.enumerate() {
-        points.push((x: span.x + k * cell + 8pt, step: i, item: station, named: true, cell: cell, tracks: tracks))
+      let room = name-room(step)
+      let cell = (span.w - room) / weights.at(i)
+      let at = span.x + room
+      for station in stations {
+        let px = at + 8pt
+        let fork = station.at("branches", default: none)
+        points.push((x: px, step: i, item: station, named: fork == none, fork: fork, cell: cell, tracks: tracks))
+        if fork != none {
+          for (j, b) in fork.enumerate() { members.push((x: px + j * cell, item: b, tracks: tracks)) }
+        }
+        at += weight-of(station) * cell
       }
     }
   }
-  let where(id) = points.filter(p => p.item.at("id", default: none) == id).first()
+  let where(id) = (points + members).filter(p => p.item.at("id", default: none) == id).first()
   // Each line takes the highest channel whose lines its span keeps clear of.
   let lines = course.at("lines", default: ()).map(line => {
     let xs = (where(line.from).x,) + line.to.map(t => where(t).x)
@@ -102,7 +130,8 @@
   }
 
   // The band's rows, top to bottom: headings and notes, the lines' channels, station names, the course, under it
-  // the stations' notes and the texts of steps without stations, then the texts of steps with stations.
+  // the stations' notes, a fork's branches and the texts of steps without stations, then the texts of steps with
+  // stations, then the course's own text.
   let head-b = top + g.head
   let heads-bottom = head-b
   for (i, step) in steps.enumerate() {
@@ -122,17 +151,36 @@
   let half = (most - 1) / 2 * _track
   let line-y = labels-bottom + g.line + half
   let under-b = line-y + half + g.under
+  // A fork's branches side by side under the course, each in a cell of its own as a station is: a ring on a bar that
+  // leaves the course, the branch's name under the bar beside its ring and its note under the name.
+  let rows-of(p) = {
+    let y = under-b
+    p.fork.enumerate().map(((j, b)) => {
+      let x = p.x + j * p.cell
+      let w = p.cell - 18pt
+      let name-depth = _depth(_name(b), w, weight: "semibold")
+      let note = b.at("note", default: none)
+      let note-b = y + name-depth + g.pitch
+      let bottom = if note == none { y + name-depth } else { note-b + _deep(g, note, w) }
+      (b: b, x: x, y: y, w: w, note-b: note-b, bottom: bottom)
+    })
+  }
+  let forks = points.filter(p => p.fork != none).map(p => (p: p, rows: rows-of(p)))
   let unders = points.filter(p => p.named and p.item.at("note", default: none) != none).map(p =>
-    _deep(g, p.item.note, p.cell - 18pt)
+    under-b + _deep(g, p.item.note, p.cell - 18pt)
   ) + steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() == 0 and s.at("text", default: none) != none).map(((i, s)) =>
-    _deep(g, s.text, spans.at(i).w - 16pt)
-  )
-  let unders-bottom = if unders.len() == 0 { line-y + half + 6pt } else { under-b + calc.max(..unders) }
+    under-b + _deep(g, s.text, spans.at(i).w - 16pt)
+  ) + forks.map(f => calc.max(..f.rows.map(row => row.bottom)))
+  let unders-bottom = if unders.len() == 0 { line-y + half + 6pt } else { calc.max(..unders) }
   let texts = steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() > 0 and s.at("text", default: none) != none)
   let text-b = unders-bottom + g.text
-  let bottom = if texts.len() == 0 { unders-bottom } else {
+  let texts-bottom = if texts.len() == 0 { unders-bottom } else {
     text-b + calc.max(..texts.map(((i, s)) => _deep(g, s.text, spans.at(i).w - 16pt)))
   }
+  let said = course.at("text", default: none)
+  let said-w = (_width - _gutter) / 2
+  let said-b = texts-bottom + g.text
+  let bottom = if said == none { texts-bottom } else { said-b + _deep(g, said, said-w) }
 
   let body = {
     // Headings and their notes.
@@ -144,29 +192,49 @@
         _set(g, span.x, head-b + depth + g.note, step.note, fill: soft, w: span.w - 16pt)
       }
     }
-    // The course: one line, which a step on parallel tracks splits into thinner tracks and joins again.
+    // The course: one line, which a step on parallel tracks splits into thinner tracks and joins again; named tracks
+    // carry their names where they begin.
     let cursor = points.first().x
     for (i, step) in steps.enumerate() {
-      let tracks = step.at("tracks", default: 1)
+      let tracks = tracks-of(step)
       if tracks > 1 {
         let own = points.filter(p => p.step == i)
-        let (from, to) = (own.first().x - 16pt, own.last().x + 16pt)
+        let names = names-of(step)
+        let from = if names.len() > 0 { spans.at(i).x + 4pt } else { own.first().x - 16pt }
+        let to = own.last().x + 16pt
         if from > cursor { seg((cursor, line-y), (from, line-y), w: 3pt, c: green) }
         for k in range(tracks) {
           let offset = (k - (tracks - 1) / 2) * _track
           seg((from, line-y), (from + 12pt, line-y + offset), (to - 12pt, line-y + offset), (to, line-y),
             w: 1.6pt, c: green)
+          if names.len() > 0 { tx(from + 18pt, line-y + offset - 5pt, names.at(k), size: "small", fill: mid) }
         }
         cursor = to
       }
     }
     if points.last().x > cursor { seg((cursor, line-y), (points.last().x, line-y), w: 3pt, c: green) }
-    // A ring at every station, on every track; the course's two ends larger.
+    // A ring at every station, on every track; the course's two ends larger. A fork has no ring of its own.
     for (n, p) in points.enumerate() {
+      if p.fork != none { continue }
       let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
       for k in range(p.tracks) {
         let offset = (k - (p.tracks - 1) / 2) * _track
         _ring(p.x, line-y + offset, r: r, w: if p.tracks > 1 { 1.4pt } else { 1.7pt })
+      }
+    }
+    // A fork: a bar that leaves the course, from its lowest track where the fork's step runs on several, and runs
+    // under the branches; a ring for each.
+    for f in forks {
+      let p = f.p
+      // The bar runs between the course and the branches' names, which stand where the stations' notes do.
+      let bar = line-y + half + g.under * 0.4
+      seg((p.x, line-y + (p.tracks - 1) / 2 * _track), (p.x, bar), (f.rows.last().x, bar), w: 1.6pt, c: green)
+      for row in f.rows {
+        _ring(row.x, bar, r: 4pt, w: 1.5pt)
+        tx(row.x + 10pt, row.y, _name(row.b), weight: "semibold", w: row.w)
+        if row.b.at("note", default: none) != none {
+          _set(g, row.x + 10pt, row.note-b, row.b.note, fill: soft, w: row.w)
+        }
       }
     }
     // Station names above the course and notes below it, beside the ring.
@@ -196,6 +264,8 @@
       let without = step.at("stations", default: ()).len() == 0
       _set(g, spans.at(i).x, if without { under-b } else { text-b }, step.text, w: spans.at(i).w - 16pt)
     }
+    // The course's own text, under all of it.
+    if said != none { _set(g, _left, said-b, said, w: said-w) }
   }
   (bottom: bottom, body: body)
 }
@@ -264,16 +334,30 @@
 /// Needs context.
 #let _list(f, x, w, top, g) = {
   let head = _titled(f.title, x, w, top)
-  let term = calc.min(calc.max(..f.items.map(((t, _)) => _natural(t, size: g.size, weight: "semibold"))) + 16pt,
-    w * 0.4)
-  let y = head.start + g.first
+  let width(t) = _natural(t, size: g.size, weight: "semibold")
+  // A long list of short items stands in two columns, down the first and then the second, where every item is one
+  // line in half the width; otherwise in one.
+  let half = (w - _gutter / 2) / 2
+  let term-of(w) = calc.min(calc.max(..f.items.map(((t, _)) => width(t))) + 16pt, w * 0.4)
+  let short = f.items.len() >= _list-columns and f.items.all(((t, v)) =>
+    width(t) + 16pt <= term-of(half) and _natural(v, size: g.size) <= half - term-of(half))
+  let columns = if short { 2 } else { 1 }
+  let cw = if short { half } else { w }
+  let term = term-of(cw)
+  let per = calc.ceil(f.items.len() / columns)
   let body = (head.body,)
-  for (t, v) in f.items {
-    body.push(_set(g, x, y, t, weight: "semibold", w: term))
-    body.push(_set(g, x + term, y, v, w: w - term))
-    y += calc.max(_deep(g, t, term, weight: "semibold"), _deep(g, v, w - term)) + g.item + 8pt
+  let bottom = head.start
+  for c in range(columns) {
+    let cx = x + c * (cw + _gutter / 2)
+    let y = head.start + g.first
+    for (t, v) in f.items.slice(c * per, calc.min((c + 1) * per, f.items.len())) {
+      body.push(_set(g, cx, y, t, weight: "semibold", w: term))
+      body.push(_set(g, cx + term, y, v, w: cw - term))
+      y += calc.max(_deep(g, t, term, weight: "semibold"), _deep(g, v, cw - term)) + g.pitch + g.item
+    }
+    bottom = calc.max(bottom, y - g.pitch - g.item)
   }
-  (bottom: y - g.item - 8pt, body: body.join())
+  (bottom: bottom, body: body.join())
 }
 
 /// A table: its column titles over a rule, then its rows, each cell wrapped in its column. Needs context.
@@ -290,9 +374,9 @@
   body.push(hrule(rule-y, x0: x, x1: x + w))
   for row in f.rows {
     for (j, cell) in row.enumerate() { body.push(_set(g, x + j * column, y, cell, w: column - 12pt)) }
-    y += calc.max(..row.map(cell => _deep(g, cell, column - 12pt))) + g.item + 8pt
+    y += calc.max(..row.map(cell => _deep(g, cell, column - 12pt))) + g.pitch + g.item
   }
-  (bottom: y - g.item - 8pt, body: body.join())
+  (bottom: y - g.pitch - g.item, body: body.join())
 }
 
 /// A group of headed lists side by side under one title, each term over its text. Needs context.
@@ -313,19 +397,25 @@
       body.push(_set(g, cx, y, t, weight: "semibold", w: column))
       y += _deep(g, t, column, weight: "semibold") + g.pitch
       body.push(_set(g, cx, y, v, fill: soft, w: column))
-      y += _deep(g, v, column) + g.item + 8pt
+      y += _deep(g, v, column) + g.pitch + g.item
     }
-    bottom = calc.max(bottom, y - g.item - 8pt)
+    bottom = calc.max(bottom, y - g.pitch - g.item)
   }
   (bottom: bottom, body: body.join())
 }
 
 /// The kind of a block, by what it holds.
-#let _kind(b) = if "stations" in b { "course" } else if "items" in b { "list" } else if "columns" in b { "table" } else { "group" }
+#let _kind(b) = if "stations" in b { "course" } else if "items" in b { "list" } else if "columns" in b { "table" } else if "lists" in b { "group" } else { "text" }
 
 /// A block of the rows below the course, by its kind, with the text that belongs to a fact under it.
 #let _block(b, x, w, top, g) = {
   let kind = _kind(b)
+  if kind == "text" {
+    // A headed text: its heading and its words.
+    let head = _titled(b.title, x, w, top)
+    let y = head.start + g.first
+    return (bottom: y + _deep(g, b.text, w), body: head.body + _set(g, x, y, b.text, w: w))
+  }
   let made = if kind == "course" { _further(b, x, w, top, g) } else if kind == "list" { _list(b, x, w, top, g) } else if kind == "table" { _table(b, x, w, top, g) } else { _group(b, x, w, top, g) }
   let said = if kind == "course" { none } else { b.at("text", default: none) }
   if said == none { return made }
@@ -333,21 +423,78 @@
   (bottom: y + _deep(g, said, w), body: made.body + _set(g, x, y, said, fill: soft, w: w))
 }
 
-/// The blocks below the course in rows, in the order stated: a course, a table or a group takes a half; lists take
-/// thirds, three in a row, and two lists, or a list beside a block of another kind, take halves.
-#let _rows(blocks) = {
+/// The blocks below the course in cells, in the order stated: headed texts stated one after another share a cell,
+/// one under another, as a column of short paragraphs; every other block has a cell of its own.
+#let _cells(blocks) = {
+  let cells = ()
+  for b in blocks {
+    if _kind(b) == "text" and cells.len() > 0 and _kind(cells.at(-1).first()) == "text" { cells.at(-1).push(b) }
+    else { cells.push((b,)) }
+  }
+  cells
+}
+
+/// The width of a cell in a row of `n`: a third in a row of three, a half otherwise.
+#let _cell-width(n) = { let k = if n == 3 { 3 } else { 2 }; (_width - (k - 1) * _gutter) / k }
+
+/// A cell set from `top`: its blocks one under another; its bottom, its body and the first block that reaches below
+/// the foot, or none. Needs context.
+#let _cell(cell, x, w, top, g) = {
+  let at = top
+  let bottom = top
+  let parts = ()
+  let over = none
+  for b in cell {
+    let made = _block(b, x, w, at, g)
+    if over == none and made.bottom > _limit { over = (title: b.title, bottom: made.bottom) }
+    parts.push(made.body)
+    at = made.bottom + g.text
+    bottom = made.bottom
+  }
+  (bottom: bottom, body: parts.join(), over: over)
+}
+
+/// The cells in rows, in the order stated. A course, a table or a group takes a half, beside the cell after it. A
+/// run of lists and headed texts is set in rows of three thirds or two halves, a lone one in a half, split where the
+/// rows take the least height in all, measured; of splits that take the same, the one with rows of three first.
+/// Needs context.
+#let _rows(cells, g) = {
+  let narrow(cell) = _kind(cell.first()) in ("list", "text")
+  let tall(row) = calc.max(..row.map(cell => _cell(cell, 0pt, _cell-width(row.len()), 0pt, g).bottom)) + g.row
+  let split(run) = {
+    // best.at(k): the least height of the run's cells from k on, and its rows.
+    let n = run.len()
+    let best = range(n + 1).map(_ => none)
+    best.at(n) = (height: 0pt, rows: ())
+    for k in range(n - 1, -1, step: -1) {
+      let sizes = if n == 1 { (1,) } else { (3, 2) }
+      for size in sizes {
+        if k + size > n or best.at(k + size) == none { continue }
+        let row = run.slice(k, k + size)
+        let height = tall(row) + best.at(k + size).height
+        if best.at(k) == none or height < best.at(k).height - 0.5pt {
+          best.at(k) = (height: height, rows: (row,) + best.at(k + size).rows)
+        }
+      }
+    }
+    best.at(0).rows
+  }
   let rows = ()
   let i = 0
-  while i < blocks.len() {
-    if _kind(blocks.at(i)) != "list" {
-      rows.push(blocks.slice(i, calc.min(i + 2, blocks.len())))
+  while i < cells.len() {
+    if not narrow(cells.at(i)) {
+      rows.push(cells.slice(i, calc.min(i + 2, cells.len())))
       i += rows.last().len()
     } else {
       let run = 1
-      while run < 3 and i + run < blocks.len() and _kind(blocks.at(i + run)) == "list" { run += 1 }
-      if run == 1 and i + 1 < blocks.len() { run = 2 }
-      rows.push(blocks.slice(i, i + run))
-      i += run
+      while i + run < cells.len() and narrow(cells.at(i + run)) { run += 1 }
+      if run == 1 and i + 1 < cells.len() {
+        rows.push(cells.slice(i, i + 2))
+        i += 2
+      } else {
+        rows += split(cells.slice(i, i + run))
+        i += run
+      }
     }
   }
   rows
@@ -360,14 +507,13 @@
   let parts = (course.body,)
   let over = if course.bottom > _limit { (title: "the course", bottom: course.bottom) } else { none }
   let top = course.bottom + g.row
-  for row in _rows(s.at("blocks", default: ())) {
-    let n = if row.len() == 3 { 3 } else { 2 }
-    let w = (_width - (n - 1) * _gutter) / n
+  for row in _rows(_cells(s.at("blocks", default: ())), g) {
+    let w = _cell-width(row.len())
     parts.push(hrule(top))
     let bottom = top
-    for (j, b) in row.enumerate() {
-      let made = _block(b, _left + j * (w + _gutter), w, top + 8pt, g)
-      if over == none and made.bottom > _limit { over = (title: b.title, bottom: made.bottom) }
+    for (j, cell) in row.enumerate() {
+      let made = _cell(cell, _left + j * (w + _gutter), w, top + 8pt, g)
+      if over == none and made.over != none { over = made.over }
       parts.push(made.body)
       bottom = calc.max(bottom, made.bottom)
     }

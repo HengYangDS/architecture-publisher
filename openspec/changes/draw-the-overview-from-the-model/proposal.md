@@ -17,8 +17,9 @@ from the same few blocks on one grid, and that what their positions express can 
   names it, and the model's label is printed. A model that names a Typst composition in `overview` is refused with
   `model_overview_composition_retired`.
 - The publisher draws the overview: the masthead with the count of files it read, the course across the first band,
-  and the other blocks in rows of halves or thirds chosen by what they hold and how tall they are set. A page whose
-  blocks are taller than the page is refused with `overview_too_tall`, naming the block that does not fit; a page
+  and the other blocks in the order stated in rows of halves or thirds, at the house's spacing or a closer one. A
+  page whose blocks are taller than the page at both is refused with `overview_too_tall`, naming the block that
+  does not fit; a page
   whose text leaves the live area or lies over other text is refused as today.
 - A mark on the overview carries one meaning: a station is a ring, the course's ends are larger, a step's parallel
   tracks are thinner lines, and the outcome that leaves a course is drawn in the accent.
@@ -37,7 +38,7 @@ None.
 
 - `overview-page`: "Overview composition", "What a composition leaves to the class", "Model references" and
   "Missing composition" are removed; "An overview stated in the model", "A course and its steps", "The overview
-  laid out by the publisher", "The overview's marks" and "Parts named on the overview" are added; "Overview files" and "Overview in the print
+  laid out by the publisher", "An overview too tall for its page", "The overview's marks" and "Parts named on the overview" are added; "Overview files" and "Overview in the print
   edition" change.
 - `architecture-model`: "Overview composition reference" is removed and "Overview statement" added.
 - `edition-delivery`: "Overview inputs in the manifest" changes.

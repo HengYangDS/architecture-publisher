@@ -3,9 +3,10 @@
 ### Requirement: An overview stated in the model
 
 A model MAY state its overview in `overview` as blocks without positions: a
-claim and a lead; one course of steps; further courses; and facts, which are
-headed lists, tables and groups of lists, in order. The publisher SHALL draw
-the overview from that statement and from nothing else the author gives.
+claim and a lead; one course of steps; and, in the order the page sets them,
+further courses, headed lists, tables and groups of lists, each with an
+optional text that belongs to it. The publisher SHALL draw the overview from
+that statement and from nothing else the author gives.
 
 #### Scenario: Every kind of block
 
@@ -21,44 +22,83 @@ the overview from that statement and from nothing else the author gives.
 ### Requirement: A course and its steps
 
 A course SHALL be an ordered list of steps, each a label with an optional note
-and text. A step MAY hold stations and run them on parallel tracks. A course
-MAY carry lines from one step or station to others, each with a sentence. A
-further course SHALL be a title and ordered stations, with an optional
-labelled step, one optional outcome that leaves a station, and an optional
-text.
+and text, and MAY carry a text of its own. A step MAY hold stations, among them
+forks of two or more branches that stand side by side with no order, and run
+them on two to four tracks, counted or named. A further course SHALL be a title
+and ordered stations, with an optional labelled step, one optional outcome that
+leaves a station, and an optional text.
 
 #### Scenario: A step on parallel tracks
 
 - **WHEN** a step holds three stations and runs them on two tracks
 - **THEN** the course draws that step's three stations on each of two tracks between the steps before and after it
 
+#### Scenario: A fork of siblings
+
+- **WHEN** a step holds a fork of two branches and then one station
+- **THEN** the step takes three cells, and the two branches stand side by side under the course, each in a cell
+
+### Requirement: Lines between points of a course
+
+A course MAY carry lines from one point to others, each with a sentence. A
+point SHALL be a station, a branch or a step without stations; a line that
+names a step holding stations SHALL be refused with `model_overview_invalid`.
+
+#### Scenario: A line that names a run
+
+- **WHEN** a line starts at a step that holds three stations
+- **THEN** the model is refused with `model_overview_invalid` at the line's `from`
+
 ### Requirement: The overview laid out by the publisher
 
 The publisher SHALL set the masthead with the count of files the build read,
-the course across the first band at the content width, its steps as wide as
-their stations need, and the other blocks in order in rows of two halves or
-three thirds: a course or a table takes a half, a list or a group a third, and
-two lists in a row take halves. A page whose blocks are taller than the live
-area SHALL be refused with `overview_too_tall`, naming the first block that
-does not fit.
+the course across the first band, its steps as wide as their stations need,
+and the other blocks in the order stated: a course, a table or a group in a
+half; a run of lists and headed texts in the rows of thirds and halves that
+take the least height, measured. Headed texts stated one after another SHALL
+share a cell, and a list of six items or more, each one line in half its width,
+SHALL stand in two columns.
 
 #### Scenario: A course and a table side by side
 
 - **WHEN** a statement holds a further course followed by a table
 - **THEN** the two stand in one row, each in a half
 
+#### Scenario: Rows chosen by height
+
+- **WHEN** a run of four lists holds one list that sets far fewer lines in a half than in a third
+- **THEN** the four stand in two rows of halves, if those take less height than a row of thirds and a half
+
+#### Scenario: A long list of short items
+
+- **WHEN** a list holds ten items, each one line in half its width
+- **THEN** it stands in two columns, the first five down the first and the rest down the second
+
+### Requirement: An overview too tall for its page
+
+The page SHALL be laid out at the house's spacing, and at a closer one, with
+notes and texts a size smaller, when the first reaches below the foot. A page
+that fits at neither SHALL be refused with `overview_too_tall`, naming the
+first block that does not fit.
+
 #### Scenario: Too much for one page
 
-- **WHEN** a statement holds more lists than the page can hold below its course
+- **WHEN** a statement holds more lists than the page can hold below its course at the closer spacing
 - **THEN** the build refuses with `overview_too_tall` and names the first list that does not fit
+
+#### Scenario: A page that fits only closer
+
+- **WHEN** a statement's blocks reach below the foot at the house's spacing and not at the closer one
+- **THEN** the page is set at the closer spacing, its notes and texts a size smaller
 
 ### Requirement: The overview's marks
 
 A station SHALL be drawn as a ring on its course's line, the first and the last
-station of a course as larger rings, a stretch on parallel tracks as thinner
-lines beside the course, a line between steps over the course with its
-sentence, and the outcome that leaves a course in the accent with its sentence.
-No other mark SHALL be drawn on a course.
+station of a course as larger rings, a fork's branches as smaller rings on a
+bar under the course, a stretch on parallel tracks as thinner lines beside the
+course, a line between points over the course with its sentence, and the
+outcome that leaves a course in the accent with its sentence. No other mark
+SHALL be drawn on a course.
 
 #### Scenario: Stations of one kind
 

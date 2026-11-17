@@ -3,7 +3,7 @@
 ### Requirement: Overview statement
 
 A model MAY state `overview` as an object of blocks: `claim`, `lead`, `course`,
-`courses` and `facts`, with no property that states a position, a size or a
+`blocks`, with no property that states a position, a size or a
 type. A string in `overview`, the path of a retired composition, SHALL be
 refused at `/overview` with `model_overview_composition_retired`.
 

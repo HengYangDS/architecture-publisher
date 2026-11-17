@@ -3,7 +3,8 @@
  * runs across the page; a step may hold stations, run them on parallel tracks and carry a note and a text; lines go
  * from one step or station to others. Further courses each have a title, stations, a labelled step and one outcome
  * that leaves a station. Facts are headed lists of terms and texts, tables and groups of lists. A step or a station
- * that is a part of the model names it, and the page prints the model's label. The blocks after the course stand in
+ * that is a part of the model names it, and the page prints the model's label. A step's stations may run on parallel
+ * tracks, counted or named, and a place of a course may be a fork of branches side by side. The blocks after the course stand in
  * one list, in the order the page sets them. Nothing here says where anything
  * stands, how large it is or in what type: those are the publisher's.
  */
@@ -80,41 +81,67 @@ function checkPoint(point, path, fields, problems, componentIds, ids) {
   return true;
 }
 
+/**
+ * Check a station of a course, or a fork: two branches or more, side by side at one place of the course, each a
+ * station of its own.
+ */
+function checkStation(station, at, problems, componentIds, ids) {
+  if (station && typeof station === "object" && "branches" in station) {
+    if (!problems.fields(station, at, ["branches"], [])) return;
+    eachOf(station.branches, `${at}/branches`, problems, 2, (branch, where) =>
+      checkPoint(branch, where, STATION, problems, componentIds, ids),
+    );
+  } else checkPoint(station, at, STATION, problems, componentIds, ids);
+}
+
+/** Whether a step's tracks are a count of two to four, or two to four names. */
+const tracksOf = (tracks) =>
+  (Number.isInteger(tracks) && tracks >= TRACKS.least && tracks <= TRACKS.most) ||
+  (Array.isArray(tracks) &&
+    tracks.length >= TRACKS.least &&
+    tracks.length <= TRACKS.most &&
+    tracks.every((name) => typeof name === "string" && name.trim() !== ""));
+
 function checkCourse(course, path, problems, componentIds) {
-  if (!problems.fields(course, path, ["steps"], ["lines"])) return;
+  if (!problems.fields(course, path, ["steps"], ["lines", "text"])) return;
   const { steps, lines } = /** @type {Record<string, any>} */ (course);
+  problems.text(/** @type {any} */ (course).text, `${path}/text`, true);
   /** @type {Set<string>} */
   const ids = new Set();
+  // A step that holds stations is a run of them, not a point a line can start or end at.
+  /** @type {Set<string>} */
+  const runs = new Set();
   eachOf(steps, `${path}/steps`, problems, 2, (step, where) => {
     if (!checkPoint(step, where, STEP, problems, componentIds, ids)) return;
+    if (step.stations !== undefined && step.id !== undefined) runs.add(step.id);
     problems.text(step.text, `${where}/text`, true);
     if (step.stations !== undefined)
       eachOf(step.stations, `${where}/stations`, problems, 1, (station, at) =>
-        checkPoint(station, at, STATION, problems, componentIds, ids),
+        checkStation(station, at, problems, componentIds, ids),
       );
-    if (
-      step.tracks !== undefined &&
-      (!Number.isInteger(step.tracks) ||
-        step.tracks < TRACKS.least ||
-        step.tracks > TRACKS.most ||
-        step.stations === undefined)
-    )
+    if (step.tracks !== undefined && (!tracksOf(step.tracks) || step.stations === undefined))
       problems.add(
         "model_overview_invalid",
         `${where}/tracks`,
-        `runs a step's stations on ${TRACKS.least} to ${TRACKS.most} tracks`,
+        `runs a step's stations on ${TRACKS.least} to ${TRACKS.most} tracks, counted or named`,
       );
   });
   if (lines !== undefined)
     eachOf(lines, `${path}/lines`, problems, 1, (line, where) => {
       if (!problems.fields(line, where, ["from", "to", "label"], [])) return;
       problems.text(line.label, `${where}/label`);
-      if (!ids.has(line.from))
-        problems.add("model_reference_unknown", `${where}/from`, "names no step or station");
-      eachOf(line.to, `${where}/to`, problems, 1, (target, at) => {
-        if (!ids.has(target))
+      const end = (id, at) => {
+        if (runs.has(id))
+          problems.add(
+            "model_overview_invalid",
+            at,
+            "names a step that holds stations: name one of them",
+          );
+        else if (!ids.has(id))
           problems.add("model_reference_unknown", at, "names no step or station");
-      });
+      };
+      end(line.from, `${where}/from`);
+      eachOf(line.to, `${where}/to`, problems, 1, (target, at) => end(target, at));
     });
 }
 
@@ -182,10 +209,14 @@ function checkFact(fact, path, problems) {
       problems.text(list.title, `${at}/title`);
       checkItems(list.items, `${at}/items`, problems);
     });
+  } else if (entry && typeof entry === "object" && "text" in entry) {
+    if (!problems.fields(entry, path, ["title", "text"], [])) return;
+    problems.text(entry.title, `${path}/title`);
+    problems.text(entry.text, `${path}/text`);
   } else
     problems.add(
       "model_overview_invalid",
       path,
-      "is a course (stations), a list (items), a table (columns and rows) or a group of lists (lists)",
+      "is a course (stations), a list (items), a table (columns and rows), a group of lists (lists) or a headed text",
     );
 }

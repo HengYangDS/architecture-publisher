@@ -17,7 +17,7 @@ export const everyBlock = () => ({
         id: "work",
         label: "Work",
         note: "two requests at a time",
-        tracks: 2,
+        tracks: ["first", "second"],
         stations: [
           { id: "check", label: "Check", note: "the request is admitted" },
           { id: "call", part: "a", note: "it calls" },
@@ -29,10 +29,19 @@ export const everyBlock = () => ({
         id: "keep",
         label: "Keep",
         note: "the record is written",
-        text: "The answer and its request are kept together.",
+        stations: [
+          {
+            branches: [
+              { id: "log", label: "Log", note: "for people" },
+              { id: "data", label: "Data", note: "for agents" },
+            ],
+          },
+          { id: "done", label: "Done" },
+        ],
       },
     ],
-    lines: [{ from: "keep", to: ["ask"], label: "a kept answer may be asked for again" }],
+    text: "Every request takes the course once, whatever it asks.",
+    lines: [{ from: "done", to: ["ask"], label: "a kept answer may be asked for again" }],
   },
   blocks: [
     {
@@ -60,6 +69,10 @@ export const everyBlock = () => ({
         ["The call", "Alpha"],
         ["The answer", "Beta"],
       ],
+    },
+    {
+      title: "Not covered",
+      text: "Alpha's own tests and its release are not on this page.",
     },
     {
       title: "Around it",

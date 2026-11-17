@@ -55,6 +55,16 @@ test("an overview states no position, size or type, and a step runs on two to fo
   ]);
 });
 
+test("a fork holds two branches or more, and a step's tracks are a count or their names", () => {
+  const statement = everyBlock();
+  statement.course.steps[2].stations[0].branches.pop();
+  statement.course.steps[1].tracks = ["only"];
+  assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
+    ["model_overview_invalid", "/overview/course/steps/1/tracks"],
+    ["model_list_invalid", "/overview/course/steps/2/stations/0/branches"],
+  ]);
+});
+
 test("a step or a station is named by a label or by the part it is, and ids are not repeated", () => {
   const statement = everyBlock();
   delete statement.course.steps[0].label;
@@ -62,5 +72,16 @@ test("a step or a station is named by a label or by the part it is, and ids are 
   assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
     ["model_overview_invalid", "/overview/course/steps/0"],
     ["model_id_duplicate", "/overview/course/steps/1/stations/0/id"],
+  ]);
+});
+
+test("a line goes between points of a course: a station, a branch or a step without stations", () => {
+  const statement = everyBlock();
+  // A step that holds stations is a run of them, not a point a line can start or end at.
+  statement.course.lines[0].from = "work";
+  statement.course.lines[0].to = ["log", "keep"];
+  assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
+    ["model_overview_invalid", "/overview/course/lines/0/from"],
+    ["model_overview_invalid", "/overview/course/lines/0/to/1"],
   ]);
 });

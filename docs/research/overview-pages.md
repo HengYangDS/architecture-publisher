@@ -91,7 +91,12 @@ are halves (728 pt, a gutter of 48 pt) or thirds (464 pt). The second course and
 ## What is not established
 
 - That every block of the six pages fits the grid when set by measure rather than by an author's adjustments: the
-  first works converted show it or not.
+  first works converted show it or not. Amended the same day: all twelve pages, stated and drawn, fit and pass the
+  page's checks once forks, named tracks, a course's text and headed texts were stated, consecutive headed texts
+  shared a cell, rows of lists were chosen by height and a long list of short items took two columns.
+- Two relations that a hand-placed page draws are not stated yet: parallel tracks that begin at a station inside a
+  step (filmkit's narration checks its words once, then reads aloud in each language), and a station that hangs
+  off the course (AIGW's tokens, the publisher's LikeC4 import). Their pages say them in words.
 - Whether a reader reads a page set by the publisher as well as the page set by hand: no reader was tested.
 - The English pages were not read; their blocks are taken to be the same as the Chinese ones.
 
