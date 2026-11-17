@@ -115,3 +115,29 @@ test("a stretch on parallel tracks runs forward between stations of the course, 
     ],
   );
 });
+
+test("a spur leaves a point of the course, and a line may start or end at it", () => {
+  const atRun = everyBlock();
+  atRun.course.spurs[0].at = "work";
+  const atBranch = everyBlock();
+  atBranch.course.spurs[0].at = "log";
+  const nowhere = everyBlock();
+  nowhere.course.spurs[0].at = "nowhere";
+  const named = everyBlock();
+  named.course.lines.push({
+    from: "import",
+    to: ["check"],
+    label: "an imported request is checked",
+  });
+  assert.deepEqual(
+    [atRun, atBranch, nowhere, named].map((statement) =>
+      problemsOf(minimalModel({ overview: statement })),
+    ),
+    [
+      [["model_overview_invalid", "/overview/course/spurs/0/at"]],
+      [["model_overview_invalid", "/overview/course/spurs/0/at"]],
+      [["model_reference_unknown", "/overview/course/spurs/0/at"]],
+      [],
+    ],
+  );
+});

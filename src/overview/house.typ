@@ -128,6 +128,8 @@
 #let tick(x, y, h: 13pt, w: 2.4pt, c: green) = place(top + left, dx: x - w / 2, dy: y - h / 2, rect(width: w, height: h, fill: c))
 /// An arrowhead pointing down at (x, y).
 #let down(x, y, c: ochre, s: 5pt) = place(top + left, polygon(fill: c, (x, y), (x - s * 0.6, y - s), (x + s * 0.6, y - s)))
+/// An arrowhead pointing up, its tip at (x, y).
+#let up(x, y, c: ochre, s: 5pt) = place(top + left, polygon(fill: c, (x, y), (x - s * 0.6, y + s), (x + s * 0.6, y + s)))
 /// An arrowhead pointing left at (x, y).
 #let left-arrow(x, y, c: mid, s: 5pt) = place(top + left, polygon(fill: c, (x, y), (x + s, y - s * 0.6), (x + s, y + s * 0.6)))
 /// An arrowhead pointing right at (x, y).

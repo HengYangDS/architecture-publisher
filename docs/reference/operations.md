@@ -338,7 +338,7 @@ The publisher draws the overview from the model's [statement](model.md#overview)
 with the house class, as it sets the title and contents pages: the masthead, the
 course across the first band, each step as wide as what it holds, and the blocks
 in the order stated, in halves and thirds chosen by measured height. A station
-is a ring, the course's ends larger and a fork's branches smaller; no other mark
+is a ring, the course's ends larger, a fork's branches and spurs smaller; no other mark
 is drawn. A page too tall at the house's spacing is set closer, notes and texts
 a size smaller, and one too tall at both is refused with `overview_too_tall`,
 naming the first block that does not fit. The page is drawn in one root Typst

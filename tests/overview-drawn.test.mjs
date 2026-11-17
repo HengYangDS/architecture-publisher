@@ -37,6 +37,9 @@ test("every text a statement holds is set, with the model's labels for the parts
     "Data",
     "for agents",
     "Done",
+    // A spur off the course, its name and its note.
+    "Import",
+    "a request read from a file",
     "Check",
     "the request is admitted",
     // The two stations that name parts are shown by the model's labels.
@@ -67,12 +70,12 @@ test("a course draws a ring at each station, on each of its tracks, the ends of 
   assert.deepEqual([...new Set(marks.map(({ kind }) => kind))], ["ring"]);
   // The course: Ask, three stations on two tracks, two branches of a fork and Done; the further course: three
   // stations; its outcome: one.
-  assert.equal(marks.length, 1 + 3 * 2 + 2 + 1 + 3 + 1);
+  assert.equal(marks.length, 1 + 3 * 2 + 2 + 1 + 1 + 3 + 1);
   // Each course's two ends are larger than its other stations; a branch's ring and the outcome's are the smallest.
   const radii = marks.map(({ r }) => r);
   assert.equal(radii.filter((r) => r === 7).length, 4);
   assert.equal(radii.filter((r) => r === 5).length, 6 + 1);
-  assert.equal(radii.filter((r) => r === 4).length, 2 + 1);
+  assert.equal(radii.filter((r) => r === 4).length, 2 + 1 + 1);
 });
 
 test("a statement too tall for its page is refused with the first block that does not fit", async () => {
@@ -187,4 +190,39 @@ test("a stretch on parallel tracks may run across steps, its tracks named once w
   const course = marks.filter(({ y }) => y < marks[0].y + 40);
   assert.equal(course.length, 1 + 1 + 4 * 2);
   assert.equal(course.filter(({ r }) => r === 7).length, 1 + 2);
+});
+
+test("a spur hangs under the course from its point, below the notes there", async () => {
+  const { marks, boxes } = await drawn(everyBlock());
+  const ask = marks[0];
+  // The spur's ring is the smallest ring straight under Ask's, below Ask's step's text.
+  const spur = marks.find(({ x, r, y }) => r === 4 && Math.abs(x - ask.x) < 0.5 && y > ask.y);
+  assert.ok(spur, "a ring under Ask");
+  const text = boxes.find((box) => box.text === "A request names what it wants and who asks.");
+  assert.ok(spur.y > text.y + text.h, "below the text under Ask");
+  const name = boxes.find((box) => box.text === "Import");
+  assert.ok(
+    name.x > spur.x && Math.abs(name.y + name.h / 2 - spur.y) < 12,
+    "its name beside its ring",
+  );
+});
+
+test("a line from a spur runs under the course, below the spurs and above the steps' texts", async () => {
+  const statement = everyBlock();
+  statement.course.lines.push({
+    from: "import",
+    to: ["check"],
+    label: "an imported request is checked",
+  });
+  const { boxes, marks } = await drawn(statement);
+  const at = (text) => boxes.find((box) => box.text === text);
+  const spur = marks.find(
+    ({ x, r, y }) => r === 4 && Math.abs(x - marks[0].x) < 0.5 && y > marks[0].y,
+  );
+  const label = at("an imported request is checked");
+  assert.ok(label.y > spur.y, "its sentence stands below the spur's ring");
+  assert.ok(
+    label.y + label.h < at("Two requests may be worked at once, each on its own track.").y,
+    "above the texts",
+  );
 });

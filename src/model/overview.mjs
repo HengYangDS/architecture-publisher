@@ -11,6 +11,7 @@
 
 const STEP = ["id", "label", "part", "note", "text", "stations"];
 const STATION = ["id", "label", "part", "note"];
+const SPUR = ["at", ...STATION];
 const TRACKS = Object.freeze({ least: 2, most: 4 });
 
 /**
@@ -103,8 +104,8 @@ const tracksOf = (tracks) =>
     tracks.every((name) => typeof name === "string" && name.trim() !== ""));
 
 function checkCourse(course, path, problems, componentIds) {
-  if (!problems.fields(course, path, ["steps"], ["lines", "text", "parallel"])) return;
-  const { steps, lines, parallel } = /** @type {Record<string, any>} */ (course);
+  if (!problems.fields(course, path, ["steps"], ["lines", "text", "parallel", "spurs"])) return;
+  const { steps, lines, parallel, spurs } = /** @type {Record<string, any>} */ (course);
   problems.text(/** @type {any} */ (course).text, `${path}/text`, true);
   /** @type {Set<string>} */
   const ids = new Set();
@@ -133,6 +134,27 @@ function checkCourse(course, path, problems, componentIds) {
         place += 1;
       });
   });
+  // A spur leaves a point of the course (a station or a step without stations) for a station of its own beside the
+  // course: an input that joins it or a store it reads. A line may start or end at a spur.
+  if (spurs !== undefined)
+    eachOf(spurs, `${path}/spurs`, problems, 1, (spur, where) => {
+      if (!checkPoint(spur, where, SPUR, problems, componentIds, ids)) return;
+      if (spur.at === undefined) problems.add("model_field_required", `${where}/at`, "is required");
+      else if (runs.has(spur.at))
+        problems.add(
+          "model_overview_invalid",
+          `${where}/at`,
+          "names a step that holds stations: name one of them",
+        );
+      else if (ids.has(spur.at) && !order.has(spur.at))
+        problems.add(
+          "model_overview_invalid",
+          `${where}/at`,
+          "names no point of the course: a spur leaves the course",
+        );
+      else if (!ids.has(spur.at))
+        problems.add("model_reference_unknown", `${where}/at`, "names no step or station");
+    });
   if (lines !== undefined)
     eachOf(lines, `${path}/lines`, problems, 1, (line, where) => {
       if (!problems.fields(line, where, ["from", "to", "label"], [])) return;
@@ -175,7 +197,7 @@ function checkParallel(parallel, path, problems, { ids, runs, order, forks }) {
         problems.add(
           "model_overview_invalid",
           `${where}/${key}`,
-          "names a branch of a fork: a stretch runs on the course",
+          "names no point of the course: a stretch runs on it",
         );
       else if (!ids.has(id))
         problems.add("model_reference_unknown", `${where}/${key}`, "names no step or station");

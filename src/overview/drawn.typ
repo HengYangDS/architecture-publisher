@@ -115,23 +115,50 @@
   for s in stretches {
     for k in range(index(s.from), index(s.to) + 1) { points.at(k).insert("tracks", s.count) }
   }
-  let where(id) = (points + members).filter(p => p.item.at("id", default: none) == id).first()
-  // Each line takes the highest channel whose lines its span keeps clear of.
+  let point-of(id) = points.filter(p => p.item.at("id", default: none) == id).first()
+  // A spur leaves a point of the course for a station beside it, which hangs below the notes there.
+  // The spurs' row holds nothing else: a spur's name and note run on to the next spur, or to the content's edge.
+  let spurs = course.at("spurs", default: ()).map(s => {
+    let p = point-of(s.at)
+    (s: s, x: p.x, tracks: p.tracks, item: s)
+  }).sorted(key: sp => sp.x)
+  spurs = spurs.enumerate().map(((k, sp)) => {
+    let next = if k + 1 < spurs.len() { spurs.at(k + 1).x } else { _left + _width + 8pt }
+    (..sp, cell: next - sp.x)
+  })
+  let where(id) = (points + members + spurs).filter(p => p.item.at("id", default: none) == id).first()
+  // Each line takes the highest channel whose lines its span keeps clear of: above the course, or, for a line with
+  // an end at a spur, which hangs below the course, under the spurs.
+  let spur-ids = spurs.map(sp => sp.s.at("id", default: none)).filter(id => id != none)
   let lines = course.at("lines", default: ()).map(line => {
     let xs = (where(line.from).x,) + line.to.map(t => where(t).x)
-    (line: line, low: calc.min(..xs), high: calc.max(..xs))
+    let under = ((line.from,) + line.to).any(id => id in spur-ids)
+    (line: line, low: calc.min(..xs), high: calc.max(..xs), under: under)
   })
-  let channels = ()
-  let placed = ()
-  for l in lines {
-    let n = 0
-    while channels.len() > n and channels.at(n).any(o => not (l.high + 24pt < o.low or o.high + 24pt < l.low)) {
-      n += 1
+  let pack(ls) = {
+    let channels = ()
+    let placed = ()
+    for l in ls {
+      let n = 0
+      while channels.len() > n and channels.at(n).any(o => not (l.high + 24pt < o.low or o.high + 24pt < l.low)) {
+        n += 1
+      }
+      if channels.len() == n { channels.push(()) }
+      channels.at(n).push(l)
+      placed.push((..l, channel: n))
     }
-    if channels.len() == n { channels.push(()) }
-    channels.at(n).push(l)
-    placed.push((..l, channel: n))
+    (channels: channels, placed: placed)
   }
+  let above = pack(lines.filter(l => not l.under))
+  let channels = above.channels
+  let placed = above.placed
+  let below = pack(lines.filter(l => l.under))
+  // A spur's words run on to the next spur, or to the first leg of a line under the course that rises past it.
+  let legs = below.placed.map(l => ((l.line.from,) + l.line.to).map(id => where(id).x)).flatten()
+  spurs = spurs.map(sp => {
+    let past = legs.filter(x => x > sp.x + 1pt)
+    if past.len() == 0 { sp } else { (..sp, cell: calc.min(sp.cell, calc.min(..past) - sp.x)) }
+  })
 
   // The band's rows, top to bottom: headings and notes, the lines' channels, station names, the course, under it
   // the stations' notes, a fork's branches and the texts of steps without stations, then the texts of steps with
@@ -173,11 +200,25 @@
   let unders = points.filter(p => p.named and p.item.at("note", default: none) != none).map(p =>
     under-b + _deep(g, p.item.note, p.cell - 18pt)
   ) + steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() == 0 and s.at("text", default: none) != none).map(((i, s)) =>
-    under-b + _deep(g, s.text, spans.at(i).w - 16pt)
+    under-b + _deep(g, s.text, points.filter(p => p.step == i).first().cell - 18pt)
   ) + forks.map(f => calc.max(..f.rows.map(row => row.bottom)))
   let unders-bottom = if unders.len() == 0 { line-y + half + 6pt } else { calc.max(..unders) }
   let texts = steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() > 0 and s.at("text", default: none) != none)
-  let text-b = unders-bottom + g.text
+  let spur-b = unders-bottom + g.text
+  let spurs-bottom = if spurs.len() == 0 { unders-bottom } else {
+    calc.max(..spurs.map(sp => {
+      let name-depth = _depth(_name(sp.s), sp.cell - 18pt, weight: "semibold")
+      let note = sp.s.at("note", default: none)
+      spur-b + name-depth + if note == none { 0pt } else { g.pitch + _deep(g, note, sp.cell - 18pt) }
+    }))
+  }
+  // The lines under the course: each channel under the spurs, its sentence under its line, clear of the legs that
+  // rise from it.
+  let under-channel(n) = spurs-bottom + 14pt + n * (g.channel + 6pt)
+  let unders-lines-bottom = if below.channels.len() == 0 { spurs-bottom } else {
+    under-channel(below.channels.len() - 1) + 16pt
+  }
+  let text-b = unders-lines-bottom + g.text
   let texts-bottom = if texts.len() == 0 { unders-bottom } else {
     text-b + calc.max(..texts.map(((i, s)) => _deep(g, s.text, spans.at(i).w - 16pt)))
   }
@@ -237,6 +278,20 @@
         }
       }
     }
+    // A spur: a line down from the course to a smaller ring, its name beside the ring and its note under the name.
+    for sp in spurs {
+      let ring-y = spur-b - 4pt
+      // From under the ring of the point it leaves, the course's ends' rings being the larger.
+      let n = points.position(p => p.item.at("id", default: none) == sp.s.at)
+      let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
+      seg((sp.x, line-y + (sp.tracks - 1) / 2 * _track + r), (sp.x, ring-y - 4pt), w: 1.4pt, c: green)
+      _ring(sp.x, ring-y, r: 4pt, w: 1.5pt)
+      tx(sp.x + 10pt, spur-b, _name(sp.s), weight: "semibold", w: sp.cell - 18pt)
+      if sp.s.at("note", default: none) != none {
+        let depth = _depth(_name(sp.s), sp.cell - 18pt, weight: "semibold")
+        _set(g, sp.x + 10pt, spur-b + depth + g.pitch, sp.s.note, fill: soft, w: sp.cell - 18pt)
+      }
+    }
     // Station names above the course and notes below it, beside the ring.
     for p in named {
       tx(p.x + 10pt, label-b, _name(p.item), weight: "semibold", w: p.cell - 18pt)
@@ -258,11 +313,35 @@
       txc((l.low + l.high) / 2, y - 7pt, calc.max(l.high - l.low - 24pt, 120pt), l.line.label, size: "small",
         fill: mid)
     }
-    // The texts of steps: under the course beside the notes for a step without stations, below them otherwise.
+    // The lines under the course: up from each end to its ring, from below; an arrowhead at each end it reaches.
+    for l in below.placed {
+      let y = under-channel(l.channel)
+      let bottom-of(id) = {
+        let e = where(id)
+        if id in spur-ids { spur-b } else if e in members { line-y + half + g.under * 0.4 + 4pt } else {
+          let n = points.position(p => p.item.at("id", default: none) == id)
+          line-y + (e.tracks - 1) / 2 * _track + if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
+        }
+      }
+      let source = where(l.line.from)
+      seg((source.x, bottom-of(l.line.from)), (source.x, y), w: 1.15pt, c: mid)
+      seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
+      for id in l.line.to {
+        let t = where(id)
+        seg((t.x, y), (t.x, bottom-of(id) + 4pt), w: 1.15pt, c: mid)
+        up(t.x, bottom-of(id), c: mid)
+      }
+      txc((l.low + l.high) / 2, y + 13pt, calc.max(l.high - l.low - 24pt, 120pt), l.line.label, size: "small",
+        fill: mid)
+    }
+    // The texts of steps: under the course beside its ring for a step without stations, below the notes otherwise.
     for (i, step) in steps.enumerate() {
       if step.at("text", default: none) == none { continue }
-      let without = step.at("stations", default: ()).len() == 0
-      _set(g, spans.at(i).x, if without { under-b } else { text-b }, step.text, w: spans.at(i).w - 16pt)
+      // A step without stations is a point: its text stands beside its ring, as a station's note does.
+      if step.at("stations", default: ()).len() == 0 {
+        let p = points.filter(p => p.step == i).first()
+        _set(g, p.x + 10pt, under-b, step.text, w: p.cell - 18pt)
+      } else { _set(g, spans.at(i).x, text-b, step.text, w: spans.at(i).w - 16pt) }
     }
     // The course's own text, under all of it.
     if said != none { _set(g, _left, said-b, said, w: said-w) }

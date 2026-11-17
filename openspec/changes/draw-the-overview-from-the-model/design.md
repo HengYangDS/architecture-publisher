@@ -39,8 +39,10 @@ complete edition out, no page placed by hand.
      clients, providers or topics, a split into two outputs). A stretch of the course, from one station to a later
      one across steps, runs on tracks counted or named (`parallel`): filmkit's two languages split inside one step
      and join three steps later, which tracks stated by step drew as three splits. A line joins points: a station, a
-     branch or a step without stations; a step that holds stations is a run, not a point. Readers who stated the
-     six pages found these missing from the first form of the statement.
+     branch, a spur or a step without stations; a step that holds stations is a run, not a point. A spur is a
+     station beside the course that leaves one of its points (the publisher's LikeC4 import, AIGW's tokens and
+     model family); a line with an end at a spur runs under the course. Readers who stated the six pages found
+     these missing from the first form of the statement.
 2. The publisher lays the blocks out on one grid, in Typst, by measure.
    - Rests on: `docs/research/overview-pages.md` ("The grid"), and the house class's title and contents pages,
      which are set this way today.
@@ -64,8 +66,8 @@ complete edition out, no page placed by hand.
      what ring, tick and disc meant, and no page said).
    - Considered: keeping three kinds of mark with a key.
    - Chosen because: a mark nobody can read is noise; a station is a station.
-   - Applies to: a station is a ring; the course's first and last stations are larger rings; a fork's branches are
-     smaller rings on the bar under the course; a stretch on parallel tracks is drawn as thinner lines beside the
+   - Applies to: a station is a ring; the course's first and last stations are larger rings; a fork's branches and
+     a spur are smaller rings under the course; a stretch on parallel tracks is drawn as thinner lines beside the
      course; a line between points is drawn over the course with its sentence; the outcome that leaves a course is
      drawn in the accent, with its sentence.
 4. A step or a station may name a part of the model, and then prints the model's label.

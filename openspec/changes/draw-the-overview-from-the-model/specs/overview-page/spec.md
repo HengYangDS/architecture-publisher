@@ -45,6 +45,19 @@ SHALL be refused with `model_overview_invalid`.
 - **THEN** the course draws those stations on each of two tracks, split before the first and joined after the last
 - **AND** it names the two tracks once, where they begin
 
+### Requirement: Spurs beside a course
+
+A course MAY carry spurs: stations beside it, each leaving one point of the
+course (a station or a step without stations), such as an input that joins it
+or a store it reads. A spur SHALL hang under the notes at its point, and a line
+MAY start or end at it. A spur at a step holding stations or at a branch SHALL
+be refused with `model_overview_invalid`.
+
+#### Scenario: An import beside the first station
+
+- **WHEN** a spur named LikeC4 leaves the station model.json, and no line names it
+- **THEN** LikeC4 stands under model.json's note on a smaller ring joined to model.json's ring, and the course still begins at model.json
+
 ### Requirement: Lines between points of a course
 
 A course MAY carry lines from one point to others, each with a sentence. A
@@ -102,8 +115,9 @@ first block that does not fit.
 
 A station SHALL be drawn as a ring on its course's line, the first and the last
 station of a course as larger rings, a fork's branches as smaller rings on a
-bar under the course, a stretch on parallel tracks as thinner lines beside the
-course, a line between points over the course with its sentence, and the
+bar under the course, a spur as a smaller ring under its point, a stretch on
+parallel tracks as thinner lines beside the course, a line between points over
+the course, or under it when an end is a spur, with its sentence, and the
 outcome that leaves a course in the accent with its sentence. No other mark
 SHALL be drawn on a course.
 

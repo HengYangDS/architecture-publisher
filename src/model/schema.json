@@ -680,6 +680,41 @@
         "text": {
           "$ref": "#/$defs/text"
         },
+        "spurs": {
+          "description": "Stations beside the course, each leaving one of its points: an input that joins it or a store it reads.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["at"],
+            "properties": {
+              "at": {
+                "$ref": "#/$defs/id"
+              },
+              "id": {
+                "$ref": "#/$defs/id"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              },
+              "part": {
+                "$ref": "#/$defs/id"
+              },
+              "note": {
+                "$ref": "#/$defs/text"
+              }
+            },
+            "anyOf": [
+              {
+                "required": ["label"]
+              },
+              {
+                "required": ["part"]
+              }
+            ]
+          }
+        },
         "parallel": {
           "description": "Stretches of the course on parallel tracks, each from one station or step without stations to another, on 2 to 4 tracks, counted or named.",
           "type": "array",
