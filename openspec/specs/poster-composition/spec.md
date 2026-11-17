@@ -113,10 +113,12 @@ text breaks the same way on every host.
 
 ### Requirement: Cards as large as their text
 
-A card SHALL be as wide as its label and its longest detail need on one line,
-within card measures of 16 ems for a label and 24 ems for a detail, and as
-wide as the widest card in its lattice column, and no wider; a field too
-narrow for that width narrows the cards and their text wraps.
+A card SHALL be as wide as its label, its strip, its caption and its longest
+detail need on one line, within card measures of 16 ems for a label and 24 ems
+for a detail, and as wide as the widest card in its lattice column, and no
+wider; a field too narrow for that width narrows the cards and their text
+wraps. On a plate that sets its counts under their kinds a caption needs the
+wider of its kind with its icon and its count.
 
 #### Scenario: A short card in a row of tall ones
 
@@ -356,8 +358,8 @@ The engine SHALL draw a plate as an SVG of its shapes, with any icons as inline
 paths and no text, paper, head, key or notes, and SHALL report its text as runs:
 each run's text, position, size, weight, colour and the width it measured, and
 the component whose title it is. Its colours SHALL come from the edition's
-resolved palette only, and on a strip plate relation labels SHALL be set in
-the regular weight, so they read under the parts they join.
+resolved palette only, and relation labels SHALL be set in the regular weight,
+so they read under the parts they join.
 
 #### Scenario: Shapes without text
 
@@ -405,13 +407,12 @@ lines. A run that Typst sets wider than the engine measured SHALL be refused wit
 
 ### Requirement: Strips sized by their files
 
-With `strip` marks, each part SHALL be drawn as its label, a strip and a
-caption. The strip's length SHALL be proportional to the bytes of the files the
-part owns, of any type, on one scale for the whole edition, at least 2 px for a
-part with any bytes; every strip has one thickness. Each owned file is a
-segment in path order, as wide as its share of the strip, in the dye of its age
-band. A part that owns no files SHALL be a short dashed outline. The key SHALL
-show a scale bar.
+A part that owns files SHALL carry a strip under its name. The strip's length
+SHALL be proportional to the bytes of the files the part owns, of any type, on
+one scale for the whole edition, at least 2 px for a part with any bytes; every
+strip has one thickness. Each owned file is a segment in path order, as wide as
+its share of the strip, in the dye of its age band. The key SHALL show a scale
+bar.
 
 #### Scenario: Shares of a strip
 
@@ -433,27 +434,29 @@ show a scale bar.
 ### Requirement: Strips keep to their boxes
 
 A strip SHALL never be shortened to fit a column: no column of a view is
-narrower than its longest strip. When a view cannot hold the edition's strips,
-the edition SHALL draw every strip shorter, 360 px and then 240 px for its
-largest part, on one scale still, and plan its views again.
+narrower than its longest strip within its card's padding. When a view cannot
+hold the edition's strips, the edition SHALL draw every strip shorter, 320 px
+and then 208 px for its largest part, on one scale still, and plan its views
+again.
 
 #### Scenario: A strip keeps to its box
 
 - **WHEN** a view's columns would be narrower than its longest strip
 - **THEN** that layout is refused and the plate tries another wrapping, so no
-  strip runs past its box or the boundary
+  strip runs past its card or the boundary
 
 #### Scenario: A shorter scale for the edition
 
-- **WHEN** a view cannot be laid out with strips of 360 px for the largest part
-- **THEN** every plate of the edition draws its strips at 240 px for the largest
+- **WHEN** a view cannot be laid out with strips of 320 px for the largest part
+- **THEN** every plate of the edition draws its strips at 208 px for the largest
   part, and each key's sample strip shows that scale
 
 ### Requirement: Age bands
 
 Every edition SHALL divide the files its parts own into three age bands counted back from the pin's commit: changed
-within a week, within three months, and earlier. A file's age SHALL be the pin's commit time minus that of its last
-change at or before the pin. The key SHALL name the bands and the pin's date.
+within a week, over a week and within three months, and earlier. A file's age SHALL be the pin's commit time minus
+that of its last change at or before the pin. The key SHALL name the bands and the pin's date, the middle band by
+both its bounds, so that no file's age fits the names of two bands.
 
 #### Scenario: Recent and older files
 
@@ -465,49 +468,15 @@ change at or before the pin. The key SHALL name the bands and the pin's date.
 - **WHEN** a relation cites a file that no part owns
 - **THEN** the file falls in no band, and no strip shows it
 
-### Requirement: Marks keep the gates
+#### Scenario: The middle band's name
 
-A plate with either marks SHALL pass the same containment, balance, type floor,
-whole-word text and routing gates, and a view neither marks can fit SHALL be
-refused as before.
-
-#### Scenario: The same view with both marks
-
-- **WHEN** one view is composed with `card` and with `strip` marks
-- **THEN** both plates pass every gate or the view is refused with the gate's reason
-
-### Requirement: Runs of details without word spaces
-
-In an edition whose language is written without spaces between words, the run
-of each line of a part's details SHALL report the width Typst sets the line in,
-and the run of a line to be spread SHALL also name its measure. A strip part's
-counts SHALL report that width too and SHALL end at their box's edge.
-
-#### Scenario: A line to be spread
-
-- **WHEN** a plate of a language written without spaces between words holds a
-  detail line, not its detail's last, whose slack is no more than a tenth of an
-  em for each place it opens
-- **THEN** that line's run names the measure, and the part's text block is
-  measured at it
-
-#### Scenario: A detail's last line
-
-- **WHEN** a plate of a language written without spaces between words holds a
-  detail's last line of Han and letters
-- **THEN** its run names no measure and reports the width Typst sets it in,
-  narrower than the CJK face alone measures it
-
-#### Scenario: A strip part's counts
-
-- **WHEN** a Chinese strip plate sets a part's counts
-- **THEN** they end at the box's edge, and their run reports the width Typst
-  sets them in
+- **WHEN** a plate's key names the band of files changed over 7 and within 90 days before the pin
+- **THEN** its words hold both numbers, in every language the publisher speaks
 
 ### Requirement: Citation counts and the hub
 
-With `strip` marks, a relation that cites files SHALL carry their number once near its source, in the smallest
-figure type and its line's colour, and no tick. The part with the most incoming relations of a view, when it has at
+With file facts, a relation that cites files SHALL carry their number once near its source, in the smallest figure
+type and its line's colour, and no tick, and the part with the most incoming relations of a view, when it has at
 least three and more than any other, SHALL be the hub. A relation into the hub, unless retired, SHALL be drawn with
 the value table's emphasis, in the oldest dye, ending inside its arrowhead. A count with no clear place SHALL raise
 `citation_count_touches`.
@@ -547,6 +516,11 @@ the value table's emphasis, in the oldest dye, ending inside its arrowhead. A co
 - **THEN** the count stands at the first place from the source end and the plate is still built
 - **AND** the result carries the warning `citation_count_touches` with the plate's number and the relation's id
 
+#### Scenario: An edition without file facts
+
+- **WHEN** a model is built without a checkout
+- **THEN** no line of its plates is heavier than another for a hub, and none carries a number
+
 ### Requirement: Narrow files of a strip
 
 A file whose segment would be narrower than a seam SHALL be drawn as one
@@ -558,3 +532,117 @@ more than one.
 
 - **WHEN** a part owns a file of 9 KB and one of 10 bytes in the same age band
 - **THEN** its strip draws the two as one segment
+
+### Requirement: One part
+
+Every part SHALL be drawn as one card of regions, from its top: its name; the
+strip of the files it owns; a caption of its kind's icon before the kind's
+label, with the number and size of its files; and, where its plate has the
+room, its details. Its outline SHALL tell its status and its ground whether it
+lies inside the repository. A region SHALL be drawn only where the part has the
+fact: a part that owns no file has no strip and no count.
+
+#### Scenario: A part that owns files
+
+- **WHEN** a part owns one file of 21 KB and states one detail
+- **THEN** its card holds its name, its strip, its kind's icon and label with `1 file, 21 KB`, and, on a plate with
+  the room, the detail, in that order from the top
+
+#### Scenario: A part that owns no file
+
+- **WHEN** a part owns no file
+- **THEN** its card holds its name, its kind's icon and label and its details, and no strip, no count and no words
+  that say it owns nothing
+
+### Requirement: Details where a plate has the room
+
+A plate SHALL be composed for its parts' compact cards, which set no details.
+Its cards SHALL set every detail their parts state exactly when the view can be
+laid out with them in the same width and height at the same type step with no
+more crossings and, at equal crossings, no more route defects. A plate's record
+SHALL say whether its cards set their details.
+
+#### Scenario: A plate with room
+
+- **WHEN** a view of six parts is composed at the largest type step and holds its parts' details there with the
+  same wiring
+- **THEN** every card sets its part's details, and the plate's record says so
+
+#### Scenario: Details that would cost type or wiring
+
+- **WHEN** a view's parts each state four long details that the composition chosen cannot hold at its type step
+- **THEN** no card sets a detail, and the plate has the crossings, the route defects and the type step it has when
+  its parts state nothing
+
+### Requirement: A caption that breaks
+
+A part's caption SHALL stand on one line, the kind at the left and the count
+ending at the card's right padding, two ems apart at least. On a plate with a
+card too narrow for that line every count SHALL stand on a line of its own
+under its kind, and no card SHALL be widened for the one line, so the captions
+of one plate have one form. A card narrower than the kind with its icon, or
+than the count, SHALL NOT be a candidate.
+
+#### Scenario: A narrow card
+
+- **WHEN** a card of a plate is narrower than its kind and its count on one line and wider than either
+- **THEN** every count of that plate stands under its kind, and the layout is a candidate
+
+#### Scenario: A composition too wide with captions on one line
+
+- **WHEN** a composition whose cards are as wide as their captions on one line is wider than its field
+- **THEN** it is laid out with every count under its kind, and is a candidate where it then fits
+
+### Requirement: The boundary's name on its cards' text edge
+
+The boundary's name SHALL start on the text edge of a card that stands at the
+boundary's left edge, so the name and the names of the cards under it share one
+left edge at every type step. A wire that crosses the boundary's top edge where
+the name would stand SHALL move the name to the right, clear of it.
+
+#### Scenario: A boundary over a column of cards
+
+- **WHEN** a plate with a boundary is drawn at any type step and no wire crosses the top edge near the name
+- **THEN** the boundary's name and the names of the leftmost cards inside it start at one x
+
+### Requirement: The regions of a row
+
+The cards of one row SHALL set each region at one top across the row: the
+name block as tall as the row's tallest name, the strip's band where any card
+of the row has a strip, and the caption as tall as the row's tallest caption,
+so the captions of a row stand on one baseline. A row SHALL be as tall as these
+regions and its most details together, within its cards' padding.
+
+#### Scenario: Names of one and two lines in a row
+
+- **WHEN** a row holds a card whose name takes two lines beside a card whose name takes one and which owns no file
+- **THEN** the two cards' captions stand on one baseline
+
+### Requirement: Runs of a part's text without word spaces
+
+In an edition whose language is written without spaces between words, the run
+of each line of a part's details SHALL report the width Typst sets the line in,
+and the run of a line to be spread SHALL also name its measure. A part's count
+SHALL report that width too and, on its kind's line, SHALL end at its card's
+right padding.
+
+#### Scenario: A line to be spread
+
+- **WHEN** a plate of a language written without spaces between words holds a
+  detail line, not its detail's last, whose slack is no more than a tenth of an
+  em for each place it opens
+- **THEN** that line's run names the measure, and the part's text block is
+  measured at it
+
+#### Scenario: A detail's last line
+
+- **WHEN** a plate of a language written without spaces between words holds a
+  detail's last line of Han and letters
+- **THEN** its run names no measure and reports the width Typst sets it in,
+  narrower than the CJK face alone measures it
+
+#### Scenario: A part's count
+
+- **WHEN** a Chinese plate sets a part's count on its kind's line
+- **THEN** it ends at the card's right padding, and its run reports the width
+  Typst sets it in

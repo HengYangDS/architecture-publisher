@@ -69,7 +69,7 @@ emphasis and nothing else.
 
 #### Scenario: Two weights on a plate
 
-- **WHEN** a strip plate with a hub is built
+- **WHEN** a plate with a hub is built
 - **THEN** its relations' lines have two weights, and every line of the heavier weight ends at the hub
 
 ### Requirement: Lines told apart without colour
@@ -81,7 +81,7 @@ tested by a work are outside this requirement.
 
 #### Scenario: Emphasis at the base condition
 
-- **WHEN** a strip plate with a hub is rendered 1920 px wide
+- **WHEN** a plate with a hub is rendered 1920 px wide
 - **THEN** the lines into the hub and the other lines differ by at least 1.0 px of effective width and 1 px of core
   width, in colour and in grey
 
@@ -110,8 +110,8 @@ other line, and a change of the files a relation cites SHALL change that relatio
 
 On a built plate every relation's line, every status's pattern and the boundary SHALL be drawn with a weight and a
 pattern of the table, and the drawing code SHALL hold no weight or pattern of its own for them. Widths that are not a
-relation's line or the boundary, such as the outline of a part that owns no files, a tier's ring, a card's outline
-and an icon's strokes, are outside the table.
+relation's line or the boundary, such as a tier's ring, a card's outline and an icon's strokes, are outside the
+table.
 
 #### Scenario: Every weight of the table scaled
 
