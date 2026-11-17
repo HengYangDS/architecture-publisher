@@ -189,11 +189,11 @@ function plateOf(plate) {
  *   evidence: readonly EvidenceRow[],
  *   guide?: { path: string, sha256: string, files: ReadonlyArray<{ name: string, sha256: string }>,
  *     sources: string, figures?: object } | null,
- *   overview?: { composition: string, images: ReadonlyArray<{ width: number, file: string }> } | null,
+ *   overview?: { statement: string, images: ReadonlyArray<{ width: number, file: string }> } | null,
  *   media: readonly string[],
  * }} build the validated model; its file's digest, size, format and version; the binding's state; the planned
  *   views; the plates as the drawing reports them; the layer's facts and catalogue; the evidence table; the guide's
- *   record with its matched figures; the overview's composition and images; and the media delivered
+ *   record with its matched figures; the overview's statement's digest and images; and the media delivered
  */
 export function editionData(build) {
   const { model, facts, catalogue, guide = null, overview = null } = build;
@@ -226,9 +226,9 @@ export function editionData(build) {
         sources: guide.sources,
         figures: guide.figures,
       }),
-    // The overview's page is set by hand: its marks are tied to no statement, so it has images and no face.
+    // The overview's page is drawn from the model's statement in Typst, not by the engine, so it has images and no face.
     overview: overview && {
-      composition: overview.composition,
+      statement: overview.statement,
       images: overview.images.map(({ width, file }) => ({ width, file })),
       face: false,
     },

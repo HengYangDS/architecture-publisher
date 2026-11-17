@@ -165,6 +165,7 @@ export function editionRecord(input) {
       edition: words.edition,
       contents: words.contents,
       overview: words.overview,
+      writtenFrom: input.overview && facts.read ? words.writtenFrom(facts.read) : null,
       scope: words.scope,
       limits: words.limits,
       reading: words.reading,

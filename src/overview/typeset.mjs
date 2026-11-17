@@ -10,12 +10,11 @@ import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 import { checkBoxes } from "./checks.mjs";
 import { requireOverviewGlyphs } from "./glyphs.mjs";
-import { lintComposition } from "./lint.mjs";
 
 /**
- * The overview: one 16:9 page a work's author writes with the house class and Typst typesets.
- * The composition's Typst files, the class and the model are staged in one root that Typst
- * cannot leave; only the bundled fonts are available, and no package is fetched.
+ * The overview: one 16:9 page the publisher draws from the statement a model makes, with the house class, and Typst
+ * typesets. The class, the drawing and the model are staged in one root that Typst cannot leave; only the bundled
+ * fonts are available, and no package is fetched.
  */
 
 const run = promisify(execFile);
@@ -26,6 +25,8 @@ export const TYPST_VERSION = "0.15.1";
 /** The house class, staged beside the model under this directory of the root. */
 export const STAGED = "archpub";
 const CLASS = fileURLToPath(new URL("./house.typ", import.meta.url));
+/** The drawing of the overview from a model's statement, staged beside the class it imports. */
+const DRAWING = fileURLToPath(new URL("./drawn.typ", import.meta.url));
 /** The house tokens, staged beside the class, which reads them. */
 const TOKENS = fileURLToPath(new URL("../house.json", import.meta.url));
 /** The bundled face that sets Han characters on the overview as on the posters. */
@@ -49,27 +50,6 @@ export async function typstVersion(typst = "typst", medium = "overview") {
   return version;
 }
 
-/** The composition's Typst files, relative to its directory; links and other entries are refused. */
-async function typstFiles(directory) {
-  const out = [];
-  for (const entry of await fs.readdir(directory, { withFileTypes: true, recursive: true })) {
-    const full = path.join(entry.parentPath, entry.name);
-    const relative = path.relative(directory, full).split(path.sep).join("/");
-    if (relative === STAGED || relative.startsWith(`${STAGED}/`))
-      refuse(
-        "overview_composition_invalid",
-        `The composition's directory holds ${relative}, where the publisher stages the house class.`,
-      );
-    if (entry.isSymbolicLink())
-      refuse(
-        "overview_composition_invalid",
-        `${relative} is a link; the overview reads files only.`,
-      );
-    if (entry.isFile() && entry.name.endsWith(".typ")) out.push(relative);
-  }
-  return out.sort();
-}
-
 /**
  * The house tokens as staged for one edition: the supply's file, with its palette, figure colours and dye replaced
  * by the edition's resolved palette when it names one, so the class sets every page in the palette the model chose.
@@ -84,42 +64,56 @@ function stagedTokens(supplied, tokens) {
 }
 
 /**
- * Stage the composition's Typst files, when there is a composition, the class and the model in a new root.
- * @param {string | null} composition the composition's absolute path, or null when the model names none
+ * Stage the class, the drawing of the overview and the model in a new root. The class reads its tokens and the
+ * model there.
  * @param {Buffer} modelBytes the model file as read
  * @param {{ palette: object, figure: object, dye: object } | null} [tokens] the edition's resolved palette
  */
-export async function stage(composition, modelBytes, tokens = null) {
-  const directory = composition ? path.dirname(composition) : null;
-  const files = directory ? await typstFiles(directory) : [];
-  const sources = await Promise.all(
-    files.map(async (file) => ({
-      file,
-      text: await fs.readFile(path.join(/** @type {string} */ (directory), file), "utf8"),
-    })),
-  );
-  lintComposition(sources);
+export async function stage(modelBytes, tokens = null) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-"));
-  for (const { file, text } of sources) {
-    await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true });
-    await fs.writeFile(path.join(root, file), text);
-  }
   await fs.mkdir(path.join(root, STAGED));
   const classBytes = await fs.readFile(CLASS);
+  const drawingBytes = await fs.readFile(DRAWING);
   await fs.writeFile(path.join(root, STAGED, "house.typ"), classBytes);
+  await fs.writeFile(path.join(root, STAGED, "drawn.typ"), drawingBytes);
   const tokenBytes = stagedTokens(await fs.readFile(TOKENS), tokens);
   await fs.writeFile(path.join(root, STAGED, "house.json"), tokenBytes);
   await fs.writeFile(path.join(root, STAGED, "model.json"), modelBytes);
-  const own = composition
-    ? sources.find(({ file }) => file === path.basename(composition))
-    : undefined;
   return {
     root,
-    entry: composition ? path.basename(composition) : null,
-    composition: own ? sha256(Buffer.from(own.text)) : null,
-    // The class reads its tokens, so its digest covers both.
-    house: sha256(Buffer.concat([classBytes, tokenBytes])),
+    // The class reads its tokens, and the drawing the class, so the digest covers all three.
+    house: sha256(Buffer.concat([classBytes, drawingBytes, tokenBytes])),
   };
+}
+
+/**
+ * The SHA-256 of the overview a model states, as its JSON reads.
+ * @param {unknown} statement
+ */
+export const statementDigest = (statement) => sha256(Buffer.from(JSON.stringify(statement)));
+
+/**
+ * The Typst source that draws a staged model's overview, with the masthead's note of the files read beside it in
+ * `overview-inputs.json`.
+ * @param {string} root the staged root
+ * @param {string | null} writtenFrom
+ */
+export async function overviewEntry(root, writtenFrom) {
+  await fs.writeFile(
+    path.join(root, STAGED, "overview-inputs.json"),
+    JSON.stringify({ writtenFrom }),
+  );
+  const entry = path.join(root, "overview.typ");
+  await fs.writeFile(
+    entry,
+    [
+      `#import "/${STAGED}/drawn.typ": *`,
+      "#show: overview",
+      `#drawn(json("/${STAGED}/model.json").overview, written-from: json("/${STAGED}/overview-inputs.json").writtenFrom)`,
+      "",
+    ].join("\n"),
+  );
+  return entry;
 }
 
 /**
@@ -175,16 +169,18 @@ function refuseDiagnostics(stderr, roots) {
 }
 
 /**
- * Check a model's overview before the edition sets it in place: the composition's lint, then Typst's reading of it
- * alone, every text box inside the live area and clear of the others, and every character drawn by a bundled face.
- * @param {{ composition: string, modelBytes: Buffer, revision: string | null, date: string | null,
+ * Check a model's overview before the edition sets it in place: Typst's drawing of it alone from the statement,
+ * every text box inside the live area and clear of the others, and every character drawn by a bundled face. Hands
+ * back the texts and the marks it drew.
+ * @param {{ modelBytes: Buffer, writtenFrom?: string | null, revision: string | null, date: string | null,
  *   typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
 export async function checkOverview(input) {
   const typst = input.typst ?? "typst";
   const version = await typstVersion(typst);
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
-  const staged = await stage(input.composition, input.modelBytes, input.tokens ?? null);
+  const staged = await stage(input.modelBytes, input.tokens ?? null);
+  const entry = await overviewEntry(staged.root, input.writtenFrom ?? null);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-out-"));
   try {
     const roots = [staged.root, await fs.realpath(staged.root)];
@@ -194,9 +190,9 @@ export async function checkOverview(input) {
         typst,
         [
           "eval",
-          "query(<archpub-box>).map(it => it.value)",
+          "(boxes: query(<archpub-box>).map(it => it.value), marks: query(<archpub-mark>).map(it => it.value))",
           "--in",
-          path.join(staged.root, /** @type {string} */ (staged.entry)),
+          entry,
           "--root",
           staged.root,
           "--ignore-system-fonts",
@@ -226,15 +222,17 @@ export async function checkOverview(input) {
       throw error;
     }
     refuseDiagnostics(result.stderr, roots);
-    const boxes = JSON.parse(result.stdout);
+    const { boxes, marks } = JSON.parse(result.stdout);
     checkBoxes(boxes);
     await requireOverviewGlyphs(boxes);
+    const model = JSON.parse(input.modelBytes.toString("utf8"));
     return {
       typst: version,
-      composition: staged.composition,
+      statement: statementDigest(model.overview),
       house: staged.house,
       date: input.date,
       texts: boxes.map(({ text }) => text),
+      marks,
     };
   } finally {
     await fs.rm(staged.root, { recursive: true, force: true });

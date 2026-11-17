@@ -34,7 +34,7 @@ export const everyBlock = () => ({
     ],
     lines: [{ from: "keep", to: ["ask"], label: "a kept answer may be asked for again" }],
   },
-  courses: [
+  blocks: [
     {
       title: "One call, checked",
       stations: [
@@ -46,8 +46,6 @@ export const everyBlock = () => ({
       aside: { from: "judge", label: "refused: nothing is called" },
       text: "A refused request is answered at once with its reason.",
     },
-  ],
-  facts: [
     {
       title: "What Alpha holds",
       items: [
@@ -65,6 +63,7 @@ export const everyBlock = () => ({
     },
     {
       title: "Around it",
+      text: "Both are done by a person, not by Alpha.",
       lists: [
         { title: "Before", items: [["setup", "once, by hand"]] },
         { title: "After", items: [["review", "every week"]] },

@@ -3,7 +3,8 @@
  * runs across the page; a step may hold stations, run them on parallel tracks and carry a note and a text; lines go
  * from one step or station to others. Further courses each have a title, stations, a labelled step and one outcome
  * that leaves a station. Facts are headed lists of terms and texts, tables and groups of lists. A step or a station
- * that is a part of the model names it, and the page prints the model's label. Nothing here says where anything
+ * that is a part of the model names it, and the page prints the model's label. The blocks after the course stand in
+ * one list, in the order the page sets them. Nothing here says where anything
  * stands, how large it is or in what type: those are the publisher's.
  */
 
@@ -35,19 +36,16 @@ export function readOverview(value, problems, componentIds) {
     );
     return null;
   }
-  if (!problems.fields(value, "/overview", ["claim", "lead", "course"], ["courses", "facts"]))
-    return null;
+  if (!problems.fields(value, "/overview", ["claim", "lead", "course"], ["blocks"])) return null;
   const overview = /** @type {Record<string, any>} */ (value);
   problems.text(overview.claim, "/overview/claim");
   problems.text(overview.lead, "/overview/lead");
   checkCourse(overview.course, "/overview/course", problems, componentIds);
-  if (overview.courses !== undefined)
-    eachOf(overview.courses, "/overview/courses", problems, 1, (course, path) =>
-      checkFurtherCourse(course, path, problems, componentIds),
-    );
-  if (overview.facts !== undefined)
-    eachOf(overview.facts, "/overview/facts", problems, 1, (fact, path) =>
-      checkFact(fact, path, problems),
+  if (overview.blocks !== undefined)
+    eachOf(overview.blocks, "/overview/blocks", problems, 1, (block, path) =>
+      block && typeof block === "object" && "stations" in block
+        ? checkFurtherCourse(block, path, problems, componentIds)
+        : checkFact(block, path, problems),
     );
   return overview;
 }
@@ -158,12 +156,14 @@ function checkItems(items, path, problems) {
 function checkFact(fact, path, problems) {
   const entry = /** @type {Record<string, any>} */ (fact);
   if (entry && typeof entry === "object" && "items" in entry) {
-    if (!problems.fields(entry, path, ["title", "items"], [])) return;
+    if (!problems.fields(entry, path, ["title", "items"], ["text"])) return;
     problems.text(entry.title, `${path}/title`);
+    problems.text(entry.text, `${path}/text`, true);
     checkItems(entry.items, `${path}/items`, problems);
   } else if (entry && typeof entry === "object" && "columns" in entry) {
-    if (!problems.fields(entry, path, ["title", "columns", "rows"], [])) return;
+    if (!problems.fields(entry, path, ["title", "columns", "rows"], ["text"])) return;
     problems.text(entry.title, `${path}/title`);
+    problems.text(entry.text, `${path}/text`, true);
     eachOf(entry.columns, `${path}/columns`, problems, 1, (column, at) =>
       problems.text(column, at),
     );
@@ -174,8 +174,9 @@ function checkFact(fact, path, problems) {
       row.forEach((cell, index) => problems.text(cell, `${at}/${index}`));
     });
   } else if (entry && typeof entry === "object" && "lists" in entry) {
-    if (!problems.fields(entry, path, ["title", "lists"], [])) return;
+    if (!problems.fields(entry, path, ["title", "lists"], ["text"])) return;
     problems.text(entry.title, `${path}/title`);
+    problems.text(entry.text, `${path}/text`, true);
     eachOf(entry.lists, `${path}/lists`, problems, 2, (list, at) => {
       if (!problems.fields(list, at, ["title", "items"], [])) return;
       problems.text(list.title, `${at}/title`);
@@ -185,6 +186,6 @@ function checkFact(fact, path, problems) {
     problems.add(
       "model_overview_invalid",
       path,
-      "is a list (items), a table (columns and rows) or a group of lists (lists)",
+      "is a course (stations), a list (items), a table (columns and rows) or a group of lists (lists)",
     );
 }

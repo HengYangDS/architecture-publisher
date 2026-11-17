@@ -16,6 +16,7 @@ import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs"
 import { deliverGuide, guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
 import { editionRecord } from "./edition/record.mjs";
+import { editionWordsOf } from "./edition/words.mjs";
 import { typesetEdition } from "./edition/typeset.mjs";
 import { checkOverview, typstVersion } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
@@ -115,27 +116,6 @@ function drawnTexts(model) {
 }
 
 /**
- * The model's overview composition, resolved beside the model, refused when the
- * model names none or no file is there.
- * @param {string} modelPath
- * @param {string | null} named the model's `overview`
- */
-async function compositionOf(modelPath, named) {
-  if (!named)
-    refuse(
-      "overview_composition_missing",
-      "The model names no overview composition; name one in `overview`.",
-    );
-  const composition = path.resolve(path.dirname(modelPath), named);
-  if (!(await fs.stat(composition).catch(() => null))?.isFile())
-    refuse(
-      "overview_composition_missing",
-      `The model names the overview composition ${named}, but no file is at ${composition}.`,
-    );
-  return composition;
-}
-
-/**
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed. The listener is told each step as it is reached.
  * @param {string} modelPath
@@ -153,8 +133,6 @@ async function prepare(modelPath, options, listener) {
   const printed = media.includes("edition");
   // The edition is typeset by the pinned Typst; the page needs none.
   if (printed) await typstVersion("typst", "edition");
-  const composition =
-    printed && model.overview ? await compositionOf(modelPath, model.overview) : null;
   requireGlyphs(typefaces, drawnTexts(model));
   listener("verifying files");
   const binding = bindSources(model, options.repo);
@@ -179,15 +157,16 @@ async function prepare(modelPath, options, listener) {
       : []),
     ...styled,
   ];
-  const overview = composition
-    ? await checkOverview({
-        composition,
-        modelBytes: loaded.content,
-        revision: model.repository?.revision ?? null,
-        date: commit?.date ?? null,
-        tokens: chosen.tokens,
-      })
-    : null;
+  const overview =
+    printed && model.overview
+      ? await checkOverview({
+          modelBytes: loaded.content,
+          writtenFrom: facts.read ? editionWordsOf(model.locale).writtenFrom(facts.read) : null,
+          revision: model.repository?.revision ?? null,
+          date: commit?.date ?? null,
+          tokens: chosen.tokens,
+        })
+      : null;
   // Each view is one plate of the edition, laid out for its body, with the edition's strips as long as every view
   // can hold them.
   listener("planning views");
@@ -226,7 +205,6 @@ async function prepare(modelPath, options, listener) {
     views,
     plates,
     page,
-    composition,
     overview,
     commit,
     icons,
@@ -376,7 +354,6 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
           }),
           plates: prepared.plates,
           modelBytes: prepared.loaded.content,
-          composition: prepared.composition,
           revision: model.repository?.revision ?? null,
           date: prepared.commit?.date ?? null,
           time: dated.time,

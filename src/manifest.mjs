@@ -13,7 +13,7 @@ export const PNG_WIDTHS = Object.freeze([2400]);
 /** The overview's inputs and Typst's reading of them, for the manifest and the check. */
 export function overviewSummary(model, overview) {
   return {
-    composition: { path: model.overview, sha256: overview.composition },
+    statement: { sha256: overview.statement },
     house: overview.house,
     typst: overview.typst,
     date: overview.date,

@@ -259,6 +259,11 @@ accepted on the published works as the product builds them, with what its own ga
       with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
       by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
       of `composable-parts` because the owner ruled on 2026-11-17 that nothing is placed by hand.
+- [ ] `delivery-layout`: a delivery laid out by kind, so a reader finds each thing where its kind says: the print
+      edition, the page and the manifest at the top; each page's image in `images/`, named by what it shows (the
+      overview, a plate's number and view), where `00-overview` and a first plate of a view named overview read alike
+      today; the model, the pinned data and the reader file in `data/`. The owner asked on 2026-11-17 that what is
+      delivered be organised and named by a rule.
 - [ ] `composable-parts`: a part is a card of regions that compose: its outline, its name and kind, the strip of
       what it owns, its counts and its details, each drawn where the part has the fact. Cards and strips are no
       longer two exclusive ways of drawing a part. A planned part that owns no file yet has no strip. The words

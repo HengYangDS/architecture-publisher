@@ -317,18 +317,110 @@
         "course": {
           "$ref": "#/$defs/overviewCourse"
         },
-        "courses": {
+        "blocks": {
+          "description": "The blocks after the course, in the order the page sets them.",
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/$defs/overviewFurtherCourse"
-          }
-        },
-        "facts": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$ref": "#/$defs/overviewFact"
+            "oneOf": [
+              {
+                "$ref": "#/$defs/overviewFurtherCourse"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["title", "items"],
+                "properties": {
+                  "title": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "$ref": "#/$defs/text"
+                      }
+                    }
+                  },
+                  "text": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["title", "columns", "rows"],
+                "properties": {
+                  "title": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "columns": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "$ref": "#/$defs/text"
+                    }
+                  },
+                  "rows": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/text"
+                      }
+                    }
+                  },
+                  "text": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["title", "lists"],
+                "properties": {
+                  "title": {
+                    "$ref": "#/$defs/text"
+                  },
+                  "lists": {
+                    "type": "array",
+                    "minItems": 2,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["title", "items"],
+                      "properties": {
+                        "title": {
+                          "$ref": "#/$defs/text"
+                        },
+                        "items": {
+                          "type": "array",
+                          "minItems": 1,
+                          "items": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "$ref": "#/$defs/text"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "text": {
+                    "$ref": "#/$defs/text"
+                  }
+                }
+              }
+            ]
           }
         }
       }
@@ -621,96 +713,6 @@
           }
         }
       }
-    },
-    "overviewFact": {
-      "description": "A fact of the overview: a headed list of terms and texts, a table, or a group of headed lists.",
-      "oneOf": [
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["title", "items"],
-          "properties": {
-            "title": {
-              "$ref": "#/$defs/text"
-            },
-            "items": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "array",
-                "minItems": 2,
-                "maxItems": 2,
-                "items": {
-                  "$ref": "#/$defs/text"
-                }
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["title", "columns", "rows"],
-          "properties": {
-            "title": {
-              "$ref": "#/$defs/text"
-            },
-            "columns": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "$ref": "#/$defs/text"
-              }
-            },
-            "rows": {
-              "type": "array",
-              "minItems": 1,
-              "items": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/text"
-                }
-              }
-            }
-          }
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["title", "lists"],
-          "properties": {
-            "title": {
-              "$ref": "#/$defs/text"
-            },
-            "lists": {
-              "type": "array",
-              "minItems": 2,
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["title", "items"],
-                "properties": {
-                  "title": {
-                    "$ref": "#/$defs/text"
-                  },
-                  "items": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                      "type": "array",
-                      "minItems": 2,
-                      "maxItems": 2,
-                      "items": {
-                        "$ref": "#/$defs/text"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

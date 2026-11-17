@@ -153,7 +153,7 @@ function pageProjections(page, views) {
  * carries one.
  * @param {{ loaded: { content: Uint8Array, sha256: string, bytes: number }, model: any, binding: any, facts: any,
  *   views: readonly any[], plates: readonly any[], styleRecord: Record<string, any>, media: readonly string[],
- *   overview: object | null, page: any, guide: Awaited<ReturnType<typeof guideOf>>, publisher: string }} held
+ *   overview: { statement: string } | null, page: any, guide: Awaited<ReturnType<typeof guideOf>>, publisher: string }} held
  *   what the build prepared: the model as read and validated, the binding, the layer of facts, the plan, the plates
  *   as drawn, the style's record, the media, the overview when one is set, the page when one is prepared, the
  *   guide, and the publisher's version
@@ -194,7 +194,7 @@ export function pinnedEdition(held, widths, platePages = null) {
     evidence,
     guide: guide && guideRecord(guide, held.page, evidence, model, binding.state === "verified"),
     overview: held.overview && {
-      composition: model.overview,
+      statement: held.overview.statement,
       images: widths.map((width) => ({
         width,
         file:

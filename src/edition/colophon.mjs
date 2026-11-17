@@ -100,7 +100,7 @@ export async function typesetColophon(input) {
   const record = colophonRecord(input, reviewer);
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
   // The class reads a model when it is imported; the colophon page sets none of it.
-  const staged = await stage(null, Buffer.from("{}"));
+  const staged = await stage(Buffer.from("{}"));
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-colophon-out-"));
   try {
     const own = path.join(staged.root, STAGED);

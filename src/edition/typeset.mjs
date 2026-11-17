@@ -31,14 +31,14 @@ const imageFile = (width, name) =>
 /**
  * Typeset a delivery's print edition.
  * @param {{ record: any, plates: Array<{ page: number, views: string[], svg: string }>, modelBytes: Buffer,
- *   composition: string | null, revision: string | null, date: string | null, time: number | null,
+ *   revision: string | null, date: string | null, time: number | null,
  *   widths: readonly number[], typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
 export async function typesetEdition(input) {
   const typst = input.typst ?? "typst";
   const version = await typstVersion(typst, "edition");
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
-  const staged = await stage(input.composition, input.modelBytes, input.tokens ?? null);
+  const staged = await stage(input.modelBytes, input.tokens ?? null);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-edition-out-"));
   try {
     const own = path.join(staged.root, STAGED);
@@ -49,11 +49,18 @@ export async function typesetEdition(input) {
         path.join(own, "plates", `${String(plate.page).padStart(2, "0")}.svg`),
         plate.svg,
       );
-    const overview = staged.entry ? `include "/${staged.entry}"` : "none";
+    // The overview is drawn from the model's statement, with the masthead's note of the files read.
     const entry = path.join(own, "edition.typ");
     await fs.writeFile(
       entry,
-      `#import "house.typ": edition\n#edition(json("edition.json"), overview: ${overview})\n`,
+      [
+        '#import "house.typ": edition',
+        '#import "drawn.typ": drawn',
+        '#let r = json("edition.json")',
+        '#let stated = json("model.json").at("overview", default: none)',
+        "#edition(r, overview: if stated == none { none } else { drawn(stated, written-from: r.words.writtenFrom) })",
+        "",
+      ].join("\n"),
     );
     const roots = [staged.root, await fs.realpath(staged.root)];
     const common = [

@@ -33,25 +33,25 @@ test("an overview names only parts, steps and stations that exist", () => {
   const statement = everyBlock();
   statement.course.steps[1].stations[1].part = "c";
   statement.course.lines[0].to = ["nowhere"];
-  statement.courses[0].pass.after = "elsewhere";
-  statement.courses[0].aside.from = "elsewhere";
+  statement.blocks[0].pass.after = "elsewhere";
+  statement.blocks[0].aside.from = "elsewhere";
   assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
     ["model_reference_unknown", "/overview/course/steps/1/stations/1/part"],
     ["model_reference_unknown", "/overview/course/lines/0/to/0"],
-    ["model_reference_unknown", "/overview/courses/0/pass/after"],
-    ["model_reference_unknown", "/overview/courses/0/aside/from"],
+    ["model_reference_unknown", "/overview/blocks/0/pass/after"],
+    ["model_reference_unknown", "/overview/blocks/0/aside/from"],
   ]);
 });
 
 test("an overview states no position, size or type, and a step runs on two to four tracks", () => {
   const statement = everyBlock();
   Object.assign(statement.course.steps[0], { x: 48 });
-  Object.assign(statement.facts[0], { width: 400 });
+  Object.assign(statement.blocks[1], { width: 400 });
   statement.course.steps[1].tracks = 6;
   assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
     ["model_field_unknown", "/overview/course/steps/0/x"],
     ["model_overview_invalid", "/overview/course/steps/1/tracks"],
-    ["model_field_unknown", "/overview/facts/0/width"],
+    ["model_field_unknown", "/overview/blocks/1/width"],
   ]);
 });
 
