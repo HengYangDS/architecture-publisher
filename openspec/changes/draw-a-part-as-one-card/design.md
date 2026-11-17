@@ -41,13 +41,19 @@ strip's entries with strips.
      checkout would be drawn without them; a field that no longer chooses anything misleads its author. The
      refusal says what replaced it.
    - Applies to: the model's `edition` object. No published work names the field.
-3. A caption may break in two lines.
+3. A caption may break in two lines, and the captions of one plate have one form.
    - Rests on: `docs/research/figure-language.md`, "Measured on 2026-11-16": with a caption that may break, no plate
-     of the work measured is set a step smaller than with card marks, and one a step larger.
-   - Considered: a shorter caption (the count alone); a smaller type for captions.
+     of the work measured is set a step smaller than with card marks, and one a step larger. And on the first whole
+     build of ETHOS with the one part (2026-11-17, the plate of the view `structure`): one row set the count
+     beside the kind on some cards and under it on others, which reads as two sorts of card.
+   - Considered: a shorter caption (the count alone); a smaller type for captions; each card breaking its caption
+     by its own width.
    - Chosen because: the kind and the count are two facts and both stay; a count under its kind reads as well as
-     beside it, and no type is shrunk.
-   - Applies to: a card narrower than its caption on one line.
+     beside it, and no type is shrunk. The cards of one plate are read against each other, so they are set alike
+     by construction, not found unlike by a later check.
+   - Applies to: a plate one of whose cards is narrower than its caption on one line: every count on it stands
+     under its kind, and no card is widened for the one line. A composition too wide for its field with captions
+     on one line is laid out so as well.
 4. A kind's icon stands by the kind's label, and the key lists no kind.
    - Rests on: `docs/research/figure-language.md`, "What follows": the owner's answer of 2026-11-17 01:43:24 to the
      holder's recommendation on the key.

@@ -45,9 +45,13 @@ None.
   manifest" becomes "Edition palette in the manifest"; "Mark defaults and fallback" is removed; "A part without
   file facts" and "The grounds in a key" are added.
 - `poster-composition`: new requirements "One part", "A caption that breaks" and "Details where a plate has the
-  room"; "Cards as large as their text",
-  "Strips sized by their files" and "Strips keep to their boxes" change; "Runs of details without word spaces"
-  becomes "Runs of a part's text without word spaces"; "Marks keep the gates" is removed.
+  room"; "Cards as large as their text", "Strips sized by their files", "Strips keep to their boxes", "Citation
+  counts and the hub" and "Plate drawing" change; "Runs of details without word spaces" becomes "Runs of a part's
+  text without word spaces"; "Marks keep the gates" is removed.
+- `value-table`: "One meaning for each value of a channel", "Lines told apart without colour" and "Plates draw only
+  the table's values" speak of a plate where they spoke of a strip plate, and no longer of the outline of a part
+  that owns no files.
+- `measured-facts`: the scenarios of "Projections read the layer" speak of a plate where they spoke of a strip plate.
 
 ## Impact
 

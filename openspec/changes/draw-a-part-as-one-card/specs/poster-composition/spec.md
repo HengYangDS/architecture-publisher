@@ -44,15 +44,21 @@ SHALL say whether its cards set their details.
 ### Requirement: A caption that breaks
 
 A part's caption SHALL stand on one line, the kind at the left and the count
-ending at the card's right padding, two ems apart at least. In a card too
-narrow for that line the count SHALL stand on a line of its own under the kind.
-A card narrower than the kind with its icon, or than the count, SHALL NOT be a
-candidate.
+ending at the card's right padding, two ems apart at least. On a plate with a
+card too narrow for that line every count SHALL stand on a line of its own
+under its kind, and no card SHALL be widened for the one line, so the captions
+of one plate have one form. A card narrower than the kind with its icon, or
+than the count, SHALL NOT be a candidate.
 
 #### Scenario: A narrow card
 
-- **WHEN** a card is narrower than its kind and its count on one line and wider than either
-- **THEN** the count stands under the kind, and the layout is a candidate
+- **WHEN** a card of a plate is narrower than its kind and its count on one line and wider than either
+- **THEN** every count of that plate stands under its kind, and the layout is a candidate
+
+#### Scenario: A composition too wide with captions on one line
+
+- **WHEN** a composition whose cards are as wide as their captions on one line is wider than its field
+- **THEN** it is laid out with every count under its kind, and is a candidate where it then fits
 
 ### Requirement: Runs of a part's text without word spaces
 
@@ -91,7 +97,8 @@ A card SHALL be as wide as its label, its strip, its caption and its longest
 detail need on one line, within card measures of 16 ems for a label and 24 ems
 for a detail, and as wide as the widest card in its lattice column, and no
 wider; a field too narrow for that width narrows the cards and their text
-wraps.
+wraps. On a plate that sets its counts under their kinds a caption needs the
+wider of its kind with its icon and its count.
 
 #### Scenario: A short card in a row of tall ones
 
@@ -124,6 +131,70 @@ again.
 - **WHEN** a view cannot be laid out with strips of 320 px for the largest part
 - **THEN** every plate of the edition draws its strips at 208 px for the largest
   part, and each key's sample strip shows that scale
+
+### Requirement: Citation counts and the hub
+
+In an edition with file facts, a relation that cites files SHALL carry their number once near its source, in the
+smallest figure type and its line's colour, and no tick. The part with the most incoming relations of a view, when
+it has at least three and more than any other, SHALL be the hub. A relation into the hub, unless retired, SHALL be
+drawn with the value table's emphasis, in the oldest dye, ending inside its arrowhead. A count with no clear place
+SHALL raise `citation_count_touches`. In an edition without file facts every line SHALL be drawn alike and carry no
+number.
+
+#### Scenario: A hub and its citations
+
+- **WHEN** four relations of a view end at the supplies and one of them cites two files
+- **THEN** those four lines are drawn at twice the weight of the view's other lines, in the oldest dye, each ending
+  inside an arrowhead 1.45 times as large as the other lines'
+- **AND** that line carries the number 2 near its source and no tick
+- **AND** the key names the supplies
+
+#### Scenario: A relation that cites one file
+
+- **WHEN** a relation cites one file
+- **THEN** its line carries the number 1
+
+#### Scenario: A relation that cites no file
+
+- **WHEN** a relation cites no file
+- **THEN** its line carries no number
+
+#### Scenario: A planned relation into the hub
+
+- **WHEN** a planned relation ends at the hub
+- **THEN** it is drawn at twice the weight, in the oldest dye and in the pattern of a planned relation
+
+#### Scenario: A retired relation into the hub
+
+- **WHEN** a retired relation ends at the hub
+- **THEN** it is drawn at the weight, in the colour and in the pattern of a retired relation
+
+#### Scenario: A count with no clear place
+
+- **WHEN** no place along a relation's own line holds its figures clear of every part, relation label, line, the
+  boundary and every other count
+- **THEN** the count stands at the first place from the source end and the plate is still built
+- **AND** the result carries the warning `citation_count_touches` with the plate's number and the relation's id
+
+#### Scenario: An edition without file facts
+
+- **WHEN** a model is built without a checkout
+- **THEN** no line of its plates is heavier than another for a hub, and none carries a number
+
+### Requirement: Plate drawing
+
+The engine SHALL draw a plate as an SVG of its shapes, with any icons as inline
+paths and no text, paper, head, key or notes, and SHALL report its text as runs:
+each run's text, position, size, weight, colour and the width it measured, and
+the component whose title it is. Its colours SHALL come from the edition's
+resolved palette only, and relation labels SHALL be set in the regular weight,
+so they read under the parts they join.
+
+#### Scenario: Shapes without text
+
+- **WHEN** a plate is drawn
+- **THEN** its SVG holds no text and no glyph outlines
+- **AND** every card label, detail and relation label is one of its runs
 
 ## REMOVED Requirements
 
