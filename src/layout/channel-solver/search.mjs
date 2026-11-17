@@ -2,6 +2,7 @@ import { channelGeometry } from "../channels.mjs";
 import { measureRoutes } from "../measure.mjs";
 import { compatible, crossesBand, rowCrossings } from "./conflicts.mjs";
 import { options } from "./options.mjs";
+import { remembered } from "./remember.mjs";
 import { finish } from "./solution.mjs";
 import { assignTracks } from "./tracks.mjs";
 
@@ -40,13 +41,13 @@ function routesOf(channel, assignment, rows, spacing) {
 }
 
 /**
- * Solve one channel exactly within a search budget: the clean assignment with
+ * Search one channel exactly within a budget: the clean assignment with
  * the fewest label rows from `minimumRows`, then the fewest tracks and
  * crossings. Where the medium draws the channel's wires, `measured`, the
  * assignment also makes the fewest route defects. Returns null when none
- * exists.
+ * exists. Reads nothing but its arguments.
  */
-export function solveChannel(
+function search(
   channel,
   spacing,
   maximumRows = MAXIMUM_LABEL_ROWS,
@@ -120,3 +121,11 @@ export function solveChannel(
   }
   return null;
 }
+
+/**
+ * Solve one channel: the search's answer, remembered for an input equal in
+ * everything the search is given. A plate's candidates differ in what stands
+ * inside the cards, which the search does not read, so most of what it is
+ * asked it has answered before. The answer is frozen.
+ */
+export const solveChannel = remembered(search);
