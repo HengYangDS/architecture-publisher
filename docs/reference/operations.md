@@ -334,39 +334,21 @@ in the full viewer.
 
 ## The overview
 
-The publisher draws the overview from the model's [statement](model.md#overview),
-by Typst 0.15.1 with the house class, as it sets the title and contents pages;
-no input places anything on it. The masthead sets the model's title, the claim,
-the lead and the count of files the build read. The course runs across the first
-band, each step as wide as the stations it holds, a fork taking a cell for each
-branch; its headings and notes stand above it, the lines between its points in
-the highest channel their spans keep clear of, the stations' names over their
-rings and their notes, a fork's branches and the texts of steps without stations
-under it, then the other steps' texts and the course's own. The blocks follow in
-the order stated: a further course, a table or a group of lists in a half; a run
-of lists and headed texts in the rows of thirds and halves that take the least
-height, measured, headed texts stated one after another sharing a cell, and a
-list of six items or more, each one line in half its width, in two columns. The
-page is laid out at the house's spacing and, when that reaches below the foot,
-at a closer one with notes and texts a size smaller; a page that fits at neither
-is refused with `overview_too_tall`, naming the first block that does not fit.
-
-A station is a ring, the course's first and last larger, a fork's branches
-smaller rings on a bar under the course; parallel tracks are thinner lines
-beside the course, and the outcome that leaves a further course is drawn in the
-accent. No other mark is drawn.
-
-The build draws the page in one root Typst may not leave, ignores system and
-embedded fonts, offers only the house faces, Source Serif 4 and Source Sans 3,
-and the bundled Noto Sans CJK SC, and points Typst's package directories at an
-empty temporary directory. Each text records its glyph box, which the build
-reads back: text must stay 48 pt from either side and 16 pt from the top and the
-bottom, and no text may lie over other text. A character no available face draws
-is refused, because Typst would draw an empty box without warning, and every
-Typst warning or error is refused. The print edition then sets the page in
-place, with the edition's foot as its imprint, so its text stays text; its page
-is delivered as `images/00-overview.png` and at each other `--png` width, and the
-same inputs give the same bytes.
+The publisher draws the overview from the model's [statement](model.md#overview)
+with the house class, as it sets the title and contents pages: the masthead, the
+course across the first band, each step as wide as what it holds, and the blocks
+in the order stated, in halves and thirds chosen by measured height. A station
+is a ring, the course's ends larger and a fork's branches smaller; no other mark
+is drawn. A page too tall at the house's spacing is set closer, notes and texts
+a size smaller, and one too tall at both is refused with `overview_too_tall`,
+naming the first block that does not fit. The page is drawn in one root Typst
+may not leave, with only the house faces and the bundled Noto Sans CJK SC and no
+package; each text's glyph box is read back and must stay 48 pt from either side
+and 16 pt from the top and the bottom, over no other text. A character no face
+draws, and every Typst warning or error, is refused. The print edition sets the
+page in place with the edition's foot, so its text stays text; it is delivered
+as `images/00-overview.png` and at each other `--png` width, and the same inputs
+give the same bytes.
 
 ## The guide
 
