@@ -62,6 +62,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Removed
 
+- **Breaking:** The overview composition. A model whose `overview` names a Typst file is refused with
+  `model_overview_composition_retired`; the composition's staging and its refusals `overview_composition_missing`,
+  `overview_composition_invalid` and `overview_import_refused` are gone, and the manifest and the data record the
+  statement's SHA-256 in place of the composition's path.
 - `docs/research/`, seven pages and 22 captures that described designs earlier releases replaced; the product
   contract now states the one boundary they alone held, what the publisher is not.
 - The 36 Changes archived before 0.4.0, which specified parts that no longer exist, an unused CI image recipe and
@@ -69,6 +73,14 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** The publisher draws the overview from what the model states of it, as it sets the title and contents
+  pages: a claim and a lead; a course of steps with their stations, forks of siblings with no order, parallel tracks
+  counted or named, lines between points and a text; and blocks of further courses, lists, tables, groups of lists
+  and headed texts, in the order stated, none with a position. The course runs across the first band, each step as
+  wide as what it holds; the blocks follow in halves and thirds chosen by measured height, headed texts stated
+  together share a cell, and a long list of short items stands in two columns. A page too tall for the house's
+  spacing is set closer, and one too tall for both is refused with `overview_too_tall`, naming the first block that
+  does not fit. A station is a ring and no mark without a meaning is drawn.
 - The product contract says that no input states where anything stands, and that an overview composition, which
   its author places by coordinates, stays only until the publisher draws the overview from the model. Its
   Evolution section states the end state the queue leads to, and the items `composable-parts`, `compositions` and

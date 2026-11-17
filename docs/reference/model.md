@@ -80,7 +80,7 @@ kinds, details and views.
 | `groups`     | no       | Named sets of components.                                                                      |
 | `views`      | no       | Any number of views; without them the publisher plans the views itself.                        |
 | `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.         |
-| `overview`   | no       | The overview composition: a Typst file beside the model, set as the edition's first page.      |
+| `overview`   | no       | The overview: what one page after the contents says, stated with no position.                  |
 | `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
 | `edition`    | no       | The print edition's marks and palette; see [Marks and palette](#marks-and-palette).            |
 
@@ -345,44 +345,69 @@ names no marks with cards and warns `marks_fallback`, and refuses one that
 names `strip` with `marks_need_files`. A model that wants cards with a checkout
 sets `"edition": {"marks": "card"}`.
 
-An overview composition is set in the same palette: the class's `paper` is the
-ground, `ink` the ink, `green` the oldest dye and `ochre` the accent.
+The overview is drawn in the same palette: the class's `paper` is the ground,
+`ink` the ink, `green` the oldest dye and `ochre` the accent.
 
 ## Overview
 
-An overview composition is the one input in which an author places marks by
-coordinates; a model itself states no position. It stays until the publisher
-draws the overview from the model, the `carriers` item of the
-[queue](../product-contract.md#queue).
+`overview` states the work's overview: one 16:9 page after the contents that
+tells the whole work at a glance. The model states what the page says, as blocks
+with no position, size or type; the publisher lays them out by measure, as it
+sets the title and contents pages, and the
+[operations reference](operations.md#the-overview) says how. A model that names
+a Typst file here is refused with `model_overview_composition_retired`.
 
-`overview` names the work's overview composition: a Typst file, relative to the
-model and within its directory, that sets one 16:9 page with the publisher's
-house class; the print edition sets it in place after its contents, so its
-text stays text. The page is designed for the work, as a document is written in
-a document class; the class owns the page, the faces, the four type sizes and the
-palette, and the composition places the work's own figure and text:
-
-```typst
-#import "/archpub/house.typ": *
-#show: overview
-
-#masthead([Shop], [Orders reach the store through one gateway], [How a request moves.])
-#head(48pt, 140pt, [The request path])
-#tx(48pt, 170pt, label-of("gateway"), weight: "semibold")
-#dl(48pt, 200pt, 90pt, 600pt, (([Gateway], [checks the session]), ([Store], [keeps the orders])))
-#imprint([Every view, step by step, is in the interactive page.])
+```json
+"overview": {
+  "claim": "Every order passes one service",
+  "lead": "The web shop hands each order to the order service, which keeps it.",
+  "course": {
+    "steps": [
+      { "id": "order", "label": "Order", "note": "a customer pays" },
+      {
+        "label": "Keep",
+        "note": "two parts in turn",
+        "stations": [
+          { "id": "take", "part": "orders", "note": "checks the order" },
+          { "part": "db", "note": "keeps it" }
+        ]
+      },
+      {
+        "label": "Tell",
+        "stations": [{ "branches": [{ "label": "Mail" }, { "label": "Push" }] }]
+      }
+    ],
+    "lines": [{ "from": "take", "to": ["order"], "label": "a refused order is paid again" }]
+  },
+  "blocks": [
+    { "title": "What the service holds", "items": [["state", "none between two orders"]] },
+    { "title": "Not covered", "text": "Payment and shipping are works of their own." }
+  ]
+}
 ```
 
-The class provides `masthead` and `imprint`, which print the model's title, its
-revision and, with `--repo`, the revision's commit date; `head`, `tx`, `txr` and
-`txc` for text at a baseline, `dl` for definition lists, and `seg`, `ring`,
-`disc`, `tick` and the arrowheads for lines and stations. Sizes are `title`,
-`head`, `text` and `small`; colours are the class's `ink`, `green`, `mid`,
-`soft`, `rule` and `ochre`. `label-of("<id>")` prints a component's label from
-the model and refuses an id the model lacks. A composition may not import a
-package, load a plugin, or set a size, face, colour or the page itself; the
-[operations reference](operations.md#the-overview) lists the checks on the
-typeset page.
+- `claim` is the masthead's claim and `lead` its sentence; the masthead's count
+  of the files the build read and the page's foot are the publisher's.
+- `course` runs across the first band: `steps` in order, each named by a `label`
+  or by the `part` it is, with an optional `note` under its heading and `text`
+  under its stretch. A step may hold `stations`, each a label or a part with a
+  note, and run them on `tracks`: two to four, or their names. Among its
+  stations a fork, `{ "branches": [...] }`, holds two or more stations with no
+  order among them, drawn side by side under the course. A course may carry a
+  `text` of its own.
+- `lines` go from one point of the course to others, each with a `label`: a
+  point is a station, a branch or a step without stations, named by its `id`. A
+  line that names a step holding stations is refused with
+  `model_overview_invalid`.
+- `blocks` follow in the order the page reads them: a further course (`title`,
+  `stations`, an optional `note`, a `pass` with a label after one station, an
+  `aside` that leaves a station with its sentence, and a `text`); a list
+  (`title`, `items` of a term and its text); a table (`title`, `columns`,
+  `rows`); a group of lists (`title`, `lists`); and a headed text (`title`,
+  `text`). A list, a table or a group may carry a `text` under it.
+- A step or a station that is a part of the model names it with `part`, and the
+  page prints the model's label; a part the model lacks is refused at its path
+  with `model_reference_unknown`.
 
 ## Guide
 

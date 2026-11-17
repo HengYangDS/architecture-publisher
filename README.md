@@ -94,7 +94,7 @@ checking, writing the guide and building, and leaves acceptance to the reviewer.
 ## Documentation
 
 - [Tutorial](docs/tutorial.md): publish a first work, step by step.
-- [How-to guides](docs/how-to.md): install, import, write a guide, compose an
+- [How-to guides](docs/how-to.md): install, import, write a guide, state an
   overview, re-pin and hand a work to a reviewer.
 - [Model reference](docs/reference/model.md): every field of an Architecture
   Model.

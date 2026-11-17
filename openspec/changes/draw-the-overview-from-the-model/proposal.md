@@ -37,11 +37,13 @@ None.
 ### Modified Capabilities
 
 - `overview-page`: "Overview composition", "What a composition leaves to the class", "Model references" and
-  "Missing composition" are removed; "An overview stated in the model", "A course and its steps", "The overview
-  laid out by the publisher", "An overview too tall for its page", "The overview's marks" and "Parts named on the overview" are added; "Overview files" and "Overview in the print
+  "Missing composition" are removed; "An overview stated in the model", "A course and its steps", "Lines between
+  points of a course", "The overview laid out by the publisher", "An overview too tall for its page", "The
+  overview's marks" and "Parts named on the overview" are added; "Overview files" and "Overview in the print
   edition" change.
 - `architecture-model`: "Overview composition reference" is removed and "Overview statement" added.
-- `edition-delivery`: "Overview inputs in the manifest" changes.
+- `edition-delivery`: "Overview inputs in the manifest", "Check without output" and "Print edition" change.
+- `pinned-edition`: "A plate's record" changes: the data holds the statement's digest in place of the composition.
 
 ## Impact
 

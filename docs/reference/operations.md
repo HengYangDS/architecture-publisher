@@ -67,8 +67,8 @@ archpub --help | --version [--json]
 
 - `check` validates the model, resolves and verifies its
   [files](model.md#files-and-the-repository) when `--repo` names a checkout,
-  plans the views, composes each view as a plate of the edition, checks the
-  overview's composition and checks each diagram and the page with Archify, and writes no delivery; Archify's work files stay
+  plans the views, composes each view as a plate of the edition, draws and
+  checks the overview the model states and checks each diagram and the page with Archify, and writes no delivery; Archify's work files stay
   in a temporary directory that it removes. It lists the components and
   relations that no planned view draws, the components that claim no file,
   the relations that cite none and the counts of the [data](data.md) a build would write. For each plate it reports its figure's share
@@ -225,7 +225,7 @@ The print edition is typeset by Typst 0.15.1 with the house class into
   release and revision, editors, licence and publisher;
 - contents whose rows link to their pages and continue on a second page past
   sixteen, beside the edition's facts, its scope and limits and a reading note;
-- the overview, set in place from its composition when the model names one;
+- the overview, drawn from what the model states when it states one;
 - one plate per view, headed by its number, title and question, its figure
   beside the view's reading when it leaves part of the body or below it when it
   keeps the full width, with a key of what its figure shows: with cards, the
@@ -334,21 +334,39 @@ in the full viewer.
 
 ## The overview
 
-The overview is the work's composition, typeset by Typst 0.15.1 with the house
-class. The build stages the composition's Typst files, the class and the model
-in one root Typst may not leave, ignores system and embedded fonts, offers only
-the house faces, Source Serif 4 and Source Sans 3, and the bundled Noto Sans CJK
-SC, and points Typst's package directories at an empty temporary directory.
-Before typesetting it refuses a composition that imports a package, loads a
-plugin, or sets a size, face, colour or the page itself. Each text the class
-sets records its glyph box, which the build reads back: text must stay 48 pt
-from either side and 16 pt from the top and the bottom, and no text may lie
-over other text. A character no available face draws is refused, because Typst
-would draw an empty box without warning, and every Typst warning or error is
-refused at the composition's line. The print edition then sets the composition
-in place, with the edition's foot as its imprint, so its text stays text; its
-page is delivered as `images/00-overview.png` and at each other `--png` width,
-and the same inputs give the same bytes.
+The publisher draws the overview from the model's [statement](model.md#overview),
+by Typst 0.15.1 with the house class, as it sets the title and contents pages;
+no input places anything on it. The masthead sets the model's title, the claim,
+the lead and the count of files the build read. The course runs across the first
+band, each step as wide as the stations it holds, a fork taking a cell for each
+branch; its headings and notes stand above it, the lines between its points in
+the highest channel their spans keep clear of, the stations' names over their
+rings and their notes, a fork's branches and the texts of steps without stations
+under it, then the other steps' texts and the course's own. The blocks follow in
+the order stated: a further course, a table or a group of lists in a half; a run
+of lists and headed texts in the rows of thirds and halves that take the least
+height, measured, headed texts stated one after another sharing a cell, and a
+list of six items or more, each one line in half its width, in two columns. The
+page is laid out at the house's spacing and, when that reaches below the foot,
+at a closer one with notes and texts a size smaller; a page that fits at neither
+is refused with `overview_too_tall`, naming the first block that does not fit.
+
+A station is a ring, the course's first and last larger, a fork's branches
+smaller rings on a bar under the course; parallel tracks are thinner lines
+beside the course, and the outcome that leaves a further course is drawn in the
+accent. No other mark is drawn.
+
+The build draws the page in one root Typst may not leave, ignores system and
+embedded fonts, offers only the house faces, Source Serif 4 and Source Sans 3,
+and the bundled Noto Sans CJK SC, and points Typst's package directories at an
+empty temporary directory. Each text records its glyph box, which the build
+reads back: text must stay 48 pt from either side and 16 pt from the top and the
+bottom, and no text may lie over other text. A character no available face draws
+is refused, because Typst would draw an empty box without warning, and every
+Typst warning or error is refused. The print edition then sets the page in
+place, with the edition's foot as its imprint, so its text stays text; its page
+is delivered as `images/00-overview.png` and at each other `--png` width, and the
+same inputs give the same bytes.
 
 ## The guide
 
@@ -379,20 +397,20 @@ guidance keeps a page to four native diagrams.
 
 ## The delivery
 
-| File                        | Content                                                                  |
-| --------------------------- | ------------------------------------------------------------------------ |
-| `<model id>.pdf`            | The print edition, unless excluded.                                      |
-| `<model id>.html`           | The standalone interactive page, unless excluded.                        |
-| `images/00-overview.png`    | The overview's page at 2400 px wide, when the model names a composition. |
-| `images/NN-<view>.png`      | Plate `NN`'s page at 2400 px wide, numbered from 01 in reading order.    |
-| `images/<name>-<width>.png` | The overview's or a plate's page at each other width `--png` names.      |
-| `model.json`                | The model the build read, byte for byte; in every delivery.              |
-| `<model id>.json`           | The pinned edition as [data](data.md); in every delivery.                |
-| `<model id>.md`             | The [reader file](data.md#the-reader-file); in every delivery.           |
-| `manifest.json`             | The build record, which names every file above with its digest.          |
-| `acceptance.json`           | The acceptance record `archpub accept` writes; absent until then.        |
-| `acceptance.sig`            | The record's SSH signature, when the reviewer signs it.                  |
-| `colophon.pdf`              | The colophon page `archpub accept` sets; absent until then.              |
+| File                        | Content                                                                 |
+| --------------------------- | ----------------------------------------------------------------------- |
+| `<model id>.pdf`            | The print edition, unless excluded.                                     |
+| `<model id>.html`           | The standalone interactive page, unless excluded.                       |
+| `images/00-overview.png`    | The overview's page at 2400 px wide, when the model states an overview. |
+| `images/NN-<view>.png`      | Plate `NN`'s page at 2400 px wide, numbered from 01 in reading order.   |
+| `images/<name>-<width>.png` | The overview's or a plate's page at each other width `--png` names.     |
+| `model.json`                | The model the build read, byte for byte; in every delivery.             |
+| `<model id>.json`           | The pinned edition as [data](data.md); in every delivery.               |
+| `<model id>.md`             | The [reader file](data.md#the-reader-file); in every delivery.          |
+| `manifest.json`             | The build record, which names every file above with its digest.         |
+| `acceptance.json`           | The acceptance record `archpub accept` writes; absent until then.       |
+| `acceptance.sig`            | The record's SSH signature, when the reviewer signs it.                 |
+| `colophon.pdf`              | The colophon page `archpub accept` sets; absent until then.             |
 
 Nothing else is written at the top of the delivery.
 
@@ -406,8 +424,8 @@ house class digest, release, date and what dated it, each plate with its number,
 images, composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft
 path and digest, each file it names, its writing level and whether its sources were verified, each view diagram's
 width, height, rows, sides, re-sided connections, pinned labels, whether its preview stands beside its steps,
-candidate count and Archify route measures, the files the page withholds, with the overview its composition's path
-and digest, the house class's digest, the Typst version, the revision's date and the number of texts, in `data` the
+candidate count and Archify route measures, the files the page withholds, with the overview its statement's digest,
+the house class's digest, the Typst version, the revision's date and the number of texts, in `data` the
 data's file with its counts of statements, facts, rows and cited ranges of evidence, each plate's face and a guide's
 matched figures, in `reader` the reader file's name, size in bytes and number of statements, and the path, size and
 SHA-256 of every artifact. The record of each cited file and the details, status and files of every component and

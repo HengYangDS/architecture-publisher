@@ -92,13 +92,16 @@ revision, and keep to four native diagrams. Run
 its repository checks pass; [the guide](reference/operations.md#the-guide)
 explains both.
 
-## Compose an overview
+## State an overview
 
-An overview is one page of the print edition, after its contents, that you
-compose in Typst with the publisher's house class. Name the file in the model's
-`overview`; the [model reference](reference/model.md#overview) lists what the
-class provides and what a composition may not do, and `archpub check` refuses a
-composition at its line.
+An overview is one page of the print edition, after its contents, that tells
+the whole work at a glance. State it in the model's `overview`: a claim and a
+lead, a course of steps with their stations, and the blocks that follow, lists,
+tables, groups of lists, further courses and headed texts, in the order you want
+them read. State no position: the publisher lays the page out and refuses one
+too tall for its blocks, naming the first that does not fit. The
+[model reference](reference/model.md#overview) lists every field, and
+`archpub check` draws the page and checks it.
 
 ## Re-pin a work to a later commit
 

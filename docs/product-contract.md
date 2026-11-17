@@ -13,7 +13,7 @@ relations:
 Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
 delivery: a print edition, one PDF with a plate for each view and the overview
-its author composes with the house class when the model names one, its pages as
+the publisher draws from what the model states of it, its pages as
 images, one interactive page that answers the model's question, the model, the
 pinned edition as data and a reader file for a reader that works from text, and
 a manifest that binds every artifact to its inputs. The page
@@ -40,10 +40,10 @@ owns its meaning, and a named reviewer owns acceptance.
 
 No input says where anything stands. A model names a work's parts, relations and
 views and what its author states of them; position, size, alignment and type are
-the publisher's. One input still breaks this rule: an overview composition is a
-Typst file in which its author places every line and word by coordinates. It
-stays until the publisher draws the overview from the model, which the queue's
-`overview` item does, and no other input of its kind is added.
+the publisher's. The overview is stated the same way: the model says what its
+page holds, and the publisher lays it out. No input of the kind the retired
+overview composition was, a file that places words and lines by coordinates, is
+added.
 
 The product is general. Nothing in it is specific to one repository, language
 or framework, and nothing in it names where a delivery goes: the caller chooses

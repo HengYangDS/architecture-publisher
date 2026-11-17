@@ -55,10 +55,11 @@ id with its files and facts and ends with the guide's text.
    code, and claim the largest uncovered directories the report lists until
    what is left is outside the question's scope. A version 1 or 2 model
    converts with `archpub migrate model.json --out <file>`.
-6. Optionally name an `overview`: a Typst composition beside the model that
-   sets one page of the edition, after its contents, with the publisher's house
-   class. The model reference lists what the class provides and what a
-   composition may not do.
+6. Optionally state an `overview`, one page after the contents that tells the
+   whole work at a glance: a claim and a lead, a course of steps with their
+   stations, and lists, tables, further courses and headed texts in the order
+   they are read, with no position. The publisher lays the page out; the model
+   reference lists every field.
 7. Write the guide, the page that explains the system to its reader. Run
    `archpub scaffold guide model.json --out guide` for a starting draft and name
    `guide/guide.archify.md` in the model's `guide`. Then rewrite it: lead with

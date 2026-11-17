@@ -46,7 +46,7 @@ The members of `<model id>.json`, in the order the file holds them:
 | `facts`      | Every fact the build holds, in the order the layer of facts hands them over.                                                                                             |
 | `evidence`   | [The evidence table](#the-evidence-table), in path order.                                                                                                                |
 | `guide`      | [The guide's record](#the-guides-record), when the model names a guide.                                                                                                  |
-| `overview`   | When the model names a composition and the edition is built: its `composition`, its `images` and `face: false`, since its marks are tied to no statement.                |
+| `overview`   | When the model states an overview and the edition is built: its `statement`'s SHA-256, its `images` and `face: false`, since its marks are tied to no statement.         |
 | `plates`     | [Each plate's record](#a-plates-record-and-face), by number; an empty list when no edition is built.                                                                     |
 | `media`      | The media the build delivers.                                                                                                                                            |
 
