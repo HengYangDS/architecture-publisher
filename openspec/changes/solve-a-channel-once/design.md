@@ -34,8 +34,9 @@ equal input never gave another result.
 ## Decisions
 
 1. The solver remembers results by an exact key of its whole input.
-   - Rests on: the measurements above; the solver reads only its arguments (the channel with its wires, edges and
-     the cards beside it; the spacing; the row bounds; whether routes are measured).
+   - Rests on: `docs/research/channel-search-cost.md` (findings 1 to 4); the solver reads only its arguments (the
+     channel with its wires, edges and the cards beside it; the spacing; the row bounds; whether routes are
+     measured).
    - Considered: a key of the fields the search reads today; remembering in `routeChannel` or in the plate; raising
      the gate's timeout.
    - Chosen because: a key of chosen fields goes wrong silently when the search reads one more; the callers above
@@ -45,6 +46,7 @@ equal input never gave another result.
      a reference back to an enclosing object as the depth it returns to (a wire's points name their wire), and
      treats functions as unsupported; `solveChannel` wrapped by it.
 2. What is remembered is bounded and frozen.
+   - Rests on: `docs/research/channel-search-cost.md` (finding 4, and what is not established on the bound).
    - Considered: remembering without a bound; remembering for one view.
    - Chosen because: a build of a large work meets tens of thousands of channels, and the repeats stand close
      together, within one view's candidates; the oldest result leaves when the store holds 4,096. A result given

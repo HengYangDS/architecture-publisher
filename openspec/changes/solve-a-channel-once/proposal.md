@@ -29,7 +29,7 @@ None.
 
 ## Impact
 
-`src/layout/channel-solver/` (a module that remembers results, and its use by the search), one test file. No
-document and no delivered byte.
+`src/layout/channel-solver/` (a module that remembers results, and its use by the search), one test file and the
+research page `docs/research/channel-search-cost.md`. No delivered byte.
 
-Queue: `maintenance`.
+Queue: `composable-parts`.
