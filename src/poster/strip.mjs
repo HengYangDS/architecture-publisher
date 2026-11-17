@@ -1,4 +1,4 @@
-import { wordsOf } from "../locale.mjs";
+import { measureWordsOf } from "../locale.mjs";
 import { darkness } from "./balance.mjs";
 import { POSTER, colorsOf, figureMetrics, figureStyles, fixed, linesOf } from "./tokens.mjs";
 
@@ -202,20 +202,22 @@ const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
 export function stripKey(model, view, style, drawn) {
   const facts = measuredOf(style);
   if (!facts) return [];
-  const words = wordsOf(model.locale);
+  // Each entry takes its words by the property of the fact it speaks of.
+  const measures = measureWordsOf(model.locale);
   const C = colorsOf(style.tokens);
   const seen = facts.view(view);
   const shown = seen.bands;
   // A band is named by its days before the commit, never by a calendar word
   // such as "this week", which would read from the day the plate is read.
   const [newest, middle] = facts.spans.map((span) => Math.round(span / 86400));
-  const names = [words.sinceCommit(newest), words.within(middle), words.earlier];
+  const bands = measures["file-age-band"];
+  const names = [bands.newest(newest), bands.middle(middle), bands.oldest];
   /** @type {Array<{ shape: string, label: string, [field: string]: unknown }>} */
   const key = [0, 1, 2]
     .filter((band) => shown.has(band))
     .map((band) => ({ shape: "band", band, color: C.dye[band], label: names[band] }));
   if (shown.size && facts.date)
-    key.push({ shape: "reference", date: facts.date, label: words.committed(facts.date) });
+    key.push({ shape: "reference", date: facts.date, label: measures["pin-date"](facts.date) });
   if (shown.size) {
     const scale = /** @type {number} */ (facts.scale);
     const { bytes, size } = sampleOf(scale);
@@ -225,14 +227,20 @@ export function stripKey(model, view, style, drawn) {
       length: fixed((longestOf(style) * bytes) / scale),
       thickness: STRIP.thickness,
       color: C.dye[0],
-      label: words.length(size),
+      label: measures["owned-bytes"](size),
     });
   }
   const lines = linesOf(style.lines);
   const keyed = (row) => (drawn.includes(row) ? lines.key(row) : null);
   const count = keyed("citations");
   if (count)
-    key.push({ shape: count, count: 3, size: POSTER.floor, color: C.line, label: words.cited });
+    key.push({
+      shape: count,
+      count: 3,
+      size: POSTER.floor,
+      color: C.line,
+      label: measures["cited-files"],
+    });
   const hub = keyed("emphasis");
   if (hub) {
     const { label } = view.components.find(({ id }) => id === seen.hub);
@@ -241,7 +249,7 @@ export function stripKey(model, view, style, drawn) {
       color: C.dye[2],
       weight: lines.stroke(true),
       arrow: fixed(KEY_ARROW * lines.arrow(true)),
-      label: words.leadsTo(label),
+      label: measures.hub(label),
     });
   }
   return key;

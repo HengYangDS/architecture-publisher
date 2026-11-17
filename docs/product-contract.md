@@ -38,6 +38,13 @@ reading floor. It does not infer architecture from code, judge whether the model
 is true or decide whether a figure is good enough to publish. The model's author
 owns its meaning, and a named reviewer owns acceptance.
 
+No input says where anything stands. A model names a work's parts, relations and
+views and what its author states of them; position, size, alignment and type are
+the publisher's. One input still breaks this rule: an overview composition is a
+Typst file in which its author places every line and word by coordinates. It
+stays until the publisher draws the overview from the model, which the queue's
+`carriers` item does, and no other input of its kind is added.
+
 The product is general. Nothing in it is specific to one repository, language
 or framework, and nothing in it names where a delivery goes: the caller chooses
 the media, their sizes and quality and the directory a delivery is published
@@ -192,18 +199,45 @@ version is refused rather than reinterpreted. A change that refuses a model
 another release accepted, or that changes the bytes of an existing delivery, is
 a breaking release. Earlier releases and their deliveries stay as they were.
 
+### End state
+
+The queue below leads to one state, and each of its items is read against it: one model goes in, one complete
+edition comes out, and no page of it is placed by hand.
+
+- One part. A part is a card of regions: its name with its kind's icon, the strip of its files, its kind and its
+  counts, what it answers for, an outline that tells its status and a ground that tells whether it lies inside the
+  repository. Each region is drawn where the part has the fact. The part is drawn at three sizes, which the figure
+  and its room choose and the author does not set: its name alone, the card, and a plate of its own that lists its
+  files and the file that carries each relation. The same part stands in every figure.
+- One table of lines, in which a meaning has one drawing.
+- Every word the edition sets of a measure is made from the fact it measures.
+- A mark's meaning stands by the mark. A plate keeps a short key, and one page at the front teaches how the figures
+  are read.
+- A view's composition is chosen by the view's shape, for a plate that is full and balanced.
+- Each page of an edition answers one question with one figure and a few sentences: the title, the contents, how
+  to read the figures, the overview, the structure, the repository's structure, the mechanisms, the history, the
+  change between two pins, the plans, an important part opened, and the colophon.
+- One palette for a work, and a house style.
+- The same pages in landscape for presenting and in portrait as a booklet. The page in a browser is a medium of
+  its own.
+- Tidiness is held by the publisher's gates and not by a reader's eye: a plate that misses one is composed another
+  way or refused.
+
 ### Queue
 
 The product is built in the order below, one item at a time. Every Change's proposal ends with the item it serves,
 as `Queue: <item>`, or with `Queue: maintenance` when it changes no product behaviour;
 `tests/evolution-queue.test.mjs` refuses a Change that names no item, an item not listed here, or an item that an
 unfinished one precedes, and, where a `dev` ref is known, a maintenance Change that changes the layout, plate,
-page, overview or edition source. A new direction joins the list by a commit that says what it moves back.
+page, overview or edition source. The design of a Change that names an item names the page of
+[research](research/README.md) it rests on, and the same test refuses one that names none. A new direction joins
+the list by a commit that says what it moves back.
 
 The open items follow the dimensions of the edition's figure language: its parts, the edition's forms, the
 composition of a view, the carriers of what a work covers, and palette and style; the page is a line of its own.
 The Change `order-the-queue-by-the-figure-language`, kept in `openspec/changes/archive/`, records why, and what
-became of the items it removed. The design of the Change `queue-the-roadmap-and-name-roles` is the record of the
+became of the items it removed; the Change `record-the-figure-language-and-its-end-state` added the end state
+above and worded three items against it. The design of the Change `queue-the-roadmap-and-name-roles` is the record of the
 six finished items and directs none of the open ones; [Roadmap details](roadmap.md) holds its detail. An item is
 accepted on the published works as the product builds them, with what its own gates record of every plate.
 
@@ -225,14 +259,20 @@ accepted on the published works as the product builds them, with what its own ga
       the reader experiment supports.
 - [ ] `composable-parts`: a part is a card of regions that compose: its outline, its name and kind, the strip of
       what it owns, its counts and its details, each drawn where the part has the fact. Cards and strips are no
-      longer two exclusive ways of drawing a part. A planned part that owns no file yet has no strip.
+      longer two exclusive ways of drawing a part. A planned part that owns no file yet has no strip. The words
+      the edition sets of a measure are made from the fact. A kind's icon stands by its label on the card, a
+      plate's key keeps the strip and the lines, and one page at the front teaches how the figures are read.
 - [ ] `portrait-edition`: the edition in a second form, portrait pages for publication as a booklet read on a
       screen, beside the landscape pages for presenting; figures first in both, and each form named for what it is.
-- [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author; a
-      plate's blank space and balance are improved by that choice and no longer only recorded.
-- [ ] `carriers`: figures of the edition's own for what a work covers beyond its structure: its history and its
-      plans in time, the change between two pins, the structure of its repository, the course of a mechanism, and
-      an important part opened.
+- [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
+      tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
+      and no longer only recorded.
+- [ ] `carriers`: figures of the edition's own for what a work covers beyond its structure, each drawn from what
+      the model states and none from positions its author gives. First the overview, which replaces the overview
+      composition. Then, from what the product already reads: the structure of its repository, an important part
+      opened, its history in time and the change between two pins. Then, with what the model newly states: the
+      course of a mechanism, its plans, its rules and what it writes. With them, an author's notes on parts and
+      relations, and a figure of what the work covers and where it is silent.
 - [ ] `palettes-and-styles`: style moves beside the model, and the house gains a further style.
 - [ ] `page`: the page measured against what Archify offers, and what it leaves unused taken up.
 - [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and what was judged; the

@@ -296,11 +296,13 @@ every detail of every part.
 
 A strip is as long as the files its part owns are large, whatever their type,
 on one scale for the whole edition, so a part of 200 KB is ten times as long
-as a part of 20 KB on every plate; a part with any bytes is at least 2 px long, and every strip has the
-same thickness. The largest part is 320 px long; a strip is never shortened to
-fit its column, so an edition one of whose views cannot hold its strips draws
-them all at 208 px. Each file the part owns is one segment, in path order, as
-wide as its share of the part's bytes and in the dye of its age band.
+as a part of 20 KB on every plate; a part with any bytes is at least 2 px
+long, and every strip has the same thickness. The largest part is 320 px long;
+a strip is never shortened to fit its column, so an edition one of whose views
+cannot hold its strips draws them all at 208 px. Each file the part owns is one
+segment, in path order, as wide as its share of the part's bytes and in the dye
+of its age band, and a file too narrow to draw apart joins a neighbour of its
+band.
 
 Every edition sorts its files into the same three age bands, counted back from
 the pin's commit: changed within a week, within three months, and earlier. A
@@ -368,6 +370,11 @@ An overview composition is set in the same palette: the class's `paper` is the
 ground, `ink` the ink, `green` the oldest dye and `ochre` the accent.
 
 ## Overview
+
+An overview composition is the one input in which an author places marks by
+coordinates; a model itself states no position. It stays until the publisher
+draws the overview from the model, the `carriers` item of the
+[queue](../product-contract.md#queue).
 
 `overview` names the work's overview composition: a Typst file, relative to the
 model and within its directory, that sets one 16:9 page with the publisher's

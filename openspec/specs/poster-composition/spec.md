@@ -403,14 +403,15 @@ lines. A run that Typst sets wider than the engine measured SHALL be refused wit
 - **WHEN** the print edition of a model is built
 - **THEN** every card label of its plates can be extracted as text from its page
 
-### Requirement: Strips sized by their code
+### Requirement: Strips sized by their files
 
 With `strip` marks, each part SHALL be drawn as its label, a strip and a
-caption. The strip's length SHALL be proportional to the part's bytes on one
-scale for the whole edition, at least 2 px for a part with any bytes; every
-strip has one thickness. Each owned file is one segment in path order, as wide
-as its share of the strip, in the dye of its age band. A part that owns no files
-SHALL be a short dashed outline. The key SHALL show a scale bar.
+caption. The strip's length SHALL be proportional to the bytes of the files the
+part owns, of any type, on one scale for the whole edition, at least 2 px for a
+part with any bytes; every strip has one thickness. Each owned file is a
+segment in path order, as wide as its share of the strip, in the dye of its age
+band. A part that owns no files SHALL be a short dashed outline. The key SHALL
+show a scale bar.
 
 #### Scenario: Shares of a strip
 
@@ -422,6 +423,12 @@ SHALL be a short dashed outline. The key SHALL show a scale bar.
 
 - **WHEN** one part owns 200 KB and another 20 KB in the same edition
 - **THEN** the first strip is ten times as long as the second, on every plate
+
+#### Scenario: Files of any type
+
+- **WHEN** a part owns one Markdown file of 4 KB and another part one program
+  file of 4 KB
+- **THEN** their strips are equally long
 
 ### Requirement: Strips keep to their boxes
 
@@ -539,3 +546,15 @@ the value table's emphasis, in the oldest dye, ending inside its arrowhead. A co
   boundary and every other count
 - **THEN** the count stands at the first place from the source end and the plate is still built
 - **AND** the result carries the warning `citation_count_touches` with the plate's number and the relation's id
+
+### Requirement: Narrow files of a strip
+
+A file whose segment would be narrower than a seam SHALL be drawn as one
+segment with a neighbouring file of its age band, as wide as both shares, so
+that a strip's segments follow its part's files and a segment may stand for
+more than one.
+
+#### Scenario: A sliver beside a file of its band
+
+- **WHEN** a part owns a file of 9 KB and one of 10 bytes in the same age band
+- **THEN** its strip draws the two as one segment

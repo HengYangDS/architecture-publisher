@@ -20,10 +20,19 @@ export const DEFAULT_LOCALE = "en";
  *   question: (title: string) => string,
  *   colon: string, comma: string, semicolon: string, stop: string, between: string,
  *   files: (count: number, size: string) => string, ownsNoFiles: string,
- *   sinceCommit: (days: number) => string, within: (days: number) => string, earlier: string,
- *   committed: (date: string) => string, length: (size: string) => string, cited: string,
- *   leadsTo: (part: string) => string,
+ *   measures: Readonly<MeasureWords>,
  * }} Words
+ * @typedef {{
+ *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (days: number) => string, oldest: string }>,
+ *   "pin-date": (date: string) => string,
+ *   "owned-bytes": (size: string) => string,
+ *   "cited-files": string,
+ *   hub: (part: string) => string,
+ * }} MeasureWords
+ *   The words a plate's key sets of a measured fact, each under the property of that fact in the catalogue of
+ *   `src/facts`: the three bands of a file's age, the pin's date, a strip's length, the count beside a relation
+ *   and the lines into a view's hub. A word says what the fact measures and no more: bytes are a size and files
+ *   are files, of whatever type.
  */
 
 /** @type {Readonly<Record<string, Readonly<Words>>>} */
@@ -49,13 +58,17 @@ const WORDS = Object.freeze({
     between: " ",
     files: (count, size) => `${count} ${count === 1 ? "file" : "files"}, ${size}`,
     ownsNoFiles: "owns no files",
-    sinceCommit: (days) => `within ${days} ${days === 1 ? "day" : "days"} of the commit`,
-    within: (days) => `within ${days} ${days === 1 ? "day" : "days"}`,
-    earlier: "earlier",
-    committed: (date) => `commit date ${date}`,
-    length: (size) => `${size}: a strip's length is the code a part owns`,
-    cited: "number: the source files this relation cites",
-    leadsTo: (part) => `heavy lines lead to ${part}`,
+    measures: Object.freeze({
+      "file-age-band": Object.freeze({
+        newest: (days) => `within ${days} ${days === 1 ? "day" : "days"} of the commit`,
+        middle: (days) => `within ${days} ${days === 1 ? "day" : "days"}`,
+        oldest: "earlier",
+      }),
+      "pin-date": (date) => `commit date ${date}`,
+      "owned-bytes": (size) => `${size}: a strip's length is the size of a part's files`,
+      "cited-files": "number: the files this relation cites",
+      hub: (part) => `heavy lines lead to ${part}`,
+    }),
   }),
   "zh-CN": Object.freeze({
     editors: (names) => `编辑：${names.join("、")}`,
@@ -78,13 +91,17 @@ const WORDS = Object.freeze({
     between: "",
     files: (count, size) => `${count} 个文件，${size}`,
     ownsNoFiles: "不拥有文件",
-    sinceCommit: (days) => `提交前 ${days} 日内`,
-    within: (days) => `提交前 ${days} 日内`,
-    earlier: "更早",
-    committed: (date) => `提交日 ${date}`,
-    length: (size) => `${size}：条长是组件拥有的代码量`,
-    cited: "数字：这条关系引用的源文件数",
-    leadsTo: (part) => `粗线：通向${part}`,
+    measures: Object.freeze({
+      "file-age-band": Object.freeze({
+        newest: (days) => `提交前 ${days} 日内`,
+        middle: (days) => `提交前 ${days} 日内`,
+        oldest: "更早",
+      }),
+      "pin-date": (date) => `提交日 ${date}`,
+      "owned-bytes": (size) => `${size}：条长是组件拥有的文件大小`,
+      "cited-files": "数字：这条关系引用的文件数",
+      hub: (part) => `粗线：通向${part}`,
+    }),
   }),
   "zh-TW": Object.freeze({
     editors: (names) => `編輯：${names.join("、")}`,
@@ -107,13 +124,17 @@ const WORDS = Object.freeze({
     between: "",
     files: (count, size) => `${count} 個檔案，${size}`,
     ownsNoFiles: "不擁有檔案",
-    sinceCommit: (days) => `提交前 ${days} 日內`,
-    within: (days) => `提交前 ${days} 日內`,
-    earlier: "更早",
-    committed: (date) => `提交日 ${date}`,
-    length: (size) => `${size}：條長是元件擁有的程式碼量`,
-    cited: "數字：這條關係引用的原始檔數",
-    leadsTo: (part) => `粗線：通向${part}`,
+    measures: Object.freeze({
+      "file-age-band": Object.freeze({
+        newest: (days) => `提交前 ${days} 日內`,
+        middle: (days) => `提交前 ${days} 日內`,
+        oldest: "更早",
+      }),
+      "pin-date": (date) => `提交日 ${date}`,
+      "owned-bytes": (size) => `${size}：條長是元件擁有的檔案大小`,
+      "cited-files": "數字：這條關係引用的檔案數",
+      hub: (part) => `粗線：通向${part}`,
+    }),
   }),
   es: Object.freeze({
     editors: (names) => `Edición de ${names.join(", ")}`,
@@ -136,14 +157,19 @@ const WORDS = Object.freeze({
     between: " ",
     files: (count, size) => `${count} ${count === 1 ? "archivo" : "archivos"}, ${size}`,
     ownsNoFiles: "no posee archivos",
-    sinceCommit: (days) =>
-      days === 1 ? "en el día previo al commit" : `en los ${days} días previos al commit`,
-    within: (days) => (days === 1 ? "en el día previo" : `en los ${days} días previos`),
-    earlier: "antes",
-    committed: (date) => `fecha del commit ${date}`,
-    length: (size) => `${size}: el largo de una tira es el código que posee un componente`,
-    cited: "número: los archivos fuente que cita esta relación",
-    leadsTo: (part) => `las líneas gruesas llevan a ${part}`,
+    measures: Object.freeze({
+      "file-age-band": Object.freeze({
+        newest: (days) =>
+          days === 1 ? "en el día previo al commit" : `en los ${days} días previos al commit`,
+        middle: (days) => (days === 1 ? "en el día previo" : `en los ${days} días previos`),
+        oldest: "antes",
+      }),
+      "pin-date": (date) => `fecha del commit ${date}`,
+      "owned-bytes": (size) =>
+        `${size}: el largo de una tira es el tamaño de los archivos del componente`,
+      "cited-files": "número: los archivos que cita esta relación",
+      hub: (part) => `las líneas gruesas llevan a ${part}`,
+    }),
   }),
   ko: Object.freeze({
     editors: (names) => `편집: ${names.join(", ")}`,
@@ -166,13 +192,17 @@ const WORDS = Object.freeze({
     between: " ",
     files: (count, size) => `파일 ${count}개, ${size}`,
     ownsNoFiles: "소유한 파일 없음",
-    sinceCommit: (days) => `커밋 전 ${days}일 이내`,
-    within: (days) => `${days}일 이내`,
-    earlier: "그 이전",
-    committed: (date) => `커밋 날짜 ${date}`,
-    length: (size) => `${size}: 띠의 길이는 구성 요소가 가진 코드의 양`,
-    cited: "숫자: 이 관계가 인용하는 소스 파일 수",
-    leadsTo: (part) => `굵은 선: ${part}(으)로 향함`,
+    measures: Object.freeze({
+      "file-age-band": Object.freeze({
+        newest: (days) => `커밋 전 ${days}일 이내`,
+        middle: (days) => `${days}일 이내`,
+        oldest: "그 이전",
+      }),
+      "pin-date": (date) => `커밋 날짜 ${date}`,
+      "owned-bytes": (size) => `${size}: 띠의 길이는 구성 요소가 가진 파일의 크기`,
+      "cited-files": "숫자: 이 관계가 인용하는 파일 수",
+      hub: (part) => `굵은 선: ${part}(으)로 향함`,
+    }),
   }),
 });
 
@@ -196,6 +226,13 @@ export const writtenUnspaced = (locale) => UNSPACED.has(locale ?? DEFAULT_LOCALE
 export function wordsOf(locale) {
   return WORDS[locale ?? DEFAULT_LOCALE] ?? WORDS[DEFAULT_LOCALE];
 }
+
+/**
+ * The words one language sets of the measured facts, by the fact's property.
+ * @param {string | null | undefined} locale
+ * @returns {Readonly<MeasureWords>}
+ */
+export const measureWordsOf = (locale) => wordsOf(locale).measures;
 
 /**
  * One named detail as a reader reads it: its name, then its values as a list.

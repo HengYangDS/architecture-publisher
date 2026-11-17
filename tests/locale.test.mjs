@@ -9,6 +9,7 @@ import {
   LOCALES,
   detailPieces,
   detailText,
+  measureWordsOf,
   sentence,
   sentences,
   wordsOf,
@@ -182,7 +183,7 @@ test("a Chinese model's legend words and generated details are Chinese", async (
 
 test("a strip key's hub entry names its mark, the heavy lines, and where they lead, in every language", () => {
   const entries = Object.fromEntries(
-    LOCALES.map((locale) => [locale, wordsOf(locale).leadsTo("Supplies")]),
+    LOCALES.map((locale) => [locale, measureWordsOf(locale).hub("Supplies")]),
   );
   assert.deepEqual(entries, {
     en: "heavy lines lead to Supplies",
@@ -194,13 +195,15 @@ test("a strip key's hub entry names its mark, the heavy lines, and where they le
 });
 
 test("a strip key's count entry names its mark, the number, and what it counts, in every language", () => {
-  const entries = Object.fromEntries(LOCALES.map((locale) => [locale, wordsOf(locale).cited]));
+  const entries = Object.fromEntries(
+    LOCALES.map((locale) => [locale, measureWordsOf(locale)["cited-files"]]),
+  );
   assert.deepEqual(entries, {
-    en: "number: the source files this relation cites",
-    "zh-CN": "数字：这条关系引用的源文件数",
-    "zh-TW": "數字：這條關係引用的原始檔數",
-    es: "número: los archivos fuente que cita esta relación",
-    ko: "숫자: 이 관계가 인용하는 소스 파일 수",
+    en: "number: the files this relation cites",
+    "zh-CN": "数字：这条关系引用的文件数",
+    "zh-TW": "數字：這條關係引用的檔案數",
+    es: "número: los archivos que cita esta relación",
+    ko: "숫자: 이 관계가 인용하는 파일 수",
   });
 });
 

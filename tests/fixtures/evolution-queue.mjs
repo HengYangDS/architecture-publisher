@@ -23,14 +23,24 @@ export function queueItem(proposal) {
 }
 
 /**
+ * The pages of the research home a design names, as file names.
+ * @param {string} design The design's Markdown.
+ */
+export function researchPages(design) {
+  const named = design.matchAll(/docs\/research\/([a-z0-9][a-z0-9-]*\.md)/gu);
+  return [...new Set([...named].map(([, page]) => page))];
+}
+
+/**
  * What is wrong with the active Changes against the queue, one line each.
  * @param {Array<{ id: string, done: boolean }>} queue
- * @param {Array<{ name: string, item: string | null, changed?: string[] }>} changes
+ * @param {Array<{ name: string, item: string | null, changed?: string[], rests?: string[] }>} changes
+ * @param {string[]} held The research pages the repository holds, as file names.
  * @returns {string[]}
  */
-export function queueProblems(queue, changes) {
+export function queueProblems(queue, changes, held) {
   const problems = [];
-  for (const { name, item, changed = [] } of changes) {
+  for (const { name, item, changed = [], rests = [] } of changes) {
     if (item === null) problems.push(`${name} names no queue item`);
     else if (item === "maintenance") {
       for (const file of changed.filter((path) => DRAWING.some((root) => path.startsWith(root))))
@@ -41,6 +51,10 @@ export function queueProblems(queue, changes) {
       else
         for (const earlier of queue.slice(0, at).filter(({ done }) => !done))
           problems.push(`${name} names ${item} while ${earlier.id} is unfinished`);
+      if (rests.length === 0)
+        problems.push(`${name} names ${item} and its design names no research page`);
+      for (const page of rests.filter((each) => !held.includes(each)))
+        problems.push(`${name} rests on docs/research/${page}, which the repository does not hold`);
     }
   }
   return problems;

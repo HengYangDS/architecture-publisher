@@ -106,7 +106,10 @@ prepared, has `sources` read at the pin the files only the guide cites and refus
 delivery's file name. `projection` is the one unit that imports `pinned`. They are flat modules, and no
 `src/build/` directory, because `.gitignore` holds an unanchored `build/`, which Git and the format
 check would then pass over. `tests/evolution-queue.test.mjs`
-holds every active Change to the queue of the product contract, and
+holds every active Change to the queue of the product contract, and the design
+of a queue item's Change to a page of `docs/research/`;
+`tests/model-states-no-position.test.mjs` refuses a model schema that says
+where anything stands; and
 `tests/role-neutral-wording.test.mjs` refuses wording that presumes who holds a
 role.
 

@@ -30,17 +30,17 @@ const BEFORE = Object.freeze({
   "strips/01-architecture.svg": "0a06d5286f145d27de38a49a34878267efad92dc68a81feeb42c1372a3d024e4",
   "strips/01-architecture.runs": "195d70abb1299baba96fc5f94e4459e8fc623eefae372eeb3d0b5499d1014ac7",
   "strips/01-architecture.legend":
-    "b3c45a6ab68fae178d76b8098aa7f5f7831bd2897aacc4284cb855b050177dc8",
+    "19958dc661158600e9c32721bf21057b4c449f7f71eb498eaca8e42e33c79ac5",
   "cards/01-architecture.svg": "d1ba9b691c0ce13d5bef9770f58ab3bbd01f87f2831865cb280ba8488e208b44",
   "cards/01-architecture.runs": "aa367ce1ac80634b6ae91ab20f46505cfa303f0e96f163127749ce6efb66fec6",
   "cards/01-architecture.legend":
     "94d7fe87bc178be13a4cc84d870e3e21cbe9b9578d1814f1ad465f8fbab5e453",
   "grouped/01-overview.svg": "e2b5d7ebea9d996526d1a76e07c5716b175852b4d8792ab474f469a4b00d6a4c",
   "grouped/01-overview.runs": "98e0e4c6c34564bd3edb1b7e68f737d26177247caa4ca32c03e27c4bf85e2aea",
-  "grouped/01-overview.legend": "375182de1536a06c23199b29dfeaca0332398b1391162c2849fde3fb59ef52ac",
+  "grouped/01-overview.legend": "4c4d68e0c981d421f82a49a10080569923eb9de9ed95733842b2bcf81b85f3a7",
   "grouped/02-pipeline.svg": "4e3c18d8342a2fbf8bd38cf3b293375aec842be43d41aa74e0953187727724b4",
   "grouped/02-pipeline.runs": "195d70abb1299baba96fc5f94e4459e8fc623eefae372eeb3d0b5499d1014ac7",
-  "grouped/02-pipeline.legend": "b15496312a08f5e1f54f8de79aabd952c2fa25f1910b4bcf32cfe882f97db963",
+  "grouped/02-pipeline.legend": "c5c474d3662262de72de2795867060fdd9afa60dc220158efccbfa31cb494fc2",
 });
 
 test("a drawing that reports what it drew draws the same bytes: shapes, runs and keys", () => {
