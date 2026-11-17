@@ -65,8 +65,8 @@ A model may live anywhere, including in a separate publications repository.
 3. **Plan views**: the declared views, however many, or one view of every
    component when it fits, or an overview of the groups and one view per group.
 4. **Lay out** each view as rows of cards on one column lattice, as wide as
-   their text on plates, with an exact placement and routing that never draws
-   an overlap.
+   their text and strips on plates, with an exact placement and routing that
+   never draws an overlap.
 5. **Compose** each view as one plate and **typeset** the print edition and its
    images with Typst; **explain** the model on one page of the vendored Archify:
    the guide the model names, or one native diagram per view.
@@ -102,9 +102,12 @@ The print edition opens with a title page of the work's name, question and
 summary and a byline of its release, editors, licence and publisher, then
 contents that link to every page beside the edition's facts, scope, limits and
 a reading note, then the overview and one plate per view. A plate shows the
-view's title and question, its figure with each component's icon and details
-and each relation's label and details, and a key of the kinds, boundary and
-statuses it shows. A figure that leaves part of the page gives it to the view's
+view's title and question and its figure: each component as one card of its
+name, the strip of the files it owns, its kind beside the kind's icon with the
+number and size of its files, and its details where the plate has the room,
+and each relation's label and details. Its key holds what the figure shows and
+no card says, such as the strips' age bands and scale, the boundary and the
+statuses, and lists no kind. A figure that leaves part of the page gives it to the view's
 reading: its summary and where each of its components lives. Its text is text, and each card title links to its
 component's first file when the model names a browsable repository. The edition
 conforms to PDF/A-3a and PDF/UA-1 and carries the model it was built from. It
@@ -135,14 +138,14 @@ reader file with their digests and counts, and no longer repeats them.
 - Text is set in the bundled faces, and lines break where the text's writing
   system allows. Text in a right-to-left or shaped script, or with a character
   no bundled face draws, is refused rather than drawn wrong.
-- On plates each card is as wide as its text, the cards of one lattice column
-  share one width and the cards of a row one height, and all sit on shared row
-  lines; the page's diagram cards share one width. Wires are horizontal and
-  vertical only; no segment is shared by two relations, no wire crosses a card
-  and no label touches a card, a label, another wire or the system boundary. A
-  layout that cannot meet this is never drawn, and a view no layout draws is
-  refused. Crossings the relations force are allowed and counted, as are route
-  defects, and each plate prefers the fewest of both.
+- On plates each card is as wide as its text and its strip, the cards of one
+  lattice column share one width and the cards of a row one height, and all sit
+  on shared row lines; the page's diagram cards share one width. Wires are
+  horizontal and vertical only; no segment is shared by two relations, no wire
+  crosses a card and no label touches a card, a label, another wire or the
+  system boundary. A layout that cannot meet this is never drawn, and a view no
+  layout draws is refused. Crossings the relations force are allowed and
+  counted, as are route defects, and each plate prefers the fewest of both.
 - Archify delivers the page at the build's quality profile, showcase unless the
   build asks for standard, and every view diagram passes Archify's checks at
   that profile, or the build is refused with Archify's findings. In a 1440 × 900 window every preview fits its panel,

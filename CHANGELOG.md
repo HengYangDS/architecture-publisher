@@ -59,6 +59,8 @@ remain pre-release contracts and may contain incompatible changes.
   contract now states the one boundary they alone held, what the publisher is not.
 - The 36 Changes archived before 0.4.0, which specified parts that no longer exist, an unused CI image recipe and
   the format-selection policy whose only rows were the research captures. Git keeps all of them.
+- The warning `marks_fallback` and the refusal `marks_need_files`. A build without file facts draws its parts without
+  strips, which is no fallback to warn of, and no model asks for strips.
 
 ### Changed
 
@@ -71,8 +73,9 @@ remain pre-release contracts and may contain incompatible changes.
   publisher's own work in Chinese build the same bytes as before.
 - The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No
   delivered byte changes.
-- **Breaking:** with `strip` marks a relation's cited files are written as a number near its source, and ticks are no
-  longer drawn. Readers of the roadmap's first trial read a number right 54 times in 54 and ticks 88 times in 162.
+- **Breaking:** where an edition draws strips a relation's cited files are written as a number near its source, and
+  ticks are no longer drawn. Readers of the roadmap's first trial read a number right 54 times in 54 and ticks 88
+  times in 162.
 - **Breaking:** relations into a view's hub are drawn twice as heavy, still in the oldest dye, and end inside an
   arrowhead 1.45 times as large; a planned relation into the hub is heavy too, and a retired one is unchanged. Colour
   alone no longer tells the hub's lines apart. The key says "heavy lines lead to" the hub, in the five languages.
@@ -121,9 +124,7 @@ remain pre-release contracts and may contain incompatible changes.
   the number of files read, the files a relation cites, a view's hub and the age bands it shows. The plates, the
   edition's record and the page read that layer and measure nothing, which a test holds; the pin's date and time are
   read once. No delivery changes: an edition built before and after is the same bytes, and the manifest and the result
-  of `archpub check --json` keep their fields. One refusal changes its precedence: a model that claims and cites no
-  file, asks for `strip` marks and names a revision its checkout lacks is refused with `source_revision_unknown`, where
-  it was refused with `marks_need_files`.
+  of `archpub check --json` keep their fields.
 - **Breaking:** the manifest is version 8. It names the model's file, the data's file with its counts under `data`
   and the reader file with its size and number of statements under `reader`; `sources` holds the binding's `state`
   and the `count` of its files. `sources.records` and `evidence` are gone from it: read `evidence` of
@@ -143,6 +144,31 @@ remain pre-release contracts and may contain incompatible changes.
 - A build or a check refuses, before anything is written, with `reader_ids_differ` when the statements the reader
   file lists are not the model's, with `data_face_differs` when a plate's face is not its view's statements, and with
   `projection_fact_unknown` when a plate, the reader file or the generated page holds what the data lacks.
+- **Breaking:** every part is drawn as one card, and every plate of every edition changes. From its top a card holds
+  its part's name, the strip of the files the part owns, a caption of the kind's icon before the kind's label with
+  the number and size of the files, and the part's details. A part that owns no file has no strip and no count,
+  where a strip plate drew a short dashed outline; the card's outline tells the part's status and its ground whether
+  the part lies inside the repository. On a plate with a card too narrow for its caption on one line every count
+  stands under its kind, so the captions of one plate have one form. A relation's label is set in the regular weight
+  on every plate, where a card plate set it in the heavy one. A part was drawn either as a strip or as a card, so a
+  plate showed what its parts measure or their kinds' icons and details, and never both.
+- **Breaking:** `edition.marks` is retired, and `edition` holds a palette alone. A model that names `marks`, with any
+  value, is refused with `model_field_retired` at `/edition/marks`: remove the field. A build that reads no checkout,
+  or a model that claims no files, draws every card without a strip and raises no warning of it.
+- **Breaking:** a plate is composed for cards without their details, and its cards set every detail only when the
+  view lays out with them in the same width and height, at the same type step, with no more crossings and, at equal
+  crossings, no more route defects. A strip plate set each part's first detail and a card plate every detail. The
+  manifest records in a plate's `composition`, as `details`, whether its cards set them; the data and the reader
+  file hold every detail as before.
+- **Breaking:** an edition's largest part is drawn 320 px long, and 208 px when one of its views cannot hold its
+  strips at 320 px, where the lengths were 360 and 240 px: a strip stands within its card's padding, and a row of six
+  parts that held its strips bare holds them in their cards.
+- **Breaking:** a plate's key lists no kind, since each card names its kind beside the kind's icon. It holds what the
+  figure shows and a card does not say where it stands: the age bands with the pin's date, the scale bar, the count,
+  the hub, the boundary, the statuses and the ground of a part outside the repository. A neighbour that a group's
+  view shows for context stands on that ground too, and the key says of it, in words of its own in the five
+  languages, that it lies outside the group; it said "outside it" of both.
+- **Breaking:** the manifest's `style` records no `marks`. The manifest stays at version 8.
 
 ### Fixed
 

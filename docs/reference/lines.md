@@ -22,13 +22,14 @@ one 960 px wide: the three widths the table names for measuring.
 | `planned`   | a planned part or relation           | dashes of 6 px, gaps of 4 px                                     | Is X built, planned or retired?                      | not yet tested by a work | a dashed line for a relation, the same as a retired one           |
 | `retired`   | a retired part or relation           | dashes of 1.5 px, gaps of 3.5 px                                 | Is X built, planned or retired?                      | not yet tested by a work | a dashed line for a relation, the same as a planned one           |
 
-Weight carries emphasis and nothing else, at two levels. With `strip` marks, a relation into the view's hub that is
-not retired is drawn at the heavier weight in the oldest dye and ends inside its larger arrowhead; a planned one
-keeps its dashes, and a retired one keeps its faint colour, the ordinary weight and its dots. With `card` marks
-every line is drawn alike. A relation that cites files carries their number near its source, in the smallest
-figure type and its line's colour, at the first place along its own line where its figures touch no part, label,
-line or other number; with no such place it stands at the first and the result carries the warning
-`citation_count_touches`, which names the plate and the relation.
+Weight carries emphasis and nothing else, at two levels. In an edition that draws strips, a relation into the view's
+hub that is not retired is drawn at the heavier weight in the oldest dye and ends inside its larger arrowhead; a
+planned one keeps its dashes, and a retired one keeps its faint colour, the ordinary weight and its dots. There, a
+relation that cites files carries their number near its source, in the smallest figure type and its line's colour,
+at the first place along its own line where its figures touch no part, label, line or other number; with no such
+place it stands at the first and the result carries the warning `citation_count_touches`, which names the plate
+and the relation. In an edition that draws no strip, whose build reads no checkout or whose model claims no files,
+every line is drawn alike and carries no number.
 
 The `emphasis` row stands by the owner's ruling of 2026-11-15 and not by its reading. When the rebuilt plate was
 read, every reading named the hub, and two of eighteen gave the name of one of the parts that lead to it with one
@@ -39,8 +40,8 @@ The rows marked "not yet tested by a work" keep the patterns they had: none of t
 status, and a planned line's dashes are too near the boundary's to be told from them by the measure the trials
 fixed. A build that draws such a row carries the warning `line_row_untested`, which names the plates.
 
-Widths that are not a relation's line or the boundary are not in the table: the outline of a part that owns no
-files, a tier's ring, a card's outline and an icon's strokes.
+Widths that are not a relation's line or the boundary are not in the table: a tier's ring, a card's outline and an
+icon's strokes.
 
 The key of a plate holds the sample of a row exactly when its figure draws the row; a plain relation's line has
 none. The page has no expression of emphasis or of the number of cited files; nothing refuses on that column.

@@ -68,10 +68,9 @@ whole path; the command to run next quotes a path that holds a space.
 │           and 10 relations (r1, r2, r3, r4, r5, r6, r7, r8, r9, r10)
 │
 │  Plates
-▲  01  containers-tiers · figure 100% of the body · misses emptyShare 0.182
-│      (limit 0.12) and holes 0.441 (limit 0.4)
-▲  02  containers-automatic · figure 100% of the body · misses emptyShare 0.124
-│      (limit 0.12)
+▲  01  containers-tiers · figure 100% of the body · misses emptyShare 0.184
+│      (limit 0.12) and holes 0.419 (limit 0.4)
+◆  02  containers-automatic · figure 100% of the body
 │
 │  Data
 ●  Statements  8 components, 10 relations and 0 groups: 0 cited, 0 unchecked and
@@ -80,17 +79,13 @@ whole path; the command to run next quotes a path that holds a space.
 ●  Evidence    0 paths with 0 cited ranges
 ◆  Faces       2 plates, each its view's statements
 │
-│  Warnings
-▲  marks_fallback  The edition draws its parts as cards: a strip is drawn from
-│                  the files a part owns, and this build reads none.
-│
 └  Next: archpub build examples/big-bank/model.json --out <directory>
 ```
 
 `◆` marks a fact that passed, `▲` one that needs attention, such as a plate that
 misses a balance gate, a statement no view draws or a file no component owns,
 `■` what is refused and `●` a plain note. A plate that misses a gate names it
-with what was measured and the limit, as in `emptyShare 0.182 (limit 0.12)`,
+with what was measured and the limit, as in `emptyShare 0.184 (limit 0.12)`,
 and says `reached` after a limit the measure only equals; the components and
 relations that no view draws or that cite no file are named. The `Data` group
 holds the counts of the [data](data.md) a build would write, which `--json`

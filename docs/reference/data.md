@@ -113,8 +113,8 @@ Each entry of `plates` holds the plate's `number`, its `views`, its `images` wit
   corner, and `pixelsPerPoint`, the scale of the figure's drawing space. An element at `x`, `y` of the drawing space
   stands at `frame.x + x / pixelsPerPoint` and `frame.y + y / pixelsPerPoint` points on the page, and a point is
   `width / 1600` px in an image of that width.
-- `scales`: for a plate of strips, the property `owned-bytes` with its `unit`, the `value` in bytes of the edition's
-  largest part and the `length` in px it is drawn at; an empty list for a plate of cards.
+- `scales`: where the edition draws strips, the property `owned-bytes` with its `unit`, the `value` in bytes of the
+  edition's largest part and the `length` in px it is drawn at; an empty list where it draws none.
 - `face`: what the plate drew, by id.
 
 A face holds `components`, `groups` and `relations`. A component or a group is its `id` and its `box`, as `x`, `y`,
