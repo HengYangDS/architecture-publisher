@@ -43,7 +43,7 @@ views and what its author states of them; position, size, alignment and type are
 the publisher's. One input still breaks this rule: an overview composition is a
 Typst file in which its author places every line and word by coordinates. It
 stays until the publisher draws the overview from the model, which the queue's
-`carriers` item does, and no other input of its kind is added.
+`overview` item does, and no other input of its kind is added.
 
 The product is general. Nothing in it is specific to one repository, language
 or framework, and nothing in it names where a delivery goes: the caller chooses
@@ -254,6 +254,11 @@ accepted on the published works as the product builds them, with what its own ga
       byte changes.
 - [x] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
       the reader experiment supports.
+- [ ] `overview`: the overview drawn by the publisher from what the model states of it, as blocks without positions: a
+      masthead's claim and lead, a course of steps with their stations, parallel tracks and lines, further courses
+      with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
+      by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
+      of `composable-parts` because the owner ruled on 2026-11-17 that nothing is placed by hand.
 - [ ] `composable-parts`: a part is a card of regions that compose: its outline, its name and kind, the strip of
       what it owns, its counts and its details, each drawn where the part has the fact. Cards and strips are no
       longer two exclusive ways of drawing a part. A planned part that owns no file yet has no strip. The words
@@ -265,8 +270,8 @@ accepted on the published works as the product builds them, with what its own ga
       tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
       and no longer only recorded.
 - [ ] `carriers`: figures of the edition's own for what a work covers beyond its structure, each drawn from what
-      the model states and none from positions its author gives. First the overview, which replaces the overview
-      composition. Then, from what the product already reads: the structure of its repository, an important part
+      the model states and none from positions its author gives. First, from what the product already reads: the
+      structure of its repository, an important part
       opened, its history in time and the change between two pins. Then, with what the model newly states: the
       course of a mechanism, its plans, its rules and what it writes. With them, an author's notes on parts and
       relations, and a figure of what the work covers and where it is silent.
