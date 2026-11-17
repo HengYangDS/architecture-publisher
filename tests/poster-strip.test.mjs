@@ -78,26 +78,34 @@ test("a strip is as long as its part's bytes on one scale, the largest part long
 });
 
 test("every plate of an edition measures its strips on the same scale, whatever its type step", async () => {
-  // Four details to a part set the plate of all six parts in a smaller type than the plate of two.
-  const details = Object.fromEntries(
-    [1, 2, 3, 4].map((index) => [`note ${index}`, ["a line of a few words that a card holds"]]),
-  );
+  // Four more parts that use the supplies set the plate of all ten in a smaller type than the plate of two. What a
+  // part states no longer does: a plate is composed for cards without their details.
+  const base = stripModel();
+  const extra = [1, 2, 3, 4].map((index) => ({
+    id: `stage${index}`,
+    label: `Stage ${index} of the edition`,
+    kind: "stage",
+  }));
   const model = stripModel("en", {
-    components: [
-      {
-        id: "builder",
-        label: "Delivery builder",
-        kind: "stage",
-        details: { builds: ["the edition"] },
-      },
-      { id: "composer", label: "Plate composer", kind: "stage", details },
-      { id: "words", label: "Words", kind: "stage", details },
-      { id: "record", label: "Record", kind: "stage", details },
-      { id: "supplies", label: "Supplies", kind: "supply" },
-      { id: "typst", label: "Typst", kind: "tool", details },
+    components: [...base.components.map(({ id, label, kind }) => ({ id, label, kind })), ...extra],
+    relations: [
+      ...base.relations.map(({ id, from, to, label, files: cited }) => ({
+        id,
+        from,
+        to,
+        label,
+        ...(cited ? { files: cited } : {}),
+      })),
+      ...extra.map(({ id }) => ({
+        id: `${id}-uses`,
+        from: id,
+        to: "supplies",
+        label: "uses",
+        files: files(1),
+      })),
     ],
     views: [
-      { id: "all", members: ["builder", "composer", "words", "record", "supplies", "typst"] },
+      { id: "all", members: [...base.components, ...extra].map(({ id }) => id) },
       { id: "pair", members: ["builder", "supplies"] },
     ],
   });
