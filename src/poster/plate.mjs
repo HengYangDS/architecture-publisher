@@ -96,10 +96,10 @@ function layoutFor(style, view, rows, metrics, key, boundaryName) {
  * how large it really is. Every part is one card, with the regions it has the facts for.
  */
 function candidateMetrics(input) {
-  const { model, view, typefaces, styles, metrics, field, style, details } = input;
+  const { model, view, typefaces, styles, metrics, field, style, details, caption } = input;
   const { card, wire, spacing } = metrics;
   const words = wordsOf(model.locale);
-  const boxes = partBoxes({ model, typefaces, styles, card, style, details });
+  const boxes = partBoxes({ model, typefaces, styles, card, style, details, caption });
   return {
     // The field already excludes the tier-label column, so it is the content width.
     contentWidth: () => field.width,
@@ -302,8 +302,31 @@ function brokenText(input, layout) {
 }
 
 /**
+ * Whether the captions of a laid-out plate stand in two forms: the count beside its kind on one card and under it
+ * on another, at the widths the layout gives the cards.
+ * @param {any} input
+ * @param {any} layout the layout, with every box's width
+ */
+function captionsMixed(input, layout) {
+  const lines = new Set();
+  for (const component of input.view.components) {
+    const text = input.metrics.cardText(
+      component,
+      layout.cards.get(component.id)?.width ?? layout.card.width,
+    );
+    if (text.caption.count !== null) lines.add(text.captionLines);
+  }
+  return lines.size > 1;
+}
+
+/** Why a candidate was too wide for its field: narrower cards may still compose it. */
+const TOO_WIDE = new Set(["too_wide", "layout_row_too_wide"]);
+
+/**
  * Every composition of one plate, best first: of its parts' compact cards, or with `details` of cards that set
- * what their parts state; at every type step, or at the `steps` given alone.
+ * what their parts state; at every type step, or at the `steps` given alone. A plate's captions have one form: a
+ * composition is laid out with each count beside its kind, and where a card has not the room for that line, or
+ * the cards so sized are too wide for the field, it is laid out again with every count under its kind.
  */
 export function platesOf(input, plate) {
   const found = [];
@@ -319,36 +342,44 @@ export function platesOf(input, plate) {
       // body that cannot hold the taller channels.
       const seen = new Set();
       for (const clearTurns of [true, false]) {
-        const fields = {
-          model: input.model,
-          view: plate.view,
-          typefaces: input.typefaces,
-          icons: input.icons,
-          styles,
-          rows,
-          key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}|${details}`,
-          field: plate.field,
-          labelColumn: plate.labelColumn,
-          tierLabels: input.tierLabels,
-          boundaryName: input.boundaryName,
-          figureMetrics: metrics,
-          style: input.style,
-          metrics: {
-            ...candidateMetrics({
-              model: input.model,
-              view: plate.view,
-              typefaces: input.typefaces,
-              styles,
-              metrics,
-              field: plate.field,
-              style: input.style,
-              details,
-            }),
-            centring,
-            clearTurns,
-          },
+        const candidate = (caption) => {
+          const fields = {
+            model: input.model,
+            view: plate.view,
+            typefaces: input.typefaces,
+            icons: input.icons,
+            styles,
+            rows,
+            key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}|${details}|${caption}`,
+            field: plate.field,
+            labelColumn: plate.labelColumn,
+            tierLabels: input.tierLabels,
+            boundaryName: input.boundaryName,
+            figureMetrics: metrics,
+            style: input.style,
+            metrics: {
+              ...candidateMetrics({
+                model: input.model,
+                view: plate.view,
+                typefaces: input.typefaces,
+                styles,
+                metrics,
+                field: plate.field,
+                style: input.style,
+                details,
+                caption,
+              }),
+              centring,
+              clearTurns,
+            },
+          };
+          return { fields, ...attempt(fields) };
         };
-        const { made } = attempt(fields);
+        const fitted = candidate("fit");
+        const under = fitted.made
+          ? captionsMixed(fitted.fields, fitted.made.layout)
+          : TOO_WIDE.has(fitted.rejected?.reason ?? "");
+        const { made } = under ? candidate("under") : fitted;
         if (!made) continue;
         const drawn = JSON.stringify(made.layout.paths);
         if (seen.has(drawn)) continue;

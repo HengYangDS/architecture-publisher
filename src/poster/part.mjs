@@ -31,11 +31,22 @@ const MARK = Object.freeze({ gap: 5 * HOUSE.plate.pixelsPerPoint, middle: 0.36 }
  * as its regions reads as a card.
  * A compact card leaves its part's details out: a plate is composed for compact cards, and its cards take their
  * details where the composition has the room.
+ * A caption sets its count beside its kind where the card has the room for that line and under its kind where it
+ * has not; with `caption` "under" every count stands under its kind and no card is widened for its caption's one
+ * line, which is how a plate sets its cards when one of them has not the room, so that its captions have one form.
  * @param {{ model: any, typefaces: any, styles: any, card: any, style: import("./strip.mjs").Style,
- *   details?: boolean }} input
+ *   details?: boolean, caption?: "fit" | "under" }} input
  *   `card` is the card metrics at this step; `details` is false for compact cards
  */
-export function partBoxes({ model, typefaces, styles, card, style, details = true }) {
+export function partBoxes({
+  model,
+  typefaces,
+  styles,
+  card,
+  style,
+  details = true,
+  caption: form = "fit",
+}) {
   /** The details a card sets of its part: all the part states, or none on a compact card. */
   const stated = (component) => (details ? component.details : []);
   const words = wordsOf(model.locale);
@@ -69,12 +80,17 @@ export function partBoxes({ model, typefaces, styles, card, style, details = tru
     return facts;
   };
   // The kind and the count stand on one line, two ems apart at least, so they read as two facts; in a card too
-  // narrow for that line the count stands on a line of its own under the kind.
+  // narrow for that line, and on every card where counts are set under, the count stands on a line of its own
+  // under the kind.
   const kindWidth = ({ kind }) => before + measure(kind, styles.detail);
   const countWidth = ({ count }) => (count ? measure(count, styles.detail) : 0);
-  const captionWidth = (caption) =>
+  const oneLine = (caption) =>
     kindWidth(caption) + (caption.count ? 2 * styles.detail.size + countWidth(caption) : 0);
-  const captionLines = (caption, inner) => (caption.count && captionWidth(caption) > inner ? 2 : 1);
+  /** The width a caption asks of its card: its one line, or the wider of its two where counts are set under. */
+  const captionWidth = (caption) =>
+    form === "under" ? Math.max(kindWidth(caption), countWidth(caption)) : oneLine(caption);
+  const captionLines = (caption, inner) =>
+    caption.count && (form === "under" || oneLine(caption) > inner) ? 2 : 1;
   const detailTexts = (component) =>
     stated(component).map(([key, values]) => detailText(words, key, values));
   const text = (component, width) => {
