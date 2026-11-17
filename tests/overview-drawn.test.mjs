@@ -241,17 +241,16 @@ test("a line from a spur runs under the course, below the spurs and above the st
   );
 });
 
-test("a label on the course stands over its stretch, under the stations' names", async () => {
+test("a label on the course stands over its stretch, on the stations' names' row where it fits", async () => {
   const { boxes, marks } = await drawn(everyBlock());
   const at = (text) => boxes.find((box) => box.text === text);
   const ask = marks[0];
   const label = at("admitted");
   const check = at("Check");
-  assert.ok(label.x > ask.x && label.x + label.w < check.x + 10, "between Ask and Check");
-  assert.ok(
-    label.y + label.h < ask.y && label.y > check.y + check.h,
-    "over the line, under the names",
-  );
+  assert.ok(label.x > ask.x && label.x + label.w < check.x, "between Ask and Check's name");
+  assert.ok(label.y + label.h < ask.y, "over the line");
+  // On the names' row: its baseline is Check's, the label being a size smaller.
+  assert.ok(Math.abs(label.y + label.h - (check.y + check.h)) < 3, "level with the names");
 });
 
 test("the drawing hands back every line it draws, and none lies over its text", async () => {

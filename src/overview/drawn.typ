@@ -210,9 +210,18 @@
   let labels-bottom = if names-depth.len() == 0 { channels-bottom } else { label-b + calc.max(..names-depth) }
   let most = calc.max(..points.map(p => p.tracks))
   let half = (most - 1) / 2 * _track
-  // Labels on the course's stretches stand over the line, under the stations' names, in room the course makes them.
-  let passes = course.at("passes", default: ())
-  let line-y = labels-bottom + g.line + half + if passes.len() == 0 { 0pt } else { 14pt }
+  // A label on a stretch stands on the stations' names' row, between the name at the stretch's start and the ring
+  // at its end; where one does not fit there, every label stands over the line, under the names, in room the
+  // course makes for them.
+  let passes = course.at("passes", default: ()).map(pass => {
+    let n = points.position(p => p.item.at("id", default: none) == pass.after)
+    let (a, b) = (points.at(n), points.at(n + 1))
+    let from = a.x + if a.named { 10pt + _natural(_name(a.item), weight: "semibold") + 12pt } else { 12pt }
+    let to = b.x - 12pt
+    (label: pass.label, a: a.x, b: b.x, from: from, to: to, fits: to - from >= _natural(pass.label, size: "small"))
+  })
+  let crowded = passes.any(pass => not pass.fits)
+  let line-y = labels-bottom + g.line + half + if crowded { 14pt } else { 0pt }
   let under-b = line-y + half + g.under
   // A fork's branches side by side under the course, each in a cell of its own as a station is: a ring on a bar that
   // leaves the course, the branch's name under the bar beside its ring and its note under the name.
@@ -397,9 +406,10 @@
     }
     // A label on a stretch of the course, centred over it.
     for pass in passes {
-      let n = points.position(p => p.item.at("id", default: none) == pass.after)
-      let (a, b) = (points.at(n).x, points.at(n + 1).x)
-      txc((a + b) / 2, line-y - half - 7pt, calc.max(b - a - 24pt, 60pt), pass.label, size: "small", fill: mid)
+      if crowded {
+        txc((pass.a + pass.b) / 2, line-y - half - 7pt, calc.max(pass.b - pass.a - 24pt, 60pt), pass.label,
+          size: "small", fill: mid)
+      } else { txc((pass.from + pass.to) / 2, label-b, pass.to - pass.from, pass.label, size: "small", fill: mid) }
     }
     // The lines under the course: up from each end to its ring, from below; an arrowhead at each end it reaches.
     for l in below.placed {
