@@ -1,15 +1,15 @@
 /**
  * The overview a model states: blocks without positions, which the publisher lays out on one page. A course of steps
- * runs across the page; a step may hold stations, run them on parallel tracks and carry a note and a text; lines go
- * from one step or station to others. Further courses each have a title, stations, a labelled step and one outcome
- * that leaves a station. Facts are headed lists of terms and texts, tables and groups of lists. A step or a station
- * that is a part of the model names it, and the page prints the model's label. A step's stations may run on parallel
- * tracks, counted or named, and a place of a course may be a fork of branches side by side. The blocks after the course stand in
- * one list, in the order the page sets them. Nothing here says where anything
- * stands, how large it is or in what type: those are the publisher's.
+ * runs across the page; a step may hold stations and carry a note and a text, and a place of the course may be a
+ * fork of branches side by side. A stretch of the course, from one station to another across steps, may run on
+ * parallel tracks, counted or named. Lines go from one point of the course to others. Further courses each have a
+ * title, stations, a labelled step and one outcome that leaves a station. Facts are headed lists of terms and texts,
+ * tables, groups of lists and headed texts. A step or a station that is a part of the model names it, and the page
+ * prints the model's label. The blocks after the course stand in one list, in the order the page sets them. Nothing
+ * here says where anything stands, how large it is or in what type: those are the publisher's.
  */
 
-const STEP = ["id", "label", "part", "note", "text", "stations", "tracks"];
+const STEP = ["id", "label", "part", "note", "text", "stations"];
 const STATION = ["id", "label", "part", "note"];
 const TRACKS = Object.freeze({ least: 2, most: 4 });
 
@@ -94,7 +94,7 @@ function checkStation(station, at, problems, componentIds, ids) {
   } else checkPoint(station, at, STATION, problems, componentIds, ids);
 }
 
-/** Whether a step's tracks are a count of two to four, or two to four names. */
+/** Whether a stretch's tracks are a count of two to four, or two to four names. */
 const tracksOf = (tracks) =>
   (Number.isInteger(tracks) && tracks >= TRACKS.least && tracks <= TRACKS.most) ||
   (Array.isArray(tracks) &&
@@ -103,28 +103,35 @@ const tracksOf = (tracks) =>
     tracks.every((name) => typeof name === "string" && name.trim() !== ""));
 
 function checkCourse(course, path, problems, componentIds) {
-  if (!problems.fields(course, path, ["steps"], ["lines", "text"])) return;
-  const { steps, lines } = /** @type {Record<string, any>} */ (course);
+  if (!problems.fields(course, path, ["steps"], ["lines", "text", "parallel"])) return;
+  const { steps, lines, parallel } = /** @type {Record<string, any>} */ (course);
   problems.text(/** @type {any} */ (course).text, `${path}/text`, true);
   /** @type {Set<string>} */
   const ids = new Set();
-  // A step that holds stations is a run of them, not a point a line can start or end at.
+  // A step that holds stations is a run of them, not a point a line can start or end at. The points of the
+  // course in order: a step without stations, a station, or a fork, whose branches share its place.
   /** @type {Set<string>} */
   const runs = new Set();
+  /** @type {Map<string, number>} */
+  const order = new Map();
+  /** @type {Set<number>} */
+  const forks = new Set();
+  let place = 0;
   eachOf(steps, `${path}/steps`, problems, 2, (step, where) => {
     if (!checkPoint(step, where, STEP, problems, componentIds, ids)) return;
     if (step.stations !== undefined && step.id !== undefined) runs.add(step.id);
+    if (step.stations === undefined && step.id !== undefined) order.set(step.id, place);
+    if (step.stations === undefined) place += 1;
     problems.text(step.text, `${where}/text`, true);
     if (step.stations !== undefined)
-      eachOf(step.stations, `${where}/stations`, problems, 1, (station, at) =>
-        checkStation(station, at, problems, componentIds, ids),
-      );
-    if (step.tracks !== undefined && (!tracksOf(step.tracks) || step.stations === undefined))
-      problems.add(
-        "model_overview_invalid",
-        `${where}/tracks`,
-        `runs a step's stations on ${TRACKS.least} to ${TRACKS.most} tracks, counted or named`,
-      );
+      eachOf(step.stations, `${where}/stations`, problems, 1, (station, at) => {
+        checkStation(station, at, problems, componentIds, ids);
+        if (station && typeof station === "object" && Array.isArray(station.branches))
+          forks.add(place);
+        else if (station && typeof station === "object" && station.id !== undefined)
+          order.set(station.id, place);
+        place += 1;
+      });
   });
   if (lines !== undefined)
     eachOf(lines, `${path}/lines`, problems, 1, (line, where) => {
@@ -143,6 +150,60 @@ function checkCourse(course, path, problems, componentIds) {
       end(line.from, `${where}/from`);
       eachOf(line.to, `${where}/to`, problems, 1, (target, at) => end(target, at));
     });
+  if (parallel !== undefined)
+    checkParallel(parallel, `${path}/parallel`, problems, { ids, runs, order, forks });
+}
+
+/**
+ * Check the stretches of a course on parallel tracks: each runs forward from one station (or step without stations)
+ * to another on two to four tracks, counted or named, holds no fork and shares no point with another stretch.
+ */
+function checkParallel(parallel, path, problems, { ids, runs, order, forks }) {
+  /** @type {number[][]} */
+  const taken = [];
+  eachOf(parallel, path, problems, 1, (stretch, where) => {
+    if (!problems.fields(stretch, where, ["from", "to", "tracks"], [])) return;
+    const ends = /** @type {const} */ (["from", "to"]).map((key) => {
+      const id = stretch[key];
+      if (runs.has(id))
+        problems.add(
+          "model_overview_invalid",
+          `${where}/${key}`,
+          "names a step that holds stations: name one of them",
+        );
+      else if (ids.has(id) && !order.has(id))
+        problems.add(
+          "model_overview_invalid",
+          `${where}/${key}`,
+          "names a branch of a fork: a stretch runs on the course",
+        );
+      else if (!ids.has(id))
+        problems.add("model_reference_unknown", `${where}/${key}`, "names no step or station");
+      return order.get(id);
+    });
+    if (!tracksOf(stretch.tracks))
+      problems.add(
+        "model_overview_invalid",
+        `${where}/tracks`,
+        `runs a stretch on ${TRACKS.least} to ${TRACKS.most} tracks, counted or named`,
+      );
+    const [from, to] = ends;
+    if (from === undefined || to === undefined) return;
+    if (to < from) {
+      problems.add("model_overview_invalid", `${where}/to`, "comes before the stretch's start");
+      return;
+    }
+    const held = Array.from({ length: to - from + 1 }, (_, k) => from + k);
+    if (held.some((at) => forks.has(at)))
+      problems.add(
+        "model_overview_invalid",
+        where,
+        "holds a fork: a stretch on tracks runs between stations",
+      );
+    else if (taken.some(([low, high]) => from <= high && low <= to))
+      problems.add("model_overview_invalid", where, "shares a point with another stretch");
+    taken.push([from, to]);
+  });
 }
 
 function checkFurtherCourse(course, path, problems, componentIds) {

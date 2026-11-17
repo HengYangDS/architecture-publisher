@@ -1,6 +1,7 @@
 /**
  * Overview statements for the minimal model's two parts, Alpha (`a`) and Beta (`b`): one that holds every kind of
- * block an overview states, so a test of the model or of the page meets each of them once.
+ * block an overview states, so a test of the model or of the page meets each of them once; the stretch of Work's
+ * stations runs on two named tracks.
  */
 export const everyBlock = () => ({
   claim: "Two parts, and the one call between them",
@@ -17,7 +18,6 @@ export const everyBlock = () => ({
         id: "work",
         label: "Work",
         note: "two requests at a time",
-        tracks: ["first", "second"],
         stations: [
           { id: "check", label: "Check", note: "the request is admitted" },
           { id: "call", part: "a", note: "it calls" },
@@ -41,6 +41,7 @@ export const everyBlock = () => ({
       },
     ],
     text: "Every request takes the course once, whatever it asks.",
+    parallel: [{ from: "check", to: "answer", tracks: ["first", "second"] }],
     lines: [{ from: "done", to: ["ask"], label: "a kept answer may be asked for again" }],
   },
   blocks: [

@@ -11,9 +11,10 @@ from the same few blocks on one grid, and that what their positions express can 
 ## What Changes
 
 - **BREAKING** A model states its overview in `overview` as blocks, none with a position: the masthead's claim and
-  lead; one course of steps, which may hold stations, run on parallel tracks and carry a note and a text, with
-  lines between steps; further courses with a labelled step and one outcome that leaves a step; headed lists of
-  terms and texts; tables; and groups of lists under one title. A step or a station that is a part of the model
+  lead; one course of steps, which may hold stations and forks of siblings and carry a note and a text, with
+  stretches on parallel tracks, lines between points and a text of its own; further courses with a labelled step
+  and one outcome that leaves a step; headed lists of terms and texts; tables; groups of lists under one title; and
+  headed texts. A step or a station that is a part of the model
   names it, and the model's label is printed. A model that names a Typst composition in `overview` is refused with
   `model_overview_composition_retired`.
 - The publisher draws the overview: the masthead with the count of files it read, the course across the first band,
@@ -37,8 +38,8 @@ None.
 ### Modified Capabilities
 
 - `overview-page`: "Overview composition", "What a composition leaves to the class", "Model references" and
-  "Missing composition" are removed; "An overview stated in the model", "A course and its steps", "Lines between
-  points of a course", "The overview laid out by the publisher", "An overview too tall for its page", "The
+  "Missing composition" are removed; "An overview stated in the model", "A course and its steps", "Stretches on
+  parallel tracks", "Lines between points of a course", "The overview laid out by the publisher", "An overview too tall for its page", "The
   overview's marks" and "Parts named on the overview" are added; "Overview files" and "Overview in the print
   edition" change.
 - `architecture-model`: "Overview composition reference" is removed and "Overview statement" added.

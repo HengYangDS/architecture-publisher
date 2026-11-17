@@ -597,7 +597,7 @@
       ]
     },
     "overviewStep": {
-      "description": "A step of the course: a label or a part, a note, a text; its stations, or forks of branches, run on 2 to 4 parallel tracks, counted or named.",
+      "description": "A step of the course: a label or a part, a note, a text, and its stations or forks of branches.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -629,23 +629,6 @@
               }
             ]
           }
-        },
-        "tracks": {
-          "oneOf": [
-            {
-              "type": "integer",
-              "minimum": 2,
-              "maximum": 4
-            },
-            {
-              "type": "array",
-              "minItems": 2,
-              "maxItems": 4,
-              "items": {
-                "$ref": "#/$defs/text"
-              }
-            }
-          ]
         }
       },
       "anyOf": [
@@ -696,6 +679,41 @@
         },
         "text": {
           "$ref": "#/$defs/text"
+        },
+        "parallel": {
+          "description": "Stretches of the course on parallel tracks, each from one station or step without stations to another, on 2 to 4 tracks, counted or named.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from", "to", "tracks"],
+            "properties": {
+              "from": {
+                "$ref": "#/$defs/id"
+              },
+              "to": {
+                "$ref": "#/$defs/id"
+              },
+              "tracks": {
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 4
+                  },
+                  {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 4,
+                    "items": {
+                      "$ref": "#/$defs/text"
+                    }
+                  }
+                ]
+              }
+            }
+          }
         }
       }
     },

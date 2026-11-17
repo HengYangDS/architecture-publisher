@@ -43,31 +43,33 @@ test("an overview names only parts, steps and stations that exist", () => {
   ]);
 });
 
-test("an overview states no position, size or type, and a step runs on two to four tracks", () => {
+test("an overview states no position, size or type, and a stretch runs on two to four tracks", () => {
   const statement = everyBlock();
   Object.assign(statement.course.steps[0], { x: 48 });
   Object.assign(statement.blocks[1], { width: 400 });
-  statement.course.steps[1].tracks = 6;
+  statement.course.parallel[0].tracks = 6;
   assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
     ["model_field_unknown", "/overview/course/steps/0/x"],
-    ["model_overview_invalid", "/overview/course/steps/1/tracks"],
+    ["model_overview_invalid", "/overview/course/parallel/0/tracks"],
     ["model_field_unknown", "/overview/blocks/1/width"],
   ]);
 });
 
-test("a fork holds two branches or more, and a step's tracks are a count or their names", () => {
+test("a fork holds two branches or more, and a stretch's tracks are a count or their names", () => {
   const statement = everyBlock();
   statement.course.steps[2].stations[0].branches.pop();
-  statement.course.steps[1].tracks = ["only"];
+  statement.course.parallel[0].tracks = ["only"];
   assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
-    ["model_overview_invalid", "/overview/course/steps/1/tracks"],
     ["model_list_invalid", "/overview/course/steps/2/stations/0/branches"],
+    ["model_overview_invalid", "/overview/course/parallel/0/tracks"],
   ]);
 });
 
 test("a step or a station is named by a label or by the part it is, and ids are not repeated", () => {
   const statement = everyBlock();
   delete statement.course.steps[0].label;
+  // The stretch on tracks starts at the station renamed here; it is not what this test is about.
+  delete statement.course.parallel;
   statement.course.steps[1].stations[0].id = "ask";
   assert.deepEqual(problemsOf(minimalModel({ overview: statement })), [
     ["model_overview_invalid", "/overview/course/steps/0"],
@@ -84,4 +86,32 @@ test("a line goes between points of a course: a station, a branch or a step with
     ["model_overview_invalid", "/overview/course/lines/0/from"],
     ["model_overview_invalid", "/overview/course/lines/0/to/1"],
   ]);
+});
+
+test("a stretch on parallel tracks runs forward between stations of the course, holds no fork and overlaps none", () => {
+  const backward = everyBlock();
+  backward.course.parallel = [{ from: "answer", to: "check", tracks: 2 }];
+  const fork = everyBlock();
+  fork.course.parallel = [{ from: "answer", to: "done", tracks: 2 }];
+  const overlap = everyBlock();
+  overlap.course.parallel = [
+    { from: "check", to: "call", tracks: 2 },
+    { from: "call", to: "answer", tracks: 3 },
+  ];
+  const run = everyBlock();
+  run.course.parallel = [{ from: "work", to: "nowhere", tracks: 2 }];
+  assert.deepEqual(
+    [backward, fork, overlap, run].map((statement) =>
+      problemsOf(minimalModel({ overview: statement })),
+    ),
+    [
+      [["model_overview_invalid", "/overview/course/parallel/0/to"]],
+      [["model_overview_invalid", "/overview/course/parallel/0"]],
+      [["model_overview_invalid", "/overview/course/parallel/1"]],
+      [
+        ["model_overview_invalid", "/overview/course/parallel/0/from"],
+        ["model_reference_unknown", "/overview/course/parallel/0/to"],
+      ],
+    ],
+  );
 });

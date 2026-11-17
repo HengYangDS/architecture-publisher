@@ -73,18 +73,16 @@
     spans.push((x: x, w: w))
     x += w
   }
-  // A step's tracks, counted or named; named tracks take a column for their names before the step's stations.
-  let tracks-of(step) = {
-    let t = step.at("tracks", default: 1)
-    if type(t) == array { t.len() } else { t }
-  }
-  let names-of(step) = {
-    let t = step.at("tracks", default: none)
-    if type(t) == array { t } else { () }
-  }
-  let name-room(step) = {
-    let names = names-of(step)
-    if names.len() == 0 { 0pt } else { calc.max(..names.map(n => _natural(n, size: "small"))) + 30pt }
+  // The stretches of the course on parallel tracks, counted or named; named tracks take a column for their names
+  // before the stretch's first point.
+  let stretches = course.at("parallel", default: ()).map(s => {
+    let names = if type(s.tracks) == array { s.tracks } else { () }
+    (from: s.from, to: s.to, count: if type(s.tracks) == array { s.tracks.len() } else { s.tracks }, names: names,
+      room: if names.len() == 0 { 0pt } else { calc.max(..names.map(n => _natural(n, size: "small"))) + 30pt })
+  })
+  let room-before(item) = {
+    let id = item.at("id", default: none)
+    stretches.filter(s => s.from == id).map(s => s.room).sum(default: 0pt)
   }
   // Every point of the course in order: a step without stations is one point, named by its heading; a fork is one
   // point whose branches hang below the course.
@@ -93,23 +91,29 @@
   for (i, step) in steps.enumerate() {
     let span = spans.at(i)
     let stations = step.at("stations", default: ())
-    let tracks = tracks-of(step)
     if stations.len() == 0 {
-      points.push((x: span.x + 8pt, step: i, item: step, named: false, fork: none, cell: span.w, tracks: 1))
+      let room = room-before(step)
+      points.push((x: span.x + room + 8pt, step: i, item: step, named: false, fork: none, cell: span.w - room,
+        tracks: 1))
     } else {
-      let room = name-room(step)
-      let cell = (span.w - room) / weights.at(i)
-      let at = span.x + room
+      let cell = (span.w - stations.map(room-before).sum(default: 0pt)) / weights.at(i)
+      let at = span.x
       for station in stations {
+        at += room-before(station)
         let px = at + 8pt
         let fork = station.at("branches", default: none)
-        points.push((x: px, step: i, item: station, named: fork == none, fork: fork, cell: cell, tracks: tracks))
+        points.push((x: px, step: i, item: station, named: fork == none, fork: fork, cell: cell, tracks: 1))
         if fork != none {
-          for (j, b) in fork.enumerate() { members.push((x: px + j * cell, item: b, tracks: tracks)) }
+          for (j, b) in fork.enumerate() { members.push((x: px + j * cell, item: b, tracks: 1)) }
         }
         at += weight-of(station) * cell
       }
     }
+  }
+  // A stretch's points run on its tracks, from its first point to its last.
+  let index(id) = points.position(p => p.item.at("id", default: none) == id)
+  for s in stretches {
+    for k in range(index(s.from), index(s.to) + 1) { points.at(k).insert("tracks", s.count) }
   }
   let where(id) = (points + members).filter(p => p.item.at("id", default: none) == id).first()
   // Each line takes the highest channel whose lines its span keeps clear of.
@@ -192,25 +196,21 @@
         _set(g, span.x, head-b + depth + g.note, step.note, fill: soft, w: span.w - 16pt)
       }
     }
-    // The course: one line, which a step on parallel tracks splits into thinner tracks and joins again; named tracks
-    // carry their names where they begin.
+    // The course: one line, which a stretch on parallel tracks splits into thinner tracks and joins again; named
+    // tracks carry their names where they begin.
     let cursor = points.first().x
-    for (i, step) in steps.enumerate() {
-      let tracks = tracks-of(step)
-      if tracks > 1 {
-        let own = points.filter(p => p.step == i)
-        let names = names-of(step)
-        let from = if names.len() > 0 { spans.at(i).x + 4pt } else { own.first().x - 16pt }
-        let to = own.last().x + 16pt
-        if from > cursor { seg((cursor, line-y), (from, line-y), w: 3pt, c: green) }
-        for k in range(tracks) {
-          let offset = (k - (tracks - 1) / 2) * _track
-          seg((from, line-y), (from + 12pt, line-y + offset), (to - 12pt, line-y + offset), (to, line-y),
-            w: 1.6pt, c: green)
-          if names.len() > 0 { tx(from + 18pt, line-y + offset - 5pt, names.at(k), size: "small", fill: mid) }
-        }
-        cursor = to
+    for s in stretches.sorted(key: s => index(s.from)) {
+      let own = points.slice(index(s.from), index(s.to) + 1)
+      let from = if s.names.len() > 0 { own.first().x - 8pt - s.room + 4pt } else { own.first().x - 16pt }
+      let to = own.last().x + 16pt
+      if from > cursor { seg((cursor, line-y), (from, line-y), w: 3pt, c: green) }
+      for k in range(s.count) {
+        let offset = (k - (s.count - 1) / 2) * _track
+        seg((from, line-y), (from + 12pt, line-y + offset), (to - 12pt, line-y + offset), (to, line-y),
+          w: 1.6pt, c: green)
+        if s.names.len() > 0 { tx(from + 18pt, line-y + offset - 5pt, s.names.at(k), size: "small", fill: mid) }
       }
+      cursor = to
     }
     if points.last().x > cursor { seg((cursor, line-y), (points.last().x, line-y), w: 3pt, c: green) }
     // A ring at every station, on every track; the course's two ends larger. A fork has no ring of its own.

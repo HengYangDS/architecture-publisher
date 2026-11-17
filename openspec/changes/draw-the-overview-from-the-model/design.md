@@ -36,9 +36,11 @@ complete edition out, no page placed by hand.
    - Applies to: `overview` in the model: `claim`, `lead`, `course` (`steps`, `lines`, `text`) and `blocks`, in the
      order the page sets them: further courses, lists, tables, groups of lists and headed texts, each with an
      optional text. A step's stations may include forks, whose branches are siblings with no order (a fan to
-     clients, providers or topics, a split into two outputs), and run on tracks counted or named. A line joins
-     points: a station, a branch or a step without stations; a step that holds stations is a run, not a point.
-     Readers who stated the six pages found these four missing from the first form of the statement.
+     clients, providers or topics, a split into two outputs). A stretch of the course, from one station to a later
+     one across steps, runs on tracks counted or named (`parallel`): filmkit's two languages split inside one step
+     and join three steps later, which tracks stated by step drew as three splits. A line joins points: a station, a
+     branch or a step without stations; a step that holds stations is a run, not a point. Readers who stated the
+     six pages found these missing from the first form of the statement.
 2. The publisher lays the blocks out on one grid, in Typst, by measure.
    - Rests on: `docs/research/overview-pages.md` ("The grid"), and the house class's title and contents pages,
      which are set this way today.

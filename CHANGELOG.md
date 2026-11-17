@@ -74,8 +74,8 @@ remain pre-release contracts and may contain incompatible changes.
 ### Changed
 
 - **Breaking:** The publisher draws the overview from what the model states of it, as it sets the title and contents
-  pages: a claim and a lead; a course of steps with their stations, forks of siblings with no order, parallel tracks
-  counted or named, lines between points and a text; and blocks of further courses, lists, tables, groups of lists
+  pages: a claim and a lead; a course of steps with their stations, forks of siblings with no order, stretches on
+  parallel tracks counted or named, lines between points and a text; and blocks of further courses, lists, tables, groups of lists
   and headed texts, in the order stated, none with a position. The course runs across the first band, each step as
   wide as what it holds; the blocks follow in halves and thirds chosen by measured height, headed texts stated
   together share a cell, and a long list of short items stands in two columns. A page too tall for the house's

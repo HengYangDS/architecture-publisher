@@ -175,3 +175,16 @@ test("a list of six items or more, each a line in half its width, is set in two 
   assert.ok(at("step 6").x > at("step 1").x + 200, `the second column at ${at("step 6").x} pt`);
   assert.ok(at("step 5").y > at("step 4").y, "the first column holds the first five, in order");
 });
+
+test("a stretch on parallel tracks may run across steps, its tracks named once where it begins", async () => {
+  const statement = everyBlock();
+  statement.course.steps[2].stations[0] = { id: "kept", label: "Kept" };
+  statement.course.parallel = [{ from: "call", to: "done", tracks: ["first", "second"] }];
+  const { texts, marks } = await drawn(statement);
+  assert.equal(texts.filter((text) => text === "first").length, 1);
+  assert.equal(texts.filter((text) => text === "second").length, 1);
+  // Ask and Check on the course; Alpha, Beta, Kept and Done on each of two tracks; Done's rings the larger.
+  const course = marks.filter(({ y }) => y < marks[0].y + 40);
+  assert.equal(course.length, 1 + 1 + 4 * 2);
+  assert.equal(course.filter(({ r }) => r === 7).length, 1 + 2);
+});

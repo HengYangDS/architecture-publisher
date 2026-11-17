@@ -23,20 +23,27 @@ that statement and from nothing else the author gives.
 
 A course SHALL be an ordered list of steps, each a label with an optional note
 and text, and MAY carry a text of its own. A step MAY hold stations, among them
-forks of two or more branches that stand side by side with no order, and run
-them on two to four tracks, counted or named. A further course SHALL be a title
-and ordered stations, with an optional labelled step, one optional outcome that
-leaves a station, and an optional text.
-
-#### Scenario: A step on parallel tracks
-
-- **WHEN** a step holds three stations and runs them on two tracks
-- **THEN** the course draws that step's three stations on each of two tracks between the steps before and after it
+forks of two or more branches that stand side by side with no order. A further
+course SHALL be a title and ordered stations, with an optional labelled step,
+one optional outcome that leaves a station, and an optional text.
 
 #### Scenario: A fork of siblings
 
 - **WHEN** a step holds a fork of two branches and then one station
 - **THEN** the step takes three cells, and the two branches stand side by side under the course, each in a cell
+
+### Requirement: Stretches on parallel tracks
+
+A stretch of a course, from one station or step without stations to a later
+one, across steps and around no fork, MAY run on two to four tracks, counted or
+named. A stretch that runs backward, holds a fork or shares a point with another
+SHALL be refused with `model_overview_invalid`.
+
+#### Scenario: A stretch across steps
+
+- **WHEN** a stretch runs from the second station of one step to the last station of the next on two tracks named zh and en
+- **THEN** the course draws those stations on each of two tracks, split before the first and joined after the last
+- **AND** it names the two tracks once, where they begin
 
 ### Requirement: Lines between points of a course
 
