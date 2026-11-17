@@ -19,9 +19,6 @@ export function isRelativePath(value) {
   );
 }
 
-/** An overview composition: a relative path to a Typst file within the model's directory. */
-export const isCompositionPath = (value) => isRelativePath(value) && value.endsWith(".typ");
-
 /** A guide composition: a relative path to an Archify explainer draft within the model's directory. */
 export const isGuidePath = (value) => isRelativePath(value) && /[^/]\.archify\.md$/u.test(value);
 

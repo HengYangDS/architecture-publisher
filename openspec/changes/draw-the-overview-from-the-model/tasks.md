@@ -1,7 +1,7 @@
 ## 1. The queue and the model
 
 - [x] 1.1 Put the item `overview` in the contract's queue before the rest of `composable-parts`, reword `carriers` and the Product paragraph, and add the research page `docs/research/overview-pages.md`. Done when `tests/evolution-queue.test.mjs` passes with this Change active. It passes, 4 tests; the documents' check finds no issue.
-- [ ] 1.2 Test first that a model states an overview of every kind of block and validates, that a string in `overview` is refused with `model_overview_composition_retired`, that a part named that the model lacks is refused at its path, and that no overview property states a position; then the schema and the validation. Done when the tests fail on the present source and then pass.
+- [x] 1.2 Test first that a model states an overview of every kind of block and validates, that a string in `overview` is refused with `model_overview_composition_retired`, that a part named that the model lacks is refused at its path, and that no overview property states a position; then the schema and the validation. Done when the tests fail on the present source and then pass. They failed on all five cases and pass; `tests/model-input.test.mjs`, whose test of the composition's path is replaced by one of the schema's object, passes.
 
 ## 2. The drawing
 

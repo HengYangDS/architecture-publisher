@@ -5,7 +5,8 @@ import { refuse } from "../refusal.mjs";
 import { readEdition } from "./edition.mjs";
 import { unknownField } from "./nearest-name.mjs";
 import { normalize } from "./normalize.mjs";
-import { checkCoverage, isCompositionPath, isGuidePath, isRelativePath } from "./paths.mjs";
+import { readOverview } from "./overview.mjs";
+import { checkCoverage, isGuidePath, isRelativePath } from "./paths.mjs";
 
 export const MODEL_FORMAT = "architecture-publisher.model";
 export const MODEL_VERSION = 3;
@@ -350,12 +351,7 @@ export function validateModel(model, options = {}) {
   });
   const groupIds = new Set(groups.map(({ id }) => id));
   checkCoverage(problems, value.coverage);
-  if (value.overview !== undefined && !isCompositionPath(value.overview))
-    problems.add(
-      "model_overview_invalid",
-      "/overview",
-      "must be a relative path to a .typ file within the model's directory",
-    );
+  readOverview(value.overview, problems, componentIds);
   if (value.guide !== undefined && !isGuidePath(value.guide))
     problems.add(
       "model_guide_invalid",

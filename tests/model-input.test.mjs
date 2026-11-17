@@ -293,19 +293,14 @@ test("a coverage path may be a glob within the repository", () => {
   );
 });
 
-test("an overview names a Typst composition within the model's directory", async () => {
-  assert.equal(validateModel(minimalModel({ overview: "overview.typ" })).overview, "overview.typ");
-  assert.equal(validateModel(minimalModel({ overview: "pages/a.typ" })).overview, "pages/a.typ");
+test("the schema states an overview as an object of blocks, and a value of another type is no overview", async () => {
   assert.equal(validateModel(minimalModel()).overview, null);
-  for (const overview of ["/overview.typ", "../overview.typ", "a/../b.typ", "overview.svg", "", 3])
-    assert.deepEqual(problemsOf(minimalModel({ overview })), ["model_overview_invalid /overview"]);
+  assert.deepEqual(problemsOf(minimalModel({ overview: 3 })), ["model_object_required /overview"]);
   const schema = JSON.parse(
     await fs.readFile(new URL("../src/model/schema.json", import.meta.url), "utf8"),
   );
-  assert.deepEqual(schema.properties.overview.allOf, [
-    { $ref: "#/$defs/path" },
-    { pattern: "\\.typ$" },
-  ]);
+  assert.equal(schema.properties.overview.type, "object");
+  assert.deepEqual(schema.properties.overview.required, ["claim", "lead", "course"]);
 });
 
 test("a guide names an Archify explainer draft within the model's directory", async () => {
