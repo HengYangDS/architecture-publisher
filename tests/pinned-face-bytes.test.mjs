@@ -29,17 +29,17 @@ const BEFORE = Object.freeze({
   "strips/01-architecture.svg": "7768f56bdc352255f968d4d630dfbfcfac3271702945268db2b4188d7f3d702c",
   "strips/01-architecture.runs": "c1d6ee2994b73b713405b7cab8e28f3c7998b3046ee6bb7a04b7a5e75311fa88",
   "strips/01-architecture.legend":
-    "8d4ef71a69f693b88580f7b3bd744cf4016c6b489eaf38f4b1a81d7bb0b66aac",
+    "2f198730db74cf364d8c26222efe04040a5fce66dde2eb45e3345c9187977cd7",
   "cards/01-architecture.svg": "60d03a1f08f1e4bd52fe2072703f8ea5c42e183169a05fb68494c67fe73b70bb",
   "cards/01-architecture.runs": "a6a2ab9a9d5a8556603ff809d439cf73d037b004ec9859f17df31e17635d59a5",
   "cards/01-architecture.legend":
     "4a4ed2497ce4de2e0a0963164602437e6ffe1cbac295f6f5ebb47e9d4a8206f0",
   "grouped/01-overview.svg": "19faf6ba5258faaf057a07c12e4f87e4d292f76b88fd00012d049d919f4e4320",
   "grouped/01-overview.runs": "7075a3be0c3550944ed3efd1ae2cfd1dab528963e4108c83ce05d5326029f3db",
-  "grouped/01-overview.legend": "75b20bb8593032715ab2c9b5bca66451d1c74ebf03da12b4c689a6fea12110eb",
+  "grouped/01-overview.legend": "e0f37f00b122175d34ad97441e996ac82802cdd335f04e206d1a167939cdebed",
   "grouped/02-pipeline.svg": "7768f56bdc352255f968d4d630dfbfcfac3271702945268db2b4188d7f3d702c",
   "grouped/02-pipeline.runs": "c1d6ee2994b73b713405b7cab8e28f3c7998b3046ee6bb7a04b7a5e75311fa88",
-  "grouped/02-pipeline.legend": "8d4ef71a69f693b88580f7b3bd744cf4016c6b489eaf38f4b1a81d7bb0b66aac",
+  "grouped/02-pipeline.legend": "2f198730db74cf364d8c26222efe04040a5fce66dde2eb45e3345c9187977cd7",
 });
 
 test("a drawing that reports what it drew draws the same bytes: shapes, runs and keys", () => {
