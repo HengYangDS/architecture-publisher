@@ -25,4 +25,4 @@ None.
 
 `tests/pinned-face-bytes.test.mjs`. No source, no document and no delivered byte beyond the first Change's.
 
-Queue: `maintenance`.
+Queue: `composable-parts`.

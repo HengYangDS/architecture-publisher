@@ -18,7 +18,8 @@ the plates it composes; the proof's behaviour gate found it.
 ## Decisions
 
 1. Only the digests that the test itself reports as different are recorded again.
-   - Rests on: the test's own report in the failed proof: three `.legend` digests differ, and the digests of every
+   - Rests on: `docs/research/figure-language.md`, "Measured on 2026-11-16" (a strip's length is the fact
+     `owned-bytes`, which the first Change's words now say), and the test's own report in the failed proof: three `.legend` digests differ, and the digests of every
      `.svg` and `.runs` are equal.
    - Considered: recording all twelve digests again from a fresh run.
    - Chosen because: a digest that did not differ needs no new record, and recording only what the report names
