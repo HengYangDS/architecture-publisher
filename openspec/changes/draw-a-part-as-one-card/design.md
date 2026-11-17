@@ -91,6 +91,18 @@ strip's entries with strips.
      strip that a row of six held bare is still held within its card; 208 px keeps the ratio for the shorter
      scale. A strip is 11 % shorter on every plate and still measures what it measured.
    - Applies to: every edition that draws strips.
+7. The boundary's name starts on the text edge of the cards under it.
+   - Rests on: `docs/research/figure-language.md`, "Tidy and full, by mechanism" (alignment comes from the
+     construction, and a measure reads it off the built pages), and the gate's measure of the first whole English
+     edition built with the one part: on a plate at the third type step the name stood 5.3 pt left of the names of
+     the two cards under it.
+   - Considered: leaving the name at its own offset of 24 px from the boundary's edge, where it stood before a
+     card's text had an edge a reader compares it with at every step; centring the name on the edge.
+   - Chosen because: the name and the cards' names are text one under another, and a reader sees a line that just
+     misses. Derived from the boundary's pad and the card's padding, the two share an edge at every type step
+     and need no value of their own.
+   - Applies to: every plate with a boundary. A wire that crosses the top edge where the name would stand still
+     moves the name clear of it.
 
 ## Risks / Trade-offs
 

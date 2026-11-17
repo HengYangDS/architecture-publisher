@@ -242,7 +242,9 @@ export function drawFigure(layout, input) {
       }),
     );
     const edge = lines.boundary();
-    let tabX = at(boundary.x + 24);
+    // The name starts on the text edge of a card at the boundary's left edge, so it and the names of the cards
+    // under it share one left edge at every type step; its tab reaches 12 px before it.
+    let tabX = at(boundary.x + metrics.spacing.boundaryPad + metrics.card.pad - 12);
     while (crossings.some((x) => at(x) > tabX - 12 && at(x) < tabX + tabWidth + 12)) tabX += 12;
     shapes.push(
       `<rect x="${fixed(at(boundary.x))}" y="${fixed(down(boundary.y))}" width="${fixed(boundary.width)}" ` +

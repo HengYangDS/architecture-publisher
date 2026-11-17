@@ -230,10 +230,11 @@ test("the house tokens draw the plates of no style given, pinned by their digest
       .createHash("sha256")
       .update(JSON.stringify(plates.map(({ svg, runs }) => ({ svg, runs }))))
       .digest("hex");
-  // Captured from the engine when every part became one card, its kind's icon in its caption: a change that means
+  // Captured from the engine when every part became one card, composed without its details and set with them
+  // where its plate has the room, under a boundary whose name starts on its cards' text edge: a change that means
   // to move no plate drawn without measured facts leaves this digest as it is. Until then it was 58357267…, the
   // cards of 0.12.0 as the house faces' kerning measures them.
-  const drawn = "2693d24b80d88c3f39cd2219c38ad138ec5feb852be2bf16de7a342f6d7d3df8";
+  const drawn = "1706e7ddd135a7fe2e96ac1d6814fbb65ac529ed57cea00c3e353eda9f84d14e";
   const unnamed = await platesIn(model);
   assert.equal(digest(unnamed.plates), drawn);
   const named = await platesIn(model, { tokens: HOUSE_TOKENS });

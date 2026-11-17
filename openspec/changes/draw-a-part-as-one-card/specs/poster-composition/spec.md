@@ -60,6 +60,18 @@ than the count, SHALL NOT be a candidate.
 - **WHEN** a composition whose cards are as wide as their captions on one line is wider than its field
 - **THEN** it is laid out with every count under its kind, and is a candidate where it then fits
 
+### Requirement: The boundary's name on its cards' text edge
+
+The boundary's name SHALL start on the text edge of a card that stands at the
+boundary's left edge, so the name and the names of the cards under it share one
+left edge at every type step. A wire that crosses the boundary's top edge where
+the name would stand SHALL move the name to the right, clear of it.
+
+#### Scenario: A boundary over a column of cards
+
+- **WHEN** a plate with a boundary is drawn at any type step and no wire crosses the top edge near the name
+- **THEN** the boundary's name and the names of the leftmost cards inside it start at one x
+
 ### Requirement: Runs of a part's text without word spaces
 
 In an edition whose language is written without spaces between words, the run

@@ -27,19 +27,19 @@ const typeset = await typesetWork(works.grouped);
  * whole editions, before and after, holds them.
  */
 const BEFORE = Object.freeze({
-  "strips/01-architecture.svg": "e0babfd5e57ce79daea417879fd6979258865677dd36d9e08d5b026334fc79dc",
-  "strips/01-architecture.runs": "d1040b057a52e2a5750acb70d334057f608617be0685fa8516fa5ebe983f6d38",
+  "strips/01-architecture.svg": "0a06d5286f145d27de38a49a34878267efad92dc68a81feeb42c1372a3d024e4",
+  "strips/01-architecture.runs": "195d70abb1299baba96fc5f94e4459e8fc623eefae372eeb3d0b5499d1014ac7",
   "strips/01-architecture.legend":
     "b3c45a6ab68fae178d76b8098aa7f5f7831bd2897aacc4284cb855b050177dc8",
-  "cards/01-architecture.svg": "8177542c4d6cbf7b02967ee96e9e13d5f1a4f6920b1e632ba92eda834e23b5fe",
-  "cards/01-architecture.runs": "adad0c2cdfb30a007a30dd02fe6bedec0ac530d75d8e1e8cd79c86d9b7dfce43",
+  "cards/01-architecture.svg": "d1ba9b691c0ce13d5bef9770f58ab3bbd01f87f2831865cb280ba8488e208b44",
+  "cards/01-architecture.runs": "aa367ce1ac80634b6ae91ab20f46505cfa303f0e96f163127749ce6efb66fec6",
   "cards/01-architecture.legend":
     "94d7fe87bc178be13a4cc84d870e3e21cbe9b9578d1814f1ad465f8fbab5e453",
-  "grouped/01-overview.svg": "1694dad062cf52b694ca6dd83e890a9b5349b0eab3e1c6e68674f01c0746d72c",
-  "grouped/01-overview.runs": "627a020e6f4a5a724fbaf0dc28446b3963895b1285d83b262ed41920892b76db",
+  "grouped/01-overview.svg": "e2b5d7ebea9d996526d1a76e07c5716b175852b4d8792ab474f469a4b00d6a4c",
+  "grouped/01-overview.runs": "98e0e4c6c34564bd3edb1b7e68f737d26177247caa4ca32c03e27c4bf85e2aea",
   "grouped/01-overview.legend": "375182de1536a06c23199b29dfeaca0332398b1391162c2849fde3fb59ef52ac",
-  "grouped/02-pipeline.svg": "c2ddb528489b01a7081c6a8de54d4c7844d83fca02db304484f403b37da43a12",
-  "grouped/02-pipeline.runs": "d1040b057a52e2a5750acb70d334057f608617be0685fa8516fa5ebe983f6d38",
+  "grouped/02-pipeline.svg": "4e3c18d8342a2fbf8bd38cf3b293375aec842be43d41aa74e0953187727724b4",
+  "grouped/02-pipeline.runs": "195d70abb1299baba96fc5f94e4459e8fc623eefae372eeb3d0b5499d1014ac7",
   "grouped/02-pipeline.legend": "b15496312a08f5e1f54f8de79aabd952c2fa25f1910b4bcf32cfe882f97db963",
 });
 
