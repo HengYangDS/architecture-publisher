@@ -23,7 +23,7 @@ export const DEFAULT_LOCALE = "en";
  *   measures: Readonly<MeasureWords>,
  * }} Words
  * @typedef {{
- *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (days: number) => string, oldest: string }>,
+ *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (from: number, to: number) => string, oldest: string }>,
  *   "pin-date": (date: string) => string,
  *   "owned-bytes": (size: string) => string,
  *   "cited-files": string,
@@ -61,7 +61,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `within ${days} ${days === 1 ? "day" : "days"} of the commit`,
-        middle: (days) => `within ${days} ${days === 1 ? "day" : "days"}`,
+        middle: (from, to) => `over ${from} and within ${to} days of the commit`,
         oldest: "earlier",
       }),
       "pin-date": (date) => `commit date ${date}`,
@@ -94,7 +94,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `提交前 ${days} 日内`,
-        middle: (days) => `提交前 ${days} 日内`,
+        middle: (from, to) => `提交前超过 ${from} 日、${to} 日内`,
         oldest: "更早",
       }),
       "pin-date": (date) => `提交日 ${date}`,
@@ -127,7 +127,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `提交前 ${days} 日內`,
-        middle: (days) => `提交前 ${days} 日內`,
+        middle: (from, to) => `提交前超過 ${from} 日、${to} 日內`,
         oldest: "更早",
       }),
       "pin-date": (date) => `提交日 ${date}`,
@@ -161,7 +161,7 @@ const WORDS = Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) =>
           days === 1 ? "en el día previo al commit" : `en los ${days} días previos al commit`,
-        middle: (days) => (days === 1 ? "en el día previo" : `en los ${days} días previos`),
+        middle: (from, to) => `más de ${from} y hasta ${to} días antes del commit`,
         oldest: "antes",
       }),
       "pin-date": (date) => `fecha del commit ${date}`,
@@ -195,7 +195,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `커밋 전 ${days}일 이내`,
-        middle: (days) => `${days}일 이내`,
+        middle: (from, to) => `커밋 전 ${from}일 초과 ${to}일 이내`,
         oldest: "그 이전",
       }),
       "pin-date": (date) => `커밋 날짜 ${date}`,

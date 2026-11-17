@@ -84,7 +84,7 @@ test("a plate in Chinese sets its captions and key in Chinese", async () => {
     plate.legend.slice(0, 7).map(({ label }) => label),
     [
       "提交前 7 日内",
-      "提交前 90 日内",
+      "提交前超过 7 日、90 日内",
       "更早",
       "提交日 2026-11-10",
       "20 KB：条长是组件拥有的文件大小",
@@ -105,7 +105,7 @@ test("a band is named by its days before the commit, and the key shows only what
     shape: "band",
     band: 1,
     color: INDIGO.dye.mid,
-    label: "within 365 days",
+    label: "over 7 and within 365 days of the commit",
   });
   // A sample under a kilobyte is given in bytes: 200 B where the largest part is 400 B.
   assert.deepEqual(
@@ -246,10 +246,11 @@ test("a caption counts one file in the singular in every language that has one",
   assert.equal(wordsOf("en").files(1, "2 KB"), "1 file, 2 KB");
   assert.equal(wordsOf("es").files(1, "2 KB"), "1 archivo, 2 KB");
   assert.equal(wordsOf("es").files(3, "2 KB"), "3 archivos, 2 KB");
-  // A band of one day, were an edition to count one, reads in the singular too.
+  // A newest band of one day, were an edition to count one, reads in the singular too. The middle band ends
+  // after it begins, so its upper bound is two days at the least and stands in the plural.
   const bands = (locale) => measureWordsOf(locale)["file-age-band"];
   assert.equal(bands("en").newest(1), "within 1 day of the commit");
-  assert.equal(bands("en").middle(1), "within 1 day");
+  assert.equal(bands("en").middle(1, 2), "over 1 and within 2 days of the commit");
   assert.equal(bands("es").newest(1), "en el día previo al commit");
-  assert.equal(bands("es").middle(1), "en el día previo");
+  assert.equal(bands("es").middle(1, 2), "más de 1 y hasta 2 días antes del commit");
 });

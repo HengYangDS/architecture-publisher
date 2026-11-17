@@ -211,7 +211,8 @@ export function stripKey(model, view, style, drawn) {
   // such as "this week", which would read from the day the plate is read.
   const [newest, middle] = facts.spans.map((span) => Math.round(span / 86400));
   const bands = measures["file-age-band"];
-  const names = [bands.newest(newest), bands.middle(middle), bands.oldest];
+  // The middle band is named by both its bounds, so no reader takes it to hold the newest band's files.
+  const names = [bands.newest(newest), bands.middle(newest, middle), bands.oldest];
   /** @type {Array<{ shape: string, label: string, [field: string]: unknown }>} */
   const key = [0, 1, 2]
     .filter((band) => shown.has(band))
