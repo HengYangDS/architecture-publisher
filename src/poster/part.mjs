@@ -93,6 +93,22 @@ export function partBoxes({
     caption.count && (form === "under" || oneLine(caption) > inner) ? 2 : 1;
   const detailTexts = (component) =>
     stated(component).map(([key, values]) => detailText(words, key, values));
+  /**
+   * The regions of one row of cards, so each region of every card stands at one top across the row: the height of
+   * the tallest name, the thickness of the strip's band where any card of the row has a strip (0 otherwise), the
+   * height of the tallest caption and of the most details.
+   * @param {Array<{ component: any, width: number }>} cards
+   */
+  const row = (cards) => {
+    const set = cards.map(({ component, width }) => text(component, width));
+    const most = (count) => Math.max(0, ...set.map(count));
+    return {
+      name: most(({ name }) => name.length) * styles.name.line,
+      strip: most(({ strip }) => (strip ? strip.thickness : 0)),
+      caption: most(({ captionLines }) => captionLines) * styles.detail.line,
+      details: most(({ details }) => details.length) * styles.detail.line,
+    };
+  };
   const text = (component, width) => {
     const { strip, caption } = factsOf(component);
     const inner = width - 2 * card.pad;
@@ -146,6 +162,23 @@ export function partBoxes({
         (strip ? card.detailGap + strip.thickness : 0) +
         card.detailGap +
         (caption + details.length) * styles.detail.line
+      );
+    },
+    row,
+    /**
+     * The height of a row of cards whose regions stand on shared lines: its padding, the tallest name, the strip's
+     * band where any card has a strip, the tallest caption and the most details.
+     * @param {Array<{ component: any, width: number }>} cards
+     */
+    rowHeight: (cards) => {
+      const { name, strip, caption, details } = row(cards);
+      return (
+        2 * card.pad +
+        name +
+        (strip ? card.detailGap + strip : 0) +
+        card.detailGap +
+        caption +
+        details
       );
     },
     text,
@@ -207,15 +240,17 @@ function iconMarkup(icons, name, x, y, size, color) {
 /**
  * Draw one part as its card, over the whole of its box: its outline on its ground, in its status's dashes when it
  * is planned or retired, and the bar of its category; then from its top its name, its strip, its caption, which
- * opens with its kind's icon, and its details as one block, so a card shorter than its row's tallest keeps its
- * spare height at its foot. In a card too narrow for its caption on one line the count stands under the kind, from
+ * opens with its kind's icon, and its details, each region at the top its row gives it, so the cards of a row are
+ * read across on shared lines and a card with less keeps its spare height where its region is short. In a card too narrow for its caption on one line the count stands under the kind, from
  * the card's left padding. The card counts as mass across its whole surface, as a reader sees it, and each segment
  * of its strip as mass as dark as its dye. It hands back the box.
  * @param {{ x: number, y: number, width: number, height: number, model: any, component: any,
  *   text: ReturnType<ReturnType<typeof partBoxes>["text"]>, styles: any, card: any, icons: any,
  *   colors: ReturnType<typeof import("./tokens.mjs").colorsOf>,
- *   lines: ReturnType<typeof import("./tokens.mjs").linesOf> }} part
- *   `card` is the card metrics at the figure's step
+ *   lines: ReturnType<typeof import("./tokens.mjs").linesOf>,
+ *   row?: { name: number, strip: number, caption: number, details: number } }} part
+ *   `card` is the card metrics at the figure's step; `row` the regions of the part's row, at whose tops its own
+ *   regions stand
  * @param {{ text: Function, shapes: string[], rects: any[], typefaces: any }} draw
  *   `typefaces` measures a count and gives a line's baseline
  */
@@ -238,12 +273,16 @@ export function drawPart(part, draw) {
   const left = x + card.pad;
   let top = y + card.pad;
   const ink = component.status === "retired" ? C.muted : C.ink;
-  for (const line of text.name)
-    top = draw.text("cards", line, left, top, styles.name, ink, component.id);
-  if (text.strip) {
+  for (const [index, line] of text.name.entries())
+    draw.text("cards", line, left, top + index * styles.name.line, styles.name, ink, component.id);
+  // Each region starts where the row's region starts, so the cards of a row are read across on shared lines.
+  const { row } = part;
+  top += row ? row.name : text.name.length * styles.name.line;
+  const band = row ? row.strip : text.strip ? text.strip.thickness : 0;
+  if (band) {
     top += card.detailGap;
-    drawSegments({ x: left, y: top, strip: text.strip, colors: C }, draw);
-    top += text.strip.thickness;
+    if (text.strip) drawSegments({ x: left, y: top, strip: text.strip, colors: C }, draw);
+    top += band;
   }
   top += card.detailGap;
   const { kind, count } = text.caption;
@@ -253,6 +292,7 @@ export function drawPart(part, draw) {
   const middle = draw.typefaces.baseline(top, styles.detail) - MARK.middle * styles.detail.size;
   draw.shapes.push(iconMarkup(part.icons, look.icon, left, middle - size / 2, size, hue));
   draw.text("cards", kind, left + size + MARK.gap, top, styles.detail, C.muted);
+  const captionTop = top;
   if (count && text.captionLines === 2) {
     // The count under the kind, from the card's left padding, as a line of the caption.
     top += styles.detail.line;
@@ -271,7 +311,7 @@ export function drawPart(part, draw) {
       text.counts,
     );
   }
-  top += styles.detail.line;
+  top = captionTop + (row ? row.caption : text.captionLines * styles.detail.line);
   for (const [index, line] of text.details.entries())
     top = draw.text("cards", line, left, top, styles.detail, C.muted, null, text.spread[index]);
   return { x: fixed(x), y: fixed(y), width, height };

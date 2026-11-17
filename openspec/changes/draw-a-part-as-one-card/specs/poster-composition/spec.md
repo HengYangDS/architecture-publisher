@@ -72,6 +72,19 @@ the name would stand SHALL move the name to the right, clear of it.
 - **WHEN** a plate with a boundary is drawn at any type step and no wire crosses the top edge near the name
 - **THEN** the boundary's name and the names of the leftmost cards inside it start at one x
 
+### Requirement: The regions of a row
+
+The cards of one row SHALL set each region at one top across the row: the
+name block as tall as the row's tallest name, the strip's band where any card
+of the row has a strip, and the caption as tall as the row's tallest caption,
+so the captions of a row stand on one baseline. A row SHALL be as tall as these
+regions and its most details together, within its cards' padding.
+
+#### Scenario: Names of one and two lines in a row
+
+- **WHEN** a row holds a card whose name takes two lines beside a card whose name takes one and which owns no file
+- **THEN** the two cards' captions stand on one baseline
+
 ### Requirement: Runs of a part's text without word spaces
 
 In an edition whose language is written without spaces between words, the run

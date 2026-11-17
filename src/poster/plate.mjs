@@ -114,8 +114,10 @@ function candidateMetrics(input) {
       ),
       natural: boxes.width,
       height: boxes.height,
+      rowHeight: boxes.rowHeight,
     },
     cardText: boxes.text,
+    cardRow: boxes.row,
     broken: boxes.broken,
     label: (relation, maxWidth = wire.maximumLabel) => {
       const width = Math.min(maxWidth, wire.maximumLabel);
@@ -191,6 +193,7 @@ function attempt(input) {
       offset,
       style: input.style,
       cardText: input.metrics.cardText,
+      cardRow: input.metrics.cardRow,
     });
   // The layout centres the span of its cards. A figure whose single-card rows
   // stand off the middle of its wide rows, or whose wires run down one side, is

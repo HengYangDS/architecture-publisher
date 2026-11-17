@@ -27,19 +27,19 @@ const typeset = await typesetWork(works.grouped);
  * whole editions, before and after, holds them.
  */
 const BEFORE = Object.freeze({
-  "strips/01-architecture.svg": "0a06d5286f145d27de38a49a34878267efad92dc68a81feeb42c1372a3d024e4",
-  "strips/01-architecture.runs": "195d70abb1299baba96fc5f94e4459e8fc623eefae372eeb3d0b5499d1014ac7",
+  "strips/01-architecture.svg": "1c396eec1ce1f1a224a970a701ac76e6dd153c27d0df68dbd944aba29ef4dc5e",
+  "strips/01-architecture.runs": "7a494de11e2c15804fe3b90c2bee0389cfc05a34b091a1f8a40606b40b5b4a2f",
   "strips/01-architecture.legend":
     "19958dc661158600e9c32721bf21057b4c449f7f71eb498eaca8e42e33c79ac5",
   "cards/01-architecture.svg": "d1ba9b691c0ce13d5bef9770f58ab3bbd01f87f2831865cb280ba8488e208b44",
   "cards/01-architecture.runs": "aa367ce1ac80634b6ae91ab20f46505cfa303f0e96f163127749ce6efb66fec6",
   "cards/01-architecture.legend":
     "94d7fe87bc178be13a4cc84d870e3e21cbe9b9578d1814f1ad465f8fbab5e453",
-  "grouped/01-overview.svg": "e2b5d7ebea9d996526d1a76e07c5716b175852b4d8792ab474f469a4b00d6a4c",
-  "grouped/01-overview.runs": "98e0e4c6c34564bd3edb1b7e68f737d26177247caa4ca32c03e27c4bf85e2aea",
+  "grouped/01-overview.svg": "97eec2f2b9f973066ba439e770f86c5d40c2c33eff296c724a5a6fec8016e6fd",
+  "grouped/01-overview.runs": "9f279b8d02ae1a5b74babcdb31720e5b1cc2e65a98dd32e6c84a58ca16ce6a0b",
   "grouped/01-overview.legend": "4c4d68e0c981d421f82a49a10080569923eb9de9ed95733842b2bcf81b85f3a7",
-  "grouped/02-pipeline.svg": "4e3c18d8342a2fbf8bd38cf3b293375aec842be43d41aa74e0953187727724b4",
-  "grouped/02-pipeline.runs": "195d70abb1299baba96fc5f94e4459e8fc623eefae372eeb3d0b5499d1014ac7",
+  "grouped/02-pipeline.svg": "0cca1791a1542921f8ae994ddff9324f7058e1c0036323cdd3a9a310e57f181f",
+  "grouped/02-pipeline.runs": "7a494de11e2c15804fe3b90c2bee0389cfc05a34b091a1f8a40606b40b5b4a2f",
   "grouped/02-pipeline.legend": "c5c474d3662262de72de2795867060fdd9afa60dc220158efccbfa31cb494fc2",
 });
 

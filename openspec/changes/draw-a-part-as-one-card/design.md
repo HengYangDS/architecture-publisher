@@ -111,6 +111,17 @@ strip's entries with strips.
    - Chosen because: a key's words are held true to what the engine measures for any work; an entry that is true
      of two bands is not.
    - Applies to: the words of `file-age-band` in the five languages and the key of every plate that shows the band.
+9. The regions of the cards of one row stand at one top across the row.
+   - Rests on: `docs/research/figure-language.md` ("Tidy and full, by mechanism": alignment comes from the
+     construction), and the tidiness measure of the twelve acceptance editions: on a plate of DDWG in English a
+     card's detail stood 2.7 pt off the next card's count, because one card's name took two lines and its
+     neighbour's one.
+   - Considered: aligning only the captions; leaving each card's regions at its own top.
+   - Chosen because: a row is read across; a name of two lines beside one of one, or a card without a strip beside
+     one with a strip, set every later region a line apart, which a reader sees as a line that just misses.
+   - Applies to: every row of every plate: the name block as tall as the row's tallest name, the strip's band where
+     any card of the row has a strip, the caption as tall as the row's tallest caption; a row is as tall as these
+     together.
 
 ## Risks / Trade-offs
 

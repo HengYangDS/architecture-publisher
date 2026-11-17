@@ -172,7 +172,8 @@ function tierLabels(layout, input, draw) {
  *   tierLabels?: "column" | "edges",
  *   offset?: number,
  *   style: import("./strip.mjs").Style,
- *   cardText: (component: any, width: number) => any }} input
+ *   cardText: (component: any, width: number) => any,
+ *   cardRow?: (cards: Array<{ component: any, width: number }>) => any }} input
  *   `offset` moves the figure across its field; its tier labels follow their rows.
  *   `style` holds the tokens the figure is drawn in and the edition's measured facts.
  */
@@ -291,6 +292,19 @@ export function drawFigure(layout, input) {
   for (const { status } of view.components)
     if (status && status !== "implemented") rows.add(status);
   shapes.push(cardLift(C));
+  // The cards of one row share their top; each row's regions stand at one top across it.
+  /** @type {Map<number, Array<{ component: any, width: number }>>} */
+  const rowsByTop = new Map();
+  for (const [id, card] of layout.cards) {
+    const key = Math.round(card.y * 100);
+    rowsByTop.set(key, [
+      ...(rowsByTop.get(key) ?? []),
+      { component: components.get(id), width: card.width },
+    ]);
+  }
+  const regionsOf = new Map(
+    [...rowsByTop].map(([key, cards]) => [key, input.cardRow ? input.cardRow(cards) : undefined]),
+  );
   /** @type {Array<{ id: string, group?: boolean, box: { x: number, y: number, width: number, height: number } }>} */
   const parts = [];
   for (const [id, card] of layout.cards) {
@@ -309,6 +323,7 @@ export function drawFigure(layout, input) {
         icons,
         colors: C,
         lines,
+        row: regionsOf.get(Math.round(card.y * 100)),
       },
       { text, shapes, rects, typefaces },
     );

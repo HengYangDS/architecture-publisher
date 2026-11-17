@@ -46,7 +46,7 @@ None.
   file facts" and "The grounds in a key" are added.
 - `poster-composition`: new requirements "One part", "A caption that breaks" and "Details where a plate has the
   room"; "Cards as large as their text", "Strips sized by their files", "Strips keep to their boxes", "Citation
-  counts and the hub", "Plate drawing" and "Age bands" change; "The boundary's name on its cards' text edge" is added; "Runs of details without word spaces" becomes "Runs of a part's
+  counts and the hub", "Plate drawing" and "Age bands" change; "The boundary's name on its cards' text edge" and "The regions of a row" are added; "Runs of details without word spaces" becomes "Runs of a part's
   text without word spaces"; "Marks keep the gates" is removed.
 - `value-table`: "One meaning for each value of a channel", "Lines told apart without colour" and "Plates draw only
   the table's values" speak of a plate where they spoke of a strip plate, and no longer of the outline of a part
