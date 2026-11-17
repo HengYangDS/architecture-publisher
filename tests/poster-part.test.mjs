@@ -108,9 +108,9 @@ test("a part that owns files is one card: its outline, its name, its strip, its 
   const box = outlineOf(plate, "builder");
   assert.ok(box, "no outline around the builder");
   assert.equal(box.fill, INDIGO.figure.card);
-  // Its strip lies within the outline, on the edition's one scale: 21 KB where the largest part's 56 KB is 360 px.
+  // Its strip lies within the outline, on the edition's one scale: 21 KB where the largest part's 56 KB is 320 px.
   const strip = stripOf(plate, "builder");
-  assert.ok(Math.abs(lengthOf(strip) - (360 * 21000) / 56000) <= 0.15, String(lengthOf(strip)));
+  assert.ok(Math.abs(lengthOf(strip) - (320 * 21000) / 56000) <= 0.15, String(lengthOf(strip)));
   assert.equal(strip[0].fill, INDIGO.dye.new);
   const pad = strip[0].x - box.x;
   assert.ok(pad >= 8, String(pad));

@@ -27,20 +27,20 @@ const typeset = await typesetWork(works.grouped);
  * whole editions, before and after, holds them.
  */
 const BEFORE = Object.freeze({
-  "strips/01-architecture.svg": "cab615964bc731e242e47e304440bdb4144e1889471a78c8f31175f014802e3a",
+  "strips/01-architecture.svg": "e0babfd5e57ce79daea417879fd6979258865677dd36d9e08d5b026334fc79dc",
   "strips/01-architecture.runs": "d1040b057a52e2a5750acb70d334057f608617be0685fa8516fa5ebe983f6d38",
   "strips/01-architecture.legend":
-    "f86a0361dfe21c3848ad617f7ba833e0173f128f31e83f5c9e6ce319c090746b",
+    "b3c45a6ab68fae178d76b8098aa7f5f7831bd2897aacc4284cb855b050177dc8",
   "cards/01-architecture.svg": "8177542c4d6cbf7b02967ee96e9e13d5f1a4f6920b1e632ba92eda834e23b5fe",
   "cards/01-architecture.runs": "adad0c2cdfb30a007a30dd02fe6bedec0ac530d75d8e1e8cd79c86d9b7dfce43",
   "cards/01-architecture.legend":
     "94d7fe87bc178be13a4cc84d870e3e21cbe9b9578d1814f1ad465f8fbab5e453",
-  "grouped/01-overview.svg": "58dd57e66ab39dd9e99ce030fe31dc625bce3444cc603af7c8bb8e07933f6f08",
+  "grouped/01-overview.svg": "1694dad062cf52b694ca6dd83e890a9b5349b0eab3e1c6e68674f01c0746d72c",
   "grouped/01-overview.runs": "627a020e6f4a5a724fbaf0dc28446b3963895b1285d83b262ed41920892b76db",
-  "grouped/01-overview.legend": "1fa050d2d12352cadf960a7ce01b9813b877672de85430db5701d6e28273acd7",
-  "grouped/02-pipeline.svg": "dd99d769ca88cd5221d9c16dd8ac992761d8414c7a726695ef584f6ddc19eebc",
+  "grouped/01-overview.legend": "375182de1536a06c23199b29dfeaca0332398b1391162c2849fde3fb59ef52ac",
+  "grouped/02-pipeline.svg": "c2ddb528489b01a7081c6a8de54d4c7844d83fca02db304484f403b37da43a12",
   "grouped/02-pipeline.runs": "d1040b057a52e2a5750acb70d334057f608617be0685fa8516fa5ebe983f6d38",
-  "grouped/02-pipeline.legend": "f86a0361dfe21c3848ad617f7ba833e0173f128f31e83f5c9e6ce319c090746b",
+  "grouped/02-pipeline.legend": "b15496312a08f5e1f54f8de79aabd952c2fa25f1910b4bcf32cfe882f97db963",
 });
 
 test("a drawing that reports what it drew draws the same bytes: shapes, runs and keys", () => {

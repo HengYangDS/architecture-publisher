@@ -34,7 +34,7 @@ const DASH = Object.freeze({
 });
 
 /** The largest part's strip, in px: every other part's strip is as long for its share of the largest's bytes. */
-const LONGEST = 360;
+const LONGEST = 320;
 /** The bytes of the largest part of the strip work, the supplies. */
 const MOST = 56000;
 

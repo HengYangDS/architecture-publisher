@@ -55,18 +55,42 @@ strip's entries with strips.
    - Chosen because: a mark's meaning written where the mark stands needs no looking up, and a key of fifteen
      entries in four sorts was what the owner found inelegant on 2026-11-16.
    - Applies to: every card's caption and every plate's key. The key keeps its place and its two lines here.
-5. A part shows every detail it states.
-   - Rests on: `docs/research/figure-language.md`, "Measured on 2026-11-16": showing the leading detail alone gives
-     no type step back on the plates measured.
-   - Considered: the leading detail alone, as strips do today.
-   - Chosen because: what a part answers for is what a card is for, and hiding it bought nothing measurable. Which
-     size of a part a figure takes is a later choice of the figure, not of this Change.
-   - Applies to: every card. It costs crossings on dense views, which `compositions` answers.
+5. A plate is composed for compact cards, and its cards take their details where it has the room.
+   - Rests on: `docs/research/figure-prototypes.md` (`one-anatomy`: the card without fact text is the default, and
+     whether a whole view holds every part's text is a property of the view) and
+     `docs/research/figure-language.md`, "Measured on 2026-11-17": on the eleven plates of one work, cards that set
+     every detail raise crossings from 17 to 29 and route defects from 6 to 16 against today's strips and lower
+     the sum of type steps from 11 to 6; cards that set the leading detail alone cost as much (29 and 13, 7);
+     compact cards stand at 20 and 10 with a sum of steps of 13.
+   - Considered: every detail on every card (the first build of this Change); the leading detail alone, as strips
+     show today; a ranking that puts details before the type step.
+   - Chosen because: any detail widens a card as far as a line of it runs, so one costs as much as all, and the
+     cost falls on wiring and type, which a reader of a projected plate meets first. A plate is therefore laid
+     out for its parts' names, strips, kinds and counts, and what its parts state is added only when the
+     composition chosen holds it at the same type step with wiring no worse. What a part answers for stays in
+     the reader file and on the page, and gets a plate of its own with `carriers`.
+   - Applies to: every plate of the landscape edition. The portrait edition, made for reading, may choose
+     otherwise by its own Change.
+6. The edition's longest strip is 320 px, and 208 px on its shorter scale.
+   - Rests on: `docs/research/figure-language.md`, "Measured on 2026-11-17": on one dense view every candidate was
+     printed with what it made or why it was refused. As bare strips six parts stood in one row at the two densest
+     type steps, with 5 crossings; as cards no row of six was made at any step, and the view stood at 10. A column
+     of a row of six is 328 and 321 px wide at those steps, and a card is wider than its strip by twice its
+     padding, 32 px. With the scale at 320 px the row of six is made again, with 5 crossings and 1 route defect.
+     Neither the card's least width nor a padding of 12 in place of 20 changed that view.
+   - Considered: a strip that runs to the card's edges; a smaller padding at the dense steps; a least width for
+     each column in place of one for the view, which is a change of the lattice.
+   - Chosen because: the scale is the one number that gives a card the footprint its bare strip had, and it is a
+     token of the strip, not a change of the engine. 320 px is the longest length on the 8 px grid at which a
+     strip that a row of six held bare is still held within its card; 208 px keeps the ratio for the shorter
+     scale. A strip is 11 % shorter on every plate and still measures what it measured.
+   - Applies to: every edition that draws strips.
 
 ## Risks / Trade-offs
 
-- [Cards are larger than strips: on the 17 Chinese plates of two works crossings rose from 26 to 38] → Recorded by
-  the plates' own measures and shown with the works; `compositions` chooses a composition for dense views.
+- [A plate shows less of what its parts state than a strip plate, which set each part's leading detail] → Where a
+  plate has the room its cards set every detail; the reader file and the page hold all of them; a part opened on
+  a plate of its own comes with `carriers`.
 - [A key without kinds may be asked for again] → The reading page of the next Change lists a work's kinds once; the
   key's entries are data, and one line of `legendOf` puts kinds back.
 - [Every delivered plate changes] → One breaking release; the six works are rebuilt and looked at whole.

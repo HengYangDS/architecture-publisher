@@ -55,7 +55,7 @@ test("an edition whose parts claim files is dated by the pin's commit in its key
     }),
     checkout,
   );
-  assert.equal(manifest.style.longest, 360);
+  assert.equal(manifest.style.longest, 320);
   // The key's commit date and the bands' spans, as the style records them.
   assert.deepEqual(manifest.style.bands, { spans: [7 * 86400, 90 * 86400], reference: date });
   assert.deepEqual(

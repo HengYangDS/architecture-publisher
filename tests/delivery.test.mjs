@@ -236,7 +236,7 @@ test("files verified against the checkout are recorded and cited on the page at 
       reference: git("show", "-s", "--format=%cs", revision),
     },
     // Its largest part is drawn at the longest length, since every view holds its strips at that length.
-    longest: 360,
+    longest: 320,
   });
   assert.equal(manifest.page.quality, "showcase");
   assert.deepEqual(data.statements.components[0].files, ["src/"]);

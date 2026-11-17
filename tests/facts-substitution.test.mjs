@@ -116,8 +116,8 @@ test("a plate drawn from a false size shows it in the part's strip and caption",
   assert.equal(held.part({ id: "a" }).bytes, 100000, "the part's files hold 100000 bytes");
   const texts = plate.runs.map(({ text }) => text);
   assert.ok(texts.includes("1 file, 1 KB"), "the caption gives the files' bytes, not the layer's");
-  // 1000 bytes on a scale of 100000, at the longest strip's 360 px.
-  assert.ok(Math.abs(lengthOf(stripOf(plate, "a")) - 3.6) <= 0.15);
+  // 1000 bytes on a scale of 100000, at the longest strip's 320 px.
+  assert.ok(Math.abs(lengthOf(stripOf(plate, "a")) - 3.2) <= 0.15);
 });
 
 test("the edition's record takes a part's first file, the files read, the date and the release from the layer", () => {

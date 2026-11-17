@@ -29,10 +29,15 @@ const MARK = Object.freeze({ gap: 5 * HOUSE.plate.pixelsPerPoint, middle: 0.36 }
  * name, its strip, its caption and its details within its padding; and broken where an atom of its text is wider
  * than its line. A card as wide as its field divides into is a panel of paper around a short line; a card as wide
  * as its regions reads as a card.
- * @param {{ model: any, typefaces: any, styles: any, card: any, style: import("./strip.mjs").Style }} input
- *   `card` is the card metrics at this step
+ * A compact card leaves its part's details out: a plate is composed for compact cards, and its cards take their
+ * details where the composition has the room.
+ * @param {{ model: any, typefaces: any, styles: any, card: any, style: import("./strip.mjs").Style,
+ *   details?: boolean }} input
+ *   `card` is the card metrics at this step; `details` is false for compact cards
  */
-export function partBoxes({ model, typefaces, styles, card, style }) {
+export function partBoxes({ model, typefaces, styles, card, style, details = true }) {
+  /** The details a card sets of its part: all the part states, or none on a compact card. */
+  const stated = (component) => (details ? component.details : []);
   const words = wordsOf(model.locale);
   const unspaced = writtenUnspaced(model.locale);
   const measure = (text, textStyle) => typefaces.measure(text, textStyle);
@@ -71,13 +76,13 @@ export function partBoxes({ model, typefaces, styles, card, style }) {
     kindWidth(caption) + (caption.count ? 2 * styles.detail.size + countWidth(caption) : 0);
   const captionLines = (caption, inner) => (caption.count && captionWidth(caption) > inner ? 2 : 1);
   const detailTexts = (component) =>
-    component.details.map(([key, values]) => detailText(words, key, values));
+    stated(component).map(([key, values]) => detailText(words, key, values));
   const text = (component, width) => {
     const { strip, caption } = factsOf(component);
     const inner = width - 2 * card.pad;
     // Every detail wraps to one measure, which its spread lines end at.
     const measured = Math.min(inner, lines.detail);
-    const details = component.details.map(([key, values]) =>
+    const set = stated(component).map(([key, values]) =>
       detailLines(words, key, values, measured, styles.detail),
     );
     return {
@@ -90,8 +95,8 @@ export function partBoxes({ model, typefaces, styles, card, style }) {
         caption.count && unspaced
           ? { set: typefaces.typesetWidth(caption.count, styles.detail) }
           : null,
-      details: details.flat(),
-      spread: spreadOf(details, measured, styles.detail, detailWidth, unspaced),
+      details: set.flat(),
+      spread: spreadOf(set, measured, styles.detail, detailWidth, unspaced),
     };
   };
   return {

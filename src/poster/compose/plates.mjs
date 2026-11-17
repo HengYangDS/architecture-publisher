@@ -156,8 +156,9 @@ function balanceOfPlate(one, typefaces, width, height, paper) {
  * @param {import("../../plan/views.mjs").View} view
  * @param {number} [width]
  * @param {number} [height]
+ * @param {{ details?: boolean, steps?: number[] }} [cards] compact cards at every step unless said otherwise
  */
-function* compositions(scene, view, width = BODY.width, height = BODY.height) {
+function* compositions(scene, view, width = BODY.width, height = BODY.height, cards = {}) {
   const { model, typefaces, icons, style } = scene;
   const boundaryName = model.repository?.name ?? model.title;
   const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
@@ -175,7 +176,7 @@ function* compositions(scene, view, width = BODY.width, height = BODY.height) {
   for (const tierLabels of column ? ["column", "edges"] : ["column"])
     for (const centring of centrings) {
       const [one] = platesOf(
-        { model, typefaces, icons, boundaryName, centring, tierLabels, style },
+        { model, typefaces, icons, boundaryName, centring, tierLabels, style, ...cards },
         plate,
       );
       if (one) yield { one, centring, tierLabels };
@@ -219,11 +220,12 @@ export function admitsView(model, view, typefaces, icons, style = HOUSE_STYLE) {
  * @param {import("../../plan/views.mjs").View} view
  * @param {number} width
  * @param {number} [height]
+ * @param {{ details?: boolean, steps?: number[] }} [cards]
  */
-function bestWithin(scene, view, width, height = BODY.height) {
+function bestWithin(scene, view, width, height = BODY.height, cards = {}) {
   const candidates = [];
   const paper = scene.style.tokens.palette.paper;
-  for (const { one, centring, tierLabels } of compositions(scene, view, width, height)) {
+  for (const { one, centring, tierLabels } of compositions(scene, view, width, height, cards)) {
     const balance = balanceOfPlate(one, scene.typefaces, width, height, paper);
     const { crossings, routes } = one.layout.measures;
     const rank = [
@@ -310,6 +312,24 @@ function widthOf(scene, view, full) {
 }
 
 /**
+ * A plate's composition with its cards' details, where it has the room. A plate is composed for compact cards, so
+ * what its parts state costs it neither wiring nor type; the view is then laid out once more with every card's
+ * details, in the same width and height and at the same type step, and that composition is taken when it wires no
+ * worse. A view whose parts state nothing keeps its compact cards.
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} compact the composition chosen for the plate
+ */
+function withDetails(scene, view, compact) {
+  if (!view.components.some((component) => component.details.length)) return compact;
+  const detailed = bestWithin(scene, view, compact.width, compact.height, {
+    details: true,
+    steps: [compact.one.step],
+  });
+  return detailed && wiresNoWorse(detailed, compact) ? detailed : compact;
+}
+
+/**
  * Compose every view of a model as one plate each, its figure at the width the plate width rule gives it: the
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
  * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
@@ -326,7 +346,8 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
   return views.map((view, index) => {
     const full = bestWithin(scene, view, BODY.width);
     if (!full) unfittable(view);
-    const { chosen, share, reading, standfirst } = widthOf(scene, view, full);
+    const { chosen: compact, share, reading, standfirst } = widthOf(scene, view, full);
+    const chosen = withDetails(scene, view, compact);
     const { one, centring, tierLabels, balance, width, height } = chosen;
     const legend = legendOf(model, view, boundaryName, style, one.figure.lines);
     return {
@@ -363,7 +384,14 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
       lines: one.figure.lines,
       touching: one.figure.touching,
       report: one.figure.report,
-      composition: { step: one.step, wrap: one.limit, flat: one.flat, centring, tierLabels },
+      composition: {
+        step: one.step,
+        wrap: one.limit,
+        flat: one.flat,
+        centring,
+        tierLabels,
+        details: one.details,
+      },
       measures: {
         crossings: one.layout.measures.crossings,
         routes: one.layout.measures.routes,

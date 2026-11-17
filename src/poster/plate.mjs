@@ -96,10 +96,10 @@ function layoutFor(style, view, rows, metrics, key, boundaryName) {
  * how large it really is. Every part is one card, with the regions it has the facts for.
  */
 function candidateMetrics(input) {
-  const { model, view, typefaces, styles, metrics, field, style } = input;
+  const { model, view, typefaces, styles, metrics, field, style, details } = input;
   const { card, wire, spacing } = metrics;
   const words = wordsOf(model.locale);
-  const boxes = partBoxes({ model, typefaces, styles, card, style });
+  const boxes = partBoxes({ model, typefaces, styles, card, style, details });
   return {
     // The field already excludes the tier-label column, so it is the content width.
     contentWidth: () => field.width,
@@ -301,10 +301,15 @@ function brokenText(input, layout) {
   return null;
 }
 
-/** Every composition of one plate, best first. */
+/**
+ * Every composition of one plate, best first: of its parts' compact cards, or with `details` of cards that set
+ * what their parts state; at every type step, or at the `steps` given alone.
+ */
 export function platesOf(input, plate) {
   const found = [];
+  const details = input.details === true;
   for (const [index, step] of POSTER.steps.entries()) {
+    if (input.steps && !input.steps.includes(index)) continue;
     const styles = figureStyles(step);
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
@@ -321,7 +326,7 @@ export function platesOf(input, plate) {
           icons: input.icons,
           styles,
           rows,
-          key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}`,
+          key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}|${details}`,
           field: plate.field,
           labelColumn: plate.labelColumn,
           tierLabels: input.tierLabels,
@@ -337,6 +342,7 @@ export function platesOf(input, plate) {
               metrics,
               field: plate.field,
               style: input.style,
+              details,
             }),
             centring,
             clearTurns,
@@ -358,7 +364,7 @@ export function platesOf(input, plate) {
             clearTurns ? 0 : 1,
             offCenter(made.figure.rects, plate.field),
           ],
-          plate: { step: index, limit, flat, ...made },
+          plate: { step: index, limit, flat, details, ...made },
         });
       }
     }

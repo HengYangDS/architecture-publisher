@@ -18,6 +18,12 @@ part is one card of regions, each drawn where the part has the fact.
   refusal `marks_need_files` are gone.
 - A caption too wide for its card sets the count on a line of its own under the kind, so a narrow card no longer
   costs its plate a type step.
+- A plate is composed for its parts' compact cards, and its cards set what their parts state only where the
+  composition chosen holds it at the same type step with wiring no worse. A plate's record says whether its
+  cards set their details.
+- **BREAKING** The edition's longest strip is 320 px, and 208 px on its shorter scale, where bare strips ran 360
+  and 240 px: a strip stands within its card's padding, and a row of six parts that held a strip bare holds it
+  in its card.
 - A plate's key lists no kind: each card names its kind beside the kind's icon. The key keeps what a card cannot
   say where it stands: the strip's scale, bands and date, the count beside a relation, the hub's line, the
   statuses and the ground of a part outside the repository. A neighbour that a group's view shows as context
@@ -38,7 +44,8 @@ None.
 - `edition-delivery`: "Plate head and key" and "Key samples from the value table" change; "Edition marks in the
   manifest" becomes "Edition palette in the manifest"; "Mark defaults and fallback" is removed; "A part without
   file facts" and "The grounds in a key" are added.
-- `poster-composition`: new requirements "One part" and "A caption that breaks"; "Cards as large as their text",
+- `poster-composition`: new requirements "One part", "A caption that breaks" and "Details where a plate has the
+  room"; "Cards as large as their text",
   "Strips sized by their files" and "Strips keep to their boxes" change; "Runs of details without word spaces"
   becomes "Runs of a part's text without word spaces"; "Marks keep the gates" is removed.
 

@@ -38,22 +38,23 @@ import { POSTER, colorsOf, figureMetrics, figureStyles, fixed, linesOf } from ".
 
 /**
  * A strip's measures in plate px, which the edition sets at one size on every
- * page, so one px of strip is one share of code on every plate. The largest
- * part is 480 px long: as long as a label at the largest type step may run
- * (16 em of 32 px is 512 px), so it widens its box little at that step, and
- * well inside the widest box (760 px) and the narrowest field a plate gives a
- * figure (65 percent of the body less the tier column, about 1186 px), so it
- * fits at every step; on the page it is 320 pt, 84 mm at A3. A part that owns
- * any code is at least 2 px, so it never vanishes. Every strip is 12 px thick,
- * 2 mm at A3, whatever its size or type step.
+ * page, so one px of strip is one share of bytes on every plate. A part that
+ * owns any bytes is at least 2 px, so it never vanishes. Every strip is 12 px
+ * thick, whatever its size or type step.
  */
 const STRIP = Object.freeze({ shortest: 2, thickness: 12 });
 
 /**
  * The lengths, in px, an edition may draw its largest part at, longest first: a strip is never shortened to fit
  * its column, so an edition whose views cannot hold its strips draws them all shorter, on one scale still.
+ *
+ * A strip stands within its card's padding, so a card is wider than its strip by twice the padding, 32 px at the
+ * two densest type steps. Bare strips ran 360 px, and a row of six columns, 328 and 321 px at those steps, held
+ * any strip as long as a column. 320 px is the longest length on the 8 px grid at which the same strip, on the
+ * shorter scale and inside its card, still stands in that column; 208 px keeps the ratio for the shorter scale,
+ * which was 240 px.
  */
-export const STRIP_LENGTHS = Object.freeze([360, 240]);
+export const STRIP_LENGTHS = Object.freeze([320, 208]);
 
 /**
  * The paper between two files of a strip, in px. A file narrower than it would

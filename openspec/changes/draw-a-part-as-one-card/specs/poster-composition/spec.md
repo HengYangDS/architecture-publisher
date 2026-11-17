@@ -4,22 +4,42 @@
 
 Every part SHALL be drawn as one card of regions, from its top: its name; the
 strip of the files it owns; a caption of its kind's icon before the kind's
-label, with the number and size of its files; and its details. Its outline
-SHALL tell its status and its ground whether it lies inside the repository. A
-region SHALL be drawn only where the part has the fact: a part that owns no
-file has no strip and no count.
+label, with the number and size of its files; and, where its plate has the
+room, its details. Its outline SHALL tell its status and its ground whether it
+lies inside the repository. A region SHALL be drawn only where the part has the
+fact: a part that owns no file has no strip and no count.
 
 #### Scenario: A part that owns files
 
 - **WHEN** a part owns one file of 21 KB and states one detail
-- **THEN** its card holds its name, its strip, its kind's icon and label with `1 file, 21 KB`, and the detail, in
-  that order from the top
+- **THEN** its card holds its name, its strip, its kind's icon and label with `1 file, 21 KB`, and, on a plate with
+  the room, the detail, in that order from the top
 
 #### Scenario: A part that owns no file
 
 - **WHEN** a part owns no file
 - **THEN** its card holds its name, its kind's icon and label and its details, and no strip, no count and no words
   that say it owns nothing
+
+### Requirement: Details where a plate has the room
+
+A plate SHALL be composed for its parts' compact cards, which set no details.
+Its cards SHALL set every detail their parts state exactly when the view can be
+laid out with them in the same width and height at the same type step with no
+more crossings and, at equal crossings, no more route defects. A plate's record
+SHALL say whether its cards set their details.
+
+#### Scenario: A plate with room
+
+- **WHEN** a view of six parts is composed at the largest type step and holds its parts' details there with the
+  same wiring
+- **THEN** every card sets its part's details, and the plate's record says so
+
+#### Scenario: Details that would cost type or wiring
+
+- **WHEN** a view's parts each state four long details that the composition chosen cannot hold at its type step
+- **THEN** no card sets a detail, and the plate has the crossings, the route defects and the type step it has when
+  its parts state nothing
 
 ### Requirement: A caption that breaks
 
@@ -89,8 +109,8 @@ wraps.
 
 A strip SHALL never be shortened to fit a column: no column of a view is
 narrower than its longest strip within its card's padding. When a view cannot
-hold the edition's strips, the edition SHALL draw every strip shorter, 360 px
-and then 240 px for its largest part, on one scale still, and plan its views
+hold the edition's strips, the edition SHALL draw every strip shorter, 320 px
+and then 208 px for its largest part, on one scale still, and plan its views
 again.
 
 #### Scenario: A strip keeps to its box
@@ -101,8 +121,8 @@ again.
 
 #### Scenario: A shorter scale for the edition
 
-- **WHEN** a view cannot be laid out with strips of 360 px for the largest part
-- **THEN** every plate of the edition draws its strips at 240 px for the largest
+- **WHEN** a view cannot be laid out with strips of 320 px for the largest part
+- **THEN** every plate of the edition draws its strips at 208 px for the largest
   part, and each key's sample strip shows that scale
 
 ## REMOVED Requirements
