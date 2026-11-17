@@ -80,8 +80,11 @@
   }))
   context {
     let lines = measure(box(width: if w == none { auto } else { w }, { set par(leading: pitch, spacing: pitch); set-text(body) }))
+    // A text set within a width records its glyphs' extent: its natural width when it stands on one line, the
+    // width it wraps in otherwise.
+    let width = calc.min(measure(set-text(body)).width, lines.width)
     let (ascent, descent) = _extent(_style(s, font, weight, fill, style), body)
-    _record(x, b - ascent, lines.width, lines.height + ascent + descent, body, s)
+    _record(x, b - ascent, width, lines.height + ascent + descent, body, s)
   }
 }
 

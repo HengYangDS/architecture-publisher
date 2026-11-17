@@ -335,20 +335,20 @@ in the full viewer.
 ## The overview
 
 The publisher draws the overview from the model's [statement](model.md#overview)
-with the house class, as it sets the title and contents pages: the masthead, the
-course across the first band, each step as wide as what it holds, and the blocks
-in the order stated, in halves and thirds chosen by measured height. A station
-is a ring, the course's ends larger, a fork's branches and spurs smaller; no other mark
-is drawn. A page too tall at the house's spacing is set closer, notes and texts
-a size smaller, and one too tall at both is refused with `overview_too_tall`,
-naming the first block that does not fit. The page is drawn in one root Typst
-may not leave, with only the house faces and the bundled Noto Sans CJK SC and no
-package; each text's glyph box is read back and must stay 48 pt from either side
-and 16 pt from the top and the bottom, over no other text. A character no face
-draws, and every Typst warning or error, is refused. The print edition sets the
-page in place with the edition's foot, so its text stays text; it is delivered
-as `images/00-overview.png` and at each other `--png` width, and the same inputs
-give the same bytes.
+as it sets the title and contents pages: the course across the first band, each
+step as wide as what it holds, and the blocks in the order stated, in halves and
+thirds chosen by measured height. A station is a ring, the course's ends larger,
+a fork's branches and spurs smaller; no other mark is drawn. A page too tall at
+the house's spacing is set closer, notes and texts a size smaller, and one too
+tall at both is refused with `overview_too_tall`, naming the first block that
+does not fit. The page is drawn in a root Typst may not leave, with only the
+house faces, Noto Sans CJK SC and no package; each text's glyph box is read back
+and must stay 48 pt from either side and 16 pt from the top and the bottom, over
+no other text and under no line or ring (`overview_text_over_line`). A character
+no face draws, and every Typst warning or error, is refused. The print edition
+sets the page in place with the edition's foot, so its text stays text; it is
+delivered as `images/00-overview.png` and at each other `--png` width, and the
+same inputs give the same bytes.
 
 ## The guide
 

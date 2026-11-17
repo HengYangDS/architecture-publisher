@@ -8,7 +8,7 @@ import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
-import { checkBoxes } from "./checks.mjs";
+import { checkBoxes, checkLines } from "./checks.mjs";
 import { requireOverviewGlyphs } from "./glyphs.mjs";
 
 /**
@@ -170,8 +170,8 @@ function refuseDiagnostics(stderr, roots) {
 
 /**
  * Check a model's overview before the edition sets it in place: Typst's drawing of it alone from the statement,
- * every text box inside the live area and clear of the others, and every character drawn by a bundled face. Hands
- * back the texts, the boxes read back and the marks it drew.
+ * every text box inside the live area and clear of the others and of every line and ring, and every character drawn
+ * by a bundled face. Hands back the texts, the boxes read back, and the marks and lines it drew.
  * @param {{ modelBytes: Buffer, writtenFrom?: string | null, revision: string | null, date: string | null,
  *   typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
@@ -190,7 +190,7 @@ export async function checkOverview(input) {
         typst,
         [
           "eval",
-          "(boxes: query(<archpub-box>).map(it => it.value), marks: query(<archpub-mark>).map(it => it.value))",
+          "(boxes: query(<archpub-box>).map(it => it.value), marks: query(<archpub-mark>).map(it => it.value), lines: query(<archpub-line>).map(it => it.value))",
           "--in",
           entry,
           "--root",
@@ -222,8 +222,9 @@ export async function checkOverview(input) {
       throw error;
     }
     refuseDiagnostics(result.stderr, roots);
-    const { boxes, marks } = JSON.parse(result.stdout);
+    const { boxes, marks, lines } = JSON.parse(result.stdout);
     checkBoxes(boxes);
+    checkLines(boxes, lines, marks);
     await requireOverviewGlyphs(boxes);
     const model = JSON.parse(input.modelBytes.toString("utf8"));
     return {
@@ -234,6 +235,7 @@ export async function checkOverview(input) {
       texts: boxes.map(({ text }) => text),
       boxes,
       marks,
+      lines,
     };
   } finally {
     await fs.rm(staged.root, { recursive: true, force: true });

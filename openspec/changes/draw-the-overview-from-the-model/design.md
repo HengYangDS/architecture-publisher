@@ -33,7 +33,8 @@ complete edition out, no page placed by hand.
    - Chosen because: the six pages hold the same few blocks; a block kind that the publisher knows can be laid out
      by measure, and its relations stated as fields (a step's stations, its tracks, a line's ends, the block a note
      belongs to).
-   - Applies to: `overview` in the model: `claim`, `lead`, `course` (`steps`, `lines`, `text`) and `blocks`, in the
+   - Applies to: `overview` in the model: `claim`, `lead`, `course` (`steps`, `lines`, `text`, `parallel`, `spurs`,
+     `passes`) and `blocks`, in the
      order the page sets them: further courses, lists, tables, groups of lists and headed texts, each with an
      optional text. A step's stations may include forks, whose branches are siblings with no order (a fan to
      clients, providers or topics, a split into two outputs). A stretch of the course, from one station to a later
@@ -41,7 +42,10 @@ complete edition out, no page placed by hand.
      and join three steps later, which tracks stated by step drew as three splits. A line joins points: a station, a
      branch, a spur or a step without stations; a step that holds stations is a run, not a point. A spur is a
      station beside the course that leaves one of its points (the publisher's LikeC4 import, AIGW's tokens and
-     model family); a line with an end at a spur runs under the course. Readers who stated the six pages found
+     model family); a line with an end at a spur runs under the course. A fork that ends the course sets its
+     branches side by side (DDWG's topics, the proxy's providers); one that another point follows splits the course
+     into a path for each branch, which join it again (the publisher's edition and page into its delivery, AIGW's
+     clients into their endpoints). A course may label a stretch between two points (AIGW's "serves"). Readers who stated the six pages found
      these missing from the first form of the statement.
 2. The publisher lays the blocks out on one grid, in Typst, by measure.
    - Rests on: `docs/research/overview-pages.md` ("The grid"), and the house class's title and contents pages,
@@ -60,7 +64,8 @@ complete edition out, no page placed by hand.
      of; a step without stations sets its text under the course beside the stations' notes. The page is laid out at the house's spacing and, when that reaches
      below the foot, at a closer spacing with notes and texts a size smaller, as a plate tries its type steps; a page
      that fits at neither is refused with `overview_too_tall` and the first block that does not fit. The six works'
-     pages, stated from their hand-placed compositions, are drawn and pass the page's checks in both languages.
+     pages, stated from their hand-placed compositions, are drawn and pass the page's checks in both languages. The
+     checks read back the page's lines and rings as well as its texts, and refuse a text under a line.
 3. A mark carries one meaning, and only marks with a meaning are drawn.
    - Rests on: `docs/research/overview-pages.md` ("What a position expresses", the last item: every reader asked
      what ring, tick and disc meant, and no page said).

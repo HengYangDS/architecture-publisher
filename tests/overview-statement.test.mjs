@@ -141,3 +141,19 @@ test("a spur leaves a point of the course, and a line may start or end at it", (
     ],
   );
 });
+
+test("a label on the course stands after a station or a step without stations, and before another point", () => {
+  const cases = [
+    ["done", "model_overview_invalid"],
+    ["log", "model_overview_invalid"],
+    ["nowhere", "model_reference_unknown"],
+  ];
+  assert.deepEqual(
+    cases.map(([after]) => {
+      const statement = everyBlock();
+      statement.course.passes[0].after = after;
+      return problemsOf(minimalModel({ overview: statement }));
+    }),
+    cases.map(([, code]) => [[code, "/overview/course/passes/0/after"]]),
+  );
+});

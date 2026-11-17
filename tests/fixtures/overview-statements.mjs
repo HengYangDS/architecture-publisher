@@ -1,7 +1,7 @@
 /**
  * Overview statements for the minimal model's two parts, Alpha (`a`) and Beta (`b`): one that holds every kind of
  * block an overview states, so a test of the model or of the page meets each of them once; the stretch of Work's
- * stations runs on two named tracks, and a spur leaves Ask.
+ * stations runs on two named tracks, a spur leaves Ask, and the stretch after Ask is labelled.
  */
 export const everyBlock = () => ({
   claim: "Two parts, and the one call between them",
@@ -43,6 +43,7 @@ export const everyBlock = () => ({
     text: "Every request takes the course once, whatever it asks.",
     parallel: [{ from: "check", to: "answer", tracks: ["first", "second"] }],
     spurs: [{ at: "ask", id: "import", label: "Import", note: "a request read from a file" }],
+    passes: [{ after: "ask", label: "admitted" }],
     lines: [{ from: "done", to: ["ask"], label: "a kept answer may be asked for again" }],
   },
   blocks: [

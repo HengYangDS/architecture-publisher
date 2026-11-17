@@ -23,14 +23,39 @@ that statement and from nothing else the author gives.
 
 A course SHALL be an ordered list of steps, each a label with an optional note
 and text, and MAY carry a text of its own. A step MAY hold stations, among them
-forks of two or more branches that stand side by side with no order. A further
-course SHALL be a title and ordered stations, with an optional labelled step,
-one optional outcome that leaves a station, and an optional text.
+forks of two or more branches with no order among them. A further course SHALL
+be a title and ordered stations, with an optional labelled step, one optional
+outcome that leaves a station, and an optional text.
 
-#### Scenario: A fork of siblings
+#### Scenario: A fork that ends the course
 
-- **WHEN** a step holds a fork of two branches and then one station
-- **THEN** the step takes three cells, and the two branches stand side by side under the course, each in a cell
+- **WHEN** the last step holds a fork of two branches and nothing after it
+- **THEN** the step takes two cells, and the two branches stand side by side under the course, each in a cell
+
+### Requirement: A fork the course goes on from
+
+A fork that another point follows SHALL split the course into a path for each
+branch, one under another from the course's line, each with the branch's ring,
+its name beside the ring and its note under the name, and the paths SHALL join
+the course again before the next point. The course's line SHALL not run across
+the fork.
+
+#### Scenario: Two outputs joined again
+
+- **WHEN** a fork of two branches stands before the station Delivery
+- **THEN** the course splits into two paths, one under the other, which join it again before Delivery
+
+### Requirement: Labels on a course's stretches
+
+A course MAY label the stretch after one of its points, a station or a step
+without stations that another point follows; the label SHALL stand over the
+stretch, under the stations' names. A label after the last point, a fork, a
+branch or a spur SHALL be refused.
+
+#### Scenario: Two labelled stretches
+
+- **WHEN** a course labels the stretch after Provider "serves" and the one after Model "selected by"
+- **THEN** each label stands centred over its stretch, between the two points' rings
 
 ### Requirement: Stretches on parallel tracks
 
@@ -111,15 +136,26 @@ first block that does not fit.
 - **WHEN** a statement's blocks reach below the foot at the house's spacing and not at the closer one
 - **THEN** the page is set at the closer spacing, its notes and texts a size smaller
 
+### Requirement: Text clear of the page's lines
+
+The publisher SHALL read back every line, rule and arrowhead it draws with its
+width, and every ring, and SHALL refuse with `overview_text_over_line` a page
+on which a text's glyph box lies under one of them, naming the text and the
+line.
+
+#### Scenario: A fork's bar through a branch's name
+
+- **WHEN** a drawing would run a fork's bar through the name of one of its branches
+- **THEN** the build refuses with `overview_text_over_line`, naming the branch's name and the bar's ends
+
 ### Requirement: The overview's marks
 
-A station SHALL be drawn as a ring on its course's line, the first and the last
-station of a course as larger rings, a fork's branches as smaller rings on a
-bar under the course, a spur as a smaller ring under its point, a stretch on
-parallel tracks as thinner lines beside the course, a line between points over
-the course, or under it when an end is a spur, with its sentence, and the
-outcome that leaves a course in the accent with its sentence. No other mark
-SHALL be drawn on a course.
+A station SHALL be a ring on its course's line, a course's first and last
+stations larger rings, a fork's branches and a spur smaller rings, parallel
+tracks thinner lines beside the course, a line between points a line over the
+course, or under it from a spur, with its sentence, and the outcome that leaves
+a course a line in the accent with its sentence. No other mark SHALL be drawn on
+a course.
 
 #### Scenario: Stations of one kind
 

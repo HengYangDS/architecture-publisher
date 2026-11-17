@@ -75,12 +75,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 - **Breaking:** The publisher draws the overview from what the model states of it, as it sets the title and contents
   pages: a claim and a lead; a course of steps with their stations, forks of siblings with no order, stretches on
-  parallel tracks counted or named, spurs beside it, lines between points and a text; and blocks of further courses, lists, tables, groups of lists
+  parallel tracks counted or named, spurs beside it, labelled stretches, lines between points and a text; and blocks of further courses, lists, tables, groups of lists
   and headed texts, in the order stated, none with a position. The course runs across the first band, each step as
   wide as what it holds; the blocks follow in halves and thirds chosen by measured height, headed texts stated
   together share a cell, and a long list of short items stands in two columns. A page too tall for the house's
   spacing is set closer, and one too tall for both is refused with `overview_too_tall`, naming the first block that
-  does not fit. A station is a ring and no mark without a meaning is drawn.
+  does not fit, and a text that lies under one of the page's lines or rings is refused with
+  `overview_text_over_line`. A station is a ring and no mark without a meaning is drawn.
 - The product contract says that no input states where anything stands, and that an overview composition, which
   its author places by coordinates, stays only until the publisher draws the overview from the model. Its
   Evolution section states the end state the queue leads to, and the items `composable-parts`, `compositions` and

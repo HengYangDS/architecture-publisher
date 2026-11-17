@@ -715,6 +715,24 @@
             ]
           }
         },
+        "passes": {
+          "description": "Labels on stretches of the course, each on the stretch after one point, before the next.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["after", "label"],
+            "properties": {
+              "after": {
+                "$ref": "#/$defs/id"
+              },
+              "label": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          }
+        },
         "parallel": {
           "description": "Stretches of the course on parallel tracks, each from one station or step without stations to another, on 2 to 4 tracks, counted or named.",
           "type": "array",

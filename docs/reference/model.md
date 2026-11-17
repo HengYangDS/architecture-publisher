@@ -392,11 +392,14 @@ a Typst file here is refused with `model_overview_composition_retired`.
   or by the `part` it is, with an optional `note` under its heading and `text`
   under its stretch. A step may hold `stations`, each a label or a part with a
   note. Among its stations a fork, `{ "branches": [...] }`, holds two or more
-  stations with no order among them, drawn side by side under the course. A
+  stations with no order among them: side by side under the course where the
+  course ends at it, and otherwise on a path each, which split from the course
+  and join it again. A
   course may carry a `text` of its own, `parallel` stretches, each `from` one
   station `to` a later one, across steps and around no fork, on `tracks`: two
   to four, or their names, and `spurs`: stations beside the course, each
-  leaving the point named in `at`, such as an input or a store.
+  leaving the point named in `at`, such as an input or a store, and `passes`:
+  a `label` on the stretch `after` a point, before the next.
 - `lines` go from one point of the course to others, each with a `label`: a
   point is a station, a branch, a spur or a step without stations, named by
   its `id`; a line with an end at a spur runs under the course. A

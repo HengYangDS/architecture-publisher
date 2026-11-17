@@ -29,6 +29,28 @@
     first: 22pt, size: "small", pitch: 14pt),
 )
 
+/// A line through the given points, recorded with its width for the publisher's check that no text lies under a line.
+#let _seg(..pts, w: 1.15pt, c: ink, dash: none) = {
+  seg(..pts, w: w, c: c, dash: dash)
+  [#metadata((kind: "line", points: pts.pos().map(p => (p.at(0).pt(), p.at(1).pt())), w: w.pt())) <archpub-line>]
+}
+
+/// A rule across a row or a block, recorded as a line.
+#let _hrule(y, x0: margin, x1: page-width - margin) = {
+  hrule(y, x0: x0, x1: x1)
+  [#metadata((kind: "line", points: ((x0.pt(), y.pt()), (x1.pt(), y.pt())), w: 0.8)) <archpub-line>]
+}
+
+/// An arrowhead pointing down or up at (x, y), recorded as a line as wide as its base.
+#let _down(x, y, c: ochre, s: 5pt) = {
+  down(x, y, c: c, s: s)
+  [#metadata((kind: "line", points: ((x.pt(), (y - s).pt()), (x.pt(), y.pt())), w: (s * 1.2).pt())) <archpub-line>]
+}
+#let _up(x, y, c: ochre, s: 5pt) = {
+  up(x, y, c: c, s: s)
+  [#metadata((kind: "line", points: ((x.pt(), y.pt()), (x.pt(), (y + s).pt())), w: (s * 1.2).pt())) <archpub-line>]
+}
+
 /// A ring on a course, recorded as a mark of its kind for the publisher's checks.
 #let _ring(x, y, r: 5pt, w: 1.7pt, c: green) = {
   ring(x, y, r: r, w: w, c: c)
@@ -62,7 +84,10 @@
 /// The course across the first band from `top`: hands back its bottom and its content. Needs context.
 #let _course(course, top, g) = {
   let steps = course.steps
-  // A station takes one cell of its step and a fork one for each branch, so a step is as wide as what it holds.
+  // A station takes one cell of its step and a fork one for each branch. A fork that ends the course sets its
+  // branches side by side; a fork the course goes on from splits it into a path for each branch, one under another.
+  let last = steps.last().at("stations", default: (steps.last(),)).last()
+  let rejoins(station) = "branches" in station and station != last
   let weight-of(station) = station.at("branches", default: (none,)).len()
   let weights = steps.map(s => calc.max(1, s.at("stations", default: ()).map(weight-of).sum(default: 0)))
   let total = weights.sum()
@@ -93,8 +118,8 @@
     let stations = step.at("stations", default: ())
     if stations.len() == 0 {
       let room = room-before(step)
-      points.push((x: span.x + room + 8pt, step: i, item: step, named: false, fork: none, cell: span.w - room,
-        tracks: 1))
+      points.push((x: span.x + room + 8pt, step: i, item: step, named: false, fork: none, rejoin: false,
+        cell: span.w - room, tracks: 1))
     } else {
       let cell = (span.w - stations.map(room-before).sum(default: 0pt)) / weights.at(i)
       let at = span.x
@@ -102,9 +127,13 @@
         at += room-before(station)
         let px = at + 8pt
         let fork = station.at("branches", default: none)
-        points.push((x: px, step: i, item: station, named: fork == none, fork: fork, cell: cell, tracks: 1))
+        let rejoin = fork != none and rejoins(station)
+        points.push((x: px, step: i, item: station, named: fork == none, fork: fork, rejoin: rejoin, cell: cell,
+          tracks: 1))
         if fork != none {
-          for (j, b) in fork.enumerate() { members.push((x: px + j * cell, item: b, tracks: 1)) }
+          for (j, b) in fork.enumerate() {
+            members.push((x: if rejoin { px } else { px + j * cell }, item: b, tracks: 1))
+          }
         }
         at += weight-of(station) * cell
       }
@@ -174,13 +203,16 @@
   let channel(n) = heads-bottom + 10pt + (n + 1) * g.channel
   let channels-bottom = if channels.len() == 0 { heads-bottom } else { channel(channels.len() - 1) }
   let named = points.filter(p => p.named)
+  // A fork that splits the course into paths names its first branch on the course's line, with the stations.
+  let splits = points.filter(p => p.rejoin)
   let label-b = channels-bottom + g.label
-  let labels-bottom = if named.len() == 0 { channels-bottom } else {
-    label-b + calc.max(..named.map(p => _depth(_name(p.item), p.cell - 18pt, weight: "semibold")))
-  }
+  let names-depth = named.map(p => _depth(_name(p.item), p.cell - 18pt, weight: "semibold"))
+  let labels-bottom = if names-depth.len() == 0 { channels-bottom } else { label-b + calc.max(..names-depth) }
   let most = calc.max(..points.map(p => p.tracks))
   let half = (most - 1) / 2 * _track
-  let line-y = labels-bottom + g.line + half
+  // Labels on the course's stretches stand over the line, under the stations' names, in room the course makes them.
+  let passes = course.at("passes", default: ())
+  let line-y = labels-bottom + g.line + half + if passes.len() == 0 { 0pt } else { 14pt }
   let under-b = line-y + half + g.under
   // A fork's branches side by side under the course, each in a cell of its own as a station is: a ring on a bar that
   // leaves the course, the branch's name under the bar beside its ring and its note under the name.
@@ -196,12 +228,34 @@
       (b: b, x: x, y: y, w: w, note-b: note-b, bottom: bottom)
     })
   }
-  let forks = points.filter(p => p.fork != none).map(p => (p: p, rows: rows-of(p)))
+  let forks = points.filter(p => p.fork != none and not p.rejoin).map(p => (p: p, rows: rows-of(p)))
+  // A fork the course goes on from: a path for each branch, one under another from the course's line, split from a
+  // bar before the fork and joined to one before the next point. On its path a branch's ring, its name beside the
+  // ring and its note under the name, across the fork's cells.
+  let paths-of(p) = {
+    let w = p.cell * p.fork.len() - 44pt
+    let rows = ()
+    let y = line-y
+    for b in p.fork {
+      let name-b = y + 4pt
+      let name-depth = _depth(_name(b), w, weight: "semibold")
+      let note = b.at("note", default: none)
+      let note-b = name-b + name-depth + g.pitch
+      let bottom = if note == none { name-b + name-depth } else { note-b + _deep(g, note, w) }
+      rows.push((b: b, y: y, name-b: name-b, note-b: note-b, w: w, bottom: bottom, name-w: calc.min(w,
+        _natural(_name(b), weight: "semibold"))))
+      y = bottom + g.pitch
+    }
+    rows
+  }
+  let next-x(p) = points.at(points.position(q => q.x == p.x) + 1).x
+  let paths = splits.map(p => (p: p, rows: paths-of(p), join: next-x(p) - 10pt))
+  let path-y(id) = paths.map(f => f.rows.filter(row => row.b.at("id", default: none) == id)).flatten().map(row => row.y)
   let unders = points.filter(p => p.named and p.item.at("note", default: none) != none).map(p =>
     under-b + _deep(g, p.item.note, p.cell - 18pt)
   ) + steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() == 0 and s.at("text", default: none) != none).map(((i, s)) =>
     under-b + _deep(g, s.text, points.filter(p => p.step == i).first().cell - 18pt)
-  ) + forks.map(f => calc.max(..f.rows.map(row => row.bottom)))
+  ) + forks.map(f => calc.max(..f.rows.map(row => row.bottom))) + paths.map(f => f.rows.last().bottom)
   let unders-bottom = if unders.len() == 0 { line-y + half + 6pt } else { calc.max(..unders) }
   let texts = steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() > 0 and s.at("text", default: none) != none)
   let spur-b = unders-bottom + g.text
@@ -219,7 +273,7 @@
     under-channel(below.channels.len() - 1) + 16pt
   }
   let text-b = unders-lines-bottom + g.text
-  let texts-bottom = if texts.len() == 0 { unders-bottom } else {
+  let texts-bottom = if texts.len() == 0 { unders-lines-bottom } else {
     text-b + calc.max(..texts.map(((i, s)) => _deep(g, s.text, spans.at(i).w - 16pt)))
   }
   let said = course.at("text", default: none)
@@ -239,21 +293,32 @@
     }
     // The course: one line, which a stretch on parallel tracks splits into thinner tracks and joins again; named
     // tracks carry their names where they begin.
+    // The course's line runs between its points, except across a fork the course goes on from, whose paths carry it.
+    let gaps = paths.map(f => (f.p.x - 14pt, f.join))
+    let run(a, b) = {
+      let at = a
+      for (low, high) in gaps.sorted(key: g => g.at(0)) {
+        if high <= at or low >= b { continue }
+        if low > at { _seg((at, line-y), (low, line-y), w: 3pt, c: green) }
+        at = calc.max(at, high)
+      }
+      if b > at { _seg((at, line-y), (b, line-y), w: 3pt, c: green) }
+    }
     let cursor = points.first().x
     for s in stretches.sorted(key: s => index(s.from)) {
       let own = points.slice(index(s.from), index(s.to) + 1)
       let from = if s.names.len() > 0 { own.first().x - 8pt - s.room + 4pt } else { own.first().x - 16pt }
       let to = own.last().x + 16pt
-      if from > cursor { seg((cursor, line-y), (from, line-y), w: 3pt, c: green) }
+      if from > cursor { run(cursor, from) }
       for k in range(s.count) {
         let offset = (k - (s.count - 1) / 2) * _track
-        seg((from, line-y), (from + 12pt, line-y + offset), (to - 12pt, line-y + offset), (to, line-y),
+        _seg((from, line-y), (from + 12pt, line-y + offset), (to - 12pt, line-y + offset), (to, line-y),
           w: 1.6pt, c: green)
         if s.names.len() > 0 { tx(from + 18pt, line-y + offset - 5pt, s.names.at(k), size: "small", fill: mid) }
       }
       cursor = to
     }
-    if points.last().x > cursor { seg((cursor, line-y), (points.last().x, line-y), w: 3pt, c: green) }
+    if points.last().x > cursor { run(cursor, points.last().x) }
     // A ring at every station, on every track; the course's two ends larger. A fork has no ring of its own.
     for (n, p) in points.enumerate() {
       if p.fork != none { continue }
@@ -263,13 +328,30 @@
         _ring(p.x, line-y + offset, r: r, w: if p.tracks > 1 { 1.4pt } else { 1.7pt })
       }
     }
+    // A fork the course goes on from: a bar down from the course before it, a path to each branch's ring, its name
+    // beside the ring and its note under the name, and from each path's end a bar back up to the course.
+    for f in paths {
+      let p = f.p
+      let split = p.x - 14pt
+      let low = f.rows.last().y
+      _seg((split, line-y), (split, low), w: 1.6pt, c: green)
+      _seg((f.join, line-y), (f.join, low), w: 1.6pt, c: green)
+      for row in f.rows {
+        _seg((split, row.y), (p.x - 4pt, row.y), w: 1.6pt, c: green)
+        // The path goes on from after the branch's name to the bar that joins the course.
+        _seg((p.x + 10pt + row.name-w + 10pt, row.y), (f.join, row.y), w: 1.6pt, c: green)
+        _ring(p.x, row.y, r: 4pt, w: 1.5pt)
+        tx(p.x + 10pt, row.name-b, _name(row.b), weight: "semibold", w: row.w)
+        if row.b.at("note", default: none) != none { _set(g, p.x + 10pt, row.note-b, row.b.note, fill: soft, w: row.w) }
+      }
+    }
     // A fork: a bar that leaves the course, from its lowest track where the fork's step runs on several, and runs
     // under the branches; a ring for each.
     for f in forks {
       let p = f.p
       // The bar runs between the course and the branches' names, which stand where the stations' notes do.
       let bar = line-y + half + g.under * 0.4
-      seg((p.x, line-y + (p.tracks - 1) / 2 * _track), (p.x, bar), (f.rows.last().x, bar), w: 1.6pt, c: green)
+      _seg((p.x, line-y + (p.tracks - 1) / 2 * _track), (p.x, bar), (f.rows.last().x, bar), w: 1.6pt, c: green)
       for row in f.rows {
         _ring(row.x, bar, r: 4pt, w: 1.5pt)
         tx(row.x + 10pt, row.y, _name(row.b), weight: "semibold", w: row.w)
@@ -284,7 +366,7 @@
       // From under the ring of the point it leaves, the course's ends' rings being the larger.
       let n = points.position(p => p.item.at("id", default: none) == sp.s.at)
       let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
-      seg((sp.x, line-y + (sp.tracks - 1) / 2 * _track + r), (sp.x, ring-y - 4pt), w: 1.4pt, c: green)
+      _seg((sp.x, line-y + (sp.tracks - 1) / 2 * _track + r), (sp.x, ring-y - 4pt), w: 1.4pt, c: green)
       _ring(sp.x, ring-y, r: 4pt, w: 1.5pt)
       tx(sp.x + 10pt, spur-b, _name(sp.s), weight: "semibold", w: sp.cell - 18pt)
       if sp.s.at("note", default: none) != none {
@@ -304,32 +386,40 @@
       let y = channel(l.channel)
       let source = where(l.line.from)
       let rise(p) = line-y - (p.tracks - 1) / 2 * _track - 9pt
-      seg((source.x, rise(source)), (source.x, y), w: 1.15pt, c: mid)
-      seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
+      _seg((source.x, rise(source)), (source.x, y), w: 1.15pt, c: mid)
+      _seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
       for t in l.line.to.map(where) {
-        seg((t.x, y), (t.x, rise(t) - 4pt), w: 1.15pt, c: mid)
-        down(t.x, rise(t), c: mid)
+        _seg((t.x, y), (t.x, rise(t) - 4pt), w: 1.15pt, c: mid)
+        _down(t.x, rise(t), c: mid)
       }
       txc((l.low + l.high) / 2, y - 7pt, calc.max(l.high - l.low - 24pt, 120pt), l.line.label, size: "small",
         fill: mid)
+    }
+    // A label on a stretch of the course, centred over it.
+    for pass in passes {
+      let n = points.position(p => p.item.at("id", default: none) == pass.after)
+      let (a, b) = (points.at(n).x, points.at(n + 1).x)
+      txc((a + b) / 2, line-y - half - 7pt, calc.max(b - a - 24pt, 60pt), pass.label, size: "small", fill: mid)
     }
     // The lines under the course: up from each end to its ring, from below; an arrowhead at each end it reaches.
     for l in below.placed {
       let y = under-channel(l.channel)
       let bottom-of(id) = {
         let e = where(id)
-        if id in spur-ids { spur-b } else if e in members { line-y + half + g.under * 0.4 + 4pt } else {
+        if id in spur-ids { spur-b } else if path-y(id).len() > 0 { path-y(id).first() + 4pt } else if e in members {
+          line-y + half + g.under * 0.4 + 4pt
+        } else {
           let n = points.position(p => p.item.at("id", default: none) == id)
           line-y + (e.tracks - 1) / 2 * _track + if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
         }
       }
       let source = where(l.line.from)
-      seg((source.x, bottom-of(l.line.from)), (source.x, y), w: 1.15pt, c: mid)
-      seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
+      _seg((source.x, bottom-of(l.line.from)), (source.x, y), w: 1.15pt, c: mid)
+      _seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
       for id in l.line.to {
         let t = where(id)
-        seg((t.x, y), (t.x, bottom-of(id) + 4pt), w: 1.15pt, c: mid)
-        up(t.x, bottom-of(id), c: mid)
+        _seg((t.x, y), (t.x, bottom-of(id) + 4pt), w: 1.15pt, c: mid)
+        _up(t.x, bottom-of(id), c: mid)
       }
       txc((l.low + l.high) / 2, y + 13pt, calc.max(l.high - l.low - 24pt, 120pt), l.line.label, size: "small",
         fill: mid)
@@ -387,7 +477,7 @@
   let body = {
     head.body
     if c.at("note", default: none) != none { _set(g, x, start + g.note, c.note, fill: soft, w: w) }
-    seg((px(0), line-y), (px(stations.len() - 1), line-y), w: 2pt, c: green)
+    _seg((px(0), line-y), (px(stations.len() - 1), line-y), w: 2pt, c: green)
     for (k, s) in stations.enumerate() {
       _ring(px(k), line-y, r: if k == 0 or k == stations.len() - 1 { 7pt } else { 5pt })
       tx(px(k) + 10pt, label-b, _name(s), weight: "semibold", w: cell - 18pt)
@@ -399,7 +489,7 @@
       txc((a + b) / 2, line-y - 6pt, calc.max(b - a - 24pt, 60pt), passing.label, size: "small", fill: green)
     }
     if aside != none {
-      seg((aside-x, line-y + 8pt), (aside-x, aside-y), (aside-x + 22pt, aside-y), w: 1.5pt, c: ochre,
+      _seg((aside-x, line-y + 8pt), (aside-x, aside-y), (aside-x + 22pt, aside-y), w: 1.5pt, c: ochre,
         dash: (4pt, 3pt))
       _ring(aside-x + 26pt, aside-y, r: 4pt, w: 1.5pt, c: ochre)
       _set(g, aside-x + 36pt, aside-y + 4pt, aside.label, fill: ochre, w: x + w - aside-x - 36pt)
@@ -450,7 +540,7 @@
   for (j, c) in f.columns.enumerate() {
     body.push(_set(g, x + j * column, titles-b, c, weight: "semibold", fill: soft, w: column - 12pt))
   }
-  body.push(hrule(rule-y, x0: x, x1: x + w))
+  body.push(_hrule(rule-y, x0: x, x1: x + w))
   for row in f.rows {
     for (j, cell) in row.enumerate() { body.push(_set(g, x + j * column, y, cell, w: column - 12pt)) }
     y += calc.max(..row.map(cell => _deep(g, cell, column - 12pt))) + g.pitch + g.item
@@ -470,7 +560,7 @@
     let y = head.start + g.first
     body.push(_set(g, cx, y, list.title, weight: "semibold", fill: soft, w: column))
     y += _deep(g, list.title, column, weight: "semibold") + 8pt
-    body.push(hrule(y, x0: cx, x1: cx + column))
+    body.push(_hrule(y, x0: cx, x1: cx + column))
     y += 20pt
     for (t, v) in list.items {
       body.push(_set(g, cx, y, t, weight: "semibold", w: column))
@@ -588,7 +678,7 @@
   let top = course.bottom + g.row
   for row in _rows(_cells(s.at("blocks", default: ())), g) {
     let w = _cell-width(row.len())
-    parts.push(hrule(top))
+    parts.push(_hrule(top))
     let bottom = top
     for (j, cell) in row.enumerate() {
       let made = _cell(cell, _left + j * (w + _gutter), w, top + 8pt, g)

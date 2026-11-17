@@ -104,8 +104,9 @@ const tracksOf = (tracks) =>
     tracks.every((name) => typeof name === "string" && name.trim() !== ""));
 
 function checkCourse(course, path, problems, componentIds) {
-  if (!problems.fields(course, path, ["steps"], ["lines", "text", "parallel", "spurs"])) return;
-  const { steps, lines, parallel, spurs } = /** @type {Record<string, any>} */ (course);
+  if (!problems.fields(course, path, ["steps"], ["lines", "text", "parallel", "spurs", "passes"]))
+    return;
+  const { steps, lines, parallel, spurs, passes } = /** @type {Record<string, any>} */ (course);
   problems.text(/** @type {any} */ (course).text, `${path}/text`, true);
   /** @type {Set<string>} */
   const ids = new Set();
@@ -174,6 +175,21 @@ function checkCourse(course, path, problems, componentIds) {
     });
   if (parallel !== undefined)
     checkParallel(parallel, `${path}/parallel`, problems, { ids, runs, order, forks });
+  // A label on the stretch of the course after a point, before the next.
+  if (passes !== undefined)
+    eachOf(passes, `${path}/passes`, problems, 1, (pass, where) => {
+      if (!problems.fields(pass, where, ["after", "label"], [])) return;
+      problems.text(pass.label, `${where}/label`);
+      const at = order.get(pass.after);
+      if (at !== undefined && at < place - 1) return;
+      problems.add(
+        ids.has(pass.after) || runs.has(pass.after)
+          ? "model_overview_invalid"
+          : "model_reference_unknown",
+        `${where}/after`,
+        "names no station or step without stations that another point follows",
+      );
+    });
 }
 
 /**

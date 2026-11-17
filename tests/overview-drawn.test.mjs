@@ -40,6 +40,8 @@ test("every text a statement holds is set, with the model's labels for the parts
     // A spur off the course, its name and its note.
     "Import",
     "a request read from a file",
+    // A label on the stretch of the course after Ask.
+    "admitted",
     "Check",
     "the request is admitted",
     // The two stations that name parts are shown by the model's labels.
@@ -94,9 +96,12 @@ test("a statement too tall for its page is refused with the first block that doe
   });
 });
 
-test("a fork's branches stand side by side under the course, each as wide as a station", async () => {
-  const { marks } = await drawn(everyBlock());
-  // The course's first ring is Ask's; the two smallest rings nearest the top are the fork's branches, Log and Data.
+test("a fork that ends the course stands side by side under it, a cell for each branch", async () => {
+  const statement = everyBlock();
+  // Keep holds the fork alone, so the course ends at it, and no line names Done.
+  statement.course.steps[2].stations = [statement.course.steps[2].stations[0]];
+  statement.course.lines = [];
+  const { marks } = await drawn(statement);
   const course = marks[0];
   const [log, data] = marks
     .filter(({ r }) => r === 4)
@@ -105,13 +110,22 @@ test("a fork's branches stand side by side under the course, each as wide as a s
     .sort((a, b) => a.x - b.x);
   assert.equal(log.y, data.y);
   assert.ok(log.y > course.y, "the branches hang under the course");
-  // Within its step a fork takes a cell for each branch, as wide as the cell of the station after it, Done.
+  assert.ok(data.x - log.x > 100, `a cell for each branch: ${data.x - log.x} pt apart`);
+});
+
+test("a fork the course goes on from splits it into a path for each branch, which join again", async () => {
+  const { marks } = await drawn(everyBlock());
+  const course = marks[0];
+  // Log and Data, the fork before Done: one ring a path, one under the other, the first on the course's line.
+  const [log, data] = marks
+    .filter(({ r }) => r === 4)
+    .sort((a, b) => a.y - b.y)
+    .slice(0, 2);
+  assert.equal(log.x, data.x);
+  assert.equal(log.y, course.y);
+  assert.ok(data.y > log.y + 20, "the second path runs under the first");
   const done = marks.filter(({ r, y }) => r === 7 && y === course.y).sort((a, b) => b.x - a.x)[0];
-  const cell = done.x - data.x;
-  assert.ok(
-    Math.abs(data.x - log.x - cell) < 0.5,
-    `branches ${data.x - log.x} pt apart, Done ${cell} pt on`,
-  );
+  assert.ok(done.x > log.x, "the paths join before Done");
 });
 
 test("headed texts stated one after another stand one under another, in one cell", async () => {
@@ -225,4 +239,25 @@ test("a line from a spur runs under the course, below the spurs and above the st
     label.y + label.h < at("Two requests may be worked at once, each on its own track.").y,
     "above the texts",
   );
+});
+
+test("a label on the course stands over its stretch, under the stations' names", async () => {
+  const { boxes, marks } = await drawn(everyBlock());
+  const at = (text) => boxes.find((box) => box.text === text);
+  const ask = marks[0];
+  const label = at("admitted");
+  const check = at("Check");
+  assert.ok(label.x > ask.x && label.x + label.w < check.x + 10, "between Ask and Check");
+  assert.ok(
+    label.y + label.h < ask.y && label.y > check.y + check.h,
+    "over the line, under the names",
+  );
+});
+
+test("the drawing hands back every line it draws, and none lies over its text", async () => {
+  const { lines } = await drawn(everyBlock());
+  // The course, its tracks, the fork's paths, the spur, the lines over and under the course, the further course and
+  // the rules between rows: each a run of points with its width.
+  assert.ok(lines.length >= 20, `${lines.length} lines`);
+  assert.ok(lines.every(({ points, w }) => points.length >= 2 && w > 0));
 });
