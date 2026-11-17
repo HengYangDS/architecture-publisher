@@ -114,12 +114,6 @@ export const POSTER = Object.freeze({
     /** The gap between two plates on one page. */
     plateGap: 40,
   }),
-  /**
-   * A part that owns no files is an outline in short dashes. The weights and
-   * patterns of relations, statuses and the boundary are rows of the table of
-   * lines, read through `linesOf`.
-   */
-  dash: Object.freeze({ empty: "3 2" }),
   wire: Object.freeze({
     arrow: 9,
     radius: 7,
@@ -140,11 +134,11 @@ const HOUSE_TOKENS = Object.freeze({
 });
 
 /**
- * The style a plate is drawn in when its edition names none: cards in the
- * house tokens.
+ * The style a plate is drawn in when its edition gives none: the house tokens,
+ * and no measured facts, so no part has a strip.
  * @type {import("./strip.mjs").Style}
  */
-export const HOUSE_STYLE = Object.freeze({ name: "card", tokens: HOUSE_TOKENS });
+export const HOUSE_STYLE = Object.freeze({ tokens: HOUSE_TOKENS });
 
 /**
  * The colours of a figure, named by what they mark, from an edition's
@@ -243,15 +237,14 @@ function style(size, extra = {}) {
  * A figure's text at one type step. Every size comes from the type scale, so a
  * sparse view is set larger and a dense one smaller without ever leaving it.
  * @param {{ name: number, detail: number, edge: number }} step
- * @param {boolean} [strips] whether the figure is drawn with strip marks
  */
-export function figureStyles(step, strips = false) {
+export function figureStyles(step) {
   return Object.freeze({
     name: style(step.name, { weight: 700 }),
     detail: style(step.detail),
-    // Strip parts carry their names alone in bold, so a relation's name, set
+    // Parts carry their names alone in bold, so a relation's name, set
     // regular, reads under the parts it joins rather than as loud as them.
-    edge: style(step.edge, { weight: strips ? 400 : 700 }),
+    edge: style(step.edge),
     edgeDetail: style(step.detail),
     tier: style(step.detail, { weight: 700 }),
     note: style(POSTER.floor, { weight: 700 }),
@@ -269,8 +262,6 @@ export function figureMetrics(styles) {
     card: Object.freeze({
       pad: round(20 * unit),
       radius: round(10 * unit),
-      icon: round(24 * unit),
-      iconGap: round(10 * unit),
       detailGap: round(6 * unit),
       bar: round(4 * unit),
       minimumWidth: 200,

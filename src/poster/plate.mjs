@@ -1,13 +1,11 @@
 import { layoutView, placementOf } from "../layout/grid.mjs";
 import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
-import { atoms } from "../breaks.mjs";
 import { presentation } from "../kinds.mjs";
-import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
-import { spreadOf } from "./spread.mjs";
-import { stripBoxes } from "./strip.mjs";
+import { wordsOf } from "../locale.mjs";
 import { drawFigure } from "./figure.mjs";
 import { justify } from "./justify.mjs";
-import { POSTER, figureMetrics, figureStyles, measureWidth } from "./tokens.mjs";
+import { partBoxes } from "./part.mjs";
+import { POSTER, figureMetrics, figureStyles } from "./tokens.mjs";
 
 /**
  * One plate: one view's figure in the edition's body. The plate tries every
@@ -93,97 +91,21 @@ function layoutFor(style, view, rows, metrics, key, boundaryName) {
 }
 
 /**
- * How wide one card is at one type step: wide enough to set its label and each
- * of its details on one line, within the card measures, and no wider. A card as
- * wide as its field divides into is a panel of paper around a short line; a
- * card as wide as its text reads as a card.
- * @param {import("../locale.mjs").Words} words
- * @param {any} component
- * @param {any} typefaces
- * @param {any} styles
- * @param {any} card the card metrics at this step
- */
-function cardWidthOf(words, component, typefaces, styles, card) {
-  const name = POSTER.cardMeasure.name * styles.name.size;
-  const detail = POSTER.cardMeasure.detail * styles.detail.size;
-  const width = Math.max(
-    card.minimumWidth,
-    Math.min(typefaces.measure(component.label, styles.name), name) +
-      card.icon +
-      card.iconGap +
-      2 * card.pad,
-    ...component.details.map(
-      ([key, values]) =>
-        Math.min(typefaces.measure(detailText(words, key, values), styles.detail), detail) +
-        2 * card.pad,
-    ),
-  );
-  return Math.ceil(width / 8) * 8;
-}
-
-/**
- * How cards size and set their parts at one type step: as wide as their text,
- * as tall as their label and details within their padding, and broken where
- * an atom of their text is wider than its line.
- */
-function cardBoxes(words, typefaces, styles, card, unspaced) {
-  // Details to be spread are wrapped as paragraphs, by the width Typst sets their lines in.
-  const detailWidth = unspaced ? typefaces.typesetWidth : typefaces.measure;
-  const detailLines = unspaced ? typefaces.detailParagraph : typefaces.detailLines;
-  const text = (component, width) => {
-    // Every detail wraps to one measure, which its spread lines end at.
-    const measure = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
-    const details = component.details.map(([key, values]) =>
-      detailLines(words, key, values, measure, styles.detail),
-    );
-    return {
-      name: typefaces.wrap(
-        component.label,
-        Math.min(
-          width - 2 * card.pad - card.icon - card.iconGap,
-          measureWidth(typefaces, styles.name),
-        ),
-        styles.name,
-      ),
-      details: details.flat(),
-      spread: spreadOf(details, measure, styles.detail, detailWidth, unspaced),
-    };
-  };
-  return {
-    width: (component) => cardWidthOf(words, component, typefaces, styles, card),
-    height: (component, width) => {
-      const { name, details } = text(component, width);
-      return (
-        2 * card.pad +
-        name.length * styles.name.line +
-        (details.length ? card.detailGap + details.length * styles.detail.line : 0)
-      );
-    },
-    text,
-    broken: (component, width) =>
-      cardBroken(words, { typefaces, detailWidth }, styles, card, component, width),
-  };
-}
-
-/**
- * The layout metrics of one plate. The field bounds the boxes and their text
- * sets their width; every box keeps its content height, so the figure reports
- * how large it really is. The style decides whether a part is a card or a strip.
+ * The layout metrics of one plate. The field bounds the boxes and their regions
+ * set their width; every box keeps its content height, so the figure reports
+ * how large it really is. Every part is one card, with the regions it has the facts for.
  */
 function candidateMetrics(input) {
-  const { model, view, typefaces, styles, metrics, field, style } = input;
+  const { model, view, typefaces, styles, metrics, field, style, details, caption } = input;
   const { card, wire, spacing } = metrics;
   const words = wordsOf(model.locale);
-  const boxes =
-    style.name === "strip"
-      ? stripBoxes({ model, typefaces, styles, card, style })
-      : cardBoxes(words, typefaces, styles, card, writtenUnspaced(model.locale));
+  const boxes = partBoxes({ model, typefaces, styles, card, style, details, caption });
   return {
     // The field already excludes the tier-label column, so it is the content width.
     contentWidth: () => field.width,
     card: {
       minWidth: card.minimumWidth,
-      least: "least" in boxes ? boxes.least(view.components) : 0,
+      least: boxes.least(view.components),
       // No box is wider than the view's widest box at its natural width.
       maxWidth: Math.min(
         card.maximumWidth,
@@ -192,8 +114,10 @@ function candidateMetrics(input) {
       ),
       natural: boxes.width,
       height: boxes.height,
+      rowHeight: boxes.rowHeight,
     },
     cardText: boxes.text,
+    cardRow: boxes.row,
     broken: boxes.broken,
     label: (relation, maxWidth = wire.maximumLabel) => {
       const width = Math.min(maxWidth, wire.maximumLabel);
@@ -269,6 +193,7 @@ function attempt(input) {
       offset,
       style: input.style,
       cardText: input.metrics.cardText,
+      cardRow: input.metrics.cardRow,
     });
   // The layout centres the span of its cards. A figure whose single-card rows
   // stand off the middle of its wide rows, or whose wires run down one side, is
@@ -380,46 +305,38 @@ function brokenText(input, layout) {
 }
 
 /**
- * The first atom of a card's label or details wider than the line it is set
- * on at that card's width, or null when every one fits.
- * @returns {{ reason: string, id: string, width: number, room: number } | null}
+ * Whether the captions of a laid-out plate stand in two forms: the count beside its kind on one card and under it
+ * on another, at the widths the layout gives the cards.
+ * @param {any} input
+ * @param {any} layout the layout, with every box's width
  */
-function cardBroken(words, { typefaces, detailWidth }, styles, card, component, width) {
-  const units = (text) => atoms(text).map(({ text: unit }) => unit);
-  const nameRoom = Math.min(
-    width - 2 * card.pad - card.icon - card.iconGap,
-    measureWidth(typefaces, styles.name),
-  );
-  const detailRoom = Math.min(width - 2 * card.pad, measureWidth(typefaces, styles.detail));
-  for (const word of units(component.label)) {
-    const measured = typefaces.measure(word, styles.name);
-    if (measured > nameRoom)
-      return {
-        reason: "label_broken",
-        id: component.id,
-        width: Math.ceil(measured),
-        room: Math.floor(nameRoom),
-      };
+function captionsMixed(input, layout) {
+  const lines = new Set();
+  for (const component of input.view.components) {
+    const text = input.metrics.cardText(
+      component,
+      layout.cards.get(component.id)?.width ?? layout.card.width,
+    );
+    if (text.caption.count !== null) lines.add(text.captionLines);
   }
-  for (const [key, values] of component.details)
-    for (const word of units(detailText(words, key, values))) {
-      const measured = detailWidth(word, styles.detail);
-      if (measured > detailRoom)
-        return {
-          reason: "detail_broken",
-          id: component.id,
-          width: Math.ceil(measured),
-          room: Math.floor(detailRoom),
-        };
-    }
-  return null;
+  return lines.size > 1;
 }
 
-/** Every composition of one plate, best first. */
+/** Why a candidate was too wide for its field: narrower cards may still compose it. */
+const TOO_WIDE = new Set(["too_wide", "layout_row_too_wide"]);
+
+/**
+ * Every composition of one plate, best first: of its parts' compact cards, or with `details` of cards that set
+ * what their parts state; at every type step, or at the `steps` given alone. A plate's captions have one form: a
+ * composition is laid out with each count beside its kind, and where a card has not the room for that line, or
+ * the cards so sized are too wide for the field, it is laid out again with every count under its kind.
+ */
 export function platesOf(input, plate) {
   const found = [];
+  const details = input.details === true;
   for (const [index, step] of POSTER.steps.entries()) {
-    const styles = figureStyles(step, input.style.name === "strip");
+    if (input.steps && !input.steps.includes(index)) continue;
+    const styles = figureStyles(step);
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
       const { centring } = input;
@@ -428,35 +345,44 @@ export function platesOf(input, plate) {
       // body that cannot hold the taller channels.
       const seen = new Set();
       for (const clearTurns of [true, false]) {
-        const fields = {
-          model: input.model,
-          view: plate.view,
-          typefaces: input.typefaces,
-          icons: input.icons,
-          styles,
-          rows,
-          key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}`,
-          field: plate.field,
-          labelColumn: plate.labelColumn,
-          tierLabels: input.tierLabels,
-          boundaryName: input.boundaryName,
-          figureMetrics: metrics,
-          style: input.style,
-          metrics: {
-            ...candidateMetrics({
-              model: input.model,
-              view: plate.view,
-              typefaces: input.typefaces,
-              styles,
-              metrics,
-              field: plate.field,
-              style: input.style,
-            }),
-            centring,
-            clearTurns,
-          },
+        const candidate = (caption) => {
+          const fields = {
+            model: input.model,
+            view: plate.view,
+            typefaces: input.typefaces,
+            icons: input.icons,
+            styles,
+            rows,
+            key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}|${details}|${caption}`,
+            field: plate.field,
+            labelColumn: plate.labelColumn,
+            tierLabels: input.tierLabels,
+            boundaryName: input.boundaryName,
+            figureMetrics: metrics,
+            style: input.style,
+            metrics: {
+              ...candidateMetrics({
+                model: input.model,
+                view: plate.view,
+                typefaces: input.typefaces,
+                styles,
+                metrics,
+                field: plate.field,
+                style: input.style,
+                details,
+                caption,
+              }),
+              centring,
+              clearTurns,
+            },
+          };
+          return { fields, ...attempt(fields) };
         };
-        const { made } = attempt(fields);
+        const fitted = candidate("fit");
+        const under = fitted.made
+          ? captionsMixed(fitted.fields, fitted.made.layout)
+          : TOO_WIDE.has(fitted.rejected?.reason ?? "");
+        const { made } = under ? candidate("under") : fitted;
         if (!made) continue;
         const drawn = JSON.stringify(made.layout.paths);
         if (seen.has(drawn)) continue;
@@ -472,7 +398,7 @@ export function platesOf(input, plate) {
             clearTurns ? 0 : 1,
             offCenter(made.figure.rects, plate.field),
           ],
-          plate: { step: index, limit, flat, ...made },
+          plate: { step: index, limit, flat, details, ...made },
         });
       }
     }

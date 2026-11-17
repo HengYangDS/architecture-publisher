@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
 import { loadIcons } from "../src/icons.mjs";
+import { presentation } from "../src/kinds.mjs";
 import { loadModel, validateModel } from "../src/model/load.mjs";
 import { plateFace } from "../src/pinned/face.mjs";
 import { planViews } from "../src/plan/views.mjs";
@@ -38,13 +39,17 @@ function reportsItsView(views, plates) {
     assert.deepEqual(differences(views[index], plateFace(plate.report)), {}, plate.views[0]);
 }
 
-/** Big Bank's tiered containers plate, its view given the summary. */
-async function tieredBank(summary) {
-  const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
-  for (const view of bank.views) view.summary = summary;
-  return (await platesOf(validateModel(bank))).plates.find(
-    ({ views: [id] }) => id === "containers-tiers",
-  );
+/**
+ * The plate of the ETHOS work's proof plane, its views given the summary and its parts longer names. Under their
+ * own names the figure wires alike at the full width and at 80 percent of the body, one crossing and no route
+ * defect, so the summary is set beside it; 18 characters more to each name widen the cards until the figure has
+ * a route defect at 80 percent that it has not at the full width.
+ */
+async function proofPlane(summary) {
+  const ethos = JSON.parse(await fs.readFile(ETHOS_PROOF_PLANE_MODEL, "utf8"));
+  for (const view of ethos.views) view.summary = summary;
+  for (const component of ethos.components) component.label += " of one exact HEAD";
+  return (await platesOf(validateModel(ethos))).plates.find(({ views: [id] }) => id === "proof");
 }
 
 /** The x or y of each numbered tier label a plate draws. */
@@ -91,18 +96,19 @@ test("AIGW's plates are the same twice and none crosses a wire or runs one besid
     assert.deepEqual([plate.measures.crossings, plate.measures.routes], [0, 0], plate.views[0]);
 });
 
-test("an edition plate's legend names the kinds its figures show, each with its label", async () => {
+test("an edition plate names each kind its figure shows in its parts' captions, and its legend names none", async () => {
   const model = await loaded(AIGW_MODEL);
   const { views, plates } = await platesOf(model);
-  const kindOf = new Map(model.components.map(({ id, kind }) => [id, kind]));
   for (const plate of plates) {
-    const shown = new Set(
-      views
-        .filter(({ id }) => plate.views.includes(id))
-        .flatMap(({ components }) => components.map(({ id }) => kindOf.get(id))),
+    const shown = views
+      .filter(({ id }) => plate.views.includes(id))
+      .flatMap(({ components }) => components.map((component) => presentation(model, component)));
+    const texts = new Set(plate.runs.map(({ text }) => text));
+    for (const { label } of shown) assert.ok(texts.has(label), `plate ${plate.page}: ${label}`);
+    assert.ok(
+      plate.legend.every((entry) => !("kind" in entry) && !("icon" in entry)),
+      `plate ${plate.page}`,
     );
-    const kinds = plate.legend.filter(({ kind }) => kind !== undefined).map(({ kind }) => kind);
-    assert.deepEqual(new Set(kinds), shown, `plate ${plate.page}`);
     for (const entry of plate.legend) assert.equal(typeof entry.label, "string");
   }
   reportsItsView(views, plates);
@@ -155,33 +161,41 @@ test("a view with a summary gives up a fifth of the body, or keeps it and sets i
   const self = JSON.parse(await fs.readFile(SELF_MODEL, "utf8"));
   for (const view of self.views) view.summary = `What the ${view.id} view shows.`;
   const plates = (await platesOf(validateModel(self))).plates;
-  // The media view keeps its step at 80 percent and loses one at 65 percent, and keeps that width as before.
+  // The layout view is set at the largest type step at the full width and at 80 percent of the body, and three
+  // steps smaller at 65 percent, so it gives up a fifth and no more.
+  const layout = plates.find(({ views: [id] }) => id === "layout");
+  assert.deepEqual([layout?.share, layout?.width, layout?.reading], [0.8, 1805, "set"]);
+  assert.equal(layout?.standfirst, undefined);
+  // The media view is set at the largest step at 65 percent as at 80, with the one route defect it has at the full
+  // width and no crossing, so it gives up more of the body at no cost to its type.
   const media = plates.find(({ views: [id] }) => id === "media");
-  assert.deepEqual([media?.share, media?.width, media?.reading], [0.8, 1805, "set"]);
-  assert.equal(media?.standfirst, undefined);
-  // Big Bank's tiered containers wire with route defects at 80 percent but none at the full width below a
-  // one-line summary, so the figure keeps the full width and gives up the top of the body.
-  const tiered = await tieredBank("What the containers-tiers view shows.");
-  assert.deepEqual([tiered?.share, tiered?.width, tiered?.reading], [1, BODY.width, "above"]);
-  assert.deepEqual(tiered?.standfirst?.lines, ["What the containers-tiers view shows."]);
+  assert.deepEqual([media?.share, media?.width, media?.reading], [0.65, 1466, "set"]);
+  // The ETHOS proof plane with its longer names has one crossing and no route defect at the full width, a route
+  // defect more at 80 percent of the body, and none more at the full width below a one-line summary, so the figure
+  // keeps the full width and gives up the top of the body.
+  const plane = await proofPlane("What the proof view shows.");
+  assert.deepEqual([plane?.share, plane?.width, plane?.reading], [1, BODY.width, "above"]);
+  assert.deepEqual(plane?.standfirst?.lines, ["What the proof view shows."]);
   // One line of 24 points and 16 points before the figure, in pixels of two thirds of a point.
-  assert.equal(tiered?.height, BODY.height - (24 + 16) * 1.5);
+  assert.equal(plane?.height, BODY.height - (24 + 16) * 1.5);
 });
 
 test("a summary above its figure is broken within 32 em at 17 points, and one that leaves too little height is left out", async () => {
-  // Two lines: the tiered figure wires no worse at the full width below them, and worse below five.
+  // Two lines: the proof plane's figure, with its longer names, wires at the full width below them as it does in
+  // the whole body, one crossing and no route defect, where at 80 percent of the body it has a route defect more.
   const long =
-    "Each container serves one channel of the bank and calls the next tier down, and every tier keeps its own store and its own audit trail.";
-  const tiered = await tieredBank(long);
-  assert.equal(tiered?.reading, "above");
+    "Each stage of the proof plane hands its evidence to the next one down, and every stage keeps its own record of what it checked.";
+  const plane = await proofPlane(long);
+  assert.equal(plane?.reading, "above");
   const serif = { size: 17, weight: 400, line: 24, face: "serif" };
-  assert.ok(tiered.standfirst.lines.length > 1);
-  assert.equal(tiered.standfirst.lines.join(" "), long);
-  for (const line of tiered.standfirst.lines)
+  assert.ok(plane.standfirst.lines.length > 1);
+  assert.equal(plane.standfirst.lines.join(" "), long);
+  for (const line of plane.standfirst.lines)
     assert.ok(typefaces.measure(line, serif) <= 32 * 17, line);
-  assert.equal(tiered.height, BODY.height - (tiered.standfirst.lines.length * 24 + 16) * 1.5);
-  // A summary that leaves the figure less than half the body cannot keep its wiring there.
-  const omitted = await tieredBank(`${long} `.repeat(6).trim());
+  assert.equal(plane.height, BODY.height - (plane.standfirst.lines.length * 24 + 16) * 1.5);
+  // Six times the summary is eleven lines, which leave the figure 651 px of the body's 1071: none of its
+  // compositions is laid out in that height, so the summary is left out and the figure keeps the body.
+  const omitted = await proofPlane(`${long} `.repeat(6).trim());
   assert.deepEqual(
     [omitted?.reading, omitted?.height, omitted?.standfirst],
     ["omitted", BODY.height, undefined],
@@ -225,11 +239,12 @@ test("the tier-label column is as wide as its labels need and no wider than its 
 });
 
 test("tier labels stand before the edge their tier starts at when that leaves less of the plate blank", async () => {
-  // AIGW's authority view starts its tiers at different edges: labels in one
-  // column leave paper between it and the tiers that start further in, so the
-  // plate sets each label before its own tier's edge.
+  // AIGW's overview starts its tiers at different edges, the four inside the
+  // boundary at the boundary's edge and the clients outside it further left:
+  // labels in one column leave paper between it and the tiers that start
+  // further in, so the plate sets each label before its own tier's edge.
   const { plates } = await platesOf(await loaded(AIGW_MODEL));
-  const plate = plates.find(({ views: [id] }) => id === "authority");
+  const plate = plates.find(({ views: [id] }) => id === "overview");
   assert.equal(plate?.composition.tierLabels, "edges");
   const numbers = tierNumbers(plate, "x");
   assert.ok(numbers.length > 1);

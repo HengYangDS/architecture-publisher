@@ -8,7 +8,7 @@ import { INDIGO, files, lineFacts, typefaces } from "./fixtures/strips.mjs";
 // A bound channel follows its fact: with the layout held, a change of the hub changes the weight of the lines
 // into the old and the new hub and nothing else, and one more cited file changes one number and nothing else.
 
-const styles = figureStyles(POSTER.steps[0], true);
+const styles = figureStyles(POSTER.steps[0]);
 const metrics = figureMetrics(styles);
 
 /** Six parts in two rows: three sources above, and below them the two parts they lead to and one more. */
@@ -59,7 +59,6 @@ function drawn(targets, table = TABLE, cited = {}, marks = []) {
   const { touching } = drawLines(layout, {
     facts: lineFacts({ relations }),
     view: { relations },
-    strips: true,
     styles,
     metrics,
     typefaces,
@@ -67,7 +66,6 @@ function drawn(targets, table = TABLE, cited = {}, marks = []) {
     lines: linesOf(table),
     at: (x) => x,
     down: (y) => y,
-    lift: (point) => point,
     text: (layer, value, x, top) => runs.push({ value, x, top }),
     shapes,
     rects: [],

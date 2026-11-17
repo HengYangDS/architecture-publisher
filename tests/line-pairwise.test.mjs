@@ -130,13 +130,12 @@ async function linesIn(table) {
       relations: [relation],
     })),
   };
-  const styles = figureStyles(POSTER.steps[0], true);
+  const styles = figureStyles(POSTER.steps[0]);
   const colors = colorsOf(HOUSE_TOKENS);
   const shapes = [];
   drawLines(layout, {
     facts: lineFacts({ relations }),
     view: { relations },
-    strips: true,
     styles,
     metrics: figureMetrics(styles),
     typefaces,
@@ -144,7 +143,6 @@ async function linesIn(table) {
     lines: linesOf(table),
     at: (x) => x,
     down: (y) => y,
-    lift: (point) => point,
     text: () => {},
     shapes,
     rects: [],

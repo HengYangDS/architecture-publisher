@@ -55,7 +55,7 @@ test("no value of one channel stands under two meanings, and weight holds two le
   assert.throws(() => assertOneMeaning(BROKEN.secondMeaning), /rows emphasis and echo both draw/u);
 });
 
-/** The strokes a strip plate of the small work draws: its relations' lines and its boundary. */
+/** The strokes a plate of the small work draws: its relations' lines and its boundary. */
 async function strokesIn(lines) {
   const {
     plates: [plate],
@@ -101,7 +101,8 @@ test("a key holds the sample of a row exactly when its figure draws the row", as
   assertKeyed(plain);
   assert.deepEqual(
     plain.legend.map(({ shape }) => shape).filter((shape) => shape !== "band"),
-    ["reference", "length", "count", "hub", "boundary"],
+    // Typst stands outside the boundary, so the ground of a part outside follows the boundary's entry.
+    ["reference", "length", "count", "hub", "boundary", "outside"],
   );
   // Statuses on a part and on a relation: both lifecycle rows are drawn and keyed.
   assertKeyed(await plateOf({ typst: "planned", stages: "retired" }));

@@ -20,7 +20,8 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  *   contentWidth: (labelled: boolean) => number,
  *   card: { minWidth: number, maxWidth: number,
  *     natural?: (component: any) => number,
- *     height: (component: any, width: number) => number },
+ *     height: (component: any, width: number) => number,
+ *     rowHeight?: (cards: Array<{ component: any, width: number }>) => number },
  *   label: (relation: any, maxWidth?: number) => LabelBox,
  *   external: (component: any) => boolean,
  *   centring?: "all" | "inside" | null,
@@ -151,9 +152,13 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
     /** @type {number} */ (columnWidths.get(/** @type {number} */ (placement.position.get(id))));
   // Every card of a row is as tall as the row's tallest text, so a row reads on
   // one line; rows differ, so a row of names is not as tall as the row with the
-  // most detail.
+  // most detail. Where the cards' regions stand on shared lines across a row,
+  // the row is as tall as its tallest region of each kind together.
+  const { rowHeight } = metrics.card;
   const rowHeights = order.map((members) =>
-    Math.max(0, ...members.map((id) => metrics.card.height(components.get(id), widthOf(id)))),
+    rowHeight
+      ? rowHeight(members.map((id) => ({ component: components.get(id), width: widthOf(id) })))
+      : Math.max(0, ...members.map((id) => metrics.card.height(components.get(id), widthOf(id)))),
   );
   const used = [...placement.position.values()];
   const usedSpan = ((Math.max(...used) - Math.min(...used)) / 2) * pitch + cardWidth;

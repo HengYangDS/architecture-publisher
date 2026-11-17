@@ -1,4 +1,4 @@
-/** Shared models, styles and SVG readers for the strip-plate tests. */
+/** Shared models, styles and SVG readers for the tests of plates whose parts carry strips. */
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { editionFacts } from "../../src/facts/edition.mjs";
@@ -119,14 +119,16 @@ function stripFacts(parts = PARTS, model = PARTS_ALONE) {
   );
 }
 
-/** A strip style over the given tokens and parts, and the model of a work whose overview is drawn. */
+/**
+ * The edition's style over the given tokens and parts measured at a pin, so every part that owns files has its
+ * strip, and the model of a work whose overview is drawn.
+ */
 export const stripStyle = (tokens = INDIGO, parts = PARTS, model = PARTS_ALONE) => ({
-  name: "strip",
   tokens,
   facts: stripFacts(parts, model),
 });
 
-/** The facts of the views of a model given by its relations alone, as a strip plate's lines read them. */
+/** The facts of the views of a model given by its relations alone, as a plate's lines read them. */
 export const lineFacts = (model) => ({ view: (view) => viewFacts(model, view, null) });
 
 export const files = (count) => Array.from({ length: count }, (_, index) => `src/f${index}.mjs`);
@@ -261,19 +263,50 @@ export const arrowsOf = (svg) =>
 export const countsOf = (plate) =>
   plate.runs.filter(({ text, weight }) => /^\d+$/u.test(text) && weight === 400);
 
+/** The kinds' icons a plate draws: where each stands, how large it is drawn and in which colour. */
+export const iconsOf = (svg) =>
+  [
+    ...svg.matchAll(
+      /<g transform="translate\(([\d.-]+),([\d.-]+)\) scale\(([\d.]+)\)" fill="none" stroke="([^"]+)"/gu,
+    ),
+  ].map(([, x, y, scale, stroke]) => ({
+    x: number(x),
+    y: number(y),
+    size: number(scale) * 24,
+    stroke,
+  }));
+
 /** The label run of a part: its last line, under which its strip is drawn. */
 export const labelOf = (plate, id) => plate.runs.filter(({ component }) => component === id).at(-1);
 
-/** The segments of a part's strip: contiguous rectangles from the label's left edge, under it. */
+/** Whether a rectangle or a run stands within a box. */
+export const within = (box, { x, y, baseline, width = 0, height = 0 }) =>
+  x > box.x &&
+  x + width < box.x + box.width + 0.11 &&
+  (baseline ?? y) > box.y &&
+  (baseline ?? y + height) < box.y + box.height + 0.11;
+
+/** The outline of a part: the card its label stands in, on the ground of a part inside or outside the repository. */
+export function outlineOf(plate, id, tokens = INDIGO) {
+  const label = labelOf(plate, id);
+  return rectsOf(plate.svg).find(
+    (rect) =>
+      [tokens.figure.card, tokens.figure.outside].includes(rect.fill) && within(rect, label),
+  );
+}
+
+/** The segments of a part's strip: contiguous rectangles under its label, within its outline. */
 export function stripOf(plate, id) {
   const label = labelOf(plate, id);
-  const under = rectsOf(plate.svg).filter(
-    (rect) => rect.y > label.baseline && rect.y < label.baseline + 40,
-  );
-  const first = under.find((rect) => Math.abs(rect.x - label.x) < 0.11);
+  const box = outlineOf(plate, id);
+  assert.ok(box, `no outline around ${id}`);
+  const under = rectsOf(plate.svg)
+    .filter((rect) => within(box, rect) && rect.y > label.baseline && rect.y < label.baseline + 40)
+    .sort((a, b) => a.x - b.x);
+  const [first] = under;
   assert.ok(first, `no strip under ${id}`);
   const strip = [first];
-  for (const rect of under.filter(({ y }) => y === first.y).sort((a, b) => a.x - b.x))
+  for (const rect of under.filter(({ y }) => y === first.y))
     if (rect.x > strip.at(-1).x && rect.x - (strip.at(-1).x + strip.at(-1).width) < 1.25)
       strip.push(rect);
   return strip;

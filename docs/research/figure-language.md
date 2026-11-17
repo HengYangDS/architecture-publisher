@@ -210,6 +210,46 @@ upstream input to write coordinates; that fits neither the product's positioning
 The end state stands in the contract's Evolution section, and the queue's items are worded against it. It applies
 to the print edition. The page in a browser is another medium and keeps Archify's figures.
 
+### Amended 2026-11-17: the first editions built with the one part
+
+Measured on 2026-11-17 in the lane of the Change `draw-a-part-as-one-card`, on works as the product builds them.
+The working material lies in the ignored `build/runtime/work/one-part/` (`builds/`, `probe/out/`).
+
+- **One work, eleven plates, in Chinese** (the work on ETHOS at its pin), as today's strips and as one card that
+  sets every detail a part states: crossings 17 and 29, route defects 6 and 16, the sum of the plates' type steps 11
+  and 6, summaries left out 1 and 3. The work on a documents repository, six plates: crossings 9 and 9, route
+  defects 16 and 13, the sum of steps 7 and 5.
+- **How much a card sets** (the same eleven plates, laid out and not typeset): cards that set no detail stand at
+  20 crossings, 10 route defects and a sum of steps of 13; cards that set the leading detail alone at 29, 13 and 7.
+  One detail costs what all cost: a detail widens its card as far as a line of it runs.
+- **One dense view of ten parts**, every candidate printed with what it made or why it was refused. As bare strips
+  six parts stood in one row at the two densest type steps, with 5 crossings and 1 route defect. As cards no row of
+  six was made at any step, each refused as too wide, and the view stood at 10 crossings. A column of a row of six
+  is 328 and 321 px wide at those steps; a card is wider than its strip by twice its padding, 32 px there; and the
+  lattice gives every column at least the width of the view's longest strip in its card. On four dense views the
+  card's least width (200 px or none) changed nothing, and a padding of 12 in place of 20 changed three views' type
+  steps and no view's crossings or route defects. With the edition's
+  longest strip at 320 px in place of 360 px the row of six is made again: 5 crossings, 1 route defect, the second
+  type step, the summary above the figure, as with bare strips.
+- **The two lanes joined, the whole work in Chinese** (compact cards, the longest strip at 320 px, the key's true
+  words), against today's strips: crossings 17 and 15, route defects 6 and 4, the sum of type steps 11 and 18,
+  plates at the smallest step 5 and 1, summaries left out 1 and 2, warnings of a count with no clear place 4 and 0.
+  No plate of the eleven sets its parts' details; today's strips set a leading detail under every part.
+- **What details would cost the roomiest view** (nine parts and one outside, compact at the largest type step, its
+  channels a third of the plate): with every detail no composition fits the two largest steps, the third has one
+  more route defect, and the two smallest hold the wiring. With the leading detail alone the largest step is 119 px
+  too tall for a field of 1,071 px, and the next wires worse (1 crossing and 3 route defects against 0 and 1). A cap
+  of a detail's widening at the longest strip's length changed none of this. A card with what its part states does
+  not stand beside eight others at reading type on one landscape page; where the strips did, they had no padding
+  and five plates at the smallest step.
+- **Captions in two forms.** The first whole build set, on two plates of eleven, the count beside the kind on some
+  cards and under it on others. The holder saw one by eye; a check of every built page found the other.
+
+What follows is in that Change's design, decisions 3, 5 and 6: the captions of a plate have one form; a plate is
+composed for compact cards and sets details where it has the room; and the edition's longest strip is 320 px. What
+the parts state has no place on such plates: a carrier that states each part once is still to be designed. Not
+established: the same measures on the other four works and in English, which the Change's acceptance builds.
+
 ## What is not established
 
 - That the engine can lay out any prototype from a model: every prototype was set by hand from the engine's

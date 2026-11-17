@@ -109,7 +109,10 @@ export const ATTENDED = {
     },
   },
   warnings: [
-    { code: "marks_fallback", message: "The edition draws its parts as cards." },
+    {
+      code: "line_row_untested",
+      message: "Plates 01 draw the pattern of a planned relation, which no work has tested.",
+    },
     { code: "likec4_skipped", path: "model.c4:24", message: "Skipped." },
   ],
 };

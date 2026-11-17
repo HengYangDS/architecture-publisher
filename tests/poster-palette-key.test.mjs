@@ -25,21 +25,22 @@ import {
   REFERENCE,
 } from "./fixtures/strips.mjs";
 
-// The strip plate's key and words, and the colours a palette gives either style.
+// The key and words of a plate whose parts carry strips, and the colours a palette gives a plate.
 
-test("a strip plate's key lists exactly the marks it shows, each with a real sample", async () => {
+test("a plate's key lists exactly the marks it shows, each with a real sample", async () => {
   const {
     plates: [plate],
   } = await platesIn(stripModel(), stripStyle());
+  // No kind: a card names its own kind beside the kind's icon.
   assert.deepEqual(plate.legend, [
     { shape: "band", band: 0, color: INDIGO.dye.new, label: "within 7 days of the commit" },
     { shape: "band", band: 2, color: INDIGO.dye.old, label: "earlier" },
     { shape: "reference", date: REFERENCE, label: "commit date 2026-11-10" },
-    // 20 KB on the scale where the largest part, 56 KB, is 360 px long.
+    // 20 KB on the scale where the largest part, 56 KB, is 320 px long.
     {
       shape: "length",
       bytes: 20000,
-      length: 128.6,
+      length: 114.3,
       thickness: 12,
       // A sample strip, dyed as the lightest strips are, so it reads as one of them and no louder.
       color: INDIGO.dye.new,
@@ -62,10 +63,12 @@ test("a strip plate's key lists exactly the marks it shows, each with a real sam
       label: "heavy lines lead to Supplies",
     },
     { shape: "boundary", label: "inside The print edition" },
+    // Typst stands outside the boundary, on the ground of a part outside it.
+    { shape: "outside", label: "outside it" },
   ]);
 });
 
-test("a strip plate in Chinese sets its captions and key in Chinese", async () => {
+test("a plate in Chinese sets its captions and key in Chinese", async () => {
   // One file of every band, so the key names all three.
   const parts = new Map(PARTS);
   parts.set("words", part([["src/locale.mjs", 6000, 1]]));
@@ -73,13 +76,15 @@ test("a strip plate in Chinese sets its captions and key in Chinese", async () =
     plates: [plate],
   } = await platesIn(stripModel("zh-CN"), stripStyle(INDIGO, parts));
   const texts = plate.runs.map(({ text }) => text);
-  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "没有所属文件", "阶段", "外部工具"])
+  for (const text of ["2 个文件，4 KB", "1 个文件，6 KB", "阶段", "外部工具"])
     assert.ok(texts.includes(text), text);
+  // A part that owns no file has no count and no words in its place.
+  assert.ok(!texts.includes("没有所属文件"));
   assert.deepEqual(
     plate.legend.slice(0, 7).map(({ label }) => label),
     [
       "提交前 7 日内",
-      "提交前 90 日内",
+      "提交前超过 7 日、90 日内",
       "更早",
       "提交日 2026-11-10",
       "20 KB：条长是组件所属文件的大小",
@@ -100,7 +105,7 @@ test("a band is named by its days before the commit, and the key shows only what
     shape: "band",
     band: 1,
     color: INDIGO.dye.mid,
-    label: "within 365 days",
+    label: "over 7 and within 365 days of the commit",
   });
   // A sample under a kilobyte is given in bytes: 200 B where the largest part is 400 B.
   assert.deepEqual(
@@ -117,7 +122,7 @@ test("a band is named by its days before the commit, and the key shows only what
   } = await platesIn(stripModel(), undated);
   assert.deepEqual(
     plain.legend.map(({ shape }) => shape),
-    ["band", "length", "count", "hub", "boundary"],
+    ["band", "length", "count", "hub", "boundary", "outside"],
   );
   // A plate whose parts own no files and whose relations cite none draws no strips or counts to key.
   const bare = validateModel(
@@ -132,8 +137,13 @@ test("a band is named by its days before the commit, and the key shows only what
   const {
     plates: [empty],
   } = await platesIn(bare, stripStyle(INDIGO, new Map()));
+  // Its key holds nothing: its two parts name their one kind in their captions, and neither has a strip.
   assert.deepEqual(empty.legend, []);
-  assert.equal(rectsOf(empty.svg).filter(({ fill }) => fill === "none").length, 2);
+  assert.equal(empty.runs.filter(({ text }) => text === "component").length, 2);
+  assert.deepEqual(
+    rectsOf(empty.svg).filter(({ fill, height }) => fill === "none" || height === 12),
+    [],
+  );
 });
 
 test("an overview's group is made of its members' files in path order", async () => {
@@ -179,17 +189,16 @@ test("a group larger than every part sets the edition's scale, on its own plate 
     plates[views.findIndex((view) => view.origin === origin && view.id === id)];
   // 77 KB of the builder and the supplies is the longest strip; the supplies' 56 KB is 56/77 of it.
   const overview = plates[views.findIndex(({ origin }) => origin === "overview")];
-  assert.ok(Math.abs(lengthOf(stripOf(overview, "edition")) - 360) <= 0.15);
+  assert.ok(Math.abs(lengthOf(stripOf(overview, "edition")) - 320) <= 0.15);
   const members = at("group", "edition");
-  const expected = (360 * 56000) / 77000;
+  const expected = (320 * 56000) / 77000;
   assert.ok(Math.abs(lengthOf(stripOf(members, "supplies")) - expected) <= 0.15);
 });
 
-test("a cards plate in indigo draws every colour from its tokens", async () => {
-  const style = { ...stripStyle(), name: "card" };
+test("a plate in indigo draws every colour from its tokens", async () => {
   const {
     plates: [plate],
-  } = await platesIn(stripModel(), style);
+  } = await platesIn(stripModel(), stripStyle());
   const tokens = new Set([
     ...Object.values(INDIGO.palette),
     ...Object.values(INDIGO.figure),
@@ -203,12 +212,13 @@ test("a cards plate in indigo draws every colour from its tokens", async () => {
   for (const color of drawn) assert.ok(tokens.has(color), color);
   for (const color of [INDIGO.figure.card, INDIGO.figure.outside, INDIGO.palette.mid])
     assert.ok(drawn.has(color), color);
-  // Cards keep their icons, boxes and kinds.
+  // Every part keeps its icon and its box and names its kind in its caption, and the key lists no kind.
   assert.match(plate.svg, /filter="url\(#lift\)"/u);
-  assert.ok(plate.legend.some(({ kind }) => kind === "supply"));
+  assert.ok(plate.runs.some(({ text }) => text === "vendored supply"));
+  assert.ok(!plate.legend.some((entry) => "kind" in entry));
 });
 
-test("cards in the house tokens draw the plates of no style named, pinned by their digest", async () => {
+test("the house tokens draw the plates of no style given, pinned by their digest", async () => {
   const bank = JSON.parse(await fs.readFile(BIG_BANK_MODEL, "utf8"));
   bank.components[1].status = "planned";
   bank.components[2].status = "retired";
@@ -220,12 +230,14 @@ test("cards in the house tokens draw the plates of no style named, pinned by the
       .createHash("sha256")
       .update(JSON.stringify(plates.map(({ svg, runs }) => ({ svg, runs }))))
       .digest("hex");
-  // Captured from the engine as it measures with the house faces' kerning. Without the kerning the digest is
-  // 0.12.0's, 9ddb126b…, from before styles and palettes: nothing else has moved a card plate since.
-  const drawn = "58357267d9ad99373e33af41b63f67ae09896146ee3d16ccaa9d67fc718b47b4";
+  // Captured from the engine when every part became one card, composed without its details and set with them
+  // where its plate has the room, under a boundary whose name starts on its cards' text edge: a change that means
+  // to move no plate drawn without measured facts leaves this digest as it is. Until then it was 58357267…, the
+  // cards of 0.12.0 as the house faces' kerning measures them.
+  const drawn = "1706e7ddd135a7fe2e96ac1d6814fbb65ac529ed57cea00c3e353eda9f84d14e";
   const unnamed = await platesIn(model);
   assert.equal(digest(unnamed.plates), drawn);
-  const named = await platesIn(model, { name: "card", tokens: HOUSE_TOKENS });
+  const named = await platesIn(model, { tokens: HOUSE_TOKENS });
   assert.equal(digest(named.plates), drawn);
   assert.deepEqual(named.plates, unnamed.plates);
 });
@@ -234,10 +246,11 @@ test("a caption counts one file in the singular in every language that has one",
   assert.equal(wordsOf("en").files(1, "2 KB"), "1 file, 2 KB");
   assert.equal(wordsOf("es").files(1, "2 KB"), "1 archivo, 2 KB");
   assert.equal(wordsOf("es").files(3, "2 KB"), "3 archivos, 2 KB");
-  // A band of one day, were an edition to count one, reads in the singular too.
+  // A newest band of one day, were an edition to count one, reads in the singular too. The middle band ends
+  // after it begins, so its upper bound is two days at the least and stands in the plural.
   const bands = (locale) => measureWordsOf(locale)["file-age-band"];
   assert.equal(bands("en").newest(1), "within 1 day of the commit");
-  assert.equal(bands("en").middle(1), "within 1 day");
+  assert.equal(bands("en").middle(1, 2), "over 1 and within 2 days of the commit");
   assert.equal(bands("es").newest(1), "en el día previo al commit");
-  assert.equal(bands("es").middle(1), "en el día previo");
+  assert.equal(bands("es").middle(1, 2), "más de 1 y hasta 2 días antes del commit");
 });

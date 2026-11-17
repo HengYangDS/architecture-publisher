@@ -95,7 +95,7 @@ const typeset = (run) => typefaces.typesetWidth(run.text, run);
 /** How much a run's line opens in each place when it is spread to its measure, in ems of its size. */
 const openingOf = (run) => (run.measure - typeset(run)) / openings(run.text) / run.size;
 
-test("a Chinese strip plate spreads a part's detail lines to one measure and leaves the last flush left", async () => {
+test("a Chinese plate spreads a part's detail lines to one measure and leaves the last flush left", async () => {
   const {
     plates: [plate],
   } = await platesIn(modelIn("zh-CN", { 编排: [LONG] }), strips());
@@ -110,8 +110,9 @@ test("a Chinese strip plate spreads a part's detail lines to one measure and lea
   assert.equal(new Set(spread.map(({ measure }) => measure)).size, 1);
   assert.equal(new Set(spread.map(({ x }) => x)).size, 1);
   assert.equal(lines.at(-1).measure, undefined);
-  // The part's counts are placed by the width Typst sets them in, so they end at the box's edge, where a measure as
-  // wide as the box ends too; the CJK face alone measures them wider, and would leave them short of it.
+  // The part's counts are placed by the width Typst sets them in, so they end at the card's padding, where a measure
+  // as wide as the card within its padding ends too; the CJK face alone measures them wider, and would leave them
+  // short of it.
   const counts = plate.runs.find(({ text }) => text === "1 个文件，3 KB");
   assert.ok(Math.abs(counts.x + typeset(counts) - (spread[0].x + spread[0].measure)) < 0.01);
   // The counts report the width they are set in, which the edition holds Typst to; the CJK face alone measures
@@ -123,7 +124,7 @@ test("a Chinese strip plate spreads a part's detail lines to one measure and lea
     assert.equal(run.measure, undefined);
 });
 
-test("a Chinese card plate spreads each detail's lines but its last", async () => {
+test("a Chinese plate drawn without file facts spreads each detail's lines but its last", async () => {
   const {
     plates: [plate],
   } = await platesIn(

@@ -76,14 +76,13 @@ function figureOf() {
     relations: [relations[index]],
     points,
   }));
-  const styles = figureStyles(POSTER.steps[0], true);
+  const styles = figureStyles(POSTER.steps[0]);
   const shapes = [];
   drawLines(
     { cards: new Map(), paths, arrows: [] },
     {
       facts: lineFacts({ relations }),
       view: { relations },
-      strips: true,
       styles,
       metrics: figureMetrics(styles),
       typefaces,
@@ -91,7 +90,6 @@ function figureOf() {
       lines: linesOf(TABLE),
       at: (x) => x,
       down: (y) => y,
-      lift: (point) => point,
       text: () => {},
       shapes,
       rects: [],

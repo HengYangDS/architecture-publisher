@@ -1,7 +1,7 @@
-import { presentation } from "../kinds.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
 import { drawLines } from "./lines.mjs";
-import { drawStrip, stripHeight } from "./strip.mjs";
+import { cardLift, drawPart } from "./part.mjs";
+import { measuredOf } from "./strip.mjs";
 import { colorsOf, fixed, linesOf } from "./tokens.mjs";
 
 /**
@@ -16,18 +16,10 @@ import { colorsOf, fixed, linesOf } from "./tokens.mjs";
 
 /** Ink the balance measure reads: boxes that hold text are mass without darkness of their own. */
 const MASS = Object.freeze({ kind: "mass", weight: 0 });
-const CARD = Object.freeze({ kind: "mass", weight: DARKNESS.card });
 const stroke = (color, paper) => ({
   kind: "stroke",
   weight: DARKNESS.stroke * darkness(color, paper),
 });
-
-function iconMarkup(icons, name, x, y, size, color) {
-  return (
-    `<g transform="translate(${fixed(x)},${fixed(y)}) scale(${size / 24})" fill="none" stroke="${color}" ` +
-    `stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons.artwork(name)}</g>`
-  );
-}
 
 /** The paper kept between a tier label and the first card of its tier. */
 const TIER_GAP = 24;
@@ -180,15 +172,15 @@ function tierLabels(layout, input, draw) {
  *   tierLabels?: "column" | "edges",
  *   offset?: number,
  *   style: import("./strip.mjs").Style,
- *   cardText: (component: any, width: number) => any }} input
+ *   cardText: (component: any, width: number) => any,
+ *   cardRow?: (cards: Array<{ component: any, width: number }>) => any }} input
  *   `offset` moves the figure across its field; its tier labels follow their rows.
- *   `style` names how a part is drawn, as a card or a strip, and the tokens it is drawn in.
+ *   `style` holds the tokens the figure is drawn in and the edition's measured facts.
  */
 export function drawFigure(layout, input) {
   const { model, view, styles, metrics, icons, typefaces, field } = input;
   const C = colorsOf(input.style.tokens);
   const lines = linesOf(input.style.lines);
-  const strips = input.style.name === "strip";
   const shapes = [];
   const runs = [];
   /** @type {Array<{ x: number, y: number, width: number, height: number, tier?: boolean }>} */
@@ -251,7 +243,9 @@ export function drawFigure(layout, input) {
       }),
     );
     const edge = lines.boundary();
-    let tabX = at(boundary.x + 24);
+    // The name starts on the text edge of a card at the boundary's left edge, so it and the names of the cards
+    // under it share one left edge at every type step; its tab reaches 12 px before it.
+    let tabX = at(boundary.x + metrics.spacing.boundaryPad + metrics.card.pad - 12);
     while (crossings.some((x) => at(x) > tabX - 12 && at(x) < tabX + tabWidth + 12)) tabX += 12;
     shapes.push(
       `<rect x="${fixed(at(boundary.x))}" y="${fixed(down(boundary.y))}" width="${fixed(boundary.width)}" ` +
@@ -273,39 +267,14 @@ export function drawFigure(layout, input) {
   }
 
   const components = new Map(view.components.map((component) => [component.id, component]));
-  // A strip part has no outline: in a row with a taller one it ends above its
-  // box's foot, and a wire into or out of that foot runs on up to one gap under
-  // its caption, so it does not start or end in the paper beneath it.
-  const feet = strips
-    ? [...layout.cards].map(([id, box]) => ({
-        box,
-        foot:
-          box.y +
-          stripHeight(input.cardText(components.get(id), box.width), styles) +
-          metrics.card.detailGap,
-      }))
-    : [];
-  const lift = ([x, y]) => {
-    const under = feet.find(
-      ({ box }) =>
-        Math.abs(box.y + box.height - y) < 0.5 && x > box.x - 0.5 && x < box.x + box.width + 0.5,
-    );
-    return [x, under ? Math.min(y, under.foot) : y];
-  };
-  // A count keeps clear of a strip part's marks, which end above its box's foot, and of every relation's label.
-  for (const { box, foot } of feet)
-    marks.push({
-      x: at(box.x),
-      y: down(box.y),
-      width: box.width,
-      height: foot - metrics.card.detailGap - box.y,
-    });
+  // A count keeps clear of every part's card and of every relation's label.
+  for (const box of layout.cards.values())
+    marks.push({ x: at(box.x), y: down(box.y), width: box.width, height: box.height });
   for (const label of layout.labels)
     marks.push({ x: at(label.x), y: down(label.y), width: label.width, height: label.height });
   const { rows, touching, paths } = drawLines(layout, {
     view,
-    strips,
-    facts: input.style.facts,
+    facts: measuredOf(input.style),
     styles,
     metrics,
     typefaces,
@@ -313,7 +282,6 @@ export function drawFigure(layout, input) {
     lines,
     at,
     down,
-    lift,
     text,
     shapes,
     rects,
@@ -323,100 +291,54 @@ export function drawFigure(layout, input) {
   // A planned or a retired part is drawn in its status's pattern, as a relation is.
   for (const { status } of view.components)
     if (status && status !== "implemented") rows.add(status);
-  const drawn = { lines: [...rows], touching };
+  shapes.push(cardLift(C));
+  // The cards of one row share their top; each row's regions stand at one top across it.
+  /** @type {Map<number, Array<{ component: any, width: number }>>} */
+  const rowsByTop = new Map();
+  for (const [id, card] of layout.cards) {
+    const key = Math.round(card.y * 100);
+    rowsByTop.set(key, [
+      ...(rowsByTop.get(key) ?? []),
+      { component: components.get(id), width: card.width },
+    ]);
+  }
+  const regionsOf = new Map(
+    [...rowsByTop].map(([key, cards]) => [key, input.cardRow ? input.cardRow(cards) : undefined]),
+  );
   /** @type {Array<{ id: string, group?: boolean, box: { x: number, y: number, width: number, height: number } }>} */
   const parts = [];
-  const report = (component, box) =>
-    parts.push({ id: component.id, ...(component.group ? { group: true } : {}), box });
-
-  if (strips) {
-    for (const [id, box] of layout.cards) {
-      const component = components.get(id);
-      const set = drawStrip(
-        {
-          x: at(box.x),
-          y: down(box.y),
-          width: box.width,
-          component,
-          text: input.cardText(component, box.width),
-          styles,
-          colors: C,
-          lines,
-        },
-        { text, shapes, rects, typefaces },
-      );
-      report(component, set);
-    }
-    const labels = drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
-    return { shapes, runs, rects, frame, ...drawn, report: { parts, paths, labels } };
-  }
-  shapes.push(
-    `<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="1.8" flood-color="${C.shadow}" flood-opacity="0.08"/></filter></defs>`,
-  );
-  const { card: cardStyle } = metrics;
   for (const [id, card] of layout.cards) {
     const component = /** @type {any} */ (components.get(id));
-    const style = presentation(model, component);
-    const muted = style.outside || component.context;
-    const hue = C.hue[/** @type {keyof typeof C.hue} */ (style.category)];
-    const dash =
-      component.status && component.status !== "implemented"
-        ? ` stroke-dasharray="${lines.status(component.status)}"`
-        : "";
-    const x = at(card.x);
-    const y = down(card.y);
-    shapes.push(
-      `<rect x="${fixed(x)}" y="${fixed(y)}" width="${card.width}" height="${card.height}" rx="${cardStyle.radius}" ` +
-        `fill="${muted ? C.external : C.card}" stroke="${muted ? C.externalStroke : C.cardStroke}" stroke-width="1.2" filter="url(#lift)"${dash}/>`,
-    );
-    shapes.push(
-      `<rect x="${fixed(x)}" y="${fixed(y + cardStyle.pad)}" width="${cardStyle.bar}" ` +
-        `height="${fixed(card.height - 2 * cardStyle.pad)}" rx="${cardStyle.bar / 2}" fill="${hue}"/>`,
-    );
-    rects.push({ x, y, width: card.width, height: card.height, ...CARD });
-    report(component, { x: fixed(x), y: fixed(y), width: card.width, height: card.height });
-    const { name, details, spread } = input.cardText(component, card.width);
-    const labelTop = y + cardStyle.pad;
-    shapes.push(
-      iconMarkup(
+    const box = drawPart(
+      {
+        x: at(card.x),
+        y: down(card.y),
+        width: card.width,
+        height: card.height,
+        model,
+        component,
+        text: input.cardText(component, card.width),
+        styles,
+        card: metrics.card,
         icons,
-        style.icon,
-        x + cardStyle.pad,
-        labelTop + (styles.name.line - cardStyle.icon) / 2,
-        cardStyle.icon,
-        hue,
-      ),
+        colors: C,
+        lines,
+        row: regionsOf.get(Math.round(card.y * 100)),
+      },
+      { text, shapes, rects, typefaces },
     );
-    let top = labelTop;
-    for (const line of name)
-      top = text(
-        "cards",
-        line,
-        x + cardStyle.pad + cardStyle.icon + cardStyle.iconGap,
-        top,
-        styles.name,
-        component.status === "retired" ? C.muted : C.ink,
-        component.id,
-      );
-    // Details follow the label as one block read from the card's top edge, so a
-    // card shorter than its row's tallest keeps its spare height at its foot,
-    // not between a name and what is said about it.
-    top += details.length ? cardStyle.detailGap : 0;
-    for (const [index, line] of details.entries())
-      top = text(
-        "cards",
-        line,
-        x + cardStyle.pad,
-        top,
-        styles.detail,
-        C.muted,
-        null,
-        spread[index],
-      );
+    parts.push({ id: component.id, ...(component.group ? { group: true } : {}), box });
   }
-
   const labels = drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
-  return { shapes, runs, rects, frame, ...drawn, report: { parts, paths, labels } };
+  return {
+    shapes,
+    runs,
+    rects,
+    frame,
+    lines: [...rows],
+    touching,
+    report: { parts, paths, labels },
+  };
 }
 
 /**

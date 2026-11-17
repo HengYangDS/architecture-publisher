@@ -34,7 +34,10 @@ id with its files and facts and ends with the guide's text.
 3. Write the model outside the described repository unless its owner asks for
    it there. Give components stable lowercase ids and short labels, relations
    verb labels such as `reads` or `publishes`, and each component one leading
-   detail, which its card prints. Map kinds to the eight categories.
+   detail: a card of the generated page shows the first detail it holds, and a
+   plate's card sets its details where the plate has the room. Map kinds to
+   the eight categories; every card of a plate names its component's kind by
+   the kind's label.
 4. Plan the views: usually an overview with `tiers` that name groups in reading
    order, then views of the mechanisms the question needs. Give each view a
    short `title`, such as `Overview` or `Proof plane`, its own `question` and a
@@ -69,16 +72,17 @@ id with its files and facts and ends with the guide's text.
    with a line range at the revision, and keep to four native diagrams. Check it
    with `archpub check model.json --repo <checkout>` until Archify's strict
    writing checks and its repository checks pass.
-8. Choose the edition's look only if the user asks: an `edition` object with
-   `marks` (画法), 条带 `strip` (each part a strip as long as its files are
-   large, its segments those files dyed by age, the default) or 卡片 `card`, and a
-   `palette` (配色), 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`, 铜绿
+8. Choose the edition's palette only if the user asks: an `edition` object
+   with a `palette` (配色), 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`, 铜绿
    `patina` or the user's own colours, which the check holds to printable
    contrast, chroma, lightness and hue and refuses with
-   `model_palette_rejected` at the colour that fails. A build without
-   `--repo`, or of a model that claims no files, draws cards and warns
-   `marks_fallback`, and refuses a model that names `strip` with
-   `marks_need_files`.
+   `model_palette_rejected` at the colour that fails. A model chooses no way
+   of drawing its parts: each is one card of its name, the strip of the files
+   it owns, as long as they are large and dyed by age, its kind and the number
+   and size of its files, with its details where its plate has the room. A build
+   without `--repo`, or of a model that claims no files, draws the cards
+   without strips and raises no warning of it. A model that names
+   `edition.marks` is refused with `model_field_retired`: remove the field.
 9. Run `archpub build model.json --repo <checkout> --out <new-directory>`. Look
    at the edition's every page, its plates and the overview, and at the page
    before showing them to the user. `--media edition` or `--media page` builds

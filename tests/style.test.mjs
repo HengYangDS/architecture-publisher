@@ -36,44 +36,32 @@ function bound(files) {
   };
 }
 
-test("a build without file facts draws cards and warns, unless the model asks for strips", () => {
+test("a build without file facts has no strip to draw, which is no fallback and raises no warning", () => {
   const none = { state: "none", records: [], owned: new Map([["a", []]]) };
-  const { style, warnings, record } = styleOf(modelOf(null), none);
-  assert.equal(style.name, "card");
-  assert.deepEqual(
-    warnings.map(({ code }) => code),
-    ["marks_fallback"],
-  );
-  // Cards have no age bands to record; the palette is the default, with its names and roles.
+  const styled = styleOf(modelOf(null), none);
+  // Nothing is chosen between two ways, so the style gives no warning of a fallback.
+  assert.deepEqual(Object.keys(styled), ["style", "record"]);
+  const { style, record } = styled;
+  assert.deepEqual(Object.keys(style), ["tokens", "facts"]);
+  assert.equal(style.facts.scale, null);
+  // Without strips there are no age bands to record; the palette is the default, with its names and roles.
   const { name, ...indigo } = HOUSE.palettes.indigo;
   assert.deepEqual(record, {
-    marks: "card",
     palette: "indigo",
     names: name,
     roles: indigo,
     bands: null,
   });
-  assert.throws(
-    () => styleOf(modelOf({ marks: "strip", palette: null }), none),
-    (error) => error.code === "marks_need_files",
-  );
-  const chosen = styleOf(modelOf({ marks: "card", palette: "persimmon" }), none);
-  assert.deepEqual(chosen.warnings, []);
-  assert.deepEqual([chosen.record.marks, chosen.record.palette], ["card", "persimmon"]);
+  assert.equal(styleOf(modelOf({ palette: "persimmon" }), none).record.palette, "persimmon");
   // A checkout read at the pin is not enough: a model that claims no files has nothing to draw a strip from.
-  const unclaimed = bound([]);
-  assert.equal(styleOf(modelOf(null), unclaimed).style.name, "card");
-  assert.throws(
-    () => styleOf(modelOf({ marks: "strip", palette: null }), unclaimed),
-    (error) => error.code === "marks_need_files",
-  );
+  const unclaimed = styleOf(modelOf(null), bound([]));
+  assert.deepEqual([unclaimed.style.facts.scale, unclaimed.record.bands], [null, null]);
 });
 
 test("a custom palette is recorded as custom, with its resolved roles and no names", () => {
   const palette = { ground: "#ffffff", ink: "#000000", dye: ["#d0d0d0", "#a0a0a0", "#606060"] };
-  const { record, style } = styleOf(modelOf({ marks: "card", palette }), bound([]));
+  const { record, style } = styleOf(modelOf({ palette }), bound([]));
   assert.deepEqual(record, {
-    marks: "card",
     palette: "custom",
     names: null,
     roles: { ...palette, accent: "#606060" },
@@ -82,15 +70,13 @@ test("a custom palette is recorded as custom, with its resolved roles and no nam
   assert.equal(style.tokens.palette.paper, "#ffffff");
 });
 
-test("strips draw each part from its files in path order, with one scale and one set of bands", () => {
+test("a part's strip is drawn from its files in path order, with one scale and one set of bands", () => {
   const binding = bound([
     { path: "src/z.mjs", bytes: 3000, days: 400 },
     { path: "src/a.mjs", bytes: 1000, days: 0.5 },
     { path: "src/m.mjs", bytes: 2000, days: 30 },
   ]);
-  const { style, warnings, record } = styleOf(modelOf(null), binding);
-  assert.equal(style.name, "strip");
-  assert.deepEqual(warnings, []);
+  const { style, record } = styleOf(modelOf(null), binding);
   const a = /** @type {any} */ (style.facts.part({ id: "a" }));
   assert.deepEqual(
     a.files.map(({ path }) => path),
@@ -107,6 +93,5 @@ test("strips draw each part from its files in path order, with one scale and one
   // Every edition dates its files from its pin by the same spans, and names the pin's day.
   assert.deepEqual(record.bands, { spans: [7 * DAY, 90 * DAY], reference: "1972-09-28" });
   assert.equal(style.facts.date, "1972-09-28");
-  assert.equal(record.marks, "strip");
   assert.ok(style.tokens.dye.old.startsWith("#"));
 });

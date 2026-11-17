@@ -19,12 +19,13 @@ import {
   wiresOf,
   arrowsOf,
   labelOf,
+  outlineOf,
   stripOf,
   lengthOf,
 } from "./fixtures/strips.mjs";
 
-// Strip marks: strips on one scale, their files, the hub and the box a part keeps; the counts are in
-// poster-line-counts.
+// The strip of a part: strips on one scale, their files, the hub and the box a part keeps; the part as a whole is
+// in poster-part and the counts are in poster-line-counts.
 
 /** The patterns the table of lines gives a planned and a retired part or relation. */
 const DASH = Object.freeze({
@@ -33,7 +34,7 @@ const DASH = Object.freeze({
 });
 
 /** The largest part's strip, in px: every other part's strip is as long for its share of the largest's bytes. */
-const LONGEST = 360;
+const LONGEST = 320;
 /** The bytes of the largest part of the strip work, the supplies. */
 const MOST = 56000;
 
@@ -54,18 +55,22 @@ test("a strip is as long as its part's bytes on one scale, the largest part long
     [...PARTS.keys()].flatMap((id) => stripOf(plate, id).map((s) => s.height)),
   );
   assert.deepEqual([...heights], [12]);
-  // A part's box is as wide as the larger of its text and its strip: the supplies' strip sets
-  // their box, and its counts end where the strip ends.
+  // A part's card is as wide as the widest of its regions within its padding: the supplies' strip, the edition's
+  // longest, stands within the card's padding, and their counts end at the card's right padding.
   const supplies = stripOf(plate, "supplies");
+  const card = outlineOf(plate, "supplies");
+  const pad = supplies[0].x - card.x;
+  const inner = card.x + card.width - pad;
   const counts = plate.runs.find(({ text }) => text === "3 files, 56 KB");
-  assert.ok(Math.abs(counts.x + counts.width - (supplies[0].x + lengthOf(supplies))) < 0.2);
+  assert.ok(supplies[0].x + lengthOf(supplies) <= inner + 0.2, String(lengthOf(supplies)));
+  assert.ok(Math.abs(counts.x + counts.width - inner) < 0.2, String(counts.x + counts.width));
   // The composer's text is wider than its strip, so its counts stand beyond it.
   const composer = stripOf(plate, "composer");
   const composed = plate.runs.find(({ text }) => text === "2 files, 4 KB");
   assert.ok(composed.x + composed.width > composer[0].x + lengthOf(composer) + 100);
-  // The kind sets the caption's left, in the muted colour of a detail.
+  // The kind's label follows the kind's icon, which sets the caption's left, in the muted colour of a detail.
   const kind = plate.runs.find(
-    ({ text, x }) => text === "stage" && Math.abs(x - composer[0].x) < 0.11,
+    ({ text, x }) => text === "stage" && x > composer[0].x && x < composer[0].x + 40,
   );
   assert.equal(kind?.color, INDIGO.palette.soft);
   assert.ok(plate.runs.some(({ text }) => text === "1 file, < 1 KB"));
@@ -73,15 +78,40 @@ test("a strip is as long as its part's bytes on one scale, the largest part long
 });
 
 test("every plate of an edition measures its strips on the same scale, whatever its type step", async () => {
+  // Four more parts that use the supplies set the plate of all ten in a smaller type than the plate of two. What a
+  // part states no longer does: a plate is composed for cards without their details.
+  const base = stripModel();
+  const extra = [1, 2, 3, 4].map((index) => ({
+    id: `stage${index}`,
+    label: `Stage ${index} of the edition`,
+    kind: "stage",
+  }));
   const model = stripModel("en", {
+    components: [...base.components.map(({ id, label, kind }) => ({ id, label, kind })), ...extra],
+    relations: [
+      ...base.relations.map(({ id, from, to, label, files: cited }) => ({
+        id,
+        from,
+        to,
+        label,
+        ...(cited ? { files: cited } : {}),
+      })),
+      ...extra.map(({ id }) => ({
+        id: `${id}-uses`,
+        from: id,
+        to: "supplies",
+        label: "uses",
+        files: files(1),
+      })),
+    ],
     views: [
-      { id: "all", members: ["builder", "composer", "words", "record", "supplies", "typst"] },
+      { id: "all", members: [...base.components, ...extra].map(({ id }) => id) },
       { id: "pair", members: ["builder", "supplies"] },
     ],
   });
   const { plates } = await platesIn(model, stripStyle());
   const [all, pair] = plates;
-  assert.notEqual(all.step, pair.step);
+  assert.ok(all.step < pair.step, `${all.step} and ${pair.step}`);
   for (const plate of plates) {
     assert.ok(Math.abs(lengthOf(stripOf(plate, "supplies")) - LONGEST) <= 0.15);
     assert.ok(Math.abs(lengthOf(stripOf(plate, "builder")) - (LONGEST * 21000) / MOST) <= 0.15);
@@ -113,19 +143,6 @@ test("a strip's files keep their shares of its length, a sliver merging into its
   assert.ok(Math.abs(lengthOf(stripOf(small, "words")) - 2) <= 0.05);
 });
 
-test("a part that owns no files is an empty dashed strip of a fixed short length", async () => {
-  const {
-    plates: [plate],
-  } = await platesIn(stripModel(), stripStyle());
-  const [empty] = stripOf(plate, "typst");
-  assert.equal(empty.fill, "none");
-  assert.ok(empty.dash);
-  assert.deepEqual([empty.width, empty.height], [40, 12]);
-  assert.ok(plate.runs.some(({ text }) => text === "owns no files"));
-  // No icons, no card boxes and no bars: the plate draws strips, wires and labels.
-  assert.doesNotMatch(plate.svg, /<g transform|filter=|<text/u);
-});
-
 /** Whether a wire has an end at a distance from a point, to a tenth of a pixel. */
 const endsAt = ({ points }, { x, y }, distance = 0) =>
   [points[0], points.at(-1)].some(
@@ -144,13 +161,11 @@ test("the lines into the hub are twice as heavy, in the oldest dye, each ending 
   assert.ok(heavy.length > 0 && light.length > 0);
   for (const { stroke, dash } of heavy) assert.deepEqual([stroke, dash], [INDIGO.dye.old, null]);
   for (const { stroke } of light) assert.equal(stroke, INDIGO.palette.mid);
-  const strip = stripOf(plate, "supplies");
-  const right = strip[0].x + lengthOf(strip);
-  const top = labelOf(plate, "supplies").baseline;
+  // The lines into the hub end on the top edge of its card.
+  const hub = outlineOf(plate, "supplies");
   const arrows = arrowsOf(plate.svg);
   const into = arrows.filter(
-    ({ x, y }) =>
-      x >= strip[0].x && x <= Math.max(right, strip[0].x + LONGEST) && y < top && y > top - 40,
+    ({ x, y }) => x >= hub.x && x <= hub.x + hub.width && Math.abs(y - hub.y) < 0.11,
   );
   const others = arrows.filter((arrow) => !into.includes(arrow));
   assert.ok(into.length > 0 && others.length > 0);
@@ -212,18 +227,24 @@ test("a view's hub draws three relations or more and strictly more than any othe
   assert.equal(hubOf(ends("h", "h", "h", "g", "g", "g")), null);
 });
 
-test("a planned or retired part's strip is outlined in its status's dashes", async () => {
+test("a planned or retired part's card is outlined in its status's dashes, and keeps its strip", async () => {
   const model = stripModel("en", {}, { record: "retired", typst: "planned" });
   const {
     plates: [plate],
   } = await platesIn(model, stripStyle());
-  const outlines = rectsOf(plate.svg).filter(({ fill }) => fill === "none");
-  assert.ok(outlines.some(({ dash }) => dash === DASH.retired));
-  assert.ok(outlines.some(({ dash }) => dash === DASH.planned));
-  // A retired part's label is muted, as on a card, and its outline is as long as its strip.
+  assert.equal(outlineOf(plate, "record").dash, DASH.retired);
+  assert.equal(outlineOf(plate, "typst").dash, DASH.planned);
+  assert.equal(outlineOf(plate, "builder").dash, null);
+  // A retired part's label is muted, and the strip of the files it still owns is as long as its bytes.
   assert.equal(labelOf(plate, "record").color, INDIGO.palette.soft);
-  const retired = outlines.find(({ dash }) => dash === DASH.retired);
-  assert.ok(Math.abs(retired.width - lengthOf(stripOf(plate, "record"))) <= 0.15);
+  const expected = (LONGEST * PARTS.get("record").bytes) / MOST;
+  assert.ok(Math.abs(lengthOf(stripOf(plate, "record")) - expected) <= 0.15);
+  // No strip is outlined: a status is its card's pattern.
+  assert.deepEqual(
+    rectsOf(plate.svg).filter(({ fill, height }) => fill === "none" && height === 12),
+    [],
+  );
+  // The statuses close the key.
   assert.deepEqual(
     plate.legend.slice(-2).map(({ shape }) => shape),
     ["planned", "retired"],
@@ -247,7 +268,7 @@ test("a part of empty files is the shortest strip, its files sharing it evenly",
   assert.ok(plate.runs.some(({ text }) => text === "2 files, 0 KB"));
 });
 
-test("a strip part whose label cannot break within any box is refused as a card would be", () => {
+test("a part whose label cannot break within any box is refused", () => {
   const long = validateModel({
     ...minimalModel(),
     id: "long",
@@ -273,7 +294,7 @@ test("a strip part whose label cannot break within any box is refused as a card 
   );
 });
 
-test("a wire leaves a short strip part one gap under its caption, not at its row's foot", async () => {
+test("the parts of a row share one height, and a wire leaves a short part at the foot of its card", async () => {
   const model = validateModel(
     minimalModel({
       id: "feet",
@@ -306,15 +327,17 @@ test("a wire leaves a short strip part one gap under its caption, not at its row
   const {
     plates: [plate],
   } = await platesIn(model, stripStyle(INDIGO, parts));
-  const [strip] = stripOf(plate, "short");
+  const [tall, short] = [outlineOf(plate, "tall"), outlineOf(plate, "short")];
   const caption = plate.runs.find(({ text }) => text === "1 file, 2 KB");
   const detail = plate.runs.filter(({ text }) => /wrap|once/u.test(text)).at(-1);
-  // The two parts share a row: the tall one's detail runs well below the short one's caption.
+  // The two parts share a row: the tall one's detail runs well below the short one's caption, and their cards
+  // are as tall as each other, the short one's spare height at its foot.
   assert.ok(detail.baseline > caption.baseline + 40);
+  assert.deepEqual([short.y, short.height], [tall.y, tall.height]);
   const starts = [...plate.svg.matchAll(/<path d="M([\d.]+),([\d.]+)[^"]*" fill="none"/gu)].map(
     ([, x, y]) => [Number(x), Number(y)],
   );
-  const under = starts.filter(([x]) => x > strip.x && x < strip.x + 400);
+  const under = starts.filter(([x]) => x > short.x && x < short.x + short.width);
   assert.ok(under.length > 0);
-  for (const [, y] of under) assert.ok(y - caption.baseline < 24, `${y} under ${caption.baseline}`);
+  for (const [, y] of under) assert.ok(Math.abs(y - (short.y + short.height)) < 0.11, String(y));
 });

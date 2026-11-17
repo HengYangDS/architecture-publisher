@@ -6,7 +6,13 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { runCli } from "../src/cli/run.mjs";
 import { json } from "./fixtures/command-line.mjs";
-import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
+import {
+  ETHOS_PROOF_PLANE_MODEL,
+  minimalModel,
+  pageModel,
+  temporaryDirectory,
+  writeModel,
+} from "./fixtures/models.mjs";
 import { repository } from "./fixtures/repository.mjs";
 import { reportLines } from "./fixtures/report-lines.mjs";
 import { SSH_KEYGEN } from "./fixtures/ssh.mjs";
@@ -21,19 +27,16 @@ test("a checkout that the model gives nothing to read is named in a warning", as
   assert.equal(checked.exitCode, 0);
   assert.deepEqual(
     checked.body.warnings.map(({ code }) => code),
-    ["repo_unused", "marks_fallback"],
+    ["repo_unused"],
   );
   const [unused] = reportLines(
     (await runCli(["check", model, "--repo", root, "--media", "edition"])).output,
   ).filter(([, label]) => label === "repo_unused");
   assert.equal(unused[0], "attention");
   assert.match(unused[2], /claims and cites no file/u);
-  // Without a checkout nothing is unused, but no part has a strip either.
+  // Without a checkout nothing is unused, and that no part has a strip is no fallback to warn of.
   const unchecked = await json(["check", model, "--media", "edition"]);
-  assert.deepEqual(
-    unchecked.body.warnings.map(({ code }) => code),
-    ["marks_fallback"],
-  );
+  assert.deepEqual(unchecked.body.warnings, []);
 });
 
 test("build options outside their range are refused before anything is read", async () => {
@@ -153,8 +156,6 @@ test("check, build, accept, publish and import run end to end", async (t) => {
       ["noted", "Facts"],
       ["noted", "Evidence"],
       ["passed", "Faces"],
-      ["heading", "Warnings"],
-      ["attention", "marks_fallback"],
       ["closing", `Next: archpub build ${model} --out <directory>`],
     ],
   );
@@ -180,7 +181,6 @@ test("check, build, accept, publish and import run end to end", async (t) => {
     report[6][2],
     /^architecture · figure (100|80|65)% of the body(, beside its reading)?( · misses [a-zA-Z0-9., ()-]+)?$/u,
   );
-  assert.match(report[13][2], /^The edition draws its parts as cards/u);
 
   const out = path.join(root, "delivery");
   const delivered = reportLines((await runCli(["build", model, "--out", out])).output);
@@ -340,27 +340,21 @@ test("check, build, accept, publish and import run end to end", async (t) => {
 });
 
 test("check names each plate's share of the body and a plate that left its reading out", async (t) => {
-  // Big Bank's tiered containers would wire with route defects at 80 percent, so a summary finds no room.
-  const bank = JSON.parse(
-    await fs.readFile(new URL("../examples/big-bank/model.json", import.meta.url), "utf8"),
-  );
-  for (const view of bank.views) view.summary = `What the ${view.id} view shows.`;
-  const model = await writeModel(t, bank);
+  // The ETHOS proof plane with longer names would wire worse at 80 percent of the body, with a route defect it has
+  // not at the full width, so its summary finds no room beside it. Under its own names it wires alike at both.
+  const ethos = JSON.parse(await fs.readFile(ETHOS_PROOF_PLANE_MODEL, "utf8"));
+  for (const component of ethos.components) component.label += " of one exact HEAD";
+  for (const view of ethos.views) view.summary = `What the ${view.id} view shows.`;
+  const model = await writeModel(t, ethos);
   const checked = await json(["check", model, "--media", "edition"]);
   assert.deepEqual(
-    checked.body.plates.map(({ views: [id], share, reading }) => [id, share, reading]).slice(0, 1),
-    [["containers-tiers", 1, "above"]],
+    checked.body.plates.map(({ views: [id], share, reading }) => [id, share, reading]).slice(1),
+    [["proof", 1, "above"]],
   );
   const lines = reportLines((await runCli(["check", model, "--media", "edition"])).output);
   const plate = (page) => lines.find(([, label]) => label === page)[2];
-  assert.match(
-    plate("01"),
-    /^containers-tiers · figure 100% of the body, its reading above the figure/u,
-  );
-  assert.match(
-    plate("02"),
-    /^containers-automatic · figure (80|65)% of the body, beside its reading/u,
-  );
+  assert.match(plate("01"), /^overview · figure (80|65)% of the body, beside its reading/u);
+  assert.match(plate("02"), /^proof · figure 100% of the body, its reading above the figure/u);
 });
 
 test("scaffold guide writes a starting guide and says where", async (t) => {

@@ -13,7 +13,7 @@ export const DEFAULT_LOCALE = "en";
 /**
  * @typedef {{
  *   editors: (names: string[]) => string,
- *   inside: (boundary: string) => string, outside: string,
+ *   inside: (boundary: string) => string, outside: string, context: string,
  *   planned: string, retired: string, component: string, group: string,
  *   includes: string, relations: string, uses: string,
  *   overview: (title: string, views: number) => string,
@@ -23,7 +23,7 @@ export const DEFAULT_LOCALE = "en";
  *   measures: Readonly<MeasureWords>,
  * }} Words
  * @typedef {{
- *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (days: number) => string, oldest: string }>,
+ *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (from: number, to: number) => string, oldest: string }>,
  *   "pin-date": (date: string) => string,
  *   "owned-bytes": (size: string) => string,
  *   "cited-files": string,
@@ -41,6 +41,7 @@ const WORDS = Object.freeze({
     editors: (names) => `Edited by ${names.join(", ")}`,
     inside: (boundary) => `inside ${boundary}`,
     outside: "outside it",
+    context: "outside this group, shown for context",
     planned: "planned",
     retired: "retired",
     component: "component",
@@ -60,7 +61,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `within ${days} ${days === 1 ? "day" : "days"} of the commit`,
-        middle: (days) => `within ${days} ${days === 1 ? "day" : "days"}`,
+        middle: (from, to) => `over ${from} and within ${to} days of the commit`,
         oldest: "earlier",
       }),
       "pin-date": (date) => `commit date ${date}`,
@@ -73,6 +74,7 @@ const WORDS = Object.freeze({
     editors: (names) => `编辑：${names.join("、")}`,
     inside: (boundary) => `${boundary} 内部`,
     outside: "外部",
+    context: "本组之外，供参照",
     planned: "计划中",
     retired: "已退役",
     component: "组件",
@@ -92,7 +94,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `提交前 ${days} 日内`,
-        middle: (days) => `提交前 ${days} 日内`,
+        middle: (from, to) => `提交前超过 ${from} 日、${to} 日内`,
         oldest: "更早",
       }),
       "pin-date": (date) => `提交日 ${date}`,
@@ -105,6 +107,7 @@ const WORDS = Object.freeze({
     editors: (names) => `編輯：${names.join("、")}`,
     inside: (boundary) => `${boundary} 內部`,
     outside: "外部",
+    context: "本組之外，供參照",
     planned: "規劃中",
     retired: "已退役",
     component: "元件",
@@ -124,7 +127,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `提交前 ${days} 日內`,
-        middle: (days) => `提交前 ${days} 日內`,
+        middle: (from, to) => `提交前超過 ${from} 日、${to} 日內`,
         oldest: "更早",
       }),
       "pin-date": (date) => `提交日 ${date}`,
@@ -137,6 +140,7 @@ const WORDS = Object.freeze({
     editors: (names) => `Edición de ${names.join(", ")}`,
     inside: (boundary) => `dentro de ${boundary}`,
     outside: "fuera",
+    context: "fuera de este grupo, como contexto",
     planned: "planificado",
     retired: "retirado",
     component: "componente",
@@ -157,7 +161,7 @@ const WORDS = Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) =>
           days === 1 ? "en el día previo al commit" : `en los ${days} días previos al commit`,
-        middle: (days) => (days === 1 ? "en el día previo" : `en los ${days} días previos`),
+        middle: (from, to) => `más de ${from} y hasta ${to} días antes del commit`,
         oldest: "antes",
       }),
       "pin-date": (date) => `fecha del commit ${date}`,
@@ -171,6 +175,7 @@ const WORDS = Object.freeze({
     editors: (names) => `편집: ${names.join(", ")}`,
     inside: (boundary) => `${boundary} 내부`,
     outside: "외부",
+    context: "이 그룹 밖, 참고용",
     planned: "계획됨",
     retired: "폐기됨",
     component: "구성 요소",
@@ -190,7 +195,7 @@ const WORDS = Object.freeze({
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `커밋 전 ${days}일 이내`,
-        middle: (days) => `${days}일 이내`,
+        middle: (from, to) => `커밋 전 ${from}일 초과 ${to}일 이내`,
         oldest: "그 이전",
       }),
       "pin-date": (date) => `커밋 날짜 ${date}`,

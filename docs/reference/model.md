@@ -82,7 +82,7 @@ kinds, details and views.
 | `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.         |
 | `overview`   | no       | The overview: what one page after the contents says, stated with no position.                  |
 | `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
-| `edition`    | no       | The print edition's marks and palette; see [Marks and palette](#marks-and-palette).            |
+| `edition`    | no       | The print edition's palette; see [Parts and palette](#parts-and-palette).                      |
 
 Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
 characters. A model file is at most 4 MiB. Unknown fields are refused, so a
@@ -112,11 +112,11 @@ may not connect a component to itself.
 
 - `details` maps a short name to text or a list of texts, such as
   `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. Names are at most
-  64 characters, contain no colon and are not plain numbers. A component's
-  details are printed on its card on the plate; on the page, its diagram card shows
-  the first detail it holds whole, or none, and its step lists every detail. A
-  relation's details are printed under its label. The delivery's data lists
-  every detail.
+  64 characters, contain no colon and are not plain numbers. A plate sets a
+  component's details on its card where it has [the room](#parts-and-palette);
+  on the page, its diagram card shows the first detail it holds whole, or none,
+  and its step lists every detail. A relation's details are printed under its
+  label. The delivery's data lists every detail.
 - `status` is `implemented`, `planned` or `retired`. On plates, planned
   components and relations are drawn dashed and retired ones dotted and muted;
   on the page, planned and retired relations are dashed.
@@ -262,44 +262,70 @@ citation would cite other text: move it to its new range, and reread every
 touched one. The JSON result holds the worklist in `coverage.currency.worklist`,
 and it never refuses the check.
 
-## Marks and palette
+## Parts and palette
 
-The optional `edition` object sets how the print edition draws its parts and
-in which palette. The page keeps Archify's own themes.
+The print edition draws every part as one card, and the optional `edition`
+object names the palette it is drawn in. The page keeps Archify's own themes.
 
 ```json
-"edition": { "marks": "strip", "palette": "indigo" }
+"edition": { "palette": "indigo" }
 ```
 
-`marks` (画法) is 条带 `strip` or 卡片 `card`. With `strip`, each part is its label, a strip and
-a caption: the kind, then the number of files and their size. A strip is as
-long as the files its part owns are large, whatever their type, on one scale
-for the whole edition, so a part of 200 KB is ten times as long as a part of
-20 KB on every plate; a part with any
-bytes is at least 2 px long, and every strip has the same thickness. The
-largest part is 360 px long; a strip is never shortened to fit its column, so
-an edition one of whose views cannot hold its strips draws them all at 240 px.
-The strip's
-segments follow the part's files in path order, each as wide as its file's
-share of the part's bytes and in the dye of its age band, and a file too narrow
-to draw apart joins a neighbour of its band; a part that owns no files is a short
-dashed outline. With `card`, each part is a card with its kind's icon and
-details.
+`edition` holds a palette and nothing else. A model that names `marks` there
+is refused with `model_field_retired` at `/edition/marks`: the field is
+retired, since every part is one card, and is to be removed.
+
+A card is made of regions, from its top: its part's name; the strip of the
+files the part owns; a caption, the kind's icon before the kind's label and
+then the number of files and their size; and the part's details. A region is
+drawn where the part has the fact: a part that owns no file has no strip and
+no count, and a build that reads no checkout, or a model that claims no files,
+draws every card without a strip and raises no warning of it. The captions of
+one plate have one form: each count stands beside its kind, at the card's
+right, where every card of the plate has the room for that line, and under its
+kind on every card otherwise. The card's outline tells its part's status and
+its ground whether the part lies inside the repository; a neighbour that a
+group's view shows for context stands on the ground of a part outside.
+
+A plate is composed for cards without their details, so what its parts state
+costs it neither wiring nor type. Its cards then set every detail when the
+view lays out with them in the same width and height, at the same type step,
+with no more crossings and, at equal crossings, no more route defects;
+otherwise none of its cards sets a detail. The data and the reader file hold
+every detail of every part.
+
+A strip is as long as the files its part owns are large, whatever their type,
+on one scale for the whole edition, so a part of 200 KB is ten times as long
+as a part of 20 KB on every plate; a part with any bytes is at least 2 px
+long, and every strip has the same thickness. The largest part is 320 px long;
+a strip is never shortened to fit its column, so an edition one of whose views
+cannot hold its strips draws them all at 208 px. Each file the part owns is one
+segment, in path order, as wide as its share of the part's bytes and in the dye
+of its age band, and a file too narrow to draw apart joins a neighbour of its
+band.
 
 Every edition sorts its files into the same three age bands, counted back from
-the pin's commit: changed within a week, within three months, and earlier. A
-file's age is the time from its last change at or before the pin to the pin.
+the pin's commit: changed within a week, over a week and within three months,
+and earlier; the key names the middle band by both bounds. A file's age is the
+time from its last change at or before the pin to the pin.
 The bands are the same for every edition, so two editions can be compared; the
 newest takes the palette's palest dye and the oldest its darkest.
 
-With strips, every relation's line carries the number of files the relation
-cites, near its source. The build checks that a cited file exists at the pin,
-not that it proves the relation. The part with the most incoming relations of a
-view, when it has at least three and more than any other part, is the view's
-hub, and the relations into it are drawn twice as heavy, in the oldest dye. A
-plate's key names only what its figure shows: the age bands with the pin's date,
-a scale bar, the count, the hub, the boundary and the statuses. The weights and
-patterns are the rows of the [line values](lines.md).
+Where an edition draws strips, every relation's line carries the number of
+files the relation cites, near its source. The build checks that a cited file
+exists at the pin, not that it proves the relation. The part with the most
+incoming relations of a view, when it has at least three and more than any
+other part, is the view's hub, and the relations into it are drawn twice as
+heavy, in the oldest dye. The weights and patterns are the rows of the
+[line values](lines.md).
+
+A plate's key names what its figure shows and a card does not say where it
+stands, and only that: the age bands with the pin's date, a scale bar, the
+count, the hub, the boundary, the ground of a part outside the repository, the
+ground of a neighbour shown for context, of which it says that it lies outside
+the group, and the statuses. It lists no kind, since every card names its kind
+beside the kind's icon, and in an edition that draws no strip it holds no band,
+date, scale bar, count or hub.
 
 `palette` (配色) names a built-in palette or gives one of your own. Each built-in is
 named for the dye or pigment its colours come from:
@@ -339,11 +365,7 @@ passes these rules:
 "palette": { "ground": "#f5efe7", "ink": "#271c19", "dye": ["#d8b5a8", "#a87062", "#673e36"], "accent": "#316354" }
 ```
 
-The defaults are `strip` and `indigo`. A strip is drawn from the files: a build
-that reads no checkout, or a model that claims no files, draws a model that
-names no marks with cards and warns `marks_fallback`, and refuses one that
-names `strip` with `marks_need_files`. A model that wants cards with a checkout
-sets `"edition": {"marks": "card"}`.
+A model that names no palette, or no `edition`, is drawn in `indigo`.
 
 The overview is drawn in the same palette: the class's `paper` is the ground,
 `ink` the ink, `green` the oldest dye and `ochre` the accent.

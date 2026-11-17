@@ -128,17 +128,17 @@ values. No module under `src/poster`, `src/edition`, `src/map` or `src/overview`
 
 #### Scenario: A false hub
 
-- **WHEN** a strip plate is drawn from a layer that names as the view's hub a part only two relations end at
+- **WHEN** a plate is drawn from a layer that names as the view's hub a part only two relations end at
 - **THEN** those two lines are drawn as lines into the hub, and the key names that part
 
 #### Scenario: A false count
 
-- **WHEN** a strip plate is drawn from a layer that holds 9 cited files for a relation whose model names none
+- **WHEN** a plate is drawn from a layer that holds 9 cited files for a relation whose model names none
 - **THEN** that relation's line carries the number 9
 
 #### Scenario: A false size
 
-- **WHEN** a strip plate is drawn from a layer that holds 1000 bytes for a part whose files hold 100000
+- **WHEN** a plate is drawn from a layer that holds 1000 bytes for a part whose files hold 100000
 - **THEN** the part's strip and caption show 1000 bytes on the edition's scale
 
 #### Scenario: A drawing module that measures
