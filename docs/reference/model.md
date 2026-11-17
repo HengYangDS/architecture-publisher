@@ -305,8 +305,9 @@ of its age band, and a file too narrow to draw apart joins a neighbour of its
 band.
 
 Every edition sorts its files into the same three age bands, counted back from
-the pin's commit: changed within a week, within three months, and earlier. A
-file's age is the time from its last change at or before the pin to the pin.
+the pin's commit: changed within a week, over a week and within three months,
+and earlier; the key names the middle band by both bounds. A file's age is the
+time from its last change at or before the pin to the pin.
 The bands are the same for every edition, so two editions can be compared; the
 newest takes the palette's palest dye and the oldest its darkest.
 

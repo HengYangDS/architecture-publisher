@@ -124,6 +124,54 @@ wider of its kind with its icon and its count.
   with a long one
 - **THEN** both cards take the longer card's width
 
+### Requirement: Strips sized by their files
+
+A part that owns files SHALL carry a strip under its name. The strip's length
+SHALL be proportional to the bytes of the files the part owns, of any type, on
+one scale for the whole edition, at least 2 px for a part with any bytes; every
+strip has one thickness. Each owned file is a segment in path order, as wide as
+its share of the strip, in the dye of its age band. The key SHALL show a scale
+bar.
+
+#### Scenario: Shares of a strip
+
+- **WHEN** a part owns two files of 3 KB and 1 KB
+- **THEN** its strip has two segments of three quarters and one quarter of its
+  length
+
+#### Scenario: One scale
+
+- **WHEN** one part owns 200 KB and another 20 KB in the same edition
+- **THEN** the first strip is ten times as long as the second, on every plate
+
+#### Scenario: Files of any type
+
+- **WHEN** a part owns one Markdown file of 4 KB and another part one program
+  file of 4 KB
+- **THEN** their strips are equally long
+
+### Requirement: Age bands
+
+Every edition SHALL divide the files its parts own into three age bands counted back from the pin's commit: changed
+within a week, over a week and within three months, and earlier. A file's age SHALL be the pin's commit time minus
+that of its last change at or before the pin. The key SHALL name the bands and the pin's date, the middle band by
+both its bounds, so that no file's age fits the names of two bands.
+
+#### Scenario: Recent and older files
+
+- **WHEN** an edition's files changed one, thirty and four hundred days before the pin
+- **THEN** the three files fall in three different bands, the same bands every edition uses
+
+#### Scenario: A file a relation cites and no part owns
+
+- **WHEN** a relation cites a file that no part owns
+- **THEN** the file falls in no band, and no strip shows it
+
+#### Scenario: The middle band's name
+
+- **WHEN** a plate's key names the band of files changed over 7 and within 90 days before the pin
+- **THEN** its words hold both numbers, in every language the publisher speaks
+
 ### Requirement: Strips keep to their boxes
 
 A strip SHALL never be shortened to fit a column: no column of a view is

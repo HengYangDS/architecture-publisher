@@ -103,6 +103,14 @@ strip's entries with strips.
      and need no value of their own.
    - Applies to: every plate with a boundary. A wire that crosses the top edge where the name would stand still
      moves the name clear of it.
+8. The key's middle age band is named by both its bounds.
+   - Rests on: `docs/research/figure-language.md`, "Amended 2026-11-17": a reader of another origin, given the
+     whole ETHOS set and the sources, judged "within 90 days" imprecise, since the catalogue gives the band the ages
+     over the first span and within the second and the words are as true of the newest band's files.
+   - Considered: leaving the words, since the three entries stand in order and the dyes differ.
+   - Chosen because: a key's words are held true to what the engine measures for any work; an entry that is true
+     of two bands is not.
+   - Applies to: the words of `file-age-band` in the five languages and the key of every plate that shows the band.
 
 ## Risks / Trade-offs
 

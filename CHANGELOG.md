@@ -84,6 +84,11 @@ remain pre-release contracts and may contain incompatible changes.
   publisher's own work in Chinese build the same bytes as before.
 - The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No
   delivered byte changes.
+- **Breaking:** a plate's key names its middle age band by both its bounds, in all five languages: "over 7 and
+  within 90 days of the commit", where it said "within 90 days", which is as true of a file of the newest band. A
+  reader of another origin took the two dyes for overlapping spans. Every plate's key text changes.
+- **Breaking:** the boundary's name starts on the text edge of the cards under it at every type step, where it
+  stood at an offset of its own and up to 8 px left of their names.
 - **Breaking:** a plate's key says what its marks measure and no more, in all five languages: a strip's length is the
   size of a part's files, where it said the code a part owns, and the number beside a relation counts the files the
   relation cites, where it said source files. The publisher measures the bytes of every file a part owns, of any
