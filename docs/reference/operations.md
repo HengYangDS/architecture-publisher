@@ -349,8 +349,8 @@ each text's glyph box must stay 48 pt from either side and 16 pt from the top
 and the bottom, over no other text and under no line or ring
 (`overview_text_over_line`). The print edition sets the page in place with the
 edition's foot, so its text stays text; it is delivered as
-`images/00-overview.png` and at each other `--png` width, and the same inputs
-give the same bytes.
+`images/00-overview.png` and at each other `--png` width, the same bytes from
+the same inputs.
 
 ## The guide
 
