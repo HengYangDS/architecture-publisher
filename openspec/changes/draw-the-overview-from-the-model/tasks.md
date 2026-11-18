@@ -16,7 +16,7 @@
 
 ## 3. Documents
 
-- [ ] 3.1 Bring the model and operations references, the Skill, the glossary and the changelog to the statement. Done when `npm run check:static` passes and no tracked document outside `docs/research/` and the changelog's history tells an author to write a composition.
+- [x] 3.1 Bring the model and operations references, the Skill, the glossary and the changelog to the statement. Done when `npm run check:static` passes and no tracked document outside `docs/research/` and the changelog's history tells an author to write a composition.
 - [x] 3.2 Record the committee of 2026-11-18 as a research page, state the three carriers and the overview as the edition's map in the contract's end state, and put `edition-map` in the queue with `compositions` before `portrait-edition`. Done when the queue's test passes and every quotation of the owner in the documents stands in the ledger.
 
 ## 4. Acceptance on the works

@@ -115,7 +115,7 @@ export async function stage(modelBytes, tokens = null) {
  * The SHA-256 of the overview a model states, as its JSON reads.
  * @param {unknown} statement
  */
-export const statementDigest = (statement) => sha256(Buffer.from(JSON.stringify(statement)));
+const statementDigest = (statement) => sha256(Buffer.from(JSON.stringify(statement)));
 
 /**
  * The Typst source that draws a staged model's overview, with the masthead's note of the files read beside it in
@@ -124,7 +124,7 @@ export const statementDigest = (statement) => sha256(Buffer.from(JSON.stringify(
  * @param {string | null} writtenFrom
  * @param {Record<string, string>} [plates] each view's plate number, by the view's id
  */
-export async function overviewEntry(root, writtenFrom, plates = {}) {
+async function overviewEntry(root, writtenFrom, plates = {}) {
   await fs.writeFile(
     path.join(root, STAGED, "overview-inputs.json"),
     JSON.stringify({ writtenFrom, plates }),
