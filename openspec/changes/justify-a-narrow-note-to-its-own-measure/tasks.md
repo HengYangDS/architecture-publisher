@@ -1,6 +1,6 @@
 ## 1. The record
 
-- [ ] 1.1 Add the committee's record as a research page and list it in the research home. Done when the documents' checks pass and every quotation of the owner in it stands in the ledger with its time.
+- [x] 1.1 Add the committee's record as a research page and list it in the research home. Done when the documents' checks pass and every quotation of the owner in it stands in the ledger with its time. The page is added and listed; the queue's test and the wording test pass, and its eight quotations of the owner stand in the ledger with their times.
 
 ## 2. The setting
 
