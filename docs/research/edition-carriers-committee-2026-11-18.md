@@ -140,7 +140,7 @@ The owner's answer of 08:39 took the committee's defaults: the blocks whole, the
   work fits one portrait page with its table: not measured.
 - That the index fills a landscape page legibly for each of the six works: not measured.
 - That every plate of the six works stays full with its answer in one fixed place: not measured.
-- What a person in a room makes of any of it: every seat was an agent, as every reader of this product so far.
+- What listeners in a room make of any of it: every seat was an agent, as every reader of this product so far.
 - The seats read one work in one language as text.
 
 ## Record
