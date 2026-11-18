@@ -116,6 +116,34 @@ function drawnTexts(model) {
 }
 
 /**
+ * The views a model declares that nothing on its overview names: the overview is the edition's map, and a
+ * view it does not reach is a plate a reader finds only in the contents.
+ * @param {any} model
+ */
+function unreachedViews(model) {
+  /** @type {Set<string>} */
+  const named = new Set();
+  const walk = (/** @type {unknown} */ value) => {
+    if (!value || typeof value !== "object") return;
+    for (const [key, item] of Object.entries(value))
+      if (key === "view" && typeof item === "string") named.add(item);
+      else walk(item);
+  };
+  walk(model.overview);
+  return (model.views ?? []).flatMap((view, index) =>
+    named.has(view.id)
+      ? []
+      : [
+          {
+            code: "overview_view_unreached",
+            path: `/views/${index}`,
+            message: `Nothing on the overview names the view ${view.id}.`,
+          },
+        ],
+  );
+}
+
+/**
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed. The listener is told each step as it is reached.
  * @param {string} modelPath
@@ -155,16 +183,6 @@ async function prepare(modelPath, options, listener) {
           },
         ]
       : [];
-  const overview =
-    printed && model.overview
-      ? await checkOverview({
-          modelBytes: loaded.content,
-          writtenFrom: facts.read ? editionWordsOf(model.locale).writtenFrom(facts.read) : null,
-          revision: model.repository?.revision ?? null,
-          date: commit?.date ?? null,
-          tokens: chosen.tokens,
-        })
-      : null;
   // Each view is one plate of the edition, laid out for its body, with the edition's strips as long as every view
   // can hold them.
   listener("planning views");
@@ -181,6 +199,24 @@ async function prepare(modelPath, options, listener) {
     };
   });
   warnings.push(...lineWarnings(plates, style));
+  // The overview is the edition's map: where a step or a block names a view, the page sets that view's plate number.
+  const plateNumbers = Object.fromEntries(
+    plates.flatMap((plate) =>
+      plate.views.map((view) => [view, String(plate.page).padStart(2, "0")]),
+    ),
+  );
+  const overview =
+    printed && model.overview
+      ? await checkOverview({
+          modelBytes: loaded.content,
+          plates: plateNumbers,
+          writtenFrom: facts.read ? editionWordsOf(model.locale).writtenFrom(facts.read) : null,
+          revision: model.repository?.revision ?? null,
+          date: commit?.date ?? null,
+          tokens: chosen.tokens,
+        })
+      : null;
+  if (overview) warnings.push(...unreachedViews(model));
   // Where the edition draws strips, the manifest records the length it draws its largest part at.
   const styleRecord = measuredOf(style)
     ? { ...chosenRecord, longest: longestOf(style) }

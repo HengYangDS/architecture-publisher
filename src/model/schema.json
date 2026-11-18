@@ -348,6 +348,10 @@
                   },
                   "text": {
                     "$ref": "#/$defs/text"
+                  },
+                  "view": {
+                    "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+                    "$ref": "#/$defs/id"
                   }
                 }
               },
@@ -378,6 +382,10 @@
                   },
                   "text": {
                     "$ref": "#/$defs/text"
+                  },
+                  "view": {
+                    "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+                    "$ref": "#/$defs/id"
                   }
                 }
               },
@@ -417,6 +425,10 @@
                   },
                   "text": {
                     "$ref": "#/$defs/text"
+                  },
+                  "view": {
+                    "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+                    "$ref": "#/$defs/id"
                   }
                 }
               },
@@ -430,6 +442,10 @@
                   },
                   "text": {
                     "$ref": "#/$defs/text"
+                  },
+                  "view": {
+                    "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+                    "$ref": "#/$defs/id"
                   }
                 }
               }
@@ -581,6 +597,10 @@
         },
         "note": {
           "$ref": "#/$defs/text"
+        },
+        "view": {
+          "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+          "$ref": "#/$defs/id"
         }
       },
       "anyOf": [
@@ -625,6 +645,10 @@
               }
             ]
           }
+        },
+        "view": {
+          "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+          "$ref": "#/$defs/id"
         }
       },
       "anyOf": [
@@ -813,6 +837,10 @@
               "$ref": "#/$defs/text"
             }
           }
+        },
+        "view": {
+          "description": "The view that enlarges this step or block: the overview sets its plate's number here, as a link.",
+          "$ref": "#/$defs/id"
         }
       }
     },

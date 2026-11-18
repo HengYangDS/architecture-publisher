@@ -58,7 +58,8 @@ export async function typesetEdition(input) {
         '#import "drawn.typ": drawn',
         '#let r = json("edition.json")',
         '#let stated = json("model.json").at("overview", default: none)',
-        "#edition(r, overview: if stated == none { none } else { drawn(stated, written-from: r.words.writtenFrom) })",
+        "#let numbers = r.plates.map(p => p.views.map(v => (v, p.number))).sum(default: ()).to-dict()",
+        "#edition(r, overview: if stated == none { none } else { drawn(stated, written-from: r.words.writtenFrom, plates: numbers) })",
         "",
       ].join("\n"),
     );

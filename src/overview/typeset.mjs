@@ -122,11 +122,12 @@ export const statementDigest = (statement) => sha256(Buffer.from(JSON.stringify(
  * `overview-inputs.json`.
  * @param {string} root the staged root
  * @param {string | null} writtenFrom
+ * @param {Record<string, string>} [plates] each view's plate number, by the view's id
  */
-export async function overviewEntry(root, writtenFrom) {
+export async function overviewEntry(root, writtenFrom, plates = {}) {
   await fs.writeFile(
     path.join(root, STAGED, "overview-inputs.json"),
-    JSON.stringify({ writtenFrom }),
+    JSON.stringify({ writtenFrom, plates }),
   );
   const entry = path.join(root, "overview.typ");
   await fs.writeFile(
@@ -134,7 +135,7 @@ export async function overviewEntry(root, writtenFrom) {
     [
       `#import "/${STAGED}/drawn.typ": *`,
       "#show: overview",
-      `#drawn(json("/${STAGED}/model.json").overview, written-from: json("/${STAGED}/overview-inputs.json").writtenFrom)`,
+      `#drawn(json("/${STAGED}/model.json").overview, written-from: json("/${STAGED}/overview-inputs.json").writtenFrom, plates: json("/${STAGED}/overview-inputs.json").plates)`,
       "",
     ].join("\n"),
   );
@@ -197,15 +198,15 @@ function refuseDiagnostics(stderr, roots) {
  * Check a model's overview before the edition sets it in place: Typst's drawing of it alone from the statement,
  * every text box inside the live area and clear of the others and of every line and ring, and every character drawn
  * by a bundled face. Hands back the texts, the boxes read back, and the marks and lines it drew.
- * @param {{ modelBytes: Buffer, writtenFrom?: string | null, revision: string | null, date: string | null,
- *   typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
+ * @param {{ modelBytes: Buffer, writtenFrom?: string | null, plates?: Record<string, string>,
+ *   revision: string | null, date: string | null, typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
 export async function checkOverview(input) {
   const typst = input.typst ?? "typst";
   const version = await typstVersion(typst);
   const [house, fonts] = await Promise.all([verifySupply("house"), verifySupply("fonts")]);
   const staged = await stage(input.modelBytes, input.tokens ?? null);
-  const entry = await overviewEntry(staged.root, input.writtenFrom ?? null);
+  const entry = await overviewEntry(staged.root, input.writtenFrom ?? null, input.plates ?? {});
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-out-"));
   try {
     const roots = [staged.root, await fs.realpath(staged.root)];

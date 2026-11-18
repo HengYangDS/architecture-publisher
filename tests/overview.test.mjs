@@ -31,7 +31,7 @@ function typeset(statement = everyBlock()) {
  * The fixture overview's page image with Typst 0.15.1 and the bundled faces. Every CI platform must reproduce it,
  * so an overview is the same image wherever it is built.
  */
-const OVERVIEW_PNG = "895516d175a6edb035501fbf906d19ee476fab232225416e5230c5ee2885d5bb";
+const OVERVIEW_PNG = "c45dec3be18d0c71b66b65784d88e9526fe73245a49708b19c79ae4e1a217381";
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 /** A PNG's width from its header. */

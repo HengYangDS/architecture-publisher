@@ -124,15 +124,15 @@ as wide as its text and strip within its lattice slot, the cards of one column
 share the widest of those widths, and every card of a row has one height; the
 page's diagram cards share one width. Declared tiers are the rows, in order; a
 tier wider than a row wraps into consecutive rows. Otherwise rows follow the
-relations: every relation points down or stays within one row, and the
-publisher chooses the rows that skip the fewest rows with their relations, then
-have the fewest relations within a row, then the fewest rows. The placement of
-cards within their rows is exact: it minimizes a weighted count of crossings,
-bends and unused columns over the whole lattice. Relations run through the
-channels between rows as buses, corridors, lanes beyond the outermost cards and
-straight arrows. A relation that skips rows takes the free column gap, empty
-cell or lane that crosses the fewest wires, then runs shortest, and on plates
-then leaves the most paper beside the cards it passes.
+relations: every relation points down or stays within one row, and the publisher
+chooses the rows that skip the fewest rows with their relations, then have the
+fewest relations within a row, then the fewest rows. The placement of cards
+within their rows is exact: it minimizes a weighted count of crossings, bends
+and unused columns over the whole lattice. Relations run through the channels
+between rows as buses, corridors, lanes beyond the outermost cards and straight
+arrows. A relation that skips rows takes the free column gap, empty cell or lane
+that crosses the fewest wires, then runs shortest, and on plates then leaves the
+most paper beside the cards it passes.
 
 The layout never draws an overlap. A diagonal segment, a segment shared by
 different relations, a wire through a card or a label touching a card, another
@@ -191,33 +191,32 @@ text runs, which the edition sets as text.
 A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with
 no more crossings and route defects than at the full width. A view with a
-summary gives up at least a fifth: its figure takes 80 percent, at the type
-step that width allows, or 65 percent when that keeps the same step. When 80
-percent would wire worse, the figure keeps the full width and gives up the top
-of the body instead: the engine breaks the summary at 17 points of Source Serif
-4 into lines of at most 32 ems, and the figure takes the body's height less 24
-points for each line and 16 points more. The plate then sets the summary above
-the figure, justified within 32 ems in the title's column, its first baseline 24
-points below the body's top, and the figure stands on the body's bottom. When the
-figure would wire worse at that height too, it keeps the whole body and the
+summary gives up at least a fifth: its figure takes 80 percent, at the type step
+that width allows, or 65 percent when that keeps the same step. When 80 percent
+would wire worse, the figure keeps the full width and gives up the top of the
+body instead: the engine breaks the summary at 17 points of Source Serif 4 into
+lines of at most 32 ems, and the figure takes the body's height less 24 points
+for each line and 16 points more. The plate then sets the summary above the
+figure, justified within 32 ems in the title's column, its first baseline 24
+points below the body's top, and the figure stands on the body's bottom. When
+the figure would wire worse at that height too, it keeps the whole body and the
 manifest records its reading as left out. A summary above the figure carries
-neither the heading for where each part lives nor the paths. The engine
-measures the summary as Typst sets it, with a quarter em between Han and the
-letters and digits beside it, some full-width marks at half their width and
-the faces' own pair kerning; should Typst need more lines than the engine
-reserved, the plate sets the engine's lines flush left. A view without a summary gives up only width its
-figure leaves at the full width, at its own step, and only when one of its
+neither the heading for where each part lives nor the paths. The engine measures
+the summary as Typst sets it, with a quarter em between Han and the letters and
+digits beside it, some full-width marks at half their width and the faces' own
+pair kerning; should Typst need more lines than the engine reserved, the plate
+sets the engine's lines flush left. A view without a summary gives up only width
+its figure leaves at the full width, at its own step, and only when one of its
 components claims files. Beside the figure, 40 points from it, the plate sets
 the view's summary, justified like the edition's prose at any width of its
-column, and then where each component it shows lives: its label and the
-paths it claims. When the summary and the paths together are taller than the
-body, the plate sets the summary alone, without the heading or the paths. A
-summary taller than the body on its own, or paths taller than it beside no
-summary, is refused with `edition_reading_too_long`, since text is never
-shrunk. `check` and the manifest, which plan plates without typesetting them,
-record such a reading as set. Blank inside a figure, which the view's structure
-leaves, stays: `check` reports it, and reshaping the view is its author's
-choice.
+column, and then where each component it shows lives: its label and the paths it
+claims. When the summary and the paths together are taller than the body, the
+plate sets the summary alone, without the heading or the paths. A summary taller
+than the body on its own, or paths taller than it beside no summary, is refused
+with `edition_reading_too_long`, since text is never shrunk. `check` and the
+manifest, which plan plates without typesetting them, record such a reading as
+set. Blank inside a figure, which the view's structure leaves, stays: `check`
+reports it, and reshaping the view is its author's choice.
 
 The print edition is typeset by Typst 0.15.1 with the house class into
 `<model id>.pdf`, pages of 1600 × 900 points:
@@ -335,21 +334,23 @@ in the full viewer.
 
 ## The overview
 
-The publisher draws the overview from the model's [statement](model.md#overview)
-as it sets the title and contents pages: the course across the first band, each
-step as wide as what it holds, and the blocks in the order stated, in halves and
-thirds chosen by measured height. A station is a ring, the course's ends larger,
-a fork's branches and spurs smaller; no other mark is drawn. A page too tall at
-the house's spacing is set closer, notes and texts a size smaller, and one too
-tall at both is refused with `overview_too_tall`, naming the first block that
-does not fit. The page is drawn in a root Typst may not leave, with only the
-house faces, Noto Sans CJK SC and no package; each text's glyph box is read back
-and must stay 48 pt from either side and 16 pt from the top and the bottom, over
-no other text and under no line or ring (`overview_text_over_line`). A character
-no face draws, and every Typst warning or error, is refused. The print edition
-sets the page in place with the edition's foot, so its text stays text; it is
-delivered as `images/00-overview.png` and at each other `--png` width, and the
-same inputs give the same bytes.
+The publisher draws the overview from the model's
+[statement](model.md#overview): the course across the first band, each step as
+wide as what it holds, and the blocks in the order stated, in halves and thirds
+chosen by measured height. A station is a ring, the course's ends larger, a
+fork's branches and spurs smaller; no other mark is drawn. A point or a block
+that names its view is followed by its plate's number, a link in the edition. A
+text of more than one line is justified. A page too tall at the house's spacing
+is set closer, notes and texts a size smaller, and one too tall at both is
+refused with `overview_too_tall`, naming the first block that does not fit; the
+rows share the height they leave, so the page is full. The page is drawn in a
+root Typst may not leave, with the house faces, Noto Sans CJK SC and no package;
+each text's glyph box must stay 48 pt from either side and 16 pt from the top
+and the bottom, over no other text and under no line or ring
+(`overview_text_over_line`). The print edition sets the page in place with the
+edition's foot, so its text stays text; it is delivered as
+`images/00-overview.png` and at each other `--png` width, and the same inputs
+give the same bytes.
 
 ## The guide
 

@@ -148,6 +148,36 @@ line.
 - **WHEN** a drawing would run a fork's bar through the name of one of its branches
 - **THEN** the build refuses with `overview_text_over_line`, naming the branch's name and the bar's ends
 
+### Requirement: Plates named on the overview
+
+A step, a station, a branch, a spur or a block of the statement MAY name, in
+`view`, the view that enlarges it; a view the model does not declare SHALL be
+refused with `model_reference_unknown` at its path. The page SHALL set that
+view's plate number after the name, and in the edition as a link to the
+plate's page. A check SHALL report with `overview_view_unreached`, at the
+view's path, every view that nothing on the overview names.
+
+#### Scenario: A block names its view
+
+- **WHEN** a block names a view that the edition sets on plate 05
+- **THEN** `05` follows the block's title, and in the edition links to that page
+
+#### Scenario: A view the overview does not reach
+
+- **WHEN** a model declares a view that no point or block of its overview names
+- **THEN** the check's warnings name it with `overview_view_unreached`
+
+### Requirement: Every overview page full
+
+The height that a page's rows leave above the foot SHALL be shared between the
+rows, so that the last row ends at the foot and no band of paper stands above
+it; the rows keep their content and their order.
+
+#### Scenario: A statement shorter than its page
+
+- **WHEN** a statement's rows end 120 points above the foot at the house's spacing
+- **THEN** the rows stand further apart and the last ends at the foot
+
 ### Requirement: Running text justified
 
 A note or a text of the overview that takes more than one line SHALL be

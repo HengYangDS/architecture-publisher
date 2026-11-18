@@ -4,7 +4,8 @@
 // steps as wide as their stations need; the other blocks follow in the order stated, in rows of two halves or three
 // thirds, each as tall as it is set. The page is laid out at the house's spacing, and at a closer one, with notes
 // and texts a size smaller, when the first reaches below the foot; a page that does not fit at the closer spacing
-// either is refused with the first block that does not fit. Every text is set with the house class's primitives,
+// either is refused with the first block that does not fit. The height the rows leave is shared between them, so
+// the last row ends at the foot. Every text is set with the house class's primitives,
 // which record its box for the publisher's checks; a note or a text of more than one line is justified.
 
 #import "house.typ": *
@@ -80,6 +81,32 @@
   fill: fill, weight: weight, w: w, spread: weight == "regular")
 #let _deep(g, body, w, weight: "regular") = _depth(body, w, size: g.size, pitch: g.pitch, weight: weight,
   spread: weight == "regular")
+
+/// The number of the plate that enlarges a step or a block that names `view`, or none: the edition's plates by the
+/// views they hold, which the spacing carries. Its width with the gap before it, and the number set after a name
+/// that ends at x on the baseline b: in the edition a link to that plate's page.
+#let _plate(g, entry) = {
+  let view = entry.at("view", default: none)
+  if view == none { none } else { g.at("plates", default: (:)).at(view, default: none) }
+}
+#let _number-gap = 8pt
+#let _number-room(number) = if number == none { 0pt } else {
+  _number-gap + _natural(number, size: "small", weight: "semibold")
+}
+#let _numbered(number, x, b) = if number == none { none } else {
+  tx(x + _number-gap, b, if _in-edition { link(label("plate-" + number), number) } else { number }, size: "small",
+    weight: "semibold", fill: green)
+}
+
+/// A point's name in semibold within w, with the number of the plate that enlarges it after it; and how deep the
+/// name is, the number's room left.
+#let _named(g, point, x, b, w) = {
+  let number = _plate(g, point)
+  let room = w - _number-room(number)
+  tx(x, b, _name(point), weight: "semibold", w: room)
+  _numbered(number, x + calc.min(_natural(_name(point), weight: "semibold"), room), b)
+}
+#let _name-depth(g, point, w) = _depth(_name(point), w - _number-room(_plate(g, point)), weight: "semibold")
 
 // ── The course ────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -198,7 +225,8 @@
   let heads-bottom = head-b
   for (i, step) in steps.enumerate() {
     let w = spans.at(i).w - 16pt
-    let bottom = head-b + _depth(_name(step), w, size: "head", font: serif, pitch: _head-pitch)
+    let bottom = head-b + _depth(_name(step), w - _number-room(_plate(g, step)), size: "head", font: serif,
+      pitch: _head-pitch)
     if step.at("note", default: none) != none { bottom += g.note + _deep(g, step.note, w) }
     heads-bottom = calc.max(heads-bottom, bottom)
   }
@@ -208,7 +236,7 @@
   // A fork that splits the course into paths names its first branch on the course's line, with the stations.
   let splits = points.filter(p => p.rejoin)
   let label-b = channels-bottom + g.label
-  let names-depth = named.map(p => _depth(_name(p.item), p.cell - 18pt, weight: "semibold"))
+  let names-depth = named.map(p => _name-depth(g, p.item, p.cell - 18pt))
   let labels-bottom = if names-depth.len() == 0 { channels-bottom } else { label-b + calc.max(..names-depth) }
   let most = calc.max(..points.map(p => p.tracks))
   let half = (most - 1) / 2 * _track
@@ -218,7 +246,7 @@
   let passes = course.at("passes", default: ()).map(pass => {
     let n = points.position(p => p.item.at("id", default: none) == pass.after)
     let (a, b) = (points.at(n), points.at(n + 1))
-    let from = a.x + if a.named { 10pt + _natural(_name(a.item), weight: "semibold") + 12pt } else { 12pt }
+    let from = a.x + if a.named { 10pt + _natural(_name(a.item), weight: "semibold") + _number-room(_plate(g, a.item)) + 12pt } else { 12pt }
     let to = b.x - 12pt
     (label: pass.label, a: a.x, b: b.x, from: from, to: to, fits: to - from >= _natural(pass.label, size: "small"))
   })
@@ -232,7 +260,7 @@
     p.fork.enumerate().map(((j, b)) => {
       let x = p.x + j * p.cell
       let w = p.cell - 18pt
-      let name-depth = _depth(_name(b), w, weight: "semibold")
+      let name-depth = _name-depth(g, b, w)
       let note = b.at("note", default: none)
       let note-b = y + name-depth + g.pitch
       let bottom = if note == none { y + name-depth } else { note-b + _deep(g, note, w) }
@@ -249,12 +277,12 @@
     let y = line-y
     for b in p.fork {
       let name-b = y + 4pt
-      let name-depth = _depth(_name(b), w, weight: "semibold")
+      let name-depth = _name-depth(g, b, w)
       let note = b.at("note", default: none)
       let note-b = name-b + name-depth + g.pitch
       let bottom = if note == none { name-b + name-depth } else { note-b + _deep(g, note, w) }
       rows.push((b: b, y: y, name-b: name-b, note-b: note-b, w: w, bottom: bottom, name-w: calc.min(w,
-        _natural(_name(b), weight: "semibold"))))
+        _natural(_name(b), weight: "semibold") + _number-room(_plate(g, b)))))
       y = bottom + g.pitch
     }
     rows
@@ -272,7 +300,7 @@
   let spur-b = unders-bottom + g.text
   let spurs-bottom = if spurs.len() == 0 { unders-bottom } else {
     calc.max(..spurs.map(sp => {
-      let name-depth = _depth(_name(sp.s), sp.cell - 18pt, weight: "semibold")
+      let name-depth = _name-depth(g, sp.s, sp.cell - 18pt)
       let note = sp.s.at("note", default: none)
       spur-b + name-depth + if note == none { 0pt } else { g.pitch + _deep(g, note, sp.cell - 18pt) }
     }))
@@ -296,9 +324,12 @@
     // Headings and their notes.
     for (i, step) in steps.enumerate() {
       let span = spans.at(i)
-      tx(span.x, head-b, _name(step), size: "head", font: serif, w: span.w - 16pt, pitch: _head-pitch)
+      let number = _plate(g, step)
+      let head-w = span.w - 16pt - _number-room(number)
+      tx(span.x, head-b, _name(step), size: "head", font: serif, w: head-w, pitch: _head-pitch)
+      _numbered(number, span.x + calc.min(_natural(_name(step), size: "head", font: serif), head-w), head-b)
       if step.at("note", default: none) != none {
-        let depth = _depth(_name(step), span.w - 16pt, size: "head", font: serif, pitch: _head-pitch)
+        let depth = _depth(_name(step), head-w, size: "head", font: serif, pitch: _head-pitch)
         _set(g, span.x, head-b + depth + g.note, step.note, fill: soft, w: span.w - 16pt)
       }
     }
@@ -352,7 +383,7 @@
         // The path goes on from after the branch's name to the bar that joins the course.
         _seg((p.x + 10pt + row.name-w + 10pt, row.y), (f.join, row.y), w: 1.6pt, c: green)
         _ring(p.x, row.y, r: 4pt, w: 1.5pt)
-        tx(p.x + 10pt, row.name-b, _name(row.b), weight: "semibold", w: row.w)
+        _named(g, row.b, p.x + 10pt, row.name-b, row.w)
         if row.b.at("note", default: none) != none { _set(g, p.x + 10pt, row.note-b, row.b.note, fill: soft, w: row.w) }
       }
     }
@@ -365,7 +396,7 @@
       _seg((p.x, line-y + (p.tracks - 1) / 2 * _track), (p.x, bar), (f.rows.last().x, bar), w: 1.6pt, c: green)
       for row in f.rows {
         _ring(row.x, bar, r: 4pt, w: 1.5pt)
-        tx(row.x + 10pt, row.y, _name(row.b), weight: "semibold", w: row.w)
+        _named(g, row.b, row.x + 10pt, row.y, row.w)
         if row.b.at("note", default: none) != none {
           _set(g, row.x + 10pt, row.note-b, row.b.note, fill: soft, w: row.w)
         }
@@ -379,15 +410,15 @@
       let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
       _seg((sp.x, line-y + (sp.tracks - 1) / 2 * _track + r), (sp.x, ring-y - 4pt), w: 1.4pt, c: green)
       _ring(sp.x, ring-y, r: 4pt, w: 1.5pt)
-      tx(sp.x + 10pt, spur-b, _name(sp.s), weight: "semibold", w: sp.cell - 18pt)
+      _named(g, sp.s, sp.x + 10pt, spur-b, sp.cell - 18pt)
       if sp.s.at("note", default: none) != none {
-        let depth = _depth(_name(sp.s), sp.cell - 18pt, weight: "semibold")
+        let depth = _name-depth(g, sp.s, sp.cell - 18pt)
         _set(g, sp.x + 10pt, spur-b + depth + g.pitch, sp.s.note, fill: soft, w: sp.cell - 18pt)
       }
     }
     // Station names above the course and notes below it, beside the ring.
     for p in named {
-      tx(p.x + 10pt, label-b, _name(p.item), weight: "semibold", w: p.cell - 18pt)
+      _named(g, p.item, p.x + 10pt, label-b, p.cell - 18pt)
       if p.item.at("note", default: none) != none {
         _set(g, p.x + 10pt, under-b, p.item.note, fill: soft, w: p.cell - 18pt)
       }
@@ -454,22 +485,24 @@
 // ── The blocks ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /// A block's heading and the baseline its content starts below. Needs context.
-#let _titled(title, x, w, top) = {
-  let depth = _depth(title, w, size: "head", font: serif, pitch: _head-pitch)
-  (start: top + 20pt + depth, body: tx(x, top + 20pt, title, size: "head", font: serif, w: w, pitch: _head-pitch))
+#let _titled(title, x, w, top, number: none) = {
+  let room = w - _number-room(number)
+  let depth = _depth(title, room, size: "head", font: serif, pitch: _head-pitch)
+  (start: top + 20pt + depth, body: tx(x, top + 20pt, title, size: "head", font: serif, w: room, pitch: _head-pitch)
+    + _numbered(number, x + calc.min(_natural(title, size: "head", font: serif), room), top + 20pt))
 }
 
 /// A further course in a block of width w: its title, stations along one line, the labelled step, the outcome that
 /// leaves a station, and its text. Needs context.
 #let _further(c, x, w, top, g) = {
-  let head = _titled(c.title, x, w, top)
+  let head = _titled(c.title, x, w, top, number: _plate(g, c))
   let start = head.start
   let note-depth = if c.at("note", default: none) == none { 0pt } else { g.note + _deep(g, c.note, w) }
   let stations = c.stations
   let cell = w / stations.len()
   let px(k) = x + 8pt + k * cell
   let label-b = start + note-depth + g.label + 4pt
-  let labels-bottom = label-b + calc.max(..stations.map(s => _depth(_name(s), cell - 18pt, weight: "semibold")))
+  let labels-bottom = label-b + calc.max(..stations.map(s => _name-depth(g, s, cell - 18pt)))
   let passing = c.at("pass", default: none)
   let line-y = labels-bottom + g.line + if passing == none { 0pt } else { 14pt }
   let noted = stations.filter(s => s.at("note", default: none) != none)
@@ -492,7 +525,7 @@
     _seg((px(0), line-y), (px(stations.len() - 1), line-y), w: 2pt, c: green)
     for (k, s) in stations.enumerate() {
       _ring(px(k), line-y, r: if k == 0 or k == stations.len() - 1 { 7pt } else { 5pt })
-      tx(px(k) + 10pt, label-b, _name(s), weight: "semibold", w: cell - 18pt)
+      _named(g, s, px(k) + 10pt, label-b, cell - 18pt)
       if s.at("note", default: none) != none { _set(g, px(k) + 10pt, note-b, s.note, fill: soft, w: cell - 18pt) }
     }
     if passing != none {
@@ -514,7 +547,7 @@
 /// A headed list of terms and texts: the terms in a column as wide as the widest, up to two fifths of the block.
 /// Needs context.
 #let _list(f, x, w, top, g) = {
-  let head = _titled(f.title, x, w, top)
+  let head = _titled(f.title, x, w, top, number: _plate(g, f))
   let width(t) = _natural(t, size: g.size, weight: "semibold")
   // A long list of short items stands in two columns, down the first and then the second, where every item is one
   // line in half the width; otherwise in one.
@@ -543,7 +576,7 @@
 
 /// A table: its column titles over a rule, then its rows, each cell wrapped in its column. Needs context.
 #let _table(f, x, w, top, g) = {
-  let head = _titled(f.title, x, w, top)
+  let head = _titled(f.title, x, w, top, number: _plate(g, f))
   let column = w / f.columns.len()
   let titles-b = head.start + g.first
   let rule-y = titles-b + calc.max(..f.columns.map(c => _deep(g, c, column - 12pt, weight: "semibold"))) + 8pt
@@ -562,7 +595,7 @@
 
 /// A group of headed lists side by side under one title, each term over its text. Needs context.
 #let _group(f, x, w, top, g) = {
-  let head = _titled(f.title, x, w, top)
+  let head = _titled(f.title, x, w, top, number: _plate(g, f))
   let n = f.lists.len()
   let column = (w - (n - 1) * 24pt) / n
   let bottom = head.start
@@ -593,7 +626,7 @@
   let kind = _kind(b)
   if kind == "text" {
     // A headed text: its heading and its words.
-    let head = _titled(b.title, x, w, top)
+    let head = _titled(b.title, x, w, top, number: _plate(g, b))
     let y = head.start + g.first
     return (bottom: y + _deep(g, b.text, w), body: head.body + _set(g, x, y, b.text, w: w))
   }
@@ -681,14 +714,15 @@
   rows
 }
 
-/// The page below the masthead at one spacing: its content, and the first block that reaches below the foot with
-/// how far, or none. Needs context.
+/// The page below the masthead at one spacing: its content, the first block that reaches below the foot with how
+/// far, or none, where its last row ends, and how many rows follow the course. Needs context.
 #let _page(s, g) = {
   let course = _course(s.course, 112pt, g)
   let parts = (course.body,)
   let over = if course.bottom > _limit { (title: "the course", bottom: course.bottom) } else { none }
   let top = course.bottom + g.row
-  for row in _rows(_cells(s.at("blocks", default: ())), g) {
+  let rows = _rows(_cells(s.at("blocks", default: ())), g)
+  for row in rows {
     let w = _cell-width(row.len())
     parts.push(_hrule(top))
     let bottom = top
@@ -700,23 +734,26 @@
     }
     top = bottom + g.row
   }
-  (body: parts.join(), over: over)
+  (body: parts.join(), over: over, bottom: top - g.row, rows: rows.len())
 }
 
 // ── The page ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/// The overview drawn from a model's statement; `written-from` is the masthead's note of the files the build read.
-#let drawn(s, written-from: none) = context {
+/// The overview drawn from a model's statement; `written-from` is the masthead's note of the files the build read,
+/// and `plates` each view's plate number by the view's id, set where a step or a block names the view.
+#let drawn(s, written-from: none, plates: (:)) = context {
   let name = _model.title
   masthead(name, s.claim, s.lead, read-from: written-from,
     claim-x: _left + _natural(name, size: "head", weight: "semibold") + 36pt)
-  let tries = _spacing.map(g => _page(s, g))
-  let fits = tries.filter(t => t.over == none)
-  if fits.len() == 0 {
+  let tries = _spacing.map(g => _page(s, g + (plates: plates)))
+  let fit = tries.position(t => t.over == none)
+  if fit == none {
     let over = tries.last().over
     panic("overview_too_tall: " + over.title + " reaches " + str(int(calc.round(over.bottom.pt())))
       + " pt, below " + str(int(_limit.pt())) + " pt above the foot")
   }
-  fits.first().body
+  // Every page is full: the height the rows leave is shared between them, so the last row ends at the foot.
+  let (g, tried) = (_spacing.at(fit) + (plates: plates), tries.at(fit))
+  if tried.rows == 0 { tried.body } else { _page(s, g + (row: g.row + (_limit - tried.bottom) / tried.rows)).body }
   imprint("")
 }

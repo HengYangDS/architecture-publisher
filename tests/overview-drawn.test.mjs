@@ -260,3 +260,15 @@ test("the drawing hands back every line it draws, and none lies over its text", 
   assert.ok(lines.length >= 20, `${lines.length} lines`);
   assert.ok(lines.every(({ points, w }) => points.length >= 2 && w > 0));
 });
+
+test("the height a page leaves is shared between its rows, so the last row ends at the foot", async () => {
+  // Every page is full (the owner, 2026-11-18): a statement that needs less than the page does not leave a band of
+  // paper above the foot. The rows keep their content and stand further apart.
+  const { boxes } = await drawn(everyBlock());
+  // The lowest text above the imprint: the last row's, whose last baseline stands at the limit above the foot's rule.
+  const lowest = Math.max(...boxes.filter(({ y }) => y < 860).map(({ y, h }) => y + h));
+  assert.ok(
+    lowest >= 850 - 14 && lowest <= 850 + 6,
+    `the last row ends at ${lowest.toFixed(1)} pt`,
+  );
+});

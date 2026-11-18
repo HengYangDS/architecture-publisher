@@ -351,7 +351,10 @@ export function validateModel(model, options = {}) {
   });
   const groupIds = new Set(groups.map(({ id }) => id));
   checkCoverage(problems, value.coverage);
-  readOverview(value.overview, problems, componentIds);
+  // The overview may name the views that enlarge its steps and blocks; the views themselves are checked below.
+  const declared = Array.isArray(value.views) ? value.views : [];
+  const viewIds = new Set(declared.map((view) => view?.id).filter((id) => typeof id === "string"));
+  readOverview(value.overview, problems, componentIds, viewIds);
   if (value.guide !== undefined && !isGuidePath(value.guide))
     problems.add(
       "model_guide_invalid",

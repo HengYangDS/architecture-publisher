@@ -74,7 +74,21 @@ complete edition out, no page placed by hand.
      own justification of a narrow column pulls a line's characters apart before a Latin word that does not fit.
    - Considered: Typst's paragraph justification for every language (the fault above); hyphenating Latin words
      inside Chinese text (it breaks identifiers such as `OpenSpec`).
-4. A mark carries one meaning, and only marks with a meaning are drawn.
+4. The overview is the edition's map: a point or a block names the view that enlarges it, and the page sets that
+   view's plate number there, as a link.
+   - Rests on: the owner, 2026-11-18 07:37 and 07:38 (the overview's mission is one page of overview; the pages
+     after it each expand one topic), 08:39 (the committee's design; links that jump are needed). The committee of
+     2026-11-18 (`build/runtime/work/committee-20261118/RESULT.md`): the overview keeps all it states and delegates
+     depth to the plates by number. The model states a reference, never a position; the product derives the number
+     and reports a view the overview does not reach.
+   - Considered: deriving the tie from the parts a block names (too few blocks name parts); a strip of the course's
+     stations on every plate (takes room from every figure, and marks nothing on plates off the course).
+5. The height a page's rows leave is shared between them, so the page is full.
+   - Rests on: the owner, 2026-11-18 00:53 and 00:56 (every page is full, as a matter of course), and 09:1x on seeing
+     a band of paper under the rows. The rows keep their content; only the room between them grows.
+   - Considered: a larger type size for the whole page (changes the hierarchy; the committee's three sizes are a
+     Change of their own).
+6. A mark carries one meaning, and only marks with a meaning are drawn.
    - Rests on: `docs/research/overview-pages.md` ("What a position expresses", the last item: every reader asked
      what ring, tick and disc meant, and no page said).
    - Considered: keeping three kinds of mark with a key.
@@ -83,18 +97,18 @@ complete edition out, no page placed by hand.
      a spur are smaller rings under the course; a stretch on parallel tracks is drawn as thinner lines beside the
      course; a line between points is drawn over the course with its sentence; the outcome that leaves a course is
      drawn in the accent, with its sentence.
-5. A step or a station may name a part of the model, and then prints the model's label.
+7. A step or a station may name a part of the model, and then prints the model's label.
    - Rests on: `docs/research/overview-pages.md` (five of six pages retype the names of parts).
    - Chosen because: a name stated once cannot drift; a part named that does not exist is refused at the model's
      path with `model_reference_unknown`.
-6. The composition is retired, not kept beside the statement.
+8. The composition is retired, not kept beside the statement.
    - Rests on: the contract's Product paragraph ("no other input of its kind is added", and the composition "stays
      until the publisher draws the overview from the model").
    - Considered: accepting both forms for a release.
    - Chosen because: two ways to state one page is the choice the edition marks were; a model that names a `.typ`
      file is refused with `model_overview_composition_retired`, which says what replaced it.
    - Applies to: the schema, the staging and its three refusals, the manifest's composition record.
-7. The queue gains `overview` before the rest of `composable-parts`.
+9. The queue gains `overview` before the rest of `composable-parts`.
    - Rests on: the owner's words of 2026-11-17 13:20 and the holder's decision under the owner's delegation of
      2026-11-15 to order the work; `docs/research/figure-language.md` ("What follows for the product").
    - Applies to: the contract's queue and the item `carriers`, which no longer names the overview.

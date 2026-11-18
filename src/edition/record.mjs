@@ -65,6 +65,7 @@ export function editionRecord(input) {
     return {
       key: `plate-${number}`,
       number,
+      views: plate.views,
       figureWidth: plate.width,
       figureHeight: plate.height,
       summary: ["set", "above"].includes(plate.reading) ? (plate.summary ?? null) : null,

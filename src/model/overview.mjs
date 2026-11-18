@@ -9,8 +9,8 @@
  * here says where anything stands, how large it is or in what type: those are the publisher's.
  */
 
-const STEP = ["id", "label", "part", "note", "text", "stations"];
-const STATION = ["id", "label", "part", "note"];
+const STATION = ["id", "label", "part", "note", "view"];
+const STEP = [...STATION, "text", "stations"];
 const SPUR = ["at", ...STATION];
 const TRACKS = Object.freeze({ least: 2, most: 4 });
 
@@ -27,8 +27,9 @@ const TRACKS = Object.freeze({ least: 2, most: 4 });
  * @param {unknown} value
  * @param {Problems} problems
  * @param {Set<string>} componentIds
+ * @param {Set<string>} viewIds the ids of the views the model declares
  */
-export function readOverview(value, problems, componentIds) {
+export function readOverview(value, problems, componentIds, viewIds) {
   if (value === undefined) return null;
   if (typeof value === "string") {
     problems.add(
@@ -44,12 +45,29 @@ export function readOverview(value, problems, componentIds) {
   problems.text(overview.lead, "/overview/lead");
   checkCourse(overview.course, "/overview/course", problems, componentIds);
   if (overview.blocks !== undefined)
-    eachOf(overview.blocks, "/overview/blocks", problems, 1, (block, path) =>
-      block && typeof block === "object" && "stations" in block
-        ? checkFurtherCourse(block, path, problems, componentIds)
-        : checkFact(block, path, problems),
-    );
+    eachOf(overview.blocks, "/overview/blocks", problems, 1, (block, path) => {
+      if (block && typeof block === "object" && "stations" in block)
+        checkFurtherCourse(block, path, problems, componentIds);
+      else checkFact(block, path, problems);
+    });
+  checkViews(overview.course, "/overview/course", problems, viewIds);
+  checkViews(overview.blocks, "/overview/blocks", problems, viewIds);
   return overview;
+}
+
+/**
+ * A step, a station, a branch, a spur or a block may name the view that enlarges it: the page sets that view's plate
+ * number after its name, as a link. Every `view` of the statement names a view the model declares.
+ */
+function checkViews(value, path, problems, viewIds) {
+  if (Array.isArray(value))
+    value.forEach((item, index) => checkViews(item, `${path}/${index}`, problems, viewIds));
+  else if (value && typeof value === "object")
+    for (const [key, item] of Object.entries(value)) {
+      if (key !== "view") checkViews(item, `${path}/${key}`, problems, viewIds);
+      else if (!viewIds.has(item))
+        problems.add("model_reference_unknown", `${path}/view`, "names no declared view");
+    }
 }
 
 /** Check each item of a list of at least `least`, or say the list is not one. */
@@ -245,7 +263,9 @@ function checkParallel(parallel, path, problems, { ids, runs, order, forks }) {
 }
 
 function checkFurtherCourse(course, path, problems, componentIds) {
-  if (!problems.fields(course, path, ["title", "stations"], ["note", "pass", "aside", "text"]))
+  if (
+    !problems.fields(course, path, ["title", "stations"], ["note", "pass", "aside", "text", "view"])
+  )
     return;
   problems.text(course.title, `${path}/title`);
   problems.text(course.note, `${path}/note`, true);
@@ -282,12 +302,12 @@ function checkItems(items, path, problems) {
 function checkFact(fact, path, problems) {
   const entry = /** @type {Record<string, any>} */ (fact);
   if (entry && typeof entry === "object" && "items" in entry) {
-    if (!problems.fields(entry, path, ["title", "items"], ["text"])) return;
+    if (!problems.fields(entry, path, ["title", "items"], ["text", "view"])) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`, true);
     checkItems(entry.items, `${path}/items`, problems);
   } else if (entry && typeof entry === "object" && "columns" in entry) {
-    if (!problems.fields(entry, path, ["title", "columns", "rows"], ["text"])) return;
+    if (!problems.fields(entry, path, ["title", "columns", "rows"], ["text", "view"])) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`, true);
     eachOf(entry.columns, `${path}/columns`, problems, 1, (column, at) =>
@@ -300,7 +320,7 @@ function checkFact(fact, path, problems) {
       row.forEach((cell, index) => problems.text(cell, `${at}/${index}`));
     });
   } else if (entry && typeof entry === "object" && "lists" in entry) {
-    if (!problems.fields(entry, path, ["title", "lists"], ["text"])) return;
+    if (!problems.fields(entry, path, ["title", "lists"], ["text", "view"])) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`, true);
     eachOf(entry.lists, `${path}/lists`, problems, 2, (list, at) => {
@@ -309,7 +329,7 @@ function checkFact(fact, path, problems) {
       checkItems(list.items, `${at}/items`, problems);
     });
   } else if (entry && typeof entry === "object" && "text" in entry) {
-    if (!problems.fields(entry, path, ["title", "text"], [])) return;
+    if (!problems.fields(entry, path, ["title", "text"], ["view"])) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`);
   } else

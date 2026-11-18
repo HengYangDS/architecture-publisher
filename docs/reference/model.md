@@ -422,6 +422,10 @@ a Typst file here is refused with `model_overview_composition_retired`.
   to four, or their names, and `spurs`: stations beside the course, each
   leaving the point named in `at`, such as an input or a store, and `passes`:
   a `label` on the stretch `after` a point, before the next.
+- `view`, on a step, a station, a branch, a spur or a block, names the view that
+  enlarges it: the page sets that view's plate number after the name, in the
+  edition a link to the plate's page. The overview is the edition's map, and a
+  check warns with `overview_view_unreached` of a view that nothing on it names.
 - `lines` go from one point of the course to others, each with a `label`: a
   point is a station, a branch, a spur or a step without stations, named by
   its `id`; a line with an end at a spur runs under the course. A
