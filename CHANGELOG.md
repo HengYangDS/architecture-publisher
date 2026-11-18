@@ -7,6 +7,25 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- A build spends less time routing a plate's channels: the check of one choice against the wires already chosen
+  looks at the two label rows the two choices stand on and no longer lists a channel's rows for every question.
+  A build of the ETHOS work in Chinese took 113 s where it took 397 s, alone on one core. No layout, plate or
+  digest changes.
+- A build asks Archify for its page once: the page is validated, written and checked in one run when it is
+  prepared, where a build validated it and then delivered it. A page Archify refuses is validated on its own, so a
+  refusal names every finding as before; a check validates and delivers nothing, as before. A build of a work
+  with a guide is shorter by that validation, 5 to 9 s of 24 to 34 s on two published works. No delivered byte
+  changes.
+- Where the environment variable `ARCHPUB_ARCHIFY_ANSWERS` names a directory, each whole answer of Archify to a
+  candidate diagram of the page is kept there, by the supply's digest, the Node.js and platform, the quality and
+  the document, and read from there before Archify is asked; a path that cannot be made a directory refuses with
+  `answers_unkept`. Without the variable nothing is kept outside the process. The suite names one directory for a
+  run, and its test of the installed package names none.
+- The queue holds the item `performance`, first among the open ones, and `docs/research/build-and-suite-time.md`
+  records where the time of a build, of the suite and of a pipeline goes.
+
 ## [0.15.0] - 2026-11-19
 
 ### Added

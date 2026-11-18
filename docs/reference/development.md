@@ -119,6 +119,17 @@ evidence. `tests/map-browser.test.mjs` opens delivered pages in Chromium at
 viewer. It uses `ARCHPUB_BROWSER_EXECUTABLE` when set, or Playwright's own
 headless browser; CI requires it.
 
+The suite's files are processes of their own and build the same fixtures. Unless
+the caller names a directory of Archify's answers, the environment fixture
+names one for the run (`tests/fixtures/archify-answers.mjs`, through
+`ARCHPUB_ARCHIFY_ANSWERS`) and removes it when the run ends, so each candidate
+diagram of a fixture is measured once a run. A run ended by a signal leaves
+its directory, and a later run removes those a day old. Three tests count work and no seconds:
+`tests/channel-conflicts.test.mjs` the reads of the channel solver's check,
+`tests/page-single-run.test.mjs` the runs of Archify a build and a check start
+for a page, and `tests/archify-answers.test.mjs` the runs a question starts
+with an answer kept and with none.
+
 `.gitattributes` gives `ethos-role=test` only to the suite's `tests/*.test.mjs`
 entries, which `npm test` runs; fixtures and the command journey are tooling.
 ETHOS requires every test-role file to run in its proof and every module to be

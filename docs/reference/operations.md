@@ -321,6 +321,23 @@ masks its route, which runs on at least 8 units past it at either end. A view
 without a candidate that passes refuses the build with Archify's findings; a
 diagram never drops a component or relation to fit.
 
+The verified Archify answers one document one way, so a process measures a
+candidate once. Where the environment variable `ARCHPUB_ARCHIFY_ANSWERS` names
+a directory, each whole answer is kept there as well, a verdict Archify reached
+or a layout it drew, by the Archify supply's digest, the Node.js and platform
+that ran it, the kind of answer, the quality and the document, and read from
+there before Archify is asked. Another build of the work then asks Archify
+again only for the candidates that changed, those Archify refused and those
+whose answer could not be written. archpub makes the directory when it is
+missing and never prunes it, so it grows with every new candidate; it replaces
+a file there that is no whole answer, and takes any whole answer it finds
+there for Archify's, so the directory is the caller's to guard. Where a page's
+candidates are measured, in a build, a check or a scaffold of a model without
+a guide, a path that cannot be made a directory is refused with
+`answers_unkept` before Archify is asked; a directory that cannot be written
+keeps nothing and says nothing. Without the variable nothing is kept outside
+the process. The chosen diagram is the same either way.
+
 When the model declares a repository URL and revision, each step cites the
 component's first file, the first file of its first claim, as a numbered page
 source at that revision, listed under the component's name, and the step of a
@@ -518,6 +535,7 @@ or Archify reported.
 | `overview_too_tall`, `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error` | The statement does not fit one page; a character no face draws; or a Typst warning or error.                                                                      |
 | `page_measures_missing`                                                                         | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                                                                         |
 | `page_refused`                                                                                  | Archify did not validate or deliver the page.                                                                                                                     |
+| `answers_unkept`                                                                                | The path `ARCHPUB_ARCHIFY_ANSWERS` names cannot be made a directory.                                                                                              |
 | `guide_missing`, `guide_file_invalid`, `guide_file_missing`                                     | The guide is missing, whichever media are built; a file it names is a link, outside its directory or missing; with `--repo`, a file it cites is not at the pin.   |
 | `guide_repository_mismatch`, `guide_repository_unavailable`                                     | The guide names another repository or revision, or its checkout cannot be cloned.                                                                                 |
 | `scaffold_output_exists`                                                                        | `scaffold guide --out` already exists.                                                                                                                            |

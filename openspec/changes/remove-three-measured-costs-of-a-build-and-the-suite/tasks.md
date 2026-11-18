@@ -12,15 +12,15 @@
 
 - [x] 3.1 Test first that an answer is kept by what it answers wherever the document lies; that only a whole answer is kept or read; that a path that cannot be a directory refuses before Archify is asked, an answer that cannot be written is not kept, and nothing is kept without the variable; that the choice of a diagram reads kept answers and chooses the same; and that a build with answers kept delivers what a build without them delivers. Done when the tests fail on the source before for want of the function. On the source before, the file fails for want of `candidateAnswer`; its six tests pass.
 - [x] 3.2 Keep Archify's whole answers to candidate diagrams in the directory `ARCHPUB_ARCHIFY_ANSWERS` names; have the suite's environment fixture name one directory for a run, and the test of the installed package name none. Done when the tests pass and the tests of the choice pass unchanged. The tests pass; `tests/map-archify.test.mjs` passes unchanged, and the installed package builds with no directory named to it.
-- [ ] 3.3 Describe the variable and its refusal `answers_unkept` in `docs/reference/operations.md` and the suite's use of it in `docs/reference/development.md`. Done when the documents' checks pass.
+- [x] 3.3 Describe the variable and its refusal `answers_unkept` in `docs/reference/operations.md` and the suite's use of it in `docs/reference/development.md`. Done when the documents' checks pass. Both pages name the variable, and the table of refusals names `answers_unkept`.
 
 ## 4. The queue and the record
 
 - [x] 4.1 Add the item `performance` to the queue before `edition-map`, with its end and what it moves back, and write the research page `docs/research/build-and-suite-time.md` with the baseline of 2026-11-18 and each change's measurement, listed in the research home. Done when the queue's test and the documents' checks pass. The item stands before `edition-map` with its end, the page is written and listed, and the queue's test and the documents' checks pass.
-- [ ] 4.2 Record the three changes under `Unreleased` in `CHANGELOG.md`. Done when the static checks pass.
+- [x] 4.2 Record the three changes under `Unreleased` in `CHANGELOG.md`. Done when the static checks pass. `npm run check:static` passes.
 
 ## 5. Acceptance
 
-- [ ] 5.1 Build the six works in both languages before and after the check's rewrite and compare each pair file by file; build two works with guides before and after the one-run page and compare them. Done when every pair is identical and the times stand in the research page.
-- [ ] 5.2 Run the whole suite before and after the kept answers, the host to itself. Done when both runs' times and the tests that fail in each stand in the research page, and no test fails after that passed before.
+- [x] 5.1 Build the six works in both languages before and after the check's rewrite and compare each pair file by file; build two works with guides before and after the one-run page and compare them. Done when every pair is identical and the times stand in the research page. All twelve pairs before and after the check's rewrite are identical file by file, 2879 s summed before and 1055 s after; two works with guides built in three rounds before and after the one-run page are identical in 13 files each, five of six pairs shorter by 5 to 9 s of 24 to 34 s; the times stand in the research page.
+- [x] 5.2 Run the whole suite before and after the kept answers, the host to itself. Done when both runs' times and the tests that fail in each stand in the research page, and no test fails after that passed before. The host's slot to itself, two files at a time: 530 s and 5942 runs of Archify before, 481 s and 4237 runs after, with 4044 answers kept; no test of the product fails after that passed before; both readings stand in the research page.
 - [ ] 5.3 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.
