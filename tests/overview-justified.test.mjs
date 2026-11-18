@@ -99,12 +99,26 @@ const ENGLISH =
 const CHINESE =
   "租约把持有者、代次和到期时间都记在仓库的状态库里，每条通道只有一个持有者；通道可以续约、恢复或接管，也可以结束旧租约后再重新开始。";
 
-test("a step's text that takes several lines is justified, its last line short", async () => {
-  const lines = await linesOf(statement(ENGLISH, "short"), ENGLISH);
-  assert.ok(lines.length >= 4, `the text set ${lines.length} lines`);
+test("a step's text in English that takes several lines in a wide measure is justified, its last line short", async () => {
+  // Three steps across the page: a step's text has some thirty-eight ems.
+  const stated = statement(ENGLISH, "short");
+  stated.course.steps = stated.course.steps.slice(0, 3);
+  const lines = await linesOf(stated, ENGLISH);
+  assert.ok(lines.length >= 3, `the text set ${lines.length} lines`);
   const { spread, short } = edges(lines);
   assert.ok(spread <= 6, `the lines end ${spread} px apart`);
   assert.ok(short > 30, "the last line is set short, not stretched");
+});
+
+test("a text in English in a column narrower than twenty ems stays flush left", async () => {
+  // Six steps across the page: under nineteen ems. Justified there, lines of three or four words open by half an
+  // em and more at each space (a reader of twelve pages named fifteen such lines, 2026-11-18); a part's details
+  // on a plate stay flush left in English for the same reason.
+  const stated = statement(ENGLISH, "short");
+  const lines = await linesOf(stated, ENGLISH);
+  assert.ok(lines.length >= 4, `the text set ${lines.length} lines`);
+  assert.ok(edges(lines).spread > 12, "the lines end at one edge: the text was justified");
+  assert.deepEqual((await checked(stated)).loose, []);
 });
 
 test("a step's text in Chinese is spread between its characters to one edge", async () => {
@@ -121,7 +135,7 @@ test("a step's text in Chinese is spread between its characters to one edge", as
 test("a line of Han before a word that does not fit beside it ends at the measure with the others", async () => {
   // In a ninth of the page a word that does not fit ends two of the text's lines early. The breaks are chosen so
   // that the loosest line opens least, and each line but the last is spread: the text keeps one right edge.
-  const text = "受版本管理的意图只有 OpenSpec 一处；一项正式变更编译成一个 Commitment。";
+  const text = "受版本管理的意图只有一处，即 OpenSpec；每项正式变更都编译成一个 Commitment。";
   const stated = statement(text, "短");
   stated.course.steps.push(...["seven", "eight", "nine"].map((id) => ({ id, label: id })));
   const { lines } = await inked(stated, text, "zh-CN");
@@ -148,7 +162,7 @@ const noted = (note) => ({
   ],
 });
 
-test("a line that would open more than half an em, or has no place to open, stays as set and is named", async () => {
+test("a line that would open more than three tenths of an em, or has no place to open, stays as set and is named", async () => {
   // Under one of seven stations across half the page a note has under eight ems. Two characters stand before a
   // word that takes a line of its own: spread to the measure they would stand several ems apart, and the word's
   // line has no place to open. Both lines stay as they are set, and the check hands them back for their author.
@@ -167,7 +181,7 @@ test("a line that would open more than half an em, or has no place to open, stay
       [text, "Commitment，"],
     ],
   );
-  assert.ok(loose[0].opening > 0.5, `the first line would open ${loose[0].opening} em`);
+  assert.ok(loose[0].opening > 0.3, `the first line would open ${loose[0].opening} em`);
   assert.equal(loose[1].opening, null);
 });
 

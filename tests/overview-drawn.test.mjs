@@ -113,6 +113,43 @@ test("a fork that ends the course stands side by side under it, a cell for each 
   assert.ok(data.x - log.x > 100, `a cell for each branch: ${data.x - log.x} pt apart`);
 });
 
+test("a fork that ends the course hangs each branch on a stem of its own from the course's line run on", async () => {
+  // Rings set on a bar read as stations in turn along a second course (a reader of twelve pages, 2026-11-18, of two
+  // forks). The line runs on thinner from the fork, level with the course, and each branch's ring hangs under it.
+  const statement = everyBlock();
+  statement.course.steps[2].stations = [statement.course.steps[2].stations[0]];
+  statement.course.lines = [];
+  const { marks, lines } = await drawn(statement);
+  const course = marks[0];
+  const rings = marks
+    .filter(({ r }) => r === 4)
+    .sort((a, b) => a.y - b.y)
+    .slice(0, 2);
+  const upright = (ring) =>
+    lines.some(
+      ({ points: [[x0, y0], [x1, y1]] }) =>
+        x0 === x1 &&
+        Math.abs(x0 - ring.x) < 0.01 &&
+        Math.abs(y0 - course.y) < 0.01 &&
+        Math.abs(y1 - (ring.y - ring.r)) < 0.01,
+    );
+  for (const ring of rings) {
+    assert.ok(ring.y - course.y >= 12, `the ring hangs ${ring.y - course.y} pt under the line`);
+    assert.ok(
+      upright(ring),
+      `no stem from the line at ${course.y} to the ring at ${ring.x}, ${ring.y}`,
+    );
+  }
+  const reach = Math.max(...rings.map(({ x }) => x));
+  assert.ok(
+    lines.some(
+      ({ points: [[x0, y0], [x1, y1]] }) =>
+        y0 === y1 && Math.abs(y0 - course.y) < 0.01 && Math.abs(x1 - reach) < 0.01 && x0 < reach,
+    ),
+    "no line runs on level with the course to the last branch",
+  );
+});
+
 test("a fork the course goes on from splits it into a path for each branch, which join again", async () => {
   const { marks } = await drawn(everyBlock());
   const course = marks[0];
@@ -271,4 +308,148 @@ test("the height a page leaves is shared between its rows, so the last row ends 
     lowest >= 850 - 14 && lowest <= 850 + 6,
     `the last row ends at ${lowest.toFixed(1)} pt`,
   );
+});
+
+/** The texts a statement sets as names, notes, terms, cells and texts: everything but the masthead and line labels. */
+function columnTexts(statement) {
+  const of = (point) => [
+    point.label,
+    point.note,
+    point.text,
+    ...(point.branches ?? []).flatMap(of),
+  ];
+  return new Set(
+    [
+      ...statement.course.steps.flatMap((step) => [
+        ...of(step),
+        ...(step.stations ?? []).flatMap(of),
+      ]),
+      ...(statement.course.spurs ?? []).flatMap(of),
+      ...statement.blocks.flatMap((block) => [
+        block.title,
+        block.text,
+        ...(block.stations ?? []).flatMap(of),
+        ...(block.items ?? []).flat(),
+        ...(block.columns ?? []),
+        ...(block.rows ?? []).flat(),
+        ...(block.lists ?? []).flatMap((list) => [list.title, ...list.items.flat()]),
+      ]),
+    ].filter(Boolean),
+  );
+}
+
+test("every name, note, term and text begins a whole number of modules from the left margin", async () => {
+  // Two left edges that nearly meet read as a mistake (the owner, 2026-11-15: tidiness is a matter of mechanism).
+  // Drawn from measured widths, a list's text began 2.8 pt from a station's name on one page and a third of the
+  // page 2 pt from a step on another. Every width the page derives is a whole number of 8 pt modules, so two edges
+  // are one edge or a module apart.
+  const statement = everyBlock();
+  const list = (title) => ({
+    title,
+    items: [
+      ["a term", "what it means here"],
+      ["another, longer term", "and its meaning"],
+    ],
+  });
+  statement.blocks.push(list("First of three"), list("Second of three"), list("Third of three"));
+  const { boxes } = await drawn(statement);
+  const wanted = columnTexts(statement);
+  const off = boxes
+    .filter(({ text }) => wanted.has(text))
+    .filter(({ x }) => Math.abs(((x - 48 + 4) % 8) - 4) > 0.01)
+    .map(({ text, x }) => `${text} at ${x}`);
+  assert.deepEqual(off, []);
+  assert.ok(
+    boxes.filter(({ text }) => wanted.has(text)).length >= 40,
+    "the statement sets too few texts to tell",
+  );
+});
+
+test("texts of one size in a row of blocks stand on one baseline or half a line apart", async () => {
+  // Two headed texts one under another stood 2 pt off the rows of the list beside them: each gap was a number of
+  // its own. Every step down a block is a whole number of half lines, so two baselines in a row meet or miss by
+  // half a line at least.
+  const statement = everyBlock();
+  statement.blocks = [
+    { title: "A first text", text: "One line of text." },
+    { title: "A second text", text: "Another line of text." },
+    {
+      title: "A list beside them",
+      items: [
+        ["one", "the first"],
+        ["two", "the second"],
+        ["three", "the third"],
+        ["four", "the fourth"],
+      ],
+    },
+  ];
+  const { boxes } = await drawn(statement);
+  const baseline = (said) => boxes.find(({ text }) => text === said).b;
+  const texts = [
+    "One line of text.",
+    "Another line of text.",
+    "the first",
+    "the second",
+    "the third",
+    "the fourth",
+  ];
+  const size = boxes.find(({ text }) => text === texts[0]).size;
+  const half = size === 12.5 ? 8 : 7;
+  for (const said of texts) {
+    const away = Math.abs(baseline(said) - baseline(texts[0])) % half;
+    assert.ok(
+      Math.min(away, half - away) < 0.01,
+      `${said} stands ${away.toFixed(2)} pt off the half lines`,
+    );
+  }
+  assert.equal(baseline("Another line of text."), baseline("the fourth"));
+});
+
+test("a name on two lines keeps the pitch of the notes beside it, at either spacing", async () => {
+  // At the closer spacing a name wrapped at 16 pt beside notes at 14 pt, so its second line stood 2 pt off its
+  // neighbour's note.
+  const statement = everyBlock();
+  statement.course.steps[2].stations = [
+    {
+      branches: [
+        {
+          id: "log",
+          label: "A log whose name is long enough to take two lines in its cell",
+          note: "for people",
+        },
+        {
+          id: "data",
+          label: "Data",
+          note: "for agents, in a note that takes two lines of its own under it",
+        },
+      ],
+    },
+  ];
+  statement.course.lines = [];
+  const list = (n) => ({
+    title: `List ${n}`,
+    items: Array.from({ length: 6 }, (_, i) => [`term ${i}`, `text ${i} of list ${n}`]),
+  });
+  const tall = { ...statement, blocks: [...statement.blocks, ...[1, 2, 3].map(list)] };
+  for (const stated of [statement, tall]) {
+    const { boxes } = await drawn(stated);
+    const box = (said) => boxes.find(({ text }) => text === said);
+    const [name, short, note] = [
+      box("A log whose name is long enough to take two lines in its cell"),
+      box("Data"),
+      box("for agents, in a note that takes two lines of its own under it"),
+    ];
+    assert.equal(name.b, short.b);
+    assert.ok(name.h > 1.6 * name.size, "the name does not wrap");
+    // The note under the short name begins where the long name's second line stands.
+    const pitch = note.size === 12.5 ? 16 : 14;
+    assert.ok(
+      Math.abs(note.b - short.b - pitch) < 0.01,
+      `the note begins ${note.b - short.b} pt under its name`,
+    );
+    const lines = Math.round((name.h - name.size) / pitch) + 1;
+    assert.equal(lines, 2, `the name's lines stand ${(name.h - name.size).toFixed(1)} pt apart`);
+  }
+  const closer = (await drawn(tall)).boxes.find(({ text }) => text === "for people").size;
+  assert.equal(closer, 11, "the taller statement is not set at the closer spacing");
 });

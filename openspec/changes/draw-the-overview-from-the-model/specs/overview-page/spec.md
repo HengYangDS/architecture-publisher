@@ -30,7 +30,7 @@ outcome that leaves a station, and an optional text.
 #### Scenario: A fork that ends the course
 
 - **WHEN** the last step holds a fork of two branches and nothing after it
-- **THEN** the step takes two cells, and the two branches stand side by side under the course, each in a cell
+- **THEN** the step takes two cells, the course's line runs on thinner over them, and each branch hangs from it on a stem of its own, its ring beside its name
 
 ### Requirement: A fork the course goes on from
 
@@ -181,32 +181,63 @@ it; the rows keep their content and their order.
 ### Requirement: Running text justified
 
 A note or a text of the overview that takes more than one line SHALL be
-justified, its last line set short: in a language written with spaces between
-words as the edition's prose is, and in one written without them line by line,
-on the fewest lines that hold it and broken where its loosest line opens
-least, every line but the last spread between its characters to the measure.
-A name, a heading, a term and a text on one line SHALL be set as they are.
-
-#### Scenario: A step's text on four lines
-
-- **WHEN** a step's English text takes four lines under the course
-- **THEN** its first three lines end at one edge and its last line ends short
+justified, its last line set short. In a language written without spaces
+between words it SHALL be set line by line, on the fewest lines that hold it
+and broken where its loosest line opens least, every line but the last spread
+between its characters to the measure. A name, a heading, a term and a text on
+one line SHALL be set as they are.
 
 #### Scenario: A line of Han before a word that does not fit
 
 - **WHEN** a Chinese note breaks before a Latin word that does not fit on the line
 - **THEN** the lines around it give that line a character, and every line but the last ends at one edge
 
+### Requirement: Text written with spaces justified where its measure allows
+
+In a language written with spaces between words, a text of more than one line
+SHALL be justified as the edition's prose is where its measure is twenty ems
+or more, and SHALL stay flush left in a narrower column, as a part's details
+do on a plate.
+
+#### Scenario: A step's text in a wide measure
+
+- **WHEN** a step's English text takes three lines in a measure of thirty-eight ems
+- **THEN** its first two lines end at one edge and its last line ends short
+
+#### Scenario: A note in a narrow column
+
+- **WHEN** an English note takes four lines in a column of eighteen ems
+- **THEN** its lines stay flush left, and no gap between two of its words is opened
+
 ### Requirement: A line that cannot be spread is named
 
-A line of such a text that would open more than half an em at each place, or
-that has no place to open, SHALL stay as it is set, and a check SHALL report
-it with `overview_line_loose`, naming the line and the text it belongs to.
+A line of a text set line by line that would open more than three tenths of an
+em at each place, or that has no place to open, SHALL stay as it is set, and a
+check SHALL report it with `overview_line_loose`, naming the line and the text
+it belongs to.
 
 #### Scenario: Two characters before a long word
 
 - **WHEN** two characters of a Chinese note stand on a line before a word that takes the next line alone
 - **THEN** both lines stay as they are set, and the check's warnings name each with `overview_line_loose`
+
+### Requirement: Texts on one module and one grid of baselines
+
+Every name, note, term, cell and text of the overview SHALL begin a whole
+number of 8 point modules from the left margin, and a text set to a measure
+SHALL end at one. Under a block's top and under a course's names, every step
+down to a baseline SHALL be a whole number of half lines of the page's
+spacing, and a name on two lines SHALL keep the pitch of the notes beside it.
+
+#### Scenario: Two left edges that nearly meet
+
+- **WHEN** a list's text and a station's name in another row would begin within three points of each other by their measured widths
+- **THEN** both begin on the module: at one edge, or eight points apart or more
+
+#### Scenario: Two headed texts beside a list
+
+- **WHEN** two headed texts stand one under another beside a list of four items
+- **THEN** each text's baseline is a baseline of the list's rows, or stands half a line or more off them
 
 ### Requirement: The overview's marks
 

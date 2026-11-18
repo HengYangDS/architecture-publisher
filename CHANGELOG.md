@@ -83,9 +83,11 @@ remain pre-release contracts and may contain incompatible changes.
   link to the plate's page; a view the model lacks is refused, and a check warns with `overview_view_unreached` of a
   view that nothing on the overview names. A note or a text of the overview on more than one line is justified, as
   the edition's prose is: a text in Chinese line by line, broken where its loosest line opens least, every line but
-  the last spread to the measure. A line that would open more than half an em at each place, or has no place to
-  open, stays as set, and a check warns with `overview_line_loose`. The height an overview's rows leave is shared
-  between them, so the page is full.
+  the last spread to the measure, and a text in English where its measure is twenty ems or more. A line of Chinese
+  that would open more than three tenths of an em at each place, or has no place to open, stays as set, and a check
+  warns with `overview_line_loose`. Every text begins on a module of 8 points and every baseline of a row stands on
+  half lines, so no two edges or lines nearly meet; a fork that ends a course hangs each branch on a stem. The
+  height an overview's rows leave is shared between them, so the page is full.
 - The product contract's end state says what each of the three carriers is for: the landscape edition for a room,
   the portrait edition for one reader, the page in a browser for a reader who questions and checks, on one spine.
   The queue gains `edition-map` after `overview` and moves `compositions` before `portrait-edition`;

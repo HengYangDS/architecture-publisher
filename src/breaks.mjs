@@ -94,13 +94,14 @@ export function openings(line) {
 export const SPREAD_OPENING = 0.1;
 
 /**
- * The most an overview's line opens at each place when it is spread, in ems of its size. An overview's notes stand
- * in columns a few characters wide beside words of another script that do not break, so the class breaks a text
- * where its loosest line opens least and spreads every line but the last to the measure: a text keeps one right
- * edge. Past half an em a line no longer reads as a line. One that would open more, or that has no place to open,
- * stays as it is set, and the build names it for its author to reword.
+ * The most a line of an overview's text opens between two characters when it is spread, in ems of its size, in a
+ * script written without spaces between words. An overview's notes stand in columns a few characters wide beside
+ * words of another script that do not break, so the class breaks such a text where its loosest line opens least
+ * and spreads every line but the last to the measure: a text keeps one right edge. A line that opens more than
+ * three tenths of an em reads as characters standing apart. One that would open more, or that has no place to
+ * open, stays as it is set, and the build names it for its author to reword.
  */
-export const OVERVIEW_OPENING = 0.5;
+export const OVERVIEW_OPENING = 0.3;
 
 /**
  * Whether a text holds a character written without spaces between words.

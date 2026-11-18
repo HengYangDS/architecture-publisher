@@ -1,7 +1,7 @@
 // Architecture Publisher house class for overview pages.
 //
-// A work's composition imports this file, applies `overview`, and places its page with the primitives below on one
-// 1600 by 900 point page. Every text primitive records its box as `<archpub-box>` metadata so that the publisher can
+// The drawing of an overview (`drawn.typ`) imports this file, applies `overview`, and sets its page with the
+// primitives below on one 1600 by 900 point page. Every text primitive records its box as `<archpub-box>` metadata so that the publisher can
 // check the typeset page; sizes and colours come only from the house tokens, `house.json`, staged beside this class.
 
 // The house tokens, which the poster engine reads too: the palette, the faces and the four type sizes.
@@ -52,8 +52,9 @@
   else { "" }
 }
 
-/// Record a text box: x and top, width and height in points, as the publisher reads them back.
-#let _record(x, top, w, h, body, size) = [#metadata((x: x.pt(), y: top.pt(), w: w.pt(), h: h.pt(), size: size.pt(), text: _plain(body))) <archpub-box>]
+/// Record a text box: x and top, width and height in points, and its first baseline, as the publisher reads them
+/// back.
+#let _record(x, top, w, h, body, size, b) = [#metadata((x: x.pt(), y: top.pt(), w: w.pt(), h: h.pt(), size: size.pt(), b: b.pt(), text: _plain(body))) <archpub-box>]
 
 /// How far the glyphs of body rise above and fall below the baseline.
 #let _extent(style, body) = (
@@ -197,10 +198,11 @@
 
 /// A text within a width at a line pitch, as it is set and as it is measured; its first baseline at the box's top
 /// and each line a pitch below the one before. A text that is `spread` is justified, its last line short, so a text
-/// on one line is set as it is: a text written with spaces between words as the edition's prose is, on optimized
-/// lines, hyphenated where a break is cheap, its word spaces and tracking within the same limits; a text written
-/// without them line by line, each line but the last spread between its characters to the width. A line that is
-/// not spread though it is not the last is recorded with its text (`<archpub-loose>`), for the build to name.
+/// on one line is set as it is. A text written without spaces between words is set line by line from the breaks
+/// the publisher states for it, each line but the last spread between its characters to the width; a line that is
+/// not spread though it is not the last is recorded with its text (`<archpub-loose>`), for the build to name. A
+/// text written with spaces is justified as the edition's prose is, on optimized lines, hyphenated where a break
+/// is cheap, where its measure is at least twenty ems, and stays flush left in a narrower column.
 #let wrapped(body, w, style, pitch: 16pt, spread: false) = {
   let breaks = if spread and type(body) == str { json("breaks.json") } else { (texts: (:)) }
   if type(body) == str and body in breaks.texts and w != auto {
@@ -227,11 +229,15 @@
       })
     })
   } else {
+    // Words separated by spaces are justified, as the edition's prose is, only where the measure holds enough of
+    // them: a column narrower than twenty ems would open wide gaps between its few words, and keeps its text flush
+    // left, as a part's details do on a plate.
+    let justified = spread and w != auto and w >= 20 * style.size
     box(width: w, {
       set par(leading: pitch, spacing: pitch)
       set par(justify: true, linebreaks: "optimized", justification-limits: (spacing: (min: 80% + 0pt, max: 125% + 0pt),
-        tracking: (min: -0.012em, max: 0.025em))) if spread
-      set text(hyphenate: true, costs: (hyphenation: 40%, runt: 150%)) if spread
+        tracking: (min: -0.012em, max: 0.025em))) if justified
+      set text(hyphenate: true, costs: (hyphenation: 40%, runt: 150%)) if justified
       text(..style, top-edge: "baseline", bottom-edge: "baseline", body)
     })
   }
@@ -251,7 +257,7 @@
     // width it wraps in otherwise.
     let width = calc.min(measure(set-text(body)).width, lines.width)
     let (ascent, descent) = _extent(_style(s, font, weight, fill, style), body)
-    _record(x, b - ascent, width, lines.height + ascent + descent, body, s)
+    _record(x, b - ascent, width, lines.height + ascent + descent, body, s, b)
   }
 }
 
@@ -264,7 +270,7 @@
     let natural = measure(line).width
     let width = calc.min(natural.pt(), w.pt()) * 1pt
     let (ascent, descent) = _extent(_style(s, font, weight, fill, "normal"), body)
-    _record(x - width, b - ascent, width, ascent + descent, body, s)
+    _record(x - width, b - ascent, width, ascent + descent, body, s, b)
   }
 }
 
@@ -279,7 +285,7 @@
     let lines = measure(box(width: w, content))
     let width = calc.min(natural.pt(), w.pt()) * 1pt
     let (ascent, descent) = _extent(_style(s, font, weight, fill, "normal"), body)
-    _record(x - width / 2, b - ascent, width, lines.height + ascent + descent, body, s)
+    _record(x - width / 2, b - ascent, width, lines.height + ascent + descent, body, s, b)
   }
 }
 
@@ -369,7 +375,7 @@
 
 // ── The print edition ─────────────────────────────────────────────────────────────────────────────────────────────
 // The edition typesets a delivery in one pass from `edition.json`, which the publisher writes beside this class: a
-// title page, contents beside the edition's facts, the overview when the model has a composition, and one plate per
+// title page, contents beside the edition's facts, the overview when the model states one, and one plate per
 // view. Every page after the title page shares one frame: the head, the body, the key line and the foot. The
 // publisher lays each plate's figure out; the edition sets every word, the figure's runs at the engine's positions.
 
@@ -615,7 +621,6 @@
   }
 }
 
-/// The print edition of one delivery, from the record the publisher writes; `overview` is the composition's content.
 /// The lines of a cover title that holds Han, Kana or Hangul and is wider than its column, or none for a title that
 /// fits or is in another script, which breaks at its spaces. Typst may break CJK text between any two characters, so it
 /// would leave one alone on the last line: the title breaks instead at the space whose two lines both fit and whose
@@ -644,6 +649,8 @@
   lines + (line.trim(),)
 }
 
+/// The print edition of one delivery, from the record the publisher writes; `overview` is the overview's page as
+/// drawn from the model's statement, or none when the model states no overview.
 #let edition(r, overview: none) = {
   let words = r.words
   // Dated by the revision's commit; without the checkout, by the time it is typeset.
@@ -711,7 +718,7 @@
   _contents-rows(r)
   edition-foot()
 
-  // The overview, compiled from its composition in place.
+  // The overview, drawn from the model's statement in place.
   if overview != none {
     pagebreak()
     [#heading(words.overview) <plate-00>]

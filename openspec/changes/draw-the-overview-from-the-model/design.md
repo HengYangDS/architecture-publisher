@@ -69,20 +69,25 @@ complete edition out, no page placed by hand.
 3. A note or a text of more than one line is justified, as the edition's prose is.
    - Rests on: the owner, who asked for justified paragraphs on 2026-11-07, 2026-11-12 and 2026-11-13 and again on
      2026-11-18 on seeing this page ragged. The edition's typography already requires it of prose; the overview's
-     text primitive never met it, hand-placed or drawn. English text is set as prose is. Chinese text is set line
-     by line with the breaks a part's details use on a plate (`src/breaks.mjs`): on the fewest lines that hold it,
-     broken where its loosest line opens least, and every line but the last spread to the measure when it opens at
-     most half an em at each place. A line that would open more, or holds one word with no place to open, stays as
-     set and the build names it (`overview_line_loose`), so that its author rewords the text.
-   - Measured on the six Chinese overviews, 77 lines that are not a text's last: with the bound of a tenth of an em
-     that a part's details keep, 48 ended at the measure and 29 were left short, which is the raggedness the owner
-     had asked to end; with these breaks and half an em, 72 end at it and 5 are named. The statements of three
-     works were reworded for those five.
-   - Considered: Typst's paragraph justification for every language (it opens a line of two characters before a
-     long word by several ems, and names no line); hyphenating Latin words inside Chinese text (it breaks
-     identifiers such as `OpenSpec`); no bound at all (the same line of two characters). A part's details on a
-     plate keep their tenth of an em: how many of their lines it leaves short is to be measured with the plates,
-     under the queue's `edition-map`.
+     text primitive never met it, hand-placed or drawn.
+   - Chinese text is set line by line with the breaks a part's details use on a plate (`src/breaks.mjs`): on the
+     fewest lines that hold it, broken where its loosest line opens least, and every line but the last spread to
+     the measure when it opens at most three tenths of an em at each place. A line that would open more, or holds
+     one word with no place to open, stays as set and the build names it (`overview_line_loose`), so that its
+     author rewords the text.
+   - English text is justified as prose is where its measure is twenty ems or more, and stays flush left in a
+     narrower column, as a part's details do on a plate.
+   - Measured on the six Chinese overviews, 77 lines that are not a text's last: with the bound of a tenth of an
+     em that a part's details keep, 48 ended at the measure and 29 were left short, which is the raggedness the
+     owner had asked to end; with these breaks, 80 of 80 such lines end at it once twelve notes of four works
+     were reworded, the loosest opening 0.29 em. A reader of another origin read the twelve pages with English
+     justified in every column: it named fifteen lines of three or four words whose spaces stood two to six times
+     their width apart. Set line by line within three tenths of an em, 66 English lines could not be spread.
+   - Considered: Typst's paragraph justification for every language and every column (the fifteen lines, and in
+     Chinese a line of two characters opened by several ems, with no line named); hyphenating Latin words inside
+     Chinese text (it breaks identifiers such as `OpenSpec`); a bound of half an em (lines at four tenths read as
+     characters standing apart). A part's details on a plate keep their tenth of an em: how many of their lines it
+     leaves short is to be measured with the plates, under the queue's `edition-map`.
 4. The overview is the edition's map: a point or a block names the view that enlarges it, and the page sets that
    view's plate number there, as a link.
    - Rests on: the owner, 2026-11-18 07:37 and 07:38 (the overview's mission is one page of overview; the pages
@@ -121,6 +126,22 @@ complete edition out, no page placed by hand.
    - Rests on: the owner's words of 2026-11-17 13:20 and the holder's decision under the owner's delegation of
      2026-11-15 to order the work; `docs/research/figure-language.md` ("What follows for the product").
    - Applies to: the contract's queue and the item `carriers`, which no longer names the overview.
+10. Every width the page derives is a whole number of 8 point modules, and every step down a whole number of half
+    lines.
+    - Rests on: the owner, 2026-11-15 (tidiness is a matter of mechanism: solved in the construction and in the
+      measure, not place by place). Drawn from measured widths, eight of the twelve pages held a near miss the
+      tidiness check finds: a list's text 2.8 pt from a station's name, a third of the page 2 pt from a step, a
+      name on two lines 2 pt off the note beside it, two headed texts 2 pt off a list's rows.
+    - A course's cell, a block's columns, a list's term column and a third of the page (with a gutter of 56 pt)
+      are whole modules, and a name stands 16 pt from its cell's edge: two left edges are one edge or 8 pt apart.
+      The spacings' steps are 24 and 16 pt at the house spacing and 21 and 14 pt at the closer one, and a name
+      wraps at the notes' pitch: two baselines of one row meet or stand half a line apart.
+    - Considered: a module of 4 pt (edges 4 pt apart are still found as near misses); moving each near miss where
+      it shows (the next statement makes another).
+11. A fork that ends the course is drawn as the course's line run on thinner, each branch hanging from it on a stem
+    of its own.
+    - Rests on: the reader of the twelve pages, who read two such forks, drawn as rings on a bar under the course,
+      as stations a request passes in turn.
 
 ## Risks / Trade-offs
 

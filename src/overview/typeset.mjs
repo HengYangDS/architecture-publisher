@@ -162,7 +162,7 @@ function stagedPath(reported, roots) {
 }
 
 /**
- * Typst's diagnostics as problems. Each names the composition's line: the last place in the
+ * Typst's diagnostics as problems. Each names the entry's line: the last place in the
  * trace outside the staged class, or the first place when the class alone is named.
  * @param {string} stderr Typst's human-readable diagnostics
  * @param {readonly string[]} [roots] the staged root, to which every reported path is made relative
