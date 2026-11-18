@@ -566,6 +566,38 @@
       "artwork": "<path d=\"m5 12 7-7 7 7\"/> <path d=\"M12 19V5\"/>",
       "sha256": "cdbe0eaf87d28193888833acd88ab756e9bc5d1fdfba54c65c7be9fbfc09d627"
     },
+    "lucide:arrows-from-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M12 16v6\"/> <path d=\"M12 2v6\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"m9 19 3 3 3-3\"/> <path d=\"m9 5 3-3 3 3\"/>",
+      "sha256": "1a727629080de7aa8e2cc78987eefb57bef84288167a1f599c28dc853c6a362b"
+    },
+    "lucide:arrows-from-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 10V8\"/> <path d=\"M12 16v-2\"/> <path d=\"M12 22v-2\"/> <path d=\"M12 4V2\"/> <path d=\"m19 15 3-3-3-3\"/> <path d=\"M22 12h-6\"/> <path d=\"m5 15-3-3 3-3\"/> <path d=\"M8 12H2\"/>",
+      "sha256": "a84013b1499712540ecb0c7ed26d625cfdf70ac9a385b1388449b59af2461d7a"
+    },
+    "lucide:arrows-from-axis-horizontal": {
+      "artwork": "<path d=\"M12 16v6\"/> <path d=\"M12 2v6\"/> <path d=\"m15 19-3 3-3-3\"/> <path d=\"m15 5-3-3-3 3\"/> <path d=\"M22 12H2\"/>",
+      "sha256": "5aa65377db016f8966fc463409df9544ea7f6b454f92c1cc2fd8f916838a1b10"
+    },
+    "lucide:arrows-from-axis-vertical": {
+      "artwork": "<path d=\"M12 22V2\"/> <path d=\"m19 15 3-3-3-3\"/> <path d=\"M22 12h-6\"/> <path d=\"m5 15-3-3 3-3\"/> <path d=\"M8 12H2\"/>",
+      "sha256": "576b023fe1c065a14d24559720fbd7b1084576db2b4c53a52fd091432096d9f6"
+    },
+    "lucide:arrows-to-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M12 22v-6\"/> <path d=\"M12 8V2\"/> <path d=\"m15 19-3-3-3 3\"/> <path d=\"m15 5-3 3-3-3\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/>",
+      "sha256": "58984a4ed1f5217ab0e3595db9509bea34861872f914238e06f74f6dadacdd09"
+    },
+    "lucide:arrows-to-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 10V8\"/> <path d=\"M12 16v-2\"/> <path d=\"M12 22v-2\"/> <path d=\"M12 4V2\"/> <path d=\"M16 12h6\"/> <path d=\"m19 15-3-3 3-3\"/> <path d=\"M2 12h6\"/> <path d=\"m5 15 3-3-3-3\"/>",
+      "sha256": "0295ae1377e41c3ce3d4dbbc6822a2022268b3fa0a567051ffd43efd346d95a7"
+    },
+    "lucide:arrows-to-axis-horizontal": {
+      "artwork": "<path d=\"M12 22v-6\"/> <path d=\"M12 8V2\"/> <path d=\"m15 19-3-3-3 3\"/> <path d=\"m15 5-3 3-3-3\"/> <path d=\"M22 12H2\"/>",
+      "sha256": "9ef8b683e610a32e95e1fe1dcfbc266d6180da064ab1a837f1574f0d7bb8025e"
+    },
+    "lucide:arrows-to-axis-vertical": {
+      "artwork": "<path d=\"M12 22V2\"/> <path d=\"M16 12h6\"/> <path d=\"m19 15-3-3 3-3\"/> <path d=\"M2 12h6\"/> <path d=\"m5 15 3-3-3-3\"/>",
+      "sha256": "56b222c0747148fdd124622ebcd9fab93d6cb1ba537ab7b4a646737aa7032498"
+    },
     "lucide:arrows-up-from-line": {
       "artwork": "<path d=\"m4 6 3-3 3 3\"/> <path d=\"M7 17V3\"/> <path d=\"m14 6 3-3 3 3\"/> <path d=\"M17 17V3\"/> <path d=\"M4 21h16\"/>",
       "sha256": "6aabc619060576e86f40f58bc9eaa45c2266446ca0160548faff4edf4c4104c5"
@@ -1178,13 +1210,29 @@
       "artwork": "<path d=\"M4 9V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4\"/> <path d=\"M8 8v1\"/> <path d=\"M12 8v1\"/> <path d=\"M16 8v1\"/> <rect width=\"20\" height=\"12\" x=\"2\" y=\"9\" rx=\"2\"/> <circle cx=\"8\" cy=\"15\" r=\"2\"/> <circle cx=\"16\" cy=\"15\" r=\"2\"/>",
       "sha256": "167604219600487927a6b649b9aceb9e988e7c09c656ac16d0119b6bffbbe4b0"
     },
+    "lucide:bot-check": {
+      "artwork": "<path d=\"M12 8V4H8\"/> <path d=\"M15 13v2\"/> <path d=\"m16 19 2 2 4-4\"/> <path d=\"M2 14h2\"/> <path d=\"M20 13.5V10a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h6\"/> <path d=\"M9 13v2\"/>",
+      "sha256": "84f5d85f07ab1a2b9879c324c31f548524593b564e9f5529eeb8686967751459"
+    },
     "lucide:bot-message-square": {
       "artwork": "<path d=\"M12 6V2H8\"/> <path d=\"M15 11v2\"/> <path d=\"M2 12h2\"/> <path d=\"M20 12h2\"/> <path d=\"M20 16a2 2 0 0 1-2 2H8.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 4 20.286V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z\"/> <path d=\"M9 11v2\"/>",
       "sha256": "c6995479f677e659536de0fb7bdbb3e7da7f7489b87978021037dfaf044663c4"
     },
+    "lucide:bot-minus": {
+      "artwork": "<path d=\"M12 8V4H8\"/> <path d=\"M15 13v2\"/> <path d=\"M2 14h2\"/> <path d=\"M20 15v-5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h6\"/> <path d=\"M22 19h-6\"/> <path d=\"M9 13v2\"/>",
+      "sha256": "3faef6dcc61b6746be2db8bc06cfe5851d3dc125640f307e92510e8aa1aafc55"
+    },
     "lucide:bot-off": {
       "artwork": "<path d=\"M13.67 8H18a2 2 0 0 1 2 2v4.33\"/> <path d=\"M2 14h2\"/> <path d=\"M20 14h2\"/> <path d=\"M22 22 2 2\"/> <path d=\"M8 8H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 1.414-.586\"/> <path d=\"M9 13v2\"/> <path d=\"M9.67 4H12v2.33\"/>",
       "sha256": "8c5eeda8ae46b45124bcb2941af2c01bbd97ff4055578791026deefc0e38e58c"
+    },
+    "lucide:bot-plus": {
+      "artwork": "<path d=\"M12 8V4H8\"/> <path d=\"M15 13v2\"/> <path d=\"M19 16v6\"/> <path d=\"M2 14h2\"/> <path d=\"M20 12v-2a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h6\"/> <path d=\"M22 19h-6\"/> <path d=\"M9 13v2\"/>",
+      "sha256": "44fd70dc4413f5afb3debe01b2198b732dd9240b96bab30d8d76101b4eacb9c5"
+    },
+    "lucide:bot-x": {
+      "artwork": "<path d=\"M12 8V4H8\"/> <path d=\"M15 13v1.5\"/> <path d=\"m18 17 4 4\"/> <path d=\"M2 14h2\"/> <path d=\"M20 13.5V10a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8\"/> <path d=\"m22 17-4 4\"/> <path d=\"M9 13v2\"/>",
+      "sha256": "3009517067a59286f6fb6776b876beb59cc8fe03e4409a4999d78dc4e83e0399"
     },
     "lucide:bot": {
       "artwork": "<path d=\"M12 8V4H8\"/> <rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\"/> <path d=\"M2 14h2\"/> <path d=\"M20 14h2\"/> <path d=\"M15 13v2\"/> <path d=\"M9 13v2\"/>",
@@ -1538,6 +1586,38 @@
       "artwork": "<path d=\"M12 14v4\"/> <path d=\"M14.172 2a2 2 0 0 1 1.414.586l3.828 3.828A2 2 0 0 1 20 7.828V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z\"/> <path d=\"M8 14h8\"/> <rect x=\"8\" y=\"10\" width=\"8\" height=\"8\" rx=\"2\"/>",
       "sha256": "20a3a8fbb78c6b2cf5e10af6e1605e15e74d47f5c7e06ddb160ad67f0c3deedf"
     },
+    "lucide:carets-from-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"M7.298 17.712A1 1 0 0 1 8 16h8a1 1 0 0 1 .703 1.712l-3.991 3.99a1 1 0 0 1-1.424.001z\"/> <path d=\"M7.298 6.288A1 1 0 0 0 8 8h8a1 1 0 0 0 .703-1.712l-3.991-3.99a1 1 0 0 0-1.424-.001z\"/>",
+      "sha256": "f20f56081974595666a0aa90bd85d1a94f7fc21930aae8d86e7e886941dad968"
+    },
+    "lucide:carets-from-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M17.712 16.703A1 1 0 0 1 15.999 16V8a1 1 0 0 1 1.713-.703l3.99 3.991a1 1 0 0 1 .001 1.424z\"/> <path d=\"M6.288 16.703A1 1 0 0 0 8.001 16V8a1 1 0 0 0-1.713-.703l-3.99 3.991a1 1 0 0 0-.001 1.424z\"/>",
+      "sha256": "67f4c0b7d50cb3c0e1857273a7a09601e626840c869a17142da9e81abd71cbc8"
+    },
+    "lucide:carets-from-axis-horizontal": {
+      "artwork": "<path d=\"M16.703 6.288A1 1 0 0 1 16 8H8a1 1 0 0 1-.703-1.712l3.991-3.99a1 1 0 0 1 1.425-.001z\"/> <path d=\"M22 12H2\"/> <path d=\"M7.298 17.712A1 1 0 0 1 8 16h8a1 1 0 0 1 .703 1.712l-3.991 3.99a1 1 0 0 1-1.424.001z\"/>",
+      "sha256": "29da37be74b940112255ee8cffde202c47efeb53549b70d6c8849703391f917a"
+    },
+    "lucide:carets-from-axis-vertical": {
+      "artwork": "<path d=\"M12 2v20\"/> <path d=\"M17.712 16.703A1 1 0 0 1 15.999 16V8a1 1 0 0 1 1.713-.703l3.99 3.991a1 1 0 0 1 .001 1.424z\"/> <path d=\"M6.288 16.703A1 1 0 0 0 8.001 16V8a1 1 0 0 0-1.713-.703l-3.99 3.991a1 1 0 0 0-.001 1.424z\"/>",
+      "sha256": "fc5149a4e532d80fed1a2d5bbeaf5ba407a45514d0ab1d441ed85a544d828fbe"
+    },
+    "lucide:carets-to-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"M7.298 20.288A1 1 0 0 0 8 22h8a1 1 0 0 0 .703-1.712l-3.991-3.99a1 1 0 0 0-1.424-.001z\"/> <path d=\"M7.298 3.712A1 1 0 0 1 8 2h8a1 1 0 0 1 .703 1.712l-3.991 3.99a1 1 0 0 1-1.424.001z\"/>",
+      "sha256": "151b03cd52d3c8c98b0288b22fce66b6ba3d7338ce79bf6a55d4d9ad336ab5e3"
+    },
+    "lucide:carets-to-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M20.288 16.703A1 1 0 0 0 22 16V8a1 1 0 0 0-1.712-.703l-3.99 3.991a1 1 0 0 0-.001 1.424z\"/> <path d=\"M3.712 16.703A1 1 0 0 1 2 16V8a1 1 0 0 1 1.712-.703l3.99 3.991a1 1 0 0 1 .001 1.424z\"/>",
+      "sha256": "fe55b592cbe62d8ecad4962d6382027bc276e9f475fd84d724d16ba73b94b354"
+    },
+    "lucide:carets-to-axis-horizontal": {
+      "artwork": "<path d=\"M22 12H2\"/> <path d=\"M7.298 20.288A1 1 0 0 0 8 22h8a1 1 0 0 0 .703-1.712l-3.991-3.99a1 1 0 0 0-1.424-.001z\"/> <path d=\"M7.298 3.712A1 1 0 0 1 8 2h8a1 1 0 0 1 .703 1.712l-3.991 3.99a1 1 0 0 1-1.424.001z\"/>",
+      "sha256": "8b86762e26b36a6c0fd45ccae9a73d02f6ef173cb5868111fcc0685fbe573ee9"
+    },
+    "lucide:carets-to-axis-vertical": {
+      "artwork": "<path d=\"M12 2v20\"/> <path d=\"M20.288 16.703A1 1 0 0 0 22 16V8a1 1 0 0 0-1.712-.703l-3.99 3.991a1 1 0 0 0-.001 1.424z\"/> <path d=\"M3.712 16.703A1 1 0 0 1 2 16V8a1 1 0 0 1 1.712-.703l3.99 3.991a1 1 0 0 1 .001 1.424z\"/>",
+      "sha256": "2dcda6d82d905f3c17be6289b87fea75bbdc28e38f3c051b44f0e48a035612e5"
+    },
     "lucide:carrot": {
       "artwork": "<path d=\"M15 16a1 1 0 0 0-7-7q-4 4-5.987 12.385a.5.5 0 0 0 .602.602Q11 20 15 16l-3-3\"/> <path d=\"M15 9q4 4 7 0-3-4-7 0 4-4 0-7-4 3 0 7\"/> <path d=\"m8 15-2.58-2.58\"/>",
       "sha256": "5228f8dd6c093aa654c137f7878362a9dc851cb17667a8929fe6e2da1894d0b4"
@@ -1822,6 +1902,22 @@
       "artwork": "<path d=\"m7 6 5 5 5-5\"/> <path d=\"m7 13 5 5 5-5\"/>",
       "sha256": "13d2e841470201d9ac8ce0b2826d349f80c80d2f8a9ee42b7d6a7d8a090c3366"
     },
+    "lucide:chevrons-from-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"m8 17 4 4 4-4\"/> <path d=\"m8 7 4-4 4 4\"/>",
+      "sha256": "5e616d3ac4a28348bc7a44db77cc594b0a274e0ac2335c6948619221899e7a17"
+    },
+    "lucide:chevrons-from-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"m17 8 4 4-4 4\"/> <path d=\"m7 8-4 4 4 4\"/>",
+      "sha256": "62d44f9ca8a7fd5a1650a7e1830343f7b97669811abb2de7d3ad9ecba9cb4da5"
+    },
+    "lucide:chevrons-from-axis-horizontal": {
+      "artwork": "<path d=\"M22 12H2\"/> <path d=\"m8 17 4 4 4-4\"/> <path d=\"m8 7 4-4 4 4\"/>",
+      "sha256": "6c7c45653b3fb08d2116b924cb373bcaa1a149321e331b6cf5c29243b3e0d4a0"
+    },
+    "lucide:chevrons-from-axis-vertical": {
+      "artwork": "<path d=\"M12 2v20\"/> <path d=\"m17 8 4 4-4 4\"/> <path d=\"m7 8-4 4 4 4\"/>",
+      "sha256": "59a9d8fa4fbe0df76c12c99f62bb4a25aa63413d67c04cf331e0189837241544"
+    },
     "lucide:chevrons-left-right-ellipsis": {
       "artwork": "<path d=\"M12 12h.01\"/> <path d=\"M16 12h.01\"/> <path d=\"m17 7 5 5-5 5\"/> <path d=\"m7 7-5 5 5 5\"/> <path d=\"M8 12h.01\"/>",
       "sha256": "92566135ec54d86046ddc84508f98e6d1ba5fddbdb7d5116f09b377c433bf5e5"
@@ -1842,6 +1938,22 @@
       "artwork": "<path d=\"m6 17 5-5-5-5\"/> <path d=\"m13 17 5-5-5-5\"/>",
       "sha256": "5d522a1da13ac7cd4869f69b9ccec66df3b4a0e4cf82c714ed9c9e0955a3d9b3"
     },
+    "lucide:chevrons-to-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"m16 21-4-4-4 4\"/> <path d=\"m16 3-4 4-4-4\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/>",
+      "sha256": "4d4cf64faee1dd0f61e0e41e1f3351ed079281d5cc38bde2b042d4c683e8d698"
+    },
+    "lucide:chevrons-to-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"m21 8-4 4 4 4\"/> <path d=\"m3 8 4 4-4 4\"/>",
+      "sha256": "d5243ffb2bd88e0e17a80c3df1a959e146e65d903161d970c32a7477ccc8d9c1"
+    },
+    "lucide:chevrons-to-axis-horizontal": {
+      "artwork": "<path d=\"m16 21-4-4-4 4\"/> <path d=\"m16 3-4 4-4-4\"/> <path d=\"M22 12H2\"/>",
+      "sha256": "da0f7855c679d6971e6a56cdddd8df58ac112ea53fa2ca46847ea50d19f4e6c9"
+    },
+    "lucide:chevrons-to-axis-vertical": {
+      "artwork": "<path d=\"M12 2v20\"/> <path d=\"m21 8-4 4 4 4\"/> <path d=\"m3 8 4 4-4 4\"/>",
+      "sha256": "319d187b9cc85c29ba921af83c698fc101de143bac2ac8e37b3473f3413c1dfb"
+    },
     "lucide:chevrons-up-down": {
       "artwork": "<path d=\"m7 15 5 5 5-5\"/> <path d=\"m7 9 5-5 5 5\"/>",
       "sha256": "a7f2fca80a23313d7a33b49bbf3f77bd28428ce9a3c03330351e9a53109a8fbc"
@@ -1861,6 +1973,10 @@
     "lucide:cigarette": {
       "artwork": "<path d=\"M17 12H3a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h14\"/> <path d=\"M18 8c0-2.5-2-2.5-2-5\"/> <path d=\"M21 16a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1\"/> <path d=\"M22 8c0-2.5-2-2.5-2-5\"/> <path d=\"M7 12v4\"/>",
       "sha256": "b4b5e473c328731994a996ed73008433fcc060aa875852ecd3c394b500efa465"
+    },
+    "lucide:cinema": {
+      "artwork": "<path d=\"M14 22a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2\"/> <path d=\"M15.03 8.44a.65.65 0 0 1 0 1.12l-4.06 2.35a.64.64 0 0 1-.97-.56v-4.7a.647.647 0 0 1 .96-.56z\"/> <path d=\"M2 22a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2\"/> <rect x=\"2\" y=\"2\" width=\"20\" height=\"14\" rx=\"2\"/>",
+      "sha256": "ca24a14eb081b893861a8cd4254cbcbb25daa6fdd83f9e22a0ee5bd0dbdf4950"
     },
     "lucide:circle-alert": {
       "artwork": "<circle cx=\"12\" cy=\"12\" r=\"10\"/> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"/> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"/>",
@@ -1913,6 +2029,10 @@
     "lucide:circle-arrow-up": {
       "artwork": "<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m16 12-4-4-4 4\"/> <path d=\"M12 16V8\"/>",
       "sha256": "e0f382c0574a0125f54ed0905ed3e0454a2fc5d4f39b7d2dfa87bc955354866f"
+    },
+    "lucide:circle-bounce": {
+      "artwork": "<path d=\"M2 13c2.5.5 5 4 5 8 0-2.16 1.813-7.536 6-11.293\"/> <circle cx=\"19\" cy=\"6\" r=\"3\"/>",
+      "sha256": "b3cef334284e9c85e56c1bc070d7053e5e23c948f567824290378273d605913c"
     },
     "lucide:circle-check-big": {
       "artwork": "<path d=\"M21.801 10A10 10 0 1 1 17 3.335\"/> <path d=\"m9 11 3 3L22 4\"/>",
@@ -2149,6 +2269,10 @@
     "lucide:circle-percent": {
       "artwork": "<circle cx=\"12\" cy=\"12\" r=\"10\"/> <path d=\"m15 9-6 6\"/> <path d=\"M9 9h.01\"/> <path d=\"M15 15h.01\"/>",
       "sha256": "86e3bd506798046212bcf1402bc3b55917dde90dc4c0bb5d63d710e19489745d"
+    },
+    "lucide:circle-person-arms-spread": {
+      "artwork": "<path d=\"m15 17-3-3\"/> <path d=\"M8 10s2 1 4 1 4-1 4-1\"/> <path d=\"m9 17 3-3v-3\"/> <circle cx=\"12\" cy=\"12\" r=\"10\"/> <circle cx=\"12\" cy=\"7\" r=\".5\" fill=\"currentColor\"/>",
+      "sha256": "3d8de3235cd63f0ff9c18cce02c56174be6b64f38ee3454af67445985900ca22"
     },
     "lucide:circle-pile": {
       "artwork": "<circle cx=\"12\" cy=\"19\" r=\"2\"/> <circle cx=\"12\" cy=\"5\" r=\"2\"/> <circle cx=\"16\" cy=\"12\" r=\"2\"/> <circle cx=\"20\" cy=\"19\" r=\"2\"/> <circle cx=\"4\" cy=\"19\" r=\"2\"/> <circle cx=\"8\" cy=\"12\" r=\"2\"/>",
@@ -2906,6 +3030,10 @@
       "artwork": "<path d=\"M11.25 16.25h1.5L12 17z\"/> <path d=\"M16 14v.5\"/> <path d=\"M4.42 11.247A13.152 13.152 0 0 0 4 14.556C4 18.728 7.582 21 12 21s8-2.272 8-6.444a11.702 11.702 0 0 0-.493-3.309\"/> <path d=\"M8 14v.5\"/> <path d=\"M8.5 8.5c-.384 1.05-1.083 2.028-2.344 2.5-1.931.722-3.576-.297-3.656-1-.113-.994 1.177-6.53 4-7 1.923-.321 3.651.845 3.651 2.235A7.497 7.497 0 0 1 14 5.277c0-1.39 1.844-2.598 3.767-2.277 2.823.47 4.113 6.006 4 7-.08.703-1.725 1.722-3.656 1-1.261-.472-1.855-1.45-2.239-2.5\"/>",
       "sha256": "35a80b2a73dbeb1be3c80ac567e2c7b0e8242bf321d88f340344f2eb67b43aec"
     },
+    "lucide:doghouse": {
+      "artwork": "<path d=\"m2 9.718 8.82-6.333a2 2 0 012.36 0L22 9.718\"/> <path d=\"m20 8.282-1.007 10.902A2 2 0 0117 21H7a2 2 0 01-1.992-1.816L4 8.282\"/> <path d=\"M8.5 9.938a7 7 0 017 0\"/> <path d=\"M9 21v-5a3 3 0 016 0v5\"/>",
+      "sha256": "f797c88d79435b3eb9b9835947c99ec417ea57552b42d3c23eaa7d47b76dd9c6"
+    },
     "lucide:dollar-sign": {
       "artwork": "<path d=\"M12 3v18\"/> <path d=\"M17 5H9.5a1 1 0 000 7h5a1 1 0 010 7H6\"/>",
       "sha256": "f8e30d9a1fa1dc708924558ca788d3a1d2833eaab0a92391df5c8db5a7bfdc7a"
@@ -3627,20 +3755,20 @@
       "sha256": "b1e31af8663a101d5a100ba297b846d2621db7443e212bb89c375cb0c2c069ed"
     },
     "lucide:flip-horizontal-2": {
-      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"M7.298 20.288A1 1 0 008 22h8a1 1 0 00.703-1.712l-3.991-3.99a1 1 0 00-1.424-.001z\"/> <path d=\"M7.298 3.712A1 1 0 018 2h8a1 1 0 01.703 1.712l-3.991 3.99a1 1 0 01-1.424.001z\"/>",
-      "sha256": "67eb7bf8b747a8229645ad063e591e6a4daa5175eeb52005570250bc3d8122f7"
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"M7.298 20.288A1 1 0 0 0 8 22h8a1 1 0 0 0 .703-1.712l-3.991-3.99a1 1 0 0 0-1.424-.001z\"/> <path d=\"M7.298 3.712A1 1 0 0 1 8 2h8a1 1 0 0 1 .703 1.712l-3.991 3.99a1 1 0 0 1-1.424.001z\"/>",
+      "sha256": "151b03cd52d3c8c98b0288b22fce66b6ba3d7338ce79bf6a55d4d9ad336ab5e3"
     },
     "lucide:flip-horizontal": {
-      "artwork": "<path d=\"M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3\"/> <path d=\"M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3\"/> <path d=\"M12 20v2\"/> <path d=\"M12 14v2\"/> <path d=\"M12 8v2\"/> <path d=\"M12 2v2\"/>",
-      "sha256": "bcb05653f70c2ef3209b3c9c5438e7b0ef6f4803830f681033741acfc6be3add"
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3\"/> <path d=\"M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3\"/>",
+      "sha256": "45aeacb691aa9099fce59f357e792f546c93fa00d03ceeed0c66fff56f4a56b7"
     },
     "lucide:flip-vertical-2": {
-      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M20.288 16.703A1 1 0 0022 16V8a1 1 0 00-1.712-.703l-3.99 3.991a1 1 0 00-.001 1.424z\"/> <path d=\"M3.712 16.703A1 1 0 012 16V8a1 1 0 011.712-.703l3.99 3.991a1 1 0 01.001 1.424z\"/>",
-      "sha256": "31c8b11389ac35c84bcfcf4069f28c430cab71896aa6ed2cbc61127ff0625e05"
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M20.288 16.703A1 1 0 0 0 22 16V8a1 1 0 0 0-1.712-.703l-3.99 3.991a1 1 0 0 0-.001 1.424z\"/> <path d=\"M3.712 16.703A1 1 0 0 1 2 16V8a1 1 0 0 1 1.712-.703l3.99 3.991a1 1 0 0 1 .001 1.424z\"/>",
+      "sha256": "fe55b592cbe62d8ecad4962d6382027bc276e9f475fd84d724d16ba73b94b354"
     },
     "lucide:flip-vertical": {
-      "artwork": "<path d=\"M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3\"/> <path d=\"M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3\"/> <path d=\"M4 12H2\"/> <path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/>",
-      "sha256": "548e532943267c2e3cf1bd8dc6bc514d40c428d6693db2cd28231bedcd407645"
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3\"/> <path d=\"M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/>",
+      "sha256": "65219151d601ba9a2404f17adc82b994ae433eac075396f1f50f8d1a214725bd"
     },
     "lucide:flower-2": {
       "artwork": "<path d=\"M12 5a3 3 0 1 1 3 3m-3-3a3 3 0 1 0-3 3m3-3v1M9 8a3 3 0 1 0 3 3M9 8h1m5 0a3 3 0 1 1-3 3m3-3h-1m-2 3v-1\"/> <circle cx=\"12\" cy=\"8\" r=\"2\"/> <path d=\"M12 10v12\"/> <path d=\"M12 22c4.2 0 7-1.667 7-5-4.2 0-7 1.667-7 5Z\"/> <path d=\"M12 22c-4.2 0-7-1.667-7-5 4.2 0 7 1.667 7 5Z\"/>",
@@ -3655,12 +3783,12 @@
       "sha256": "49e7d36dbc44aa374614e83001db6e6d66db0278842da38e338d90f14c3b906a"
     },
     "lucide:fold-horizontal": {
-      "artwork": "<path d=\"M2 12h6\"/> <path d=\"M22 12h-6\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"m19 9-3 3 3 3\"/> <path d=\"m5 15 3-3-3-3\"/>",
-      "sha256": "b46406c47baa9dee8f9f1b53e7cd98c2067d864cf61838b08a0078dfe53009d1"
+      "artwork": "<path d=\"M12 10V8\"/> <path d=\"M12 16v-2\"/> <path d=\"M12 22v-2\"/> <path d=\"M12 4V2\"/> <path d=\"M16 12h6\"/> <path d=\"m19 15-3-3 3-3\"/> <path d=\"M2 12h6\"/> <path d=\"m5 15 3-3-3-3\"/>",
+      "sha256": "0295ae1377e41c3ce3d4dbbc6822a2022268b3fa0a567051ffd43efd346d95a7"
     },
     "lucide:fold-vertical": {
-      "artwork": "<path d=\"M12 22v-6\"/> <path d=\"M12 8V2\"/> <path d=\"M4 12H2\"/> <path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"m15 19-3-3-3 3\"/> <path d=\"m15 5-3 3-3-3\"/>",
-      "sha256": "d07e89f47d38d9d232189b16e96d8a3c2d8c8095c4ad9a6091d32fc40954e071"
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M12 22v-6\"/> <path d=\"M12 8V2\"/> <path d=\"m15 19-3-3-3 3\"/> <path d=\"m15 5-3 3-3-3\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/>",
+      "sha256": "58984a4ed1f5217ab0e3595db9509bea34861872f914238e06f74f6dadacdd09"
     },
     "lucide:folder-archive": {
       "artwork": "<circle cx=\"15\" cy=\"19\" r=\"2\"/> <path d=\"M20.9 19.8A2 2 0 0 0 22 18V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h5.1\"/> <path d=\"M15 11v-1\"/> <path d=\"M15 17v-2\"/>",
@@ -4234,6 +4362,10 @@
       "artwork": "<path d=\"M12 3V2\"/> <path d=\"m15.4 17.4 3.2-2.8a2 2 0 1 1 2.8 2.9l-3.6 3.3c-.7.8-1.7 1.2-2.8 1.2h-4c-1.1 0-2.1-.4-2.8-1.2l-1.302-1.464A1 1 0 0 0 6.151 19H5\"/> <path d=\"M2 14h12a2 2 0 0 1 0 4h-2\"/> <path d=\"M4 10h16\"/> <path d=\"M5 10a7 7 0 0 1 14 0\"/> <path d=\"M5 14v6a1 1 0 0 1-1 1H2\"/>",
       "sha256": "fa6c8fe80eceba6d60bdaef253902e3d0cbdf9c37a0c9968c927cdbe7fe5a60c"
     },
+    "lucide:hand-truck": {
+      "artwork": "<path d=\"m15.614 7.108-2.115-4.53a1 1 0 0 0-1.329-.484l-2.3 1.073a1 1 0 0 0-.484 1.33l4.783 10.247a1 1 0 0 0 1.329.483l5.925-2.765a1 1 0 0 0 .483-1.329l-2.245-4.81a1 1 0 0 0-1.329-.484l-6.831 3.188\"/> <path d=\"M2 3.268a2 2 0 0 1 2.812.886l7 15a2 2 0 0 0 2.659.967L20 17.54\"/> <circle cx=\"10\" cy=\"20\" r=\"2\"/>",
+      "sha256": "eec7108a364693e223e70d02734e4d66d37cfaf2e075d515c1d2591eada52f80"
+    },
     "lucide:hand": {
       "artwork": "<path d=\"M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2\"/> <path d=\"M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2\"/> <path d=\"M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8\"/> <path d=\"M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15\"/>",
       "sha256": "3c559ca6ac8558d36cfa09936705d1834573b7b2cb09b3c0ca60f5235be332de"
@@ -4425,6 +4557,14 @@
     "lucide:hourglass": {
       "artwork": "<path d=\"M5 22h14\"/> <path d=\"M5 2h14\"/> <path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\"/> <path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\"/>",
       "sha256": "1ab669d85f236e035d04c3410ed7bc168a16510182c20e4f1b6ed68d94cadab0"
+    },
+    "lucide:house-arrow-left": {
+      "artwork": "<path d=\"M12.343 21H5a2 2 0 01-2-2v-9a2 2 0 01.709-1.527l7-6a2 2 0 012.582 0l7 6A2 2 0 0121 10.001v2.354\"/> <path d=\"m18 15-3 3\"/> <path d=\"M21 18h-6l3 3\"/> <path d=\"M9 21v-8a1 1 0 011-.999h4a1 1 0 01.857.485\"/>",
+      "sha256": "d7377b9e641377f72bec9b484069ab3a7afbafbda9f3a4ffd38772c5829baa79"
+    },
+    "lucide:house-arrow-right": {
+      "artwork": "<path d=\"M12.353 21H5a2 2 0 01-2-2v-9a2 2 0 01.709-1.528l7-6a2 2 0 012.582 0l7 6A2 2 0 0121 10v2.344\"/> <path d=\"M14.87 12.508A1 1 0 0014 12h-4a1 1 0 00-1 1v8\"/> <path d=\"m17.999 21 3-3h-6\"/> <path d=\"m20.999 18-3-3\"/>",
+      "sha256": "f88c334562a8ee5a08737b224c9bff49142d13abf7e400483cb2d78236130bce"
     },
     "lucide:house-cog": {
       "artwork": "<path d=\"M10.584 21H5a2 2 0 01-2-2v-9a2 2 0 01.709-1.527l7-6a2 2 0 012.582 0l7 6A2 2 0 0121 10.001v.583\"/> <path d=\"M14 12H10a1 1 0 00-1 1v8\"/> <path d=\"m14.305 19.53.923-.382\"/> <path d=\"m15.229 16.852-.924-.383\"/> <path d=\"m16.852 15.228-.383-.923\"/> <path d=\"m16.852 20.773-.383.924\"/> <path d=\"m19.148 15.228.383-.923\"/> <path d=\"m19.53 21.697-.382-.924\"/> <path d=\"m20.773 16.852.922-.383\"/> <path d=\"m20.773 19.148.922.383\"/> <circle cx=\"18\" cy=\"18\" r=\"3\"/>",
@@ -5099,8 +5239,8 @@
       "sha256": "fdecfbd248de8b8cb29bcbf49d8a11067c421bfc8eac798a4ae8303b1c65f29a"
     },
     "lucide:loader-pinwheel": {
-      "artwork": "<path d=\"M22 12a1 1 0 0 1-10 0 1 1 0 0 0-10 0\"/> <path d=\"M7 20.7a1 1 0 1 1 5-8.7 1 1 0 1 0 5-8.6\"/> <path d=\"M7 3.3a1 1 0 1 1 5 8.6 1 1 0 1 0 5 8.6\"/> <circle cx=\"12\" cy=\"12\" r=\"10\"/>",
-      "sha256": "c4d8f4c5fb9536b1e6de0ef539e1c1cfdf88b26a80e1ee63d5bdaf149352223c"
+      "artwork": "<path d=\"M17 3.34A5 5 0 1112 12a5 5 0 10-5 8.66\"/> <path d=\"M22 12a5 5 0 01-10 0 5 5 0 00-10 0\"/> <path d=\"M7 3.34A5 5 0 1112 12a5 5 0 105 8.66\"/> <circle cx=\"12\" cy=\"12\" r=\"10\"/>",
+      "sha256": "4eeb4bb5767798fccabea0bccc91ab8ced86e50149fc8db66cd96e2ff2f821b9"
     },
     "lucide:loader": {
       "artwork": "<path d=\"M12 2v4\"/> <path d=\"m16.2 7.8 2.9-2.9\"/> <path d=\"M18 12h4\"/> <path d=\"m16.2 16.2 2.9 2.9\"/> <path d=\"M12 18v4\"/> <path d=\"m4.9 19.1 2.9-2.9\"/> <path d=\"M2 12h4\"/> <path d=\"m4.9 4.9 2.9 2.9\"/>",
@@ -5893,6 +6033,10 @@
     "lucide:nfc": {
       "artwork": "<path d=\"M6 8.32a7.43 7.43 0 0 1 0 7.36\"/> <path d=\"M9.46 6.21a11.76 11.76 0 0 1 0 11.58\"/> <path d=\"M12.91 4.1a15.91 15.91 0 0 1 .01 15.8\"/> <path d=\"M16.37 2a20.16 20.16 0 0 1 0 20\"/>",
       "sha256": "321b07d8e71a18345d854e46d45fc74b864bbf17da0529bed2ccff1fa58e0995"
+    },
+    "lucide:nigerian-naira": {
+      "artwork": "<path d=\"M4 10h16\"/> <path d=\"M4 14h16\"/> <path d=\"M6 20V4.25a.25.25 0 01.455-.143l11.09 15.786a.25.25 0 00.455-.144V4\"/>",
+      "sha256": "52b79a3f24a95f9b14fd1965ffac7cee1ffd4b9949f3884b373ab877a6ce3cac"
     },
     "lucide:non-binary": {
       "artwork": "<path d=\"M12 2v10\"/> <path d=\"m8.5 4 7 4\"/> <path d=\"m8.5 8 7-4\"/> <circle cx=\"12\" cy=\"17\" r=\"5\"/>",
@@ -7670,6 +7814,22 @@
       "artwork": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M12 8v8\"/> <path d=\"m8.5 14 7-4\"/> <path d=\"m8.5 10 7 4\"/>",
       "sha256": "2d8bc2de1c453235ebd6de3e6e3129e0ae8ff64789594f35915f4eb2549c8cab"
     },
+    "lucide:square-axis-dashed-horizontal": {
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3\"/> <path d=\"M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/>",
+      "sha256": "65219151d601ba9a2404f17adc82b994ae433eac075396f1f50f8d1a214725bd"
+    },
+    "lucide:square-axis-dashed-vertical": {
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3\"/> <path d=\"M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3\"/>",
+      "sha256": "45aeacb691aa9099fce59f357e792f546c93fa00d03ceeed0c66fff56f4a56b7"
+    },
+    "lucide:square-axis-horizontal": {
+      "artwork": "<path d=\"M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3\"/> <path d=\"M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3\"/> <path d=\"M22 12H2\"/>",
+      "sha256": "02c6115badada24f8724813bb30a249cf5c120bd846ceae198bedff6eb469f28"
+    },
+    "lucide:square-axis-vertical": {
+      "artwork": "<path d=\"M12 2v20\"/> <path d=\"M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3\"/> <path d=\"M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3\"/>",
+      "sha256": "82cc1b26f1c412330cf7d5add21af813ad4ffd897dfbcbe24264ceb18bb21902"
+    },
     "lucide:square-bookmark": {
       "artwork": "<path d=\"M11 3v7.751a.25.25 0 00.407.195l2.28-1.834a.5.5 0 01.627 0l2.28 1.834a.25.25 0 00.406-.195V3\"/> <rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/>",
       "sha256": "e317838ebed74fcf028e8346278eaeae232a700ed5bb847ac957bc05e7960b14"
@@ -7679,12 +7839,12 @@
       "sha256": "506363ef9ceec702e8479b875dfccc6f7e0049300f9419929799285259f4e9ae"
     },
     "lucide:square-centerline-dashed-horizontal": {
-      "artwork": "<path d=\"M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3\"/> <path d=\"M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3\"/> <path d=\"M12 20v2\"/> <path d=\"M12 14v2\"/> <path d=\"M12 8v2\"/> <path d=\"M12 2v2\"/>",
-      "sha256": "bcb05653f70c2ef3209b3c9c5438e7b0ef6f4803830f681033741acfc6be3add"
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3\"/> <path d=\"M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3\"/>",
+      "sha256": "45aeacb691aa9099fce59f357e792f546c93fa00d03ceeed0c66fff56f4a56b7"
     },
     "lucide:square-centerline-dashed-vertical": {
-      "artwork": "<path d=\"M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3\"/> <path d=\"M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3\"/> <path d=\"M4 12H2\"/> <path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/>",
-      "sha256": "548e532943267c2e3cf1bd8dc6bc514d40c428d6693db2cd28231bedcd407645"
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M21 16v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3\"/> <path d=\"M21 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/>",
+      "sha256": "65219151d601ba9a2404f17adc82b994ae433eac075396f1f50f8d1a214725bd"
     },
     "lucide:square-chart-gantt": {
       "artwork": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/> <path d=\"M9 8h7\"/> <path d=\"M8 12h6\"/> <path d=\"M11 16h5\"/>",
@@ -8242,6 +8402,10 @@
       "artwork": "<path d=\"M11 21v-2.002\"/> <path d=\"M3 3h8a10 10 0 0110 10v8\"/> <path d=\"M5 13H3\"/> <path d=\"M9 13h1a1 1 0 011 1v1\"/>",
       "sha256": "f19073d19e4ca16a726a6b7667c2aff6f4232469b51d597146c20b834ffad738"
     },
+    "lucide:stroke-width": {
+      "artwork": "<path d=\"M3.25 3h17.5\"/> <rect x=\"3\" y=\"7\" width=\"18\" height=\"4\" rx=\"1\"/> <rect x=\"3\" y=\"15\" width=\"18\" height=\"6\" rx=\"1\"/>",
+      "sha256": "4b8c6426105508a7c90dc672670e5a5745965aeafab1103873e7a7048bf1ecbf"
+    },
     "lucide:subscript": {
       "artwork": "<path d=\"m4 5 8 8\"/> <path d=\"m12 5-8 8\"/> <path d=\"M20 19h-4c0-1.5.44-2 1.5-2.5S20 15.33 20 14c0-.47-.17-.93-.48-1.29a2.11 2.11 0 0 0-2.62-.44c-.42.24-.74.62-.9 1.07\"/>",
       "sha256": "027c8f78fa46de5efd896c9e09fd5a4e097e38f9a8aaafef8f7156b7e4ff0d81"
@@ -8743,12 +8907,12 @@
       "sha256": "acec0345da541df82389b9c7d4ca78af39c2ebe51a155e7e81962f843c680cc3"
     },
     "lucide:triangles-centerline-dashed-horizontal": {
-      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"M7.298 20.288A1 1 0 008 22h8a1 1 0 00.703-1.712l-3.991-3.99a1 1 0 00-1.424-.001z\"/> <path d=\"M7.298 3.712A1 1 0 018 2h8a1 1 0 01.703 1.712l-3.991 3.99a1 1 0 01-1.424.001z\"/>",
-      "sha256": "67eb7bf8b747a8229645ad063e591e6a4daa5175eeb52005570250bc3d8122f7"
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"M7.298 20.288A1 1 0 0 0 8 22h8a1 1 0 0 0 .703-1.712l-3.991-3.99a1 1 0 0 0-1.424-.001z\"/> <path d=\"M7.298 3.712A1 1 0 0 1 8 2h8a1 1 0 0 1 .703 1.712l-3.991 3.99a1 1 0 0 1-1.424.001z\"/>",
+      "sha256": "151b03cd52d3c8c98b0288b22fce66b6ba3d7338ce79bf6a55d4d9ad336ab5e3"
     },
     "lucide:triangles-centerline-dashed-vertical": {
-      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M20.288 16.703A1 1 0 0022 16V8a1 1 0 00-1.712-.703l-3.99 3.991a1 1 0 00-.001 1.424z\"/> <path d=\"M3.712 16.703A1 1 0 012 16V8a1 1 0 011.712-.703l3.99 3.991a1 1 0 01.001 1.424z\"/>",
-      "sha256": "31c8b11389ac35c84bcfcf4069f28c430cab71896aa6ed2cbc61127ff0625e05"
+      "artwork": "<path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M20.288 16.703A1 1 0 0 0 22 16V8a1 1 0 0 0-1.712-.703l-3.99 3.991a1 1 0 0 0-.001 1.424z\"/> <path d=\"M3.712 16.703A1 1 0 0 1 2 16V8a1 1 0 0 1 1.712-.703l3.99 3.991a1 1 0 0 1 .001 1.424z\"/>",
+      "sha256": "fe55b592cbe62d8ecad4962d6382027bc276e9f475fd84d724d16ba73b94b354"
     },
     "lucide:trophy": {
       "artwork": "<path d=\"M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2\"/> <path d=\"M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2\"/> <path d=\"M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3\"/> <path d=\"M4 22h16\"/> <path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\"/> <path d=\"M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3\"/>",
@@ -8827,12 +8991,12 @@
       "sha256": "5eb4ed9cc18cc3445f93388eaa789a0ba6535b744efedc664381d0d5f637038d"
     },
     "lucide:unfold-horizontal": {
-      "artwork": "<path d=\"M16 12h6\"/> <path d=\"M8 12H2\"/> <path d=\"M12 2v2\"/> <path d=\"M12 8v2\"/> <path d=\"M12 14v2\"/> <path d=\"M12 20v2\"/> <path d=\"m19 15 3-3-3-3\"/> <path d=\"m5 9-3 3 3 3\"/>",
-      "sha256": "257be153c9777cbbefa65a71f4329df1d26746926c9fefebff8590b126ea7ce6"
+      "artwork": "<path d=\"M12 10V8\"/> <path d=\"M12 16v-2\"/> <path d=\"M12 22v-2\"/> <path d=\"M12 4V2\"/> <path d=\"m19 15 3-3-3-3\"/> <path d=\"M22 12h-6\"/> <path d=\"m5 15-3-3 3-3\"/> <path d=\"M8 12H2\"/>",
+      "sha256": "a84013b1499712540ecb0c7ed26d625cfdf70ac9a385b1388449b59af2461d7a"
     },
     "lucide:unfold-vertical": {
-      "artwork": "<path d=\"M12 22v-6\"/> <path d=\"M12 8V2\"/> <path d=\"M4 12H2\"/> <path d=\"M10 12H8\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"m15 19-3 3-3-3\"/> <path d=\"m15 5-3-3-3 3\"/>",
-      "sha256": "c8d036bd94f3de320531a426e4a32c5a9927f5eb67b8dd506ba8ccddc2514120"
+      "artwork": "<path d=\"M10 12H8\"/> <path d=\"M12 16v6\"/> <path d=\"M12 2v6\"/> <path d=\"M16 12h-2\"/> <path d=\"M22 12h-2\"/> <path d=\"M4 12H2\"/> <path d=\"m9 19 3 3 3-3\"/> <path d=\"m9 5 3-3 3 3\"/>",
+      "sha256": "1a727629080de7aa8e2cc78987eefb57bef84288167a1f599c28dc853c6a362b"
     },
     "lucide:ungroup": {
       "artwork": "<rect x=\"11\" y=\"14\" width=\"10\" height=\"7\" rx=\"2\"/> <rect x=\"3\" y=\"3\" width=\"10\" height=\"7\" rx=\"2\"/>",
@@ -9197,6 +9361,10 @@
     "lucide:wand": {
       "artwork": "<path d=\"M15 4V2\"/> <path d=\"M15 16v-2\"/> <path d=\"M8 9h2\"/> <path d=\"M20 9h2\"/> <path d=\"M17.8 11.8 19 13\"/> <path d=\"M15 9h.01\"/> <path d=\"M17.8 6.2 19 5\"/> <path d=\"m3 21 9-9\"/> <path d=\"M12.2 6.2 11 5\"/>",
       "sha256": "fb15648382231fd225189115f3deff475099062ec706d74d6cac44968f815a35"
+    },
+    "lucide:warehouse-waves": {
+      "artwork": "<path d=\"M2 11V8a2 2 0 0 1 1.132-1.803l7.95-3.974a2 2 0 0 1 1.837 0l7.948 3.974A2 2 0 0 1 22 8v3\"/> <path d=\"M6 11v-1a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1\"/> <path d=\"M2 16q2.5 2 5 0t5 0 5 0 5 0\"/> <path d=\"M2 21q2.5 2 5 0t5 0 5 0 5 0\"/>",
+      "sha256": "94c3781f6b94c7e68126e933911fdf765008f46082237b7d3e4705fe2dc93439"
     },
     "lucide:warehouse": {
       "artwork": "<path d=\"M18 21V10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v11\"/> <path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 1.132-1.803l7.95-3.974a2 2 0 0 1 1.837 0l7.948 3.974A2 2 0 0 1 22 8z\"/> <path d=\"M6 13h12\"/> <path d=\"M6 17h12\"/>",

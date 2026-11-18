@@ -152,8 +152,8 @@ remain pre-release contracts and may contain incompatible changes.
   the edition's figure language: parts that compose, a portrait edition, compositions, carriers, palette and style,
   and the page. The items on a sample book set by hand, statements in the model and pages by question leave it, with
   the rule against new palettes, styles and compositions.
-- The icons are generated from `lucide-static` 1.73.0. The bundled example, the LikeC4 shop and the
-  publisher's own work in Chinese build the same bytes as before.
+- The icons are generated from `lucide-static` 1.74.0. No plate of the bundled example, the LikeC4 shop or the
+  publisher's own work in Chinese changes; each work's manifest records the new icon supply.
 - The browser tests run on `playwright-core` 1.65.1, which installs Chromium 159.0.8154.6. No
   delivered byte changes.
 - **Breaking:** a plate's key names its middle age band by both its bounds, in all five languages: "over 7 and
@@ -184,7 +184,10 @@ remain pre-release contracts and may contain incompatible changes.
   delivery's files differ and which `manifest.json` is not JSON or no delivery's. The refusal codes are unchanged.
 - The developer tools move to their newest stable releases: Prettier 3.10.1, ESLint 10.15.0,
   markdownlint-cli2 0.24.1 and knip 6.45.1, with the `glob` and `minimatch` overrides at 14.0.6 and
-  11.0.8. None of them ships in the package, and Prettier 3.10.1 reformats no file.
+  11.0.9. None of them ships in the package, and Prettier 3.10.1 reformats no file.
+- The pinned npm moves to 12.2.3 and OpenSpec to 2.1.0, which brings Vercel's `skills` installer as a development
+  dependency, and CI downloads mise 2026.11.9 through `jdx/mise-action` v5.2.9. The LikeC4 supply follows its
+  locked transitive moves, with remeda's vendored licence bound to 2.62.1, whose upstream text is unchanged.
 - **Breaking:** the text a command prints without `--json` is new: the help, the result of every command, refusals and
   usage errors. A result is a report with one marked line per fact, `◆` passed, `▲` needs attention, `■` refused and
   `●` noted, under a heading for each group, and it ends with the command to run next; a refusal names the model or

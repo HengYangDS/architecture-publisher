@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
-    "@fission-ai/openspec": "2.0.0",
+    "@fission-ai/openspec": "2.1.0",
     "@likec4/language-services": "1.60.0",
     "@types/node": "26.6.6",
     "bundle-require": "5.1.0",
@@ -50,7 +50,7 @@
     "eslint": "10.15.0",
     "globals": "17.14.0",
     "knip": "6.45.1",
-    "lucide-static": "1.73.0",
+    "lucide-static": "1.74.0",
     "markdownlint-cli2": "0.24.1",
     "opentype.js": "2.0.0",
     "playwright-core": "1.65.1",
@@ -67,9 +67,9 @@
     "markdownlint": {
       "re2js": "2.9.1"
     },
-    "minimatch": "11.0.8"
+    "minimatch": "11.0.9"
   },
-  "packageManager": "npm@12.2.2",
+  "packageManager": "npm@12.2.3",
   "devEngines": {
     "runtime": {
       "name": "node",
@@ -78,7 +78,7 @@
     },
     "packageManager": {
       "name": "npm",
-      "version": "12.2.2",
+      "version": "12.2.3",
       "onFail": "error"
     }
   },
