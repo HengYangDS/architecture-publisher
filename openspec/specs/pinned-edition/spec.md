@@ -162,7 +162,7 @@ SHALL refuse nothing.
 For each plate the data SHALL hold its number, its views, its images with their widths, the frame of its figure on
 its page in points with the scale of the figure's drawing space in pixels per point, each scale a property is
 drawn on, and its face. It SHALL hold the plate's page in the print edition, counted from 1, only when the edition
-was typeset. For an overview the data SHALL name its composition and its images and SHALL hold no face.
+was typeset. For an overview the data SHALL hold its statement's SHA-256 and its images and SHALL hold no face.
 
 #### Scenario: A box on an image
 
@@ -176,8 +176,8 @@ was typeset. For an overview the data SHALL name its composition and its images 
 
 #### Scenario: The overview's page
 
-- **WHEN** a model names an overview composition and its edition is built
-- **THEN** the data names the overview's images and holds no face for it
+- **WHEN** a model states an overview and its edition is built
+- **THEN** the data holds the statement's SHA-256 and the overview's images, and no face for it
 
 ### Requirement: A plate's data face
 

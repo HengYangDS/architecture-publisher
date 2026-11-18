@@ -222,22 +222,6 @@ JSON paths.
   reason
 - **THEN** the model validates and keeps the glob and the reason
 
-### Requirement: Overview composition reference
-
-A model SHALL be able to name `overview`, the path of its overview composition
-relative to the model file. The path SHALL be relative, stay within the model's
-directory and end in `.typ`; any other value SHALL be refused at `/overview`.
-
-#### Scenario: A composition beside the model
-
-- **WHEN** a model names `overview.typ`
-- **THEN** the model validates and keeps the path
-
-#### Scenario: A path that leaves the model's directory
-
-- **WHEN** a model names `../overview.typ`
-- **THEN** validation refuses it at `/overview`
-
 ### Requirement: Coverage glob syntax
 
 In a coverage glob, `*` SHALL match within one path segment, `**` any number
@@ -476,3 +460,20 @@ removed.
 - **WHEN** a model's `edition` names `marks`, with any value
 - **THEN** the check refuses the model at `/edition/marks` with `model_field_retired` and says that every part is
   drawn as one card
+
+### Requirement: Overview statement
+
+A model MAY state `overview` as an object of blocks: `claim`, `lead`, `course`,
+`blocks`, with no property that states a position, a size or a
+type. A string in `overview`, the path of a retired composition, SHALL be
+refused at `/overview` with `model_overview_composition_retired`.
+
+#### Scenario: A statement
+
+- **WHEN** a model states an overview with a claim, a lead and a course of three steps
+- **THEN** the model validates and keeps the statement
+
+#### Scenario: A composition named
+
+- **WHEN** a model names `overview.typ` in `overview`
+- **THEN** validation refuses it at `/overview` with `model_overview_composition_retired`
