@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { checkModel } from "../src/build.mjs";
 import { checkOverview } from "../src/overview/typeset.mjs";
-import { minimalModel } from "./fixtures/models.mjs";
+import { minimalModel, writeModel } from "./fixtures/models.mjs";
 import { groupedWork, typesetWork } from "./fixtures/pinned-face.mjs";
 import { inkLines, readPng } from "./fixtures/png.mjs";
 
@@ -31,6 +32,14 @@ const statement = (text, item) => ({
 async function linesOf(stated, said, locale = "en") {
   return (await inked(stated, said, locale)).lines;
 }
+
+/** What the overview's check hands back for a statement. */
+const checked = (stated, locale = "en") =>
+  checkOverview({
+    modelBytes: Buffer.from(JSON.stringify(minimalModel({ overview: stated, locale }))),
+    revision: null,
+    date: "2026-11-10",
+  });
 
 /** The same lines with the page's image and the text's region in it, for a closer look at one line. */
 async function inked(stated, said, locale = "en") {
@@ -109,19 +118,70 @@ test("a step's text in Chinese is spread between its characters to one edge", as
     assert.ok(open(image, region, line, size) <= 4, `line ${index + 1} is pulled apart`);
 });
 
-test("a line of Han before a word that does not fit beside it is left short, not pulled apart", async () => {
-  // In a ninth of the page ten characters stand before a word that does not fit on their line. Spread to the measure
-  // they would stand a quarter of an em apart, more than the tenth of an em a part's details open: the line stays
-  // as it is set, as such a line of a part's details does.
+test("a line of Han before a word that does not fit beside it ends at the measure with the others", async () => {
+  // In a ninth of the page a word that does not fit ends two of the text's lines early. The breaks are chosen so
+  // that the loosest line opens least, and each line but the last is spread: the text keeps one right edge.
   const text = "受版本管理的意图只有 OpenSpec 一处；一项正式变更编译成一个 Commitment。";
   const stated = statement(text, "短");
   stated.course.steps.push(...["seven", "eight", "nine"].map((id) => ({ id, label: id })));
-  const { image, region, lines, size } = await inked(stated, text, "zh-CN");
+  const { lines } = await inked(stated, text, "zh-CN");
   assert.ok(lines.length >= 3, `the text set ${lines.length} lines`);
-  for (const [index, line] of lines.entries())
-    assert.ok(open(image, region, line, size) <= 4, `line ${index + 1} is pulled apart`);
+  const { spread, short } = edges(lines);
+  assert.ok(spread <= 12, `the lines end ${spread} px apart`);
+  assert.ok(short > 30, "the last line is set short, not stretched");
+  const { loose } = await checked(stated, "zh-CN");
+  assert.deepEqual(loose, [], "no line of the text is named as loose");
+});
+
+/** A statement whose further course of seven stations, across half the page, says `note` under its first. */
+const noted = (note) => ({
+  ...statement("短", "短"),
+  blocks: [
+    {
+      title: "A further course",
+      stations: ["a", "b", "c", "d", "e", "f", "g"].map((id, index) => ({
+        id: `further-${id}`,
+        label: id,
+        ...(index === 0 ? { note } : {}),
+      })),
+    },
+  ],
+});
+
+test("a line that would open more than half an em, or has no place to open, stays as set and is named", async () => {
+  // Under one of seven stations across half the page a note has under eight ems. Two characters stand before a
+  // word that takes a line of its own: spread to the measure they would stand several ems apart, and the word's
+  // line has no place to open. Both lines stay as they are set, and the check hands them back for their author.
+  const text = "单个 Commitment，限 30 秒";
+  const stated = noted(text);
+  const { image, region, lines, size } = await inked(stated, text, "zh-CN");
+  assert.equal(lines.length, 3, `the text set ${lines.length} lines`);
+  assert.ok(open(image, region, lines[0], size) <= 1, "the first line is pulled apart");
   const widest = Math.max(...lines.map(({ right }) => right));
   assert.ok(widest - lines[0].right > 30, "the first line is left short of the measure");
+  const { loose } = await checked(stated, "zh-CN");
+  assert.deepEqual(
+    loose.map(({ text: whole, line }) => [whole, line]),
+    [
+      [text, "单个"],
+      [text, "Commitment，"],
+    ],
+  );
+  assert.ok(loose[0].opening > 0.5, `the first line would open ${loose[0].opening} em`);
+  assert.equal(loose[1].opening, null);
+});
+
+test("a check names each line of the overview that is not spread, for the statement's author", async (t) => {
+  const text = "单个 Commitment，限 30 秒";
+  const file = await writeModel(t, minimalModel({ overview: noted(text), locale: "zh-CN" }));
+  const checked = await checkModel(file, { media: ["edition"] });
+  const named = checked.warnings.filter(({ code }) => code === "overview_line_loose");
+  assert.deepEqual(
+    named.map(({ path }) => path),
+    ["/overview", "/overview"],
+  );
+  assert.match(named[0].message, /"单个".*would open \d+\.\d\d em.*"单个 Commitment，限 30 秒"/u);
+  assert.match(named[1].message, /"Commitment，".*no place to open/u);
 });
 
 test("a word wider than its column takes rows of its own, and a mark alone is no orphan", async () => {

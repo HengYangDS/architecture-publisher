@@ -69,11 +69,20 @@ complete edition out, no page placed by hand.
 3. A note or a text of more than one line is justified, as the edition's prose is.
    - Rests on: the owner, who asked for justified paragraphs on 2026-11-07, 2026-11-12 and 2026-11-13 and again on
      2026-11-18 on seeing this page ragged. The edition's typography already requires it of prose; the overview's
-     text primitive never met it, hand-placed or drawn. English text is set as prose is. Chinese text is filled and
-     spread line by line with the breaks and the bound a part's details use on a plate (`src/breaks.mjs`): Typst's
-     own justification of a narrow column pulls a line's characters apart before a Latin word that does not fit.
-   - Considered: Typst's paragraph justification for every language (the fault above); hyphenating Latin words
-     inside Chinese text (it breaks identifiers such as `OpenSpec`).
+     text primitive never met it, hand-placed or drawn. English text is set as prose is. Chinese text is set line
+     by line with the breaks a part's details use on a plate (`src/breaks.mjs`): on the fewest lines that hold it,
+     broken where its loosest line opens least, and every line but the last spread to the measure when it opens at
+     most half an em at each place. A line that would open more, or holds one word with no place to open, stays as
+     set and the build names it (`overview_line_loose`), so that its author rewords the text.
+   - Measured on the six Chinese overviews, 77 lines that are not a text's last: with the bound of a tenth of an em
+     that a part's details keep, 48 ended at the measure and 29 were left short, which is the raggedness the owner
+     had asked to end; with these breaks and half an em, 72 end at it and 5 are named. The statements of three
+     works were reworded for those five.
+   - Considered: Typst's paragraph justification for every language (it opens a line of two characters before a
+     long word by several ems, and names no line); hyphenating Latin words inside Chinese text (it breaks
+     identifiers such as `OpenSpec`); no bound at all (the same line of two characters). A part's details on a
+     plate keep their tenth of an em: how many of their lines it leaves short is to be measured with the plates,
+     under the queue's `edition-map`.
 4. The overview is the edition's map: a point or a block names the view that enlarges it, and the page sets that
    view's plate number there, as a link.
    - Rests on: the owner, 2026-11-18 07:37 and 07:38 (the overview's mission is one page of overview; the pages

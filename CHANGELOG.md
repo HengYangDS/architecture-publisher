@@ -82,8 +82,10 @@ remain pre-release contracts and may contain incompatible changes.
   `view` the view that enlarges it: the page sets that view's plate number after the name, in the print edition a
   link to the plate's page; a view the model lacks is refused, and a check warns with `overview_view_unreached` of a
   view that nothing on the overview names. A note or a text of the overview on more than one line is justified, as
-  the edition's prose is, a text in Chinese line by line within the bound a part's details keep. The height an
-  overview's rows leave is shared between them, so the page is full.
+  the edition's prose is: a text in Chinese line by line, broken where its loosest line opens least, every line but
+  the last spread to the measure. A line that would open more than half an em at each place, or has no place to
+  open, stays as set, and a check warns with `overview_line_loose`. The height an overview's rows leave is shared
+  between them, so the page is full.
 - The product contract's end state says what each of the three carriers is for: the landscape edition for a room,
   the portrait edition for one reader, the page in a browser for a reader who questions and checks, on one spine.
   The queue gains `edition-map` after `overview` and moves `compositions` before `portrait-edition`;

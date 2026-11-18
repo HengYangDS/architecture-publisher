@@ -144,6 +144,21 @@ function unreachedViews(model) {
 }
 
 /**
+ * The overview's lines that are not spread to their measure, each as a warning for the statement's author: the
+ * line would open more than the overview allows, or holds one word with no place to open.
+ * @param {Array<{ text: string, line: string, opening: number | null }>} loose
+ */
+const looseLines = (loose) =>
+  loose.map(({ text, line, opening }) => ({
+    code: "overview_line_loose",
+    path: "/overview",
+    message:
+      opening === null
+        ? `The overview leaves the line "${line}" short of its measure: it has no place to open. It is a line of the text "${text}".`
+        : `The overview leaves the line "${line}" short of its measure: spread, it would open ${opening.toFixed(2)} em at each place. It is a line of the text "${text}".`,
+  }));
+
+/**
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed. The listener is told each step as it is reached.
  * @param {string} modelPath
@@ -216,7 +231,7 @@ async function prepare(modelPath, options, listener) {
           tokens: chosen.tokens,
         })
       : null;
-  if (overview) warnings.push(...unreachedViews(model));
+  if (overview) warnings.push(...unreachedViews(model), ...looseLines(overview.loose));
   // Where the edition draws strips, the manifest records the length it draws its largest part at.
   const styleRecord = measuredOf(style)
     ? { ...chosenRecord, longest: longestOf(style) }

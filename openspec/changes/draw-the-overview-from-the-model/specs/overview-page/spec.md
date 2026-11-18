@@ -183,9 +183,9 @@ it; the rows keep their content and their order.
 A note or a text of the overview that takes more than one line SHALL be
 justified, its last line set short: in a language written with spaces between
 words as the edition's prose is, and in one written without them line by line,
-a line spread between its characters only when that opens no more than a tenth
-of an em at each place. A name, a heading, a term and a text on one line SHALL
-be set as they are.
+on the fewest lines that hold it and broken where its loosest line opens
+least, every line but the last spread between its characters to the measure.
+A name, a heading, a term and a text on one line SHALL be set as they are.
 
 #### Scenario: A step's text on four lines
 
@@ -195,7 +195,18 @@ be set as they are.
 #### Scenario: A line of Han before a word that does not fit
 
 - **WHEN** a Chinese note breaks before a Latin word that does not fit on the line
-- **THEN** that line is left short, and none of its characters stand apart
+- **THEN** the lines around it give that line a character, and every line but the last ends at one edge
+
+### Requirement: A line that cannot be spread is named
+
+A line of such a text that would open more than half an em at each place, or
+that has no place to open, SHALL stay as it is set, and a check SHALL report
+it with `overview_line_loose`, naming the line and the text it belongs to.
+
+#### Scenario: Two characters before a long word
+
+- **WHEN** two characters of a Chinese note stand on a line before a word that takes the next line alone
+- **THEN** both lines stay as they are set, and the check's warnings name each with `overview_line_loose`
 
 ### Requirement: The overview's marks
 

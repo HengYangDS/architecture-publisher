@@ -428,6 +428,10 @@ a Typst file here is refused with `model_overview_composition_retired`.
   enlarges it: the page sets that view's plate number after the name, in the
   edition a link to the plate's page. The overview is the edition's map, and a
   check warns with `overview_view_unreached` of a view that nothing on it names.
+- A note or a text on more than one line is justified. A line that cannot be
+  spread to its measure within half an em at each place, as one of two
+  characters before a long word, stays as set, and a check warns with
+  `overview_line_loose`, naming the line and its text: reword the text.
 - `lines` go from one point of the course to others, each with a `label`: a
   point is a station, a branch, a spur or a step without stations, named by
   its `id`; a line with an end at a spur runs under the course. A

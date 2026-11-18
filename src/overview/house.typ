@@ -70,17 +70,21 @@
   stretch: 100%,
 )
 
-/// The lines of a text written without spaces between words, filled to a width by the widths Typst sets them in:
-/// each line its text, whether it is spread to the width, and the rows it takes. The publisher states where the
-/// text may break and how many places each of its atoms opens (`breaks.json`, from the rules a part's details break
-/// by); a line is spread when its slack is no more than the bound for each place it opens, and never the last. A
-/// line broken early before a word of another script that does not fit stays as it is set: spread, its characters
-/// would stand apart. No line is left to one character alone. A word wider than the width stands on rows of its own,
-/// broken by Typst where its script allows. Needs context.
+/// The lines of a text written without spaces between words, within a width: each line its text, whether it is
+/// spread to the width, the rows it takes and how far it opens at each place when spread, in ems. The publisher
+/// states where the text may break and how many places each of its atoms opens (`breaks.json`, from the rules a
+/// part's details break by). The text takes the fewest lines that hold it, and on those the breaks that open its
+/// loosest line least, so a line broken early before a word of another script that does not fit is closed by the
+/// lines around it. Every line but the last is spread when it opens no more than the bound at each place; one that
+/// would open more, or has no place to open, stays as it is set. No line is left to one character alone. A word
+/// wider than the width stands on rows of its own, broken by Typst where its script allows. Needs context.
 #let _filled(atoms, opening, w, style, pitch) = {
   let joined(line) = line.enumerate().map(((i, a)) => if i == 0 { a.text } else { a.gap + a.text }).join()
   let set-text(line) = text(..style, top-edge: "baseline", bottom-edge: "baseline", joined(line))
   let width(line) = measure(set-text(line)).width
+  let places-of(line) = line.enumerate().map(((k, a)) => a.places + if k > 0 and a.gap != "" { 1 } else { 0 }).sum() - if line.last().last { 1 } else { 0 }
+  let n = atoms.len()
+  // The fewest lines: each filled in turn with what fits, by the width Typst sets the line in.
   let lines = ()
   let current = ()
   for atom in atoms {
@@ -94,13 +98,99 @@
   if lines.len() > 1 and lines.last().len() == 1 and lines.last().first().orphan and lines.at(-2).len() > 2 {
     lines.last().insert(0, lines.at(-2).pop())
   }
+  let k = lines.len()
+  // On that many lines, the breaks that open the loosest line least, then the least in all. They are chosen by the
+  // sums of the atoms' own widths; the lines are then measured as set, and taken only when each of them fits.
+  if k > 1 and n > k {
+    let lone = atoms.map(a => measure(text(..style, a.text)).width)
+    let lead = measure(text(..style, "国")).width
+    let behind = atoms.enumerate().map(((t, a)) => if a.gap == "" { lone.at(t) } else {
+      measure(text(..style, "国" + a.gap + a.text)).width - lead
+    })
+    let reach = (0pt,)
+    let open = (0,)
+    let gaps = (0,)
+    for (t, a) in atoms.enumerate() {
+      reach.push(reach.last() + behind.at(t))
+      open.push(open.last() + a.places)
+      gaps.push(gaps.last() + if a.gap != "" { 1 } else { 0 })
+    }
+    let span(i, j) = lone.at(i) + reach.at(j) - reach.at(i + 1)
+    // How far a line of the atoms from i up to j opens at each place, in ems: none when it does not fit, and a
+    // hundred when it has no place to open.
+    let opens(i, j) = {
+      let s = span(i, j)
+      if s > w { if j - i == 1 { 0.0 } else { none } } else {
+        let p = open.at(j) - open.at(i) + gaps.at(j) - gaps.at(i + 1) - if atoms.at(j - 1).last { 1 } else { 0 }
+        if p <= 0 { 100.0 } else { (w - s) / (p * style.size) }
+      }
+    }
+    let far = (most: 1e9, sum: 1e9, from: -1)
+    let better(a, b) = a.most < b.most - 1e-6 or (calc.abs(a.most - b.most) <= 1e-6 and a.sum < b.sum)
+    // table.at(l).at(j): the best setting of the first j atoms on l lines, none of them the text's last.
+    let table = ((far,) * (n + 1),)
+    table.at(0).at(0) = (most: 0.0, sum: 0.0, from: -1)
+    for l in range(1, k) {
+      let row = (far,) * (n + 1)
+      for j in range(l, n) {
+        let best = far
+        let i = j - 1
+        while i >= l - 1 {
+          let o = opens(i, j)
+          if o == none { break }
+          let before = table.at(l - 1).at(i)
+          if before.most < 1e8 {
+            let found = (most: calc.max(before.most, o), sum: before.sum + o * o, from: i)
+            if better(found, best) { best = found }
+          }
+          i -= 1
+        }
+        row.at(j) = best
+      }
+      table.push(row)
+    }
+    let best = far
+    let last = -1
+    for i in range(k - 1, n) {
+      let before = table.at(k - 1).at(i)
+      let fits = span(i, n) <= w or n - i == 1
+      let lonely = n - i == 1 and atoms.at(i).orphan
+      if before.most < 1e8 and fits and not lonely and better(before, best) {
+        best = before
+        last = i
+      }
+    }
+    if last >= 0 {
+      let cuts = (n, last)
+      let l = k - 1
+      while l > 0 {
+        cuts.push(table.at(l).at(cuts.last()).from)
+        l -= 1
+      }
+      cuts = cuts.rev()
+      let chosen = range(k).map(l => atoms.slice(cuts.at(l), cuts.at(l + 1)))
+      // The sums are a little wider than a line as set, so a line that fits by a hair is missed: the chosen lines
+      // are taken only when, measured as set, they open their loosest line less than the lines filled in turn.
+      let loosest(held) = held.slice(0, -1).map(line => {
+        let slack = w - width(line)
+        let places = places-of(line)
+        if slack < 0pt { 0.0 } else if places <= 0 { 100.0 } else { slack / (places * style.size) }
+      })
+      let (found, filled) = (loosest(chosen), loosest(lines))
+      if chosen.all(line => line.len() == 1 or width(line) <= w) and better(
+        (most: calc.max(..found), sum: found.map(o => o * o).sum()),
+        (most: calc.max(..filled), sum: filled.map(o => o * o).sum()),
+      ) { lines = chosen }
+    }
+  }
   lines.enumerate().map(((i, line)) => {
     let slack = w - width(line)
-    let places = line.enumerate().map(((k, a)) => a.places + if k > 0 and a.gap != "" { 1 } else { 0 }).sum() - if line.last().last { 1 } else { 0 }
+    let places = places-of(line)
     let rows = if slack >= 0pt { 1 } else {
       int(calc.round(measure(box(width: w, { set par(leading: pitch, spacing: pitch); set-text(line) })).height / pitch)) + 1
     }
-    (text: joined(line), rows: rows,
+    (text: joined(line), rows: rows, last: i == lines.len() - 1,
+      opens: if places > 0 and slack >= 0pt { slack / (places * style.size) } else { none },
       spread: i < lines.len() - 1 and places > 0 and slack >= 0pt and slack <= opening * style.size * places)
   })
 }
@@ -109,7 +199,8 @@
 /// and each line a pitch below the one before. A text that is `spread` is justified, its last line short, so a text
 /// on one line is set as it is: a text written with spaces between words as the edition's prose is, on optimized
 /// lines, hyphenated where a break is cheap, its word spaces and tracking within the same limits; a text written
-/// without them line by line, each line spread between its characters within the bound a part's details keep.
+/// without them line by line, each line but the last spread between its characters to the width. A line that is
+/// not spread though it is not the last is recorded with its text (`<archpub-loose>`), for the build to name.
 #let wrapped(body, w, style, pitch: 16pt, spread: false) = {
   let breaks = if spread and type(body) == str { json("breaks.json") } else { (texts: (:)) }
   if type(body) == str and body in breaks.texts and w != auto {
@@ -119,6 +210,9 @@
         let row = 0
         for line in lines {
           let set-line = text(..style, top-edge: "baseline", bottom-edge: "baseline", line.text)
+          if not line.last and not line.spread and line.rows == 1 {
+            [#metadata((text: body, line: line.text, opening: line.opens)) <archpub-loose>]
+          }
           place(top + left, dy: row * pitch, if line.spread {
             box(width: w, {
               set par(justify: true, leading: 0pt, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)

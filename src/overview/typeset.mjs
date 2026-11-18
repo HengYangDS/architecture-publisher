@@ -1,4 +1,4 @@
-import { SPREAD_OPENING, spreadAtoms, unspaced } from "../breaks.mjs";
+import { OVERVIEW_OPENING, spreadAtoms, unspaced } from "../breaks.mjs";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -66,9 +66,9 @@ function stagedTokens(supplied, tokens) {
 
 /**
  * Where the lines of a statement's texts may break and how far they may be spread: for each text that holds a
- * character written without spaces between words, its atoms with the places each opens, and the most slack a
- * spread line closes for each place. The class fills the lines by the widths Typst sets them in and spreads a line
- * within that bound, as a part's details are spread on a plate.
+ * character written without spaces between words, its atoms with the places each opens, and the most a spread
+ * line opens at each place. The class chooses the breaks by the widths Typst sets the atoms in and spreads every
+ * line but a text's last within that bound.
  * @param {Buffer} modelBytes the model file as read
  */
 function breaksOf(modelBytes) {
@@ -84,7 +84,7 @@ function breaksOf(modelBytes) {
   } catch {
     // A model that does not parse states no overview; the build refuses it where it is read.
   }
-  return { opening: SPREAD_OPENING, texts };
+  return { opening: OVERVIEW_OPENING, texts };
 }
 
 /**
@@ -197,7 +197,9 @@ function refuseDiagnostics(stderr, roots) {
 /**
  * Check a model's overview before the edition sets it in place: Typst's drawing of it alone from the statement,
  * every text box inside the live area and clear of the others and of every line and ring, and every character drawn
- * by a bundled face. Hands back the texts, the boxes read back, and the marks and lines it drew.
+ * by a bundled face. Hands back the texts, the boxes read back, the marks and lines it drew, and each line of a text
+ * that is not spread to its measure though it is not the text's last: the text, the line, and how far it would
+ * open at each place, in ems, or null where it has no place to open.
  * @param {{ modelBytes: Buffer, writtenFrom?: string | null, plates?: Record<string, string>,
  *   revision: string | null, date: string | null, typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
@@ -216,7 +218,7 @@ export async function checkOverview(input) {
         typst,
         [
           "eval",
-          "(boxes: query(<archpub-box>).map(it => it.value), marks: query(<archpub-mark>).map(it => it.value), lines: query(<archpub-line>).map(it => it.value))",
+          "(boxes: query(<archpub-box>).map(it => it.value), marks: query(<archpub-mark>).map(it => it.value), lines: query(<archpub-line>).map(it => it.value), loose: query(<archpub-loose>).map(it => it.value))",
           "--in",
           entry,
           "--root",
@@ -248,7 +250,7 @@ export async function checkOverview(input) {
       throw error;
     }
     refuseDiagnostics(result.stderr, roots);
-    const { boxes, marks, lines } = JSON.parse(result.stdout);
+    const { boxes, marks, lines, loose } = JSON.parse(result.stdout);
     checkBoxes(boxes);
     checkLines(boxes, lines, marks);
     await requireOverviewGlyphs(boxes);
@@ -262,6 +264,7 @@ export async function checkOverview(input) {
       boxes,
       marks,
       lines,
+      loose,
     };
   } finally {
     await fs.rm(staged.root, { recursive: true, force: true });
