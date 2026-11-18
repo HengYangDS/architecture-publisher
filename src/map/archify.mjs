@@ -1,4 +1,6 @@
 import { execFile } from "node:child_process";
+import { createHash, randomUUID } from "node:crypto";
+import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
@@ -363,6 +365,104 @@ export function diagramCandidates(model, view, quality = "showcase", { beside = 
       "Group the components so that related ones share adjacent rows, or shorten the relation labels concerned.",
     refusal.problems ?? [],
   );
+}
+
+/**
+ * The environment variable that names a directory in which Archify's answers
+ * to candidate diagrams are kept between processes.
+ */
+const ANSWERS = "ARCHPUB_ARCHIFY_ANSWERS";
+
+/**
+ * Archify's answer to one candidate document: its verdict with the route
+ * measures, or its layout. The vendored Archify is verified and answers one
+ * document one way, so where the environment names a directory for answers, an
+ * answer is read from it by the supply's digest, the Node.js and platform that
+ * run Archify, the kind of answer, the quality and the document, and written to
+ * it when Archify has given one. The file the document lies in is no part of
+ * that, though an answer names it, which no caller reads. Only a whole answer
+ * is kept or read: a refusal, a failed run and a file that is no answer are
+ * asked again, so nothing that went wrong once is told twice. A directory
+ * that cannot be made refuses the work, since the caller named it; an answer
+ * that cannot be written there afterwards is not kept, and the work goes on
+ * with the answer it has.
+ * @param {string} file the file the document is written to
+ * @param {any} document
+ * @param {{ layout: boolean, whole: (answer: any) => boolean }} kind whether the layout is asked, and what a whole
+ *   answer of that kind is
+ */
+export async function candidateAnswer(file, document, { layout, whole }) {
+  const quality = document.meta.quality_profile;
+  const args = [
+    "validate",
+    "architecture",
+    file,
+    "--json",
+    "--quality",
+    quality,
+    ...(layout ? ["--layout-json"] : []),
+  ];
+  const store = process.env[ANSWERS];
+  if (!store) return (await runArchify(args)).answer;
+  await holdsAnswers(store);
+  const supply = await verifySupply("archify");
+  const key = createHash("sha256")
+    .update(
+      JSON.stringify([
+        supply.sha256,
+        process.version,
+        process.platform,
+        process.arch,
+        layout ? "layout" : "verdict",
+        quality,
+        document,
+      ]),
+    )
+    .digest("hex");
+  const kept = path.join(store, `${key}.json`);
+  try {
+    const known = JSON.parse(await fs.readFile(kept, "utf8"));
+    if (whole(known)) return known;
+  } catch {
+    // Not kept yet, or no answer: Archify is asked.
+  }
+  const { answer } = await runArchify(args);
+  if (!whole(answer)) return answer;
+  // Written beside its place and moved there, so no reader meets half an answer. A write that fails keeps
+  // nothing: a full disk, a directory removed meanwhile or a file another program holds costs a later question.
+  const partial = `${kept}.${randomUUID()}.partial`;
+  try {
+    await fs.mkdir(store, { recursive: true });
+    await fs.writeFile(partial, JSON.stringify(answer));
+    await fs.rename(partial, kept);
+  } catch {
+    await fs.rm(partial, { force: true }).catch(() => {});
+  }
+  return answer;
+}
+
+/** The directories for answers this process has made, each once. */
+const made = new Map();
+
+/**
+ * Make the directory the caller names for answers, once a process, or refuse: a path that cannot be a directory
+ * is a mistake of the caller's and is said before Archify is asked anything.
+ * @param {string} store
+ */
+function holdsAnswers(store) {
+  if (!made.has(store))
+    made.set(
+      store,
+      fs
+        .mkdir(store, { recursive: true })
+        .catch((error) =>
+          refuse(
+            "answers_unkept",
+            `No answers can be kept in ${store}, which ${ANSWERS} names: ${/** @type {Error} */ (error).message}`,
+          ),
+        ),
+    );
+  return made.get(store);
 }
 
 /**

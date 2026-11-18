@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { diagramCandidates, runArchify } from "./archify.mjs";
+import { candidateAnswer, diagramCandidates } from "./archify.mjs";
 import { clearLabels, routeDefects } from "./routes.mjs";
 
 /**
@@ -107,7 +107,11 @@ const LAYOUT = Object.freeze(["viewBox", "components", "boundaries", "connection
 
 /** Whether Archify's answer is a whole layout of a document of `connections` connections. */
 const laidOut = (layout, connections) =>
-  LAYOUT.every((part) => Array.isArray(layout[part])) && layout.connections.length === connections;
+  LAYOUT.every((part) => Array.isArray(layout?.[part])) &&
+  layout.connections.length === connections;
+
+/** Whether Archify's answer is a verdict it reached: a refusal or a failed run is none, and is asked again. */
+const verdict = (/** @type {any} */ answer) => answer?.ok === true;
 
 /**
  * Archify's layout of a candidate that Archify passed. A layout without its
@@ -138,9 +142,7 @@ export function routeLayout(layout, connections) {
  */
 async function measure(file, document) {
   const ids = document.connections.map(({ id }) => id);
-  const quality = document.meta.quality_profile;
-  const validate = ["validate", "architecture", file, "--json", "--quality", quality];
-  const { answer } = await runArchify(validate);
+  const answer = await candidateAnswer(file, document, { layout: false, whole: verdict });
   const composition = answer.composition ?? {};
   const passes =
     answer.ok === true &&
@@ -152,8 +154,11 @@ async function measure(file, document) {
   // Only a candidate that passes is ranked.
   if (!passes) return { file, passes, diagnostics, faults: [], metrics: null };
   const metrics = routeMetrics(composition);
-  const laid = await runArchify([...validate, "--layout-json"]);
-  const layout = routeLayout(laid.answer, ids.length);
+  const laid = await candidateAnswer(file, document, {
+    layout: true,
+    whole: (kept) => laidOut(kept, ids.length),
+  });
+  const layout = routeLayout(laid, ids.length);
   const { owners, ...defects } = routeDefects(layout, ids);
   const crossing = (composition.routeReview?.crossings ?? []).flatMap(({ left, right }) => [
     left.id,
@@ -246,10 +251,9 @@ function resided(document, id) {
  * @param {any} document the document written to `file`
  */
 async function layoutOf(file, document) {
-  const quality = document.meta.quality_profile;
-  const validate = ["validate", "architecture", file, "--json", "--quality", quality];
-  const { answer } = await runArchify([...validate, "--layout-json"]);
-  return laidOut(answer, document.connections.length) ? answer : null;
+  const whole = (/** @type {any} */ kept) => laidOut(kept, document.connections.length);
+  const answer = await candidateAnswer(file, document, { layout: true, whole });
+  return whole(answer) ? answer : null;
 }
 
 /**

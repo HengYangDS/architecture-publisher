@@ -9,6 +9,9 @@ import { minimalModel, writeModel } from "./fixtures/models.mjs";
 const root = path.resolve(import.meta.dirname, "..");
 
 function archpub(consumer, ...args) {
+  // The installed package measures every candidate itself: the suite's kept answers are not named to it.
+  const env = { ...process.env };
+  delete env.ARCHPUB_ARCHIFY_ANSWERS;
   const result = spawnSync(
     process.execPath,
     [
@@ -16,7 +19,7 @@ function archpub(consumer, ...args) {
       ...args,
       "--json",
     ],
-    { cwd: consumer, encoding: "utf8", timeout: 300000 },
+    { cwd: consumer, encoding: "utf8", timeout: 300000, env },
   );
   return { status: result.status, body: JSON.parse(result.stdout || "{}"), stderr: result.stderr };
 }

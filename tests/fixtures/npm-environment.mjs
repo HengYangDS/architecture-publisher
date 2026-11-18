@@ -1,6 +1,7 @@
 import { accessSync, constants, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import "./archify-answers.mjs";
 
 // Historical POSIX package identity includes member modes. Scope the mask to
 // this test process and its owned children, never the Runner or user session.
