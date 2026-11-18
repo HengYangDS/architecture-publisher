@@ -78,7 +78,7 @@ complete edition out, no page placed by hand.
    view's plate number there, as a link.
    - Rests on: the owner, 2026-11-18 07:37 and 07:38 (the overview's mission is one page of overview; the pages
      after it each expand one topic), 08:39 (the committee's design; links that jump are needed). The committee of
-     2026-11-18 (`build/runtime/work/committee-20261118/RESULT.md`): the overview keeps all it states and delegates
+     2026-11-18 (`docs/research/edition-carriers-committee-2026-11-18.md`): the overview keeps all it states and delegates
      depth to the plates by number. The model states a reference, never a position; the product derives the number
      and reports a view the overview does not reach.
    - Considered: deriving the tie from the parts a block names (too few blocks name parts); a strip of the course's

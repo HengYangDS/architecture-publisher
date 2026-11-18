@@ -26,8 +26,15 @@ from the same few blocks on one grid, and that what their positions express can 
   tracks are thinner lines, and the outcome that leaves a course is drawn in the accent.
 - The composition's staging, its refusals of imports and styles, and its missing-file refusal are removed. The
   manifest records the statement's digest beside the class's, the house supply's and Typst's.
+- The overview is the edition's map. A step, a station, a branch, a spur or a block may name the view that
+  enlarges it; the page sets that view's plate number after the name, in the edition a link to the plate's page,
+  and a check warns of a view that nothing on the overview names. A note or a text of more than one line is
+  justified, and the height a page's rows leave is shared between them, so the page is full.
 - The contract's queue gains the item `overview` before the rest of `composable-parts`, and `carriers` no longer
-  holds it.
+  holds it. After the committee of 2026-11-18 on the edition's three carriers
+  (`docs/research/edition-carriers-committee-2026-11-18.md`), whose design the owner took, the contract's end state
+  says what each carrier is for, and the queue gains `edition-map` and moves `compositions` before
+  `portrait-edition`.
 
 ## Capabilities
 
@@ -41,7 +48,8 @@ None.
   "Missing composition" are removed; "An overview stated in the model", "A course and its steps", "Stretches on
   parallel tracks", "Spurs beside a course", "A fork the course goes on from", "Labels on a course's stretches",
   "Lines between points of a course", "The overview laid out by the publisher", "An overview too tall for its page", "The
-  overview's marks" and "Parts named on the overview" are added; "Overview files" and "Overview in the print
+  overview's marks", "Parts named on the overview", "Plates named on the overview", "Every overview page full" and
+  "Running text justified" are added; "Overview files" and "Overview in the print
   edition" change.
 - `architecture-model`: "Overview composition reference" is removed and "Overview statement" added.
 - `edition-delivery`: "Overview inputs in the manifest", "Check without output" and "Print edition" change.

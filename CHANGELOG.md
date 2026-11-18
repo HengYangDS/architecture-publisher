@@ -78,6 +78,16 @@ remain pre-release contracts and may contain incompatible changes.
 - The publisher's own Chinese words read as written Chinese, not as translated English: the pinned commit is 固定的提交,
   the guide 导读, the delivery 交付物, the print edition 图册, the reviewer 审阅者 and the licence 许可证; the reader file's
   legend is 标记说明, and a part without files says 没有所属文件. Simplified and Traditional Chinese alike.
+- The overview is the edition's map. A step, a station, a branch, a spur or a block of the statement may name in
+  `view` the view that enlarges it: the page sets that view's plate number after the name, in the print edition a
+  link to the plate's page; a view the model lacks is refused, and a check warns with `overview_view_unreached` of a
+  view that nothing on the overview names. A note or a text of the overview on more than one line is justified, as
+  the edition's prose is, a text in Chinese line by line within the bound a part's details keep. The height an
+  overview's rows leave is shared between them, so the page is full.
+- The product contract's end state says what each of the three carriers is for: the landscape edition for a room,
+  the portrait edition for one reader, the page in a browser for a reader who questions and checks, on one spine.
+  The queue gains `edition-map` after `overview` and moves `compositions` before `portrait-edition`;
+  `docs/research/edition-carriers-committee-2026-11-18.md` records the committee whose design the owner took.
 - **Breaking:** The publisher draws the overview from what the model states of it, as it sets the title and contents
   pages: a claim and a lead; a course of steps with their stations, forks of siblings with no order, stretches on
   parallel tracks counted or named, spurs beside it, labelled stretches, lines between points and a text; and blocks of further courses, lists, tables, groups of lists

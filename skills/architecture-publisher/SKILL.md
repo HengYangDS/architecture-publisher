@@ -61,8 +61,10 @@ id with its files and facts and ends with the guide's text.
 6. Optionally state an `overview`, one page after the contents that tells the
    whole work at a glance: a claim and a lead, a course of steps with their
    stations, and lists, tables, further courses and headed texts in the order
-   they are read, with no position. The publisher lays the page out; the model
-   reference lists every field.
+   they are read, with no position. Name in `view`, on a step, a station or a
+   block, the view that enlarges it: the page sets that plate's number there as
+   a link, and a check warns of a view nothing on the overview names. The
+   publisher lays the page out; the model reference lists every field.
 7. Write the guide, the page that explains the system to its reader. Run
    `archpub scaffold guide model.json --out guide` for a starting draft and name
    `guide/guide.archify.md` in the model's `guide`. Then rewrite it: lead with

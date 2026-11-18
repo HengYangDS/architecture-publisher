@@ -216,10 +216,18 @@ edition comes out, and no page of it is placed by hand.
 - A view's composition is chosen by the view's shape, for a plate that is full and balanced.
 - Each page of an edition answers one question with one figure and a few sentences: the title, the contents, how
   to read the figures, the overview, the structure, the repository's structure, the mechanisms, the history, the
-  change between two pins, the plans, an important part opened, and the colophon.
+  change between two pins, the plans, an important part opened, and an index of the parts with what the edition
+  was built from and who accepted it.
+- The overview holds the whole on one page and is the edition's map: it names, as a link, the page that enlarges
+  each of its parts, and each later page takes one topic and says where it stands in the whole. Every page is
+  full, and a text of more than one line is justified.
 - One palette for a work, and a house style.
-- The same pages in landscape for presenting and in portrait as a booklet. The page in a browser is a medium of
-  its own.
+- Three carriers drawn from one model, each for what its reader does with it: the landscape edition for a room
+  that looks while someone speaks, a figure a page; the portrait edition for one reader, the same figures laid
+  out anew for the tall page with the words a speaker would say, the reading and each part's details; the page in
+  a browser for a reader who questions and checks, the guide with its sources. They share the work's question and
+  claim, the views' numbers and names, one vocabulary and one pin, and each leads to the others. None holds what
+  another could not: a thing stands on a carrier for what its reader does there.
 - Tidiness is held by the publisher's gates and not by a reader's eye: a plate that misses one is composed another
   way or refused.
 
@@ -240,6 +248,12 @@ became of the items it removed; the Change `record-the-figure-language-and-its-e
 above and worded three items against it. The design of the Change `queue-the-roadmap-and-name-roles` is the record of the
 six finished items and directs none of the open ones; [Roadmap details](roadmap.md) holds its detail. An item is
 accepted on the published works as the product builds them, with what its own gates record of every plate.
+
+On 2026-11-18 the owner took the design of a committee on the edition's three carriers
+([record](research/edition-carriers-committee-2026-11-18.md)). `edition-map` joined the list after `overview`, and
+`compositions` moved before `portrait-edition`: the landscape edition comes first, and its plates are to be full
+before a second form is built. That moves `delivery-layout`, the rest of `composable-parts` and `portrait-edition`
+back by two items, and `page` forward to follow `portrait-edition`.
 
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
@@ -262,6 +276,22 @@ accepted on the published works as the product builds them, with what its own ga
       with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
       by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
       of `composable-parts` because the owner ruled on 2026-11-17 that nothing is placed by hand.
+- [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
+      enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
+      three sizes with fixed roles, for a room, a screen and the zoom; the last page is an index of the parts, a
+      row each with a link to every plate that draws it, and at its foot what the edition was built from and who
+      accepted it, which the contents page no longer repeats.
+- [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
+      tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
+      and no longer only recorded.
+- [ ] `portrait-edition`: the edition for one reader, as a booklet read on a screen: the overview recomposed for
+      the tall page from the same statement, then one page a view, its figure laid out anew for that page and under
+      it the reading and a table with a row for each part the figure draws, and the index. It carries the words a
+      speaker would say beside the landscape edition's figures, and nothing that another carrier could not hold.
+- [ ] `page`: the page in a browser for a reader who questions and checks. It shares the work's question and
+      claim, its terms, its pin and the plates' numbers with the editions, gives each view and part a stable
+      address, and is checked against the model for them; then it is measured against what Archify offers, and
+      what it leaves unused is taken up.
 - [ ] `delivery-layout`: a delivery laid out by kind, so a reader finds each thing where its kind says: the print
       edition, the page and the manifest at the top; each page's image in `images/`, named by what it shows (the
       overview, a plate's number and view), where `00-overview` and a first plate of a view named overview read alike
@@ -272,11 +302,6 @@ accepted on the published works as the product builds them, with what its own ga
       longer two exclusive ways of drawing a part. A planned part that owns no file yet has no strip. The words
       the edition sets of a measure are made from the fact. A kind's icon stands by its label on the card, a
       plate's key keeps the strip and the lines, and one page at the front teaches how the figures are read.
-- [ ] `portrait-edition`: the edition in a second form, portrait pages for publication as a booklet read on a
-      screen, beside the landscape pages for presenting; figures first in both, and each form named for what it is.
-- [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
-      tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
-      and no longer only recorded.
 - [ ] `carriers`: figures of the edition's own for what a work covers beyond its structure, each drawn from what
       the model states and none from positions its author gives. First, from what the product already reads: the
       structure of its repository, an important part
@@ -284,7 +309,6 @@ accepted on the published works as the product builds them, with what its own ga
       course of a mechanism, its plans, its rules and what it writes. With them, an author's notes on parts and
       relations, and a figure of what the work covers and where it is silent.
 - [ ] `palettes-and-styles`: style moves beside the model, and the house gains a further style.
-- [ ] `page`: the page measured against what Archify offers, and what it leaves unused taken up.
 - [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and what was judged; the
       reviewer's Skill.
 - [ ] `foreign-work`: one work on a repository that is not the maintainer's, written by an agent from the Skill
