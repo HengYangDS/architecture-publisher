@@ -1,3 +1,11 @@
+---
+subject: architecture-publisher:research-overview-pages
+role: research
+state: active
+relations:
+  governed_by: ../product-contract.md
+---
+
 # The overview pages placed by hand: what they hold
 
 ## Question
