@@ -82,12 +82,13 @@ export function differences(view, face) {
 export const IMAGE_WIDTH = 960;
 
 /**
- * Typeset a work's plates as a small edition: a title page, the contents, the overview's page when a composition is
- * given, and one page for each plate, with one image of each page after the contents.
+ * Typeset a work's plates as a small edition: a title page, the contents, the overview's page when a statement is
+ * given, and one page for each plate, with one image of each page after the contents at each width.
  * @param {{ model: any, style: { tokens: any } | null, plates: any[] }} work
- * @param {string | null} [composition] the path of an overview's composition
+ * @param {object | null} [statement] the overview the model states
+ * @param {number[]} [widths] the widths of the images
  */
-export function typesetWork({ model, style, plates }, statement = null) {
+export function typesetWork({ model, style, plates }, statement = null, widths = [IMAGE_WIDTH]) {
   const time = 1_794_000_000;
   const record = editionRecord({
     model,
@@ -108,7 +109,7 @@ export function typesetWork({ model, style, plates }, statement = null) {
     revision: null,
     date: "2026-11-10",
     time,
-    widths: [IMAGE_WIDTH],
+    widths,
     ...(style ? { tokens: style.tokens } : {}),
   });
 }

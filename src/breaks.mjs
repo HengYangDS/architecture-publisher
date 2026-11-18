@@ -83,6 +83,41 @@ export function openings(line) {
 }
 
 /**
+ * The most slack a spread line closes for each place it opens, in ems of its size. Typst gives each space up to
+ * half its width first and shares the rest evenly among all the places, so within this limit a line opens a tenth
+ * of an em at most between two characters and up to as much again at a space. JIS X 4051, and the W3C's
+ * requirements for Japanese and Chinese text layout after it, let a line add a quarter em between characters at
+ * most. A part's details and an overview's notes are a few short lines over a last line set tight, and there a line
+ * that opens more than a tenth of an em reads as loose. A line with more slack, as one broken early before a long
+ * word in another script, stays flush left.
+ */
+export const SPREAD_OPENING = 0.1;
+
+/**
+ * Whether a text holds a character written without spaces between words.
+ * @param {string} text
+ */
+export const unspaced = (text) => UNSPACED.test(text);
+
+/**
+ * A text's atoms for a setter that fills and spreads its lines itself: each atom's text and gap, the places its
+ * own characters open in a justified line, whether its last character is one of them, which opens none when it
+ * ends a line, and whether the atom alone on a line would be an orphan.
+ * @param {string} text
+ * @returns {Array<{ text: string, gap: string, places: number, last: boolean, orphan: boolean }>}
+ */
+export const spreadAtoms = (text) =>
+  atoms(text).map((atom) => {
+    const characters = Array.from(atom.text);
+    return {
+      ...atom,
+      places: characters.filter((character) => UNSPACED.test(character)).length,
+      last: UNSPACED.test(characters.at(-1) ?? ""),
+      orphan: orphan(atom.text),
+    };
+  });
+
+/**
  * Whether a line holds one character written without spaces between words, with or without the marks that open and
  * close it: an orphan, which Chinese setting does not leave a line to.
  * @param {string} line

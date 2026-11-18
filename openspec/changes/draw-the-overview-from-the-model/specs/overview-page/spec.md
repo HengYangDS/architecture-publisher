@@ -148,6 +148,25 @@ line.
 - **WHEN** a drawing would run a fork's bar through the name of one of its branches
 - **THEN** the build refuses with `overview_text_over_line`, naming the branch's name and the bar's ends
 
+### Requirement: Running text justified
+
+A note or a text of the overview that takes more than one line SHALL be
+justified, its last line set short: in a language written with spaces between
+words as the edition's prose is, and in one written without them line by line,
+a line spread between its characters only when that opens no more than a tenth
+of an em at each place. A name, a heading, a term and a text on one line SHALL
+be set as they are.
+
+#### Scenario: A step's text on four lines
+
+- **WHEN** a step's English text takes four lines under the course
+- **THEN** its first three lines end at one edge and its last line ends short
+
+#### Scenario: A line of Han before a word that does not fit
+
+- **WHEN** a Chinese note breaks before a Latin word that does not fit on the line
+- **THEN** that line is left short, and none of its characters stand apart
+
 ### Requirement: The overview's marks
 
 A station SHALL be a ring on its course's line, a course's first and last

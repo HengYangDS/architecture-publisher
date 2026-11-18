@@ -1,4 +1,4 @@
-import { openings } from "../breaks.mjs";
+import { SPREAD_OPENING, openings } from "../breaks.mjs";
 
 /**
  * Spread lines: in a language written without spaces between words, a part's details are set as a justified
@@ -7,17 +7,6 @@ import { openings } from "../breaks.mjs";
  * one right edge. Such a language spreads evenly between its characters; one that separates its words by spaces
  * would open wide gaps in so narrow a column, and keeps its details flush left.
  */
-
-/**
- * The most slack a spread line closes for each place it opens, in ems of its size. Typst gives each space up to
- * half its width first and shares the rest evenly among all the places, so within this limit a line opens a tenth
- * of an em at most between two characters and up to as much again at a space. JIS X 4051, and the W3C's
- * requirements for Japanese and Chinese text layout after it, let a line add a quarter em between characters at
- * most. A part's details are a few short lines over a last line set tight, and there a line that opens more than a
- * tenth of an em reads as loose. A line with more slack, as one broken early before a long word in another script,
- * stays flush left.
- */
-export const SPREAD_OPENING = 0.1;
 
 /**
  * How each line of a part's details is set. In a language written without spaces between words: `set`, the width

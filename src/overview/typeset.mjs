@@ -1,3 +1,4 @@
+import { SPREAD_OPENING, spreadAtoms, unspaced } from "../breaks.mjs";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -64,7 +65,30 @@ function stagedTokens(supplied, tokens) {
 }
 
 /**
- * Stage the class, the drawing of the overview and the model in a new root. The class reads its tokens and the
+ * Where the lines of a statement's texts may break and how far they may be spread: for each text that holds a
+ * character written without spaces between words, its atoms with the places each opens, and the most slack a
+ * spread line closes for each place. The class fills the lines by the widths Typst sets them in and spreads a line
+ * within that bound, as a part's details are spread on a plate.
+ * @param {Buffer} modelBytes the model file as read
+ */
+function breaksOf(modelBytes) {
+  /** @type {Record<string, ReturnType<typeof spreadAtoms>>} */
+  const texts = {};
+  const walk = (/** @type {unknown} */ value) => {
+    if (typeof value === "string") {
+      if (unspaced(value)) texts[value] = spreadAtoms(value);
+    } else if (value && typeof value === "object") Object.values(value).forEach(walk);
+  };
+  try {
+    walk(JSON.parse(modelBytes.toString("utf8")).overview);
+  } catch {
+    // A model that does not parse states no overview; the build refuses it where it is read.
+  }
+  return { opening: SPREAD_OPENING, texts };
+}
+
+/**
+ * Stage the class, the drawing of the overview, the model and its statement's breaks in a new root. The class reads its tokens and the
  * model there.
  * @param {Buffer} modelBytes the model file as read
  * @param {{ palette: object, figure: object, dye: object } | null} [tokens] the edition's resolved palette
@@ -79,6 +103,7 @@ export async function stage(modelBytes, tokens = null) {
   const tokenBytes = stagedTokens(await fs.readFile(TOKENS), tokens);
   await fs.writeFile(path.join(root, STAGED, "house.json"), tokenBytes);
   await fs.writeFile(path.join(root, STAGED, "model.json"), modelBytes);
+  await fs.writeFile(path.join(root, STAGED, "breaks.json"), JSON.stringify(breaksOf(modelBytes)));
   return {
     root,
     // The class reads its tokens, and the drawing the class, so the digest covers all three.

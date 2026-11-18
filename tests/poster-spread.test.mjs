@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { openings } from "../src/breaks.mjs";
+import { SPREAD_OPENING, openings } from "../src/breaks.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { wordsOf } from "../src/locale.mjs";
-import { SPREAD_OPENING, setWidth, spreadOf } from "../src/poster/spread.mjs";
+import { setWidth, spreadOf } from "../src/poster/spread.mjs";
 import { loadTypefaces } from "../src/poster/text.mjs";
 import { HOUSE_STYLE } from "../src/poster/tokens.mjs";
 import { minimalModel } from "./fixtures/models.mjs";

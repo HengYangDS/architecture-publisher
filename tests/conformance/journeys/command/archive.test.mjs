@@ -13,16 +13,26 @@ const root = path.resolve(import.meta.dirname, "../../../..");
 const windows = process.platform === "win32";
 const platform = `${{ darwin: "macos", linux: "linux", win32: "windows" }[process.platform]}-${process.arch}`;
 
-/** A composition with the house masthead, a head, a model label, a definition list and the imprint. */
-const COMPOSITION = [
-  '#import "/archpub/house.typ": *',
-  "#show: overview",
-  "#masthead([Minimal], [Two components and one call], [A model written to test the overview.])",
-  "#head(48pt, 140pt, [The call])",
-  '#tx(48pt, 170pt, label-of("a"), weight: "semibold")',
-  "#dl(48pt, 200pt, 90pt, 600pt, (([Alpha], [calls Beta]), ([Beta], [answers])))",
-  "#imprint([Each view has its plate.])",
-].join("\n");
+/** An overview a model states: a claim, a lead, a course of two steps that name its parts, and a list of terms. */
+const OVERVIEW = {
+  claim: "Two components and one call",
+  lead: "A model written to test the overview.",
+  course: {
+    steps: [
+      { id: "call", part: "a", text: "calls Beta" },
+      { id: "answer", part: "b", text: "answers" },
+    ],
+  },
+  blocks: [
+    {
+      title: "The call",
+      items: [
+        ["Alpha", "calls Beta"],
+        ["Beta", "answers"],
+      ],
+    },
+  ],
+};
 
 /** The first file named `name` on `searchPath`, or null. */
 async function onPath(name, searchPath) {
@@ -160,8 +170,7 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
     await fs.readFile(path.join(root, "skills/architecture-publisher/SKILL.md"), "utf8"),
   );
 
-  const model = await writeModel(t, minimalModel({ overview: "overview.typ" }));
-  await fs.writeFile(path.join(path.dirname(model), "overview.typ"), COMPOSITION);
+  const model = await writeModel(t, minimalModel({ overview: OVERVIEW }));
   const fromArchive = path.join(work, "from-archive");
   const fromCheckout = path.join(work, "from-checkout");
   run(command, ["build", model, "--out", fromArchive, "--json"], env);

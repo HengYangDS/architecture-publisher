@@ -70,16 +70,89 @@
   stretch: 100%,
 )
 
-/// Text whose first baseline sits at b; with w it wraps within w at the given line pitch.
-#let tx(x, b, body, size: "text", font: sans, weight: "regular", fill: ink, w: none, style: "normal", pitch: 16pt) = {
+/// The lines of a text written without spaces between words, filled to a width by the widths Typst sets them in:
+/// each line its text, whether it is spread to the width, and the rows it takes. The publisher states where the
+/// text may break and how many places each of its atoms opens (`breaks.json`, from the rules a part's details break
+/// by); a line is spread when its slack is no more than the bound for each place it opens, and never the last. A
+/// line broken early before a word of another script that does not fit stays as it is set: spread, its characters
+/// would stand apart. No line is left to one character alone. A word wider than the width stands on rows of its own,
+/// broken by Typst where its script allows. Needs context.
+#let _filled(atoms, opening, w, style, pitch) = {
+  let joined(line) = line.enumerate().map(((i, a)) => if i == 0 { a.text } else { a.gap + a.text }).join()
+  let set-text(line) = text(..style, top-edge: "baseline", bottom-edge: "baseline", joined(line))
+  let width(line) = measure(set-text(line)).width
+  let lines = ()
+  let current = ()
+  for atom in atoms {
+    if current.len() == 0 or width(current + (atom,)) <= w { current.push(atom) } else {
+      lines.push(current)
+      current = (atom,)
+    }
+  }
+  if current.len() > 0 { lines.push(current) }
+  // An orphan: a last line of one character takes the atom before it down with it.
+  if lines.len() > 1 and lines.last().len() == 1 and lines.last().first().orphan and lines.at(-2).len() > 2 {
+    lines.last().insert(0, lines.at(-2).pop())
+  }
+  lines.enumerate().map(((i, line)) => {
+    let slack = w - width(line)
+    let places = line.enumerate().map(((k, a)) => a.places + if k > 0 and a.gap != "" { 1 } else { 0 }).sum() - if line.last().last { 1 } else { 0 }
+    let rows = if slack >= 0pt { 1 } else {
+      int(calc.round(measure(box(width: w, { set par(leading: pitch, spacing: pitch); set-text(line) })).height / pitch)) + 1
+    }
+    (text: joined(line), rows: rows,
+      spread: i < lines.len() - 1 and places > 0 and slack >= 0pt and slack <= opening * style.size * places)
+  })
+}
+
+/// A text within a width at a line pitch, as it is set and as it is measured; its first baseline at the box's top
+/// and each line a pitch below the one before. A text that is `spread` is justified, its last line short, so a text
+/// on one line is set as it is: a text written with spaces between words as the edition's prose is, on optimized
+/// lines, hyphenated where a break is cheap, its word spaces and tracking within the same limits; a text written
+/// without them line by line, each line spread between its characters within the bound a part's details keep.
+#let wrapped(body, w, style, pitch: 16pt, spread: false) = {
+  let breaks = if spread and type(body) == str { json("breaks.json") } else { (texts: (:)) }
+  if type(body) == str and body in breaks.texts and w != auto {
+    box(width: w, context {
+      let lines = _filled(breaks.texts.at(body), breaks.opening, w, style, pitch)
+      box(width: w, height: (lines.map(line => line.rows).sum() - 1) * pitch, {
+        let row = 0
+        for line in lines {
+          let set-line = text(..style, top-edge: "baseline", bottom-edge: "baseline", line.text)
+          place(top + left, dy: row * pitch, if line.spread {
+            box(width: w, {
+              set par(justify: true, leading: 0pt, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
+              set-line
+              linebreak(justify: true)
+            })
+          } else {
+            box(width: w, { set par(leading: pitch, spacing: pitch); set-line })
+          })
+          row += line.rows
+        }
+      })
+    })
+  } else {
+    box(width: w, {
+      set par(leading: pitch, spacing: pitch)
+      set par(justify: true, linebreaks: "optimized", justification-limits: (spacing: (min: 80% + 0pt, max: 125% + 0pt),
+        tracking: (min: -0.012em, max: 0.025em))) if spread
+      set text(hyphenate: true, costs: (hyphenation: 40%, runt: 150%)) if spread
+      text(..style, top-edge: "baseline", bottom-edge: "baseline", body)
+    })
+  }
+}
+
+/// Text whose first baseline sits at b; with w it wraps within w at the given line pitch, justified when `spread`.
+#let tx(x, b, body, size: "text", font: sans, weight: "regular", fill: ink, w: none, style: "normal", pitch: 16pt,
+  spread: false) = {
   let s = _size(size)
   let set-text(it) = text(.._style(s, font, weight, fill, style), top-edge: "baseline", bottom-edge: "baseline", it)
-  place(top + left, dx: x, dy: b, box(width: if w == none { auto } else { w }, {
-    set par(leading: pitch, spacing: pitch)
-    set-text(body)
-  }))
+  let set-box = wrapped(body, if w == none { auto } else { w }, _style(s, font, weight, fill, style), pitch: pitch,
+    spread: spread and w != none)
+  place(top + left, dx: x, dy: b, set-box)
   context {
-    let lines = measure(box(width: if w == none { auto } else { w }, { set par(leading: pitch, spacing: pitch); set-text(body) }))
+    let lines = measure(set-box)
     // A text set within a width records its glyphs' extent: its natural width when it stands on one line, the
     // width it wraps in otherwise.
     let width = calc.min(measure(set-text(body)).width, lines.width)
@@ -192,7 +265,10 @@
 /// Apply the page: `#show: overview`.
 #let overview(body) = if _in-edition { body } else {
   set page(width: page-width, height: page-height, margin: 0pt, fill: paper)
-  set text(font: sans, size: sizes.text, fill: ink, stretch: 100%)
+  // The model's language, as the edition sets it: a text breaks and hyphenates alike drawn alone and in the edition.
+  let locale = _model.at("locale", default: "en")
+  set text(lang: locale.split("-").first(), region: if "-" in locale { locale.split("-").last() } else { none },
+    font: sans, size: sizes.text, fill: ink, stretch: 100%)
   set par(leading: 6.6pt, spacing: 6.6pt)
   body
 }

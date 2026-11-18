@@ -66,7 +66,15 @@ complete edition out, no page placed by hand.
      that fits at neither is refused with `overview_too_tall` and the first block that does not fit. The six works'
      pages, stated from their hand-placed compositions, are drawn and pass the page's checks in both languages. The
      checks read back the page's lines and rings as well as its texts, and refuse a text under a line.
-3. A mark carries one meaning, and only marks with a meaning are drawn.
+3. A note or a text of more than one line is justified, as the edition's prose is.
+   - Rests on: the owner, who asked for justified paragraphs on 2026-11-07, 2026-11-12 and 2026-11-13 and again on
+     2026-11-18 on seeing this page ragged. The edition's typography already requires it of prose; the overview's
+     text primitive never met it, hand-placed or drawn. English text is set as prose is. Chinese text is filled and
+     spread line by line with the breaks and the bound a part's details use on a plate (`src/breaks.mjs`): Typst's
+     own justification of a narrow column pulls a line's characters apart before a Latin word that does not fit.
+   - Considered: Typst's paragraph justification for every language (the fault above); hyphenating Latin words
+     inside Chinese text (it breaks identifiers such as `OpenSpec`).
+4. A mark carries one meaning, and only marks with a meaning are drawn.
    - Rests on: `docs/research/overview-pages.md` ("What a position expresses", the last item: every reader asked
      what ring, tick and disc meant, and no page said).
    - Considered: keeping three kinds of mark with a key.
@@ -75,18 +83,18 @@ complete edition out, no page placed by hand.
      a spur are smaller rings under the course; a stretch on parallel tracks is drawn as thinner lines beside the
      course; a line between points is drawn over the course with its sentence; the outcome that leaves a course is
      drawn in the accent, with its sentence.
-4. A step or a station may name a part of the model, and then prints the model's label.
+5. A step or a station may name a part of the model, and then prints the model's label.
    - Rests on: `docs/research/overview-pages.md` (five of six pages retype the names of parts).
    - Chosen because: a name stated once cannot drift; a part named that does not exist is refused at the model's
      path with `model_reference_unknown`.
-5. The composition is retired, not kept beside the statement.
+6. The composition is retired, not kept beside the statement.
    - Rests on: the contract's Product paragraph ("no other input of its kind is added", and the composition "stays
      until the publisher draws the overview from the model").
    - Considered: accepting both forms for a release.
    - Chosen because: two ways to state one page is the choice the edition marks were; a model that names a `.typ`
      file is refused with `model_overview_composition_retired`, which says what replaced it.
    - Applies to: the schema, the staging and its three refusals, the manifest's composition record.
-6. The queue gains `overview` before the rest of `composable-parts`.
+7. The queue gains `overview` before the rest of `composable-parts`.
    - Rests on: the owner's words of 2026-11-17 13:20 and the holder's decision under the owner's delegation of
      2026-11-15 to order the work; `docs/research/figure-language.md` ("What follows for the product").
    - Applies to: the contract's queue and the item `carriers`, which no longer names the overview.

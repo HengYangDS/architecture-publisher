@@ -5,7 +5,7 @@
 // thirds, each as tall as it is set. The page is laid out at the house's spacing, and at a closer one, with notes
 // and texts a size smaller, when the first reaches below the foot; a page that does not fit at the closer spacing
 // either is refused with the first block that does not fit. Every text is set with the house class's primitives,
-// which record its box for the publisher's checks.
+// which record its box for the publisher's checks; a note or a text of more than one line is justified.
 
 #import "house.typ": *
 
@@ -60,13 +60,12 @@
 /// The name a step or a station is shown by: its label, or the model's label for the part it is.
 #let _name(point) = if point.at("label", default: none) != none { point.label } else { label-of(point.part) }
 
-/// How far below its first baseline a text set within w ends, at its line pitch. Needs context.
-#let _depth(body, w, size: "text", font: sans, weight: "regular", pitch: 16pt) = {
+/// How far below its first baseline a text set within w ends, at its line pitch, justified when `spread`: measured
+/// on the box the class sets it in. Needs context.
+#let _depth(body, w, size: "text", font: sans, weight: "regular", pitch: 16pt, spread: false) = {
   if body == none { return 0pt }
-  measure(box(width: w, {
-    set par(leading: pitch, spacing: pitch)
-    text(font: font, size: sizes.at(size), weight: weight, top-edge: "baseline", bottom-edge: "baseline", body)
-  })).height
+  measure(wrapped(body, w, (font: font, size: sizes.at(size), weight: weight, stretch: 100%), pitch: pitch,
+    spread: spread)).height
 }
 
 /// The widest line a text takes unwrapped. Needs context.
@@ -74,10 +73,13 @@
   text(font: font, size: sizes.at(size), weight: weight, body),
 ).width
 
-/// A text in the spacing's size and pitch: a note, a text, a term's text.
+/// A text in the spacing's size and pitch: a note, a text, a term's text. A text in the regular weight is running
+/// text and is justified where it takes more than one line; a term, a name and a column's title, in semibold, are
+/// labels and are set as they are.
 #let _set(g, x, b, body, fill: ink, weight: "regular", w: none) = tx(x, b, body, size: g.size, pitch: g.pitch,
-  fill: fill, weight: weight, w: w)
-#let _deep(g, body, w, weight: "regular") = _depth(body, w, size: g.size, pitch: g.pitch, weight: weight)
+  fill: fill, weight: weight, w: w, spread: weight == "regular")
+#let _deep(g, body, w, weight: "regular") = _depth(body, w, size: g.size, pitch: g.pitch, weight: weight,
+  spread: weight == "regular")
 
 // ── The course ────────────────────────────────────────────────────────────────────────────────────────────────────
 
