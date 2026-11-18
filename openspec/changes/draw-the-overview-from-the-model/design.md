@@ -154,6 +154,11 @@ complete edition out, no page placed by hand.
     of its own.
     - Rests on: the reader of the twelve pages, who read two such forks, drawn as rings on a bar under the course,
       as stations a request passes in turn.
+    - The text under the last point before a fork is set two modules short of its cell. Set to the cell's edge, a
+      line that filled it ran to the bar that splits the course, where on one page the bar touched its last
+      letter, or ended three points from the first branch's ring, on that branch's row: two readers of the twelve
+      pages read the note on into the branch's name. Five notes were set so; each now ends eight points or more
+      before the fork. The counts of decision 3 were taken before this.
 
 ## Risks / Trade-offs
 

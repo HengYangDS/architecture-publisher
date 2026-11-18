@@ -141,12 +141,18 @@ first block that does not fit.
 The publisher SHALL read back every line, rule and arrowhead it draws with its
 width, and every ring, and SHALL refuse with `overview_text_over_line` a page
 on which a text's glyph box lies under one of them, naming the text and the
-line.
+line. The text under the last point before a fork SHALL end a module or more
+before the fork's first line or ring.
 
 #### Scenario: A fork's bar through a branch's name
 
 - **WHEN** a drawing would run a fork's bar through the name of one of its branches
 - **THEN** the build refuses with `overview_text_over_line`, naming the branch's name and the bar's ends
+
+#### Scenario: A note that fills the cell before a fork
+
+- **WHEN** a note fills its cell under the station before a fork
+- **THEN** each of its lines ends eight points or more before the bar that splits the course, or before the first branch's ring
 
 ### Requirement: Plates named on the overview
 

@@ -150,6 +150,51 @@ test("a fork that ends the course hangs each branch on a stem of its own from th
   );
 });
 
+test("a note in the cell before a fork ends a module or more short of the fork's first mark", async () => {
+  // A note that fills its cell ran to the bar that splits the course, and ended three points from the ring of a
+  // fork's first branch, on that branch's row (two readers of twelve pages, 2026-11-18): the line touched a letter,
+  // and the note read on into the branch's name.
+  const note = "它在每一次请求之后都如实作答，而且只答这一次，不多也不少";
+  const ends = ({ boxes }) => {
+    const box = boxes.find(({ text }) => text === note);
+    return box.x + box.w;
+  };
+  const first = ({ marks }) =>
+    marks
+      .filter(({ r }) => r === 4)
+      .sort((a, b) => a.y - b.y)
+      .slice(0, 2)
+      .sort((a, b) => a.x - b.x)[0];
+
+  // A fork the course goes on from: the bar that splits the course stands before the first branch's ring.
+  const split = everyBlock();
+  split.course.steps[1].stations[2].note = note;
+  const paths = await drawn(split);
+  const ring = first(paths);
+  const bar = paths.lines.find(
+    ({ points: [[x0, y0], [x1, y1]] }) =>
+      x0 === x1 && x0 < ring.x && ring.x - x0 < 20 && Math.min(y0, y1) <= ring.y,
+  );
+  assert.ok(bar, "no bar splits the course before the fork");
+  const [[barX]] = bar.points;
+  assert.ok(
+    barX - bar.w / 2 - ends(paths) >= 8,
+    `the note ends ${(barX - bar.w / 2 - ends(paths)).toFixed(1)} pt before the bar that splits the course`,
+  );
+
+  // A fork that ends the course: the first branch's ring hangs on the notes' row.
+  const comb = everyBlock();
+  comb.course.steps[1].stations[2].note = note;
+  comb.course.steps[2].stations = [comb.course.steps[2].stations[0]];
+  comb.course.lines = [];
+  const hung = await drawn(comb);
+  const branch = first(hung);
+  assert.ok(
+    branch.x - branch.r - ends(hung) >= 8,
+    `the note ends ${(branch.x - branch.r - ends(hung)).toFixed(1)} pt before the first branch's ring`,
+  );
+});
+
 test("a fork the course goes on from splits it into a path for each branch, which join again", async () => {
   const { marks } = await drawn(everyBlock());
   const course = marks[0];

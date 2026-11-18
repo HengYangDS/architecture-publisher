@@ -262,6 +262,13 @@
   let crowded = passes.any(pass => not pass.fits)
   let line-y = labels-bottom + g.line + half + if crowded { 14pt } else { 0pt }
   let under-b = line-y + half + g.under
+  // The measure of the text under a point: its cell less the room beside its ring, and before a fork two modules
+  // less, so that a line that fills it ends clear of the bar that splits the course and of the first branch's ring,
+  // which hangs on this row.
+  let under-w(p) = {
+    let n = points.position(q => q.x == p.x)
+    p.cell - 16pt - if n + 1 < points.len() and points.at(n + 1).fork != none { 16pt } else { 0pt }
+  }
   // A fork's branches side by side under the course, each in a cell of its own as a station is: a ring on a bar that
   // leaves the course, the branch's name under the bar beside its ring and its note under the name.
   let rows-of(p) = {
@@ -300,9 +307,9 @@
   let paths = splits.map(p => (p: p, rows: paths-of(p), join: next-x(p) - 10pt))
   let path-y(id) = paths.map(f => f.rows.filter(row => row.b.at("id", default: none) == id)).flatten().map(row => row.y)
   let unders = points.filter(p => p.named and p.item.at("note", default: none) != none).map(p =>
-    under-b + _deep(g, p.item.note, p.cell - 16pt)
+    under-b + _deep(g, p.item.note, under-w(p))
   ) + steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() == 0 and s.at("text", default: none) != none).map(((i, s)) =>
-    under-b + _deep(g, s.text, points.filter(p => p.step == i).first().cell - 16pt)
+    under-b + _deep(g, s.text, under-w(points.filter(p => p.step == i).first()))
   ) + forks.map(f => calc.max(..f.rows.map(row => row.bottom))) + paths.map(f => f.rows.last().bottom)
   let unders-bottom = if unders.len() == 0 { line-y + half + 6pt } else { calc.max(..unders) }
   let texts = steps.enumerate().filter(((i, s)) => s.at("stations", default: ()).len() > 0 and s.at("text", default: none) != none)
@@ -431,7 +438,7 @@
     for p in named {
       _named(g, p.item, p.x + 8pt, label-b, p.cell - 16pt)
       if p.item.at("note", default: none) != none {
-        _set(g, p.x + 8pt, under-b, p.item.note, fill: soft, w: p.cell - 16pt)
+        _set(g, p.x + 8pt, under-b, p.item.note, fill: soft, w: under-w(p))
       }
     }
     // The lines between points, each in its channel above the station names.
@@ -484,7 +491,7 @@
       // A step without stations is a point: its text stands beside its ring, as a station's note does.
       if step.at("stations", default: ()).len() == 0 {
         let p = points.filter(p => p.step == i).first()
-        _set(g, p.x + 8pt, under-b, step.text, w: p.cell - 16pt)
+        _set(g, p.x + 8pt, under-b, step.text, w: under-w(p))
       } else { _set(g, spans.at(i).x, text-b, step.text, w: spans.at(i).w - 16pt) }
     }
     // The course's own text, under all of it.
