@@ -428,14 +428,18 @@ a Typst file here is refused with `model_overview_composition_retired`.
   enlarges it: the page sets that view's plate number after the name, in the
   edition a link to the plate's page. The overview is the edition's map, and a
   check warns with `overview_view_unreached` of a view that nothing on it names.
-- A note or a text on more than one line is justified: Chinese line by line,
-  English where its measure is twenty ems or more. In a narrower column an
-  English text is a caption: a block of its own width on lines of nearly one
-  length, broken by preference at a comma, and justified to that width where
-  its words allow. A line of Chinese that cannot be spread to its measure
-  within three tenths of an em at each place, as one of two characters before
-  a long word, stays as set, and a check warns with `overview_line_loose`,
-  naming the line and its text: reword the text.
+- A note or a text on more than one line is justified. In a measure of twenty
+  ems or more it is justified to its column: English as the edition's prose
+  is, Chinese line by line. There a line of Chinese that cannot be spread
+  within three tenths of an em at each place stays as set, and a check warns
+  with `overview_line_loose`, naming the line and its text. In a narrower
+  column a text is a block of its own width. An English text is a caption on
+  lines of nearly one length, broken by preference at a comma, and justified
+  to that width where its words allow. A Chinese text keeps its lines and is
+  justified to its own longest line: a shorter line is spread to it within a
+  tenth of an em at each place and stays as set otherwise, no line before the
+  last is left to one character where the same lines hold the text
+  otherwise, and no check asks for the text to be reworded.
 - A fork that ends a course is drawn as the course's line run on thinner, each
   branch hanging from it on a stem; it reads as a choice, not as stations in
   turn.

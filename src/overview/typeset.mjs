@@ -1,4 +1,4 @@
-import { OVERVIEW_OPENING, spreadAtoms, unspaced } from "../breaks.mjs";
+import { OVERVIEW_OPENING, SPREAD_OPENING, spreadAtoms, unspaced } from "../breaks.mjs";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
@@ -67,8 +67,9 @@ function stagedTokens(supplied, tokens) {
 /**
  * Where the lines of a statement's texts may break and how far they may be spread: for each text that holds a
  * character written without spaces between words, its atoms with the places each opens, and the most a spread
- * line opens at each place. The class chooses the breaks by the widths Typst sets the atoms in and spreads every
- * line but a text's last within that bound.
+ * line opens at each place: to its column's edge in a wide measure (`opening`), and to its own longest line in a
+ * narrow column (`own`). The class chooses the breaks by the widths Typst sets the atoms in and spreads every
+ * line but a text's last within the bound of its measure.
  * @param {Buffer} modelBytes the model file as read
  */
 function breaksOf(modelBytes) {
@@ -84,7 +85,7 @@ function breaksOf(modelBytes) {
   } catch {
     // A model that does not parse states no overview; the build refuses it where it is read.
   }
-  return { opening: OVERVIEW_OPENING, texts };
+  return { opening: OVERVIEW_OPENING, own: SPREAD_OPENING, texts };
 }
 
 /**

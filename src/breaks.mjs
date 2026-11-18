@@ -89,17 +89,19 @@ export function openings(line) {
  * requirements for Japanese and Chinese text layout after it, let a line add a quarter em between characters at
  * most. A part's details are a few short lines over a last line set tight, and there a line that opens more than
  * a tenth of an em reads as loose. A line with more slack, as one broken early before a long word in another
- * script, stays flush left.
+ * script, stays flush left. A note of the overview in a column under twenty ems keeps the same bound, to its own
+ * longest line.
  */
 export const SPREAD_OPENING = 0.1;
 
 /**
  * The most a line of an overview's text opens between two characters when it is spread, in ems of its size, in a
- * script written without spaces between words. An overview's notes stand in columns a few characters wide beside
- * words of another script that do not break, so the class breaks such a text where its loosest line opens least
- * and spreads every line but the last to the measure: a text keeps one right edge. A line that opens more than
- * three tenths of an em reads as characters standing apart. One that would open more, or that has no place to
- * open, stays as it is set, and the build names it for its author to reword.
+ * script written without spaces between words, in a measure of twenty ems or more. The class breaks such a text
+ * where its loosest line opens least and spreads every line but the last to the measure: a text keeps one right
+ * edge. A line that opens more than three tenths of an em reads as characters standing apart. One that would open
+ * more, or that has no place to open, stays as it is set, and the build names it. In a narrower column a line
+ * holds a few characters beside words of another script that do not break, and three tenths of an em at each
+ * place shows: there a note is spread to its own longest line within `SPREAD_OPENING`, and no line is named.
  */
 export const OVERVIEW_OPENING = 0.3;
 

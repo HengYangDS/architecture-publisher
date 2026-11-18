@@ -184,9 +184,10 @@ test("an English caption whose words do not let it be justified stays flush left
   assert.deepEqual((await checked(stated)).loose, []);
 });
 
-test("a step's text in Chinese is spread between its characters to one edge", async () => {
-  const { image, region, lines, size } = await inked(statement(CHINESE, "短"), CHINESE, "zh-CN");
-  assert.ok(lines.length >= 4, `the text set ${lines.length} lines`);
+test("a step's text in Chinese in a wide measure is spread between its characters to one edge", async () => {
+  // Five steps across the page: a step's text has some twenty-two ems.
+  const { image, region, lines, size } = await inked(across(5, CHINESE), CHINESE, "zh-CN");
+  assert.ok(lines.length >= 3, `the text set ${lines.length} lines`);
   const { spread, short } = edges(lines);
   // A line that ends in a full-width mark inks less than its measure by part of that mark's width.
   assert.ok(spread <= 12, `the lines end ${spread} px apart`);
@@ -195,12 +196,12 @@ test("a step's text in Chinese is spread between its characters to one edge", as
     assert.ok(open(image, region, line, size) <= 4, `line ${index + 1} is pulled apart`);
 });
 
-test("a line of Han before a word that does not fit beside it ends at the measure with the others", async () => {
-  // In a ninth of the page a word that does not fit ends two of the text's lines early. The breaks are chosen so
-  // that the loosest line opens least, and each line but the last is spread: the text keeps one right edge.
-  const text = "受版本管理的意图只有一处，即 OpenSpec；每项正式变更都编译成一个 Commitment。";
-  const stated = statement(text, "短");
-  stated.course.steps.push(...["seven", "eight", "nine"].map((id) => ({ id, label: id })));
+test("in a wide measure a line of Han before a word that does not fit ends at the measure with the others", async () => {
+  // In a fifth of the page, some twenty-two ems, a word that does not fit ends a line early. The breaks are chosen
+  // so that the loosest line opens least, and each line but the last is spread: the text keeps one right edge.
+  const text =
+    "受版本管理的意图只有一处，就是放在仓库里的 OpenSpec；每项正式变更都要先编译成一个 Commitment，之后才会放行改动。";
+  const stated = across(5, text);
   const { lines } = await inked(stated, text, "zh-CN");
   assert.ok(lines.length >= 3, `the text set ${lines.length} lines`);
   const { spread, short } = edges(lines);
@@ -225,13 +226,94 @@ const noted = (note) => ({
   ],
 });
 
-test("a line that would open more than three tenths of an em, or has no place to open, stays as set and is named", async () => {
-  // Under one of seven stations across half the page a note has under eight ems. Two characters stand before a
-  // word that takes a line of its own: spread to the measure they would stand several ems apart, and the word's
-  // line has no place to open. Both lines stay as they are set, and the check hands them back for their author.
+// In a column narrower than twenty ems a line holds a few characters beside words of another script that do not
+// break. Spread to the column's edge, a line of six characters stands visibly opened (a reader of six pages named
+// eight such first lines, 2026-11-18). There a note is justified to its own longest line, within the tenth of an em
+// a part's details keep on a plate, and no author is asked to reword it: a committee of three seats chose so, and
+// the owner took it on 2026-11-18 (docs/research/narrow-notes-committee-2026-11-18.md).
+
+test("a Chinese note in a narrow column keeps its first line as set before a word that does not fit", async () => {
+  // Under one of seven stations across half the page a note has seven ems. Six characters stand before a Latin
+  // word that takes the second line: opened to the column's edge each gap would grow by a fifth of an em.
+  const text = "归属与租约由 ETHOS 管理";
+  const { image, region, lines, size } = await inked(noted(text), text, "zh-CN");
+  assert.equal(lines.length, 2, `the text set ${lines.length} lines`);
+  assert.ok(
+    region.right - 6 - lines[0].right > 0.6 * size * PX,
+    "the first line reaches the column's edge: it was opened",
+  );
+  assert.equal(open(image, region, lines[0], size), 0, "a gap of the first line is opened");
+});
+
+test("two lines of a narrow note of nearly one length end at one edge, the longer line's", async () => {
+  // In a ninth of the page, under twelve ems, the first line is a quarter of an em shorter than the second over
+  // nine places: it is spread to the second, and both end half an em short of the column's edge.
+  const text = "在指定的 HEAD 上按依赖关系运行各项门禁，结果存放在 Git 目录里";
+  const { region, lines, size } = await inked(across(9, text), text, "zh-CN");
+  assert.equal(lines.length, 3, `the text set ${lines.length} lines`);
+  const [first, second] = lines;
+  assert.ok(
+    Math.abs(first.right - second.right) <= 3,
+    `lines 1 and 2 end ${Math.abs(first.right - second.right)} px apart`,
+  );
+  assert.ok(
+    region.right - 6 - Math.max(first.right, second.right) > 0.3 * size * PX,
+    "the lines reach the column's edge: not the note's own measure",
+  );
+});
+
+test("a line of a narrow note far short of its longest stays as set, and the build names no line of it", async () => {
+  // In a ninth of the page a word that does not fit ends two lines an em and a half short of the longest: spread
+  // to it they would open a sixth of an em at each place. They stay flush left as set.
+  const text = "受版本管理的意图只有一处，即 OpenSpec；每项正式变更都编译成一个 Commitment。";
+  const stated = across(9, text);
+  const { image, region, lines, size } = await inked(stated, text, "zh-CN");
+  assert.equal(lines.length, 4, `the text set ${lines.length} lines`);
+  assert.ok(edges(lines).spread > 12, "the lines end at one edge: a line was opened to it");
+  // The first and the third line hold Han alone: no gap of theirs reaches three tenths of an em.
+  for (const index of [0, 2])
+    assert.equal(open(image, region, lines[index], size), 0, `line ${index + 1} is pulled apart`);
+  assert.deepEqual((await checked(stated, "zh-CN")).loose, []);
+});
+
+test("no line before the last is left to one character where the same lines hold the note otherwise", async () => {
+  // In a twelfth of the page, eight ems: 单 / 个 Content-Length， and 单个 / Content-Length， both take three lines.
+  // A line of one character and a line of one long word both cannot open, so only the count of the first tells
+  // the two settings apart.
+  const text = "单个 Content-Length，限 30 秒、64 MiB";
+  const { region, lines, size } = await inked(across(12, text), text, "zh-CN");
+  assert.equal(lines.length, 3, `the text set ${lines.length} lines`);
+  assert.ok(
+    lines[0].right - region.left > 1.5 * size * PX,
+    "the first line holds one character alone",
+  );
+});
+
+test("a narrow note whose line cannot reach is named to no author", async (t) => {
+  // Two characters before a word that takes a line of its own, under eight ems: both lines stay as they are set.
   const text = "单个 Commitment，限 30 秒";
   const stated = noted(text);
   const { image, region, lines, size } = await inked(stated, text, "zh-CN");
+  assert.equal(lines.length, 3, `the text set ${lines.length} lines`);
+  assert.equal(open(image, region, lines[0], size), 0, "the first line is pulled apart");
+  assert.deepEqual((await checked(stated, "zh-CN")).loose, []);
+  const file = await writeModel(t, minimalModel({ overview: stated, locale: "zh-CN" }));
+  const { warnings } = await checkModel(file, { media: ["edition"] });
+  assert.deepEqual(
+    warnings.filter(({ code }) => code === "overview_line_loose"),
+    [],
+  );
+});
+
+/** A text whose second word, a name of forty-five letters, takes a line of twenty-two ems alone. */
+const LOOSE = "单个 overview_text_over_line_checked_twice_again_x，限 30 秒";
+
+test("in a wide measure a line that would open more than three tenths of an em, or has no place to open, stays as set and is named", async () => {
+  // In a fifth of the page two characters stand before a word that takes a line of its own: spread to the measure
+  // they would stand twenty ems apart, and the word's line has no place to open. Both lines stay as they are set,
+  // and the check hands them back.
+  const stated = across(5, LOOSE);
+  const { image, region, lines, size } = await inked(stated, LOOSE, "zh-CN");
   assert.equal(lines.length, 3, `the text set ${lines.length} lines`);
   assert.ok(open(image, region, lines[0], size) <= 1, "the first line is pulled apart");
   const widest = Math.max(...lines.map(({ right }) => right));
@@ -240,25 +322,24 @@ test("a line that would open more than three tenths of an em, or has no place to
   assert.deepEqual(
     loose.map(({ text: whole, line }) => [whole, line]),
     [
-      [text, "单个"],
-      [text, "Commitment，"],
+      [LOOSE, "单个"],
+      [LOOSE, "overview_text_over_line_checked_twice_again_x，"],
     ],
   );
   assert.ok(loose[0].opening > 0.3, `the first line would open ${loose[0].opening} em`);
   assert.equal(loose[1].opening, null);
 });
 
-test("a check names each line of the overview that is not spread, for the statement's author", async (t) => {
-  const text = "单个 Commitment，限 30 秒";
-  const file = await writeModel(t, minimalModel({ overview: noted(text), locale: "zh-CN" }));
+test("a check names each line of a wide text that is not spread", async (t) => {
+  const file = await writeModel(t, minimalModel({ overview: across(5, LOOSE), locale: "zh-CN" }));
   const checked = await checkModel(file, { media: ["edition"] });
   const named = checked.warnings.filter(({ code }) => code === "overview_line_loose");
   assert.deepEqual(
     named.map(({ path }) => path),
     ["/overview", "/overview"],
   );
-  assert.match(named[0].message, /"单个".*would open \d+\.\d\d em.*"单个 Commitment，限 30 秒"/u);
-  assert.match(named[1].message, /"Commitment，".*no place to open/u);
+  assert.match(named[0].message, /"单个".*would open \d+\.\d\d em/u);
+  assert.match(named[1].message, /again_x，".*no place to open/u);
 });
 
 test("a word wider than its column takes rows of its own, and a mark alone is no orphan", async () => {

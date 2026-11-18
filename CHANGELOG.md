@@ -81,13 +81,14 @@ remain pre-release contracts and may contain incompatible changes.
 - The overview is the edition's map. A step, a station, a branch, a spur or a block of the statement may name in
   `view` the view that enlarges it: the page sets that view's plate number after the name, in the print edition a
   link to the plate's page; a view the model lacks is refused, and a check warns with `overview_view_unreached` of a
-  view that nothing on the overview names. A note or a text of the overview on more than one line is justified, as
-  the edition's prose is: a text in Chinese line by line, broken where its loosest line opens least, every line but
-  the last spread to the measure, and a text in English where its measure is twenty ems or more; in a narrower
-  column an English text is a caption, a block of its own width on lines of nearly one length, justified to that
-  width where its words allow. A line of Chinese
-  that would open more than three tenths of an em at each place, or has no place to open, stays as set, and a check
-  warns with `overview_line_loose`. Every text begins on a module of 8 points and every baseline of a row stands on
+  view that nothing on the overview names. A note or a text of the overview on more than one line is justified. In a
+  measure of twenty ems or more it is justified to its column, as the edition's prose is: a text in Chinese line by
+  line, broken where its loosest line opens least, and there a line that would open more than three tenths of an em
+  at each place, or has no place to open, stays as set, and a check warns with `overview_line_loose`. In a narrower
+  column a text is a block of its own width: an English text is a caption on lines of nearly one length, justified
+  to that width where its words allow; a Chinese text keeps its lines and is justified to its own longest line
+  within a tenth of an em at each place, with no line before the last left to one character where the same lines
+  hold it otherwise, and no check asks for it to be reworded. Every text begins on a module of 8 points and every baseline of a row stands on
   half lines, so no two edges or lines nearly meet; a fork that ends a course hangs each branch on a stem. The
   height an overview's rows leave is shared between them, so the page is full.
 - The product contract's end state says what each of the three carriers is for: the landscape edition for a room,
