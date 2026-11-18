@@ -256,7 +256,7 @@ before a second form is built. That moves `delivery-layout`, the rest of `compos
 back by two items, and `page` forward to follow `portrait-edition`.
 
 On 2026-11-18 the owner directed that performance be optimised to the limit in every repository ETHOS governs
-(「要做极致的性能优化，所有 ethos 的纳管仓库都是」), after the pipeline of one landing had held the host's one slot for
+(「要做极致的性能优化」), after the pipeline of one landing had held the host's one slot for
 seventy minutes. `performance` joined the list before `edition-map`: every Change of every later item runs the
 suite in its proof and in two pipelines, so what the suite and a build cost is paid by each of them. That moves
 every open item back by one.
