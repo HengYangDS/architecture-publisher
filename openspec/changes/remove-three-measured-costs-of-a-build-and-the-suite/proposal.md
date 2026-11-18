@@ -48,7 +48,8 @@ None.
 `src/layout/channel-solver/conflicts.mjs`; `src/map/explainer.mjs`, `src/map/guide.mjs` and `src/build.mjs`;
 `src/map/archify.mjs` and `src/map/choice.mjs`; three new test files and three fixtures, the suite's environment
 fixture, and the tests of guides and of the installed package; `docs/product-contract.md` (the queue),
-`docs/reference/operations.md` and `docs/reference/development.md` (the variable and its refusal), the research
+`docs/reference/command-line.md`, `docs/reference/operations.md` and `docs/reference/development.md` (the variable
+and its refusal), the research
 page `docs/research/build-and-suite-time.md` and `CHANGELOG.md`. No delivered byte.
 
 Queue: `performance`.

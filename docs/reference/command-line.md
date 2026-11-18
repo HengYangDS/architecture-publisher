@@ -194,3 +194,24 @@ reading the model, verifying files, planning views, laying out the plates,
 preparing the page, typesetting the edition and delivering the page. With
 `--json`, or when standard error is a pipe or a file, it draws none, and
 standard output holds the same bytes either way.
+
+## Answers kept between builds
+
+A page generated for a model without a guide takes each view's diagram from
+candidates that Archify measures, as [operations](operations.md#layout-and-media)
+describes. The verified Archify answers one document one way, so a process measures a
+candidate once. Where the environment variable `ARCHPUB_ARCHIFY_ANSWERS` names
+a directory, each whole answer is kept there as well, a verdict Archify reached
+or a layout it drew, by the Archify supply's digest, the Node.js and platform
+that ran it, the kind of answer, the quality and the document, and read from
+there before Archify is asked. Another build of the work then asks Archify
+again only for the candidates that changed, those Archify refused and those
+whose answer could not be written. archpub makes the directory when it is
+missing and never prunes it, so it grows with every new candidate; it replaces
+a file there that is no whole answer, and takes any whole answer it finds
+there for Archify's, so the directory is the caller's to guard. Where a page's
+candidates are measured, in a build, a check or a scaffold of a model without
+a guide, a path that cannot be made a directory is refused with
+`answers_unkept` before Archify is asked; a directory that cannot be written
+keeps nothing and says nothing. Without the variable nothing is kept outside
+the process. The chosen diagram is the same either way.
