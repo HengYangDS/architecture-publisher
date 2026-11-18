@@ -5,21 +5,19 @@
  * @typedef {import("../channels.mjs").LabelBox} LabelBox
  */
 
-/** Label rows a vertical passes, given the row its own wire's label or jog occupies. */
-function rowsPassed(vertical, row, rows) {
-  const all = [...Array(rows).keys()];
+/**
+ * Whether a vertical passes the label row `at`, given the row its own wire's label or jog occupies: one from the
+ * top passes the rows above its turn, one from the bottom those below, and one that turns in the far band or runs
+ * through passes them all. The search asks this for every choice it tries, so no list of rows is made for it.
+ */
+function passesRow(vertical, row, at) {
   if (vertical.from === "top")
-    return vertical.turn === "upper"
-      ? []
-      : vertical.turn === "row"
-        ? all.filter((k) => k < row)
-        : all;
-  return vertical.turn === "lower"
-    ? []
-    : vertical.turn === "row"
-      ? all.filter((k) => k > row)
-      : all;
+    return vertical.turn !== "upper" && (vertical.turn !== "row" || at < row);
+  return vertical.turn !== "lower" && (vertical.turn !== "row" || at > row);
 }
+
+/** Whether `row` is one of a channel's `rows` label rows. */
+const labelRow = (row, rows) => Number.isInteger(row) && row >= 0 && row < rows;
 
 export function crossesBand(vertical, band) {
   if (band === "upper") return vertical.from === "top" && vertical.turn !== "upper";
@@ -58,6 +56,8 @@ function coincident(choice, other) {
  * wire's jog or vertical, and jogs on one row keep `separation` apart. Where the
  * medium sets `join`, two wires' marks on one row, a jog or a label, keep it
  * apart: they share one line, and closer a reader continues one into the other.
+ * Two choices can meet only on the rows they stand on, so those two rows are
+ * all that is looked at, however many the channel has.
  */
 export function compatible(channel, chosen, index, choice, rows, spacing) {
   const wires = channel.wires;
@@ -66,45 +66,39 @@ export function compatible(channel, chosen, index, choice, rows, spacing) {
     const width = /** @type {LabelBox} */ (wires[i].label).width;
     return { low: option.label - width / 2, high: option.label + width / 2 };
   };
-  const mark = (i, option, row) =>
-    option.row !== row
-      ? null
-      : option.jog
-        ? { low: option.jog[0], high: option.jog[1] }
-        : option.label !== undefined
-          ? boxOf(i, option)
-          : null;
+  const jogOf = (option) => ({ low: option.jog[0], high: option.jog[1] });
+  /** Whether a vertical of `option` passes the row of another wire's label beside that label's box. */
+  const passesBeside = (option, row, box) => {
+    for (const vertical of option.verticals)
+      if (
+        passesRow(vertical, option.row, row) &&
+        !(vertical.own && option.row === row) &&
+        vertical.x > box.low - spacing.labelClear &&
+        vertical.x < box.high + spacing.labelClear
+      )
+        return true;
+    return false;
+  };
+  const mine = labelRow(choice.row, rows);
   for (const [j, other] of chosen) {
     if (coincident(choice, other)) return false;
-    for (let row = 0; row < rows; row += 1) {
-      const mineBox =
-        choice.label !== undefined && choice.row === row ? boxOf(index, choice) : null;
-      const otherBox = other.label !== undefined && other.row === row ? boxOf(j, other) : null;
-      const mineJog =
-        choice.jog && choice.row === row ? { low: choice.jog[0], high: choice.jog[1] } : null;
-      const otherJog =
-        other.jog && other.row === row ? { low: other.jog[0], high: other.jog[1] } : null;
+    const mineBox = mine && choice.label !== undefined ? boxOf(index, choice) : null;
+    const otherBox =
+      labelRow(other.row, rows) && other.label !== undefined ? boxOf(j, other) : null;
+    if (mine && choice.row === other.row) {
+      const mineJog = choice.jog ? jogOf(choice) : null;
+      const otherJog = other.jog ? jogOf(other) : null;
       if (mineBox && otherBox && near(mineBox, otherBox, spacing.labelGap)) return false;
       if (mineJog && otherBox && near(mineJog, otherBox, spacing.labelClear)) return false;
       if (otherJog && mineBox && near(otherJog, mineBox, spacing.labelClear)) return false;
       if (mineJog && otherJog && near(mineJog, otherJog, spacing.separation)) return false;
       if (spacing.join) {
-        const [mine, theirs] = [mark(index, choice, row), mark(j, other, row)];
-        if (mine && theirs && near(mine, theirs, spacing.join)) return false;
+        const [my, their] = [mineJog ?? mineBox, otherJog ?? otherBox];
+        if (my && their && near(my, their, spacing.join)) return false;
       }
-      const passes = (option, at) =>
-        option.verticals.filter(
-          (vertical) =>
-            rowsPassed(vertical, option.row, rows).includes(at) &&
-            !(vertical.own && option.row === at),
-        );
-      const beside = (vertical, box) =>
-        vertical.x > box.low - spacing.labelClear && vertical.x < box.high + spacing.labelClear;
-      for (const vertical of passes(choice, row))
-        if (otherBox && beside(vertical, otherBox)) return false;
-      for (const vertical of passes(other, row))
-        if (mineBox && beside(vertical, mineBox)) return false;
     }
+    if (otherBox && passesBeside(choice, other.row, otherBox)) return false;
+    if (mineBox && passesBeside(other, choice.row, mineBox)) return false;
   }
   return true;
 }
@@ -113,10 +107,10 @@ export function rowCrossings(chosen, rows) {
   let crossings = 0;
   for (const [i, option] of chosen)
     for (const [j, other] of chosen) {
-      if (i === j || !other.jog) continue;
+      if (i === j || !other.jog || !labelRow(other.row, rows)) continue;
       for (const vertical of option.verticals)
         if (
-          rowsPassed(vertical, option.row, rows).includes(other.row) &&
+          passesRow(vertical, option.row, other.row) &&
           !(vertical.own && option.row === other.row)
         )
           if (vertical.x > other.jog[0] && vertical.x < other.jog[1]) crossings += 1;

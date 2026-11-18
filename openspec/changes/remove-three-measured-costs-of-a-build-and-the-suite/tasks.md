@@ -1,7 +1,7 @@
 ## 1. The check of a choice
 
-- [ ] 1.1 State the check row by row in a test fixture and test first: that `compatible` and `rowCrossings` answer as the fixture does on seeded questions with thousands of each answer, and that checking a choice reads the same number of verticals for a channel of one label row and of three. Done when the two tests of equal answers pass on the unchanged source and the count of reads fails there.
-- [ ] 1.2 Rewrite the check to look at the two rows two choices stand on, without a list of rows. Done when the three tests pass and `tests/edition-plates.test.mjs` and `tests/pinned-face-bytes.test.mjs` pass unchanged.
+- [x] 1.1 State the check row by row in a test fixture and test first: that `compatible` and `rowCrossings` answer as the fixture does on seeded questions with thousands of each answer, and that checking a choice reads the same number of verticals for a channel of one label row and of three. Done when the two tests of equal answers pass on the unchanged source and the count of reads fails there. The two tests of equal answers pass on the source before and after, with thousands of each answer; the count of reads fails before, 24 against 12, and passes.
+- [x] 1.2 Rewrite the check to look at the two rows two choices stand on, without a list of rows. Done when the three tests pass and `tests/edition-plates.test.mjs` and `tests/pinned-face-bytes.test.mjs` pass unchanged. The three tests pass, and `tests/edition-plates.test.mjs` and `tests/pinned-face-bytes.test.mjs` pass unchanged.
 
 ## 2. The page in one run
 
