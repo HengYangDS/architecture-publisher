@@ -255,6 +255,12 @@ On 2026-11-18 the owner took the design of a committee on the edition's three ca
 before a second form is built. That moves `delivery-layout`, the rest of `composable-parts` and `portrait-edition`
 back by two items, and `page` forward to follow `portrait-edition`.
 
+On 2026-11-18 the owner directed that performance be optimised to the limit in every repository ETHOS governs
+(「要做极致的性能优化，所有 ethos 的纳管仓库都是」), after the pipeline of one landing had held the host's one slot for
+seventy minutes. `performance` joined the list before `edition-map`: every Change of every later item runs the
+suite in its proof and in two pipelines, so what the suite and a build cost is paid by each of them. That moves
+every open item back by one.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -276,6 +282,13 @@ back by two items, and `page` forward to follow `portrait-edition`.
       with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
       by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
       of `composable-parts` because the owner ruled on 2026-11-17 that nothing is placed by hand.
+- [ ] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
+      profile shows is removed with every delivered byte unchanged, one cause to a commit, measured before and
+      after under like conditions and recorded whether it is kept or taken back; the suite runs as wide as its
+      machine allows; and what would bring a cost back is refused by a test that counts work, where a bound in
+      seconds would fail for the host's reasons. The item ends when the largest cause that a profile of a build
+      and of the suite still shows holds under a tenth of its time, or lies in another product and is reported
+      there. The times stand in the [record](research/build-and-suite-time.md) and are read at each landing.
 - [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
       enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
       three sizes with fixed roles, for a room, a screen and the zoom; the last page is an index of the parts, a

@@ -16,7 +16,7 @@
 
 ## 4. The queue and the record
 
-- [ ] 4.1 Add the item `performance` to the queue before `edition-map`, with its end and what it moves back, and write the research page `docs/research/build-and-suite-time.md` with the baseline of 2026-11-18 and each change's measurement, listed in the research home. Done when the queue's test and the documents' checks pass.
+- [x] 4.1 Add the item `performance` to the queue before `edition-map`, with its end and what it moves back, and write the research page `docs/research/build-and-suite-time.md` with the baseline of 2026-11-18 and each change's measurement, listed in the research home. Done when the queue's test and the documents' checks pass. The item stands before `edition-map` with its end, the page is written and listed, and the queue's test and the documents' checks pass.
 - [ ] 4.2 Record the three changes under `Unreleased` in `CHANGELOG.md`. Done when the static checks pass.
 
 ## 5. Acceptance
