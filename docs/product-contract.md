@@ -271,7 +271,7 @@ back by two items, and `page` forward to follow `portrait-edition`.
       byte changes.
 - [x] `reader-and-data`: the model, the pinned edition as data and a reader file in every delivery, in the form
       the reader experiment supports.
-- [ ] `overview`: the overview drawn by the publisher from what the model states of it, as blocks without positions: a
+- [x] `overview`: the overview drawn by the publisher from what the model states of it, as blocks without positions: a
       masthead's claim and lead, a course of steps with their stations, parallel tracks and lines, further courses
       with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
       by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
