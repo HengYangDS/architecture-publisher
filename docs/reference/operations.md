@@ -337,20 +337,18 @@ in the full viewer.
 The publisher draws the overview from the model's
 [statement](model.md#overview): the course across the first band, each step as
 wide as what it holds, and the blocks in the order stated, in halves and thirds
-chosen by measured height. A station is a ring, the course's ends larger, a
-fork's branches and spurs smaller; no other mark is drawn. A point or a block
-that names its view is followed by its plate's number, a link in the edition. A
-text of more than one line is justified. A page too tall at the house's spacing
-is set closer, notes and texts a size smaller, and one too tall at both is
-refused with `overview_too_tall`, naming the first block that does not fit; the
-rows share the height they leave, so the page is full. The page is drawn in a
-root Typst may not leave, with the house faces, Noto Sans CJK SC and no package;
-each text's glyph box must stay 48 pt from either side and 16 pt from the top
-and the bottom, over no other text and under no line or ring
-(`overview_text_over_line`). The print edition sets the page in place with the
-edition's foot, so its text stays text; it is delivered as
-`images/00-overview.png` and at each other `--png` width, the same bytes from
-the same inputs.
+chosen by measured height. A point or a block that names its view is followed by
+its plate's number, a link in the edition. A text of more than one line is
+justified. A page too tall at the house's spacing is set closer, notes and texts
+a size smaller, and one too tall at both is refused with `overview_too_tall`,
+naming the first block that does not fit; the rows share the height they leave,
+so the page is full. The page is drawn in a root Typst may not leave, with the
+house faces, Noto Sans CJK SC and no package; each text's glyph box must stay 48
+pt from either side and 16 pt from the top and the bottom, over no other text
+and under no line or ring (`overview_text_over_line`). The print edition sets
+the page in place with the edition's foot, so its text stays text; it is
+delivered as `images/00-overview.png` and at each other `--png` width, the same
+bytes from the same inputs.
 
 ## The guide
 
