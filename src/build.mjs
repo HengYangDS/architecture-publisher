@@ -12,8 +12,8 @@ import {
 import { guideOf, pinnedEdition, requireDeliveryNames } from "./projection.mjs";
 import { editionFacts } from "./facts/edition.mjs";
 import { loadIcons } from "./icons.mjs";
-import { deliverExplainer, explainerPage, writePage } from "./map/explainer.mjs";
-import { deliverGuide, guidePage, guideSummary } from "./map/guide.mjs";
+import { explainerPage, writeDelivery, writePage } from "./map/explainer.mjs";
+import { guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
 import { editionRecord } from "./edition/record.mjs";
 import { editionWordsOf } from "./edition/words.mjs";
@@ -161,11 +161,14 @@ const looseLines = (loose) =>
 /**
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed. The listener is told each step as it is reached.
+ * A build's page is prepared with its delivery, which Archify validates, writes and
+ * checks in one run; a check's page is validated alone.
  * @param {string} modelPath
  * @param {ReturnType<typeof buildOptions>} options
  * @param {StepListener} listener
+ * @param {{ deliver?: boolean }} [page]
  */
-async function prepare(modelPath, options, listener) {
+async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   listener("reading the model");
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
@@ -240,11 +243,12 @@ async function prepare(modelPath, options, listener) {
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const paged = media.includes("page");
   if (paged) listener("preparing the page");
+  const deliverAs = deliver ? `${model.id}.html` : undefined;
   const page = !paged
     ? null
     : guide
-      ? await guidePage(model, guide, { quality, repo: options.repo })
-      : await explainerPage(model, views, { quality, owned: facts.owned });
+      ? await guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs })
+      : await explainerPage(model, views, { quality, owned: facts.owned, deliver: deliverAs });
   const held = {
     loaded,
     model,
@@ -371,7 +375,7 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
   const target = path.resolve(out);
   if (await exists(target))
     refuse("delivery_exists", `The output ${target} already exists; choose a new directory.`);
-  const prepared = await prepare(modelPath, chosen, listener);
+  const prepared = await prepare(modelPath, chosen, listener, { deliver: true });
   const parent = path.dirname(target);
   await fs.mkdir(parent, { recursive: true });
   const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
@@ -417,11 +421,14 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
         await fs.writeFile(path.join(staging, file), bytes);
     }
     if (prepared.page) listener("delivering the page");
-    const page = !prepared.page
-      ? null
-      : prepared.page.kind === "guide"
-        ? await deliverGuide(prepared.page, staging, `${model.id}.html`)
-        : await deliverExplainer(prepared.page, staging, `${model.id}.html`);
+    // The page was delivered when it was prepared, in the one run of Archify that validated it: a build's page
+    // holds its delivery.
+    const page = prepared.page
+      ? await writeDelivery(
+          /** @type {import("./map/explainer.mjs").HeldDelivery} */ (prepared.page.delivered),
+          staging,
+        )
+      : null;
     const [fonts, house, opentype] = await Promise.all([
       verifySupply("fonts"),
       verifySupply("house"),

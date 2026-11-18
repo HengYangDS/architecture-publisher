@@ -216,9 +216,15 @@ export async function writePage(page, directory) {
  * page; such a file is withheld from the page and stays in the manifest, and
  * the component that owns it cites its next file. Any other refusal is the
  * page's.
+ *
+ * With `deliver`, the page's file name in a delivery, as a build prepares its
+ * page, Archify is asked once: it validates the page, writes it and checks what
+ * it wrote, and the page holds that delivery for the build to write. Only a page
+ * Archify refuses is then validated on its own, which names every finding where
+ * a delivery names eight.
  * @param {any} model
  * @param {any[]} views
- * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[] }} [options]
+ * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[], deliver?: string }} [options]
  *   `owned` gives each component's files in citation order, as the layer of measured facts holds them
  */
 export async function explainerPage(model, views, options = {}) {
@@ -237,9 +243,15 @@ export async function explainerPage(model, views, options = {}) {
         options.owned,
       );
       const page = {
+        kind: /** @type {const} */ ("generated"),
         draft,
         diagrams: diagrams.map((diagram, index) => ({ ...diagram, file: files[index] })),
+        quality,
+        withheld: [...withheld].sort(),
+        delivered: /** @type {HeldDelivery | null} */ (null),
       };
+      const held = options.deliver ? await holdDelivery(page, options.deliver) : null;
+      if (held?.delivered) return { ...page, delivered: held.delivered };
       const { answer } = await runArchify([
         "validate",
         "explainer",
@@ -250,13 +262,11 @@ export async function explainerPage(model, views, options = {}) {
         "--writing",
         "off",
       ]);
-      if (answer.ok === true)
-        return {
-          kind: /** @type {const} */ ("generated"),
-          ...page,
-          quality,
-          withheld: [...withheld].sort(),
-        };
+      if (answer.ok === true) {
+        // The page validates and its delivery was refused: the refusal is the delivery's.
+        if (held) throw held.refusal;
+        return page;
+      }
       // Each pass withholds at least one more file or refuses, so the loop ends.
       const sensitive = sensitiveSources(answer, cited).filter((source) => !withheld.has(source));
       if (!sensitive.length) refusePage(answer);
@@ -265,6 +275,52 @@ export async function explainerPage(model, views, options = {}) {
   } finally {
     await fs.rm(directory, { recursive: true, force: true });
   }
+}
+
+/**
+ * A page's delivery as Archify wrote it: the file's name and bytes, the supply's digest and Archify's receipt.
+ * @typedef {{ file: string, bytes: Buffer, supplySha256: string, receipt: any }} HeldDelivery
+ */
+
+/**
+ * Deliver a page into a directory of its own and hold what Archify wrote, so that
+ * one run of Archify validates the page and delivers it. Returns the held
+ * delivery, the file's bytes with the supply's digest and Archify's receipt,
+ * or the refusal when Archify refuses the page.
+ * @param {any} page
+ * @param {string} file the page's file name, `<model id>.html`
+ * @param {{ repoRoot?: string | null }} [options]
+ */
+export async function holdDelivery(page, file, options = {}) {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-page-held-"));
+  try {
+    const { output, supplySha256, receipt } = await deliverExplainer(
+      page,
+      directory,
+      file,
+      options,
+    );
+    // Archify writes a new file with the mode a new file gets, and so does the build that writes it again.
+    const bytes = await fs.readFile(output);
+    return { delivered: /** @type {HeldDelivery} */ ({ file, bytes, supplySha256, receipt }) };
+  } catch (error) {
+    if (/** @type {any} */ (error)?.code !== "page_refused") throw error;
+    return { refusal: error };
+  } finally {
+    await fs.rm(directory, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Write the delivery a page holds into a staging directory, as Archify wrote
+ * it: the same bytes under the same name.
+ * @param {HeldDelivery} delivered
+ * @param {string} directory a staging directory that receives the page
+ */
+export async function writeDelivery(delivered, directory) {
+  const output = path.join(directory, delivered.file);
+  await fs.writeFile(output, delivered.bytes);
+  return { output, supplySha256: delivered.supplySha256, receipt: delivered.receipt };
 }
 
 /**

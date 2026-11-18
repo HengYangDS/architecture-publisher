@@ -6,7 +6,7 @@ import path from "node:path";
 import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 import { runArchify } from "./archify.mjs";
-import { deliverExplainer, refusePage, writePage } from "./explainer.mjs";
+import { holdDelivery, refusePage, writePage } from "./explainer.mjs";
 
 /**
  * The guide: an Archify explainer draft a work's author writes beside the model, which the
@@ -164,10 +164,12 @@ export async function readGuide(draftPath) {
  * The guide as the page: as the build read it, held to the model's repository and validated by
  * Archify at the build's quality, with strict writing checks at showcase and warnings at standard.
  * With a checkout and a model that names its repository URL and revision, every repository source
- * the guide cites is verified at that revision.
+ * the guide cites is verified at that revision. With `deliver`, the page's file name in a
+ * delivery, as a build prepares its page, Archify is asked once, for a delivery the page then
+ * holds; only a guide it refuses is validated on its own, which names every finding.
  * @param {any} model
  * @param {Awaited<ReturnType<typeof readGuide>>} guide the guide as read
- * @param {{ quality: "showcase" | "standard", repo: string | null }} options
+ * @param {{ quality: "showcase" | "standard", repo: string | null, deliver?: string }} options
  */
 export async function guidePage(model, guide, options) {
   const declared = draftRepository(guide.text);
@@ -190,10 +192,13 @@ export async function guidePage(model, guide, options) {
     repo:
       options.repo && repository?.url && repository?.revision ? path.resolve(options.repo) : null,
     repository,
+    delivered: /** @type {import("./explainer.mjs").HeldDelivery | null} */ (null),
   };
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-guide-"));
   try {
-    await withClone(page, async (repoRoot) => {
+    return await withClone(page, async (repoRoot) => {
+      const held = options.deliver ? await holdDelivery(page, options.deliver, { repoRoot }) : null;
+      if (held?.delivered) return { ...page, delivered: held.delivered };
       const { answer } = await runArchify([
         "validate",
         "explainer",
@@ -206,11 +211,13 @@ export async function guidePage(model, guide, options) {
         ...(repoRoot ? ["--repo-root", repoRoot] : []),
       ]);
       if (answer.ok !== true) refusePage(answer);
+      // The guide validates and its delivery was refused: the refusal is the delivery's.
+      if (held) throw held.refusal;
+      return page;
     });
   } finally {
     await fs.rm(directory, { recursive: true, force: true });
   }
-  return page;
 }
 
 /**
@@ -230,15 +237,6 @@ export function guideSummary(page) {
     sources: page.repo ? "verified" : "declared",
   };
 }
-
-/**
- * Deliver a guide into a staging directory under its file name, `<model id>.html`.
- * @param {Awaited<ReturnType<typeof guidePage>>} page
- * @param {string} directory
- * @param {string} file
- */
-export const deliverGuide = (page, directory, file) =>
-  withClone(page, (repoRoot) => deliverExplainer(page, directory, file, { repoRoot }));
 
 /**
  * Run `use` with a temporary clone that shares the checkout's objects, its `origin` at the

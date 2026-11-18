@@ -5,8 +5,8 @@
 
 ## 2. The page in one run
 
-- [ ] 2.1 Test first, counted in the test's own process, that a build starts one run of Archify on its page and a check one, for a generated page and for a guide; that a page citing a file Archify will not cite is delivered without it after one validation; and that a guide Archify refuses ends a build with every finding. Done when the first two tests fail on the source before with two runs for a build.
-- [ ] 2.2 Prepare a build's page with its delivery, hold the file Archify wrote and write it; validate a refused page on its own; clone a guide's repository once. Done when the tests pass, the test of a guide whose checkout cannot be cloned asks `guidePage`, and the tests of generated pages, progress steps and deliveries pass unchanged.
+- [x] 2.1 Test first, counted in the test's own process, that a build starts one run of Archify on its page and a check one, for a generated page and for a guide; that a page citing a file Archify will not cite is delivered without it after one validation; and that a guide Archify refuses ends a build with every finding. Done when the first two tests fail on the source before with two runs for a build. On the source before, a build of a generated page and of a guide starts two runs and the three tests fail; they pass.
+- [x] 2.2 Prepare a build's page with its delivery, hold the file Archify wrote and write it; validate a refused page on its own; clone a guide's repository once. Done when the tests pass, the test of a guide whose checkout cannot be cloned asks `guidePage`, and the tests of generated pages, progress steps and deliveries pass unchanged. The tests pass; the tests of guides, generated pages, progress steps and a guide's delivered files pass, the first with its clone asked of `guidePage`.
 
 ## 3. Answers kept for a run
 
