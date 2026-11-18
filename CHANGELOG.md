@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-11-19
+
 ### Added
 
 - Three research pages on the edition's figures: `docs/research/figure-language.md` maps the figure language by
@@ -1222,6 +1224,7 @@ remain pre-release contracts and may contain incompatible changes.
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
+[0.15.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.15.0
 [0.14.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.14.0
 [0.13.1]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.1
 [0.13.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.0

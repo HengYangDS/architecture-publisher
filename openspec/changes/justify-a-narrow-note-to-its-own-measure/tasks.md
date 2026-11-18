@@ -11,7 +11,7 @@
 ## 3. Documents and the release
 
 - [x] 3.1 Bring the model reference and the changelog to the rule. Done when `npm run check:static` passes. `npm run check:static` passes.
-- [ ] 3.2 Record 0.15.0: `VERSION`, the version tool's files, the changelog's date. Done when `npm run check:static` passes.
+- [x] 3.2 Record 0.15.0: `VERSION`, the version tool's files, the changelog's date. Done when `npm run check:static` passes. `VERSION` is 0.15.0, the version tool wrote the package's two files, the changelog dates the release 2026-11-19, and `npm run check:static` passes.
 
 ## 4. Acceptance
 
