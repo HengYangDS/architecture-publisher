@@ -34,9 +34,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -83,9 +83,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -132,9 +132,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -180,9 +180,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -232,9 +232,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -284,9 +284,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -332,9 +332,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -381,9 +381,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -437,9 +437,9 @@ jobs:
       - env:
           TEMP: ${{ runner.temp }}
           TMP: ${{ runner.temp }}
-        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+        uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -492,9 +492,9 @@ jobs:
       - env:
           TEMP: ${{ runner.temp }}
           TMP: ${{ runner.temp }}
-        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+        uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
@@ -545,9 +545,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+      - uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d
         with:
-          version: 2026.11.5
+          version: 2026.11.9
           install: false
           cache: false
           env: false
