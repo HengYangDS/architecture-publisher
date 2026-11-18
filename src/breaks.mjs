@@ -112,20 +112,51 @@ export const unspaced = (text) => UNSPACED.test(text);
 /**
  * A text's atoms for a setter that fills and spreads its lines itself: each atom's text and gap, the places its
  * own characters open in a justified line, whether its last character is one of them, which opens none when it
- * ends a line, and whether the atom alone on a line would be an orphan.
+ * ends a line, whether the atom alone on a line would be an orphan, and whether it ends a phrase, where a caption
+ * breaks by preference. A word written with spaces may end a line after a slash inside it.
  * @param {string} text
- * @returns {Array<{ text: string, gap: string, places: number, last: boolean, orphan: boolean }>}
+ * @returns {Array<{ text: string, gap: string, places: number, last: boolean, orphan: boolean, pause: boolean }>}
  */
 export const spreadAtoms = (text) =>
-  atoms(text).map((atom) => {
-    const characters = Array.from(atom.text);
-    return {
-      ...atom,
-      places: characters.filter((character) => UNSPACED.test(character)).length,
-      last: UNSPACED.test(characters.at(-1) ?? ""),
-      orphan: orphan(atom.text),
-    };
-  });
+  atoms(text)
+    .flatMap((atom) =>
+      compoundPieces(atom.text).map((piece, index) => ({
+        text: piece,
+        gap: index ? "" : atom.gap,
+      })),
+    )
+    .map((atom) => {
+      const characters = Array.from(atom.text);
+      return {
+        ...atom,
+        places: characters.filter((character) => UNSPACED.test(character)).length,
+        last: UNSPACED.test(characters.at(-1) ?? ""),
+        orphan: orphan(atom.text),
+        pause: PAUSE.test(atom.text),
+      };
+    });
+
+/** A word that ends a phrase: a comma, a semicolon, a colon or a full stop closes it, before a closing mark or none. */
+const PAUSE = /[,;:.!?]["'”’)\]]?$/u;
+
+/**
+ * The pieces of a word written with spaces that a line may end between: after a slash inside it, between letters
+ * or digits, as in `docs/README.md` or `provider/model`. A hyphen opens no break: at a line's end a reader cannot
+ * tell the hyphen of `refresh-base` or `--expect-head` from one the setter added.
+ * @param {string} word
+ * @returns {string[]}
+ */
+function compoundPieces(word) {
+  const pieces = [];
+  let start = 0;
+  for (const match of word.matchAll(/(?<=[\p{L}\p{N}])\/+(?=[\p{L}\p{N}])/gu)) {
+    const end = match.index + match[0].length;
+    pieces.push(word.slice(start, end));
+    start = end;
+  }
+  pieces.push(word.slice(start));
+  return pieces;
+}
 
 /**
  * Whether a line holds one character written without spaces between words, with or without the marks that open and

@@ -64,9 +64,12 @@ async function inked(stated, said, locale = "en") {
   return { image, region, lines: inkLines(image, region), size: box.size };
 }
 
-/** How many gaps of a line's ink are wider than three tenths of an em: a line pulled apart has one after each character. */
-const open = (image, region, line, size) =>
-  gapsOf(image, region, line).filter((gap) => gap > 0.3 * size * PX).length;
+/**
+ * How many gaps of a line's ink are wider than a share of an em, three tenths unless given: a line of Han pulled
+ * apart has one after each character.
+ */
+const open = (image, region, line, size, share = 0.3) =>
+  gapsOf(image, region, line).filter((gap) => gap > share * size * PX).length;
 
 /** The widths in pixels of the gaps of paper between a line's ink, left to right. */
 function gapsOf({ width, channels, pixels }, { left, right }, line) {
@@ -110,14 +113,74 @@ test("a step's text in English that takes several lines in a wide measure is jus
   assert.ok(short > 30, "the last line is set short, not stretched");
 });
 
-test("a text in English in a column narrower than twenty ems stays flush left", async () => {
-  // Six steps across the page: under nineteen ems. Justified there, lines of three or four words open by half an
-  // em and more at each space (a reader of twelve pages named fifteen such lines, 2026-11-18); a part's details
-  // on a plate stay flush left in English for the same reason.
-  const stated = statement(ENGLISH, "short");
-  const lines = await linesOf(stated, ENGLISH);
+/** A statement of `count` steps across the page whose first says `text` under the course. */
+const across = (count, text) => {
+  const stated = statement(text, "short");
+  stated.course.steps = [
+    stated.course.steps[0],
+    ...Array.from({ length: count - 1 }, (_, index) => ({
+      id: `step-${index + 2}`,
+      label: `S${index + 2}`,
+    })),
+  ];
+  return stated;
+};
+
+// In a column narrower than twenty ems a line holds three or four words. Justified to the column, its spaces stand
+// apart (a reader of twelve pages named fifteen such lines, 2026-11-18); filled as far as it goes and left ragged,
+// its lines end unevenly and its last may be one word. There the text is a caption: a block of its own width, on
+// lines of nearly one length, broken where a phrase ends, and justified to that width where its words allow.
+
+test("an English caption breaks where a phrase ends, into lines of nearly one length", async () => {
+  // Eleven steps across the page: under ten ems. Filled as far as it goes, the first line takes four words and
+  // leaves `default` alone; the caption breaks at its comma, and its second line is the longer.
+  const text = "one deadline, 900 s by default";
+  const lines = await linesOf(across(11, text), text);
+  assert.equal(lines.length, 2);
+  assert.ok(
+    lines[1].right >= lines[0].right,
+    "the last line is shorter than the first: one word left alone",
+  );
+});
+
+test("an English caption whose lines come within the limits of a justified line is justified to its own width", async () => {
+  // Nine steps across the page: under twelve ems. Fourteen words of four letters make three lines, the first two
+  // of five words whose own widths differ by a third of an em: the narrower is opened to the wider, a space by a
+  // quarter of its width at most and a letter by hundredths of an em, so both end at one edge, short of the
+  // column's.
+  const text = "send five more than take four less then keep nine well away from here";
+  const stated = across(9, text);
+  const { image, region, lines, size } = await inked(stated, text);
+  assert.equal(lines.length, 3);
+  const [first, second, last] = lines;
+  assert.ok(
+    Math.abs(first.right - second.right) <= 2,
+    `lines 1 and 2 end ${Math.abs(first.right - second.right)} px apart`,
+  );
+  assert.ok(first.right - last.right > 30, "the last line is set short, not stretched");
+  assert.ok(
+    region.right - 6 - first.right > size * PX,
+    "the lines reach the column's edge: not a width of its own",
+  );
+  // No space is opened wide: none of a line's gaps reaches half an em.
+  for (const [index, line] of lines.entries())
+    assert.equal(
+      open(image, region, line, size, 0.5),
+      0,
+      `line ${index + 1} opens a space by half an em`,
+    );
+});
+
+test("an English caption whose words do not let it be justified stays flush left, its spaces as set", async () => {
+  // Words of two to eight letters: no width holds every line within the limits. The lines stay as they are set.
+  const text =
+    "Each lane holds one branch and one worktree until its change has landed or is given up.";
+  const stated = across(9, text);
+  const { image, region, lines, size } = await inked(stated, text);
   assert.ok(lines.length >= 4, `the text set ${lines.length} lines`);
   assert.ok(edges(lines).spread > 12, "the lines end at one edge: the text was justified");
+  for (const [index, line] of lines.entries())
+    assert.equal(open(image, region, line, size, 0.4), 0, `line ${index + 1} opens a space`);
   assert.deepEqual((await checked(stated)).loose, []);
 });
 

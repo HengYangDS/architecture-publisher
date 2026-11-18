@@ -196,18 +196,38 @@ one line SHALL be set as they are.
 
 In a language written with spaces between words, a text of more than one line
 SHALL be justified as the edition's prose is where its measure is twenty ems
-or more, and SHALL stay flush left in a narrower column, as a part's details
-do on a plate.
+or more. In a narrower column it SHALL be set as a caption: on the fewest
+lines that hold it, broken so that its widest line is narrowest, by preference
+where a phrase ends, and with no line before the last left to one word where
+another setting leaves none.
 
 #### Scenario: A step's text in a wide measure
 
 - **WHEN** a step's English text takes three lines in a measure of thirty-eight ems
 - **THEN** its first two lines end at one edge and its last line ends short
 
-#### Scenario: A note in a narrow column
+#### Scenario: A caption filled as far as it goes
 
-- **WHEN** an English note takes four lines in a column of eighteen ems
-- **THEN** its lines stay flush left, and no gap between two of its words is opened
+- **WHEN** an English note of five words would leave its last word alone on a second line
+- **THEN** it breaks at its comma, and its second line is no shorter than its first
+
+### Requirement: A caption justified to its own width
+
+A caption's measure SHALL be its widest line. Where every other line but the
+last reaches that measure within the limits of the edition's justified prose,
+its spaces opened by a quarter at most and its letters tracked by hundredths
+of an em, the caption SHALL be justified to it; otherwise it SHALL stay flush
+left as set. No line of a caption SHALL be closed up or opened further.
+
+#### Scenario: Lines of nearly one width
+
+- **WHEN** a caption's first two lines differ by a third of an em in a column of twelve ems
+- **THEN** both end at one edge, short of the column's, and the last line ends short of them
+
+#### Scenario: Words that do not let a caption be justified
+
+- **WHEN** no width holds every line of a caption but the last within those limits
+- **THEN** its lines stay flush left, and no space between two of its words is opened
 
 ### Requirement: A line that cannot be spread is named
 

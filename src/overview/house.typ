@@ -71,19 +71,46 @@
   stretch: 100%,
 )
 
-/// The lines of a text written without spaces between words, within a width: each line its text, whether it is
-/// spread to the width, the rows it takes and how far it opens at each place when spread, in ems. The publisher
-/// states where the text may break and how many places each of its atoms opens (`breaks.json`, from the rules a
-/// part's details break by). The text takes the fewest lines that hold it, and on those the breaks that open its
-/// loosest line least, so a line broken early before a word of another script that does not fit is closed by the
-/// lines around it. Every line but the last is spread when it opens no more than the bound at each place; one that
-/// would open more, or has no place to open, stays as it is set. No line is left to one character alone. A word
-/// wider than the width stands on rows of its own, broken by Typst where its script allows. Needs context.
-#let _filled(atoms, opening, w, style, pitch) = {
+/// The limits a line of words separated by spaces is justified within: its spaces set from four fifths to five
+/// quarters of their width and its letters tracked by a few hundredths of an em at most, as careful setting does.
+#let _limits = (spacing: (min: 80% + 0pt, max: 125% + 0pt), tracking: (min: -0.012em, max: 0.025em))
+
+/// The page's module across. Every text begins at the left margin plus a whole number of modules, and a text set
+/// to a measure ends at one, so two edges are one edge or stand a module apart, never almost in line. A width the
+/// page derives is taken down to the module, an indent up to it.
+#let _module = 8pt
+
+/// The lines of a text within a width, set line by line: the measure they are set to, and each line's text, whether
+/// it is spread to that measure, the rows it takes and how far it opens at each place when spread, in ems. The
+/// publisher states where the text may break and how many places each of its atoms opens (`breaks.json`, from the
+/// rules a part's details break by): between the characters of a script written without spaces, and at the spaces
+/// between words. The text takes the fewest lines that hold it.
+///
+/// A running text keeps the width as its measure: on its lines, the breaks that open the loosest line least, so a
+/// line broken early before a word that does not fit is closed by the lines around it. Every line but the last is
+/// spread when it opens no more than the bound at each place; one that would open more, or has no place to open,
+/// stays as it is set.
+///
+/// A caption (`fit`) is a block of its own width: on its lines, the breaks whose widest line is narrowest, so its
+/// lines are of nearly one length, none before the last one word alone where another setting has none. Its measure
+/// is its widest line. Where every other line but the last reaches it within the limits of a justified line, the
+/// caption is justified to it; where one would open further, a few long words cannot be justified without gaps,
+/// and the caption stays as set, its even lines flush left.
+///
+/// No line is left to one character alone. A word wider than the width stands on rows of its own, broken by Typst
+/// where its script allows. Needs context.
+#let _filled(atoms, opening, w, style, pitch, fit: false) = {
   let joined(line) = line.enumerate().map(((i, a)) => if i == 0 { a.text } else { a.gap + a.text }).join()
   let set-text(line) = text(..style, top-edge: "baseline", bottom-edge: "baseline", joined(line))
   let width(line) = measure(set-text(line)).width
   let places-of(line) = line.enumerate().map(((k, a)) => a.places + if k > 0 and a.gap != "" { 1 } else { 0 }).sum() - if line.last().last { 1 } else { 0 }
+  // How far a line opens at each place when it is spread to a measure, in ems, as it is set: a hundred with no
+  // place to open, none when it is wider than the measure.
+  let opens-in(line, m) = {
+    let slack = m - width(line)
+    let places = places-of(line)
+    if slack < 0pt { none } else if places <= 0 { 100.0 } else { slack / (places * style.size) }
+  }
   let n = atoms.len()
   // The fewest lines: each filled in turn with what fits, by the width Typst sets the line in.
   let lines = ()
@@ -100,124 +127,184 @@
     lines.last().insert(0, lines.at(-2).pop())
   }
   let k = lines.len()
-  // On that many lines, the breaks that open the loosest line least, then the least in all. They are chosen by the
-  // sums of the atoms' own widths; the lines are then measured as set, and taken only when each of them fits.
+  // The measure the lines are set to, and whether a caption is justified to it.
+  let set-to = w
+  let justified = not fit
+  // On that many lines, other breaks. They are chosen by the sums of the atoms' own widths; the lines are then
+  // measured as set, and taken only when they hold as set.
   if k > 1 and n > k {
-    let lone = atoms.map(a => measure(text(..style, a.text)).width)
-    let lead = measure(text(..style, "国")).width
-    let behind = atoms.enumerate().map(((t, a)) => if a.gap == "" { lone.at(t) } else {
-      measure(text(..style, "国" + a.gap + a.text)).width - lead
-    })
+    // An atom's width where it stands on a line: alone, first, within or last. A full-width mark is set in half
+    // its width where it ends a line and in its whole width within one, and Typst opens a quarter of an em between
+    // a Han character and a Latin letter that meet. So each place is measured with what stands beside the atom
+    // there: before it, its space after a character, or a character of the script the atom before ends in; after
+    // it, a Han character where it ends in one or in a mark.
+    let wide(body) = measure(text(..style, body)).width
+    let before = atoms.enumerate().map(((t, a)) => if a.gap != "" { "国" + a.gap } else if t == 0 { "" } else if atoms.at(t - 1).last { "国" } else { "n" })
+    let after = atoms.map(a => if a.last { "国" } else { "" })
+    let beside(body) = if body == "" { 0pt } else { wide(body.first()) }
+    let lone = atoms.map(a => wide(a.text))
+    let first = atoms.enumerate().map(((t, a)) => wide(a.text + after.at(t)) - beside(after.at(t)))
+    let within = atoms.enumerate().map(((t, a)) => wide(before.at(t) + a.text + after.at(t)) - beside(before.at(t)) - beside(after.at(t)))
+    let ending = atoms.enumerate().map(((t, a)) => wide(before.at(t) + a.text) - beside(before.at(t)))
     let reach = (0pt,)
     let open = (0,)
     let gaps = (0,)
     for (t, a) in atoms.enumerate() {
-      reach.push(reach.last() + behind.at(t))
+      reach.push(reach.last() + within.at(t))
       open.push(open.last() + a.places)
       gaps.push(gaps.last() + if a.gap != "" { 1 } else { 0 })
     }
-    let span(i, j) = lone.at(i) + reach.at(j) - reach.at(i + 1)
-    // How far a line of the atoms from i up to j opens at each place, in ems: none when it does not fit, and a
-    // hundred when it has no place to open.
-    let opens(i, j) = {
+    let span(i, j) = if j - i == 1 { lone.at(i) } else { first.at(i) + reach.at(j - 1) - reach.at(i + 1) + ending.at(j - 1) }
+    let far = (alone: 1000, most: 1e9, sum: 1e9, from: -1)
+    let better(a, b) = a.alone < b.alone or (a.alone == b.alone and (
+      a.most < b.most - 1e-6 or (calc.abs(a.most - b.most) <= 1e-6 and a.sum < b.sum)))
+    // What a line of the atoms from i up to j costs when every line but the last is spread to the measure m: how
+    // far it opens at each place, in ems; a hundred with no place to open; none when it does not fit.
+    let to-open(m) = (i, j) => {
       let s = span(i, j)
-      if s > w { if j - i == 1 { 0.0 } else { none } } else {
+      if s > m { if j - i == 1 and not fit { (cost: 0.0, alone: 0) } else { none } } else {
         let p = open.at(j) - open.at(i) + gaps.at(j) - gaps.at(i + 1) - if atoms.at(j - 1).last { 1 } else { 0 }
-        if p <= 0 { 100.0 } else { (w - s) / (p * style.size) }
+        (cost: if p <= 0 { 100.0 } else { (m - s) / (p * style.size) }, alone: 0)
       }
     }
-    let far = (most: 1e9, sum: 1e9, from: -1)
-    let better(a, b) = a.most < b.most - 1e-6 or (calc.abs(a.most - b.most) <= 1e-6 and a.sum < b.sum)
-    // table.at(l).at(j): the best setting of the first j atoms on l lines, none of them the text's last.
-    let table = ((far,) * (n + 1),)
-    table.at(0).at(0) = (most: 0.0, sum: 0.0, from: -1)
-    for l in range(1, k) {
-      let row = (far,) * (n + 1)
-      for j in range(l, n) {
-        let best = far
-        let i = j - 1
-        while i >= l - 1 {
-          let o = opens(i, j)
-          if o == none { break }
-          let before = table.at(l - 1).at(i)
-          if before.most < 1e8 {
-            let found = (most: calc.max(before.most, o), sum: before.sum + o * o, from: i)
-            if better(found, best) { best = found }
+    // What it costs on lines of nearly one length: its width, in ems; and whether it is one atom alone on a line
+    // before the last. The last line counts a twentieth more, so that of two settings as even the one with the
+    // shorter last line is taken, as a paragraph ends; a line that ends a phrase counts a tenth less, so that a
+    // caption breaks at its commas where that costs its evenness little.
+    let to-even = (i, j) => {
+      let s = span(i, j)
+      if s > w and j - i > 1 { none } else {
+        (cost: s / style.size * (if j == n { 1.05 } else if atoms.at(j - 1).pause { 0.9 } else { 1.0 }),
+          alone: if j - i == 1 and j < n { 1 } else { 0 })
+      }
+    }
+    // The best breaks on the k lines by a cost: the fewest lines of one atom, then the least of the greatest cost,
+    // then the least in all. The last line is counted, or costs nothing where it only has to fit the measure m.
+    let search(cost, last-counted, m) = {
+      let counted = if last-counted { k } else { k - 1 }
+      let table = ((far,) * (n + 1),)
+      table.at(0).at(0) = (alone: 0, most: 0.0, sum: 0.0, from: -1)
+      for l in range(1, counted + 1) {
+        let row = (far,) * (n + 1)
+        for j in range(l, n + 1 - (k - l)) {
+          let best = far
+          let i = j - 1
+          while i >= l - 1 {
+            let c = cost(i, j)
+            if c == none { break }
+            let before = table.at(l - 1).at(i)
+            if before.most < 1e8 {
+              let found = (alone: before.alone + c.alone, most: calc.max(before.most, c.cost),
+                sum: before.sum + c.cost * c.cost, from: i)
+              if better(found, best) { best = found }
+            }
+            i -= 1
           }
-          i -= 1
+          row.at(j) = best
         }
-        row.at(j) = best
+        table.push(row)
       }
-      table.push(row)
+      let best = far
+      let last = -1
+      if last-counted {
+        if table.at(k).at(n).most < 1e8 { best = table.at(k).at(n); last = best.from }
+      } else {
+        for i in range(k - 1, n) {
+          let before = table.at(k - 1).at(i)
+          let fits = span(i, n) <= m or (n - i == 1 and not fit)
+          let lonely = n - i == 1 and atoms.at(i).orphan
+          if before.most < 1e8 and fits and not lonely and better(before, best) {
+            best = before
+            last = i
+          }
+        }
+      }
+      if last < 0 { none } else {
+        let cuts = (n, last)
+        let l = k - 1
+        while l > 0 {
+          cuts.push(table.at(l).at(cuts.last()).from)
+          l -= 1
+        }
+        cuts = cuts.rev()
+        (most: best.most, lines: range(k).map(l => atoms.slice(cuts.at(l), cuts.at(l + 1))))
+      }
     }
-    let best = far
-    let last = -1
-    for i in range(k - 1, n) {
-      let before = table.at(k - 1).at(i)
-      let fits = span(i, n) <= w or n - i == 1
-      let lonely = n - i == 1 and atoms.at(i).orphan
-      if before.most < 1e8 and fits and not lonely and better(before, best) {
-        best = before
-        last = i
-      }
-    }
-    if last >= 0 {
-      let cuts = (n, last)
-      let l = k - 1
-      while l > 0 {
-        cuts.push(table.at(l).at(cuts.last()).from)
-        l -= 1
-      }
-      cuts = cuts.rev()
-      let chosen = range(k).map(l => atoms.slice(cuts.at(l), cuts.at(l + 1)))
+    if not fit {
+      let found = search(to-open(w), false, w)
       // The sums are a little wider than a line as set, so a line that fits by a hair is missed: the chosen lines
       // are taken only when, measured as set, they open their loosest line less than the lines filled in turn.
-      let loosest(held) = held.slice(0, -1).map(line => {
-        let slack = w - width(line)
-        let places = places-of(line)
-        if slack < 0pt { 0.0 } else if places <= 0 { 100.0 } else { slack / (places * style.size) }
-      })
-      let (found, filled) = (loosest(chosen), loosest(lines))
-      if chosen.all(line => line.len() == 1 or width(line) <= w) and better(
-        (most: calc.max(..found), sum: found.map(o => o * o).sum()),
-        (most: calc.max(..filled), sum: filled.map(o => o * o).sum()),
-      ) { lines = chosen }
+      let loosest(held) = {
+        let opens = held.slice(0, -1).map(line => { let o = opens-in(line, w); if o == none { 0.0 } else { o } })
+        (alone: 0, most: calc.max(..opens), sum: opens.map(o => o * o).sum())
+      }
+      if found != none and found.lines.all(line => line.len() == 1 or width(line) <= w) and better(
+        loosest(found.lines), loosest(lines)) { lines = found.lines }
+    } else {
+      let even = search(to-even, true, w)
+      if even != none and even.lines.all(line => line.len() == 1 or width(line) <= w) { lines = even.lines }
     }
   }
-  lines.enumerate().map(((i, line)) => {
-    let slack = w - width(line)
+  // A caption's measure is its widest line. It is justified to it where every other line but the last reaches it
+  // within the limits of a justified line: its spaces opened by a quarter at most, its letters tracked by
+  // hundredths of an em. No line is closed up: Typst breaks a line it would have to close.
+  if fit and lines.len() > 1 {
+    let wide(body) = measure(text(..style, body)).width
+    let space = wide("n n") - wide("nn")
+    let room(line) = {
+      let spaces = line.slice(1).filter(a => a.gap != "").len()
+      let letters = joined(line).clusters().len() - 1
+      (_limits.spacing.max.ratio / 100% - 1) * space * spaces + _limits.tracking.max.em * style.size * letters
+    }
+    let widest = calc.max(..lines.map(width))
+    if widest <= w and lines.slice(0, -1).all(line => width(line) + room(line) >= widest) {
+      set-to = widest
+      justified = true
+    }
+  }
+  (measure: set-to, lines: lines.enumerate().map(((i, line)) => {
     let places = places-of(line)
-    let rows = if slack >= 0pt { 1 } else {
+    let opens = opens-in(line, set-to)
+    let rows = if width(line) <= w { 1 } else {
       int(calc.round(measure(box(width: w, { set par(leading: pitch, spacing: pitch); set-text(line) })).height / pitch)) + 1
     }
     (text: joined(line), rows: rows, last: i == lines.len() - 1,
-      opens: if places > 0 and slack >= 0pt { slack / (places * style.size) } else { none },
-      spread: i < lines.len() - 1 and places > 0 and slack >= 0pt and slack <= opening * style.size * places)
-  })
+      opens: if places > 0 and opens != none { opens } else { none },
+      spread: justified and i < lines.len() - 1 and (fit or (places > 0 and opens != none and opens <= opening)))
+  }))
 }
 
 /// A text within a width at a line pitch, as it is set and as it is measured; its first baseline at the box's top
 /// and each line a pitch below the one before. A text that is `spread` is justified, its last line short, so a text
-/// on one line is set as it is. A text written without spaces between words is set line by line from the breaks
-/// the publisher states for it, each line but the last spread between its characters to the width; a line that is
-/// not spread though it is not the last is recorded with its text (`<archpub-loose>`), for the build to name. A
-/// text written with spaces is justified as the edition's prose is, on optimized lines, hyphenated where a break
-/// is cheap, where its measure is at least twenty ems, and stays flush left in a narrower column.
+/// on one line is set as it is.
+///
+/// A text written without spaces between words is set line by line from the breaks the publisher states for it,
+/// every line but the last spread between its characters to the width; a line that is not spread though it is not
+/// the last is recorded with its text (`<archpub-loose>`), for the build to name.
+///
+/// A text written with spaces is justified as the edition's prose is, on optimized lines, hyphenated where a break
+/// is cheap, where its measure is twenty ems or more. In a narrower column a line holds three or four words, and
+/// justified to the column their spaces would stand apart: there the text is a caption, justified to a measure of
+/// its own where one holds it, and otherwise set flush left on lines of nearly one length.
 #let wrapped(body, w, style, pitch: 16pt, spread: false) = {
   let breaks = if spread and type(body) == str { json("breaks.json") } else { (texts: (:)) }
-  if type(body) == str and body in breaks.texts and w != auto {
+  let stated = if type(body) == str and w != auto { breaks.texts.at(body, default: none) } else { none }
+  let caption = stated != none and not stated.unspaced and w < 20 * style.size
+  if stated != none and (stated.unspaced or caption) {
     box(width: w, context {
-      let lines = _filled(breaks.texts.at(body), breaks.opening, w, style, pitch)
+      let made = _filled(stated.atoms, breaks.opening, w, style, pitch, fit: caption)
+      let lines = made.lines
       box(width: w, height: (lines.map(line => line.rows).sum() - 1) * pitch, {
         let row = 0
         for line in lines {
           let set-line = text(..style, top-edge: "baseline", bottom-edge: "baseline", line.text)
-          if not line.last and not line.spread and line.rows == 1 {
+          if stated.unspaced and not line.last and not line.spread and line.rows == 1 {
             [#metadata((text: body, line: line.text, opening: line.opens)) <archpub-loose>]
           }
           place(top + left, dy: row * pitch, if line.spread {
-            box(width: w, {
+            box(width: made.measure, {
               set par(justify: true, leading: 0pt, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
+              set par(justification-limits: _limits) if caption
               set-line
               linebreak(justify: true)
             })
@@ -229,15 +316,10 @@
       })
     })
   } else {
-    // Words separated by spaces are justified, as the edition's prose is, only where the measure holds enough of
-    // them: a column narrower than twenty ems would open wide gaps between its few words, and keeps its text flush
-    // left, as a part's details do on a plate.
-    let justified = spread and w != auto and w >= 20 * style.size
     box(width: w, {
       set par(leading: pitch, spacing: pitch)
-      set par(justify: true, linebreaks: "optimized", justification-limits: (spacing: (min: 80% + 0pt, max: 125% + 0pt),
-        tracking: (min: -0.012em, max: 0.025em))) if justified
-      set text(hyphenate: true, costs: (hyphenation: 40%, runt: 150%)) if justified
+      set par(justify: true, linebreaks: "optimized", justification-limits: _limits) if spread and w != auto
+      set text(hyphenate: true, costs: (hyphenation: 40%, runt: 150%)) if spread and w != auto
       text(..style, top-edge: "baseline", bottom-edge: "baseline", body)
     })
   }
@@ -384,13 +466,12 @@
 #let _caps(body) = text(tracking: 1.4pt, upper(body))
 #let _label(name) = text(size: sizes.small, weight: "semibold", fill: soft, _caps(name))
 
-/// Prose: justified on optimized lines, hyphenated where a break is cheap, word spaces held between 80 and 125 percent
-/// and letters tracked by at most a few hundredths of an em, at most `measure` em to a line.
+/// Prose: justified on optimized lines, hyphenated where a break is cheap, within the limits of a justified line, at
+/// most `measure` em to a line.
 #let prose(width, body, size: sizes.text, font: sans, fill: ink, pitch: 16pt) = {
   set text(size: size, font: font, fill: fill, hyphenate: true, costs: (hyphenation: 40%, runt: 150%),
     top-edge: "baseline", bottom-edge: "baseline")
-  set par(justify: true, linebreaks: "optimized", leading: pitch, spacing: 0pt,
-    justification-limits: (spacing: (min: 80% + 0pt, max: 125% + 0pt), tracking: (min: -0.012em, max: 0.025em)))
+  set par(justify: true, linebreaks: "optimized", leading: pitch, spacing: 0pt, justification-limits: _limits)
   block(width: calc.min(width.pt(), _e.measure * size.pt()) * 1pt, spacing: 0pt, body)
 }
 

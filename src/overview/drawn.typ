@@ -18,10 +18,6 @@
 /// The fewest items of a list that may stand in two columns.
 #let _list-columns = 6
 #let _track = 22pt
-/// The page's module across. Every text begins at the left margin plus a whole number of modules, and a text set
-/// to a measure ends at one, so two edges are one edge or stand a module apart, never almost in line. A width the
-/// page derives is taken down to the module, an indent up to it.
-#let _module = 8pt
 #let _whole-down(d) = calc.floor(d / _module) * _module
 #let _whole-up(d) = calc.ceil(d / _module) * _module
 /// The gutter between the cells of a row: 48 points between halves, 56 between thirds, which makes a third of the

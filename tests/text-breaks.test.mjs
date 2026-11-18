@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { atoms, joined } from "../src/breaks.mjs";
+import { atoms, joined, spreadAtoms } from "../src/breaks.mjs";
 import { loadIcons } from "../src/icons.mjs";
 import { wordsOf } from "../src/locale.mjs";
 import { validateModel } from "../src/model/load.mjs";
@@ -34,6 +34,38 @@ test("spaced writing breaks at its spaces and unspaced writing between its chara
   assert.deepEqual(units("サーバーを"), ["サー", "バー", "を"]);
   for (const text of ["认证服务（OAuth）调用数据库。", "a b  c", "LikeC4的视图, 再导入"])
     assert.equal(joined(atoms(text)), text.replace(/\s+/gu, " ").trim());
+});
+
+test("a setter's atoms let a path end a line after its slash, keep a hyphened name whole, and say where a phrase ends", () => {
+  const pieces = spreadAtoms(
+    "replayed by lane refresh-base; see docs/README.md, --expect-head and v0.2.0-beta.10.",
+  );
+  assert.deepEqual(
+    pieces.map(({ gap, text }) => `${gap}${text}`),
+    // A slash inside a word, between letters or digits, ends a piece. A hyphen ends none: a command, an option
+    // and a version are each one name, and a hyphen at a line's end could be the setter's.
+    [
+      "replayed",
+      " by",
+      " lane",
+      " refresh-base;",
+      " see",
+      " docs/",
+      "README.md,",
+      " --expect-head",
+      " and",
+      " v0.2.0-beta.10.",
+    ],
+  );
+  assert.deepEqual(
+    pieces.filter(({ pause }) => pause).map(({ text }) => text),
+    ["refresh-base;", "README.md,", "v0.2.0-beta.10."],
+  );
+  // Text written without spaces keeps its units; a word of another script inside it is split as any word is.
+  assert.deepEqual(
+    spreadAtoms("见 docs/README.md。").map(({ gap, text }) => `${gap}${text}`),
+    ["见", " docs/", "README.md。"],
+  );
 });
 
 test("a no-break space keeps the words beside it on one line", () => {

@@ -75,18 +75,30 @@ complete edition out, no page placed by hand.
      the measure when it opens at most three tenths of an em at each place. A line that would open more, or holds
      one word with no place to open, stays as set and the build names it (`overview_line_loose`), so that its
      author rewords the text.
-   - English text is justified as prose is where its measure is twenty ems or more, and stays flush left in a
-     narrower column, as a part's details do on a plate.
-   - Measured on the six Chinese overviews, 77 lines that are not a text's last: with the bound of a tenth of an
-     em that a part's details keep, 48 ended at the measure and 29 were left short, which is the raggedness the
-     owner had asked to end; with these breaks, 80 of 80 such lines end at it once twelve notes of four works
-     were reworded, the loosest opening 0.29 em. A reader of another origin read the twelve pages with English
-     justified in every column: it named fifteen lines of three or four words whose spaces stood two to six times
-     their width apart. Set line by line within three tenths of an em, 66 English lines could not be spread.
+   - English text is justified as prose is where its measure is twenty ems or more. In a narrower column a line
+     holds three or four words: justified to the column their spaces stand apart, and filled as far as it goes
+     and left ragged the lines end unevenly, the last often one word. There the text is a caption, a block of
+     its own width: broken so that its widest line is narrowest, by preference where a phrase ends, and justified
+     to that line where the others reach it within the limits the edition's prose is justified in, which the
+     class now states once. The owner, 2026-11-18, of English in narrow columns: flush left where the situation
+     asks is acceptable, a visually better way is better.
+   - Measured on the six Chinese overviews, 77 lines that are not a text's last: with the bound of a tenth of an em
+     that a part's details keep, 48 ended at the measure and 29 were left short, which is the raggedness the owner had
+     asked to end; with these breaks, 78 of 78 such lines end at it once eleven notes and one lead of four works
+     were reworded, the loosest opening 0.29 em. A reader of another origin read the twelve pages with English justified in every column:
+     it named fifteen lines of three or four words whose spaces stood two to six times their width apart. Set line by
+     line within three tenths of an em, 66 English lines could not be spread. As captions, of the 64 English texts in
+     narrow columns that take more than one line, 38 are justified to their own width (4 of the 20 that take three
+     lines or more) and 26 stay flush left on even lines. Measured on the pages, with two names on two lines among 66
+     texts: filled as far as each line goes, 31 ended their lines more than two ems apart; as captions, 20.
    - Considered: Typst's paragraph justification for every language and every column (the fifteen lines, and in
      Chinese a line of two characters opened by several ems, with no line named); hyphenating Latin words inside
-     Chinese text (it breaks identifiers such as `OpenSpec`); a bound of half an em (lines at four tenths read as
-     characters standing apart). A part's details on a plate keep their tenth of an em: how many of their lines it
+     Chinese text (it breaks identifiers such as `OpenSpec`); letting a word end a line after its own hyphen (at a
+     line's end the hyphen of `refresh-base` cannot be told from the setter's; a path may end a line after a
+     slash); a bound of half an em (lines at four tenths read as characters standing apart); English in narrow
+     columns flush left as Typst fills it (uneven ends, a word alone on the last line); a caption justified by
+     closing lines up as well as opening them (Typst breaks a line it would have to close); dictionary
+     hyphenation of captions (a dependency, and it would break the names of commands and files). A part's details on a plate keep their tenth of an em: how many of their lines it
      leaves short is to be measured with the plates, under the queue's `edition-map`.
 4. The overview is the edition's map: a point or a block names the view that enlarges it, and the page sets that
    view's plate number there, as a link.

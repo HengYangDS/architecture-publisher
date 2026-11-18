@@ -72,12 +72,12 @@ function stagedTokens(supplied, tokens) {
  * @param {Buffer} modelBytes the model file as read
  */
 function breaksOf(modelBytes) {
-  /** @type {Record<string, ReturnType<typeof spreadAtoms>>} */
+  /** @type {Record<string, { unspaced: boolean, atoms: ReturnType<typeof spreadAtoms> }>} */
   const texts = {};
   const walk = (/** @type {unknown} */ value) => {
-    if (typeof value === "string") {
-      if (unspaced(value)) texts[value] = spreadAtoms(value);
-    } else if (value && typeof value === "object") Object.values(value).forEach(walk);
+    if (typeof value === "string")
+      texts[value] = { unspaced: unspaced(value), atoms: spreadAtoms(value) };
+    else if (value && typeof value === "object") Object.values(value).forEach(walk);
   };
   try {
     walk(JSON.parse(modelBytes.toString("utf8")).overview);
