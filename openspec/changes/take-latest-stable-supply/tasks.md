@@ -21,4 +21,3 @@
 - [x] 3.1 Record the move in the Changelog; done when `mise run check` passes in a freshly bootstrapped lane.
       Passed on 2026-11-18 at the committed head: static checks, 541 of 543 tests with 2 skipped and none failed,
       and the packed package.
-- [ ] 3.2 Prove the archived head under one host ticket; done when the full proof passes.
