@@ -65,7 +65,6 @@ async function editionOf(legend, locale = "en", { repository, date = null, alone
     plates,
     icons,
     facts: recordFacts({ date }),
-    modelSha256: "0".repeat(64),
     publisher: "0.13.1",
     typst: "0.15.1",
     overview: false,

@@ -105,7 +105,6 @@ const footOf = (model, facts, plates) =>
     plates,
     icons,
     facts,
-    modelSha256: "0".repeat(64),
     publisher: "0.14.0",
     typst: "0.15.1",
     overview: false,

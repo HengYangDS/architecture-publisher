@@ -97,8 +97,8 @@ test("every language leaves out what the edition does not know: links, a release
     assert.doesNotMatch(sets[3], /v1|2026/u, locale);
   }
   // A language with a plural names one file as one.
-  assert.equal(editionWordsOf("en").readValue(1), "1 file, each cited by its SHA-256");
-  assert.equal(editionWordsOf("es").readValue(1), "1 archivo, cada uno citado por su SHA-256");
+  assert.equal(editionWordsOf("en").readValue(1), "1 file");
+  assert.equal(editionWordsOf("es").readValue(1), "1 archivo");
 });
 
 test("a model names its language, which defaults to English", () => {

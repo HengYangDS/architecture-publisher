@@ -471,8 +471,8 @@
 
 // ── The print edition ─────────────────────────────────────────────────────────────────────────────────────────────
 // The edition typesets a delivery in one pass from `edition.json`, which the publisher writes beside this class: a
-// title page, contents beside the edition's facts, the overview when the model states one, and one plate per
-// view. Every page after the title page shares one frame: the head, the body, the key line and the foot. The
+// title page, the contents, the overview when the model states one, one plate per view, and an index of the parts
+// by name. Every page after the title page shares one frame: the head, the body, the key line and the foot. The
 // publisher lays each plate's figure out; the edition sets every word, the figure's runs at the engine's positions.
 
 #let _e = _house.edition
@@ -690,31 +690,232 @@
   })))
 }
 
-/// The contents: one row per entry, linked to its page, the rows sharing the body equally and never below 44 points,
-/// further rows continuing on the next page.
-#let _contents-rows(r) = context {
-  let entries = query(heading.where(outlined: true))
-  let per = calc.floor((_e.bodyBottom - _e.bodyTop) / 44)
-  let pitch = calc.max(44, (_e.bodyBottom - _e.bodyTop) / calc.min(entries.len(), per)) * 1pt
-  let w = page-width - margin - _e.column * 1pt
+/// The two halves of a page of rows, the gap between them, and the four columns an index sets in them.
+#let _gap = 56pt
+#let _half = (page-width - 2 * margin - _gap) / 2
+#let _quarter = (_half - _gap) / 2
+
+/// A plate's number as the contents and the index set it: one size, face and colour in both, so that a number read
+/// in the index is the number found in the contents.
+#let _number = (size: "head", font: serif, fill: green)
+
+/// The fewest pages for `count` rows when a half takes at most `most`, the first page has one half for rows and each
+/// further page two; and the rows a half then takes when they are shared out evenly, so that every page is as full
+/// as the next and every row has one height.
+#let _shared(count, most) = {
+  let pages = 1
+  while count > most * (2 * pages - 1) { pages += 1 }
+  (pages: pages, per: calc.max(1, calc.ceil(count / (2 * pages - 1))))
+}
+
+/// A note of the contents' first page: prose across the half, in the size the title page sets its summary. The
+/// house's measure does not bind it: a note that stopped short of the half's edge left the half without an edge.
+#let _note(body) = {
+  set text(size: sizes.head, font: serif, fill: soft, hyphenate: true, costs: (hyphenation: 40%, runt: 150%),
+    top-edge: "baseline", bottom-edge: "baseline")
+  set par(justify: true, linebreaks: "optimized", leading: 27pt, spacing: 0pt, justification-limits: _limits)
+  block(width: _half, spacing: 0pt, body)
+}
+
+/// The left half of the contents' first page: the overview's own entry, a number, a name and one line as a row has
+/// them, the line the claim the model states, the whole a link to its page; then the scope, the limits and the
+/// reading note. Each stands under a
+/// rule across the half. Where they fit, each begins on a line of the rows beside it, its first words on the
+/// baseline of that row's title, and the lines left over go to the blocks in turn; where they do not, they share
+/// the height that is left equally. Blocks taller than the body are refused, since text is never shrunk.
+#let _front(r, words, pitch, rows) = context {
+  let (first, height) = (_e.bodyTop * 1pt, (_e.bodyBottom - _e.bodyTop) * 1pt)
+  let flow(body) = block(width: _half, spacing: 0pt, { set block(spacing: 0pt); body })
+  let blocks = ()
+  if r.front != none {
+    blocks.push((
+      head: {
+        tx(0pt, 0pt, r.front.number, .._number)
+        tx(56pt, 0pt, r.front.title, size: "head", font: serif)
+      },
+      lead-in: 54pt,
+      body: flow({
+        if r.front.claim != none {
+          block(width: _half, spacing: 0pt, {
+            set par(leading: 42pt, spacing: 0pt, justify: false)
+            text(font: display, size: sizes.title, fill: ink, top-edge: "baseline", bottom-edge: "baseline", r.front.claim)
+          })
+        }
+      }),
+      to: <plate-00>,
+    ))
+  }
+  // A label is tracked capitals, as `_caps` sets them, and is recorded with its words: the tracking is set about
+  // the text, where `_caps` would hand the record a styled text it cannot read.
+  let note(label, body) = (
+    head: { set text(tracking: 1.4pt); tx(0pt, 0pt, upper(label), size: "small", weight: "semibold", fill: soft) },
+    lead-in: 32pt, body: flow(body), to: none)
+  if r.scope != none { blocks.push(note(words.scope, _note(r.scope))) }
+  if r.limits.len() > 0 { blocks.push(note(words.limits, r.limits.map(_note).join(v(40pt)))) }
+  blocks.push(note(words.reading, _note(words.readingNote)))
+  let tall(x, base) = base + x.lead-in + measure(x.body).height + 16pt
+  // On the rows' lines: each block takes the lines it needs, and the lines left over go to the blocks in turn.
+  let base = pitch / 2 - 2pt
+  let needs = blocks.map(x => calc.ceil(tall(x, base) / pitch))
+  let tops = ()
+  if needs.sum() <= rows {
+    let spare = rows - needs.sum()
+    let at = 0
+    for (i, n) in needs.enumerate() {
+      tops.push(first + at * pitch)
+      at += n + calc.quo(spare, blocks.len()) + (if i < calc.rem(spare, blocks.len()) { 1 } else { 0 })
+    }
+  } else {
+    base = 30pt
+    let heights = blocks.map(x => tall(x, base))
+    if heights.sum() > height {
+      panic("edition_front_too_long: the overview's entry, the scope, the limits and the reading note are "
+        + str(calc.ceil(heights.sum().pt())) + " points tall, and the page holds " + str(height.pt()))
+    }
+    let gap = (height - heights.sum()) / blocks.len()
+    let y = first
+    for h in heights {
+      tops.push(y)
+      y += h + gap
+    }
+  }
+  for (x, y) in blocks.zip(tops) {
+    let set-it = box(width: _half, height: tall(x, base), {
+      [#line(length: _half, stroke: 0.8pt + rule) <archpub-front-rule>]
+      place(top + left, dy: base, x.head)
+      place(top + left, dy: base + x.lead-in, x.body)
+    })
+    place(top + left, dx: margin, dy: y, if x.to == none { set-it } else { link(x.to, set-it) })
+  }
+}
+
+/// The contents: one row a plate, its number, title and question, the whole row a link to it; the row names no
+/// page, since the row is the link and a plate's number is what the index cites. The first page sets the rows in
+/// its right half, beside the overview's entry and the notes; a further page sets them in both halves. A half takes
+/// the house's `contentsRows` at most, and the rows are shared out evenly over the halves. Where the contents take
+/// more than one page, each says which plates it lists, and the first how many there are.
+#let _contents-rows(r, words) = context {
+  let entries = query(heading.where(outlined: true)).filter(h => h.label != <plate-00>)
+  let (first, height) = (_e.bodyTop * 1pt, (_e.bodyBottom - _e.bodyTop) * 1pt)
+  let plan = _shared(entries.len(), _e.contentsRows)
+  let pitch = height / plan.per
+  let number(i) = r.rows.at(str(entries.at(calc.min(i, entries.len() - 1)).label)).number
+  // The plates a page lists, in the record's words, where the contents take more than one page.
+  let listed(from, to, template) = if plan.pages > 1 {
+    tx(margin, 84pt, template.replace("{from}", number(from)).replace("{to}", number(to)), fill: soft)
+  }
+  listed(0, plan.per - 1, words.plateRangeOf)
+  _front(r, words, pitch, plan.per)
   for (i, h) in entries.enumerate() {
-    if i > 0 and calc.rem(i, per) == 0 {
-      pagebreak()
-      _head(none, r.words.contents)
+    // The halves in order: the first page's right half, then the left and the right of each further page.
+    let half = calc.quo(i, plan.per)
+    let side = calc.rem(half + 1, 2)
+    if half > 0 and side == 0 and calc.rem(i, plan.per) == 0 {
+      // The foot is set before the break: set after it, it would stand on the continued page alone.
       edition-foot()
+      pagebreak()
+      _head(none, words.contents)
+      listed(i, i + 2 * plan.per - 1, words.plateRange)
     }
     let row = r.rows.at(str(h.label))
-    let y = _e.bodyTop * 1pt + calc.rem(i, per) * pitch
+    let y = first + calc.rem(i, plan.per) * pitch
     // The row's title and question stand in its middle, whatever the pitch.
     let b = pitch / 2 - 2pt
-    place(top + left, dx: _e.column * 1pt, dy: y, link(h.location(), box(width: w, height: pitch, {
-      line(length: w, stroke: 0.8pt + rule)
-      tx(0pt, b, row.number, size: "head", font: serif, fill: green)
+    place(top + left, dx: margin + side * (_half + _gap), dy: y, link(h.location(), box(width: _half, height: pitch, {
+      line(length: _half, stroke: 0.8pt + rule)
+      tx(0pt, b, row.number, .._number)
       tx(56pt, b, row.title, size: "head", font: serif)
-      tx(56pt, b + 22pt, row.question, fill: soft, w: w - 160pt)
-      txr(w, b, 80pt, str(h.location().page()), size: "head", font: serif, fill: soft)
+      tx(56pt, b + 22pt, row.question, fill: soft, w: _half - 56pt)
     })))
   }
+}
+
+/// The index: every part once, in the order of the names, and after it the numbers of the plates that draw it, set
+/// as the contents set a plate's number, each a link, from the column's right edge. A part on more plates than
+/// stand beside its name sets them in lines of equal length, 24 points apart. The parts stand in two columns or in
+/// four, whichever sets them nearer 60 points apart, each column taking its even share; they are never closer than
+/// 26 points, so a longer index takes a further page of four columns, each page with its title and foot. One rule
+/// closes the columns, and under it, on the line where a plate has its key, stand the facts the record closes the
+/// index with. The page states no acceptance: an edition is typeset before anyone accepts it.
+#let _index(r, words) = context {
+  let (head, bottom) = (_e.bodyTop * 1pt, _e.bodyBottom * 1pt)
+  let height = bottom - head
+  let (more, closest, ideal) = (24pt, 26pt, 60pt)
+  let cell = measure(text(font: serif, size: sizes.head, "00")).width + 10pt
+  // The parts set in `count` columns of one width: the columns, and the pitch the fullest of them leaves.
+  let plan(width, count) = {
+    let items = r.index.map(part => {
+      let name = measure(text(font: sans, size: sizes.head, part.label)).width
+      let room = calc.max(2, calc.floor((width - name - 28pt) / cell))
+      let lines = calc.max(1, calc.ceil(part.plates.len() / room))
+      (label: part.label, rows: part.plates.chunks(calc.max(1, calc.ceil(part.plates.len() / lines))), extra: lines - 1)
+    })
+    // A part's further lines count as the share of a row they take, so that a column of long parts holds fewer.
+    let even = (count * height - more * items.map(item => item.extra).sum(default: 0)) / items.len()
+    let unit(item) = 1 + item.extra * more / calc.max(even, closest)
+    let columns = ()
+    let (i, rest) = (0, items.map(unit).sum(default: 0))
+    for s in range(count) {
+      let target = calc.ceil(rest / (count - s) - 0.001)
+      let column = ()
+      let held = 0
+      while i < items.len() and (column.len() == 0 or held + unit(items.at(i)) <= target + 0.001 or s == count - 1) {
+        held += unit(items.at(i))
+        column.push(items.at(i))
+        i += 1
+      }
+      columns.push(column)
+      rest -= held
+    }
+    let pitch = calc.min(..columns.filter(column => column.len() > 0)
+      .map(column => (height - more * column.map(item => item.extra).sum()) / column.len()))
+    (columns: columns, pitch: pitch, width: width, across: if width == _half { 2 } else { 4 })
+  }
+  let (two, four) = (plan(_half, 2), plan(_quarter, 4))
+  // Two columns where they hold the parts and four do not, or where they set them nearer the ideal.
+  let chosen = if two.pitch >= closest and (four.pitch < closest
+    or calc.abs(two.pitch - ideal) <= calc.abs(four.pitch - ideal)) { two } else { four }
+  let pages = 1
+  while chosen.pitch < closest {
+    // A column of one part cannot be opened further: its plates take more lines than a page holds.
+    if 4 * pages >= r.index.len() { panic("edition_index_too_long: a part stands on more plates than a page's lines hold") }
+    pages += 1
+    chosen = plan(_quarter, 4 * pages)
+  }
+  for (s, column) in chosen.columns.enumerate() {
+    if s > 0 and calc.rem(s, chosen.across) == 0 {
+      hrule(bottom)
+      edition-foot()
+      pagebreak()
+      _head(none, words.index)
+      tx(margin, 84pt, words.indexLead, fill: soft)
+    }
+    let x = margin + calc.rem(s, chosen.across) * (chosen.width + _gap)
+    let y = head
+    for (i, item) in column.enumerate() {
+      seg((x, y), (x + chosen.width, y), w: if i == 0 { 0.8pt } else { 0.4pt }, c: rule)
+      let base = y + chosen.pitch / 2 + 6pt
+      tx(x, base, item.label, size: "head")
+      for (j, row) in item.rows.enumerate() {
+        for (k, n) in row.rev().enumerate() {
+          txr(x + chosen.width - k * cell, base + j * more, cell, link(label("plate-" + n), n), .._number)
+        }
+      }
+      y += chosen.pitch + item.extra * more
+    }
+  }
+  hrule(bottom)
+  // Each fact begins at its column, or a gap after the fact before it where that one is wider than its column: an
+  // address is as long as it is. Facts that the line cannot hold are refused.
+  let end = margin
+  for (k, fact) in r.closing.enumerate() {
+    let x = calc.max(margin + k * (_quarter + _gap), end)
+    let value = x + measure(text(size: sizes.small, fact.label)).width + 10pt
+    tx(x, _e.key * 1pt, fact.label, size: "small", fill: soft)
+    tx(value, _e.key * 1pt, if fact.url == none { fact.value } else { link(fact.url, fact.value) })
+    end = value + measure(text(size: sizes.text, fact.value)).width + 20pt
+  }
+  if end - 20pt > page-width - margin { panic("edition_closing_too_long: the facts under the index pass the page's margin") }
 }
 
 /// The lines of a cover title that holds Han, Kana or Hangul and is wider than its column, or none for a title that
@@ -793,25 +994,12 @@
     if fact.note != none { tx(x, 846pt, fact.note, size: "small", fill: soft) }
   }
 
-  // Contents: the edition's facts, scope, limits and reading note on the left, the rows on the right.
+  // Contents: the overview's entry and the notes in the left half of the first page, the plates' rows beside and
+  // after them.
   pagebreak()
   [#heading(outlined: false, bookmarked: true, words.contents) <archpub-contents>]
   _head(none, words.contents)
-  if words.built != none { txr(page-width - margin, 34pt, 420pt, words.built, fill: soft) }
-  let left = (
-    {
-      set text(top-edge: "baseline", bottom-edge: "baseline", size: sizes.small)
-      set par(leading: 16pt, spacing: 0pt)
-      grid(columns: (110pt, 1fr), row-gutter: 0pt, inset: (x: 0pt, top: 20pt, bottom: 9pt),
-        stroke: (x, y) => (top: 0.8pt + rule, bottom: if y == r.facts.len() - 1 { 0.8pt + rule } else { none }),
-        ..r.facts.map(f => (text(weight: "semibold", f.label), if f.url == none { f.value } else { link(f.url, f.value) })).flatten())
-    },
-  )
-  if r.scope != none { left.push({ _label(words.scope); v(22pt); prose(540pt, r.scope, fill: soft) }) }
-  if r.limits.len() > 0 { left.push({ _label(words.limits); v(22pt); r.limits.map(l => prose(540pt, l, fill: soft)).join(v(14pt)) }) }
-  left.push({ _label(words.reading); v(22pt); prose(540pt, words.readingNote, fill: soft) })
-  _band(margin, 116pt, 540pt, (_e.bodyBottom - 116) * 1pt, ..left)
-  _contents-rows(r)
+  _contents-rows(r, words)
   edition-foot()
 
   // The overview, drawn from the model's statement in place.
@@ -833,6 +1021,16 @@
     _key(p.marks, p.title)
     edition-foot()
   }
+
+  // The last pages: the index of the parts, and under it what the edition was built from. The mark after the
+  // foot is the edition's end, which the publisher reads the number of pages from.
+  pagebreak()
+  [#heading(outlined: false, bookmarked: true, words.index) <archpub-index>]
+  _head(none, words.index)
+  tx(margin, 84pt, words.indexLead, fill: soft)
+  _index(r, words)
+  edition-foot()
+  [#metadata(none) <archpub-end>]
 }
 
 /// The figures alone, for use outside the edition: one page a plate, cut to what its figure draws on with a pad about

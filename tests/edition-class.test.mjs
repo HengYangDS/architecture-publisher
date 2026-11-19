@@ -83,7 +83,6 @@ async function edition(plates, extra = {}, subject = model) {
       date: "2026-11-06",
       release: "v1.0.0",
     }),
-    modelSha256: "0".repeat(64),
     publisher: "0.10.0",
     typst: "0.15.1",
     overview: false,
@@ -103,17 +102,17 @@ async function edition(plates, extra = {}, subject = model) {
   });
 }
 
-test("eleven plates' contents fit one page, and seventeen continue on a second", async () => {
+test("eleven plates' contents fit one page, and seventeen continue on a second; the index is the last page", async () => {
   const eleven = await edition(Array.from({ length: 11 }, (_, index) => plate(index + 1)));
-  // Title page, one contents page, eleven plates.
-  assert.equal(eleven.pages, 13);
-  // Each plate's page is handed back: the first after the title page and the contents, the last on the last page.
+  // Title page, one contents page, eleven plates, the index.
+  assert.equal(eleven.pages, 14);
+  // Each plate's page is handed back: the first after the title page and the contents, the last before the index.
   assert.deepEqual(
     [eleven.platePages.length, eleven.platePages[0], eleven.platePages.at(-1)],
     [11, { number: 1, page: 3 }, { number: 11, page: 13 }],
   );
   const seventeen = await edition(Array.from({ length: 17 }, (_, index) => plate(index + 1)));
-  assert.equal(seventeen.pages, 20);
+  assert.equal(seventeen.pages, 21);
   assert.deepEqual(
     [seventeen.platePages[0], seventeen.platePages.at(-1)],
     [
@@ -153,7 +152,6 @@ test("without a checkout the foot names the title and revision and no date, and 
       plates: [],
       icons,
       facts: recordFacts(),
-      modelSha256: "0".repeat(64),
       publisher: "0.10.0",
       typst: "0.15.1",
       overview: false,
@@ -178,7 +176,6 @@ test("a narrowed plate sets its view's summary and where each component lives, a
     plates: [narrowed(summary)],
     icons,
     facts: recordFacts({ owned: new Map([["a", ["src/a.mjs"]]]), read: 1 }),
-    modelSha256: "0".repeat(64),
     publisher: "0.10.0",
     typst: "0.15.1",
     overview: false,
@@ -191,7 +188,7 @@ test("a narrowed plate sets its view's summary and where each component lives, a
     [1466, summary, [{ label: "Alpha", files: ["src/a.mjs"] }]],
   );
   assert.equal(record.words.places, "Where it lives");
-  assert.equal((await edition([narrowed(summary)])).pages, 3);
+  assert.equal((await edition([narrowed(summary)])).pages, 4);
   await assert.rejects(
     edition([narrowed("A sentence of the summary, at its length. ".repeat(48).trim())]),
     (error) =>
@@ -235,7 +232,6 @@ test("a summary above its figure is set in its lines at the claim column, and th
     plates: [above],
     icons,
     facts: recordFacts({ owned: new Map([["a", ["src/a.mjs"]]]), read: 1 }),
-    modelSha256: "0".repeat(64),
     publisher: "0.11.0",
     typst: "0.15.1",
     overview: false,
@@ -248,7 +244,7 @@ test("a summary above its figure is set in its lines at the claim column, and th
     [lines, lines.join(" "), [], 1071 - 96],
   );
   const typeset = await edition([above]);
-  assert.equal(typeset.pages, 3);
+  assert.equal(typeset.pages, 4);
   // The frame the data gives this plate is where the class set its figure, below the summary: inside the card's
   // rectangle the plate's image holds the card's fill, and a little under the rectangle the paper.
   const frame = plateFrame(above, HOUSE);

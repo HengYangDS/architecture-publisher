@@ -101,7 +101,6 @@ export function typesetWork(
     plates,
     icons,
     facts: recordFacts({ date: "2026-11-10" }),
-    modelSha256: "0".repeat(64),
     publisher: "0.0.0",
     typst: "0.0.0",
     overview: Boolean(statement),

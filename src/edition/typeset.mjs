@@ -154,11 +154,12 @@ export async function typesetEdition(input) {
     };
     const pdfFile = path.join(out, "edition.pdf");
     await typeset(["compile", ...common, "--pdf-standard", "a-3a,ua-1", entry, pdfFile]);
-    /** @type {Array<[string, number]>} */
-    const pages = JSON.parse(
+    // Each outlined page by its label, and the page the edition ends on: the index stands after the last plate.
+    /** @type {[Array<[string, number]>, number]} */
+    const [pages, last] = JSON.parse(
       await typeset([
         "eval",
-        "query(heading.where(outlined: true)).map(h => (str(h.label), h.location().page()))",
+        "(query(heading.where(outlined: true)).map(h => (str(h.label), h.location().page())), query(<archpub-end>).first().location().page())",
         "--in",
         entry,
         ...common,
@@ -242,7 +243,7 @@ export async function typesetEdition(input) {
       house: staged.house,
       figures,
       pdf: await fs.readFile(pdfFile),
-      pages: pages.length ? Math.max(...pages.map(([, page]) => page)) : 2,
+      pages: last,
       // Each plate's page in the PDF, counted from 1, in the edition's order; the overview's page is no plate.
       platePages: shown
         .filter(([label]) => label !== "plate-00")

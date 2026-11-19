@@ -126,7 +126,6 @@ test("the edition's record takes a part's first file, the files read, the date a
     plates: [plate],
     icons,
     facts: falsified,
-    modelSha256: "0".repeat(64),
     publisher: "0.14.0",
     typst: "0.15.1",
     overview: false,
@@ -138,7 +137,7 @@ test("the edition's record takes a part's first file, the files read, the date a
     `https://example.invalid/minimal/blob/${REVISION}/docs/other.md`,
   );
   const words = editionWordsOf(model.locale);
-  assert.ok(record.facts.some(({ value }) => value === words.readValue(7)));
+  assert.ok(record.closing.some(({ value }) => value === words.readValue(7)));
   assert.equal(record.subject.date, "2001-02-03");
   assert.equal(record.words.foot, words.foot(model.title, "v9.9.9", "aaaaaaa", "2001-02-03"));
 });

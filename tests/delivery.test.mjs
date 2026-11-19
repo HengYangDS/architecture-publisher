@@ -69,7 +69,8 @@ test("a delivery holds the print edition, its images, its figures alone, the pag
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
   // The edition is named for the work; each plate's image and its figure set alone are named for its number and
   // view. A build that names no width draws its images 3840 px wide, and names them without the width.
-  assert.deepEqual([manifest.edition.file, manifest.edition.pages], ["big-bank.pdf", 4]);
+  // A title page, the contents, the two plates and the index.
+  assert.deepEqual([manifest.edition.file, manifest.edition.pages], ["big-bank.pdf", 5]);
   assert.equal(manifest.page.file, "big-bank.html");
   // Neither of Big Bank's views has a summary, and both figures span the body.
   assert.deepEqual(

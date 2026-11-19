@@ -92,7 +92,7 @@ misspelt field never disappears silently.
 
 `locale` names the language the model's own text is written in. The publisher
 sets the few words it writes itself in that language: the edition's contents,
-facts, reading note and foot, the key's boundary and status entries, the
+reading note, index and foot, the key's boundary and status entries, the
 details it derives for an overview, and how it joins details, lists and
 sentences. The
 page declares the language to Archify, whose controls and viewer then speak it.
@@ -408,8 +408,9 @@ a Typst file here is refused with `model_overview_composition_retired`.
 }
 ```
 
-- `claim` is the masthead's claim and `lead` its sentence; the masthead's count
-  of the files the build read and the page's foot are the publisher's.
+- `claim` is the masthead's claim, which the contents repeat in the overview's
+  entry, and `lead` its sentence; the masthead's count of the files the build
+  read and the page's foot are the publisher's.
 - `course` runs across the first band: `steps` in order, each named by a `label`
   or by the `part` it is, with an optional `note` under its heading and `text`
   under its stretch. A step may hold `stations`, each a label or a part with a

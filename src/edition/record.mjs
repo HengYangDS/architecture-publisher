@@ -2,10 +2,41 @@ import { editionWordsOf } from "./words.mjs";
 
 /**
  * The record the house class typesets a delivery's print edition from: the model's own text, the facts the build
- * records, the edition's words in the model's language, and each plate's figure, runs, key and links.
+ * records, the edition's words in the model's language, each plate's figure, runs, key and links, and the index
+ * of the parts by name.
  */
 
 const two = (number) => String(number).padStart(2, "0");
+
+/**
+ * A name as the words an index sorts it by: each word, and within a word each run of one script, since a name
+ * such as "Agent技能" is read as two words whether or not a space parts them.
+ * @param {string} name
+ */
+const runsOf = (name) =>
+  name
+    .split(/\s+/u)
+    .flatMap((word) => word.match(/[\p{Script=Latin}\p{Nd}]+|[^\p{Script=Latin}\p{Nd}]+/gu) ?? [])
+    .map((run) => ({ run, latin: /^[\p{Script=Latin}\p{Nd}]/u.test(run) }));
+
+/**
+ * The order of two names in an index: word by word, a word in Latin letters or digits before any other, two of one
+ * script as the model's language sorts them, and a name that begins another before it. Two names of the same words
+ * stand in the order of their characters, so that no two names are equal.
+ * @param {string} one
+ * @param {string} other
+ * @param {string} locale the model's language
+ */
+export function compareNames(one, other, locale) {
+  const [a, b] = [runsOf(one), runsOf(other)];
+  for (let index = 0; index < Math.min(a.length, b.length); index += 1) {
+    if (a[index].latin !== b[index].latin) return a[index].latin ? -1 : 1;
+    const order = a[index].run.localeCompare(b[index].run, locale, { numeric: true });
+    if (order !== 0) return order;
+  }
+  if (a.length !== b.length) return a.length - b.length;
+  return one < other ? -1 : one > other ? 1 : 0;
+}
 
 /**
  * A file's address in the model's repository browser, or null when the model names none.
@@ -25,7 +56,7 @@ function linkOf(browse, revision, file) {
  *   model: any, plates: any[], icons: any,
  *   facts: { owned: (id: string) => readonly string[], read: number, date: string | null,
  *     release: string | null },
- *   modelSha256: string, publisher: string, typst: string, overview: boolean, page: string,
+ *   publisher: string, typst: string, overview: boolean, page: string,
  *   time: number | null,
  * }} input
  *   `facts` are the edition's measured facts: each part's files in claim order, the first of which its title links
@@ -89,10 +120,9 @@ export function editionRecord(input) {
     };
   });
   const linked = plateRecords.some(({ links }) => Object.keys(links).length > 0);
+  // The contents' rows are the plates alone; the overview has its own entry, `front`.
   /** @type {Record<string, { number: string, title: string, question: string }>} */
   const rows = {};
-  if (input.overview)
-    rows["plate-00"] = { number: "00", title: words.overview, question: words.overviewNote };
   for (const plate of plateRecords)
     rows[plate.key] = { number: plate.number, title: plate.title, question: plate.question };
   const url = repository?.url ? repository.url.replace(/\.git$/u, "") : null;
@@ -137,31 +167,35 @@ export function editionRecord(input) {
         note: `Typst ${input.typst} · ${words.standards}`,
       },
     ],
-    facts: [
-      { label: words.subject, value: at ? `${subject} · ${at}` : subject, url: null },
-      ...(url ? [{ label: words.repository, value: url.replace(/^https?:\/\//u, ""), url }] : []),
-      ...(facts.read ? [{ label: words.read, value: words.readValue(facts.read), url: null }] : []),
-      {
-        label: words.model,
-        value: `${model.id} · SHA-256 ${input.modelSha256.slice(0, 16)}…`,
-        url: null,
-      },
-      ...(editors.length || model.license
+    // The overview's own entry on the first page of the contents: a number, a name and one line, as a row has
+    // them; the line is the claim the model states. The lead stands on the overview's own page.
+    front: input.overview
+      ? { number: "00", title: words.overview, claim: model.overview?.claim ?? null }
+      : null,
+    // The index: every part once, by name, with the numbers of the plates that draw it.
+    index: model.components
+      .map((component) => ({
+        label: component.label,
+        plates: plateRecords
+          .filter((plate) => plate.runs.some((run) => run.component === component.id))
+          .map((plate) => plate.number),
+      }))
+      .sort((one, other) => compareNames(one.label, other.label, model.locale)),
+    // The line that closes the index: the repository by the one address the model states, or by its name alone;
+    // the files read; and the edition's two other carriers, the page and the data, beside this file.
+    closing: [
+      ...(repository
         ? [
             {
-              label: words.edited,
-              value: [editors.join(words.list), model.license ? words.license(model.license) : null]
-                .filter(Boolean)
-                .join(" · "),
-              url: null,
+              label: words.repository,
+              value: url ? url.replace(/^https?:\/\//u, "") : repository.name,
+              url,
             },
           ]
         : []),
-      {
-        label: words.typeset,
-        value: `Typst ${input.typst} · ${words.standards}`,
-        url: null,
-      },
+      ...(facts.read ? [{ label: words.read, value: words.readValue(facts.read), url: null }] : []),
+      { label: words.page, value: input.page, url: input.page },
+      { label: words.data, value: `${model.id}.json`, url: `${model.id}.json` },
     ],
     words: {
       edition: words.edition,
@@ -172,6 +206,11 @@ export function editionRecord(input) {
       limits: words.limits,
       reading: words.reading,
       readingNote: words.readingNote(linked, input.page),
+      // The plates a page of the contents lists; the house class writes the two numbers in, which only it knows.
+      plateRange: words.plateRange("{from}", "{to}"),
+      plateRangeOf: words.plateRangeOf("{from}", "{to}", plates.length),
+      index: words.index,
+      indexLead: words.indexLead,
       places: words.places,
       attached: words.attached,
       built: at ? words.built(short ?? "", date) : null,

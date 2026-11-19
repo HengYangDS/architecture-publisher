@@ -15,7 +15,6 @@ test("an edition's key marks carry the date, the sample strip and the count the 
     plates,
     icons,
     facts: recordFacts(),
-    modelSha256: "0".repeat(64),
     publisher: "0.13.0",
     typst: "0.15.1",
     overview: false,

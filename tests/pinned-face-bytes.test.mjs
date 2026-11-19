@@ -53,12 +53,13 @@ test("a drawing that reports what it drew draws the same bytes: shapes, runs and
 });
 
 test("the typeset edition hands back each plate's page in the PDF, counted from 1", () => {
-  // A title page and the contents stand before the first plate; the edition has no overview page.
+  // A title page and the contents stand before the first plate, and the index after the last; the edition has no
+  // overview page.
   assert.deepEqual(typeset.platePages, [
     { number: 1, page: 3 },
     { number: 2, page: 4 },
   ]);
-  assert.equal(typeset.pages, 4);
+  assert.equal(typeset.pages, 5);
 });
 
 test("an overview's page moves every plate one page on and is no plate itself", async () => {

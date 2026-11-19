@@ -148,6 +148,7 @@
     "key": 850,
     "rule": 866,
     "foot": 886,
-    "measure": 32
+    "measure": 32,
+    "contentsRows": 11
   }
 }

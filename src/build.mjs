@@ -399,7 +399,6 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
             plates: prepared.plates,
             icons: prepared.icons,
             facts: prepared.facts,
-            modelSha256: prepared.loaded.sha256,
             publisher: await publisherVersion(),
             typst: "0.15.1",
             overview: Boolean(overview),

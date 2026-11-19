@@ -14,6 +14,10 @@ remain pre-release contracts and may contain incompatible changes.
   shapes whose text is outlined glyphs. The manifest and the data record the two files in each plate's `figures`,
   the reader file names them on the view's line, `archpub verify` holds them to the manifest's digests and
   `archpub compare` reports one that differs under its plate, as both treat a page's image.
+- An edition ends with an index: every part once, by name, followed by the numbers of the plates that draw it,
+  each a link to its plate. Names stand word by word, a word in Latin letters or digits first, the rest as the
+  model's language sorts them. The parts take two columns or four, and a long index a further page. Under it
+  stand the repository, the number of files read, the page and the data. The edition's page count includes it.
 - `SECURITY.md` says how to report a vulnerability and what counts as one, and `CODE_OF_CONDUCT.md` adopts the
   Contributor Covenant 3.0; `CONTRIBUTING.md` points to both and says which channels a release has to reach
   before it is finished.
@@ -22,6 +26,14 @@ remain pre-release contracts and may contain incompatible changes.
 
 - **Breaking:** A page's image is 3840 px wide unless `--png` names its widths, where it was 2400 px wide, and the
   image named without its width is the one at 3840 px: `--png 2400` writes `NN-<view>-2400.png`.
+- The contents set the overview apart from the plates: its number, name and claim open the left half of the
+  first page, a link to it, above the scope, the limits and the reading note. The rows are the plates alone, each
+  a link, and name no page. A half takes eleven rows at most, shared out evenly, so a work of twelve plates or
+  more takes further pages as full as the first, each with its foot and the plates it lists; a continued page
+  had no rows on its left and the first page lost its foot. The edition's facts no longer stand beside the rows,
+  and the reading note names the last page. A left half taller than the page refuses with
+  `edition_front_too_long`, a part on more plates than an index page's lines hold with `edition_index_too_long`,
+  and facts under the index that pass the page's margin with `edition_closing_too_long`.
 - A line and the boundary's frame are broken by a gap where a relation's label or the boundary's name stands on
   them, and no rectangle of the page's colour is drawn there, so a figure reads on any light ground. Every plate's
   SVG changes by those rectangles and the clip path that takes their place.

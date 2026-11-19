@@ -124,7 +124,6 @@ async function picturesOf(svg, widths) {
     plates,
     icons,
     facts: recordFacts(),
-    modelSha256: "0".repeat(64),
     publisher: "0.14.0",
     typst: "0.15.1",
     overview: false,

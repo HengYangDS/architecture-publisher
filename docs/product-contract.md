@@ -112,8 +112,10 @@ data lacks. The [data reference](reference/data.md) describes the three files.
 
 The print edition opens with a title page of the work's name, question and
 summary and a byline of its release, editors, licence and publisher, then
-contents that link to every page beside the edition's facts, scope, limits and
-a reading note, then the overview and one plate per view. A plate shows the
+contents that link to the overview and to every plate beside the scope, the
+limits and a reading note, then the overview and one plate per view, and it
+ends with an index of the parts by name, each with the plates that draw it,
+over the repository, the files read, the page and the data. A plate shows the
 view's title and question and its figure: each component as one card of its
 name, the strip of the files it owns, its kind beside the kind's icon with the
 number and size of its files, and its details where the plate has the room,
