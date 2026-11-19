@@ -303,7 +303,7 @@ one page or names who accepted the edition, which the acceptance's own page stat
       with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
       by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
       of `composable-parts` because the owner ruled on 2026-11-17 that nothing is placed by hand.
-- [ ] `figures-alone`: a view's figure for use outside the edition. Beside each page's image a delivery holds the
+- [x] `figures-alone`: a view's figure for use outside the edition. Beside each page's image a delivery holds the
       figure and its key alone, without the page around them, as PNG on a transparent ground and as SVG. A line or
       a boundary is broken where a label stands on it, so no patch of the ground covers anything and the figure
       reads on any light ground. A page's image is 3840 px wide unless the caller names its widths.

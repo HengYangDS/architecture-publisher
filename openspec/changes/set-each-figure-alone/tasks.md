@@ -1,7 +1,7 @@
 ## 1. A gap in a line, and no plate of the ground
 
 - [x] 1.1 Draw the boundary's edge, the wires and their arrowheads in one group clipped by a path that holds everything and, as holes of the even-odd rule, the box of each relation's label and of the boundary's name; remove the two rectangles of the page's colour. Done when a plate's SVG draws no rectangle of the paper's colour inside its figure, and a test renders a wire through a label's box and reads it transparent there and broken on both sides. Tests `figures-alone` and `pinned-face` read the gaps and the transparent box.
-- [ ] 1.2 Hold the edition's pages to what they showed: the six published works are built with the Change, and each page's image above its key is compared with the released 0.15.0's at 3840 px. Done when the research page states, a work, the most pixels that differ on one of its pages, and the digests the tests pin are drawn anew with what changed in them.
+- [x] 1.2 Hold the edition's pages to what they showed: the six published works are built with the Change, and each page's image above its key is compared with the released 0.15.0's at 3840 px. Done when the research page states, a work, the most pixels that differ on one of its pages, and the digests the tests pin are drawn anew with what changed in them. The research page's last section states them: the most on any page is 11 of 7,676,160.
 
 ## 2. The figure and its key alone
 
@@ -19,5 +19,5 @@
 ## 4. The works, and what the item rests on
 
 - [x] 4.1 `docs/research/figures-alone.md` enters the repository with this Change, and the design's decisions name it. Done when the queue test reads the design's "Rests on" page. `evolution-queue` reads the page.
-- [ ] 4.2 The six works' deliveries are rebuilt and read: each lone figure drawn over a pale ground and a dark one, and its key's first entry. Done when a reader other than the holder reads the twelve figures and finds no unbroken gap and no unreadable entry.
+- [x] 4.2 The six works' deliveries are rebuilt and read: each lone figure drawn over a pale ground and a dark one, and its key's first entry. Done when a reader other than the holder reads the twelve figures and finds no unbroken gap and no unreadable entry. The reader's words stand in the research page's last section.
 - [x] 4.3 The contract's queue sets `edition-map` after `figures-alone` with a paragraph that says what it moves back, and the item says what the owner ruled on 2026-11-19 of the contents and the last page. Done when `tests/evolution-queue.test.mjs` passes and reads the order. `evolution-queue` passes.

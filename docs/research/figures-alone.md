@@ -198,3 +198,28 @@ figure set alone must be, at about half the former width. The owner's word of 20
 One key entry is a solid of the ink's colour, and in some palettes the oldest band's dye is that colour; on a ground
 of that colour its mark is lost, its words are not. The item's design keeps the sample apart from its words by place
 as well as by colour, and sets the ground rule (a light ground).
+
+## The six works at the Change's head
+
+Built on 2026-11-20 by the lane's own command line at `6f9b6f03`, before the lane took the supply that `dev` gained
+the same night, from the publications at `bf8aa3d`: twelve deliveries, both languages, images 3840 px wide, in 7
+minutes, two builds side by side. Each was built from the same model as the delivery the released 0.15.0 built on
+2026-11-19. Each page's image was compared with that delivery's above the key line, the rows over 833 of 900
+points, by ImageMagick's count of pixels that differ at all.
+
+| Work                   | Most pixels that differ on one page, of 7,676,160 |
+| ---------------------- | ------------------------------------------------- |
+| aigw-client            | 2                                                 |
+| architecture-publisher | 2                                                 |
+| ddwg                   | 10                                                |
+| ethos                  | 6                                                 |
+| filmkit                | 11                                                |
+| openai-responses-proxy | 2                                                 |
+
+94 pages compared; the most on any page is 11. The deliveries hold 164 figure files, a PNG and an SVG a plate. A
+reader other than the holder read the first plate's figure of each delivery over a pale ground and a dark one, and its
+key over white: no line runs through a label, no patch or halo shows behind a label or a boundary's name over the dark
+ground, and every key entry is whole and readable; over the dark ground the labels and the key's words in dark ink
+fade, since the figure is made for a light ground.
+
+Not compared: the key line itself, whose words changed; the page in a browser, which this Change does not touch.
