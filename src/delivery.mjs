@@ -72,10 +72,11 @@ function diff(expected, actual) {
 
 /**
  * Compare two deliveries, each first checked against its own manifest as an acceptance checks it. A file differs
- * when its bytes do or when one delivery alone holds it. A plate's page images, at every width, are reported under
- * the plate, by its number and views; every other file a manifest lists, and the manifest itself, as a file of the
- * whole edition. The acceptance record, its signature and the colophon page are no part of a build: accepting
- * writes them afterwards, with the reviewer and the time, so they are not compared. Nothing is written.
+ * when its bytes do or when one delivery alone holds it. A plate's page images, at every width, and the files of its
+ * figure set alone are reported under the plate, by its number and views; every other file a manifest lists, and
+ * the manifest itself, as a file of the whole edition. The acceptance record, its signature and the colophon page
+ * are no part of a build: accepting writes them afterwards, with the reviewer and the time, so they are not
+ * compared. Nothing is written.
  * @param {string} first
  * @param {string} second
  */
@@ -88,12 +89,12 @@ export async function compareDeliveries(first, second) {
         [MANIFEST, manifestSha256],
       ]),
   );
-  // A page image belongs to the plate either manifest records it under; a manifest that records no plate's
-  // images leaves them among the files of the whole edition.
+  // A page image or a figure set alone belongs to the plate either manifest records it under; a manifest that
+  // records no plate's images or figures leaves them among the files of the whole edition.
   const plateOf = new Map(
     deliveries.flatMap(({ manifest }) =>
       (manifest.plates ?? []).flatMap((plate) =>
-        (plate.images ?? []).map(({ file }) => [file, plate]),
+        [...(plate.images ?? []), ...(plate.figures ?? [])].map(({ file }) => [file, plate]),
       ),
     ),
   );

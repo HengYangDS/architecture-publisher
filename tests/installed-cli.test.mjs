@@ -74,7 +74,7 @@ test("the packed publisher installs, relocates and builds with its own verified 
   // The smallest model still runs every bundled supply, Archify included.
   const model = await writeModel(t, minimalModel());
   const out = path.join(directory, "delivery");
-  const built = archpub(relocated, "build", model, "--out", out);
+  const built = archpub(relocated, "build", model, "--out", out, "--png", "240");
   assert.equal(built.status, 0, built.stderr + JSON.stringify(built.body));
   const manifest = JSON.parse(await fs.readFile(path.join(out, "manifest.json"), "utf8"));
   assert.deepEqual(manifest.publisher, { name: "architecture-publisher", version });

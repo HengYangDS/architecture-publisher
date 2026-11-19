@@ -194,11 +194,11 @@ test("the help words every command as a sentence and every option as a fragment,
   );
   assert.equal(
     build.get("--png <widths>").words,
-    "draw the edition's images at these widths in pixels, separated by commas; 2400 by default",
+    "draw the edition's images at these widths in pixels, separated by commas; 3840 by default",
   );
   assert.equal(
     check.get("--png <widths>").words,
-    "plan the edition's images at these widths in pixels, separated by commas; 2400 by default",
+    "plan the edition's images at these widths in pixels, separated by commas; 3840 by default",
   );
   // Every other option the two share is worded once.
   for (const term of ["--repo <checkout>", "--quality <profile>"])

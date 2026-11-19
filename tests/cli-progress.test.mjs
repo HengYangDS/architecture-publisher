@@ -50,16 +50,18 @@ test("a check and a build name each step they reach to a listener, and return wh
 
   const root = await temporaryDirectory(t, "archpub-progress-");
   const built = [];
-  const listened = await buildDelivery(model, path.join(root, "listened"), {}, (step) =>
+  // The builds are made for their steps: their images are small.
+  const small = { png: [240] };
+  const listened = await buildDelivery(model, path.join(root, "listened"), small, (step) =>
     built.push(step),
   );
   assert.deepEqual(built, BUILD_STEPS);
-  const plain = await buildDelivery(model, path.join(root, "plain"));
+  const plain = await buildDelivery(model, path.join(root, "plain"), small);
   assert.deepEqual({ ...listened, out: "" }, { ...plain, out: "" });
   // A build names the steps of the media it delivers alone.
   const delivering = async (media) => {
     const reached = [];
-    await buildDelivery(model, path.join(root, media), { media: [media] }, (step) =>
+    await buildDelivery(model, path.join(root, media), { ...small, media: [media] }, (step) =>
       reached.push(step),
     );
     return reached.slice(3);
@@ -107,12 +109,12 @@ test("a command on a terminal draws its steps on standard error, and standard ou
 test("a build piped to a file holds no progress, and its standard output equals that of a run on a terminal", async (t) => {
   const model = await writeModel(t, minimalModel());
   const out = path.join(await temporaryDirectory(t, "archpub-progress-"), "delivery");
-  const drawn = archpub(["build", model, "--out", out], { terminal: true });
+  const drawn = archpub(["build", model, "--out", out, "--png", "240"], { terminal: true });
   assert.equal(drawn.status, 0, drawn.stderr);
   for (const step of BUILD_STEPS) assert.ok(drawn.stderr.includes(step), step);
   assert.match(drawn.stderr, /archpub build: 7 steps done\n$/u);
   await fs.rm(out, { recursive: true });
-  const piped = archpub(["build", model, "--out", out], { terminal: false });
+  const piped = archpub(["build", model, "--out", out, "--png", "240"], { terminal: false });
   assert.equal(piped.status, 0, piped.stderr);
   assert.equal(piped.stderr, "");
   assert.equal(piped.stdout, drawn.stdout);

@@ -81,11 +81,10 @@ archpub --help | --version [--json]
 - `build` does the same and writes a new delivery directory. `--out` must not
   exist; the delivery is staged beside it and renamed into place only when
   every artifact is written, so a refused build leaves nothing behind.
-- `--media` names the media to deliver, `edition`, the print edition with its
-  images, and `page`; by default both. A build composes only what it delivers,
-  so `--media edition` runs no Archify and `--media page` needs no Typst; a guide the model names is read for either.
-  `--png` names the widths of the edition's images, comma-separated, from 1 to
-  6000 px, by default 2400. `--quality` is `showcase`, the default, or
+- `--media` names the media to deliver, `edition`, the print edition with its images and figures alone, and `page`;
+  by default both. A build composes only what it delivers, so `--media edition` runs no Archify and `--media page`
+  needs no Typst; a guide the model names is read for either. `--png` names the widths of the edition's images,
+  comma-separated, from 1 to 6000 px, by default 3840. `--quality` is `showcase`, the default, or
   `standard`, which delivers a draft instead of refusing a page diagram that
   misses its checks. An invalid value is refused before the model is read.
 - `import likec4` writes a model from a LikeC4 workspace and lists, with its
@@ -229,7 +228,7 @@ The print edition is typeset by Typst 0.15.1 with the house class into
 - one plate per view, headed by its number, title and question, its figure
   beside the view's reading when it leaves part of the body or below it when it
   keeps the full width, with a key of what its figure shows and its cards do
-  not say: the age bands and the pin's date, a scale bar, a count of cited
+  not say: the commit the age bands count from, whose date the foot states, the bands, a scale bar, a count of cited
   files, a line into the hub, the boundary, the ground of a part outside it or,
   in a group's view, outside the group, and the statuses, and no kind.
 
@@ -379,20 +378,21 @@ guidance keeps a page to four native diagrams.
 
 ## The delivery
 
-| File                        | Content                                                                 |
-| --------------------------- | ----------------------------------------------------------------------- |
-| `<model id>.pdf`            | The print edition, unless excluded.                                     |
-| `<model id>.html`           | The standalone interactive page, unless excluded.                       |
-| `images/00-overview.png`    | The overview's page at 2400 px wide, when the model states an overview. |
-| `images/NN-<view>.png`      | Plate `NN`'s page at 2400 px wide, numbered from 01 in reading order.   |
-| `images/<name>-<width>.png` | The overview's or a plate's page at each other width `--png` names.     |
-| `model.json`                | The model the build read, byte for byte; in every delivery.             |
-| `<model id>.json`           | The pinned edition as [data](data.md); in every delivery.               |
-| `<model id>.md`             | The [reader file](data.md#the-reader-file); in every delivery.          |
-| `manifest.json`             | The build record, which names every file above with its digest.         |
-| `acceptance.json`           | The acceptance record `archpub accept` writes; absent until then.       |
-| `acceptance.sig`            | The record's SSH signature, when the reviewer signs it.                 |
-| `colophon.pdf`              | The colophon page `archpub accept` sets; absent until then.             |
+| File                            | Content                                                                                                     |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `<model id>.pdf`                | The print edition, unless excluded.                                                                         |
+| `<model id>.html`               | The standalone interactive page, unless excluded.                                                           |
+| `images/00-overview.png`        | The overview's page at 3840 px wide, when the model states an overview.                                     |
+| `images/NN-<view>.png`          | Plate `NN`'s page at 3840 px wide, numbered from 01 in reading order.                                       |
+| `images/<name>-<width>.png`     | The overview's or a plate's page at each other width `--png` names.                                         |
+| `figures/NN-<view>.png`, `.svg` | Plate `NN`'s figure and key alone: a PNG on a transparent ground, and an SVG of shapes and outlined glyphs. |
+| `model.json`                    | The model the build read, byte for byte; in every delivery.                                                 |
+| `<model id>.json`               | The pinned edition as [data](data.md); in every delivery.                                                   |
+| `<model id>.md`                 | The [reader file](data.md#the-reader-file); in every delivery.                                              |
+| `manifest.json`                 | The build record, which names every file above with its digest.                                             |
+| `acceptance.json`               | The acceptance record `archpub accept` writes; absent until then.                                           |
+| `acceptance.sig`                | The record's SSH signature, when the reviewer signs it.                                                     |
+| `colophon.pdf`                  | The colophon page `archpub accept` sets; absent until then.                                                 |
 
 Nothing else is written at the top of the delivery.
 
@@ -403,7 +403,7 @@ steps and accent, and where it draws strips the age bands' spans in seconds, the
 largest part is drawn at, in `sources` the binding's state and the count of the files it recorded, the digest of each
 bundled supply, each view with its tiers, members and plate number, the edition's file, page count, Typst version,
 house class digest, release, date and what dated it, each plate with its number, views, share of the body, reading,
-images, composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft
+images, figure files, composition, measures and the gates it misses, the page's file, quality profile and gates, a guide's draft
 path and digest, each file it names, its writing level and whether its sources were verified, each view diagram's
 width, height, rows, sides, re-sided connections, pinned labels, whether its preview stands beside its steps,
 candidate count and Archify route measures, the files the page withholds, with the overview its statement's digest,

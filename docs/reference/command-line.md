@@ -146,9 +146,9 @@ result of two deliveries that differ in one plate's image is
 }
 ```
 
-`plates` holds each plate with a page image that differs, in the order of the
-plates' numbers: its `page`, its `views` and, under `files`, its images that
-differ, at every width delivered. These are the plates a reviewer looks at.
+`plates` holds each plate with a page image or a figure alone that differs, in the order of the
+plates' numbers: its `page`, its `views` and, under `files`, its images, at every width delivered, and the files of
+its figure alone that differ. These are the plates a reviewer looks at.
 `files` holds every other file that differs, the files of the whole edition:
 the print edition, the page and what it loads, the overview's images and the
 manifest, which records every file's digest and so differs whenever a file

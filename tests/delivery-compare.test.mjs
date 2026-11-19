@@ -15,10 +15,10 @@ import { FRAME, reportLines } from "./fixtures/report-lines.mjs";
 let root = "";
 const delivery = (name) => path.join(root, name);
 
-/** A plate's page images at the two widths the builds draw. */
-const TIERS = "images/01-containers-tiers.png";
+/** A plate's page images at the two widths the builds draw, neither the default: each is named by its width. */
+const TIERS = "images/01-containers-tiers-2400.png";
 const TIERS_SMALL = "images/01-containers-tiers-1200.png";
-const AUTOMATIC = "images/02-containers-automatic.png";
+const AUTOMATIC = "images/02-containers-automatic-2400.png";
 
 before(async () => {
   root = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-compare-"));
@@ -242,7 +242,7 @@ test("a page image belongs to the plate either manifest records it under, in the
   const plate = (page, view) => ({
     page,
     views: [view],
-    images: [{ width: 2400, file: `images/${String(page).padStart(2, "0")}-${view}.png` }],
+    images: [{ width: 3840, file: `images/${String(page).padStart(2, "0")}-${view}.png` }],
   });
   const images = { "images/100-z.png": "a", "images/11-y.png": "a", "images/loose.png": "a" };
   const first = await recorded("recorded-first", { ...images, "images/02-a.png": "a" }, [

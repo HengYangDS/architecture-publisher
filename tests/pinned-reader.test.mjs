@@ -71,7 +71,7 @@ test("the head states the pin, the model, the data's digest, the counts and the 
     `- Model: \`model.json\` · version 3 · bytes ${data.model.bytes} · sha256 \`${data.model.sha256}\``,
     `- Data: \`shop.json\` · sha256 \`${digest}\``,
     "- Statements: components 4 · relations 4 · groups 1 · cited 4 · unchecked 0 · uncited 4",
-    "- Also in this delivery: `shop.pdf`, `images/`, `shop.html`, `manifest.json`",
+    "- Also in this delivery: `shop.pdf`, `images/`, `figures/`, `shop.html`, `manifest.json`",
     "- measured (pin): `largest-part` 4000 bytes · `pin-date` `2026-11-10` date · `pin-release` `v1.2.0` release · `files-read` 3 files",
   ]);
   // The keys of the lines are explained once, in the model's language.
@@ -102,10 +102,10 @@ test("without a checkout the head counts unchecked statements and states no date
   assert.ok(none.text.includes("- Pin: state none\n"));
 });
 
-test("a view's section is headed by its question, names its plate and image, and holds one item for each statement", async () => {
+test("a view's section is headed by its question, names its plate, its image and its figure's two files, and holds one item for each statement", async () => {
   const { text, model } = await shopReader();
   assert.deepEqual(section(text, model.question), [
-    "- view `overview` · plate 1 · `images/01-overview.png`",
+    "- view `overview` · plate 1 · `images/01-overview.png` · `figures/01-overview.png` · `figures/01-overview.svg`",
     "- measured (pin): `bands-shown` 3 bands",
     "- component `bill`: Billing · stated",
     "  - measured (pin): `owned-files` 0 paths",
@@ -122,7 +122,7 @@ test("a view's section is headed by its question, names its plate and image, and
   // A later view names a statement it shares by type and id alone; one whose question an earlier section
   // already carries is headed by its title.
   assert.deepEqual(section(text, "Core"), [
-    "- view `core` · plate 2 · `images/02-core.png`",
+    "- view `core` · plate 2 · `images/02-core.png` · `figures/02-core.png` · `figures/02-core.svg`",
     "- measured (pin): `bands-shown` 3 bands",
     "- component `sync`: Synchronization · stated · files `src/sync/`",
     "  - converges: selections, files",
@@ -153,7 +153,7 @@ test("a view with a summary states it, and one with a hub states the hub as meas
   const { text } = await shopReader("en", {}, { views: [input.views[0], asked], facts });
   assert.deepEqual(section(text, "How does the core persist?").slice(0, 4), [
     "It persists once.",
-    "- view `core` · plate 2 · `images/02-core.png`",
+    "- view `core` · plate 2 · `images/02-core.png` · `figures/02-core.png` · `figures/02-core.svg`",
     "- measured (model): `hub` `store` part",
     "- measured (pin): `bands-shown` 3 bands",
   ]);

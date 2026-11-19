@@ -30,7 +30,7 @@ import { commitDate, commitOf, commitTime, releaseOf } from "./sources/git.mjs";
 import { editionStyle } from "./style.mjs";
 import { verifySupply } from "./supply.mjs";
 
-export { DELIVERY_FORMAT } from "./manifest.mjs";
+export { DELIVERY_FORMAT, PNG_WIDTHS } from "./manifest.mjs";
 /** The media a delivery may carry: the print edition with its images, and the interactive page. */
 const MEDIA = Object.freeze(["edition", "page"]);
 /** The quality profiles a build may hold its media to. */
@@ -412,12 +412,16 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
           date: prepared.commit?.date ?? null,
           time: dated.time,
           widths: chosen.png,
+          alone: true,
           tokens: prepared.style.tokens,
         });
     if (edition) {
       await fs.writeFile(path.join(staging, `${model.id}.pdf`), edition.pdf);
       await fs.mkdir(path.join(staging, "images"));
       for (const { file, bytes } of edition.png)
+        await fs.writeFile(path.join(staging, file), bytes);
+      await fs.mkdir(path.join(staging, "figures"));
+      for (const { file, bytes } of edition.figures)
         await fs.writeFile(path.join(staging, file), bytes);
     }
     if (prepared.page) listener("delivering the page");

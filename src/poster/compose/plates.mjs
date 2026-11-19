@@ -241,6 +241,24 @@ function bestWithin(scene, view, width, height = BODY.height, cards = {}) {
   return candidates.sort((a, b) => compare(a.rank, b.rank))[0] ?? null;
 }
 
+/** The box a composition's figure draws in: its rectangles, its text and its boundary, in the figure's px. */
+function extentOf(one, typefaces) {
+  const boxes = [
+    ...one.figure.rects,
+    ...one.figure.runs.map((run) => ({
+      x: run.x,
+      y: run.top,
+      width: setWidth(run, typefaces),
+      height: run.style.line,
+    })),
+    ...(one.figure.frame ? [one.figure.frame] : []),
+  ];
+  const [left, top] = [Math.min(...boxes.map((b) => b.x)), Math.min(...boxes.map((b) => b.y))];
+  const right = Math.max(...boxes.map((b) => b.x + b.width));
+  const bottom = Math.max(...boxes.map((b) => b.y + b.height));
+  return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
 /** How far a composition's figure reaches across the body: its rectangles and its text. */
 function reachOf(one, typefaces) {
   const right = [
@@ -381,6 +399,8 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         ...(run.measure ? { measure: run.measure } : {}),
       })),
       legend,
+      // What the figure draws on, for the figure set alone: its rectangles, its text and its boundary.
+      extent: extentOf(one, typefaces),
       lines: one.figure.lines,
       touching: one.figure.touching,
       report: one.figure.report,

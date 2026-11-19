@@ -33,9 +33,16 @@ test("a plate's key lists exactly the marks it shows, each with a real sample", 
   } = await platesIn(stripModel(), stripStyle());
   // No kind: a card names its own kind beside the kind's icon.
   assert.deepEqual(plate.legend, [
-    { shape: "band", band: 0, color: INDIGO.dye.new, label: "within 7 days of the commit" },
-    { shape: "band", band: 2, color: INDIGO.dye.old, label: "earlier" },
-    { shape: "reference", date: REFERENCE, label: "commit date 2026-11-10" },
+    // What the bands count from leads them, in two forms: with the date, and without it for a page whose foot
+    // states the date.
+    {
+      shape: "reference",
+      date: REFERENCE,
+      label: "before commit @ 2026-11-10:",
+      undated: "before commit:",
+    },
+    { shape: "band", band: 0, color: INDIGO.dye.new, label: "≤ 7 d" },
+    { shape: "band", band: 2, color: INDIGO.dye.old, label: "> 90 d" },
     // 20 KB on the scale where the largest part, 56 KB, is 320 px long.
     {
       shape: "length",
@@ -44,7 +51,7 @@ test("a plate's key lists exactly the marks it shows, each with a real sample", 
       thickness: 12,
       // A sample strip, dyed as the lightest strips are, so it reads as one of them and no louder.
       color: INDIGO.dye.new,
-      label: "20 KB: a strip's length is the size of a part's files",
+      label: "file size 20 KB",
     },
     // A count as the plate sets one: figures of the smallest type in the line colour.
     {
@@ -52,7 +59,7 @@ test("a plate's key lists exactly the marks it shows, each with a real sample", 
       count: 3,
       size: 14,
       color: INDIGO.palette.mid,
-      label: "number: the files this relation cites",
+      label: "cited files",
     },
     // A line into the hub as the plate draws one: twice a line's weight, the oldest dye and the larger arrowhead.
     {
@@ -60,11 +67,11 @@ test("a plate's key lists exactly the marks it shows, each with a real sample", 
       color: INDIGO.dye.old,
       weight: 3.2,
       arrow: 11.6,
-      label: "heavy lines lead to Supplies",
+      label: "to Supplies",
     },
-    { shape: "boundary", label: "inside The print edition" },
+    { shape: "boundary", label: "The print edition" },
     // Typst stands outside the boundary, on the ground of a part outside it.
-    { shape: "outside", label: "outside it" },
+    { shape: "outside", label: "outside" },
   ]);
 });
 
@@ -83,37 +90,38 @@ test("a plate in Chinese sets its captions and key in Chinese", async () => {
   assert.deepEqual(
     plate.legend.slice(0, 7).map(({ label }) => label),
     [
-      "提交前 7 日内",
-      "提交前超过 7 日、90 日内",
-      "更早",
-      "提交日 2026-11-10",
-      "20 KB：条长是组件所属文件的大小",
-      "数字：这条关系引用的文件数",
-      "粗线：通向供给",
+      "距提交 @ 2026-11-10：",
+      "≤ 7 天",
+      "7–90 天",
+      "> 90 天",
+      "文件大小 20 KB",
+      "个引用文件",
+      "通向供给",
     ],
   );
+  assert.equal(plate.legend[0].undated, "距提交：");
 });
 
-test("a band is named by its days before the commit, and the key shows only what the plate draws", async () => {
+test("a band is named by its bounds in days after the entry that dates it, and the key shows only what the plate draws", async () => {
   const parts = new Map([["words", part([["src/locale.mjs", 400, 1]])]]);
   const measured = stripStyle(INDIGO, parts);
   const style = { ...measured, facts: { ...measured.facts, spans: [7 * 86400, 365 * 86400] } };
   const {
     plates: [plate],
   } = await platesIn(stripModel(), style);
-  assert.deepEqual(plate.legend[0], {
-    shape: "band",
-    band: 1,
-    color: INDIGO.dye.mid,
-    label: "over 7 and within 365 days of the commit",
-  });
+  assert.deepEqual(plate.legend.slice(0, 2), [
+    {
+      shape: "reference",
+      date: REFERENCE,
+      label: "before commit @ 2026-11-10:",
+      undated: "before commit:",
+    },
+    { shape: "band", band: 1, color: INDIGO.dye.mid, label: "7–365 d" },
+  ]);
   // A sample under a kilobyte is given in bytes: 200 B where the largest part is 400 B.
   assert.deepEqual(
-    plate.legend.slice(1, 3).map(({ shape, bytes, label }) => [shape, bytes ?? null, label]),
-    [
-      ["reference", null, "commit date 2026-11-10"],
-      ["length", 200, "200 B: a strip's length is the size of a part's files"],
-    ],
+    plate.legend.slice(2, 3).map(({ shape, bytes, label }) => [shape, bytes ?? null, label]),
+    [["length", 200, "file size 200 B"]],
   );
   // Without a reference date the bands are still named, undated.
   const undated = { ...style, facts: { ...style.facts, date: null } };
@@ -230,11 +238,12 @@ test("the house tokens draw the plates of no style given, pinned by their digest
       .createHash("sha256")
       .update(JSON.stringify(plates.map(({ svg, runs }) => ({ svg, runs }))))
       .digest("hex");
-  // Captured from the engine when every part became one card, composed without its details and set with them
-  // where its plate has the room, under a boundary whose name starts on its cards' text edge: a change that means
-  // to move no plate drawn without measured facts leaves this digest as it is. Until then it was 58357267…, the
-  // cards of 0.12.0 as the house faces' kerning measures them.
-  const drawn = "1706e7ddd135a7fe2e96ac1d6814fbb65ac529ed57cea00c3e353eda9f84d14e";
+  // Captured from the engine when a gap in a line became a hole of the lines' clip path: each plate lost its ten
+  // rounded rectangles of the paper's colour, under nine labels and the boundary's name, and gained the clip path
+  // with a hole for each and the group it clips, and no other shape or run moved. A change that means to move no
+  // plate drawn without measured facts leaves this digest as it is. Until then it was 1706e7dd…, the cards that
+  // name their kind, with a patch of paper under every label.
+  const drawn = "4d9add38ef8b5143e3683b040d90f136f7e8b732920ace608dcefd8d7832bc03";
   const unnamed = await platesIn(model);
   assert.equal(digest(unnamed.plates), drawn);
   const named = await platesIn(model, { tokens: HOUSE_TOKENS });
@@ -246,11 +255,11 @@ test("a caption counts one file in the singular in every language that has one",
   assert.equal(wordsOf("en").files(1, "2 KB"), "1 file, 2 KB");
   assert.equal(wordsOf("es").files(1, "2 KB"), "1 archivo, 2 KB");
   assert.equal(wordsOf("es").files(3, "2 KB"), "3 archivos, 2 KB");
-  // A newest band of one day, were an edition to count one, reads in the singular too. The middle band ends
-  // after it begins, so its upper bound is two days at the least and stands in the plural.
+  // A band is a bound and a unit, and the unit's sign has no plural: one day reads as two do.
   const bands = (locale) => measureWordsOf(locale)["file-age-band"];
-  assert.equal(bands("en").newest(1), "within 1 day of the commit");
-  assert.equal(bands("en").middle(1, 2), "over 1 and within 2 days of the commit");
-  assert.equal(bands("es").newest(1), "en el día previo al commit");
-  assert.equal(bands("es").middle(1, 2), "más de 1 y hasta 2 días antes del commit");
+  for (const locale of ["en", "es"]) {
+    assert.equal(bands(locale).newest(1), "≤ 1 d");
+    assert.equal(bands(locale).middle(1, 2), "1–2 d");
+    assert.equal(bands(locale).oldest(2), "> 2 d");
+  }
 });

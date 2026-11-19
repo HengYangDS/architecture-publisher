@@ -17,7 +17,7 @@ import { parseReader, readerFile } from "./pinned/reader.mjs";
 import { HOUSE } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
 import { readAtPin } from "./sources/bind.mjs";
-import { DELIVERY_FORMAT, DELIVERY_VERSION, PNG_WIDTHS, plateSummary } from "./manifest.mjs";
+import { DELIVERY_FORMAT, DELIVERY_VERSION, overviewImages, plateSummary } from "./manifest.mjs";
 
 /**
  * The pinned edition of one build: what the build holds, handed as values to the unit that writes the data and the
@@ -181,25 +181,23 @@ export function pinnedEdition(held, widths, platePages = null) {
     },
     state: binding.state,
     views,
-    plates: held.plates.map((plate) =>
-      plateEntry(plate, {
+    plates: held.plates.map((plate) => {
+      const { images, figures } = plateSummary(plate, widths);
+      return plateEntry(plate, {
         page: pages.get(plate.page),
-        images: plateSummary(plate, widths).images,
+        images,
+        figures,
         house: HOUSE,
         scales,
-      }),
-    ),
+      });
+    }),
     facts: [...facts.all(), ...views.flatMap((view) => facts.view(view).all())],
     catalogue: CATALOGUE,
     evidence,
     guide: guide && guideRecord(guide, held.page, evidence, model, binding.state === "verified"),
     overview: held.overview && {
       statement: held.overview.statement,
-      images: widths.map((width) => ({
-        width,
-        file:
-          width === PNG_WIDTHS[0] ? "images/00-overview.png" : `images/00-overview-${width}.png`,
-      })),
+      images: overviewImages(widths),
     },
     media: held.media,
   });

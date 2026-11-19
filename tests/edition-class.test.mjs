@@ -141,7 +141,7 @@ test("card titles link to the files they cite, and the edition names its editors
   assert.ok(text.includes(JSON.stringify(model)), "the model is attached byte for byte");
   assert.deepEqual(
     typeset.png.map(({ file }) => file),
-    ["images/01-view-1.png", "images/02-view-2.png"],
+    ["images/01-view-1-2400.png", "images/02-view-2-2400.png"],
   );
   const again = await edition([plate(1), plate(2)]);
   assert.ok(again.pdf.equals(typeset.pdf), "two editions of one commit differ");

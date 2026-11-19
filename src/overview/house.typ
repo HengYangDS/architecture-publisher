@@ -558,8 +558,9 @@
   let (pitch, body) = (16pt, page-width - 2 * margin)
   let set-key = text.with(size: sizes.small, fill: soft, top-edge: "baseline", bottom-edge: "baseline")
   let items = entries.map(entry =>
-    // The pin's date stands in words alone: it dates the bands before it.
-    box(if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(5pt)#entry.label]))
+    // The commit's entry stands in words alone, before the bands it dates, and without its date, which the page's
+    // foot states.
+    box(if entry.at("shape", default: none) == "reference" { entry.at("undated", default: entry.label) } else [#_mark(entry)#h(5pt)#entry.label]))
   let lines = block(width: body, {
     set par(justify: false, leading: pitch, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
     set-key(items.join(h(20pt, weak: true)))
@@ -831,5 +832,52 @@
     _plate(p, words)
     _key(p.marks, p.title)
     edition-foot()
+  }
+}
+
+/// The figures alone, for use outside the edition: one page a plate, cut to what its figure draws on with a pad about
+/// it, on no ground, and its key under it. The figure stands at the pad from the page's left and top, so a place of
+/// the figure is a place of the page by one rule: `((x - extent.x) * _k + pad)`. The page is a whole number of pixels
+/// wide and its figure a whole number high at `density` pixels a point, so that each pixel of a PNG is one texel of
+/// the figure's shapes (see `_plate`). The key keeps the edition's size and breaks between entries; the page is at
+/// least as wide as the key's widest entry. No foot stands under a figure alone, so its key states the commit's date.
+#let figures-alone(r, density) = {
+  set text(lang: r.locale.split("-").first(), region: if "-" in r.locale { r.locale.split("-").last() } else { none },
+    font: sans, size: sizes.text, fill: ink, stretch: 100%)
+  let pad = _house.plate.alonePad * 1pt
+  let whole(length) = calc.ceil(length / 1pt * density - 0.001) / density * 1pt
+  // `str` writes a negative number with a minus sign that SVG does not read.
+  let number(value) = if value < 0 { "-" + str(-value) } else { str(value) }
+  for p in r.plates {
+    let items = p.marks.map(entry =>
+      box(if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(5pt)#entry.label]))
+    let set-key = text.with(size: sizes.small, fill: soft)
+    context {
+      let widest = calc.max(..items.map(item => measure(set-key(item)).width), 0pt)
+      let width = whole(calc.max(p.extent.width * _k, widest) + 2 * pad)
+      let height = whole(p.extent.height * _k + 2 * pad)
+      let (x, y) = (p.extent.x * _k - pad, p.extent.y * _k - pad)
+      page(width: width, height: auto, margin: 0pt, fill: none, {
+        set par(leading: 6.6pt, spacing: 0pt)
+        block(width: width, height: height, spacing: 0pt, {
+          let shown = (width / _k, height / _k).map(str)
+          place(top + left, image(bytes("<svg xmlns='http://www.w3.org/2000/svg' width='" + shown.at(0) + "' height='"
+            + shown.at(1) + "' viewBox='" + number(x / _k) + " " + number(y / _k) + " " + shown.join(" ") + "'>" + read(p.file)
+            + "</svg>"), format: "svg", width: width, height: height))
+          for run in p.runs {
+            let set-run = text.with(font: sans, size: run.size * _k, weight: if run.weight >= 600 { "semibold" } else { "regular" },
+              fill: rgb(run.color), top-edge: "baseline", bottom-edge: "baseline")
+            place(top + left, dx: run.x * _k - x, dy: run.baseline * _k - y,
+              if "measure" in run { _spread(set-run(run.text), run.measure * _k, run.text) } else { set-run(run.text) })
+          }
+        })
+        if items.len() > 0 {
+          block(width: width, spacing: 0pt, inset: (x: pad, top: 2pt, bottom: pad), {
+            set par(justify: false, leading: 9pt, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
+            set-key(items.join(h(20pt, weak: true)))
+          })
+        }
+      })
+    }
   }
 }

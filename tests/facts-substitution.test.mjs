@@ -94,7 +94,7 @@ test("a plate drawn from a false hub draws the lines into it heavy, and its key 
   assert.ok(arrowsOf(plate.svg).some(({ fill }) => fill === INDIGO.dye.old));
   assert.deepEqual(
     plate.legend.filter(({ shape }) => shape === "hub").map(({ label }) => label),
-    ["heavy lines lead to Beta"],
+    ["to Beta"],
   );
 });
 

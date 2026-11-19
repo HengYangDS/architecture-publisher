@@ -11,7 +11,7 @@ import {
   statementsOfFace,
   stripWork,
 } from "./fixtures/pinned-face.mjs";
-import { outlineOf, platesIn, stripOf, wiresOf } from "./fixtures/strips.mjs";
+import { gapsOf, outlineOf, platesIn, stripOf, wiresOf } from "./fixtures/strips.mjs";
 
 const house = JSON.parse(await fs.readFile(new URL("../src/house.json", import.meta.url), "utf8"));
 const [strips, cards, grouped] = [await stripWork(), await cardWork(), await groupedWork()];
@@ -144,12 +144,10 @@ test("the reported boxes and points are the numbers the plate's SVG writes", () 
     face.components.map(({ box }) => box),
     drawnCards,
   );
-  // Each label's plate of paper is a rectangle with the corners of a label.
-  const drawnLabels = [
-    ...plate.svg.matchAll(
-      /<rect x="([\d.-]+)" y="([\d.-]+)" width="([\d.-]+)" height="([\d.-]+)" rx="6" [^>]*\/>/gu,
-    ),
-  ].map(numbers);
+  // Each label stands in a gap of the lines: a hole of their clip path with the corners of a label.
+  const drawnLabels = gapsOf(plate.svg)
+    .filter(({ radius }) => radius === 6)
+    .map(({ x, y, width, height }) => ({ x, y, width, height }));
   assert.deepEqual(
     plate.report.labels.map(({ box }) => box),
     drawnLabels,
@@ -350,25 +348,31 @@ test("a plate's frame is where the house class sets its figure, under a summary 
 
 test("a plate's entry holds what the build knows of it, and no key for what it does not", () => {
   const [plate] = grouped.plates;
-  const images = [{ width: 2400, file: "images/01-overview.png" }];
+  const images = [{ width: 3840, file: "images/01-overview.png" }];
+  const figures = [
+    { format: "png", file: "figures/01-overview.png" },
+    { format: "svg", file: "figures/01-overview.svg" },
+  ];
   const scales = plateScales({ longest: 360, scale: 56000 });
-  const entry = plateEntry(plate, { page: 3, images, house, scales });
+  const entry = plateEntry(plate, { page: 3, images, figures, house, scales });
   assert.deepEqual(Object.keys(entry), [
     "number",
     "views",
     "page",
     "images",
+    "figures",
     "frame",
     "scales",
     "face",
   ]);
   assert.deepEqual(
-    [entry.number, entry.views, entry.page, entry.images, entry.scales],
-    [1, ["overview"], 3, images, scales],
+    [entry.number, entry.views, entry.page, entry.images, entry.figures, entry.scales],
+    [1, ["overview"], 3, images, figures, scales],
   );
   assert.deepEqual(entry.frame, plateFrame(plate, house));
   assert.deepEqual(entry.face, plateFace(plate.report));
-  // A check typesets no edition: the plate has a face, no image, and neither a page, a frame nor scales.
+  // A check typesets no edition: the plate has a face, no image, and neither a page, a figure set alone, a frame
+  // nor scales.
   const checked = plateEntry(plate);
   assert.deepEqual(Object.keys(checked), ["number", "views", "images", "face"]);
   assert.deepEqual(checked.images, []);
@@ -390,7 +394,7 @@ test("a plate's entry holds what the build knows of it, and no key for what it d
   ]);
   // Two entries of one plate are the same bytes.
   assert.equal(
-    JSON.stringify(plateEntry(plate, { page: 3, images, house, scales })),
+    JSON.stringify(plateEntry(plate, { page: 3, images, figures, house, scales })),
     JSON.stringify(entry),
   );
 });

@@ -87,8 +87,14 @@ export const IMAGE_WIDTH = 960;
  * @param {{ model: any, style: { tokens: any } | null, plates: any[] }} work
  * @param {object | null} [statement] the overview the model states
  * @param {number[]} [widths] the widths of the images
+ * @param {boolean} [alone] whether each plate's figure is set alone as well
  */
-export function typesetWork({ model, style, plates }, statement = null, widths = [IMAGE_WIDTH]) {
+export function typesetWork(
+  { model, style, plates },
+  statement = null,
+  widths = [IMAGE_WIDTH],
+  alone = false,
+) {
   const time = 1_794_000_000;
   const record = editionRecord({
     model,
@@ -110,6 +116,7 @@ export function typesetWork({ model, style, plates }, statement = null, widths =
     date: "2026-11-10",
     time,
     widths,
+    alone,
     ...(style ? { tokens: style.tokens } : {}),
   });
 }

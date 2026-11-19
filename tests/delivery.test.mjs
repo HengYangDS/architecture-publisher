@@ -26,7 +26,7 @@ const SAPPAN = {
   accent: "#306751",
 };
 
-test("a delivery holds the print edition, its images, the page and a manifest of their digests", async (t) => {
+test("a delivery holds the print edition, its images, its figures alone, the page and a manifest of their digests", async (t) => {
   const root = await workspace(t);
   const out = path.join(root, "first");
   const built = await buildDelivery(BIG_BANK_MODEL, out);
@@ -57,13 +57,18 @@ test("a delivery holds the print edition, its images, the page and a manifest of
       "big-bank.json",
       "big-bank.md",
       "big-bank.pdf",
+      "figures/01-containers-tiers.png",
+      "figures/01-containers-tiers.svg",
+      "figures/02-containers-automatic.png",
+      "figures/02-containers-automatic.svg",
       "images/01-containers-tiers.png",
       "images/02-containers-automatic.png",
       "model.json",
     ],
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
-  // The edition is named for the work; each plate's image is named for its number and view.
+  // The edition is named for the work; each plate's image and its figure set alone are named for its number and
+  // view. A build that names no width draws its images 3840 px wide, and names them without the width.
   assert.deepEqual([manifest.edition.file, manifest.edition.pages], ["big-bank.pdf", 4]);
   assert.equal(manifest.page.file, "big-bank.html");
   // Neither of Big Bank's views has a summary, and both figures span the body.
@@ -77,9 +82,16 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   assert.deepEqual(
     manifest.plates.map(({ page, views, images }) => [page, views, images]),
     [
-      [1, ["containers-tiers"], [{ width: 2400, file: "images/01-containers-tiers.png" }]],
-      [2, ["containers-automatic"], [{ width: 2400, file: "images/02-containers-automatic.png" }]],
+      [1, ["containers-tiers"], [{ width: 3840, file: "images/01-containers-tiers.png" }]],
+      [2, ["containers-automatic"], [{ width: 3840, file: "images/02-containers-automatic.png" }]],
     ],
+  );
+  assert.deepEqual(
+    manifest.plates.map(({ figures }) => figures),
+    ["01-containers-tiers", "02-containers-automatic"].map((name) => [
+      { format: "png", file: `figures/${name}.png` },
+      { format: "svg", file: `figures/${name}.svg` },
+    ]),
   );
   assert.deepEqual(
     manifest.views.map(({ plate }) => plate),
@@ -115,7 +127,7 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   assert.equal(typeof customer.details, "object");
   assert.equal(data.statements.relations.length, 10);
   assert.equal("evidence" in manifest, false);
-  assert.equal(built.artifacts, 7);
+  assert.equal(built.artifacts, 11);
   // Without the checkout, the edition is dated when it is typeset; with SOURCE_DATE_EPOCH, two builds are the same
   // bytes.
   assert.equal(manifest.edition.dated, "typesetting");
@@ -123,8 +135,9 @@ test("a delivery holds the print edition, its images, the page and a manifest of
   const third = path.join(root, "third");
   process.env.SOURCE_DATE_EPOCH = "1793918078";
   try {
-    await buildDelivery(BIG_BANK_MODEL, second);
-    await buildDelivery(BIG_BANK_MODEL, third);
+    // The two are built to be compared, at a small width.
+    await buildDelivery(BIG_BANK_MODEL, second, { png: [240] });
+    await buildDelivery(BIG_BANK_MODEL, third, { png: [240] });
   } finally {
     delete process.env.SOURCE_DATE_EPOCH;
   }
@@ -201,7 +214,7 @@ test("files verified against the checkout are recorded and cited on the page at 
   const out = path.join(await workspace(t), "linked");
   // The revision is tagged, so the edition names it as its release.
   git("tag", "v1.2.0");
-  await buildDelivery(model, out, { repo: checkout });
+  await buildDelivery(model, out, { repo: checkout, png: [240] });
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.sources.state, "verified");
   assert.deepEqual([manifest.edition.release, manifest.edition.dated], ["v1.2.0", "commit"]);
@@ -250,7 +263,7 @@ test("files verified against the checkout are recorded and cited on the page at 
 test("acceptance and publication require an unchanged delivery", async (t) => {
   const root = await workspace(t);
   const out = path.join(root, "delivery");
-  await buildDelivery(await writeModel(t, pageModel()), out);
+  await buildDelivery(await writeModel(t, pageModel()), out, { png: [240] });
   await assert.rejects(acceptDelivery(out, { reviewer: " " }), {
     code: "acceptance_reviewer_missing",
   });
@@ -323,7 +336,7 @@ test("deliveries need their own manifest, acceptance and plain files", async (t)
     code: "delivery_manifest_invalid",
   });
   const out = path.join(root, "delivery");
-  await buildDelivery(await writeModel(t, pageModel()), out);
+  await buildDelivery(await writeModel(t, pageModel()), out, { png: [240] });
   await fs.writeFile(
     path.join(out, "acceptance.json"),
     JSON.stringify({ manifest: "0".repeat(64) }),

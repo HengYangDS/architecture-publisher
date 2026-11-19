@@ -195,8 +195,8 @@ test("a build without a checkout draws every part's outline and no strip, and wa
   );
   // The key holds no entry of a strip: the boundary and the ground of the part outside it, and no kind.
   assert.deepEqual(plate.legend, [
-    { shape: "boundary", label: "inside The print edition" },
-    { shape: "outside", label: "outside it" },
+    { shape: "boundary", label: "The print edition" },
+    { shape: "outside", label: "outside" },
   ]);
 });
 
@@ -302,16 +302,17 @@ test("the key lists no kind, and holds the strip's entries, the count, the hub, 
     assert.ok(!labels.includes(said), said);
     assert.ok(texts.includes(said), said);
   }
-  // What a card cannot say where it stands: the age bands its strips hold and the pin's date, the scale bar, the
-  // count beside a relation, the hub's line, the boundary and, since Typst stands outside it, the ground of a part
-  // outside. An entry holds its shape, its label and its sample's own fields, and names no group.
+  // What a card cannot say where it stands: the pin's date and, after it, the age bands its strips hold and it
+  // dates, the scale bar, the count beside a relation, the hub's line, the boundary and, since Typst stands outside
+  // it, the ground of a part outside. An entry holds its shape, its label and its sample's own fields, and names no
+  // group.
   assert.deepEqual(
     plate.legend.map(({ shape }) => shape),
-    ["band", "band", "reference", "length", "count", "hub", "boundary", "outside"],
+    ["reference", "band", "band", "length", "count", "hub", "boundary", "outside"],
   );
   assert.deepEqual(plate.legend.slice(-2), [
-    { shape: "boundary", label: "inside The print edition" },
-    { shape: "outside", label: "outside it" },
+    { shape: "boundary", label: "The print edition" },
+    { shape: "outside", label: "outside" },
   ]);
   assert.ok(plate.legend.every((entry) => !("group" in entry) && !("guide" in entry)));
   // The statuses present close the key.
@@ -321,8 +322,8 @@ test("the key lists no kind, and holds the strip's entries, the count, the hub, 
   assert.deepEqual(
     dashed.legend.slice(-4).map(({ shape, label }) => [shape, label]),
     [
-      ["boundary", "inside The print edition"],
-      ["outside", "outside it"],
+      ["boundary", "The print edition"],
+      ["outside", "outside"],
       ["planned", "planned"],
       ["retired", "retired"],
     ],
@@ -342,7 +343,7 @@ test("the key lists no kind, and holds the strip's entries, the count, the hub, 
   } = await platesIn(alone, stripStyle());
   assert.deepEqual(
     whole.legend.map(({ shape }) => shape),
-    ["band", "band", "reference", "length", "count", "hub"],
+    ["reference", "band", "band", "length", "count", "hub"],
   );
   // A group's own view shows its neighbours as context, on the outside ground though they lie inside the
   // repository: its key holds that ground, after the boundary where the figure draws one.
@@ -358,11 +359,11 @@ test("the key lists no kind, and holds the strip's entries, the count, the hub, 
   const plates = composePlates(grouped, views, typefaces, icons, style);
   const own = views.findIndex(({ id }) => id === "edition");
   assert.ok(views[own].components.some(({ context }) => context));
-  // No part of that view lies outside the repository, so the key says "outside it" of nothing: the neighbours'
+  // No part of that view lies outside the repository, so the key says "outside" of nothing: the neighbours'
   // ground is keyed by its own words, after the boundary where the figure draws one.
   const entries = plates[own].legend.map(({ shape, label }) => [shape, label]);
-  assert.deepEqual(entries.at(-1), ["outside", "outside this group, shown for context"]);
-  assert.ok(!entries.some(([, label]) => label === "outside it"));
+  assert.deepEqual(entries.at(-1), ["outside", "outside this group"]);
+  assert.ok(!entries.some(([, label]) => label === "outside"));
   assert.equal(
     entries.some(([shape]) => shape === "boundary"),
     plates[own].lines.includes("boundary"),

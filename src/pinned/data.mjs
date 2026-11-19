@@ -15,8 +15,8 @@ import { refuse } from "../refusal.mjs";
  *   label: object | null }} FaceRelation
  * @typedef {{ components: FaceElement[], groups: FaceElement[], relations: FaceRelation[] }} Face
  * @typedef {{ number: number, views: string[], page?: number, images: Array<{ width: number, file: string }>,
- *   frame?: object, scales?: Array<{ property: string, unit: string, value: number, length: number }>,
- *   face: Face }} Plate
+ *   figures?: Array<{ format: string, file: string }>, frame?: object,
+ *   scales?: Array<{ property: string, unit: string, value: number, length: number }>, face: Face }} Plate
  *   One plate as the drawing reports it: its face is what was drawn, with the numbers of its drawing space.
  */
 
@@ -153,7 +153,10 @@ function factsOf(facts, catalogue) {
   return [...written.values()];
 }
 
-/** One plate's record with its keys in one order; its page, frame and scales stand when an edition was typeset. */
+/**
+ * One plate's record with its keys in one order; its page, the files of its figure set alone, its frame and its
+ * scales stand when an edition was typeset.
+ */
 function plateOf(plate) {
   const element = ({ id, box }) => ({ id, box });
   return held({
@@ -161,6 +164,7 @@ function plateOf(plate) {
     views: [...plate.views],
     page: plate.page,
     images: plate.images.map(({ width, file }) => ({ width, file })),
+    figures: plate.figures?.map(({ format, file }) => ({ format, file })),
     frame: plate.frame,
     scales: plate.scales,
     face: {

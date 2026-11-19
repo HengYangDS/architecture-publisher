@@ -109,6 +109,10 @@ test("every command keeps the fields of its JSON body and its exit status", asyn
     assert.deepEqual(Object.keys(body), fields, args.join(" "));
     assert.equal(body.ok, status === 0, args.join(" "));
   }
+  // The build named no width: its plate's image is 3840 px wide and is named without the width.
+  assert.deepEqual(await fs.readdir(path.join(out, "images")), ["01-architecture.png"]);
+  const image = await fs.readFile(path.join(out, "images", "01-architecture.png"));
+  assert.equal(image.readUInt32BE(16), 3840);
   // The body of a check is what the check found, field for field.
   assert.deepEqual(
     (await json(["check", model, "--media", "edition", "--png", "1200,2400"])).body,

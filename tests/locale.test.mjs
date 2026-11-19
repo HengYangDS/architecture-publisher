@@ -181,29 +181,55 @@ test("a Chinese model's legend words and generated details are Chinese", async (
   assert.deepEqual(overview.relations.at(-1).details, [["关系数", ["2"]]]);
 });
 
-test("a strip key's hub entry names its mark, the heavy lines, and where they lead, in every language", () => {
+test("a strip key's hub entry says where its sample, a heavy line, leads, in every language", () => {
   const entries = Object.fromEntries(
     LOCALES.map((locale) => [locale, measureWordsOf(locale).hub("Supplies")]),
   );
   assert.deepEqual(entries, {
-    en: "heavy lines lead to Supplies",
-    "zh-CN": "粗线：通向Supplies",
-    "zh-TW": "粗線：通向Supplies",
-    es: "las líneas gruesas llevan a Supplies",
-    ko: "굵은 선: Supplies(으)로 향함",
+    en: "to Supplies",
+    "zh-CN": "通向Supplies",
+    "zh-TW": "通向Supplies",
+    es: "a Supplies",
+    ko: "Supplies(으)로",
   });
 });
 
-test("a strip key's count entry names its mark, the number, and what it counts, in every language", () => {
+test("a strip key's count entry says what its sample, a number, counts, in every language", () => {
   const entries = Object.fromEntries(
     LOCALES.map((locale) => [locale, measureWordsOf(locale)["cited-files"]]),
   );
   assert.deepEqual(entries, {
-    en: "number: the files this relation cites",
-    "zh-CN": "数字：这条关系引用的文件数",
-    "zh-TW": "數字：這條關係引用的檔案數",
-    es: "número: los archivos que cita esta relación",
-    ko: "숫자: 이 관계가 인용하는 파일 수",
+    en: "cited files",
+    "zh-CN": "个引用文件",
+    "zh-TW": "個引用檔案",
+    es: "archivos citados",
+    ko: "인용 파일",
+  });
+});
+
+test("a strip key's entry of the commit has a form with its date and one without, and its bands are a bound and a unit, in every language", () => {
+  const entries = Object.fromEntries(
+    LOCALES.map((locale) => {
+      const words = measureWordsOf(locale);
+      const bands = words["file-age-band"];
+      return [
+        locale,
+        [
+          words["pin-date"]("2026-11-10"),
+          words["pin-date"](null),
+          bands.newest(7),
+          bands.middle(7, 90),
+          bands.oldest(90),
+        ],
+      ];
+    }),
+  );
+  assert.deepEqual(entries, {
+    en: ["before commit @ 2026-11-10:", "before commit:", "≤ 7 d", "7–90 d", "> 90 d"],
+    "zh-CN": ["距提交 @ 2026-11-10：", "距提交：", "≤ 7 天", "7–90 天", "> 90 天"],
+    "zh-TW": ["距提交 @ 2026-11-10：", "距提交：", "≤ 7 天", "7–90 天", "> 90 天"],
+    es: ["antes del commit @ 2026-11-10:", "antes del commit:", "≤ 7 d", "7–90 d", "> 90 d"],
+    ko: ["커밋 @ 2026-11-10 이전:", "커밋 이전:", "≤ 7일", "7–90일", "> 90일"],
   });
 });
 

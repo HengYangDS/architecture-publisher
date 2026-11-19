@@ -33,4 +33,11 @@ test("an edition's key marks carry the date, the sample strip and the count the 
       .map(({ shape }) => shape),
     ["reference", "length", "count"],
   );
+  // The commit's mark carries both forms of its words: the house class sets the one without the date on a page,
+  // whose foot states the date, and the one with it under a figure set alone.
+  const reference = marks.find(({ shape }) => shape === "reference");
+  assert.deepEqual(
+    [reference.label, reference.undated],
+    ["before commit @ 2026-11-10:", "before commit:"],
+  );
 });

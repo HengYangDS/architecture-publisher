@@ -12,7 +12,7 @@ _Plate 01 of the publisher's own edition, built by 0.15.0 from
 You write the model: the components, the connections between them and the
 files that show each one, or you import a LikeC4 workspace. `archpub` reads
 those files at the commit the model pins, lays each view out as a plate with
-no overlaps, and delivers a PDF of one plate per view, a picture of each page,
+no overlaps, and delivers a PDF of one plate per view, a picture of each page, each figure alone,
 a standalone page that walks through the system, the model with its data and a
 reader file for a reader that works from text, and a manifest that binds
 every byte to its inputs. A named reviewer accepts the delivery before it is published.

@@ -18,27 +18,31 @@ const works = { strips: await stripWork(), cards: await cardWork(), grouped: awa
 const typeset = await typesetWork(works.grouped);
 
 /**
- * The SHA-256 of what the small works draw: recorded once from the source, by the same fixture, when every part
- * became one card, with its strip where it owns files, its kind's icon in its caption and no kind in its key. A
- * drawing reports what it draws beside it, and no shape, run or key may differ. The bytes of a PDF and of its
- * images are those of one platform's Typst and fonts, so no digest of them is held here: `archpub compare` of
- * whole editions, before and after, holds them.
+ * The SHA-256 of what the small works draw: recorded from the source, by the same fixture. The runs are those
+ * recorded when every part became one card, with its strip where it owns files, its kind's icon in its caption and
+ * no kind in its key. The shapes and the keys were recorded anew when a gap in a line became a hole of the lines'
+ * clip path and the key's entries a bound and a unit: each plate's shapes lost the rounded rectangles of the
+ * paper's colour under its labels and its boundary's name and gained the clip path, with a hole for each, and the
+ * group it clips; each key kept its entries and their samples, took the new words and set the entry of the commit
+ * before the bands, with its form that states no date. A drawing reports what it draws beside it, and no shape,
+ * run or key may differ. The bytes of a PDF and of its images are those of one platform's Typst and fonts, so no
+ * digest of them is held here: `archpub compare` of whole editions, before and after, holds them.
  */
 const BEFORE = Object.freeze({
-  "strips/01-architecture.svg": "1c396eec1ce1f1a224a970a701ac76e6dd153c27d0df68dbd944aba29ef4dc5e",
+  "strips/01-architecture.svg": "95fe865c34e03bcf7bd07900eb9bedfc0d29d6186d3da458363202643fcd5e4a",
   "strips/01-architecture.runs": "7a494de11e2c15804fe3b90c2bee0389cfc05a34b091a1f8a40606b40b5b4a2f",
   "strips/01-architecture.legend":
-    "19958dc661158600e9c32721bf21057b4c449f7f71eb498eaca8e42e33c79ac5",
-  "cards/01-architecture.svg": "d1ba9b691c0ce13d5bef9770f58ab3bbd01f87f2831865cb280ba8488e208b44",
+    "ead76171c6892d6c6114095559ce77e09f176485fae774f9d69ce97b65297d07",
+  "cards/01-architecture.svg": "ec237cf53ae1f66e2b68570946865d5b1f5b9350ab7d5eacb167d9ca26ddccbf",
   "cards/01-architecture.runs": "aa367ce1ac80634b6ae91ab20f46505cfa303f0e96f163127749ce6efb66fec6",
   "cards/01-architecture.legend":
-    "94d7fe87bc178be13a4cc84d870e3e21cbe9b9578d1814f1ad465f8fbab5e453",
-  "grouped/01-overview.svg": "97eec2f2b9f973066ba439e770f86c5d40c2c33eff296c724a5a6fec8016e6fd",
+    "1987865c915ebec6910a993eb4b7cd8a9eb1020d662f8fef0ac3c446cf968ce5",
+  "grouped/01-overview.svg": "4f8e8ea642ec9a74e31be5b3240823078e92a2a367b3dabaee3f1d4dd3a01697",
   "grouped/01-overview.runs": "9f279b8d02ae1a5b74babcdb31720e5b1cc2e65a98dd32e6c84a58ca16ce6a0b",
-  "grouped/01-overview.legend": "4c4d68e0c981d421f82a49a10080569923eb9de9ed95733842b2bcf81b85f3a7",
-  "grouped/02-pipeline.svg": "0cca1791a1542921f8ae994ddff9324f7058e1c0036323cdd3a9a310e57f181f",
+  "grouped/01-overview.legend": "9c7c76391d0d167bb2c2c3131d4e3b3df366a69e767dbbb28cae94a21dafcfea",
+  "grouped/02-pipeline.svg": "36a60612a7f0ecd533dc8bfa7ab3603ee6c3ec0fc88affd23aee4afddde2d05d",
   "grouped/02-pipeline.runs": "7a494de11e2c15804fe3b90c2bee0389cfc05a34b091a1f8a40606b40b5b4a2f",
-  "grouped/02-pipeline.legend": "c5c474d3662262de72de2795867060fdd9afa60dc220158efccbfa31cb494fc2",
+  "grouped/02-pipeline.legend": "55b7cadb840ff3ed2b15005e1f4454dd1274adb2b6818b961b3ea0bfd69105b5",
 });
 
 test("a drawing that reports what it drew draws the same bytes: shapes, runs and keys", () => {

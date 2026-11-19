@@ -221,6 +221,7 @@ test("a signed acceptance verifies for its reviewer with the allowed signers and
       code: "acceptance_sign_failed",
     });
   assert.deepEqual((await fs.readdir(out)).sort(), [
+    "figures",
     "images",
     "manifest.json",
     "minimal.json",

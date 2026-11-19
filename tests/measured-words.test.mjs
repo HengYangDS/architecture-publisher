@@ -81,11 +81,12 @@ test("a plate's key names its middle band by the two spans the edition measured"
     plates: [plate],
   } = await platesIn(stripModel(), stripStyle(undefined, parts));
   const bands = plate.legend.filter(({ shape }) => shape === "band").map(({ label }) => label);
-  assert.deepEqual(bands, [
-    "within 7 days of the commit",
-    "over 7 and within 90 days of the commit",
-    "earlier",
-  ]);
+  assert.deepEqual(bands, ["≤ 7 d", "7–90 d", "> 90 d"]);
+  // The entry that dates the bands stands before them.
+  assert.deepEqual(
+    plate.legend.slice(0, 4).map(({ shape }) => shape),
+    ["reference", "band", "band", "band"],
+  );
 });
 
 test("a plate of parts that own Markdown alone names no code in its key", async () => {
@@ -99,6 +100,6 @@ test("a plate of parts that own Markdown alone names no code in its key", async 
     plates: [plate],
   } = await platesIn(stripModel(), stripStyle(undefined, parts));
   const labels = plate.legend.map(({ label }) => label).join(" | ");
-  assert.match(labels, /size of a part's files/u);
+  assert.ok(labels.split(" | ").includes("file size 2 KB"), labels);
   assert.doesNotMatch(labels, /\bcode\b|source/iu);
 });

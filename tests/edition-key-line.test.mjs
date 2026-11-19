@@ -31,14 +31,26 @@ const CARDS = [
   { shape: "boundary", label: "HHHH" },
 ];
 
-/** The first page picture of a one-plate edition whose key holds the given marks, in a language. */
-async function pageOf(legend, locale = "en") {
-  const model = validateModel(minimalModel({ locale, editors: [{ name: "Yang HENG" }] }));
+/**
+ * A one-plate edition whose key holds the given marks, in a language, typeset at 2400 px: its record and what the
+ * typesetting hands back. A model given a repository is pinned, and its edition dated by the date given; `alone`
+ * asks for the plate's figure set alone too.
+ */
+async function editionOf(legend, locale = "en", { repository, date = null, alone = false } = {}) {
+  const model = validateModel(
+    minimalModel({
+      locale,
+      editors: [{ name: "Yang HENG" }],
+      ...(repository ? { repository } : {}),
+    }),
+  );
   const plates = [
     {
       page: 1,
       views: ["view-1"],
       width: 2256,
+      // The blank figure draws on its whole canvas.
+      extent: { x: 0, y: 0, width: 2256, height: 1071 },
       share: 1,
       reading: "none",
       title: "View 1",
@@ -52,7 +64,7 @@ async function pageOf(legend, locale = "en") {
     model,
     plates,
     icons,
-    facts: recordFacts(),
+    facts: recordFacts({ date }),
     modelSha256: "0".repeat(64),
     publisher: "0.13.1",
     typst: "0.15.1",
@@ -65,27 +77,28 @@ async function pageOf(legend, locale = "en") {
     plates,
     modelBytes: Buffer.from(JSON.stringify(model)),
     composition: null,
-    revision: null,
-    date: "2026-11-06",
+    revision: model.repository?.revision ?? null,
+    date: date ?? "2026-11-06",
     time: 1793918078,
     widths: [2400],
+    alone,
   });
-  return readPng(typeset.png[0].bytes);
+  return { record, typeset };
 }
 
+/** The first page picture of a one-plate edition whose key holds the given marks, in a language. */
+const pageOf = async (legend, locale = "en") =>
+  readPng((await editionOf(legend, locale)).typeset.png[0].bytes);
+
 /**
- * The key's line of a page picture: each run of inked columns between the body's foot and the foot's rule, with the
- * rows its ink covers. A mark and its label stand 5 points apart and two entries 20; the letters of a label and the
- * dashes of a mark stand 3 points apart at most, so columns within 4 points of each other are one run.
+ * The runs of inked columns of a picture between two rows, each with the rows its ink covers. A mark and its label
+ * stand 5 points apart and two entries 20; the letters of a label and the dashes of a mark stand 3 points apart at
+ * most, so columns within 4 points of each other are one run.
+ * @param {{ width: number }} image
+ * @param {[number, number]} rows the first row read and the row after the last
+ * @param {(x: number, y: number) => boolean} inked whether a pixel holds ink
  */
-function keyOf(image) {
-  const { width, channels, pixels } = image;
-  const [top, bottom] = [
-    Math.round(HOUSE.edition.bodyBottom * PX) + 2,
-    Math.round(HOUSE.edition.rule * PX) - 4,
-  ];
-  const paper = pixels[(top * width + 8) * channels];
-  const inked = (x, y) => Math.abs(pixels[(y * width + x) * channels] - paper) > 24;
+function runsOf({ width }, [top, bottom], inked) {
   const runs = [];
   for (let x = 0; x < width; x += 1) {
     let rows = null;
@@ -101,6 +114,49 @@ function keyOf(image) {
     else runs.push({ left: x, right: x, top: rows[0], bottom: rows[1] });
   }
   return runs.map((run) => ({ ...run, centre: (run.top + run.bottom) / 2 }));
+}
+
+/** The key's line of a page picture: its runs of ink between the body's foot and the foot's rule. */
+function keyOf(image) {
+  const { width, channels, pixels } = image;
+  const [top, bottom] = [
+    Math.round(HOUSE.edition.bodyBottom * PX) + 2,
+    Math.round(HOUSE.edition.rule * PX) - 4,
+  ];
+  const paper = pixels[(top * width + 8) * channels];
+  return runsOf(
+    image,
+    [top, bottom],
+    (x, y) => Math.abs(pixels[(y * width + x) * channels] - paper) > 24,
+  );
+}
+
+/**
+ * The foot's words on a page picture: the columns their ink covers under the foot's rule, in the page's left half.
+ * The folio stands at the right margin.
+ */
+function footOf(image) {
+  const { width, height, channels, pixels } = image;
+  const top = Math.round(HOUSE.edition.rule * PX) + 4;
+  const paper = pixels[(top * width + 8) * channels];
+  const words = runsOf(
+    image,
+    [top, height],
+    (x, y) => Math.abs(pixels[(y * width + x) * channels] - paper) > 24,
+  ).filter(({ left }) => left < width / 2);
+  return { left: words[0].left, right: words.at(-1).right };
+}
+
+/**
+ * The key of a figure set alone, on its picture: the runs of ink under the figure's box, which is as tall as what
+ * the figure draws on with the pad above it and below. A picture on no ground has ink where it is opaque.
+ */
+function loneKeyOf(image, extent) {
+  const { width, height, pixels } = image;
+  const top = Math.round(
+    (extent.height / HOUSE.plate.pixelsPerPoint + 2 * HOUSE.plate.alonePad) * PX,
+  );
+  return runsOf(image, [top, height], (x, y) => pixels[(y * width + x) * 4 + 3] > 96);
 }
 
 test("every mark of a key is centred on the capitals beside it, whatever its height", async () => {
@@ -121,6 +177,43 @@ test("every mark of a key is centred on the capitals beside it, whatever its hei
   const hub = marks[3];
   const tall = hub.bottom - hub.top + 1;
   assert.ok(Math.abs(tall - STRIPS[3].arrow) <= 2, `the hub's mark is ${tall} px tall`);
+});
+
+test("a plate's page states its commit's date once, in its foot, and a figure set alone states it in its key", async () => {
+  // The commit's entry in two forms that their width tells apart: eight capitals with the date, four without.
+  const legend = [
+    { shape: "reference", date: "2026-11-06", label: "HHHHHHHH", undated: "HHHH" },
+    { shape: "band", band: 0, color: "#b7d8db", label: "HHHH" },
+  ];
+  const repository = {
+    name: "minimal",
+    url: "https://example.invalid/minimal.git",
+    revision: "a".repeat(40),
+  };
+  const wide = ({ left, right }) => right - left + 1;
+  const dated = await editionOf(legend, "en", { repository, date: "2026-11-06", alone: true });
+  assert.equal(dated.record.words.foot, "Minimal at aaaaaaa, 2026-11-06");
+  // On the page the entry stands in words alone, before the band's mark and label, and is as wide as the band's
+  // four capitals: the form without the date.
+  const page = readPng(dated.typeset.png[0].bytes);
+  const [entry, , label, ...more] = keyOf(page);
+  assert.equal(more.length, 0, "the key sets three runs of ink");
+  assert.ok(Math.abs(wide(entry) - wide(label)) <= 1, `${wide(entry)} px beside ${wide(label)}`);
+  // The foot of that page is longer by its date than the foot of the same edition undated, whose key is the same.
+  const undated = await editionOf(legend, "en", { repository });
+  assert.equal(undated.record.words.foot, "Minimal at aaaaaaa");
+  const plain = readPng(undated.typeset.png[0].bytes);
+  assert.ok(
+    wide(footOf(page)) - wide(footOf(plain)) > 40 * PX,
+    `${wide(footOf(page))} px beside ${wide(footOf(plain))}`,
+  );
+  assert.deepEqual(keyOf(plain).map(wide), keyOf(page).map(wide));
+  // No foot stands under the figure set alone: its key sets the form with the date, eight capitals wide.
+  const [figure] = dated.typeset.figures;
+  assert.equal(figure.file, "figures/01-view-1.png");
+  const [alone, , beside] = loneKeyOf(readPng(figure.bytes), { height: 1071 });
+  const ratio = wide(alone) / wide(beside);
+  assert.ok(ratio > 1.9 && ratio < 2.2, `${wide(alone)} px beside ${wide(beside)}`);
 });
 
 /** The red of a colour, the channel the pictures are read in. */

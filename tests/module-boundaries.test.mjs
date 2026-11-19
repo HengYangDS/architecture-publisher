@@ -28,7 +28,7 @@ const ALLOWED = Object.freeze({
   importers: ["locale", "model", "refusal", "supply"],
   style: ["model", "refusal"],
   pinned: ["locale", "pinned", "refusal"],
-  manifest: ["map"],
+  manifest: ["edition", "map"],
   projection: ["facts", "manifest", "map", "model", "pinned", "poster", "refusal", "sources"],
   build: [
     "edition",

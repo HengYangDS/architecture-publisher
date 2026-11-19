@@ -150,7 +150,8 @@ archpub build model.json --repo shop --out delivery
 ```
 
 `delivery/` now holds `shop.pdf`, the print edition with a title page, contents
-and one plate for the view; `images/`, a picture of each plate; `shop.html`, the
+and one plate for the view; `images/`, a picture of each plate's page, and `figures/`, each plate's figure alone as
+PNG and SVG; `shop.html`, the
 interactive page; `model.json`, `shop.json` and `shop.md`, the model, its data
 with the digest of every file the build read, and the reader file for a reader
 that works from text; and `manifest.json`, which records the digest of every

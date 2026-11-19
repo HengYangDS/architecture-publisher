@@ -74,13 +74,22 @@ test("a delivery holds the model, the data and the reader file, and its manifest
   const built = await buildDelivery(model, out, options);
   await buildDelivery(model, again, options);
   const manifest = await readJson(path.join(out, "manifest.json"));
-  // The three files stand at the top of the delivery, listed with their digests like every other file.
+  // The three files stand at the top of the delivery, listed with their digests like every other file, the
+  // plate's figure set alone among them.
   assert.deepEqual(
     manifest.artifacts.map(({ path: file }) => file),
-    ["images/01-architecture-240.png", "model.json", "page.json", "page.md", "page.pdf"],
+    [
+      "figures/01-architecture.png",
+      "figures/01-architecture.svg",
+      "images/01-architecture-240.png",
+      "model.json",
+      "page.json",
+      "page.md",
+      "page.pdf",
+    ],
   );
   assert.deepEqual(manifest.artifacts, await digestTree(out, new Set(["manifest.json"])));
-  assert.equal(built.artifacts, 5);
+  assert.equal(built.artifacts, 7);
   // The delivered model is the bytes the build read, under the digest the manifest states for the model.
   const delivered = await fs.readFile(path.join(out, "model.json"));
   assert.ok(delivered.equals(await fs.readFile(model)));
@@ -130,12 +139,34 @@ test("a delivery holds the model, the data and the reader file, and its manifest
   assert.equal(data.guide.sha256, sha256(DRAFT));
   // No page was built, so no page verified the guide's sources.
   assert.equal(data.guide.sources, "declared");
-  // A typeset plate carries its page in the PDF, its frame and its images.
+  // A typeset plate carries its page in the PDF, its frame, its images and the two files of its figure set alone,
+  // which the manifest records beside its images too and the reader file names on the view's line.
   const [plate] = data.plates;
   assert.ok(
     Number.isInteger(plate.page) && plate.page >= 1 && plate.page <= manifest.edition.pages,
   );
   assert.deepEqual(plate.images, [{ width: 240, file: "images/01-architecture-240.png" }]);
+  assert.deepEqual(Object.keys(plate).slice(0, 5), [
+    "number",
+    "views",
+    "page",
+    "images",
+    "figures",
+  ]);
+  const FIGURES = [
+    { format: "png", file: "figures/01-architecture.png" },
+    { format: "svg", file: "figures/01-architecture.svg" },
+  ];
+  assert.deepEqual(plate.figures, FIGURES);
+  assert.deepEqual(manifest.plates[0].images, plate.images);
+  assert.deepEqual(manifest.plates[0].figures, FIGURES);
+  const page = await fs.readFile(path.join(out, "page.md"), "utf8");
+  assert.ok(
+    page.includes(
+      "- view `architecture` · plate 1 · `images/01-architecture-240.png` · `figures/01-architecture.png` · `figures/01-architecture.svg`\n",
+    ),
+  );
+  assert.match(page, /`page\.pdf`, `images\/`, `figures\/`, `manifest\.json`$/mu);
   assert.equal(plate.frame.pixelsPerPoint, 1.5);
   assert.deepEqual(data.media, ["edition"]);
   // The manifest states the data's counts, and the reader file's size and number of statements.
@@ -175,6 +206,7 @@ test("a delivery holds the model, the data and the reader file, and its manifest
       (await fs.readFile(path.join(out, file))).equals(await fs.readFile(path.join(again, file))),
       file,
     );
+  // The comparison covers every file the manifests list, so the two builds wrote the same bytes of both figures.
   assert.equal((await compareDeliveries(out, again)).identical, true);
   // What verifies a delivery covers the three files with no change of its own: a comparison and an acceptance
   // refuse a delivery in which one of them changed.
@@ -231,6 +263,8 @@ test("a delivery holds the model, the data and the reader file, and its manifest
     [
       "acceptance.json",
       "colophon.pdf",
+      "figures/01-architecture.png",
+      "figures/01-architecture.svg",
       "images/01-architecture-240.png",
       "manifest.json",
       "page.pdf",
@@ -447,12 +481,12 @@ test("a pinned edition gathered before typesetting carries no page, and a face t
   const model = { ...work.model, overview: statement, guide: "guide/guide.archify.md" };
   const { data, reader } = pinnedEdition(
     { ...held(work.plates), model, overview: { statement: "5".repeat(64) }, guide },
-    [2400, 960],
+    [3840, 960],
   );
   assert.deepEqual(data.overview, {
     statement: "5".repeat(64),
     images: [
-      { width: 2400, file: "images/00-overview.png" },
+      { width: 3840, file: "images/00-overview.png" },
       { width: 960, file: "images/00-overview-960.png" },
     ],
     face: false,

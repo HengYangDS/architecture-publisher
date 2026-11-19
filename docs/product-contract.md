@@ -14,7 +14,7 @@ Architecture Publisher draws the architecture of any repository from an
 explicit model. The `archpub` command turns one Architecture Model into a
 delivery: a print edition, one PDF with a plate for each view and the overview
 the publisher draws from what the model states of it, its pages as
-images, one interactive page that answers the model's question, the model, the
+images and each view's figure alone, one interactive page that answers the model's question, the model, the
 pinned edition as data and a reader file for a reader that works from text, and
 a manifest that binds every artifact to its inputs. The page
 is the guide its author writes when the model names one, and otherwise answers
@@ -93,8 +93,9 @@ when the caller sets `SOURCE_DATE_EPOCH`.
 
 A delivery holds the print edition as `<model id>.pdf`; the interactive page as
 one standalone `<model id>.html`; in `images/`, the overview's page as
-`00-overview.png` and each plate's page as `NN-<view>.png`, at 2400 px or the
-widths the caller names; and `manifest.json`. A build may deliver either medium
+`00-overview.png` and each plate's page as `NN-<view>.png`, at 3840 px or the
+widths the caller names; in `figures/`, each plate's figure and key alone as
+`NN-<view>.png`, on a transparent ground, and `NN-<view>.svg`; and `manifest.json`. A build may deliver either medium
 alone. The [operations reference](reference/operations.md#the-delivery) lists
 the manifest fields.
 
@@ -273,6 +274,14 @@ never listed; `page-figures`, since nothing is placed by hand and the page's dia
 That moves `performance` and every item after it back by three. Seven items took in what they had not named, and
 `gallery` joined at the end.
 
+On 2026-11-19 the owner asked where the last page had gone (「之前提到的尾页设计，怎么没有任何提及了」): the committee's
+ruling of 2026-11-18 had stood a day without a drawing. `edition-map` moved to follow `figures-alone`, which moves
+`page-figures`, `reader-file` and `performance` back by one. He then saw the page drawn and ruled on it and on the
+contents: both are designed again, the contents may take further pages and so may the last page of a large work
+(「目录页是允许多页的；如果真的中间页数比较多，尾页也不是不能允许多页」), and a table of parts against plates is out, since
+a part stands on few plates (「单一组件所属图版是稀疏的」). The item below says so; it no longer holds the contents to
+one page or names who accepted the edition, which the acceptance's own page states.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -298,6 +307,14 @@ That moves `performance` and every item after it back by three. Seven items took
       figure and its key alone, without the page around them, as PNG on a transparent ground and as SVG. A line or
       a boundary is broken where a label stands on it, so no patch of the ground covers anything and the figure
       reads on any light ground. A page's image is 3840 px wide unless the caller names its widths.
+- [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
+      enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
+      three sizes with fixed roles, for a room, a screen and the zoom. The contents set the overview apart from
+      the plates' rows and may take further pages, each as full as the first; the last page is an index of the
+      parts by name, each followed by the numbers of the plates that draw it and no table of parts against
+      plates, with what the edition was built from under it, and may take further pages for a large work. Every
+      view is reached from the overview, a fact is stated once a page, a note in a narrow column breaks between
+      the words of its script, and no justified line is spread wide because the token after it cannot break.
 - [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
       relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
       file that places anything. The published works' diagram files lose the positions they hold.
@@ -312,13 +329,6 @@ That moves `performance` and every item after it back by three. Seven items took
       seconds would fail for the host's reasons. The item ends when the largest cause that a profile of a build
       and of the suite still shows holds under a tenth of its time, or lies in another product and is reported
       there. The times stand in the [record](research/build-and-suite-time.md) and are read at each landing.
-- [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
-      enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
-      three sizes with fixed roles, for a room, a screen and the zoom; the last page is an index of the parts, a
-      row each with a link to every plate that draws it, and at its foot what the edition was built from and who
-      accepted it, which the contents page no longer repeats. Every view is reached from the overview, the
-      contents never continue on a second page, a note in a narrow column breaks between the words of its
-      script, and no justified line is spread wide because the token after it cannot break.
 - [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
       tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
       and no longer only recorded. What a census of a built page still finds untidy and no gate holds, more

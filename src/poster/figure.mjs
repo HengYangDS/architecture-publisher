@@ -208,14 +208,25 @@ export function drawFigure(layout, input) {
     });
     return top + style.line;
   };
-  // Every plate that interrupts a wire is paper, so it reads as a gap in the line.
-  const fillAt = () => C.paper;
+  // A line or the boundary is broken where a label or the boundary's name stands on it: the lines are drawn in a
+  // group clipped by a path that holds the whole figure and, as holes, each such box. No patch of the ground covers
+  // anything, so the figure stands on any ground. The holes are known before anything is drawn.
+  /** @type {Array<{ x: number, y: number, width: number, height: number, radius: number }>} */
+  const gaps = layout.labels.map((label) => ({
+    x: at(label.x),
+    y: down(label.y),
+    width: label.width,
+    height: label.height,
+    radius: 6,
+  }));
 
   // A tier is named by its numbered label alone. A rule under each row read as
   // one more wire, and a full-width tint would cover the field and make every
   // page measure as full, hiding exactly the blank bands this page forbids.
   if (layout.labelled && input.labelColumn)
     tierLabels(layout, input, { at, down, text, shapes, rects, colors: C });
+  /** Where the lines' group opens: it is opened once every hole is known and closed after the last arrowhead. */
+  const broken = shapes.length;
 
   const boundary = layout.boundary;
   /** @type {{ x: number, y: number, width: number, height: number } | null} */
@@ -251,9 +262,7 @@ export function drawFigure(layout, input) {
       `<rect x="${fixed(at(boundary.x))}" y="${fixed(down(boundary.y))}" width="${fixed(boundary.width)}" ` +
         `height="${fixed(boundary.height)}" rx="18" fill="none" stroke="${C.boundary}" stroke-width="${edge.stroke}" stroke-dasharray="${edge.dash}"/>`,
     );
-    shapes.push(
-      `<rect x="${fixed(tabX)}" y="${fixed(down(boundary.y) - 14)}" width="${fixed(tabWidth)}" height="28" rx="7" fill="${fillAt()}"/>`,
-    );
+    gaps.push({ x: tabX, y: down(boundary.y) - 14, width: tabWidth, height: 28, radius: 7 });
     text("figure", boundary.name, tabX + 12, down(boundary.y) - 13, styles.boundary, C.ink);
     rects.push({ x: tabX, y: down(boundary.y) - 14, width: tabWidth, height: 28, ...MASS });
     const [left, top] = [at(boundary.x), down(boundary.y)];
@@ -288,6 +297,9 @@ export function drawFigure(layout, input) {
     marks,
   });
   if (boundary) rows.add("boundary");
+  // Everything drawn since `broken` is a line: the boundary's edge, the wires and their heads.
+  shapes.splice(broken, 0, `${gapsOf(gaps)}<g clip-path="url(#figure-gaps)">`);
+  shapes.push("</g>");
   // A planned or a retired part is drawn in its status's pattern, as a relation is.
   for (const { status } of view.components)
     if (status && status !== "implemented") rows.add(status);
@@ -329,7 +341,7 @@ export function drawFigure(layout, input) {
     );
     parts.push({ id: component.id, ...(component.group ? { group: true } : {}), box });
   }
-  const labels = drawLabels(layout, { at, down, text, shapes, rects, colors: C }, input);
+  const labels = drawLabels(layout, { at, down, text, rects, colors: C }, input);
   return {
     shapes,
     runs,
@@ -342,16 +354,32 @@ export function drawFigure(layout, input) {
 }
 
 /**
- * Set the relations' labels, each on a plate of paper that interrupts the
- * wires it lies over, so it reads as a gap in the line, and hand back each
- * label's relations with the box of its plate.
+ * The clip path of the figure's lines: everything, less each box a label or the boundary's name stands in. The
+ * boxes are holes by the even-odd rule, each a rounded rectangle.
+ * @param {Array<{ x: number, y: number, width: number, height: number, radius: number }>} gaps
+ */
+function gapsOf(gaps) {
+  const hole = ({ x, y, width, height, radius: r }) =>
+    `M${fixed(x + r)} ${fixed(y)}h${fixed(width - 2 * r)}a${r} ${r} 0 0 1 ${r} ${r}v${fixed(height - 2 * r)}` +
+    `a${r} ${r} 0 0 1 -${r} ${r}h-${fixed(width - 2 * r)}a${r} ${r} 0 0 1 -${r} -${r}v-${fixed(height - 2 * r)}` +
+    `a${r} ${r} 0 0 1 ${r} -${r}Z`;
+  return (
+    `<defs><clipPath id="figure-gaps"><path clip-rule="evenodd" d="M-100000 -100000H100000V100000H-100000Z` +
+    `${gaps.map(hole).join("")}"/></clipPath></defs>`
+  );
+}
+
+/**
+ * Set the relations' labels and hand back each label's relations with its
+ * box: the figure's lines are clipped out of that box, so the label reads as
+ * a gap in the line it lies over.
  * @param {any} layout
  * @param {{ at: (x: number) => number, down: (y: number) => number,
- *   text: Function, shapes: string[], rects: any[], colors: ReturnType<typeof colorsOf> }} draw
+ *   text: Function, rects: any[], colors: ReturnType<typeof colorsOf> }} draw
  * @param {{ styles: any, metrics: any, typefaces: any }} input
  */
 function drawLabels(layout, draw, input) {
-  const { at, down, text, shapes, rects, colors: C } = draw;
+  const { at, down, text, rects, colors: C } = draw;
   const { styles, metrics, typefaces } = input;
   /** @type {Array<{ relations: string[], box: { x: number, y: number, width: number, height: number } }>} */
   const set = [];
@@ -362,9 +390,6 @@ function drawLabels(layout, draw, input) {
       relations: label.relations.map(({ id }) => id),
       box: { x: fixed(x), y: fixed(y), width: fixed(label.width), height: fixed(label.height) },
     });
-    shapes.push(
-      `<rect x="${fixed(x)}" y="${fixed(y)}" width="${fixed(label.width)}" height="${fixed(label.height)}" rx="6" fill="${C.paper}"/>`,
-    );
     rects.push({ x, y, width: label.width, height: label.height, ...MASS });
     let top = y + metrics.wire.labelPadY;
     for (const line of label.lines) {

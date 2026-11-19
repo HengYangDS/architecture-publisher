@@ -233,6 +233,26 @@ export const rectsOf = (svg) =>
     dash: /stroke-dasharray="([^"]+)"/u.exec(rest)?.[1] ?? null,
   }));
 
+/**
+ * The gaps a plate cuts in its lines: the boxes that the clip path of its lines leaves out, each a rounded
+ * rectangle written `M<x+r> <y>h<w-2r>a<r> <r> …v<h-2r>…Z`, with its corner's radius.
+ */
+export const gapsOf = (svg) => {
+  const clip =
+    /<clipPath id="figure-gaps"><path clip-rule="evenodd" d="([^"]+)"\/>/u.exec(svg)?.[1] ?? "";
+  return [
+    ...clip.matchAll(
+      /M([\d.-]+) ([\d.-]+)h([\d.-]+)a([\d.]+) [\d.]+ 0 0 1 [\d.]+ [\d.]+v([\d.-]+)/gu,
+    ),
+  ].map(([, x, y, across, radius, down]) => ({
+    x: Math.round((number(x) - number(radius)) * 10) / 10,
+    y: number(y),
+    width: Math.round((number(across) + 2 * number(radius)) * 10) / 10,
+    height: Math.round((number(down) + 2 * number(radius)) * 10) / 10,
+    radius: number(radius),
+  }));
+};
+
 /** The wires a plate draws: their colour, width and dashes, and the points their path names. */
 export const wiresOf = (svg) =>
   [

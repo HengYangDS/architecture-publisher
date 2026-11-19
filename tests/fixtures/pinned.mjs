@@ -243,16 +243,21 @@ const text = (model, id) => {
 
 /**
  * The plates' entries as the drawing reports them, one for each view, in the shape the two parts agreed on. A
- * typeset edition gives each its page, frame and scales; a check gives none of the three.
+ * typeset edition gives each its page, the files of its figure set alone, its frame and its scales; a check gives
+ * none of the four. The image is the one at the default width, which is named without its width.
  */
 function platesOf(model, views, typeset = true) {
   return views.map((view, index) => ({
     number: index + 1,
     views: [view.id],
     ...(typeset ? { page: index + 3 } : {}),
-    images: [{ width: 2400, file: `images/0${index + 1}-${view.id}.png` }],
+    images: [{ width: 3840, file: `images/0${index + 1}-${view.id}.png` }],
     ...(typeset
       ? {
+          figures: [
+            { format: "png", file: `figures/0${index + 1}-${view.id}.png` },
+            { format: "svg", file: `figures/0${index + 1}-${view.id}.svg` },
+          ],
           frame: { x: 48, y: 112, width: 1504, height: 714, pixelsPerPoint: 1.5 },
           scales: [{ property: "owned-bytes", unit: "bytes", value: 4000, length: 360 }],
         }

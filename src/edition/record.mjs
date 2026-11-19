@@ -68,6 +68,7 @@ export function editionRecord(input) {
       views: plate.views,
       figureWidth: plate.width,
       figureHeight: plate.height,
+      extent: plate.extent,
       summary: ["set", "above"].includes(plate.reading) ? (plate.summary ?? null) : null,
       // Above a figure that keeps the full width: the summary alone, and the lines the engine broke it into.
       standfirst: plate.reading === "above" ? plate.standfirst.lines : null,

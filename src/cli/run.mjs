@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { stripVTControlCharacters, styleText } from "node:util";
 import { Command, CommanderError, InvalidArgumentError } from "commander";
-import { buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
+import { PNG_WIDTHS, buildDelivery, checkModel, scaffoldGuide } from "../build.mjs";
 import {
   acceptDelivery,
   compareDeliveries,
@@ -118,7 +118,7 @@ function commands({ version: current, write, action, listener }) {
       )
       .option(
         "--png <widths>",
-        `${does.images} the edition's images at these widths in pixels, separated by commas; 2400 by default`,
+        `${does.images} the edition's images at these widths in pixels, separated by commas; ${PNG_WIDTHS[0]} by default`,
         pixelWidths,
       )
       .option(

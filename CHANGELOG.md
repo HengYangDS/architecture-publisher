@@ -9,12 +9,27 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- A delivery holds each plate's figure and its key alone, beside the images of its pages: `figures/NN-<view>.png`
+  on a transparent ground, at the density of the widest page image, and `figures/NN-<view>.svg`, one document of
+  shapes whose text is outlined glyphs. The manifest and the data record the two files in each plate's `figures`,
+  the reader file names them on the view's line, `archpub verify` holds them to the manifest's digests and
+  `archpub compare` reports one that differs under its plate, as both treat a page's image.
 - `SECURITY.md` says how to report a vulnerability and what counts as one, and `CODE_OF_CONDUCT.md` adopts the
   Contributor Covenant 3.0; `CONTRIBUTING.md` points to both and says which channels a release has to reach
   before it is finished.
 
 ### Changed
 
+- **Breaking:** A page's image is 3840 px wide unless `--png` names its widths, where it was 2400 px wide, and the
+  image named without its width is the one at 3840 px: `--png 2400` writes `NN-<view>-2400.png`.
+- A line and the boundary's frame are broken by a gap where a relation's label or the boundary's name stands on
+  them, and no rectangle of the page's colour is drawn there, so a figure reads on any light ground. Every plate's
+  SVG changes by those rectangles and the clip path that takes their place.
+- A plate's key says each entry in the fewest words, in all five languages: the commit's entry leads the age bands
+  it dates (`before commit @ 2026-11-17:`), a band is a bound and a unit (`≤ 7 d`, `7–90 d`, `> 90 d`), and the
+  others read `file size 20 KB`, `cited files`, `to <part>`, the boundary's name and `outside`.
+- A plate's page states its commit's date once, in its foot: its key reads `before commit:`. A figure set alone has
+  no foot and keeps the date in its key.
 - The queue holds three more items before `performance`: `figures-alone`, a view's figure without its page on a
   transparent ground and as SVG; `page-figures`, the page's diagrams laid out by the publisher from files that
   place nothing; and `reader-file`, a reader file that reads well when rendered. `gallery` stands at its end, and

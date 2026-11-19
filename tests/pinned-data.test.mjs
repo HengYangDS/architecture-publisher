@@ -56,7 +56,7 @@ test("the data holds its members in one order, and only those the build holds", 
   // plates under its statement's digest, without a face.
   const overview = {
     statement: "5".repeat(64),
-    images: [{ width: 2400, file: "images/00-overview.png" }],
+    images: [{ width: 3840, file: "images/00-overview.png" }],
   };
   const other = editionData({ ...input, guide: null, overview });
   assert.deepEqual(Object.keys(other).slice(9), ["evidence", "overview", "plates", "media"]);
@@ -333,9 +333,14 @@ test("the plates stand by number with their keys in one order, and a check's pla
     "views",
     "page",
     "images",
+    "figures",
     "frame",
     "scales",
     "face",
+  ]);
+  assert.deepEqual(again[0].figures, [
+    { format: "png", file: "figures/01-overview.png" },
+    { format: "svg", file: "figures/01-overview.svg" },
   ]);
   const checked = await shopData("en", { typeset: false });
   assert.deepEqual(Object.keys(checked.data.plates[0]), ["number", "views", "images", "face"]);

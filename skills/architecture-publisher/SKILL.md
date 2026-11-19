@@ -16,7 +16,7 @@ Without `--json` the same result is a report for a reader at a terminal, one
 marked line per fact; do not parse it.
 
 A build delivers two media from one model: the print edition, a PDF with one
-plate per view and an image of each page, and the page, an interactive
+plate per view, an image of each page and each plate's figure alone, and the page, an interactive
 explainer with one panel per view or the guide the model names. Whichever media
 it carries, a delivery also holds `model.json`, the model as read,
 `<model id>.json`, the pinned edition as data, and `<model id>.md`, the reader file: a reader that works
@@ -96,7 +96,7 @@ id with its files and facts and ends with the guide's text.
     hold the reviewer's role for this work, stop here and hand the delivery over.
     Holding it, and given an earlier build of the same work, first run
     `archpub compare <earlier-delivery> <delivery>`: it names the plates whose
-    images differ, which are the ones to look at before accepting. Then
+    images or figures differ, which are the ones to look at before accepting. Then
     run `archpub accept <delivery> --reviewer <name>` with
     the name your delegation gives, adding `--sign <key>` when the user signs
     with an SSH key. It writes `colophon.pdf`, the colophon page whose mark sets

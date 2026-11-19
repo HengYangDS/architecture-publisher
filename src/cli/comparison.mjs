@@ -10,9 +10,9 @@ const difference = ({ first, second }) =>
 
 /**
  * What a comparison of two deliveries found, as the groups of its report and its closing line: the two deliveries,
- * each checked against its own manifest before anything was compared, every plate with a page image that differs,
- * named by its number and its views as a check names it, and every other file that differs, as a file of the
- * whole edition. The closing line says how many differ, or that the deliveries are identical.
+ * each checked against its own manifest before anything was compared, every plate with a page image or a file of
+ * its figure alone that differs, named by its number and its views as a check names it, and every other file that
+ * differs, as a file of the whole edition. The closing line says how many differ, or that the deliveries are identical.
  * @param {{
  *   first: string,
  *   second: string,

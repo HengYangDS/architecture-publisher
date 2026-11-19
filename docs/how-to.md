@@ -123,7 +123,7 @@ delivery.
 archpub build model.json --repo <checkout> --out <new-directory> --media edition
 ```
 
-`--media edition` builds the print edition and its images without running
+`--media edition` builds the print edition, its images and its figures alone without running
 Archify; `--media page` builds the page without Typst. `--png` sets the widths of
 the edition's images.
 

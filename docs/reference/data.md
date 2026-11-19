@@ -105,7 +105,8 @@ The model and the guide gain no field for the table: it is gathered from what th
 
 ## A plate's record and face
 
-Each entry of `plates` holds the plate's `number`, its `views`, its `images` with their `width` and `file`, and:
+Each entry of `plates` holds the plate's `number`, its `views`, its `images` with their `width` and `file`, its
+`figures`, the two files of its figure set alone, with their `format` (`png`, `svg`) and `file`, and:
 
 - `page`: the plate's page in the PDF, counted from 1. Only a build that typesets the edition knows it; a check
   reports the record without it.
@@ -164,8 +165,9 @@ its absence; without a checkout no file has an owner and nothing is matched.
 7. When the model names a guide, one heading and then the guide's draft, byte for byte, to the end of the file.
 
 Each line of the head is a list item: the publisher's word for it, a colon, and its fields parted by `·`, the
-other files of the delivery by commas. A view's line is `` - view `<id>` · plate <number> · `<image>` ``, and
-`` - view `<id>` `` when no edition is built.
+other files of the delivery by commas. A view's line is
+`` - view `<id>` · plate <number> · `<image>` · `<figure PNG>` · `<figure SVG>` ``, and `` - view `<id>` `` when no
+edition is built.
 
 A statement's item is ``- <type> `<id>`: <text> · <fields>``. The type is `component`, `group` or `relation`. The
 text is a component's or a group's label, with a component's kind, or a relation's `<from> —<label>→ <to>`. The

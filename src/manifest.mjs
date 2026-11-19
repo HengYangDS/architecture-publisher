@@ -1,3 +1,10 @@
+import {
+  DEFAULT_WIDTH,
+  OVERVIEW_PAGE,
+  figureFiles,
+  imageFile,
+  pageName,
+} from "./edition/typeset.mjs";
 import { guideSummary } from "./map/guide.mjs";
 
 /**
@@ -7,8 +14,15 @@ import { guideSummary } from "./map/guide.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
 export const DELIVERY_VERSION = 8;
-/** The width the edition's images are rendered at by default. */
-export const PNG_WIDTHS = Object.freeze([2400]);
+/** The widths the edition's images are rendered at by default: the one the edition names as its default. */
+export const PNG_WIDTHS = Object.freeze([DEFAULT_WIDTH]);
+
+/**
+ * The overview's page as an image at each width.
+ * @param {readonly number[]} widths
+ */
+export const overviewImages = (widths) =>
+  widths.map((width) => ({ width, file: imageFile(width, OVERVIEW_PAGE) }));
 
 /** The overview's inputs and Typst's reading of them, for the manifest and the check. */
 export function overviewSummary(model, overview) {
@@ -51,18 +65,19 @@ export function diagramSummary(diagram) {
   };
 }
 
-/** One plate's images, composition and measures, and the balance gates it misses, for the manifest. */
+/**
+ * One plate's images, the two files of its figure set alone, its composition and measures, and the balance gates it
+ * misses, for the manifest.
+ */
 export function plateSummary(plate, widths) {
-  const name = `${String(plate.page).padStart(2, "0")}-${plate.views.join("+")}`;
+  const name = pageName(plate);
   return {
     page: plate.page,
     views: plate.views,
     share: plate.share,
     reading: plate.reading,
-    images: widths.map((width) => ({
-      width,
-      file: width === PNG_WIDTHS[0] ? `images/${name}.png` : `images/${name}-${width}.png`,
-    })),
+    images: widths.map((width) => ({ width, file: imageFile(width, name) })),
+    figures: figureFiles(name),
     composition: plate.composition,
     measures: plate.measures,
     ...(plate.misses.length ? { misses: plate.misses } : {}),
@@ -120,15 +135,7 @@ export function deliveryManifest(build) {
           release: prepared.commit?.release ?? null,
           date: prepared.commit?.date ?? null,
           dated: dated.by,
-          ...(overview
-            ? {
-                image: chosen.png.map((width) =>
-                  width === PNG_WIDTHS[0]
-                    ? "images/00-overview.png"
-                    : `images/00-overview-${width}.png`,
-                ),
-              }
-            : {}),
+          ...(overview ? { image: overviewImages(chosen.png).map(({ file }) => file) } : {}),
         }
       : null,
     plates: prepared.plates.map((plate) => plateSummary(plate, chosen.png)),

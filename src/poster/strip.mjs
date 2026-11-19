@@ -212,13 +212,23 @@ export function stripKey(model, view, style, drawn) {
   const [newest, middle] = facts.spans.map((span) => Math.round(span / 86400));
   const bands = measures["file-age-band"];
   // The middle band is named by both its bounds, so no reader takes it to hold the newest band's files.
-  const names = [bands.newest(newest), bands.middle(newest, middle), bands.oldest];
+  const names = [bands.newest(newest), bands.middle(newest, middle), bands.oldest(middle)];
+  // The pin's date leads the bands it dates, so that the bands' own words are a bound and a unit and no more.
   /** @type {Array<{ shape: string, label: string, [field: string]: unknown }>} */
-  const key = [0, 1, 2]
-    .filter((band) => shown.has(band))
-    .map((band) => ({ shape: "band", band, color: C.dye[band], label: names[band] }));
-  if (shown.size && facts.date)
-    key.push({ shape: "reference", date: facts.date, label: measures["pin-date"](facts.date) });
+  const key =
+    shown.size && facts.date
+      ? [
+          {
+            shape: "reference",
+            date: facts.date,
+            // On a page the foot states the commit and its date; the key there says only what the bands count from.
+            label: measures["pin-date"](facts.date),
+            undated: measures["pin-date"](null),
+          },
+        ]
+      : [];
+  for (const band of [0, 1, 2])
+    if (shown.has(band)) key.push({ shape: "band", band, color: C.dye[band], label: names[band] });
   if (shown.size) {
     const scale = /** @type {number} */ (facts.scale);
     const { bytes, size } = sampleOf(scale);

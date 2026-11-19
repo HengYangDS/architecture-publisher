@@ -183,7 +183,9 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   );
 
   const out = path.join(root, "delivery");
-  const delivered = reportLines((await runCli(["build", model, "--out", out])).output);
+  const delivered = reportLines(
+    (await runCli(["build", model, "--out", out, "--png", "240"])).output,
+  );
   assert.match(delivered[5][2], /^\d+ files$/u);
   assert.deepEqual(delivered.toSpliced(5, 1).slice(0, 6), [
     ["title", "archpub build · page"],
@@ -314,7 +316,16 @@ test("check, build, accept, publish and import run end to end", async (t) => {
   // Six components cannot fill the body even at the largest type step: each
   // plate records the balance gates it misses, and none is refused.
   const shop = path.join(root, "shop");
-  const built = await json(["build", imported, "--out", shop, "--media", "edition"]);
+  const built = await json([
+    "build",
+    imported,
+    "--out",
+    shop,
+    "--media",
+    "edition",
+    "--png",
+    "240",
+  ]);
   assert.equal(built.exitCode, 0);
   assert.deepEqual([built.body.media, built.body.plates], [["edition"], 2]);
   const manifest = JSON.parse(await fs.readFile(path.join(shop, "manifest.json"), "utf8"));

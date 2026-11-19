@@ -129,7 +129,7 @@ export function readerFile(data, { sha256, draft }) {
       .join(FIELD)}`,
     `- ${words.delivery}${marks.colon}${[
       ...data.media.flatMap((medium) =>
-        medium === "edition" ? [`${work.id}.pdf`, "images/"] : [`${work.id}.html`],
+        medium === "edition" ? [`${work.id}.pdf`, "images/", "figures/"] : [`${work.id}.html`],
       ),
       "manifest.json",
     ]
@@ -165,6 +165,7 @@ export function readerFile(data, { sha256, draft }) {
         `- view ${code(view.id)}`,
         plate && `plate ${plate.number}`,
         plate && code(plate.images[0].file),
+        ...(plate?.figures ?? []).map(({ file }) => code(file)),
       ]
         .filter(Boolean)
         .join(FIELD),

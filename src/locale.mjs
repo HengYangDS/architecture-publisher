@@ -23,25 +23,27 @@ export const DEFAULT_LOCALE = "en";
  *   measures: Readonly<MeasureWords>,
  * }} Words
  * @typedef {{
- *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (from: number, to: number) => string, oldest: string }>,
- *   "pin-date": (date: string) => string,
+ *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (from: number, to: number) => string,
+ *     oldest: (days: number) => string }>,
+ *   "pin-date": (date: string | null) => string,
  *   "owned-bytes": (size: string) => string,
  *   "cited-files": string,
  *   hub: (part: string) => string,
  * }} MeasureWords
  *   The words a plate's key sets of a measured fact, each under the property of that fact in the catalogue of
- *   `src/facts`: the three bands of a file's age, the pin's date, a strip's length, the count beside a relation
- *   and the lines into a view's hub. A word says what the fact measures and no more: bytes are a size and files
- *   are files, of whatever type.
+ *   `src/facts`: the three bands of a file's age, each a bound in days and a unit; the commit they count from,
+ *   with its date or, for a page whose foot states the date, without it; a strip's length; the count beside a
+ *   relation; and the lines into a view's hub. A word says what the fact measures and no more: bytes are a size
+ *   and files are files, of whatever type.
  */
 
 /** @type {Readonly<Record<string, Readonly<Words>>>} */
 const WORDS = Object.freeze({
   en: Object.freeze({
     editors: (names) => `Edited by ${names.join(", ")}`,
-    inside: (boundary) => `inside ${boundary}`,
-    outside: "outside it",
-    context: "outside this group, shown for context",
+    inside: (boundary) => boundary,
+    outside: "outside",
+    context: "outside this group",
     planned: "planned",
     retired: "retired",
     component: "component",
@@ -60,21 +62,21 @@ const WORDS = Object.freeze({
     ownsNoFiles: "owns no files",
     measures: Object.freeze({
       "file-age-band": Object.freeze({
-        newest: (days) => `within ${days} ${days === 1 ? "day" : "days"} of the commit`,
-        middle: (from, to) => `over ${from} and within ${to} days of the commit`,
-        oldest: "earlier",
+        newest: (days) => `≤ ${days} d`,
+        middle: (from, to) => `${from}–${to} d`,
+        oldest: (days) => `> ${days} d`,
       }),
-      "pin-date": (date) => `commit date ${date}`,
-      "owned-bytes": (size) => `${size}: a strip's length is the size of a part's files`,
-      "cited-files": "number: the files this relation cites",
-      hub: (part) => `heavy lines lead to ${part}`,
+      "pin-date": (date) => (date ? `before commit @ ${date}:` : "before commit:"),
+      "owned-bytes": (size) => `file size ${size}`,
+      "cited-files": "cited files",
+      hub: (part) => `to ${part}`,
     }),
   }),
   "zh-CN": Object.freeze({
     editors: (names) => `编辑：${names.join("、")}`,
-    inside: (boundary) => `${boundary} 内部`,
+    inside: (boundary) => boundary,
     outside: "外部",
-    context: "本组之外，供参照",
+    context: "本组之外",
     planned: "计划中",
     retired: "已退役",
     component: "组件",
@@ -93,14 +95,14 @@ const WORDS = Object.freeze({
     ownsNoFiles: "没有所属文件",
     measures: Object.freeze({
       "file-age-band": Object.freeze({
-        newest: (days) => `提交前 ${days} 日内`,
-        middle: (from, to) => `提交前超过 ${from} 日、${to} 日内`,
-        oldest: "更早",
+        newest: (days) => `≤ ${days} 天`,
+        middle: (from, to) => `${from}–${to} 天`,
+        oldest: (days) => `> ${days} 天`,
       }),
-      "pin-date": (date) => `提交日 ${date}`,
-      "owned-bytes": (size) => `${size}：条长是组件所属文件的大小`,
-      "cited-files": "数字：这条关系引用的文件数",
-      hub: (part) => `粗线：通向${part}`,
+      "pin-date": (date) => (date ? `距提交 @ ${date}：` : "距提交："),
+      "owned-bytes": (size) => `文件大小 ${size}`,
+      "cited-files": "个引用文件",
+      hub: (part) => `通向${part}`,
     }),
   }),
   "zh-TW": Object.freeze({
@@ -126,14 +128,14 @@ const WORDS = Object.freeze({
     ownsNoFiles: "沒有所屬檔案",
     measures: Object.freeze({
       "file-age-band": Object.freeze({
-        newest: (days) => `提交前 ${days} 日內`,
-        middle: (from, to) => `提交前超過 ${from} 日、${to} 日內`,
-        oldest: "更早",
+        newest: (days) => `≤ ${days} 天`,
+        middle: (from, to) => `${from}–${to} 天`,
+        oldest: (days) => `> ${days} 天`,
       }),
-      "pin-date": (date) => `提交日 ${date}`,
-      "owned-bytes": (size) => `${size}：條長是元件所屬檔案的大小`,
-      "cited-files": "數字：這條關係引用的檔案數",
-      hub: (part) => `粗線：通向${part}`,
+      "pin-date": (date) => (date ? `距提交 @ ${date}：` : "距提交："),
+      "owned-bytes": (size) => `檔案大小 ${size}`,
+      "cited-files": "個引用檔案",
+      hub: (part) => `通向${part}`,
     }),
   }),
   es: Object.freeze({
@@ -159,16 +161,14 @@ const WORDS = Object.freeze({
     ownsNoFiles: "no posee archivos",
     measures: Object.freeze({
       "file-age-band": Object.freeze({
-        newest: (days) =>
-          days === 1 ? "en el día previo al commit" : `en los ${days} días previos al commit`,
-        middle: (from, to) => `más de ${from} y hasta ${to} días antes del commit`,
-        oldest: "antes",
+        newest: (days) => `≤ ${days} d`,
+        middle: (from, to) => `${from}–${to} d`,
+        oldest: (days) => `> ${days} d`,
       }),
-      "pin-date": (date) => `fecha del commit ${date}`,
-      "owned-bytes": (size) =>
-        `${size}: el largo de una tira es el tamaño de los archivos del componente`,
-      "cited-files": "número: los archivos que cita esta relación",
-      hub: (part) => `las líneas gruesas llevan a ${part}`,
+      "pin-date": (date) => (date ? `antes del commit @ ${date}:` : "antes del commit:"),
+      "owned-bytes": (size) => `tamaño de archivos ${size}`,
+      "cited-files": "archivos citados",
+      hub: (part) => `a ${part}`,
     }),
   }),
   ko: Object.freeze({
@@ -194,14 +194,14 @@ const WORDS = Object.freeze({
     ownsNoFiles: "소유한 파일 없음",
     measures: Object.freeze({
       "file-age-band": Object.freeze({
-        newest: (days) => `커밋 전 ${days}일 이내`,
-        middle: (from, to) => `커밋 전 ${from}일 초과 ${to}일 이내`,
-        oldest: "그 이전",
+        newest: (days) => `≤ ${days}일`,
+        middle: (from, to) => `${from}–${to}일`,
+        oldest: (days) => `> ${days}일`,
       }),
-      "pin-date": (date) => `커밋 날짜 ${date}`,
-      "owned-bytes": (size) => `${size}: 띠의 길이는 구성 요소가 가진 파일의 크기`,
-      "cited-files": "숫자: 이 관계가 인용하는 파일 수",
-      hub: (part) => `굵은 선: ${part}(으)로 향함`,
+      "pin-date": (date) => (date ? `커밋 @ ${date} 이전:` : "커밋 이전:"),
+      "owned-bytes": (size) => `파일 크기 ${size}`,
+      "cited-files": "인용 파일",
+      hub: (part) => `${part}(으)로`,
     }),
   }),
 });

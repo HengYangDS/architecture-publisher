@@ -19,10 +19,11 @@ import { icons, platesIn } from "./fixtures/strips.mjs";
 const URL = "https://example.invalid/fixture.git";
 const readJson = async (file) => JSON.parse(await fs.readFile(file, "utf8"));
 
-/** Build the print edition of a model at a checkout and read its manifest. */
+/** Build the print edition of a model at a checkout, its images small, and read its manifest. */
 async function manifestOf(t, model, checkout) {
   const out = path.join(await temporaryDirectory(t, "archpub-pin-"), "delivery");
-  await buildDelivery(await writeModel(t, model), out, { repo: checkout, media: ["edition"] });
+  const options = { repo: checkout, media: ["edition"], png: [240] };
+  await buildDelivery(await writeModel(t, model), out, options);
   const manifest = await readJson(path.join(out, "manifest.json"));
   // The record of each file read at the pin stands in the data the manifest names.
   const { evidence } = await readJson(path.join(out, manifest.data.file));

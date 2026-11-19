@@ -1,9 +1,9 @@
 /**
- * A plate's entry in the pinned data: its number and views, its page in the PDF and its images where an edition was
- * typeset, the frame its figure stands in on that page, the scales it draws on, and its face. The face is what the
- * drawing reported as it drew: each part with the rectangle it set, and each relation with the stretches of line it
- * stroked and the box of its label. Nothing is laid out again here, and nothing is read from the plan, so a face
- * compared with its view's statement set compares two sources.
+ * A plate's entry in the pinned data: its number and views, its page in the PDF, its images and the files of its
+ * figure set alone where an edition was typeset, the frame its figure stands in on that page, the scales it draws
+ * on, and its face. The face is what the drawing reported as it drew: each part with the rectangle it set, and
+ * each relation with the stretches of line it stroked and the box of its label. Nothing is laid out again here,
+ * and nothing is read from the plan, so a face compared with its view's statement set compares two sources.
  *
  * @typedef {{ x: number, y: number, width: number, height: number }} Box
  * @typedef {{ id: string, from: string, to: string, label: string, relations?: string[] }} Stroked
@@ -93,11 +93,12 @@ export function plateFrame(plate, house) {
 /**
  * A plate's entry in the data. Its number, its views, its images and its face are always held; a run that renders
  * no image of the plate lists none. What else only a typeset edition gives is written when the build holds it and
- * has no key otherwise: the plate's page in the PDF, the frame of its figure on that page, for which the house's
- * tokens are given, and its scales.
+ * has no key otherwise: the plate's page in the PDF, the files of its figure set alone, the frame of its figure on
+ * that page, for which the house's tokens are given, and its scales.
  * @param {{ page: number, views: string[], width: number, height: number, reading: string, report: Report }} plate
  *   a composed plate; its `page` is its number in the edition
  * @param {{ page?: number, images?: Array<{ width: number, file: string }>,
+ *   figures?: Array<{ format: string, file: string }>,
  *   house?: Parameters<typeof plateFrame>[1], scales?: ReturnType<typeof plateScales> }} [known]
  */
 export function plateEntry(plate, known = {}) {
@@ -106,6 +107,7 @@ export function plateEntry(plate, known = {}) {
     views: plate.views,
     ...(known.page === undefined ? {} : { page: known.page }),
     images: known.images ?? [],
+    ...(known.figures ? { figures: known.figures } : {}),
     ...(known.house ? { frame: plateFrame(plate, known.house) } : {}),
     ...(known.scales ? { scales: known.scales } : {}),
     face: plateFace(plate.report),

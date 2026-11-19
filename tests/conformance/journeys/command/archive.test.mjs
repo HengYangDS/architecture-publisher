@@ -173,15 +173,17 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
   const model = await writeModel(t, minimalModel({ overview: OVERVIEW }));
   const fromArchive = path.join(work, "from-archive");
   const fromCheckout = path.join(work, "from-checkout");
-  run(command, ["build", model, "--out", fromArchive, "--json"], env);
+  // The two builds are made to be compared, at a small width.
+  const small = ["--png", "240", "--json"];
+  run(command, ["build", model, "--out", fromArchive, ...small], env);
   run(
     process.execPath,
-    [path.join(root, "src/cli/main.mjs"), "build", model, "--out", fromCheckout, "--json"],
+    [path.join(root, "src/cli/main.mjs"), "build", model, "--out", fromCheckout, ...small],
     { ...process.env, SOURCE_DATE_EPOCH: epoch },
   );
   const archived = await files(fromArchive);
   // The archive's own Typst set the edition, overview included, and its images.
-  for (const name of ["minimal.pdf", "minimal.html", "images/00-overview.png", "manifest.json"])
+  for (const name of ["minimal.pdf", "minimal.html", "images/00-overview-240.png", "manifest.json"])
     assert.ok(
       archived.some(([file]) => file === name),
       `the archive's build delivers no ${name}`,
