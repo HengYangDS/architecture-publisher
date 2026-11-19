@@ -19,7 +19,7 @@ PLAYWRIGHT_BROWSERS_PATH = "{{ get_env(name='PLAYWRIGHT_BROWSERS_PATH', default=
 [tools]
 cue = "0.17.1"
 typst = "0.15.1"
-"npm:npm" = "12.2.2"
+"npm:npm" = "12.2.3"
 node = "26.13.1"
 
 # The ETHOS release declaration as published with v0.2.0-beta.10.
