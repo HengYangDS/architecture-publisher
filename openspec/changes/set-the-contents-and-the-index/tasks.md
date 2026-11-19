@@ -17,5 +17,5 @@
 
 ## 4. The works
 
-- [ ] 4.1 The six published works are built in both languages with the Change. Done when none is refused and the research page states each edition's pages of contents and of index.
-- [ ] 4.2 A reader other than the holder reads the contents and the index of the twelve editions. Done when the reader finds every row and every number in its place and no text cut or overlapping.
+- [x] 4.1 The six published works are built in both languages with the Change. Done when none is refused and the research page states each edition's pages of contents and of index. None is refused; the research page's finding 8 states them.
+- [x] 4.2 A reader other than the holder reads the contents and the index of the twelve editions. Done when the reader finds every row and every number in its place and no text cut or overlapping. The reader's words stand in finding 8.

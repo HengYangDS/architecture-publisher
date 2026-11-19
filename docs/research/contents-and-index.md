@@ -142,6 +142,10 @@ files state them; none was measured again, and the first two state no method.
    - Every edition's contents take one page and its index one page; the largest, ETHOS, has 11 rows and 42 parts.
    - The longest address, 52 characters, ends 20 points before the next fact under the index. A fact wider than
      its column now moves the facts after it, and facts that pass the page's margin are refused.
+   - Built again by the lane at `e6e4575f`: all twelve build, each with one page of contents and one of index. A
+     reader other than the holder read those twenty-four pages: every row, number and fact stands in its place and
+     nothing is cut or overlaps; two Chinese names whose first character has a second reading stand under the other
+     reading, and where a part's numbers take two lines the columns end at different heights.
 9. Where each fact of the released contents stands after the change:
 
    | Fact of the released contents       | Where it stands                                              |
