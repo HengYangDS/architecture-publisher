@@ -6,7 +6,7 @@ parts claim and its connections cite exists at one pinned commit.
 
 ![Plate 01 of Architecture Publisher's own edition: the parts one build passes through, from the author's model to a published delivery](docs/images/architecture-publisher-plate-01.png)
 
-_Plate 01 of the publisher's own edition, built by 0.13.1 from
+_Plate 01 of the publisher's own edition, built by 0.15.0 from
 [its model](https://github.com/HengYangDS/architecture-publications/blob/dev/publications/architecture-publisher/README.md)._
 
 You write the model: the components, the connections between them and the
