@@ -10,8 +10,8 @@
 
 ## 3. A band's tracks
 
-- [ ] 3.1 State the track assignment order by order in a fixture, and test first that the solver's own answers as it does on seeded bands and that laying six spans reads each span's ends once. Done when the second test fails on the source of task 2.2 and the first passes.
-- [ ] 3.2 Work out what two spans are to one another once a pair, before the orders are tried, and list the orders once for each count of spans. Done when both tests pass and the four test files of task 1.2 pass unchanged.
+- [x] 3.1 State the track assignment order by order in a fixture, and test first that the solver's own answers as it does on seeded bands and that laying six spans reads each span's ends once. Done when the second test fails on the source of task 2.2 and the first passes. On the source of task 2.2 laying six spans reads their ends 55,800 times and the count fails; the solver's own answers as the fixture does on 6,000 seeded bands.
+- [x] 3.2 Work out what two spans are to one another once a pair, before the orders are tried, and list the orders once for each count of spans. Done when both tests pass and the four test files of task 1.2 pass unchanged. Both tests pass, with 12 reads for six spans, and the four test files pass unchanged.
 
 ## 4. The measure of a layout
 
