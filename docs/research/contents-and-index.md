@@ -167,6 +167,11 @@ files state them; none was measured again, and the first two state no method.
      fact stands in its place and nothing is cut or overlaps; two Chinese names whose first character has a second
      reading stand under the other reading, and where a part's numbers take two lines the columns end at different
      heights.
+   - Built again by the lane at `fd02abc2` from the publications at `9157d5d`, ten rows a half of the contents and
+     twenty lines a half of the index, each at one pitch: all twelve build; the contents take one page in 10 editions
+     and two in 2, the index one page in 10 editions and two in 2. A reader other than the holder read those pages:
+     every row, number and fact stands in its place and nothing is cut or overlaps, in both languages; where an
+     index's left column is full, the rule under its last line falls on the rule over the facts.
 9. Where each fact of the released contents stands after the change:
 
    | Fact of the released contents       | Where it stands                                              |
