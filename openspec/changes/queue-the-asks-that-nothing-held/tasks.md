@@ -10,5 +10,5 @@
 
 ## 3. Record
 
-- [ ] 3.1 Record the change under `Unreleased` in `CHANGELOG.md`. Done when `npm run check:static` passes.
+- [x] 3.1 Record the change under `Unreleased` in `CHANGELOG.md`. Done when `npm run check:static` passes. `npm run check:static` passes.
 - [ ] 3.2 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.

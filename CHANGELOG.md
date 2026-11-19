@@ -7,8 +7,19 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- `SECURITY.md` says how to report a vulnerability and what counts as one, and `CODE_OF_CONDUCT.md` adopts the
+  Contributor Covenant 3.0; `CONTRIBUTING.md` points to both and says which channels a release has to reach
+  before it is finished.
+
 ### Changed
 
+- The queue holds three more items before `performance`: `figures-alone`, a view's figure without its page on a
+  transparent ground and as SVG; `page-figures`, the page's diagrams laid out by the publisher from files that
+  place nothing; and `reader-file`, a reader file that reads well when rendered. `gallery` stands at its end, and
+  seven items name what they had left out. The contract says which two readers a work's coverage is chosen for.
+- The tutorial takes the document role `tutorial`.
 - A build spends less time routing a plate's channels: the check of one choice against the wires already chosen
   looks at the two label rows the two choices stand on and no longer lists a channel's rows for every question.
   A build of the ETHOS work in Chinese took 113 s where it took 397 s, alone on one core. No layout, plate or
