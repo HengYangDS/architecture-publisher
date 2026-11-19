@@ -1,6 +1,6 @@
 ## 1. The queue
 
-- [ ] 1.1 Add to `docs/product-contract.md` the two readers a work's coverage is chosen for, the paragraph of 2026-11-19, the items `figures-alone`, `page-figures` and `reader-file` before `performance`, `gallery` at the end, and what seven items had left out. Done when `tests/evolution-queue.test.mjs` and `tests/role-neutral-wording.test.mjs` pass.
+- [x] 1.1 Add to `docs/product-contract.md` the two readers a work's coverage is chosen for, the paragraph of 2026-11-19, the items `figures-alone`, `page-figures` and `reader-file` before `performance`, `gallery` at the end, and what seven items had left out. Done when `tests/evolution-queue.test.mjs` and `tests/role-neutral-wording.test.mjs` pass. The queue reads fifteen open items in the order the contract gives, and both tests pass.
 
 ## 2. The repository's files
 

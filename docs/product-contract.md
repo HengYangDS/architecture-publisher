@@ -31,6 +31,10 @@ diagrams are Archify's, and nothing drawn for one is carried into the other.
 The data and the reader file serve a reader that works from text, an agent
 first.
 
+Two readers come first when a work decides what it covers: one who is new to
+the repository and has to find the way in, and one who has to review it or
+decide about it.
+
 The model says what the architecture is: components, relations, their details
 and the repository files that support them. Architecture Publisher owns how that
 meaning becomes a clear figure: rows, placement, routing, typography and the
@@ -261,6 +265,14 @@ seventy minutes. `performance` joined the list before `edition-map`: every Chang
 suite in its proof and in two pipelines, so what the suite and a build cost is paid by each of them. That moves
 every open item back by one.
 
+On 2026-11-19 the owner read the six works as 0.15.0 built them and named what they lacked that he had asked
+for (「不要漏我的指示」). Readers other than the maintainer went through all he had said since 2026-10-26 and gave
+each ask what holds it; twenty-four had nothing. Three of them are items of their own and joined the list before
+`performance`, since each is an ask that was dropped and no new wish: `figures-alone`, promised on 2026-11-17 and
+never listed; `page-figures`, since nothing is placed by hand and the page's diagrams were; and `reader-file`.
+That moves `performance` and every item after it back by three. Seven items took in what they had not named, and
+`gallery` joined at the end.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -282,10 +294,21 @@ every open item back by one.
       with one outcome that leaves them, and headed lists, tables and groups. The publisher lays them out on one grid
       by measure and refuses a page too tall for them; the overview composition is retired. It stands before the rest
       of `composable-parts` because the owner ruled on 2026-11-17 that nothing is placed by hand.
+- [ ] `figures-alone`: a view's figure for use outside the edition. Beside each page's image a delivery holds the
+      figure and its key alone, without the page around them, as PNG on a transparent ground and as SVG. A line or
+      a boundary is broken where a label stands on it, so no patch of the ground covers anything and the figure
+      reads on any light ground. A page's image is 3840 px wide unless the caller names its widths.
+- [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
+      relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
+      file that places anything. The published works' diagram files lose the positions they hold.
+- [ ] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
+      does for one that parses it: one title, no line of the guide's own syntax and no empty link, the names of
+      its fields in the model's language, and a check of the file as rendered.
 - [ ] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
       profile shows is removed with every delivered byte unchanged, one cause to a commit, measured before and
       after under like conditions and recorded whether it is kept or taken back; the suite runs as wide as its
-      machine allows; and what would bring a cost back is refused by a test that counts work, where a bound in
+      machine allows; the two media of a build are made side by side where a measurement shows a gain; and what
+      would bring a cost back is refused by a test that counts work, where a bound in
       seconds would fail for the host's reasons. The item ends when the largest cause that a profile of a build
       and of the suite still shows holds under a tenth of its time, or lies in another product and is reported
       there. The times stand in the [record](research/build-and-suite-time.md) and are read at each landing.
@@ -293,18 +316,25 @@ every open item back by one.
       enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
       three sizes with fixed roles, for a room, a screen and the zoom; the last page is an index of the parts, a
       row each with a link to every plate that draws it, and at its foot what the edition was built from and who
-      accepted it, which the contents page no longer repeats.
+      accepted it, which the contents page no longer repeats. Every view is reached from the overview, the
+      contents never continue on a second page, a note in a narrow column breaks between the words of its
+      script, and no justified line is spread wide because the token after it cannot break.
 - [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
       tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
-      and no longer only recorded.
+      and no longer only recorded. What a census of a built page still finds untidy and no gate holds, more
+      styles or stroke weights on a page than the house allows and one mark drawn in two weights, becomes a gate
+      or is dropped with its reason.
 - [ ] `portrait-edition`: the edition for one reader, as a booklet read on a screen: the overview recomposed for
       the tall page from the same statement, then one page a view, its figure laid out anew for that page and under
       it the reading and a table with a row for each part the figure draws, and the index. It carries the words a
       speaker would say beside the landscape edition's figures, and nothing that another carrier could not hold.
+      With it the name "print edition" leaves the product's words and documents: an edition is landscape or
+      portrait, and both are made for a screen.
 - [ ] `page`: the page in a browser for a reader who questions and checks. It shares the work's question and
       claim, its terms, its pin and the plates' numbers with the editions, gives each view and part a stable
       address, and is checked against the model for them; then it is measured against what Archify offers, and
-      what it leaves unused is taken up.
+      what it leaves unused is taken up. It opens with an overview drawn from the model's statement and is titled
+      with the model's question.
 - [ ] `delivery-layout`: a delivery laid out by kind, so a reader finds each thing where its kind says: the print
       edition, the page and the manifest at the top; each page's image in `images/`, named by what it shows (the
       overview, a plate's number and view), where `00-overview` and a first plate of a view named overview read alike
@@ -319,10 +349,14 @@ every open item back by one.
       the model states and none from positions its author gives. First, from what the product already reads: the
       structure of its repository, an important part
       opened, its history in time and the change between two pins. Then, with what the model newly states: the
-      course of a mechanism, its plans, its rules and what it writes. With them, an author's notes on parts and
-      relations, and a figure of what the work covers and where it is silent.
-- [ ] `palettes-and-styles`: style moves beside the model, and the house gains a further style.
+      course of a mechanism, the technology it stands on, its plans, its rules and what it writes. With them, an
+      author's notes on parts and relations, and a figure of what the work covers and where it is silent. What a
+      work is asked to cover follows the kind of repository it describes, and a page that is mostly text is
+      composed of tables, lists and code blocks in a layout, never of paragraphs alone.
+- [ ] `palettes-and-styles`: style moves beside the model; the built-in palettes take in those the research of
+      2026-11-13 held to the print rules; and the house gains further styles, one of them the owner's own.
 - [ ] `roles-and-records`: an acceptance records the role, its holder, the delegation and what was judged; the
       reviewer's Skill.
 - [ ] `foreign-work`: one work on a repository that is not the maintainer's, written by an agent from the Skill
       alone.
+- [ ] `gallery`: the published works shown in public as a gallery, once the product's form is whole.
