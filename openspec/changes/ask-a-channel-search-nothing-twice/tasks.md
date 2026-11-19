@@ -25,4 +25,4 @@
 ## 6. Acceptance
 
 - [x] 6.1 Build the six works in both languages before and after and compare each pair file by file. Done when all twelve pairs are identical and the summed times stand in the research page. All twelve pairs before and after the four changes are identical file by file, 970 s summed before and 619 s after on a busy host; the times stand in the research page.
-- [ ] 6.2 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.
+- [x] 6.2 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it. The rehearsal at `db3304b6` refused only this open task; it is run again at the commit that ticks it, and its record stands in `perf-search/run/` of the publisher's work directory.
