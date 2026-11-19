@@ -1,7 +1,7 @@
 ## 1. A band's content
 
-- [ ] 1.1 Test first that one channel solved on three label rows serializes no more than on one. Done when the test fails on the unchanged source.
-- [ ] 1.2 Name what each option puts into each band once, before the search, and key a band's tracks by its wires' names. Done when the test passes and `tests/channel-conflicts.test.mjs`, `tests/channel-remember.test.mjs`, `tests/edition-plates.test.mjs` and `tests/pinned-face-bytes.test.mjs` pass unchanged.
+- [x] 1.1 Test first that one channel solved on three label rows serializes no more than on one. Done when the test fails on the unchanged source. On the unchanged source the solve on three rows serializes 100,047 times and on one row 165, and the test fails.
+- [x] 1.2 Name what each option puts into each band once, before the search, and key a band's tracks by its wires' names. Done when the test passes and `tests/channel-conflicts.test.mjs`, `tests/channel-remember.test.mjs`, `tests/edition-plates.test.mjs` and `tests/pinned-face-bytes.test.mjs` pass unchanged. The test passes, and the four test files pass unchanged.
 
 ## 2. A pair of choices
 

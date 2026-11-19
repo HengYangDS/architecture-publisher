@@ -56,37 +56,54 @@ function search(
 ) {
   const wires = channel.wires;
   const choices = wires.map((made) => options(channel, made, spacing));
+  // What an option puts into a band is its spans there and the x of each of its verticals that crosses the band,
+  // whichever label row the option takes. Each such content is named by a number once, before the search, so that
+  // an assignment names a band's content by its wires' numbers and makes neither a list nor a key of the spans.
+  const names = new Map();
+  const nameOf = (option, band) => {
+    const content = JSON.stringify([
+      option[band],
+      option.verticals.filter((vertical) => crossesBand(vertical, band)).map(({ x }) => x),
+    ]);
+    if (!names.has(content)) names.set(content, names.size);
+    return names.get(content);
+  };
+  const named = choices.map((list) =>
+    list.map((option) => ({ upper: nameOf(option, "upper"), lower: nameOf(option, "lower") })),
+  );
   // Many assignments differ only in label positions, so band tracks are solved once per band content.
   const solved = new Map();
-  const tracksFor = (spans, crossers) => {
-    const key = JSON.stringify([spans, crossers]);
-    if (!solved.has(key))
-      solved.set(key, assignTracks(spans, crossers, spacing.join ?? spacing.separation));
-    return solved.get(key);
-  };
   for (let rows = minimumRows; rows <= maximumRows; rows += 1) {
     /** @type {any} */
     let best = null;
     let visited = 0;
     const chosen = [];
+    /** The names of what each chosen option puts into the bands, beside `chosen`. */
+    const contents = [];
+    const spansOf = (band) =>
+      chosen.flatMap(([i, option]) => option[band].map((span) => ({ ...span, wire: i })));
+    const crossers = (band) =>
+      chosen.flatMap(([i, option]) =>
+        option.verticals
+          .filter((vertical) => crossesBand(vertical, band))
+          .map((vertical) => ({ x: vertical.x, wire: i })),
+      );
+    const tracksFor = (band) => {
+      let key = "";
+      for (const content of contents) key += `${content[band]} `;
+      if (!solved.has(key))
+        solved.set(
+          key,
+          assignTracks(spansOf(band), crossers(band), spacing.join ?? spacing.separation),
+        );
+      return solved.get(key);
+    };
     const walk = (index, preference) => {
       if (visited++ > SEARCH_BUDGET) return;
       if (best && preference >= best.score) return;
       if (index === wires.length) {
-        const upper = [];
-        const lower = [];
-        for (const [i, option] of chosen) {
-          option.upper.forEach((span) => upper.push({ ...span, wire: i }));
-          option.lower.forEach((span) => lower.push({ ...span, wire: i }));
-        }
-        const crossers = (band) =>
-          chosen.flatMap(([i, option]) =>
-            option.verticals
-              .filter((vertical) => crossesBand(vertical, band))
-              .map((vertical) => ({ x: vertical.x, wire: i })),
-          );
-        const up = tracksFor(upper, crossers("upper"));
-        const low = tracksFor(lower, crossers("lower"));
+        const up = tracksFor("upper");
+        const low = tracksFor("lower");
         if (!up || !low) return;
         const crossings = up.crossings + low.crossings + rowCrossings(chosen, rows);
         const unmeasured = preference + (up.tracks + low.tracks) * 3 + crossings * 10;
@@ -95,8 +112,8 @@ function search(
           crossings,
           borrowed: chosen.reduce((sum, [, option]) => sum + option.borrowed, 0),
           chosen: chosen.map(([i, option]) => [i, option]),
-          upper,
-          lower,
+          upper: spansOf("upper"),
+          lower: spansOf("lower"),
           up,
           low,
         };
@@ -105,14 +122,16 @@ function search(
         if (!best || score < best.score) best = { ...assignment, score, routes };
         return;
       }
-      for (const option of choices[index]) {
+      for (const [position, option] of choices[index].entries()) {
         const variants = option.label === undefined && !option.jog ? 1 : rows;
         for (let row = 0; row < variants; row += 1) {
           const choice = { ...option, row };
           if (!compatible(channel, chosen, index, choice, rows, spacing)) continue;
           chosen.push([index, choice]);
+          contents.push(named[index][position]);
           walk(index + 1, preference + choice.preference);
           chosen.pop();
+          contents.pop();
         }
       }
     };
