@@ -5,8 +5,8 @@
 
 ## 2. A pair of choices
 
-- [ ] 2.1 Test first that one search reads a wire's label no more often than there are pairs of choices. Done when the test fails on the source of task 1.2.
-- [ ] 2.2 Keep each pair's answer for the search, for each count of label rows. Done when the test passes and the four test files of task 1.2 pass unchanged.
+- [x] 2.1 Test first that one search reads a wire's label no more often than there are pairs of choices. Done when the test fails on the source of task 1.2. On the source of task 1.2 the search reads a wire's label 878,781 times for 75 choices, and the test fails.
+- [x] 2.2 Keep each pair's answer for the search, for each count of label rows. Done when the test passes and the four test files of task 1.2 pass unchanged. The test passes, and the four test files pass unchanged.
 
 ## 3. A band's tracks
 

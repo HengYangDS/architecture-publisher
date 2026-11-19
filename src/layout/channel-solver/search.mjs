@@ -24,6 +24,9 @@ const ROUTE_DEFECT = 8;
 /** Far enough above and below a channel to stand for the cards beside it. */
 const FAR = 1e4;
 
+/** The most pairs of choices whose answers one search keeps; a channel with more asks each time. */
+const PAIRS = 1 << 22;
+
 /**
  * Route defects of one assignment, measured on the channel drawn between the
  * cards beside it.
@@ -73,11 +76,31 @@ function search(
   );
   // Many assignments differ only in label positions, so band tracks are solved once per band content.
   const solved = new Map();
+  // Whether two choices fit one another depends on the two alone, and the search asks it of the same two at every
+  // assignment that holds both. A choice is numbered by its wire, its option and its row, and each pair's answer
+  // is kept for the count of label rows it was asked under: 0 not asked yet, 1 fits, 2 does not.
+  const most = Math.max(1, ...choices.map((list) => list.length));
+  const numberOf = (index, position, row) => (index * most + position) * maximumRows + row;
+  const numbers = wires.length * most * maximumRows;
+  const asked = numbers * numbers <= PAIRS ? new Int8Array(numbers * numbers) : null;
   for (let rows = minimumRows; rows <= maximumRows; rows += 1) {
     /** @type {any} */
     let best = null;
     let visited = 0;
     const chosen = [];
+    /** The number of each chosen choice, beside `chosen`. */
+    const chosenNumbers = [];
+    asked?.fill(0);
+    const fits = (index, choice, number) => {
+      if (!asked) return compatible(channel, chosen, index, choice, rows, spacing);
+      for (let k = 0; k < chosen.length; k += 1) {
+        const pair = number * numbers + chosenNumbers[k];
+        if (asked[pair] === 0)
+          asked[pair] = compatible(channel, [chosen[k]], index, choice, rows, spacing) ? 1 : 2;
+        if (asked[pair] === 2) return false;
+      }
+      return true;
+    };
     /** The names of what each chosen option puts into the bands, beside `chosen`. */
     const contents = [];
     const spansOf = (band) =>
@@ -126,11 +149,14 @@ function search(
         const variants = option.label === undefined && !option.jog ? 1 : rows;
         for (let row = 0; row < variants; row += 1) {
           const choice = { ...option, row };
-          if (!compatible(channel, chosen, index, choice, rows, spacing)) continue;
+          const number = numberOf(index, position, row);
+          if (!fits(index, choice, number)) continue;
           chosen.push([index, choice]);
+          chosenNumbers.push(number);
           contents.push(named[index][position]);
           walk(index + 1, preference + choice.preference);
           chosen.pop();
+          chosenNumbers.pop();
           contents.pop();
         }
       }
