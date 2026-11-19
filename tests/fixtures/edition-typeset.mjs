@@ -71,8 +71,8 @@ export const recordOf = ({
 /**
  * What the edition's pages set, read back from Typst: the number of pages, each outlined page by its label, every
  * text box with the page it stands on and the place of the box that holds it, every link with where it leads (a
- * page, a label or an address), the rules over the blocks of the contents' first page, the rule that closes the
- * contents' rows, and the rule that closes the index's parts.
+ * page, a label or an address), the rules over the blocks of the contents' first page, and the rule under the
+ * last item of each half of a list, the contents' and the index's.
  */
 export const SET = `(
   pages: query(<archpub-end>).first().location().page(),
@@ -83,9 +83,7 @@ export const SET = `(
     to: if type(it.dest) == label { str(it.dest) } else if type(it.dest) == location { it.dest.page() } else { it.dest })),
   rules: query(<archpub-front-rule>).map(it => (page: it.location().page(), left: it.location().position().x.pt(),
     top: it.location().position().y.pt(), length: repr(it.length))),
-  ends: query(<archpub-contents-end>).map(it => (page: it.location().page(), left: it.location().position().x.pt(),
-    top: it.location().position().y.pt(), length: repr(it.length))),
-  indexEnds: query(<archpub-index-end>).map(it => (page: it.location().page(), left: it.location().position().x.pt(),
+  ends: query(<archpub-list-end>).map(it => (page: it.location().page(), left: it.location().position().x.pt(),
     top: it.location().position().y.pt(), length: repr(it.length))),
 )`;
 

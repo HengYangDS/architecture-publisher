@@ -21,28 +21,27 @@ scope, the limits and a reading note, each under a rule across the half.
 
 A page of contents SHALL have two halves. The first page SHALL set its rows in the right half, and a further page
 in both, the left first. A half SHALL take at most ten rows. Every page of contents SHALL have the edition's foot,
-and where the contents take more than one page each SHALL say which plates it lists, a page of one plate by that
-plate alone.
+and where the contents take more than one page each SHALL say how many plates the edition has.
 
 #### Scenario: Eleven plates
 
 - **WHEN** a model with eleven views is built
 - **THEN** its contents take two pages: ten rows in the first page's right half and the eleventh in the second
   page's left half
-- **AND** the first page says it lists plates 01 to 10 of 11 and the second plate 11
+- **AND** both pages say that the edition has 11 plates
 
 #### Scenario: Twenty-eight plates
 
 - **WHEN** a model with twenty-eight views is built
 - **THEN** its contents take two pages of ten, ten and eight rows
-- **AND** the first page says it lists plates 01 to 10 of 28 and the second plates 11 to 28
+- **AND** both pages say that the edition has 28 plates
 
 ### Requirement: Contents pitch
 
 A row of the contents SHALL be a tenth of the body high in every edition, whatever the number of its plates. The
 rows SHALL stand in order from the top of each half, and no row SHALL be opened up to fill a half or a page: a
-half of fewer than ten rows, and a page the rows end on, leave the rest of their height empty. One rule SHALL
-close the rows, under the last.
+half of fewer than ten rows, and a page the rows end on, leave the rest of their height empty. A rule SHALL close
+the rows of each half, under its last.
 
 #### Scenario: Six plates
 
@@ -53,7 +52,7 @@ close the rows, under the last.
 
 - **WHEN** a model with eleven views is built
 - **THEN** the eleventh row stands at the top of the second page, as high as any other, over a rule
-- **AND** nothing else of the contents stands on that page but its title, the plate it lists and its foot
+- **AND** nothing else of the contents stands on that page but its title, the number of plates and its foot
 
 ### Requirement: A left half too tall
 
@@ -107,15 +106,14 @@ than a page holds SHALL be refused with `edition_index_too_long`.
 
 ### Requirement: Index pitch
 
-A line of the index SHALL be a twentieth of the body high in every edition, half a row of the contents. The parts
-SHALL stand in order from the top of the left column, and no line SHALL be opened up to fill a column or a page.
-One rule SHALL close the parts, under the last.
+A line of the index SHALL be a twentieth of the body high in every edition. The parts SHALL stand in order from the top of the left column, and no line SHALL be opened up to fill a column or a page.
+A rule SHALL close each column, under its last part.
 
 #### Scenario: Twenty-six parts
 
 - **WHEN** an edition's index holds twenty-six parts
 - **THEN** twenty stand in the left column and six at the top of the right, all at one pitch, with a rule under
-  the last
+  the last of each column
 
 ### Requirement: What the edition rests on
 
@@ -146,13 +144,18 @@ when the model states one; one plate per view; and the index.
 
 On the title page, each column's blocks SHALL be spaced equally over the band the column occupies, so that no
 column leaves its paper in one block. On the contents' first page, each block of the left half SHALL begin on one
-of the ten lines a half's rows stand on where the blocks fit so, and share the height that is left equally where
-they do not.
+of the ten lines a half's rows stand on where the blocks fit so, on a line or half a line where they need more,
+and share the height that is left equally where they fit neither way.
 
 #### Scenario: The contents' left column
 
 - **WHEN** the contents' first page is set, whatever the number of rows beside it
 - **THEN** each block of its left half begins on a rule at the height of one of a half's ten lines
+
+#### Scenario: Blocks that need more lines than a half has
+
+- **WHEN** the left half's blocks need more than ten lines and no more than twenty half lines
+- **THEN** each begins on a line or half a line, and the overview's entry stands level with the first row
 
 ## REMOVED Requirements
 

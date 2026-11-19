@@ -16,6 +16,8 @@ const TWO = [MARGIN, MARGIN + HALF + 56];
 const FOUR = [0, 1, 2, 3].map((column) => MARGIN + column * (NARROW + 56));
 const near = (a, b) => Math.abs(a - b) < 0.6;
 const two = (number) => String(number).padStart(2, "0");
+/** A plate as the index cites it: its number and the label of its page. */
+const drawnOn = (number) => ({ number, key: `plate-${number}` });
 /** The parts a page's index sets in its left column and in its right. */
 const columns = (index) => TWO.map((x) => index.filter((part) => near(part.x, x)).length);
 /** The distance from each part to the one above it in its column. */
@@ -23,13 +25,18 @@ const pitches = (index) =>
   index.flatMap((part, at) =>
     at > 0 && near(index[at - 1].x, part.x) ? [part.b - index[at - 1].b] : [],
   );
-/** The one rule that closes the index's parts: its page, its column and how many lines below the body's top. */
+/**
+ * The rules that close the index's parts, one under the last line of each column: its page, its column and how
+ * many lines below the body's top. The contents, on the second page, close their own halves.
+ */
 const ends = (set) =>
-  set.indexEnds.map(({ page, left, top }) => ({
-    page,
-    half: near(left, TWO[0]) ? "left" : near(left, TWO[1]) ? "right" : left,
-    lines: Math.round(((top - bodyTop) / PITCH) * 100) / 100,
-  }));
+  set.ends
+    .filter(({ page }) => page > 2)
+    .map(({ page, left, top }) => ({
+      page,
+      half: near(left, TWO[0]) ? "left" : near(left, TWO[1]) ? "right" : left,
+      lines: Math.round(((top - bodyTop) / PITCH) * 100) / 100,
+    }));
 
 /** A model of the parts given, each an id and a name. */
 const modelOf = (parts, extra = {}) =>
@@ -95,12 +102,12 @@ test("the last page indexes every part once, by name, with the plates that draw 
   const facts = recordFacts({ read: 3, date: "2026-11-06" });
   const record = recordOf({ model, plates, facts });
   assert.deepEqual(record.index, [
-    { label: "Alpha", plates: ["01", "02", "03"] },
-    { label: "Beta", plates: ["01"] },
-    { label: "Git", plates: ["02"] },
-    { label: "Git engine", plates: ["03"] },
+    { label: "Alpha", plates: ["01", "02", "03"].map(drawnOn) },
+    { label: "Beta", plates: ["01"].map(drawnOn) },
+    { label: "Git", plates: ["02"].map(drawnOn) },
+    { label: "Git engine", plates: ["03"].map(drawnOn) },
     { label: "OpenSpec CLI", plates: [] },
-    { label: "Zeta", plates: ["03"] },
+    { label: "Zeta", plates: ["03"].map(drawnOn) },
   ]);
   const set = await evalEdition(t, { model, plates, facts }, SET);
   // Title page, contents, three plates, the index.
@@ -286,7 +293,10 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
     pitches(one).join(" "),
   );
   assert.ok(near(one[0].b, one[20].b), "the right column begins at another height than the left");
-  assert.deepEqual(ends(short), [{ page: 3, half: "right", lines: 6 }]);
+  assert.deepEqual(ends(short), [
+    { page: 3, half: "left", lines: 20 },
+    { page: 3, half: "right", lines: 6 },
+  ]);
 
   // 42 parts: forty on the first page and two at the top of a second, which is not filled.
   const wide = await evalEdition(t, { model: modelOf(named(42)) }, SET);
@@ -302,7 +312,11 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
   );
   assert.ok(near(two42[1][0].b, two42[0][0].b), "the second page's first part stands lower");
   assert.ok(near(two42[1][1].b - two42[1][0].b, PITCH));
-  assert.deepEqual(ends(wide), [{ page: 4, half: "left", lines: 2 }]);
+  assert.deepEqual(ends(wide), [
+    { page: 3, half: "left", lines: 20 },
+    { page: 3, half: "right", lines: 20 },
+    { page: 4, half: "left", lines: 2 },
+  ]);
 
   // 120 parts take three pages of forty, each with its title and foot; the facts close the last page alone.
   const long = await evalEdition(t, { model: modelOf(named(120)) }, SET);
@@ -323,7 +337,13 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
     assert.equal(texts.filter((text) => text === "Minimal at aaaaaaa, 2026-11-06").length, 1);
     assert.equal(texts.includes("Repository"), at === 2);
   }
-  assert.deepEqual(ends(long), [{ page: 5, half: "right", lines: 20 }]);
+  assert.deepEqual(
+    ends(long),
+    [3, 4, 5].flatMap((page) => [
+      { page, half: "left", lines: 20 },
+      { page, half: "right", lines: 20 },
+    ]),
+  );
 });
 
 test("a part whose plates take more lines than a page holds is refused", async (t) => {

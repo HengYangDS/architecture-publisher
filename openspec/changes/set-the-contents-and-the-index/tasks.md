@@ -1,7 +1,7 @@
 ## 1. The contents
 
-- [x] 1.1 The record states the overview's entry and a row a plate, and no facts beside the contents; the class sets the entry and the three notes in the left half under rules on the rows' lines, and refuses a left half taller than the page. Done when `tests/edition-contents.test.mjs` passes. `edition-contents` passes.
-- [x] 1.2 A half takes at most `edition.contentsRows` rows, each a tenth of the body high, in order and never opened up; a further page sets both halves, has its foot and names its plates. Done when the same test file reads six, ten, eleven and twenty-eight plates. It reads six plates on six of a half's ten lines, ten on one page, eleven as ten and one, and twenty-eight as ten, ten and eight.
+- [x] 1.1 The record states the overview's entry and a row a plate, and no facts beside the contents; the class sets the entry and the three notes in the left half under rules on the rows' lines or their halves, and refuses a left half taller than the page. Done when `tests/edition-contents.test.mjs` passes. `edition-contents` passes.
+- [x] 1.2 A half takes at most `edition.contentsRows` rows, each a tenth of the body high, in order and never opened up; a further page sets both halves, has its foot and says how many plates there are. Done when the same test file reads six, ten, eleven and twenty-eight plates. It reads six plates on six of a half's ten lines, ten on one page, eleven as ten and one, and twenty-eight as ten, ten and eight.
 - [x] 1.3 The edition's words in five locales name the last page in the reading note and the page by one word. Done when `tests/locale.test.mjs` and the reading note's test pass. Both pass.
 
 ## 2. The index

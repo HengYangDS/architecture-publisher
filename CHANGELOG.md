@@ -14,10 +14,11 @@ remain pre-release contracts and may contain incompatible changes.
   shapes whose text is outlined glyphs. The manifest and the data record the two files in each plate's `figures`,
   the reader file names them on the view's line, `archpub verify` holds them to the manifest's digests and
   `archpub compare` reports one that differs under its plate, as both treat a page's image.
-- An edition ends with an index: every part once, by name, followed by the numbers of the plates that draw it,
-  each a link to its plate. Names stand word by word, a word in Latin letters or digits first, the rest as the
-  model's language sorts them. The parts stand twenty lines a half at one pitch, in order, and a long index takes a further page. Under it
-  stand the repository, the number of files read, the page and the data. The edition's page count includes it.
+- An edition ends with an index: every part once, by name, followed by the numbers of the plates that draw it, each a
+  link to its plate. Names stand word by word, a word in Latin letters or digits first, the rest as the model's
+  language sorts them. The parts stand twenty lines a half at one pitch, in order, and a long index takes a further
+  page. Under it stand the repository, the number of files read, the page and the data. The edition's page count
+  includes it. The model reference says which address a model states for its repository: the one a reader can open.
 - `SECURITY.md` says how to report a vulnerability and what counts as one, and `CODE_OF_CONDUCT.md` adopts the
   Contributor Covenant 3.0; `CONTRIBUTING.md` points to both and says which channels a release has to reach
   before it is finished.
@@ -29,8 +30,8 @@ remain pre-release contracts and may contain incompatible changes.
 - The contents set the overview apart from the plates: its number, name and claim open the left half of the
   first page, a link to it, above the scope, the limits and the reading note. The rows are the plates alone, each
   a link, and name no page. A half takes ten rows at most, each a tenth of the body high in every edition and in
-  order from the top, so a work of eleven plates or more takes further pages, each with its foot and the plates
-  it lists, and the page the rows end on is not filled; a continued page had no rows on its left and the first
+  order from the top, so a work of eleven plates or more takes further pages, each with its foot and the number
+  of plates, and the page the rows end on is not filled; a continued page had no rows on its left and the first
   page lost its foot. The edition's facts no longer stand beside the rows,
   and the reading note names the last page. A left half taller than the page refuses with
   `edition_front_too_long`, a part on more plates than an index page's lines hold with `edition_index_too_long`,

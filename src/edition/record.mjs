@@ -8,6 +8,14 @@ import { editionWordsOf } from "./words.mjs";
 
 const two = (number) => String(number).padStart(2, "0");
 
+/** The label a plate's page is found by, of its number; the overview's page is the plate numbered 00. */
+const keyOf = (number) => `plate-${number}`;
+
+/** The components a plate draws, each once, in the order of its runs. */
+const partsOf = (plate) => [
+  ...new Set(plate.runs.flatMap((run) => (run.component ? [run.component] : []))),
+];
+
 /**
  * A name as the words an index sorts it by: each word, and within a word each run of one script, since a name
  * such as "Agent技能" is read as two words whether or not a space parts them.
@@ -73,7 +81,8 @@ export function editionRecord(input) {
   const editors = model.editors.map(({ name }) => name);
   const subject = `${repository?.name ?? model.title}${release ? ` ${release}` : ""}`;
   const at = short ? `${short}${date ? ` · ${date}` : ""}` : null;
-  const plateRecords = plates.map((plate) => {
+  const drawn = plates.map(partsOf);
+  const plateRecords = plates.map((plate, index) => {
     const number = two(plate.page);
     const links = {};
     for (const run of plate.runs) {
@@ -83,7 +92,7 @@ export function editionRecord(input) {
     }
     // Beside a figure that leaves part of the body: the view's summary, and where each component it shows lives,
     // as the model claims it.
-    const shown = [...new Set(plate.runs.flatMap((run) => (run.component ? [run.component] : [])))];
+    const shown = drawn[index];
     const places =
       plate.reading === "set"
         ? shown.flatMap((id) => {
@@ -94,7 +103,7 @@ export function editionRecord(input) {
           })
         : [];
     return {
-      key: `plate-${number}`,
+      key: keyOf(number),
       number,
       views: plate.views,
       figureWidth: plate.width,
@@ -120,11 +129,13 @@ export function editionRecord(input) {
     };
   });
   const linked = plateRecords.some(({ links }) => Object.keys(links).length > 0);
-  // The contents' rows are the plates alone; the overview has its own entry, `front`.
-  /** @type {Record<string, { number: string, title: string, question: string }>} */
-  const rows = {};
-  for (const plate of plateRecords)
-    rows[plate.key] = { number: plate.number, title: plate.title, question: plate.question };
+  // The reading note about the page's name: the name is one word of it, which the class never breaks. Every
+  // language names the page once.
+  const note = words.readingNote(linked, input.page).split(input.page);
+  if (note.length !== 2) throw new Error("The reading note names the page once.");
+  const [before, after] = note;
+  const overviewNumber = two(0);
+  const data = `${model.id}.json`;
   const url = repository?.url ? repository.url.replace(/\.git$/u, "") : null;
   return {
     locale: model.locale,
@@ -167,18 +178,24 @@ export function editionRecord(input) {
         note: `Typst ${input.typst} · ${words.standards}`,
       },
     ],
-    // The overview's own entry on the first page of the contents: a number, a name and one line, as a row has
-    // them; the line is the claim the model states. The lead stands on the overview's own page.
+    // The overview's own entry on the first page of the contents: where it leads, a number, a name and one line,
+    // as a row has them; the line is the claim the model states. The lead stands on the overview's own page. The
+    // contents' rows are the plates themselves.
     front: input.overview
-      ? { number: "00", title: words.overview, claim: model.overview?.claim ?? null }
+      ? {
+          key: keyOf(overviewNumber),
+          number: overviewNumber,
+          title: words.overview,
+          claim: model.overview?.claim ?? null,
+        }
       : null,
-    // The index: every part once, by name, with the numbers of the plates that draw it.
+    // The index: every part once, by name, with the plates that draw it, each by its number and its page's label.
     index: model.components
       .map((component) => ({
         label: component.label,
         plates: plateRecords
-          .filter((plate) => plate.runs.some((run) => run.component === component.id))
-          .map((plate) => plate.number),
+          .filter((_, index) => drawn[index].includes(component.id))
+          .map(({ number, key }) => ({ number, key })),
       }))
       .sort((one, other) => compareNames(one.label, other.label, model.locale)),
     // The line that closes the index: the repository by the one address the model states, or by its name alone;
@@ -195,7 +212,7 @@ export function editionRecord(input) {
         : []),
       ...(facts.read ? [{ label: words.read, value: words.readValue(facts.read), url: null }] : []),
       { label: words.page, value: input.page, url: input.page },
-      { label: words.data, value: `${model.id}.json`, url: `${model.id}.json` },
+      { label: words.data, value: data, url: data },
     ],
     words: {
       edition: words.edition,
@@ -205,11 +222,9 @@ export function editionRecord(input) {
       scope: words.scope,
       limits: words.limits,
       reading: words.reading,
-      readingNote: words.readingNote(linked, input.page),
-      // The plates a page of the contents lists; the house class writes the two numbers in, which only it knows.
-      plateOnly: words.plateOnly("{from}"),
-      plateRange: words.plateRange("{from}", "{to}"),
-      plateRangeOf: words.plateRangeOf("{from}", "{to}", plates.length),
+      readingNote: { before, name: input.page, after },
+      // Under the title of each page of contents that take more than one.
+      plateCount: words.plateCount(plates.length),
       index: words.index,
       indexLead: words.indexLead,
       places: words.places,
@@ -217,7 +232,6 @@ export function editionRecord(input) {
       built: at ? words.built(short ?? "", date) : null,
       foot: short ? words.foot(model.title, release, short, date) : model.title,
     },
-    rows,
     plates: plateRecords,
   };
 }

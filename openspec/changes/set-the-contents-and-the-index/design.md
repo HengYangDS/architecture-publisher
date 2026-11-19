@@ -55,7 +55,8 @@ to the overview, a plate's answer in one place and the overview's three sizes fo
      question from the room gives.
    - Applies to: every edition.
 5. Four facts stand under the index, and none beside the contents.
-   - Rests on: the research page, finding 9, where each fact of the released contents stands after the Change.
+   - Rests on: the research page, finding 9, where each fact of the released contents stands after the Change;
+     for which address a model states, the owner's rule of 2026-11-20, written once, in `docs/reference/model.md`.
    - Considered: the facts kept beside the contents; the model's digest and the acceptance under the index.
    - Chosen because: the title page states the subject, release, editors, licence and publisher, and every page's
      foot the revision and date; a digest cut to fit verifies nothing and stands whole in the manifest; an
@@ -77,6 +78,19 @@ to the overview, a plate's answer in one place and the overview's three sizes fo
      lines; names and numbers keep the 18 points of the contents' titles and numbers, which that line holds; and
      the parts of every work are read at one pitch.
    - Applies to: every edition.
+8. One mechanism sets both lists, and the record states what they say.
+   - Rests on: a review of this Change's code, before its tests, against the owner's design principles of
+     2026-11-20 (one source for each fact, no repetition, deep modules with a small surface, decoupling,
+     declarative form), which found eleven faults in its first form and six smaller ones in their fixes.
+   - Considered: each list sharing out, breaking and closing its own halves (the first form); the record laying
+     the contents out page by page, which puts a rule of the page into the record; a page of contents that names
+     the plates it lists, which the class filled into the record's words by placeholders.
+   - Chosen because: the class owns what a page holds, and the record what the edition says. One function shares a
+     list's items over halves and pages and one sets them; the contents and the index hand it their items. A page
+     of contents says how many plates there are, which the record knows, and its rows show which. The rows are
+     the plates themselves, the index cites a plate by the label the record gives it, and the page's name in the
+     reading note is stated as one word, so the class recognises nothing by its shape.
+   - Applies to: the contents and the index.
 
 ## Risks / Trade-offs
 
@@ -87,3 +101,6 @@ to the overview, a plate's answer in one place and the overview's three sizes fo
 - An index is filled in order, so its right column mostly ends short of its left, and a work of forty-one or
   forty-two parts takes a second page for one or two; the largest published work has forty-two.
 - The page and the data are named as links beside the edition's file; no viewer was tried.
+- A delivery's file names are composed in the build, the manifest, the projection and the edition's record, and
+  the house's measures are read in three modules: standing repetitions that the same review found, left to a
+  Change of their own.

@@ -16,13 +16,15 @@ had shown, since none has more than eleven plates.
   entry, its number, name and claim, opens the left half of the first page above the scope, the limits and the
   reading note.
 - A half of a contents page takes ten rows at most, each a tenth of the body high in every edition and in order
-  from the top; a further page sets rows in both halves, has its foot and says which plates it lists, and the
-  page the rows end on is not filled.
+  from the top; a further page sets rows in both halves, has its foot and says how many plates there are, and
+  the page the rows end on is not filled.
 - The edition ends with an index: every part by name, followed by the numbers of the plates that draw it, each a
   link; twenty lines a half at one pitch and in order, on further pages for a large work.
 - Under the index stand the repository, the number of files read, the page and the data. The facts beside the
   contents leave: the title page and every page's foot state the rest, and the model's digest stands in the
   manifest.
+- The model reference says which address a model states for its repository: the one a reader of the edition can
+  open.
 - **BREAKING**: an edition has one page more, and `edition_front_too_long` and `edition_index_too_long` refuse
   what the two pages cannot hold.
 

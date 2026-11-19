@@ -95,13 +95,13 @@ files state them; none was measured again, and the first two state no method.
   from small models built in tests, its records read back with `typst eval`; no picture of it was made. With the
   rows shared out evenly, eleven a half: 11 plates on one page, rows 64.9 points apart; 12 plates on two pages of
   4, 4 and 4 rows, 178.5 points apart. After the ruling, ten a half at one pitch of 71.4 points: 6 plates on six
-  of the right half's ten lines; 10 on one page; 11 as ten and one; 28 as 10, 10 and 8, a foot on both pages; one
-  rule under the last row. The index with its columns' even shares: 6 parts in two columns of 3; 42 parts in four
+  of the right half's ten lines; 10 on one page; 11 as ten and one; 28 as 10, 10 and 8, a foot on both pages; a
+  rule under the last row of each half. The index with its columns' even shares: 6 parts in two columns of 3; 42 parts in four
   columns of 11, 11, 10 and 10, 64.9 points apart; 120 parts on two pages of four columns of 15, 47.6 points
   apart; by the parts' counts the six published works stood 42 to 65 points apart (computed, not measured on
   their pages). The index after the owner's word, twenty lines a half at 35.7 points: 6 parts in the left column;
-  26 as twenty and six; 42 as forty on one page and two on a second; 120 on three pages of forty; one rule under
-  the last part.
+  26 as twenty and six; 42 as forty on one page and two on a second; 120 on three pages of forty; a rule under the
+  last part of each column.
 
 ## Findings
 
@@ -196,7 +196,9 @@ out evenly, found the largest published work on two sparse pages at ten and on o
 eleven. Shown both, the owner ruled that the sharing was the fault: ten a half at one pitch, the eleventh row on a
 second page. A first page of fewer than ten rows was then drawn both ways for a work of six plates, at the pitch
 and opened to fill its half, and put to him with the holder's reading, the pitch; he answered 「按照你建议的方式」
-(05:53).
+(05:53). The pages of contents drawn so far named the plates each lists, which their rows already show; after a
+review of the code against the owner's design principles (07:00) a page says how many plates the edition has, and
+both lists are set by one mechanism.
 
 ## What follows for the product
 

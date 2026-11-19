@@ -189,6 +189,29 @@ pinned revision, its path encoded segment by segment.
 A revision cannot name the commit that contains it, so a model kept in the
 repository it describes pins an earlier commit.
 
+### Which address to state
+
+`repository.url` is the one address an edition states: under its index, and in
+the page's citations. State the address a reader of the edition can open, and
+no other; `repository.browse` follows the same rule. Public means reachable
+from the internet without signing in: a repository that asks for an account or
+a permission, or stands on an internal network, is not public.
+
+| The repository is           | State                                                                                                                                       |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| on GitHub alone, public     | that address                                                                                                                                |
+| on GitHub alone, not public | no address: the edition prints the repository's `name` alone                                                                                |
+| on GitLab alone, public     | that address                                                                                                                                |
+| on GitLab alone, not public | no address                                                                                                                                  |
+| on both, both public        | one address: the main repository, where the work is done and issues are handled; where neither is the main one, either, the same throughout |
+| on both, one public         | the public one                                                                                                                              |
+| on both, neither public     | no address                                                                                                                                  |
+
+Another host is treated as GitLab is here. An edition that stays among readers
+who can open the repository may state an address that is not public. The
+publisher cannot tell from an address whether a repository is public and
+checks none of this: what the model states is what the edition prints.
+
 ### From earlier versions
 
 A version 1 model listed its files in a `sources` catalog that components and
