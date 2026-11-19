@@ -33,15 +33,24 @@ be refused as one whose image is.
 - **WHEN** a delivery's `figures/01-route.svg` is changed after the build and the delivery is verified
 - **THEN** the delivery is refused, and the refusal names that file
 
+### Requirement: One date a page
+
+A plate's page SHALL state the commit's date once, in its foot. The key of a page SHALL state none.
+
+#### Scenario: One date a page
+
+- **WHEN** a plate's page is typeset from a pin with a commit date
+- **THEN** the date stands in the page's foot and nowhere in its key
+
 ## MODIFIED Requirements
 
 ### Requirement: Staged build output
 
 `archpub build` SHALL write a delivery into a directory that does not yet exist: the print edition
-`<model id>.pdf`, the interactive page `<model id>.html`, the edition's images in `images/`, its figures alone in
-`figures/`, `model.json`, the data `<model id>.json`, the reader file `<model id>.md` and `manifest.json`. Nothing
-else SHALL be written at the top of the delivery. It SHALL stage the delivery and move it into place only after
-every artifact succeeds, so a refused or failed build leaves no output.
+`<model id>.pdf`, the interactive page `<model id>.html`, the edition's images in `images/`, its figures in
+`figures/`, `model.json`, the data `<model id>.json`, the reader file `<model id>.md` and `manifest.json`, and
+nothing else at the top of the delivery. It SHALL stage the delivery and move it into place only after every
+artifact succeeds, so a refused or failed build leaves no output.
 
 #### Scenario: Semantic names
 
@@ -111,7 +120,7 @@ A plate's head SHALL be its number, its view's title and its question. Its key S
 cannot say where it stands, and no more, on one line where the body holds it, its baseline at 850 points on every
 plate and each mark centred on its label's mid-line: what the age bands count from and the bands, the scale bar,
 the citation count, the hub, the boundary, the statuses and the ground of a part outside the repository. It SHALL
-list no kind. A plate's page SHALL state the commit's date once, in its foot: the key of a page states none.
+list no kind.
 
 #### Scenario: A plate's key
 
@@ -124,11 +133,6 @@ list no kind. A plate's page SHALL state the commit's date once, in its foot: th
 - **WHEN** a plate shows files in all three bands and relations that cite files and no hub
 - **THEN** its key says that the bands count back from the commit and names the three bands, the scale bar and the
   citation count, and no hub
-
-#### Scenario: One date a page
-
-- **WHEN** a plate's page is typeset from a pin with a commit date
-- **THEN** the date stands in the page's foot and nowhere in its key
 
 #### Scenario: A part outside the repository
 

@@ -1,28 +1,18 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
-### Requirement: Plate drawing
+### Requirement: A gap in a line
 
-The engine SHALL draw a plate as an SVG of its shapes, with any icons as inline
-paths and no text, paper, head, key or notes, and SHALL report its text as runs:
-each run's text, position, size, weight, colour and the width it measured, and
-the component whose title it is. Its colours SHALL come from the edition's
-resolved palette only, and relation labels SHALL be set in the regular weight,
-so they read under the parts they join. It SHALL fill nothing with the colour of
-the page: a line and the boundary's edge are broken where a relation's label or
-the boundary's name stands on them, by a clip path that leaves those boxes out,
-so that a figure reads on any light ground.
-
-#### Scenario: Shapes without text
-
-- **WHEN** a plate is drawn
-- **THEN** its SVG holds no text and no glyph outlines
-- **AND** every card label, detail and relation label is one of its runs
+The engine SHALL fill nothing with the colour of the page. A line and the boundary's edge SHALL be broken where a
+relation's label or the boundary's name stands on them, by a clip path that leaves those boxes out, so that a
+figure reads on any light ground.
 
 #### Scenario: A line under a label
 
 - **WHEN** a relation's line passes where its label stands
 - **THEN** the line is drawn on both sides of the label's box and not within it
 - **AND** the plate's SVG holds no shape filled with the paper's colour
+
+## MODIFIED Requirements
 
 ### Requirement: Age bands
 
