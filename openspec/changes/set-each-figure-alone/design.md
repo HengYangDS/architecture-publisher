@@ -1,7 +1,7 @@
 ## Context
 
-See [proposal.md](proposal.md) and the research page [figures alone](../../docs/research/figures-alone.md), which
-records the trial and the receivers' own documents. A figure's shapes are one SVG and its text is set by Typst at the
+See [proposal.md](proposal.md) and the research page `docs/research/figures-alone.md`, which records the trial and
+the receivers' own documents. A figure's shapes are one SVG and its text is set by Typst at the
 engine's positions; inside the figure the paper colour fills two kinds of rectangle — under a relation's label and
 under the boundary's name — and each covers a line.
 

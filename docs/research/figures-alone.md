@@ -8,7 +8,7 @@ relations:
 
 # A figure alone: what it takes to leave the edition
 
-A research page. It records what a view's figure needs in order to be used outside its edition, in a slide, a
+A research page. It records what a view's figure needs to be used outside its edition, in a slide, a
 document or a chat: what the product draws today that stops it, what was tried, and what the programs that would
 receive the figure document about the two formats. It decides nothing; the decision that rests on it is in the
 design of the Change that serves the queue item `figures-alone`.
@@ -207,14 +207,14 @@ minutes, two builds side by side. Each was built from the same model as the deli
 2026-11-19. Each page's image was compared with that delivery's above the key line, the rows over 833 of 900
 points, by ImageMagick's count of pixels that differ at all.
 
-| Work                   | Most pixels that differ on one page, of 7,676,160 |
-| ---------------------- | ------------------------------------------------- |
-| aigw-client            | 2                                                 |
-| architecture-publisher | 2                                                 |
-| ddwg                   | 10                                                |
-| ethos                  | 6                                                 |
-| filmkit                | 11                                                |
-| openai-responses-proxy | 2                                                 |
+| Work                     | Most pixels that differ on one page, of 7,676,160 |
+| ------------------------ | ------------------------------------------------- |
+| `aigw-client`            | 2                                                 |
+| `architecture-publisher` | 2                                                 |
+| `ddwg`                   | 10                                                |
+| `ethos`                  | 6                                                 |
+| `filmkit`                | 11                                                |
+| `openai-responses-proxy` | 2                                                 |
 
 94 pages compared; the most on any page is 11. The deliveries hold 164 figure files, a PNG and an SVG a plate. A
 reader other than the holder read the first plate's figure of each delivery over a pale ground and a dark one, and its
