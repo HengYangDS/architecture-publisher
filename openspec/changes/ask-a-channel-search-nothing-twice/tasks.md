@@ -20,9 +20,9 @@
 
 ## 5. The record
 
-- [ ] 5.1 Enter the four changes' measurements in `docs/research/build-and-suite-time.md` and record them under `Unreleased` in `CHANGELOG.md`. Done when the static checks pass.
+- [x] 5.1 Enter the four changes' measurements in `docs/research/build-and-suite-time.md` and record them under `Unreleased` in `CHANGELOG.md`. Done when the static checks pass. The four changes' measurements stand in the page, the changelog records them, and `npm run check:static` passes.
 
 ## 6. Acceptance
 
-- [ ] 6.1 Build the six works in both languages before and after and compare each pair file by file. Done when all twelve pairs are identical and the summed times stand in the research page.
+- [x] 6.1 Build the six works in both languages before and after and compare each pair file by file. Done when all twelve pairs are identical and the summed times stand in the research page. All twelve pairs before and after the four changes are identical file by file, 970 s summed before and 619 s after on a busy host; the times stand in the research page.
 - [ ] 6.2 Rehearse the archive of this Change without applying it. Done when the rehearsal accepts it.

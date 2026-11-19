@@ -23,6 +23,13 @@ remain pre-release contracts and may contain incompatible changes.
   the document, and read from there before Archify is asked; a path that cannot be made a directory refuses with
   `answers_unkept`. Without the variable nothing is kept outside the process. The suite names one directory for a
   run, and its test of the installed package names none.
+- A build spends less time in the search of a plate's channels: what an option puts into a band is named once,
+  before the search, where every assignment listed and serialized it; whether two choices fit is asked once a
+  search, where it was asked at every assignment that held both; what two spans of a band are to one another is
+  worked out once a pair, where each of up to 720 orders worked it out anew; and a wire segment carries where it
+  reaches and which way it runs from where it is made, where every pair of segments worked them out. The twelve
+  published works built together took 619 s where they took 970 s, on a busy host. No layout, plate or
+  digest changes.
 - The queue holds the item `performance`, first among the open ones, and `docs/research/build-and-suite-time.md`
   records where the time of a build, of the suite and of a pipeline goes.
 
