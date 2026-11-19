@@ -1,0 +1,53 @@
+## MODIFIED Requirements
+
+### Requirement: Plate drawing
+
+The engine SHALL draw a plate as an SVG of its shapes, with any icons as inline
+paths and no text, paper, head, key or notes, and SHALL report its text as runs:
+each run's text, position, size, weight, colour and the width it measured, and
+the component whose title it is. Its colours SHALL come from the edition's
+resolved palette only, and relation labels SHALL be set in the regular weight,
+so they read under the parts they join. It SHALL fill nothing with the colour of
+the page: a line and the boundary's edge are broken where a relation's label or
+the boundary's name stands on them, by a clip path that leaves those boxes out,
+so that a figure reads on any light ground.
+
+#### Scenario: Shapes without text
+
+- **WHEN** a plate is drawn
+- **THEN** its SVG holds no text and no glyph outlines
+- **AND** every card label, detail and relation label is one of its runs
+
+#### Scenario: A line under a label
+
+- **WHEN** a relation's line passes where its label stands
+- **THEN** the line is drawn on both sides of the label's box and not within it
+- **AND** the plate's SVG holds no shape filled with the paper's colour
+
+### Requirement: Age bands
+
+Every edition SHALL divide the files its parts own into three age bands counted back from the pin's commit: changed
+within a week, over a week and within three months, and earlier. A file's age SHALL be the pin's commit time minus
+that of its last change at or before the pin. The key SHALL say what the bands count from and name each band by its
+bounds and a unit and no more, the middle band by both its bounds, so that no file's age fits the names of two
+bands.
+
+#### Scenario: Recent and older files
+
+- **WHEN** an edition's files changed one, thirty and four hundred days before the pin
+- **THEN** the three files fall in three different bands, the same bands every edition uses
+
+#### Scenario: A file a relation cites and no part owns
+
+- **WHEN** a relation cites a file that no part owns
+- **THEN** the file falls in no band, and no strip shows it
+
+#### Scenario: The middle band's name
+
+- **WHEN** a plate's key names the band of files changed over 7 and within 90 days before the pin
+- **THEN** its words hold both numbers, in every language the publisher speaks
+
+#### Scenario: A band's words
+
+- **WHEN** a plate's key names its three bands in English
+- **THEN** it reads `≤ 7 d`, `7–90 d` and `> 90 d` after the entry that says they count back from the commit
