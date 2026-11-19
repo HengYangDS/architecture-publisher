@@ -20,17 +20,13 @@ repository.
 
 ## Report a vulnerability
 
-Do not open a public issue. Write to the maintainer privately at the email
-address on [their GitHub profile](https://github.com/HengYangDS), with the
-version, what an attacker could do and how to reproduce it.
+Privately, never in a public issue: [SECURITY.md](SECURITY.md) says how and
+what counts as one.
 
 ## Conduct
 
-Be kind and assume good faith. Discuss the work, not the person; no
-harassment, insults or unwelcome attention, in issues, pull requests or
-anywhere the project is discussed. The maintainer may remove comments and block
-people who do not keep to this. Report a problem privately to the address
-above.
+The [code of conduct](CODE_OF_CONDUCT.md) holds in issues, pull requests and
+anywhere the project is discussed.
 
 ## Maintainers
 
@@ -81,6 +77,12 @@ never push `dev` or `main` directly.
 [changelog](CHANGELOG.md) at the release cut. A release lands like any change;
 `ethos land --release` then signs the `vX.Y.Z` tag at the accepted head. Each
 Forge publishes and verifies its own Release.
+
+A release is finished when every channel carries it: the Release on both
+Forges, the package on npm, and `Formula/archpub.rb` in the
+[Homebrew tap](https://github.com/HengYangDS/homebrew-tap), whose URLs and
+SHA-256 values are the Release's. The plate in the [README](README.md) is
+built by the released version from the publisher's own work.
 
 A Release holds the npm package, the command's archives and their declaration,
 with `SHA256SUMS`. On macOS, from the tag's package:

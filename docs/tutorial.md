@@ -1,6 +1,6 @@
 ---
 subject: architecture-publisher:tutorial
-role: how-to
+role: tutorial
 state: canonical
 relations:
   governed_by: product-contract.md

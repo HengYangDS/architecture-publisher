@@ -4,8 +4,8 @@
 
 ## 2. The repository's files
 
-- [ ] 2.1 Add `SECURITY.md` and `CODE_OF_CONDUCT.md` at the root, point `CONTRIBUTING.md` to them, and name there the channels a release has to reach. Done when `npm run check:static` and `npm run check:package` pass.
-- [ ] 2.2 Give `docs/tutorial.md` the role `tutorial`. Done when `npm run check:static` passes.
+- [x] 2.1 Add `SECURITY.md` and `CODE_OF_CONDUCT.md` at the root, point `CONTRIBUTING.md` to them, and name there the channels a release has to reach. Done when `npm run check:static` and `npm run check:package` pass. Both files stand at the root, `CONTRIBUTING.md` points to them and names the channels, and both checks pass.
+- [x] 2.2 Give `docs/tutorial.md` the role `tutorial`. Done when `npm run check:static` passes. `npm run check:static` passes.
 - [ ] 2.3 Replace the README's plate with plate 01 of the publisher's own work as the released 0.15.0 builds it at 2400 px, and name the version under it. Done when the image is byte for byte the delivery's.
 
 ## 3. Record
