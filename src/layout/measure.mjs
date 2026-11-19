@@ -5,22 +5,35 @@
 
 const owner = (relations) => relations.map(({ id }) => id).join(",");
 
+/**
+ * A layout's wires as segments. What a segment is of itself is worked out here, once: whose it is, where it
+ * reaches (`x1` to `x2`, `y1` to `y2`) and whether it runs down or across. The measures ask these of every pair of
+ * segments, and a channel's search measures every assignment it completes.
+ */
 function segmentsOf(paths) {
-  return paths.flatMap(({ relations, points }) =>
-    points
-      .slice(1)
-      .map((point, index) => ({ owner: owner(relations), relations, a: points[index], b: point })),
-  );
+  const segments = [];
+  for (const { relations, points } of paths) {
+    const name = owner(relations);
+    for (let index = 1; index < points.length; index += 1) {
+      const [a, b] = [points[index - 1], points[index]];
+      const [ax, ay, bx, by] = [a[0], a[1], b[0], b[1]];
+      segments.push({
+        owner: name,
+        relations,
+        a,
+        b,
+        x1: Math.min(ax, bx),
+        x2: Math.max(ax, bx),
+        y1: Math.min(ay, by),
+        y2: Math.max(ay, by),
+        vertical: Math.abs(ax - bx) < 0.5,
+        horizontal: Math.abs(ay - by) < 0.5,
+      });
+    }
+  }
+  return segments;
 }
 
-const span = (segment) => ({
-  x1: Math.min(segment.a[0], segment.b[0]),
-  x2: Math.max(segment.a[0], segment.b[0]),
-  y1: Math.min(segment.a[1], segment.b[1]),
-  y2: Math.max(segment.a[1], segment.b[1]),
-});
-const vertical = (segment) => Math.abs(segment.a[0] - segment.b[0]) < 0.5;
-const horizontal = (segment) => Math.abs(segment.a[1] - segment.b[1]) < 0.5;
 const overlaps = (a, b, tolerance = 0.5) =>
   a.x < b.x + b.width - tolerance &&
   b.x < a.x + a.width - tolerance &&
@@ -40,7 +53,7 @@ export function measureLayout(geometry) {
   const defects = [];
   let crossings = 0;
   for (const segment of segments)
-    if (!vertical(segment) && !horizontal(segment))
+    if (!segment.vertical && !segment.horizontal)
       defects.push({
         code: "layout_wire_diagonal",
         relations: segment.owner,
@@ -48,37 +61,35 @@ export function measureLayout(geometry) {
       });
   for (let i = 0; i < segments.length; i += 1)
     for (let j = i + 1; j < segments.length; j += 1) {
-      const [s, u] = [segments[i], segments[j]];
-      if (s.owner === u.owner) continue;
-      const [a, b] = [span(s), span(u)];
-      if (vertical(s) !== vertical(u)) {
-        const [v, h] = vertical(s) ? [a, b] : [b, a];
+      const [a, b] = [segments[i], segments[j]];
+      if (a.owner === b.owner) continue;
+      if (a.vertical !== b.vertical) {
+        const [v, h] = a.vertical ? [a, b] : [b, a];
         if (v.x1 > h.x1 + 0.5 && v.x1 < h.x2 - 0.5 && h.y1 > v.y1 + 0.5 && h.y1 < v.y2 - 0.5)
           crossings += 1;
       } else if (
-        vertical(s) &&
+        a.vertical &&
         Math.abs(a.x1 - b.x1) < 0.5 &&
         Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1) > 0.5
       )
         defects.push({
           code: "layout_wire_shared",
-          relations: `${s.owner} ${u.owner}`,
+          relations: `${a.owner} ${b.owner}`,
           message: "two relations share a vertical segment",
         });
       else if (
-        horizontal(s) &&
+        a.horizontal &&
         Math.abs(a.y1 - b.y1) < 0.5 &&
         Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1) > 0.5
       )
         defects.push({
           code: "layout_wire_shared",
-          relations: `${s.owner} ${u.owner}`,
+          relations: `${a.owner} ${b.owner}`,
           message: "two relations share a horizontal segment",
         });
     }
   const cards = [...geometry.cards].map(([id, card]) => ({ id, ...card }));
-  for (const segment of segments) {
-    const box = span(segment);
+  for (const box of segments) {
     for (const card of cards)
       if (
         box.x1 > card.x + 1 &&
@@ -88,7 +99,7 @@ export function measureLayout(geometry) {
       )
         defects.push({
           code: "layout_wire_through_card",
-          relations: segment.owner,
+          relations: box.owner,
           card: card.id,
           message: `a wire passes through ${card.id}`,
         });
@@ -112,9 +123,8 @@ export function measureLayout(geometry) {
           card: card.id,
           message: `a label overlaps ${card.id}`,
         });
-    for (const segment of segments) {
-      if (segment.owner === name) continue;
-      const box = span(segment);
+    for (const box of segments) {
+      if (box.owner === name) continue;
       if (
         overlaps(label, {
           x: box.x1 - 0.5,
@@ -125,7 +135,7 @@ export function measureLayout(geometry) {
       )
         defects.push({
           code: "layout_label_collision",
-          relations: `${name} ${segment.owner}`,
+          relations: `${name} ${box.owner}`,
           message: "a label covers another relation's wire",
         });
     }
@@ -214,60 +224,71 @@ function routeDefects(geometry, segments) {
   // A third relation's vertical across the line between two horizontals in
   // line, within the gap between them, where the two are no fan: read as one
   // line, they join cards that no relation joins.
-  const bridged = (s, u, a, b) =>
-    horizontal(s) &&
-    !fan(s, u) &&
-    segments.some((w) => {
-      if (w.owner === s.owner || w.owner === u.owner || !vertical(w)) return false;
-      const c = span(w);
-      return (
-        c.x1 > Math.min(a.x2, b.x2) && c.x1 < Math.max(a.x1, b.x1) && c.y1 < a.y1 && c.y2 > a.y1
-      );
-    });
-  for (let i = 0; i < segments.length; i += 1)
+  const bridged = (a, b) =>
+    a.horizontal &&
+    !fan(a, b) &&
+    segments.some(
+      (c) =>
+        c.owner !== a.owner &&
+        c.owner !== b.owner &&
+        c.vertical &&
+        c.x1 > Math.min(a.x2, b.x2) &&
+        c.x1 < Math.max(a.x1, b.x1) &&
+        c.y1 < a.y1 &&
+        c.y2 > a.y1,
+    );
+  // What two segments of different relations that run the same way make of one another, if anything.
+  const between = (a, b) => {
+    // Across the wires, and along them: positive overlap, negative gap.
+    const apart = a.vertical ? Math.abs(a.x1 - b.x1) : Math.abs(a.y1 - b.y1);
+    const along = a.vertical
+      ? Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1)
+      : Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1);
+    if (apart >= 0.5 && apart < ROUTE.parallel && along > 0.5) return "route_wires_close";
+    if (apart < 0.5 && along <= 0.5 && along > -ROUTE.join) return "route_wire_continued";
+    if (apart < 0.5 && along > -ROUTE.jump && bridged(a, b)) return "route_wire_jumps";
+    if (apart >= 0.5 && apart < ROUTE.alongside && along > ROUTE.run)
+      return "route_wires_alongside";
+    if (
+      apart >= 0.5 &&
+      apart < ROUTE.alongside &&
+      along > 0.5 &&
+      staggered(a.vertical ? [a.y1, a.y2, b.y1, b.y2] : [a.x1, a.x2, b.x1, b.x2])
+    )
+      return "route_wires_interlock";
+    return null;
+  };
+  for (let i = 0; i < segments.length; i += 1) {
+    const a = segments[i];
     for (let j = i + 1; j < segments.length; j += 1) {
-      const [s, u] = [segments[i], segments[j]];
-      if (s.owner === u.owner || vertical(s) !== vertical(u)) continue;
-      const [a, b] = [span(s), span(u)];
-      // Across the wires, and along them: positive overlap, negative gap.
-      const [apart, along] = vertical(s)
-        ? [Math.abs(a.x1 - b.x1), Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1)]
-        : [Math.abs(a.y1 - b.y1), Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)];
-      const at = [
-        (Math.max(a.x1, b.x1) + Math.min(a.x2, b.x2)) / 2,
-        (Math.max(a.y1, b.y1) + Math.min(a.y2, b.y2)) / 2,
-      ];
-      const relations = `${s.owner} ${u.owner}`;
-      if (apart >= 0.5 && apart < ROUTE.parallel && along > 0.5)
-        found.push({ code: "route_wires_close", relations, at });
-      else if (apart < 0.5 && along <= 0.5 && along > -ROUTE.join)
-        found.push({ code: "route_wire_continued", relations, at });
-      else if (apart < 0.5 && along > -ROUTE.jump && bridged(s, u, a, b))
-        found.push({ code: "route_wire_jumps", relations, at });
-      else if (apart >= 0.5 && apart < ROUTE.alongside && along > ROUTE.run)
-        found.push({ code: "route_wires_alongside", relations, at });
-      else if (
-        apart >= 0.5 &&
-        apart < ROUTE.alongside &&
-        along > 0.5 &&
-        staggered(vertical(s) ? [a.y1, a.y2, b.y1, b.y2] : [a.x1, a.x2, b.x1, b.x2])
-      )
-        found.push({ code: "route_wires_interlock", relations, at });
+      const b = segments[j];
+      if (a.owner === b.owner || a.vertical !== b.vertical) continue;
+      const code = between(a, b);
+      if (code)
+        found.push({
+          code,
+          relations: `${a.owner} ${b.owner}`,
+          at: [
+            (Math.max(a.x1, b.x1) + Math.min(a.x2, b.x2)) / 2,
+            (Math.max(a.y1, b.y1) + Math.min(a.y2, b.y2)) / 2,
+          ],
+        });
     }
+  }
   // A turn beside a card's edge, within its span, reads as the wire leaving
   // that card when the wire does not connect it.
+  const cards = [...geometry.cards];
   for (const { relations, points } of geometry.paths) {
-    const connected = new Set(relations.flatMap(({ from, to }) => [from, to]));
+    const connects = (id) => relations.some(({ from, to }) => from === id || to === id);
     for (const [x, y] of points.slice(1, -1))
-      for (const [id, card] of geometry.cards) {
-        if (connected.has(id)) continue;
+      for (const [id, card] of cards) {
         const across =
           x > card.x + 0.5 && x < card.x + card.width - 0.5
             ? Math.max(card.y - y, y - card.y - card.height)
             : y > card.y + 0.5 && y < card.y + card.height - 0.5
               ? Math.max(card.x - x, x - card.x - card.width)
               : Infinity;
-        if (across > 0 && across < ROUTE.join)
+        if (across > 0 && across < ROUTE.join && !connects(id))
           found.push({
             code: "route_turn_by_card",
             relations: `${owner(relations)} ${id}`,
@@ -295,9 +316,8 @@ function routeDefects(geometry, segments) {
       width: label.width + 2 * ROUTE.label,
       height: label.height + 2 * ROUTE.label,
     };
-    for (const segment of segments) {
-      if (segment.owner === name) continue;
-      const box = span(segment);
+    for (const box of segments) {
+      if (box.owner === name) continue;
       if (
         overlaps(near, {
           x: box.x1 - 0.5,
@@ -308,7 +328,7 @@ function routeDefects(geometry, segments) {
       ) {
         found.push({
           code: "route_label_near_wire",
-          relations: `${name} ${segment.owner}`,
+          relations: `${name} ${box.owner}`,
           at: [label.x + label.width / 2, label.y + label.height / 2],
           apart: [
             Math.max(0, box.x1 - label.x - label.width, label.x - box.x2),
@@ -328,10 +348,10 @@ function routeDefects(geometry, segments) {
     const jog = segments.some(
       (segment) =>
         segment.owner === name &&
-        horizontal(segment) &&
+        segment.horizontal &&
         inside(segment.a[1]) &&
-        Math.min(segment.a[0], segment.b[0]) < label.x + label.width &&
-        Math.max(segment.a[0], segment.b[0]) > label.x,
+        segment.x1 < label.x + label.width &&
+        segment.x2 > label.x,
     );
     if (!jog) continue;
     const turn = geometry.paths.find(

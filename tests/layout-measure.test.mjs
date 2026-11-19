@@ -166,3 +166,37 @@ test("a label on its own run just over another relation's turn is a route defect
     ["route_label_over_turn jog turn"],
   );
 });
+
+test("measuring reads each point of a wire a fixed number of times, however many wires there are", () => {
+  // The measures ask every pair of segments how the two lie to one another, and a channel's search measures every
+  // assignment it completes. Where a segment reaches is worked out once, where the segment is made, so the reads
+  // of a point grow with the points and not with the pairs.
+  const reads = { coordinates: 0 };
+  const counted = (point) =>
+    new Proxy(point, {
+      get(target, key, receiver) {
+        if (key === "0" || key === "1") reads.coordinates += 1;
+        return Reflect.get(target, key, receiver);
+      },
+    });
+  // Forty wires with two turns each, far enough apart to make no defect.
+  const wires = 40;
+  const paths = Array.from({ length: wires }, (_, index) => {
+    const x = index * 400;
+    const points = [
+      [x, index * 60],
+      [x + 200, index * 60],
+      [x + 200, index * 60 + 30],
+      [x + 300, index * 60 + 30],
+    ];
+    return path(`wire-${index}`, ...points.map(counted));
+  });
+  const points = wires * 4;
+  const measured = measureLayout(geometry({ paths }));
+  assert.deepEqual(measured, { crossings: 0, bends: wires * 2, defects: [], routes: [] });
+  // Each end of each segment is read once, and each turn once more for the cards it may stand beside.
+  assert.ok(
+    reads.coordinates <= 8 * points,
+    `${reads.coordinates} reads of a coordinate for ${points} points of ${wires} wires`,
+  );
+});

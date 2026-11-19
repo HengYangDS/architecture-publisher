@@ -15,8 +15,8 @@
 
 ## 4. The measure of a layout
 
-- [ ] 4.1 Test first that measuring a layout of forty wires reads each point's coordinates a fixed number of times. Done when the test fails on the source of task 3.2.
-- [ ] 4.2 Work out a segment's owner, reach and direction where the segment is made, and make nothing for a pair that makes no defect. Done when the test passes, the measure's six other tests pass unchanged and the four test files of task 1.2 pass unchanged.
+- [x] 4.1 Test first that measuring a layout of forty wires reads each point's coordinates a fixed number of times. Done when the test fails on the source of task 3.2. On the source of task 3.2 measuring forty wires reads a coordinate 262,040 times for 160 points, and the test fails.
+- [x] 4.2 Work out a segment's owner, reach and direction where the segment is made, and make nothing for a pair that makes no defect. Done when the test passes, the measure's six other tests pass unchanged and the four test files of task 1.2 pass unchanged. The test passes with 640 reads, the measure's six other tests pass unchanged, and the four test files pass unchanged.
 
 ## 5. The record
 
