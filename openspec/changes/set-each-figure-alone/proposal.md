@@ -31,6 +31,7 @@ None.
   plate's page states its commit's date once, in its foot.
 - `poster-composition`: a line is broken under a label by a gap and nothing is filled with the page's colour; the
   key names a band by its bounds and a unit.
+- `overview-page`: the overview's image named without its width is the one 3840 px wide.
 
 ## Impact
 
