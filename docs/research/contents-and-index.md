@@ -11,7 +11,7 @@ relations:
 A research page. It records what was measured, drawn and read on 2026-11-19 for the print edition's contents and
 for its last page: how few plates a part stands on, what the released contents do at 28 plates, three drawings and
 why the first two were dropped, what five readers found in the drawings, and what atlases, talks, tools and
-indexers do. It decides nothing; the decision that rests on it is in the design of the Change that serves the
+indexers do; and the owner's ruling of 2026-11-20 on the contents as drawn. It decides nothing; the decision that rests on it is in the design of the Change that serves the
 contents and index of the queue item `edition-map`.
 
 ## Question
@@ -30,16 +30,27 @@ Glosses, which are translations and not the owner's words: the contents and the 
 either may take several pages; parts times plates will not do, since the plates of one part are sparse; sixteen
 rows on a page of contents are too crowded. At 22:29 he asked that the overview stand by itself on the left of the
 contents and that each side hold ten rows at most; that sentence names a work by its id and is given here in gloss
-alone. Which form lets a reader of 6, 11 or 28 plates find a plate by its question and a part by its name, on pages
+alone. On 2026-11-20 at 05:35, on the drawings of ten and of eleven rows a side, he ruled the contents again, in a
+sentence that names the same work and is given in gloss alone: the arrangement was wrong; the first page has the
+overview on the left and ten rows on the right, and the second page one row on its left; a page the contents
+continue on is not to be filled; the rows are equally spaced and not stretched to fill; and the holder's
+constraints had not been his. At 06:05 he set the index by the same rule:
+
+> 「索引那里左右每边 20 个，你看下高度和字体怎么排」
+
+A gloss, which is a translation and not his words: in the index, twenty on each side, left and right; the height and
+the type are for the holder to work out. Which form lets a reader of 6, 11 or 28 plates find a plate by its question and a part by its name, on pages
 that stay full?
 
 ## Short answer
 
 A part stands on few plates, so a table of parts against plates is mostly empty, and its numbers run together
 from about 16 plates; a list of names, each followed by the numbers of its plates, holds the same facts at any
-size. The released contents lose the foot and leave two fifths of a continued page empty; rows shared out evenly
-over two halves a page fill every page. Five readers of the drawings took both pages with changes. No link was
-clicked, and no work of 12 or of 99 plates was built.
+size. The released contents lose the foot and leave two fifths of a continued page empty. Rows in two halves a
+page keep the foot and both halves; the holder drew them shared out evenly so that every page was full, and the
+owner ruled that out on the drawings: a row has one height, ten stand in a half in order, and the page they end on
+is not filled. Five readers of the first redrawing took both pages with changes. No link was clicked, and no work
+of 12 or of 99 plates was built.
 
 ## What was read or measured
 
@@ -69,6 +80,9 @@ files state them; none was measured again, and the first two state no method.
 | ETHOS, Chinese, second drawing, ten a half                         | 11     | 2 pages of 4, 4 and 3 rows, 178 points apart                          | not stated                               |
 | ETHOS, Chinese, second drawing, eleven a half                      | 11     | 1 page, rows 65 points apart                                          | not stated                               |
 | ETHOS with 17 added views, second drawing                          | 28     | 2 pages of 10, 10 and 8 rows                                          | 42 parts, seen in one picture            |
+| ETHOS, Chinese, third drawing: ten a half at one pitch             | 11     | 2 pages: ten rows, then one at the top of the second page's left half | not drawn again                          |
+| OpenAI Responses Proxy, Chinese, third drawing                     | 6      | 1 page: six rows on six of the half's ten lines                       | not drawn again                          |
+| OpenAI Responses Proxy, Chinese, six rows opened to fill the half  | 6      | 1 page, rows 119 points apart                                         | not drawn again                          |
 | ETHOS with 88 added views                                          | 99     | not built: one generated view cannot be laid out (`plate_unfittable`) | not built                                |
 
 - **The committee**: five seats, each one read-only agent of one field (editorial design, talks, architecture,
@@ -78,10 +92,16 @@ files state them; none was measured again, and the first two state no method.
 - **Practice elsewhere**: a read-only agent's report of 2026-11-19, 21:40 to 21:51. Every address below was read
   by that agent and not opened by the holder or by the role that wrote this page.
 - **This page's own measurement**, on 2026-11-20: the class as carried into the product, typeset by Typst 0.15.1
-  from small models built in tests, its records read back with `typst eval`; no picture of it was made. 11 plates:
-  one page, rows 64.9 points apart. 12 plates: two pages of 4, 4 and 4 rows, 178.5 points apart. 28 plates: 10, 10
-  and 8 rows, 71.4 points apart, a foot on both pages. 6 parts: two columns of 3. 42 parts: four columns of 11,
-  11, 10 and 10. 120 parts: two pages of four columns of 15, 47.6 points apart.
+  from small models built in tests, its records read back with `typst eval`; no picture of it was made. With the
+  rows shared out evenly, eleven a half: 11 plates on one page, rows 64.9 points apart; 12 plates on two pages of
+  4, 4 and 4 rows, 178.5 points apart. After the ruling, ten a half at one pitch of 71.4 points: 6 plates on six
+  of the right half's ten lines; 10 on one page; 11 as ten and one; 28 as 10, 10 and 8, a foot on both pages; one
+  rule under the last row. The index with its columns' even shares: 6 parts in two columns of 3; 42 parts in four
+  columns of 11, 11, 10 and 10, 64.9 points apart; 120 parts on two pages of four columns of 15, 47.6 points
+  apart; by the parts' counts the six published works stood 42 to 65 points apart (computed, not measured on
+  their pages). The index after the owner's word, twenty lines a half at 35.7 points: 6 parts in the left column;
+  26 as twenty and six; 42 as forty on one page and two on a second; 120 on three pages of forty; one rule under
+  the last part.
 
 ## Findings
 
@@ -90,8 +110,10 @@ files state them; none was measured again, and the first two state no method.
 2. The released contents were never seen past one page. Their continued page is a defect, not a design.
 3. An index of names needs one grid with the contents: a page of rows has two halves of 724 points with a gap of
    56, and an index sets two columns in a half, each 334 points.
-4. Whatever number of rows a half may take, the work one plate past it gets two sparse pages: ETHOS, with 11
-   plates, at ten a half; a work of 12 plates at eleven a half.
+4. While rows are shared out evenly, whatever number a half may take, the work one plate past it gets two sparse
+   pages: ETHOS, with 11 plates, at ten a half; a work of 12 plates at eleven a half. The fault lay in the
+   sharing, which the owner had not asked for: at one pitch that work has a full half and one row on a second
+   page.
 5. The committee's verdicts were alike in all five seats: both pages adopted with changes; an index by name is the
    right form for the last page; no closing statement on it, which is the overview's, and no small pictures of the
    plates, unreadable at 28.
@@ -137,15 +159,14 @@ files state them; none was measured again, and the first two state no method.
 8. What the published works showed when the product drew them, twelve editions built from the publications at
    `bf8aa3d` with the scratch source on 2026-11-20:
    - With the overview's lead under its claim, the English edition of the Data Department Work Guidelines was
-     refused: its left half was 737 points tall on a page that holds 714. With the claim alone all twelve build,
-     and that edition's left half shares the height equally, since its blocks need more lines than six rows give.
-   - Every edition's contents take one page and its index one page; the largest, ETHOS, has 11 rows and 42 parts.
+     refused: its left half was 737 points tall on a page that holds 714. With the claim alone all twelve build.
    - The longest address, 52 characters, ends 20 points before the next fact under the index. A fact wider than
      its column now moves the facts after it, and facts that pass the page's margin are refused.
-   - Built again by the lane at `e6e4575f`: all twelve build, each with one page of contents and one of index. A
-     reader other than the holder read those twenty-four pages: every row, number and fact stands in its place and
-     nothing is cut or overlaps; two Chinese names whose first character has a second reading stand under the other
-     reading, and where a part's numbers take two lines the columns end at different heights.
+   - Built by the lane at `e6e4575f`, eleven a half and shared out evenly: all twelve build, each with one page of
+     contents and one of index. A reader other than the holder read those twenty-four pages: every row, number and
+     fact stands in its place and nothing is cut or overlaps; two Chinese names whose first character has a second
+     reading stand under the other reading, and where a part's numbers take two lines the columns end at different
+     heights.
 9. Where each fact of the released contents stands after the change:
 
    | Fact of the released contents       | Where it stands                                              |
@@ -166,17 +187,22 @@ files state them; none was measured again, and the first two state no method.
 | A key of the plates as small pictures (not drawn)                                            | an atlas's key map                                                     | a second job for the page; unreadable at 28                                                 |
 | A closing statement of the answer (not drawn)                                                | the talks' convention                                                  | the overview's job                                                                          |
 | The parts by name, each with its plates' numbers, facts on one line under them (drawn third) | holds at 26 and 42 parts and at 28 plates; five seats adopted its form | columns of parts on several lines end at different heights                                  |
+| The same, twenty lines a half at one pitch and in order (drawn fourth, the owner's word)     | one pitch in every work, on the lines of the contents                  | the right column mostly ends short; 42 parts take a second page for two                     |
 
 For the contents, three were compared: the released rows, one column of 16 a page; rows in two halves with the
 overview as their first row, twelve a half; and the overview set apart in the left half with the plates alone as
-rows, a stated number a half. The owner asked for the third at ten a half; at ten a half the largest published
-work takes two sparse pages, at eleven one page.
+rows, a stated number a half. The owner asked for the third at ten a half. The holder drew it with the rows shared
+out evenly, found the largest published work on two sparse pages at ten and on one page at eleven, and proposed
+eleven. Shown both, the owner ruled that the sharing was the fault: ten a half at one pitch, the eleventh row on a
+second page. A first page of fewer than ten rows was then drawn both ways for a work of six plates, at the pitch
+and opened to fill its half, and put to him with the holder's reading, the pitch; he answered 「按照你建议的方式」
+(05:53).
 
 ## What follows for the product
 
 For the landscape edition alone. The contents and the index share one grid; a number of rows a half is one
-constant, so that the owner's answer changes one number; rows and index lines are shared out evenly, so pages are
-full at any count; the last page states what the edition was built from and not who accepted it. The portrait
+constant, and so is the number of lines a half of the index; a contents row has one height in every edition, an
+index line half of it, and both lists stand in order, so the page they end on is not filled; the last page states what the edition was built from and not who accepted it. The portrait
 booklet and the page in a browser are other carriers with their own designs.
 
 ## What is not established
@@ -184,11 +210,11 @@ booklet and the page in a browser are other carriers with their own designs.
 - No link of either page was clicked in a viewer; the page's and the data's are links to files beside the PDF,
   which [Links and outlines in the PDFs Typst writes](pdf-links-and-outlines.md) does not prove.
 - No sample of 12 plates and none of 99 was built by the product from a published work. The step one plate past
-  the number a half takes was computed and, at 12 plates of a test model, typeset, not seen.
+  ten was drawn on the largest published work, which has eleven.
+- The index of a work of forty-one or forty-two parts takes a second page for one or two of them; the largest
+  published work has forty-two. Drawn and shown to the owner; not ruled on separately.
 - The reading of a polyphone: the collation reads characters, not words, so 重放投影 sorts as zhòng. A reading
   stated in the model and a word dictionary are both untried.
-- Ten rows a half or eleven: the owner said ten, the largest published work has eleven plates, and the question
-  is with him.
 - Whether the notes' size against the questions' is right; an English contents wide enough to wrap; a name longer
   than its column; contrast on a projector; a model of three parts, whose index lines stand hundreds of points
   apart; the End key on an index of two pages, which lands on the tail of the alphabet.
@@ -205,6 +231,7 @@ booklet and the page in a browser are other carriers with their own designs.
 2026-11-19: the measurements, the three drawings and the samples, by the holder of the product's lane; the
 committee of five read-only agents, about 22:24 to 22:35; the report on practice elsewhere by one read-only agent.
 2026-11-20: this page and its own measurement, by an agent that carried the trial into the product in a scratch
-copy. The working material lies in `build/runtime/work/edition-map/` (`redesign/PURPOSES.md`,
+copy; the drawings of ten and of eleven a half shown to the owner at 05:30, his ruling at 05:35, the third drawing
+and the two of a work of six plates at 05:49, by the holder. The working material lies in `build/runtime/work/edition-map/` (`redesign/PURPOSES.md`,
 `redesign/committee/RESULT.md`, `research-end-pages-20261119.md`, the pictures under `redesign/`), which is
 ignored and local to one checkout.

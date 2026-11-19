@@ -9,7 +9,7 @@ to the overview, a plate's answer in one place and the overview's three sizes fo
 
 **Goals:**
 
-- A contents that says what the edition answers, in order, and stays full on every page it takes.
+- A contents that says what the edition answers, in order, in rows of one height in every edition.
 - A last page that finds any part by its name and leads to the plates that draw it.
 - Each fact of the edition stated once.
 
@@ -30,13 +30,16 @@ to the overview, a plate's answer in one place and the overview's three sizes fo
    - Chosen because: the entry then has what a row has, a number, a name and one line, and the lead stands on the
      overview's own page.
    - Applies to: every edition whose model states an overview.
-2. A half takes eleven rows at most, and the rows are shared out evenly over the halves.
-   - Rests on: the research page, finding 4 and "What was compared": the owner's words (sixteen a page are too
-     close; ten a side), and the largest published work, which has eleven plates.
-   - Considered: ten, which sets that work on two pages of four, four and three rows; twelve, the released page's
-     density.
-   - Chosen because: every published work keeps one page of contents, and one constant, `edition.contentsRows`,
-     holds the number, so the owner's answer changes one value.
+2. A half takes ten rows at most, each a tenth of the body high; the rows stand in order and are never opened up
+   to fill a half or a page.
+   - Rests on: the research page, the owner's words of 2026-11-19 (sixteen a page are too close; ten a side) and
+     his ruling of 2026-11-20 05:35 on the drawings of ten and of eleven a half.
+   - Considered: eleven a half with the rows shared out evenly over the halves, which keeps the largest published
+     work on one page (drawn, and ruled out: the sharing was the holder's constraint, not the owner's); ten shared
+     out evenly, which sets that work on two pages of four, four and three rows 178 points apart (drawn); a first
+     page of fewer than ten rows opened to fill its half (drawn for a work of six plates).
+   - Chosen because: the owner ruled it; a row then has one height in every edition, the eleventh row of a work
+     stands alone on a second page, and one constant, `edition.contentsRows`, holds the number.
    - Applies to: every edition.
 3. A row names no page.
    - Rests on: the research page, finding 6: a row carried two numbers at a constant offset.
@@ -63,12 +66,24 @@ to the overview, a plate's answer in one place and the overview's three sizes fo
    - Considered: the whole name collated in the model's language.
    - Chosen because: a reader finds the Latin names together, whatever follows their first word.
    - Applies to: the index.
+7. The index sets twenty lines a half at one pitch, in order, in the type of the contents.
+   - Rests on: the owner's word of 2026-11-20 06:05 (twenty a side; the height and the type left to the holder)
+     and his ruling on the contents the same morning; the research page, where the columns' even shares set the
+     lines of the six published works 42 to 65 points apart.
+   - Considered: two columns or four, whichever sets the parts nearer 60 points apart, each column its even share
+     (the form five readers had read; its pitch differs from work to work and fills every page); four columns of
+     ten on the contents' lines.
+   - Chosen because: a line is then half a row of the contents, 35.7 points, so both lists stand on one set of
+     lines; names and numbers keep the 18 points of the contents' titles and numbers, which that line holds; and
+     the parts of every work are read at one pitch.
+   - Applies to: every edition.
 
 ## Risks / Trade-offs
 
-- A work one plate past the cap has two pages of contents with few rows each; twelve plates give three halves of
-  four. Not solved here.
+- A work one plate past ten has a second page of contents that holds one row, and a work of few plates leaves the
+  lower part of the first page's right half empty. The owner ruled both on their drawings.
 - A Chinese name is sorted by its characters' readings, so a character read two ways may stand under the wrong
   one. Recorded in the research page.
-- The columns of an index whose parts take several lines end at different heights.
+- An index is filled in order, so its right column mostly ends short of its left, and a work of forty-one or
+  forty-two parts takes a second page for one or two; the largest published work has forty-two.
 - The page and the data are named as links beside the edition's file; no viewer was tried.

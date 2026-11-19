@@ -226,8 +226,9 @@ edition comes out, and no page of it is placed by hand.
   change between two pins, the plans, an important part opened, and an index of the parts with what the edition
   was built from and who accepted it.
 - The overview holds the whole on one page and is the edition's map: it names, as a link, the page that enlarges
-  each of its parts, and each later page takes one topic and says where it stands in the whole. Every page is
-  full, and a text of more than one line is justified.
+  each of its parts, and each later page takes one topic and says where it stands in the whole. The overview
+  and every plate fill their page; the contents and the index are lists, whose rows keep their height and take
+  the pages they need, the last not filled. A text of more than one line is justified.
 - One palette for a work, and a house style.
 - Three carriers drawn from one model, each for what its reader does with it: the landscape edition for a room
   that looks while someone speaks, a figure a page; the portrait edition for one reader, the same figures laid
@@ -311,11 +312,11 @@ one page or names who accepted the edition, which the acceptance's own page stat
       reads on any light ground. A page's image is 3840 px wide unless the caller names its widths.
 - [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
       enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
-      three sizes with fixed roles, for a room, a screen and the zoom. The contents set the overview apart from
-      the plates' rows and may take further pages, each as full as the first; the last page is an index of the
-      parts by name, each followed by the numbers of the plates that draw it and no table of parts against
-      plates, with what the edition was built from under it, and may take further pages for a large work. Every
-      view is reached from the overview, a fact is stated once a page, a note in a narrow column breaks between
+      three sizes with fixed roles, for a room, a screen and the zoom. The contents set the overview apart from the
+      plates' rows and may take further pages, its rows of one height and the last page not filled; the last page is
+      an index of the parts by name, each followed by the numbers of the plates that draw it and no table of parts
+      against plates, with what the edition was built from under it, and may take further pages for a large work.
+      Every view is reached from the overview, a fact is stated once a page, a note in a narrow column breaks between
       the words of its script, and no justified line is spread wide because the token after it cannot break.
 - [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
       relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a

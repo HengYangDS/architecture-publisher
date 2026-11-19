@@ -149,6 +149,7 @@
     "rule": 866,
     "foot": 886,
     "measure": 32,
-    "contentsRows": 11
+    "contentsRows": 10,
+    "indexRows": 20
   }
 }

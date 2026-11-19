@@ -222,7 +222,8 @@ The print edition is typeset by Typst 0.15.1 with the house class into
 
 - a title page of the work's name, question and summary over a byline of its
   release and revision, editors, licence and publisher;
-- contents: the overview's entry, scope, limits and reading note, then a linked row a plate, eleven a half at most;
+- contents: the overview's entry, scope, limits and reading note, then a linked row a plate, ten a half at most
+  and each a tenth of the body high;
 - the overview, drawn from what the model states when it states one;
 - one plate per view, headed by its number, title and question, its figure
   beside the view's reading when it leaves part of the body or below it when it

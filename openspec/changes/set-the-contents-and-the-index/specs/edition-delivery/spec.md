@@ -20,20 +20,40 @@ scope, the limits and a reading note, each under a rule across the half.
 ### Requirement: Contents pages
 
 A page of contents SHALL have two halves. The first page SHALL set its rows in the right half, and a further page
-in both. A half SHALL take at most eleven rows, and the rows SHALL be shared out evenly over the halves, so that
-every row of an edition's contents has one height. Every page of contents SHALL have the edition's foot, and where
-the contents take more than one page each SHALL say which plates it lists.
+in both, the left first. A half SHALL take at most ten rows. Every page of contents SHALL have the edition's foot,
+and where the contents take more than one page each SHALL say which plates it lists, a page of one plate by that
+plate alone.
 
 #### Scenario: Eleven plates
 
 - **WHEN** a model with eleven views is built
-- **THEN** its contents take one page of eleven rows
+- **THEN** its contents take two pages: ten rows in the first page's right half and the eleventh in the second
+  page's left half
+- **AND** the first page says it lists plates 01 to 10 of 11 and the second plate 11
 
 #### Scenario: Twenty-eight plates
 
 - **WHEN** a model with twenty-eight views is built
-- **THEN** its contents take two pages of ten, ten and eight rows of one height
+- **THEN** its contents take two pages of ten, ten and eight rows
 - **AND** the first page says it lists plates 01 to 10 of 28 and the second plates 11 to 28
+
+### Requirement: Contents pitch
+
+A row of the contents SHALL be a tenth of the body high in every edition, whatever the number of its plates. The
+rows SHALL stand in order from the top of each half, and no row SHALL be opened up to fill a half or a page: a
+half of fewer than ten rows, and a page the rows end on, leave the rest of their height empty. One rule SHALL
+close the rows, under the last.
+
+#### Scenario: Six plates
+
+- **WHEN** a model with six views is built
+- **THEN** its six rows stand on the first six of the ten lines of the right half, with a rule under the sixth
+
+#### Scenario: A page of one row
+
+- **WHEN** a model with eleven views is built
+- **THEN** the eleventh row stands at the top of the second page, as high as any other, over a rule
+- **AND** nothing else of the contents stands on that page but its title, the plate it lists and its foot
 
 ### Requirement: A left half too tall
 
@@ -74,15 +94,28 @@ one script as the model's language sorts them, and a name that begins another be
 
 ### Requirement: Index pages
 
-The index SHALL set its parts in two columns or in four, whichever sets them nearer 60 points apart, each column
-taking its even share, and never closer than 26 points. A longer index SHALL take a further page of four columns
-with its title and foot. A component whose plates' numbers take more lines than a page holds SHALL be refused with
-`edition_index_too_long`.
+The index SHALL set its parts in two columns, one in each half of the page, twenty lines a column at most. A
+longer index SHALL take a further page with its title and foot. A component whose plates' numbers take more lines
+than a page holds SHALL be refused with `edition_index_too_long`.
 
 #### Scenario: An index of two pages
 
-- **WHEN** an edition's index needs more lines than four columns hold at 26 points
-- **THEN** the index takes a second page with its title and foot, and the page count includes both
+- **WHEN** an edition's index holds forty-two parts
+- **THEN** forty stand on its first page and two at the top of the left column of a second page, which has its
+  title and foot
+- **AND** the page count includes both
+
+### Requirement: Index pitch
+
+A line of the index SHALL be a twentieth of the body high in every edition, half a row of the contents. The parts
+SHALL stand in order from the top of the left column, and no line SHALL be opened up to fill a column or a page.
+One rule SHALL close the parts, under the last.
+
+#### Scenario: Twenty-six parts
+
+- **WHEN** an edition's index holds twenty-six parts
+- **THEN** twenty stand in the left column and six at the top of the right, all at one pitch, with a rule under
+  the last
 
 ### Requirement: What the edition rests on
 
@@ -112,20 +145,21 @@ when the model states one; one plate per view; and the index.
 ### Requirement: Columns fill their pages
 
 On the title page, each column's blocks SHALL be spaced equally over the band the column occupies, so that no
-column leaves its paper in one block. On the contents' first page, each block of the left half SHALL begin on a
-line of the rows beside it where the blocks fit so, and share the height that is left equally where they do not.
+column leaves its paper in one block. On the contents' first page, each block of the left half SHALL begin on one
+of the ten lines a half's rows stand on where the blocks fit so, and share the height that is left equally where
+they do not.
 
 #### Scenario: The contents' left column
 
-- **WHEN** the contents' first page is set with rows of one height beside it
-- **THEN** each block of its left half begins on a rule at the height of a row's rule
+- **WHEN** the contents' first page is set, whatever the number of rows beside it
+- **THEN** each block of its left half begins on a rule at the height of one of a half's ten lines
 
 ## REMOVED Requirements
 
 ### Requirement: Contents rows
 
-**Reason**: Rows no longer continue at a fixed least height on a second page that leaves its left half empty; the
-requirement "Contents pages" states how many rows a half takes and how the rows are shared.
+**Reason**: Rows no longer share one page's height down to a least height and then continue on a second page that
+leaves its left half empty; "Contents pages" states how many rows a half takes, and "Contents pitch" their height.
 
 **Migration**: None for a model. A reader of an edition's page count finds one page more, the index, and a second
-page of contents from twelve plates on.
+page of contents from eleven plates on.

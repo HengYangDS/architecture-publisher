@@ -207,6 +207,7 @@ export function editionRecord(input) {
       reading: words.reading,
       readingNote: words.readingNote(linked, input.page),
       // The plates a page of the contents lists; the house class writes the two numbers in, which only it knows.
+      plateOnly: words.plateOnly("{from}"),
       plateRange: words.plateRange("{from}", "{to}"),
       plateRangeOf: words.plateRangeOf("{from}", "{to}", plates.length),
       index: words.index,

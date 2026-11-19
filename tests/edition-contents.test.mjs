@@ -16,6 +16,20 @@ const HALF = (HOUSE.page.width - 2 * MARGIN - 56) / 2;
 const RIGHT = MARGIN + HALF + 56;
 const near = (a, b) => Math.abs(a - b) < 0.6;
 const two = (number) => String(number).padStart(2, "0");
+const range = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => two(from + index));
+/** The numbers of the rows that stand in each half of a page: the left, then the right. */
+const halves = (rows) => [
+  rows.filter(({ left }) => near(left, MARGIN)).map(({ texts }) => texts[0]),
+  rows.filter(({ left }) => near(left, RIGHT)).map(({ texts }) => texts[0]),
+];
+/** The one rule that closes the contents' rows: the page it stands on, the half and how far below the body's top. */
+const closing = (set) =>
+  set.ends.map(({ page, left, top, length }) => ({
+    page,
+    half: near(left, MARGIN) ? "left" : near(left, RIGHT) ? "right" : left,
+    lines: Math.round(((top - bodyTop) / (BODY / contentsRows)) * 100) / 100,
+    length,
+  }));
 
 /** The test model: with an overview, a scope and a limit unless `extra` takes them away. */
 const modelOf = (extra = {}) =>
@@ -82,7 +96,8 @@ test("the overview is no row: its entry opens the left half, and the rows are th
       `What does view ${page} show?`,
     ]),
   );
-  // The first page's rows stand in its right half, one height each, and share the body.
+  // The first page's rows stand in its right half, each a tenth of the body high; ten fill the half, and one rule
+  // closes them at its foot.
   const pitch = BODY / contentsRows;
   for (const [index, row] of rows.entries()) {
     assert.ok(near(row.left, RIGHT), `row ${index + 1} stands at ${row.left}`);
@@ -121,51 +136,69 @@ test("the overview is no row: its entry opens the left half, and the rows are th
   assert.equal(led.filter((to) => to === "plate-00").length, 1);
   assert.deepEqual([pageOf.get("plate-00"), pageOf.get("plate-01")], [3, 4]);
   // One page of contents says no range of plates.
-  assert.ok(!set.boxes.some(({ text }) => /^Plates /u.test(text)));
+  assert.ok(!set.boxes.some(({ text }) => /^Plates? /u.test(text)));
+  assert.deepEqual(closing(set), [
+    { page: 2, half: "right", lines: contentsRows, length: `0% + ${HALF}pt` },
+  ]);
 });
 
-test("a half takes eleven rows; one plate more takes a second page, and every row keeps one height", async (t) => {
-  assert.equal(contentsRows, 11);
+test("a half takes ten rows at one pitch; the eleventh stands alone on a second page, which is not filled", async (t) => {
+  assert.equal(contentsRows, 10);
+  const pitch = BODY / contentsRows;
   // Without an overview the left half begins with the scope, on the first row's line.
   const model = modelOf({ overview: undefined });
   const set = await evalEdition(t, { model, plates: plates(contentsRows + 1) }, SET);
   assert.equal(set.pages, 1 + 2 + (contentsRows + 1) + 1);
   const [first, second] = [rowsOn(set, 2), rowsOn(set, 3)];
-  const halves = (rows) => [
-    rows.filter(({ left }) => near(left, MARGIN)).map(({ texts }) => texts[0]),
-    rows.filter(({ left }) => near(left, RIGHT)).map(({ texts }) => texts[0]),
-  ];
-  assert.deepEqual(halves(first), [[], ["01", "02", "03", "04"]]);
-  assert.deepEqual(halves(second), [
-    ["05", "06", "07", "08"],
-    ["09", "10", "11", "12"],
-  ]);
-  for (const rows of [first, second.slice(0, 4), second.slice(4)])
-    for (const [index, row] of rows.entries())
-      assert.ok(near(row.top - rows[0].top, (index * BODY) / 4), `a row at ${row.top}`);
+  assert.deepEqual(halves(first), [[], range(1, contentsRows)]);
+  assert.deepEqual(halves(second), [[two(contentsRows + 1)], []]);
+  // The rows keep their order and one pitch; the row of the second page stands where a half begins, as high as any
+  // other, and nothing is opened up to fill the page.
+  for (const [index, row] of first.entries())
+    assert.ok(near(row.top, bodyTop + index * pitch), `row ${index + 1} at ${row.top}`);
+  assert.ok(near(second[0].top, bodyTop), `the second page's row at ${second[0].top}`);
+  assert.deepEqual(closing(set), [{ page: 3, half: "left", lines: 1, length: `0% + ${HALF}pt` }]);
+  // Each page says which plates it lists; a page of one plate names it alone.
+  const texts = (page) => set.boxes.filter((box) => box.page === page).map(({ text }) => text);
+  assert.ok(texts(2).includes("Plates 01–10 of 11"), texts(2).join(" | "));
+  assert.ok(texts(3).includes("Plate 11"), texts(3).join(" | "));
   assert.deepEqual(
     blocksOn(set, 2).map(({ text }) => text),
     ["SCOPE", "WHAT IT LEAVES OUT", "READING THIS EDITION"],
   );
-  assert.ok(near(blocksOn(set, 2)[0].top, bodyTop + BODY / 8 - 2));
+  assert.ok(near(blocksOn(set, 2)[0].top, bodyTop + pitch / 2 - 2));
 });
 
-test("28 plates take two full pages of contents, each with its foot and the plates it lists", async (t) => {
+test("fewer rows than a half takes keep its pitch: the rest of the half stays empty", async (t) => {
+  const pitch = BODY / contentsRows;
+  const set = await evalEdition(t, { model: modelOf(), plates: plates(6) }, SET);
+  assert.equal(set.pages, 1 + 1 + 1 + 6 + 1);
+  const rows = rowsOn(set, 2);
+  assert.deepEqual(halves(rows), [[], range(1, 6)]);
+  for (const [index, row] of rows.entries())
+    assert.ok(near(row.top, bodyTop + index * pitch), `row ${index + 1} at ${row.top}`);
+  assert.deepEqual(closing(set), [{ page: 2, half: "right", lines: 6, length: `0% + ${HALF}pt` }]);
+  // The left half's blocks begin on the ten lines a half has, whatever the rows beside them.
+  const lines = blocksOn(set, 2)
+    .slice(1)
+    .map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
+  for (const line of lines) assert.ok(near(line * pitch, Math.round(line) * pitch), `line ${line}`);
+});
+
+test("28 plates take two pages of contents, each with its foot and the plates it lists", async (t) => {
   const model = modelOf();
   const set = await evalEdition(t, { model, plates: plates(28) }, SET);
   assert.equal(set.pages, 1 + 2 + 1 + 28 + 1);
   const pitch = BODY / 10;
   const numbers = (rows, left) =>
     rows.filter((row) => near(row.left, left)).map(({ texts }) => texts[0]);
-  const range = (from, to) =>
-    Array.from({ length: to - from + 1 }, (_, index) => two(from + index));
   const [first, second] = [rowsOn(set, 2), rowsOn(set, 3)];
-  // The rows are shared out over three halves; the second page sets rows in both of its halves.
+  // The rows stand in order over three halves; the second page sets rows in both of its halves, the last not full.
   assert.deepEqual(numbers(first, MARGIN), []);
   assert.deepEqual(numbers(first, RIGHT), range(1, 10));
   assert.deepEqual(numbers(second, MARGIN), range(11, 20));
   assert.deepEqual(numbers(second, RIGHT), range(21, 28));
-  // Every row of both pages has one height, and each half begins at the body's top.
+  // Every row of both pages has one height, a tenth of the body, and each half begins at the body's top.
   for (const rows of [first, second.slice(0, 10), second.slice(10)]) {
     assert.ok(near(rows[0].top, first[0].top), `a half begins at ${rows[0].top}`);
     for (const [index, row] of rows.entries())
@@ -180,6 +213,7 @@ test("28 plates take two full pages of contents, each with its foot and the plat
   }
   assert.ok(texts(2).includes("Plates 01–10 of 28"), texts(2).join(" | "));
   assert.ok(texts(3).includes("Plates 11–28"), texts(3).join(" | "));
+  assert.deepEqual(closing(set), [{ page: 3, half: "right", lines: 8, length: `0% + ${HALF}pt` }]);
   // Every row is a link to its plate, on both pages.
   const led = set.links.filter(({ page, to }) => [2, 3].includes(page) && typeof to === "number");
   assert.deepEqual(
@@ -201,14 +235,14 @@ test("a left half set too tall for the page is refused", async (t) => {
   );
 });
 
-test("the reading note names the last page, and the page in a browser by the word the last page uses", () => {
+test("the reading note names the index, and the page in a browser by the word the index's facts use", () => {
   assert.equal(
     editionWordsOf("en").readingNote(true, "minimal.html"),
-    "Each plate answers the question under its title. A card's title links to the file it was read from. The last page lists every part by name with its plates. The page minimal.html cites every claim.",
+    "Each plate answers the question under its title. A card's title links to the file it was read from. The index at the end lists every part by name with its plates. The page minimal.html cites every claim.",
   );
   assert.equal(
     editionWordsOf("zh-CN").readingNote(true, "minimal.html"),
-    "每幅图版回答标题下的问题，卡片标题链接到所依据的文件。末页按名称列出组件及其所在图版。网页 minimal.html 为每项陈述注明出处。",
+    "每幅图版回答标题下的问题，卡片标题链接到所依据的文件。末尾的索引按名称列出组件及其所在图版。网页 minimal.html 为每项陈述注明出处。",
   );
   for (const locale of LOCALES) {
     const words = editionWordsOf(locale);

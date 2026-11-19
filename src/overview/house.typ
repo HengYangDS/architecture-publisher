@@ -699,14 +699,9 @@
 /// in the index is the number found in the contents.
 #let _number = (size: "head", font: serif, fill: green)
 
-/// The fewest pages for `count` rows when a half takes at most `most`, the first page has one half for rows and each
-/// further page two; and the rows a half then takes when they are shared out evenly, so that every page is as full
-/// as the next and every row has one height.
-#let _shared(count, most) = {
-  let pages = 1
-  while count > most * (2 * pages - 1) { pages += 1 }
-  (pages: pages, per: calc.max(1, calc.ceil(count / (2 * pages - 1))))
-}
+/// The pages `count` rows take when a half holds `most` of them: the first page has one half for rows, each further
+/// page two.
+#let _contents-pages(count, most) = calc.max(1, calc.ceil((count + most) / (2 * most)))
 
 /// A note of the contents' first page: prose across the half, in the size the title page sets its summary. The
 /// house's measure does not bind it: a note that stopped short of the half's edge left the half without an edge.
@@ -720,8 +715,8 @@
 /// The left half of the contents' first page: the overview's own entry, a number, a name and one line as a row has
 /// them, the line the claim the model states, the whole a link to its page; then the scope, the limits and the
 /// reading note. Each stands under a
-/// rule across the half. Where they fit, each begins on a line of the rows beside it, its first words on the
-/// baseline of that row's title, and the lines left over go to the blocks in turn; where they do not, they share
+/// rule across the half. Where they fit, each begins on one of the lines a half's rows stand on, its first words on
+/// the baseline of a row's title, and the lines left over go to the blocks in turn; where they do not, they share
 /// the height that is left equally. Blocks taller than the body are refused, since text is never shrunk.
 #let _front(r, words, pitch, rows) = context {
   let (first, height) = (_e.bodyTop * 1pt, (_e.bodyBottom - _e.bodyTop) * 1pt)
@@ -792,116 +787,113 @@
 /// The contents: one row a plate, its number, title and question, the whole row a link to it; the row names no
 /// page, since the row is the link and a plate's number is what the index cites. The first page sets the rows in
 /// its right half, beside the overview's entry and the notes; a further page sets them in both halves. A half takes
-/// the house's `contentsRows` at most, and the rows are shared out evenly over the halves. Where the contents take
-/// more than one page, each says which plates it lists, and the first how many there are.
+/// the house's `contentsRows` at most, and a row is that share of the body high in every edition: the rows stand in
+/// order from the top of each half and are never opened up to fill it, so a half, or a further page, may hold one
+/// row and leave the rest empty. One rule closes the rows, under the last. Where the contents take more than one
+/// page, each says which plates it lists, and the first how many there are.
 #let _contents-rows(r, words) = context {
   let entries = query(heading.where(outlined: true)).filter(h => h.label != <plate-00>)
   let (first, height) = (_e.bodyTop * 1pt, (_e.bodyBottom - _e.bodyTop) * 1pt)
-  let plan = _shared(entries.len(), _e.contentsRows)
-  let pitch = height / plan.per
+  let most = _e.contentsRows
+  let pitch = height / most
+  let pages = _contents-pages(entries.len(), most)
   let number(i) = r.rows.at(str(entries.at(calc.min(i, entries.len() - 1)).label)).number
-  // The plates a page lists, in the record's words, where the contents take more than one page.
-  let listed(from, to, template) = if plan.pages > 1 {
-    tx(margin, 84pt, template.replace("{from}", number(from)).replace("{to}", number(to)), fill: soft)
+  // The plates a page lists, in the record's words, where the contents take more than one page; one plate is named
+  // alone.
+  let listed(from, to, template) = if pages > 1 {
+    let (a, b) = (number(from), number(to))
+    tx(margin, 84pt, (if a == b { words.plateOnly } else { template }).replace("{from}", a).replace("{to}", b), fill: soft)
   }
-  listed(0, plan.per - 1, words.plateRangeOf)
-  _front(r, words, pitch, plan.per)
+  listed(0, most - 1, words.plateRangeOf)
+  _front(r, words, pitch, most)
   for (i, h) in entries.enumerate() {
     // The halves in order: the first page's right half, then the left and the right of each further page.
-    let half = calc.quo(i, plan.per)
+    let half = calc.quo(i, most)
     let side = calc.rem(half + 1, 2)
-    if half > 0 and side == 0 and calc.rem(i, plan.per) == 0 {
+    if half > 0 and side == 0 and calc.rem(i, most) == 0 {
       // The foot is set before the break: set after it, it would stand on the continued page alone.
       edition-foot()
       pagebreak()
       _head(none, words.contents)
-      listed(i, i + 2 * plan.per - 1, words.plateRange)
+      listed(i, i + 2 * most - 1, words.plateRange)
     }
     let row = r.rows.at(str(h.label))
-    let y = first + calc.rem(i, plan.per) * pitch
-    // The row's title and question stand in its middle, whatever the pitch.
+    let (x, y) = (margin + side * (_half + _gap), first + calc.rem(i, most) * pitch)
+    // The row's title and question stand in its middle.
     let b = pitch / 2 - 2pt
-    place(top + left, dx: margin + side * (_half + _gap), dy: y, link(h.location(), box(width: _half, height: pitch, {
+    place(top + left, dx: x, dy: y, link(h.location(), box(width: _half, height: pitch, {
       line(length: _half, stroke: 0.8pt + rule)
       tx(0pt, b, row.number, .._number)
       tx(56pt, b, row.title, size: "head", font: serif)
       tx(56pt, b + 22pt, row.question, fill: soft, w: _half - 56pt)
     })))
+    if i == entries.len() - 1 {
+      place(top + left, dx: x, dy: y + pitch, [#line(length: _half, stroke: 0.8pt + rule) <archpub-contents-end>])
+    }
   }
 }
 
 /// The index: every part once, in the order of the names, and after it the numbers of the plates that draw it, set
 /// as the contents set a plate's number, each a link, from the column's right edge. A part on more plates than
-/// stand beside its name sets them in lines of equal length, 24 points apart. The parts stand in two columns or in
-/// four, whichever sets them nearer 60 points apart, each column taking its even share; they are never closer than
-/// 26 points, so a longer index takes a further page of four columns, each page with its title and foot. One rule
-/// closes the columns, and under it, on the line where a plate has its key, stand the facts the record closes the
-/// index with. The page states no acceptance: an edition is typeset before anyone accepts it.
+/// stand beside its name sets them in lines of equal length, 24 points apart. The parts stand in two columns, one
+/// in each half of the page, the house's `indexRows` lines a column at most, and a line is that share of the body
+/// high in every edition: half a row of the contents. They stand in order from the top of the left column and are
+/// never opened up to fill a column, so a column, or a further page, may hold one part and leave the rest empty.
+/// Each page has its title and foot. One rule closes the parts, under the last, and under the columns, on the line
+/// where a plate has its key, stand the facts the record closes the index with. The page states no acceptance: an
+/// edition is typeset before anyone accepts it.
 #let _index(r, words) = context {
   let (head, bottom) = (_e.bodyTop * 1pt, _e.bodyBottom * 1pt)
   let height = bottom - head
-  let (more, closest, ideal) = (24pt, 26pt, 60pt)
+  let (pitch, more) = (height / _e.indexRows, 24pt)
   let cell = measure(text(font: serif, size: sizes.head, "00")).width + 10pt
-  // The parts set in `count` columns of one width: the columns, and the pitch the fullest of them leaves.
-  let plan(width, count) = {
-    let items = r.index.map(part => {
-      let name = measure(text(font: sans, size: sizes.head, part.label)).width
-      let room = calc.max(2, calc.floor((width - name - 28pt) / cell))
-      let lines = calc.max(1, calc.ceil(part.plates.len() / room))
-      (label: part.label, rows: part.plates.chunks(calc.max(1, calc.ceil(part.plates.len() / lines))), extra: lines - 1)
-    })
-    // A part's further lines count as the share of a row they take, so that a column of long parts holds fewer.
-    let even = (count * height - more * items.map(item => item.extra).sum(default: 0)) / items.len()
-    let unit(item) = 1 + item.extra * more / calc.max(even, closest)
-    let columns = ()
-    let (i, rest) = (0, items.map(unit).sum(default: 0))
-    for s in range(count) {
-      let target = calc.ceil(rest / (count - s) - 0.001)
-      let column = ()
-      let held = 0
-      while i < items.len() and (column.len() == 0 or held + unit(items.at(i)) <= target + 0.001 or s == count - 1) {
-        held += unit(items.at(i))
-        column.push(items.at(i))
-        i += 1
-      }
-      columns.push(column)
-      rest -= held
+  let items = r.index.map(part => {
+    let name = measure(text(font: sans, size: sizes.head, part.label)).width
+    let room = calc.max(2, calc.floor((_half - name - 28pt) / cell))
+    let lines = calc.max(1, calc.ceil(part.plates.len() / room))
+    (label: part.label, rows: part.plates.chunks(calc.max(1, calc.ceil(part.plates.len() / lines))),
+      tall: pitch + (lines - 1) * more)
+  })
+  // The columns in order: a part goes to the next column where the one it would stand in has no room left.
+  let columns = ()
+  let current = ()
+  let used = 0pt
+  for item in items {
+    if item.tall > height + 0.01pt {
+      panic("edition_index_too_long: a part stands on more plates than a page's lines hold")
     }
-    let pitch = calc.min(..columns.filter(column => column.len() > 0)
-      .map(column => (height - more * column.map(item => item.extra).sum()) / column.len()))
-    (columns: columns, pitch: pitch, width: width, across: if width == _half { 2 } else { 4 })
+    if current.len() > 0 and used + item.tall > height + 0.01pt {
+      columns.push(current)
+      current = ()
+      used = 0pt
+    }
+    current.push(item)
+    used += item.tall
   }
-  let (two, four) = (plan(_half, 2), plan(_quarter, 4))
-  // Two columns where they hold the parts and four do not, or where they set them nearer the ideal.
-  let chosen = if two.pitch >= closest and (four.pitch < closest
-    or calc.abs(two.pitch - ideal) <= calc.abs(four.pitch - ideal)) { two } else { four }
-  let pages = 1
-  while chosen.pitch < closest {
-    // A column of one part cannot be opened further: its plates take more lines than a page holds.
-    if 4 * pages >= r.index.len() { panic("edition_index_too_long: a part stands on more plates than a page's lines hold") }
-    pages += 1
-    chosen = plan(_quarter, 4 * pages)
-  }
-  for (s, column) in chosen.columns.enumerate() {
-    if s > 0 and calc.rem(s, chosen.across) == 0 {
+  if current.len() > 0 { columns.push(current) }
+  for (s, column) in columns.enumerate() {
+    if s > 0 and calc.rem(s, 2) == 0 {
       hrule(bottom)
       edition-foot()
       pagebreak()
       _head(none, words.index)
       tx(margin, 84pt, words.indexLead, fill: soft)
     }
-    let x = margin + calc.rem(s, chosen.across) * (chosen.width + _gap)
+    let x = margin + calc.rem(s, 2) * (_half + _gap)
     let y = head
     for (i, item) in column.enumerate() {
-      seg((x, y), (x + chosen.width, y), w: if i == 0 { 0.8pt } else { 0.4pt }, c: rule)
-      let base = y + chosen.pitch / 2 + 6pt
+      seg((x, y), (x + _half, y), w: if i == 0 { 0.8pt } else { 0.4pt }, c: rule)
+      let base = y + pitch / 2 + 6pt
       tx(x, base, item.label, size: "head")
       for (j, row) in item.rows.enumerate() {
         for (k, n) in row.rev().enumerate() {
-          txr(x + chosen.width - k * cell, base + j * more, cell, link(label("plate-" + n), n), .._number)
+          txr(x + _half - k * cell, base + j * more, cell, link(label("plate-" + n), n), .._number)
         }
       }
-      y += chosen.pitch + item.extra * more
+      y += item.tall
+    }
+    if s == columns.len() - 1 {
+      place(top + left, dx: x, dy: y, [#line(length: _half, stroke: 0.4pt + rule) <archpub-index-end>])
     }
   }
   hrule(bottom)

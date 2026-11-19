@@ -16,7 +16,7 @@ remain pre-release contracts and may contain incompatible changes.
   `archpub compare` reports one that differs under its plate, as both treat a page's image.
 - An edition ends with an index: every part once, by name, followed by the numbers of the plates that draw it,
   each a link to its plate. Names stand word by word, a word in Latin letters or digits first, the rest as the
-  model's language sorts them. The parts take two columns or four, and a long index a further page. Under it
+  model's language sorts them. The parts stand twenty lines a half at one pitch, in order, and a long index takes a further page. Under it
   stand the repository, the number of files read, the page and the data. The edition's page count includes it.
 - `SECURITY.md` says how to report a vulnerability and what counts as one, and `CODE_OF_CONDUCT.md` adopts the
   Contributor Covenant 3.0; `CONTRIBUTING.md` points to both and says which channels a release has to reach
@@ -28,9 +28,10 @@ remain pre-release contracts and may contain incompatible changes.
   image named without its width is the one at 3840 px: `--png 2400` writes `NN-<view>-2400.png`.
 - The contents set the overview apart from the plates: its number, name and claim open the left half of the
   first page, a link to it, above the scope, the limits and the reading note. The rows are the plates alone, each
-  a link, and name no page. A half takes eleven rows at most, shared out evenly, so a work of twelve plates or
-  more takes further pages as full as the first, each with its foot and the plates it lists; a continued page
-  had no rows on its left and the first page lost its foot. The edition's facts no longer stand beside the rows,
+  a link, and name no page. A half takes ten rows at most, each a tenth of the body high in every edition and in
+  order from the top, so a work of eleven plates or more takes further pages, each with its foot and the plates
+  it lists, and the page the rows end on is not filled; a continued page had no rows on its left and the first
+  page lost its foot. The edition's facts no longer stand beside the rows,
   and the reading note names the last page. A left half taller than the page refuses with
   `edition_front_too_long`, a part on more plates than an index page's lines hold with `edition_index_too_long`,
   and facts under the index that pass the page's margin with `edition_closing_too_long`.

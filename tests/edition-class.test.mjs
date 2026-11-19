@@ -102,14 +102,24 @@ async function edition(plates, extra = {}, subject = model) {
   });
 }
 
-test("eleven plates' contents fit one page, and seventeen continue on a second; the index is the last page", async () => {
-  const eleven = await edition(Array.from({ length: 11 }, (_, index) => plate(index + 1)));
-  // Title page, one contents page, eleven plates, the index.
-  assert.equal(eleven.pages, 14);
+test("ten plates' contents fit one page, and eleven or seventeen continue on a second; the index is the last page", async () => {
+  const ten = await edition(Array.from({ length: 10 }, (_, index) => plate(index + 1)));
+  // Title page, one contents page, ten plates, the index.
+  assert.equal(ten.pages, 13);
   // Each plate's page is handed back: the first after the title page and the contents, the last before the index.
   assert.deepEqual(
-    [eleven.platePages.length, eleven.platePages[0], eleven.platePages.at(-1)],
-    [11, { number: 1, page: 3 }, { number: 11, page: 13 }],
+    [ten.platePages.length, ten.platePages[0], ten.platePages.at(-1)],
+    [10, { number: 1, page: 3 }, { number: 10, page: 12 }],
+  );
+  // One plate more than a half takes: a second page of contents for it alone.
+  const eleven = await edition(Array.from({ length: 11 }, (_, index) => plate(index + 1)));
+  assert.equal(eleven.pages, 15);
+  assert.deepEqual(
+    [eleven.platePages[0], eleven.platePages.at(-1)],
+    [
+      { number: 1, page: 4 },
+      { number: 11, page: 14 },
+    ],
   );
   const seventeen = await edition(Array.from({ length: 17 }, (_, index) => plate(index + 1)));
   assert.equal(seventeen.pages, 21);
