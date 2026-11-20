@@ -21,7 +21,7 @@ function drawn(statement, writtenFrom = null) {
 
 test("every text a statement holds is set, with the model's labels for the parts it names", async () => {
   const statement = everyBlock();
-  const written = "Written from 2 files, each cited by its SHA-256.";
+  const written = "Built from 2 files, each cited by its SHA-256.";
   const { texts } = await drawn(statement, written);
   const said = [
     statement.claim,

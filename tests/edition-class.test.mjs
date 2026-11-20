@@ -197,7 +197,7 @@ test("a narrowed plate sets its view's summary and where each component lives, a
     [set.figureWidth, set.summary, set.places],
     [1466, summary, [{ label: "Alpha", files: ["src/a.mjs"] }]],
   );
-  assert.equal(record.words.places, "Where it lives");
+  assert.equal(record.words.places, "Files");
   assert.equal((await edition([narrowed(summary)])).pages, 4);
   await assert.rejects(
     edition([narrowed("A sentence of the summary, at its length. ".repeat(48).trim())]),

@@ -38,8 +38,8 @@ test("a plate's key lists exactly the marks it shows, each with a real sample", 
     {
       shape: "reference",
       date: REFERENCE,
-      label: "before commit @ 2026-11-10:",
-      undated: "before commit:",
+      label: "last changed before commit @ 2026-11-10:",
+      undated: "last changed before commit:",
     },
     { shape: "band", band: 0, color: INDIGO.dye.new, label: "≤ 7 d" },
     { shape: "band", band: 2, color: INDIGO.dye.old, label: "> 90 d" },
@@ -90,7 +90,7 @@ test("a plate in Chinese sets its captions and key in Chinese", async () => {
   assert.deepEqual(
     plate.legend.slice(0, 7).map(({ label }) => label),
     [
-      "距提交 @ 2026-11-10：",
+      "改动距提交 @ 2026-11-10：",
       "≤ 7 天",
       "7–90 天",
       "> 90 天",
@@ -99,7 +99,7 @@ test("a plate in Chinese sets its captions and key in Chinese", async () => {
       "通向供给",
     ],
   );
-  assert.equal(plate.legend[0].undated, "距提交：");
+  assert.equal(plate.legend[0].undated, "改动距提交：");
 });
 
 test("a band is named by its bounds in days after the entry that dates it, and the key shows only what the plate draws", async () => {
@@ -113,8 +113,8 @@ test("a band is named by its bounds in days after the entry that dates it, and t
     {
       shape: "reference",
       date: REFERENCE,
-      label: "before commit @ 2026-11-10:",
-      undated: "before commit:",
+      label: "last changed before commit @ 2026-11-10:",
+      undated: "last changed before commit:",
     },
     { shape: "band", band: 1, color: INDIGO.dye.mid, label: "7–365 d" },
   ]);

@@ -191,7 +191,7 @@ test("a plate's page states its commit's date once, in its foot, and a figure se
   };
   const wide = ({ left, right }) => right - left + 1;
   const dated = await editionOf(legend, "en", { repository, date: "2026-11-06", alone: true });
-  assert.equal(dated.record.words.foot, "Minimal at aaaaaaa, 2026-11-06");
+  assert.equal(dated.record.words.foot, "Minimal at aaaaaaa · 2026-11-06");
   // On the page the entry stands in words alone, before the band's mark and label, and is as wide as the band's
   // four capitals: the form without the date.
   const page = readPng(dated.typeset.png[0].bytes);

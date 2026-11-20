@@ -31,7 +31,7 @@ test("a Chinese edition's overview masthead sets its build line in the model's l
   const texts = (await queryEdition(t, modelOf("zh-CN", "最小"), "<archpub-box>")).map(
     ({ text }) => text,
   );
-  assert.ok(texts.includes("构建自提交 aaaaaaa · 2026-11-06"), texts.join(" | "));
+  assert.ok(texts.includes("构建于提交 aaaaaaa · 2026-11-06"), texts.join(" | "));
   assert.ok(!texts.some((text) => text.startsWith("As built")), texts.join(" | "));
 });
 

@@ -37,6 +37,6 @@ test("an edition's key marks carry the date, the sample strip and the count the 
   const reference = marks.find(({ shape }) => shape === "reference");
   assert.deepEqual(
     [reference.label, reference.undated],
-    ["before commit @ 2026-11-10:", "before commit:"],
+    ["last changed before commit @ 2026-11-10:", "last changed before commit:"],
   );
 });

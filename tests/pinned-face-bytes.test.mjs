@@ -24,7 +24,8 @@ const typeset = await typesetWork(works.grouped);
  * clip path and the key's entries a bound and a unit: each plate's shapes lost the rounded rectangles of the
  * paper's colour under its labels and its boundary's name and gained the clip path, with a hole for each, and the
  * group it clips; each key kept its entries and their samples, took the new words and set the entry of the commit
- * before the bands, with its form that states no date. A drawing reports what it draws beside it, and no shape,
+ * before the bands, with its form that states no date. The keys were recorded once more when the commit's entry
+ * came to say what its bands measure. A drawing reports what it draws beside it, and no shape,
  * run or key may differ. The bytes of a PDF and of its images are those of one platform's Typst and fonts, so no
  * digest of them is held here: `archpub compare` of whole editions, before and after, holds them.
  */
@@ -32,17 +33,17 @@ const BEFORE = Object.freeze({
   "strips/01-architecture.svg": "95fe865c34e03bcf7bd07900eb9bedfc0d29d6186d3da458363202643fcd5e4a",
   "strips/01-architecture.runs": "7a494de11e2c15804fe3b90c2bee0389cfc05a34b091a1f8a40606b40b5b4a2f",
   "strips/01-architecture.legend":
-    "ead76171c6892d6c6114095559ce77e09f176485fae774f9d69ce97b65297d07",
+    "6dcc1e499f1678301160a7f50b7ada8c8c4e9b678c3390f37dca111a94c57b79",
   "cards/01-architecture.svg": "ec237cf53ae1f66e2b68570946865d5b1f5b9350ab7d5eacb167d9ca26ddccbf",
   "cards/01-architecture.runs": "aa367ce1ac80634b6ae91ab20f46505cfa303f0e96f163127749ce6efb66fec6",
   "cards/01-architecture.legend":
     "1987865c915ebec6910a993eb4b7cd8a9eb1020d662f8fef0ac3c446cf968ce5",
   "grouped/01-overview.svg": "4f8e8ea642ec9a74e31be5b3240823078e92a2a367b3dabaee3f1d4dd3a01697",
   "grouped/01-overview.runs": "9f279b8d02ae1a5b74babcdb31720e5b1cc2e65a98dd32e6c84a58ca16ce6a0b",
-  "grouped/01-overview.legend": "9c7c76391d0d167bb2c2c3131d4e3b3df366a69e767dbbb28cae94a21dafcfea",
+  "grouped/01-overview.legend": "a9337644cd8f3f2a7c1897a5ca8afec6627f333118cde4756eb8e7167e9181d0",
   "grouped/02-pipeline.svg": "36a60612a7f0ecd533dc8bfa7ab3603ee6c3ec0fc88affd23aee4afddde2d05d",
   "grouped/02-pipeline.runs": "7a494de11e2c15804fe3b90c2bee0389cfc05a34b091a1f8a40606b40b5b4a2f",
-  "grouped/02-pipeline.legend": "55b7cadb840ff3ed2b15005e1f4454dd1274adb2b6818b961b3ea0bfd69105b5",
+  "grouped/02-pipeline.legend": "80fc8e22bbd998355f9d48d665224226589751a808b1ccd96e6cbb53359ba991",
 });
 
 test("a drawing that reports what it drew draws the same bytes: shapes, runs and keys", () => {

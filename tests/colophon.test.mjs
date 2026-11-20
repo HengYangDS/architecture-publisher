@@ -107,7 +107,7 @@ test("the acceptance slip names the reviewer, the time, the subject, the commit,
     "随本图册出版的验收记录（acceptance.json 与 acceptance.sig）载有本页与清单的 SHA-256，可用 archpub verify 核验。",
   );
   // The commit is named as a commit, in the slip as in the foot.
-  assert.equal(chinese.foot, "Minimal v1.2.0，提交 aaaaaaa，2026-11-06");
+  assert.equal(chinese.foot, "Minimal v1.2.0，提交 aaaaaaa · 2026-11-06");
   // Without a signature, a revision or a note, the slip says the acceptance is unsigned and leaves out the rest.
   const english = await colophon({ revision: null });
   assert.deepEqual(

@@ -41,10 +41,10 @@ remain pre-release contracts and may contain incompatible changes.
   them, and no rectangle of the page's colour is drawn there, so a figure reads on any light ground. Every plate's
   SVG changes by those rectangles and the clip path that takes their place.
 - A plate's key says each entry in the fewest words, in all five languages: the commit's entry leads the age bands
-  it dates (`before commit @ 2026-11-17:`), a band is a bound and a unit (`≤ 7 d`, `7–90 d`, `> 90 d`), and the
-  others read `file size 20 KB`, `cited files`, `to <part>`, the boundary's name and `outside`.
-- A plate's page states its commit's date once, in its foot: its key reads `before commit:`. A figure set alone has
-  no foot and keeps the date in its key.
+  it dates (`last changed before commit @ 2026-11-17:`), a band is a bound and a unit (`≤ 7 d`, `7–90 d`, `> 90 d`),
+  and the others read `file size 20 KB`, `cited files`, `to <part>`, the boundary's name and `outside`.
+- A plate's page states its commit's date once, in its foot: its key reads `last changed before commit:`. A figure
+  set alone has no foot and keeps the date in its key.
 - The queue holds three more items before `performance`: `figures-alone`, a view's figure without its page on a
   transparent ground and as SVG; `page-figures`, the page's diagrams laid out by the publisher from files that
   place nothing; and `reader-file`, a reader file that reads well when rendered. `gallery` stands at its end, and
@@ -53,6 +53,15 @@ remain pre-release contracts and may contain incompatible changes.
   Curl resumes a partial file, fetches nothing where the runner holds the release whole, and has fifteen
   minutes, where every job fetched it anew within three. On 2026-11-20 the guest's network gave 0.2 MB/s and
   two jobs failed at that step before any test ran.
+- The words an edition prints itself say what they stand for, in all five languages. The reading note says that a
+  card's title links to the first of its files, where it named one file, and that the page gives sources for the
+  claims, where it promised the source of every claim: a statement that names no file has none. The foot joins the
+  commit and its date as the cover does (`at fbec6f9 · 2026-11-19`), where it set a comma between them. The licence
+  under the editors is named as the edition's (`edition licensed under MIT`). In Chinese, Spanish and Korean the
+  cover's label over the repository is the acceptance record's word (对象, 對象, Objeto, 대상), where it read as a
+  topic, and a Chinese overview's build line reads 构建于提交 or 建置於提交. In English a narrowed plate lists its
+  parts' files under `Files`, where the head read `Where it lives`, and the overview says `Built from` as the facts
+  under the index do.
 - The tutorial takes the document role `tutorial`.
 - A build spends less time routing a plate's channels: the check of one choice against the wires already chosen
   looks at the two label rows the two choices stand on and no longer lists a channel's rows for every question.

@@ -334,7 +334,7 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
     );
     const texts = long.boxes.filter(({ page: on }) => on === at + 3).map(({ text }) => text);
     assert.ok(texts.includes("Index"), `page ${at + 3} has no title`);
-    assert.equal(texts.filter((text) => text === "Minimal at aaaaaaa, 2026-11-06").length, 1);
+    assert.equal(texts.filter((text) => text === "Minimal at aaaaaaa · 2026-11-06").length, 1);
     assert.equal(texts.includes("Repository"), at === 2);
   }
   assert.deepEqual(

@@ -179,6 +179,21 @@ files state them; none was measured again, and the first two state no method.
      and Korean plates that belong to a part where the English says plates that draw it, and a page that quotes where
      the English cites. The Change `word-the-reading-note` words the note as they confirmed it. Left to a term table
      of the product: 陈述 for a statement and 链接到 as a verb, which the reader file and the page use throughout.
+   - Twelve editions built at that Change's head were read whole on 2026-11-20 by four readers other than the
+     writer, two of the Chinese and two of the English. Of the product's own words they made fifteen findings,
+     and a fifth reader held each to the source. One was the text extraction's: the key's three spacings are
+     alike on the page. Five stand by design or were settled: the label over the limits, since the works word
+     their first limit as a bound; the middle age band named by both its bounds; "draw" for what a plate does
+     to a part; the word for the page; and the count of plates on a contents of more than one page. Nine are
+     faults. The reading note said that a card's title links to the file it was read from, where it links to
+     the first of the part's files, and that the page cites every claim, where five of the six works hold
+     three to seven claims with no source (their manifests' counts). The key's label named the commit and not
+     what is measured. The cover called the repository a topic in four languages; the foot joined a commit
+     and its date with a comma where the cover sets a point; the Chinese build line read two ways; in English
+     a card's files stood under "Where it lives" and the overview said "Written from" where the index says
+     "Built from"; and the licence stood under the editors without saying whose it is. The Change
+     `word-the-edition-as-its-readers-read-it` words the nine; a reader of each language read its new words
+     before the commit, and chose the key's label for that language.
    - The overview's entry opened with 00, set in the size, face and colour the contents and the index keep for a
      plate's number, beside rows that count the plates without it; no other page printed 00. Asked by the owner on
      2026-11-20 at 13:05 for an overview designed on its own on the left, the holder headed the entry by its name as

@@ -225,11 +225,29 @@ test("a strip key's entry of the commit has a form with its date and one without
     }),
   );
   assert.deepEqual(entries, {
-    en: ["before commit @ 2026-11-10:", "before commit:", "≤ 7 d", "7–90 d", "> 90 d"],
-    "zh-CN": ["距提交 @ 2026-11-10：", "距提交：", "≤ 7 天", "7–90 天", "> 90 天"],
-    "zh-TW": ["距提交 @ 2026-11-10：", "距提交：", "≤ 7 天", "7–90 天", "> 90 天"],
-    es: ["antes del commit @ 2026-11-10:", "antes del commit:", "≤ 7 d", "7–90 d", "> 90 d"],
-    ko: ["커밋 @ 2026-11-10 이전:", "커밋 이전:", "≤ 7일", "7–90일", "> 90일"],
+    en: [
+      "last changed before commit @ 2026-11-10:",
+      "last changed before commit:",
+      "≤ 7 d",
+      "7–90 d",
+      "> 90 d",
+    ],
+    "zh-CN": ["改动距提交 @ 2026-11-10：", "改动距提交：", "≤ 7 天", "7–90 天", "> 90 天"],
+    "zh-TW": ["改動距提交 @ 2026-11-10：", "改動距提交：", "≤ 7 天", "7–90 天", "> 90 天"],
+    es: [
+      "último cambio antes del commit @ 2026-11-10:",
+      "último cambio antes del commit:",
+      "≤ 7 d",
+      "7–90 d",
+      "> 90 d",
+    ],
+    ko: [
+      "커밋 @ 2026-11-10 이전 마지막 변경:",
+      "커밋 이전 마지막 변경:",
+      "≤ 7일",
+      "7–90일",
+      "> 90일",
+    ],
   });
 });
 
