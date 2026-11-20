@@ -285,6 +285,16 @@ contents: both are designed again, the contents may take further pages and so ma
 a part stands on few plates (「单一组件所属图版是稀疏的」). The item below says so; it no longer holds the contents to
 one page or names who accepted the edition, which the acceptance's own page states.
 
+On 2026-11-20 the owner asked where a work states its repository's address, was shown the eighty-six files of the
+six works that hold it, and made one source for each fact a hard requirement of everything built here
+(「事实出处应该唯一，否则要维护多处」; 「SSOT,DRY,MECE,SOLID, 深模块，小表面积，充分解耦，声明式等最佳实践，是硬性要求」).
+A census of the product ([record](research/one-source.md)) found some forty facts that its source, its schema and
+its documents state more than once, one of them already wrong in a reference document. `one-source` joined the list
+before the open rest of `edition-map`, whose next Changes write on the names it puts in one place; that moves the
+rest of `edition-map` and every item after it back by one. `derived-references` joined before `performance`, which
+moves `performance` and every item after it back by one more. `page-figures` says of the repository and the pin
+what it says of positions: a guide's diagram file states nothing the model holds.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -310,6 +320,13 @@ one page or names who accepted the edition, which the acceptance's own page stat
       figure and its key alone, without the page around them, as PNG on a transparent ground and as SVG. A line or
       a boundary is broken where a label stands on it, so no patch of the ground covers anything and the figure
       reads on any light ground. A page's image is 3840 px wide unless the caller names its widths.
+- [ ] `one-source`: a fact that the product's source forms stands in one place of it, and what repeats the fact
+      reads it there. A model states its repository's address once: the address of a file follows from it for
+      the two public Forges and is stated only for another host. A delivery's file names, a plate's key and its
+      number in two digits, the labels and the staged files that the JavaScript and the Typst share, and the
+      house's measures each have one place that states them; a literal that restates a token of the house reads
+      the token, and a measure the class repeats becomes a token. A test refuses each repetition that a search
+      can find. No delivered byte changes.
 - [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
       enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
       three sizes with fixed roles, for a room, a screen and the zoom. The contents set the overview apart from the
@@ -320,10 +337,18 @@ one page or names who accepted the edition, which the acceptance's own page stat
       the words of its script, and no justified line is spread wide because the token after it cannot break.
 - [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
       relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
-      file that places anything. The published works' diagram files lose the positions they hold.
+      file that places anything. The published works' diagram files lose the positions they hold. A diagram
+      file states no repository and no pin either: the publisher fills them from the model, and the works'
+      files lose that block.
 - [ ] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
       does for one that parses it: one title, no line of the guide's own syntax and no empty link, the names of
       its fields in the model's language, and a check of the file as rendered.
+- [ ] `derived-references`: the model's vocabulary and the reference documents each have one source. A model's
+      fields, enumerations, patterns and limits are stated once, and the schema and the loader's checks both come
+      from that statement; the refusal codes stand in one registry; and a table of a reference document that
+      restates the source (the commands and their options, the refusal codes, a delivery's files, the versions
+      of supplies) is written from the source by a command, so that a document cannot say what the source does
+      not.
 - [ ] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
       profile shows is removed with every delivered byte unchanged, one cause to a commit, measured before and
       after under like conditions and recorded whether it is kept or taken back; the suite runs as wide as its

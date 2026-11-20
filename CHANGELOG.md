@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-11-21
+
 ### Added
 
 - A delivery holds each plate's figure and its key alone, beside the images of its pages: `figures/NN-<view>.png`
@@ -62,6 +64,12 @@ remain pre-release contracts and may contain incompatible changes.
   topic, and a Chinese overview's build line reads 构建于提交 or 建置於提交. In English a narrowed plate lists its
   parts' files under `Files`, where the head read `Where it lives`, and the overview says `Built from` as the facts
   under the index do.
+- The queue holds two more items, on the owner's requirement of 2026-11-20 that each fact have one source:
+  `one-source` before the open rest of `edition-map`, for what the source forms more than once (a model's
+  repository address, a delivery's file names, a plate's key, the labels the JavaScript and the Typst share,
+  the house's measures), and `derived-references` before `performance`, for the model's vocabulary, the
+  refusal codes and the reference documents' tables. `docs/research/one-source.md` records the census, and
+  the model reference no longer names a version of the bundled icons, which it had one release behind.
 - The tutorial takes the document role `tutorial`.
 - A build spends less time routing a plate's channels: the check of one choice against the wires already chosen
   looks at the two label rows the two choices stand on and no longer lists a channel's rows for every question.
@@ -1307,6 +1315,7 @@ remain pre-release contracts and may contain incompatible changes.
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
+[0.16.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.16.0
 [0.15.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.15.0
 [0.14.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.14.0
 [0.13.1]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.13.1
