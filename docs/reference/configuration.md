@@ -24,11 +24,14 @@ roles, not a duplicate quality or formatting implementation.
 | `.editorconfig`                                              | Prettier, for the character set and line endings of what it formats |
 | `.config/release/icons/policy.toml`                          | `node tools/supply/icons.mjs --check`                               |
 | `.config/mise/config.toml` and `mise.lock`                   | Native Mise tool selection and locked execution                     |
+| `.config/npm/npmrc`                                          | npm under Mise: the least age of a release that a resolution takes  |
 
 The size ceilings are the ETHOS repository paradigm's: 500 effective lines for
 each code file and 500 nonblank lines for each authored Markdown document,
 which `ethos status` measures in every governed repository; no binding here
-restates them. Neither owns Markdown spacing: the original Prettier formatter
+restates them. Third-party supply is held 24 hours: Mise reads the age from its
+configuration and npm from `.config/npm/npmrc`, which the Mise environment names
+as npm's user configuration, so npm run outside Mise reads no age here. Neither owns Markdown spacing: the original Prettier formatter
 does.
 
 Policy moves must qualify their actual consumers. Knip, c8 and Markdownlint

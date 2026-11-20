@@ -7,6 +7,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- Third-party supply is held 24 hours in the repository's own configuration: Mise takes no tool younger than a
+  day (`minimum_release_age = "24h"`) and npm no package younger (`min-release-age=1` in `.config/npm/npmrc`,
+  which the Mise environment names as npm's user configuration). Under Mise, npm in this repository no longer
+  reads a person's own `~/.npmrc`. No pin and no lock moves.
+
 ## [0.16.0] - 2026-11-21
 
 ### Added

@@ -1,5 +1,6 @@
 [settings]
 locked = true
+minimum_release_age = "24h"
 
 [tasks.bootstrap]
 description = "Install locked development dependencies"
@@ -13,7 +14,11 @@ run = "npm run check"
 description = "Format the maintained inputs through their native owners"
 run = "npm run format"
 
+# npm reads this repository's own configuration, which holds npm's release age. npm treats
+# environment names case-insensitively, so its lower-case alias is removed.
 [env]
+npm_config_userconfig = false
+NPM_CONFIG_USERCONFIG = "{{ config_root }}/.config/npm/npmrc"
 PLAYWRIGHT_BROWSERS_PATH = "{{ get_env(name='PLAYWRIGHT_BROWSERS_PATH', default=config_root ~ '/build/runtime/tool-cache/playwright') }}"
 
 [tools]
