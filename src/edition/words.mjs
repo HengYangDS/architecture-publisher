@@ -85,7 +85,7 @@ const WORDS = Object.freeze({
     reading: "阅读说明",
     plateCount: (count) => `共 ${count} 幅图版`,
     readingNote: (links, page) =>
-      `每幅图版回答标题下的问题${links ? "，卡片标题链接到所依据的文件" : ""}。册末索引按名称列出组件及其所在图版。网页 ${page} 为每项陈述注明出处。`,
+      `每幅图版回答其标题下方的问题。${links ? "卡片标题链接到卡片所依据的文件。" : ""}册末索引按名称列出全部组件及其所在图版。网页 ${page} 的每条陈述都注明出处。`,
     index: "索引",
     indexLead: "组件及其所在图版",
     page: "网页",
@@ -129,7 +129,7 @@ const WORDS = Object.freeze({
     reading: "閱讀說明",
     plateCount: (count) => `共 ${count} 幅圖版`,
     readingNote: (links, page) =>
-      `每幅圖版回答標題下的問題${links ? "，卡片標題連結到所依據的檔案" : ""}。冊末索引按名稱列出元件及其所在圖版。網頁 ${page} 為每項陳述註明出處。`,
+      `每幅圖版回答其標題下方的問題。${links ? "卡片標題連結到卡片所依據的檔案。" : ""}冊末索引依名稱列出全部元件及其所在圖版。網頁 ${page} 的每條陳述都註明出處。`,
     index: "索引",
     indexLead: "元件及其所在圖版",
     page: "網頁",
@@ -173,7 +173,7 @@ const WORDS = Object.freeze({
     reading: "Cómo leer esta edición",
     plateCount: (count) => `${count} ${count === 1 ? "lámina" : "láminas"}`,
     readingNote: (links, page) =>
-      `Cada lámina responde a la pregunta bajo su título.${links ? " El título de cada tarjeta enlaza con el archivo del que se leyó." : ""} El índice final lista cada componente por su nombre, con sus láminas. La página ${page} cita cada afirmación.`,
+      `Cada lámina responde a la pregunta bajo su título.${links ? " El título de cada tarjeta enlaza con el archivo del que se leyó." : ""} El índice final lista cada componente por su nombre, con las láminas que lo dibujan. La página ${page} indica la fuente de cada afirmación.`,
     index: "Índice",
     indexLead: "Componentes y las láminas que los dibujan",
     page: "Página",
@@ -219,7 +219,7 @@ const WORDS = Object.freeze({
     reading: "이 판을 읽는 법",
     plateCount: (count) => `도판 ${count}점`,
     readingNote: (links, page) =>
-      `각 도판은 제목 아래의 질문에 답합니다.${links ? " 카드 제목은 그 내용을 읽은 파일로 연결됩니다." : ""} 끝에 있는 색인은 모든 구성 요소를 이름순으로, 그 도판과 함께 싣습니다. 웹 페이지 ${page}은 모든 주장의 출처를 밝힙니다.`,
+      `각 도판은 제목 아래의 질문에 답합니다.${links ? " 카드 제목은 그 내용을 읽어 온 파일로 연결됩니다." : ""} 끝에 있는 색인은 모든 구성 요소를 이름순으로, 그것을 그린 도판과 함께 싣습니다. 웹 페이지 ${page}은 모든 주장의 출처를 밝힙니다.`,
     index: "색인",
     indexLead: "구성 요소와 그것을 그린 도판",
     page: "웹 페이지",

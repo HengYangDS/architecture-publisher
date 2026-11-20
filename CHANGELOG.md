@@ -33,7 +33,7 @@ remain pre-release contracts and may contain incompatible changes.
   order from the top, so a work of eleven plates or more takes further pages, each with its foot and the number
   of plates, and the page the rows end on is not filled; a continued page had no rows on its left and the first
   page lost its foot. The edition's facts no longer stand beside the rows,
-  and the reading note names the last page. A left half taller than the page refuses with
+  and the reading note names the index. A left half taller than the page refuses with
   `edition_front_too_long`, a part on more plates than an index page's lines hold with `edition_index_too_long`,
   and facts under the index that pass the page's margin with `edition_closing_too_long`.
 - A line and the boundary's frame are broken by a gap where a relation's label or the boundary's name stands on

@@ -322,7 +322,7 @@ test("the reading note names the index, and the page in a browser by the word th
   );
   assert.equal(
     editionWordsOf("zh-CN").readingNote(true, "minimal.html"),
-    "每幅图版回答标题下的问题，卡片标题链接到所依据的文件。册末索引按名称列出组件及其所在图版。网页 minimal.html 为每项陈述注明出处。",
+    "每幅图版回答其标题下方的问题。卡片标题链接到卡片所依据的文件。册末索引按名称列出全部组件及其所在图版。网页 minimal.html 的每条陈述都注明出处。",
   );
   for (const locale of LOCALES) {
     const words = editionWordsOf(locale);

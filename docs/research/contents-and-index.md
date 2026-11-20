@@ -172,6 +172,13 @@ files state them; none was measured again, and the first two state no method.
      and two in 2, the index one page in 10 editions and two in 2. A reader other than the holder read those pages:
      every row, number and fact stands in its place and nothing is cut or overlaps, in both languages; where an
      index's left column is full, the rule under its last line falls on the rule over the facts.
+   - The words the product prints on the two pages were read by readers other than their writer on 2026-11-20, after
+     that Change was archived: four readings of the Chinese, one of them also of the Spanish and the Korean. In the
+     reading note they found two titles of two things joined in one Chinese sentence, a phrase read as a place or as a
+     heading's matter, every part reduced to parts, and a pronoun that two readers gave to two owners; and in Spanish
+     and Korean plates that belong to a part where the English says plates that draw it, and a page that quotes where
+     the English cites. The Change `word-the-reading-note` words the note as they confirmed it. Left to a term table
+     of the product: 陈述 for a statement and 链接到 as a verb, which the reader file and the page use throughout.
 9. Where each fact of the released contents stands after the change:
 
    | Fact of the released contents       | Where it stands                                              |
