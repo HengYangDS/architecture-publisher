@@ -69,9 +69,13 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   const bootstrap = pipeline[".verify-linux"].before_script;
   const staged = "build/runtime/tool-cache/mise/bootstrap/mise.download";
   const executable = "build/runtime/tool-cache/mise/bootstrap/mise";
+  const sums = "sha256sum --strict --check .config/ci/linux/mise.sha256";
+  const fetch = `curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 900 --create-dirs --output ${staged} https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-linux-arm64`;
+  // The staged release is fetched only where its checksum does not hold: a partial file is resumed, and a
+  // file that is still wrong after that is fetched whole.
   assert.deepEqual(bootstrap, [
-    `curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 180 --create-dirs --output ${staged} https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-linux-arm64`,
-    "sha256sum --strict --check .config/ci/linux/mise.sha256",
+    `${sums} || { ${fetch} --continue-at - && ${sums}; } || { rm -f ${staged} && ${fetch}; }`,
+    sums,
     `install --mode=0755 ${staged} ${executable}`,
     'export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"',
   ]);
