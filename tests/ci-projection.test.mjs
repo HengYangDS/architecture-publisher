@@ -67,15 +67,14 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
   const version = exportCue("shared.miseVersion");
   const bootstrap = pipeline[".verify-linux"].before_script;
-  const staged = "build/runtime/tool-cache/mise/bootstrap/mise.download";
+  const asset = `mise-v${version}-linux-arm64`;
+  const staged = `build/runtime/tool-cache/mise/bootstrap/${asset}`;
   const executable = "build/runtime/tool-cache/mise/bootstrap/mise";
-  const sums = "sha256sum --strict --check .config/ci/linux/mise.sha256";
-  const fetch = `curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 900 --create-dirs --output ${staged} https://github.com/jdx/mise/releases/download/v${version}/mise-v${version}-linux-arm64`;
-  // The staged release is fetched only where its checksum does not hold: a partial file is resumed, and a
-  // file that is still wrong after that is fetched whole.
+  // The staged release carries its own name and is kept between jobs: Curl resumes a partial file and
+  // fetches nothing where the runner holds the release whole. Each step is one native command.
   assert.deepEqual(bootstrap, [
-    `${sums} || { ${fetch} --continue-at - && ${sums}; } || { rm -f ${staged} && ${fetch}; }`,
-    sums,
+    `curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 900 --continue-at - --create-dirs --output ${staged} https://github.com/jdx/mise/releases/download/v${version}/${asset}`,
+    "sha256sum --strict --check .config/ci/linux/mise.sha256",
     `install --mode=0755 ${staged} ${executable}`,
     'export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"',
   ]);

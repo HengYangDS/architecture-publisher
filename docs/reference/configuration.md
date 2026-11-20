@@ -123,8 +123,11 @@ ownership and sandboxed browser execution remain separate acceptance predicates.
 Linux bootstrap uses three native commands: Curl downloads the exact official
 Mise Linux ARM64 executable, `sha256sum` checks
 `.config/ci/linux/mise.sha256`, and `install` promotes only verified bytes into
-the job-local executable path. CUE owns the release version and command order;
-the checksum carrier pins the exact release asset. The downloaded file is not
+the job-local executable path. The download is staged under the release's own
+name in the tool cache, which a job's clean spares: Curl resumes a partial
+file and fetches nothing where the runner already holds the release. CUE owns
+the release version and command order; the checksum carrier names and pins
+the exact release asset. The downloaded file is not
 executed before verification, and a failed step blocks all later steps. This
 needs no repository installer, new image publication or host installation.
 The superseded generated installer and generator record are retired. The

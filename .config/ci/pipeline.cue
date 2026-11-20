@@ -111,16 +111,15 @@ peers: gitlab: {
 	}
 	"platforms": {
 		"linux": {
-			// The staged release stays in the tool cache, which a job's clean spares. A job fetches it only
-			// where its checksum does not hold yet, resumes a partial file, and fetches it whole where a
-			// resumed file is still wrong. On 2026-11-20 the guest's network gave 0.2 MB/s, and a download
-			// of every job capped at 180 s failed two jobs before any test ran.
-			let staged = "build/runtime/tool-cache/mise/bootstrap/mise.download"
-			let sums = "sha256sum --strict --check .config/ci/linux/mise.sha256"
-			let fetch = "curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 900 --create-dirs --output \(staged) https://github.com/jdx/mise/releases/download/v\(shared.miseVersion)/mise-v\(shared.miseVersion)-linux-arm64"
+			// The staged release carries its own name and stays in the tool cache, which a job's clean
+			// spares: Curl resumes a partial file and fetches nothing where the runner holds the release
+			// whole. On 2026-11-20 the guest's network gave 0.2 MB/s, and a download of every job capped
+			// at 180 s failed two jobs before any test ran. Each step is one native command.
+			let asset = "mise-v\(shared.miseVersion)-linux-arm64"
+			let staged = "build/runtime/tool-cache/mise/bootstrap/\(asset)"
 			"bootstrap": [
-				"\(sums) || { \(fetch) --continue-at - && \(sums); } || { rm -f \(staged) && \(fetch); }",
-				sums,
+				"curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --connect-timeout 15 --max-time 900 --continue-at - --create-dirs --output \(staged) https://github.com/jdx/mise/releases/download/v\(shared.miseVersion)/\(asset)",
+				"sha256sum --strict --check .config/ci/linux/mise.sha256",
 				"install --mode=0755 \(staged) build/runtime/tool-cache/mise/bootstrap/mise",
 				// A job variable cannot extend the image's PATH: GitLab does not expand
 				// $PATH there, and the shell would then find no `rm` or `hostname`.

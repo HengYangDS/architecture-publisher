@@ -11,9 +11,10 @@ tree.
 
 ## What Changes
 
-- A Linux job fetches the staged Mise release only where its checksum does not hold yet. It resumes a partial
-  file, fetches the file whole where a resumed file is still wrong, and allows a download fifteen minutes.
-- The checksum is checked after the fetch, as before, and the job fails where it does not hold.
+- A Linux job stages the Mise release under the release's own name and keeps it between jobs. Curl resumes a
+  partial file, fetches nothing where the runner already holds the release whole, and has fifteen minutes.
+- The checksum carrier names the release it pins. The checksum is checked after the fetch, as before, and the
+  job fails where it does not hold.
 
 ## Capabilities
 
@@ -27,7 +28,8 @@ None. No behaviour of the product changes.
 
 ## Impact
 
-`.config/ci/pipeline.cue`, the `.gitlab-ci.yml` it projects, `tests/ci-projection.test.mjs` and the Changelog. A
-runner whose tool cache holds the release skips the download; the macOS, Windows and GitHub jobs are unchanged.
+`.config/ci/pipeline.cue`, the `.gitlab-ci.yml` it projects, `.config/ci/linux/mise.sha256`,
+`tests/ci-projection.test.mjs`, the configuration reference and the Changelog. A runner whose tool cache holds
+the release skips the download; the macOS, Windows and GitHub jobs are unchanged.
 
 Queue: `maintenance`.

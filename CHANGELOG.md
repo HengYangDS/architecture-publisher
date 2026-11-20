@@ -48,10 +48,10 @@ remain pre-release contracts and may contain incompatible changes.
   transparent ground and as SVG; `page-figures`, the page's diagrams laid out by the publisher from files that
   place nothing; and `reader-file`, a reader file that reads well when rendered. `gallery` stands at its end, and
   seven items name what they had left out. The contract says which two readers a work's coverage is chosen for.
-- A Linux job of the GitLab pipeline keeps its staged Mise release between jobs: it fetches the release only
-  where its checksum does not hold yet, resumes a partial file, fetches it whole where a resumed file is still
-  wrong, and allows a download fifteen minutes, where every job fetched it anew within three. On 2026-11-20 the
-  guest's network gave 0.2 MB/s and two jobs failed at that step before any test ran.
+- A Linux job of the GitLab pipeline keeps its staged Mise release between jobs, under the release's own name:
+  Curl resumes a partial file, fetches nothing where the runner holds the release whole, and has fifteen
+  minutes, where every job fetched it anew within three. On 2026-11-20 the guest's network gave 0.2 MB/s and
+  two jobs failed at that step before any test ran.
 - The tutorial takes the document role `tutorial`.
 - A build spends less time routing a plate's channels: the check of one choice against the wires already chosen
   looks at the two label rows the two choices stand on and no longer lists a channel's rows for every question.
