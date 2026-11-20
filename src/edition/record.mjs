@@ -8,7 +8,7 @@ import { editionWordsOf } from "./words.mjs";
 
 const two = (number) => String(number).padStart(2, "0");
 
-/** The label a plate's page is found by, of its number; the overview's page is the plate numbered 00. */
+/** The label a plate's page is found by, of its number; the overview's page takes 00's, which no plate has. */
 const keyOf = (number) => `plate-${number}`;
 
 /** The components a plate draws, each once, in the order of its runs. */
@@ -134,7 +134,6 @@ export function editionRecord(input) {
   const note = words.readingNote(linked, input.page).split(input.page);
   if (note.length !== 2) throw new Error("The reading note names the page once.");
   const [before, after] = note;
-  const overviewNumber = two(0);
   const data = `${model.id}.json`;
   const url = repository?.url ? repository.url.replace(/\.git$/u, "") : null;
   return {
@@ -178,13 +177,12 @@ export function editionRecord(input) {
         note: `Typst ${input.typst} · ${words.standards}`,
       },
     ],
-    // The overview's own entry on the first page of the contents: where it leads, a number, a name and one line,
-    // as a row has them; the line is the claim the model states. The lead stands on the overview's own page. The
-    // contents' rows are the plates themselves.
+    // The overview's own entry on the first page of the contents: where it leads, its name and one line, the claim
+    // the model states. It has no number, which would read as a plate's. The lead stands on the overview's own
+    // page. The contents' rows are the plates themselves.
     front: input.overview
       ? {
-          key: keyOf(overviewNumber),
-          number: overviewNumber,
+          key: keyOf(two(0)),
           title: words.overview,
           claim: model.overview?.claim ?? null,
         }

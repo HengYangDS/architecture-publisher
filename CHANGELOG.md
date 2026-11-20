@@ -27,8 +27,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 - **Breaking:** A page's image is 3840 px wide unless `--png` names its widths, where it was 2400 px wide, and the
   image named without its width is the one at 3840 px: `--png 2400` writes `NN-<view>-2400.png`.
-- The contents set the overview apart from the plates: its number, name and claim open the left half of the
-  first page, a link to it, above the scope, the limits and the reading note. The rows are the plates alone, each
+- The contents set the overview apart from the plates: its name, headed as the notes are and with no number,
+  and its claim open the left half of the first page, a link to it, above the scope, the limits and the reading
+  note. The rows are the plates alone, each
   a link, and name no page. A half takes ten rows at most, each a tenth of the body high in every edition and in
   order from the top, so a work of eleven plates or more takes further pages, each with its foot and the number
   of plates, and the page the rows end on is not filled; a continued page had no rows on its left and the first

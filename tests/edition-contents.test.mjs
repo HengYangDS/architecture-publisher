@@ -55,7 +55,7 @@ const plates = (count) => Array.from({ length: count }, (_, index) => plateOf(in
 
 /**
  * The rows of one contents page: each with the half it stands in, its top and the texts it sets, in the order the
- * page sets them. A row's number is its first text; the overview's entry, numbered 00, is no row.
+ * page sets them. A row's number is its first text; the overview's entry prints no number and is no row.
  */
 function rowsOn(set, page) {
   const rows = [];
@@ -64,7 +64,7 @@ function rowsOn(set, page) {
     if (row) row.texts.push(box.text);
     else rows.push({ left: box.left, top: box.top, texts: [box.text] });
   }
-  return rows.filter(({ texts }) => /^\d\d$/u.test(texts[0]) && texts[0] !== "00");
+  return rows.filter(({ texts }) => /^\d\d$/u.test(texts[0]));
 }
 
 /** The left half's blocks of the contents' first page: each block's first text, with where its first line stands. */
@@ -74,11 +74,10 @@ const blocksOn = (set, page) =>
 test("the overview is no row: its entry opens the left half, and the rows are the plates alone", async (t) => {
   const model = modelOf();
   const record = recordOf({ model, plates: plates(contentsRows) });
-  // The record: the overview's entry as a row has it, where it leads, a number, a name and one line, here the
-  // claim the model states; the lead stands on the overview's own page. The rows are the plates themselves.
+  // The record: the overview's entry, where it leads, its name and one line, here the claim the model states,
+  // and no number; the lead stands on the overview's own page. The rows are the plates themselves.
   assert.deepEqual(record.front, {
     key: "plate-00",
-    number: "00",
     title: "Overview",
     claim: model.overview.claim,
   });
@@ -114,11 +113,19 @@ test("the overview is no row: its entry opens the left half, and the rows are th
   const blocks = blocksOn(set, 2);
   assert.deepEqual(
     blocks.map(({ text }) => text),
-    ["00", "Overview", "SCOPE", "WHAT IT LEAVES OUT", "READING THIS EDITION"],
+    ["OVERVIEW", "SCOPE", "WHAT IT LEAVES OUT", "READING THIS EDITION"],
+  );
+  // The entry is headed as the notes are, and no number on the page stands outside a row: a number in a plate's
+  // form beside the rows reads as a plate.
+  assert.equal(new Set(blocks.map(({ size }) => size)).size, 1);
+  const numbers = set.boxes.filter(({ page, text }) => page === 2 && /^\d\d$/u.test(text));
+  assert.deepEqual(
+    numbers.map(({ text }) => text),
+    rows.map(({ texts }) => texts[0]),
   );
   // Each block's first words stand on the baseline of a row's title, and its rule on that row's rule.
   const baseline = pitch / 2 - 2;
-  const lines = blocks.slice(1).map(({ top }) => (top - bodyTop - baseline) / pitch);
+  const lines = blocks.map(({ top }) => (top - bodyTop - baseline) / pitch);
   for (const line of lines) assert.ok(near(line * pitch, Math.round(line) * pitch), `line ${line}`);
   assert.ok(near(lines[0], 0), `the first block begins on line ${lines[0]}`);
   assert.deepEqual(
@@ -188,9 +195,7 @@ test("fewer rows than a half takes keep its pitch: the rest of the half stays em
     assert.ok(near(row.top, bodyTop + index * pitch), `row ${index + 1} at ${row.top}`);
   assert.deepEqual(closing(set), [{ page: 2, half: "right", lines: 6, length: `0% + ${HALF}pt` }]);
   // The left half's blocks begin on the ten lines a half has, whatever the rows beside them.
-  const lines = blocksOn(set, 2)
-    .slice(1)
-    .map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
+  const lines = blocksOn(set, 2).map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
   for (const line of lines) assert.ok(near(line * pitch, Math.round(line) * pitch), `line ${line}`);
 });
 
@@ -248,9 +253,7 @@ test("blocks that need more lines than a half has begin on half lines, the entry
     ),
   });
   const set = await evalEdition(t, { model, plates: plates(3) }, SET);
-  const lines = blocksOn(set, 2)
-    .slice(1)
-    .map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
+  const lines = blocksOn(set, 2).map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
   // The entry's name stands on the baseline of the first row's title, and every block on a line or a half line.
   assert.ok(near(lines[0] * pitch, 0), `the entry begins on line ${lines[0]}`);
   for (const line of lines)
@@ -277,9 +280,7 @@ test("blocks that need nearly the whole height share what is left, the entry sti
     ),
   });
   const set = await evalEdition(t, { model, plates: plates(3) }, SET);
-  const lines = blocksOn(set, 2)
-    .slice(1)
-    .map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
+  const lines = blocksOn(set, 2).map(({ top }) => (top - bodyTop - (pitch / 2 - 2)) / pitch);
   assert.ok(near(lines[0] * pitch, 0), `the entry begins on line ${lines[0]}`);
   assert.ok(
     lines.some((line) => !near(line * pitch, (Math.round(line * 2) / 2) * pitch)),

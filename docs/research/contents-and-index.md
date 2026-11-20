@@ -179,6 +179,10 @@ files state them; none was measured again, and the first two state no method.
      and Korean plates that belong to a part where the English says plates that draw it, and a page that quotes where
      the English cites. The Change `word-the-reading-note` words the note as they confirmed it. Left to a term table
      of the product: 陈述 for a statement and 链接到 as a verb, which the reader file and the page use throughout.
+   - The overview's entry opened with 00, set in the size, face and colour the contents and the index keep for a
+     plate's number, beside rows that count the plates without it; no other page printed 00. Asked by the owner on
+     2026-11-20 at 13:05 for an overview designed on its own on the left, the holder headed the entry by its name as
+     the notes are headed, with no number. The Change `label-the-overview-entry`.
 9. Where each fact of the released contents stands after the change:
 
    | Fact of the released contents       | Where it stands                                              |

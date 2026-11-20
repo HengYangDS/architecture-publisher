@@ -713,7 +713,7 @@
 #let _body = (_e.bodyBottom - _e.bodyTop) * 1pt
 /// Whether a height fits a page's body, a hundredth of a point of rounding allowed.
 #let _fits(height) = height <= _body + 0.01pt
-/// From a row's number to its title, in the contents and in the overview's entry.
+/// From a row's number to its title.
 #let _indent = 56pt
 /// Where a row's title stands below the row's rule, so that the title and its question stand in the row's middle.
 #let _row-base(pitch) = pitch / 2 - 2pt
@@ -723,25 +723,22 @@
 #let _note(body) = prose(_half, body, .._summary, fill: soft, bound: false)
 
 /// The blocks of the left half of the contents' first page, each with what stands on its first baseline, how far
-/// below that its body begins, its body, and where it leads: the overview's own entry, a number, a name and one
-/// line as a row has them, the line the claim the model states, the whole a link to its page; then the scope, the
-/// limits and the reading note, in which the page's name is one word that no line breaks.
+/// below that its body begins, its body, and where it leads: the overview's own entry, headed by its name as the
+/// notes are and printing no number, since a number in a plate's form claims a plate, its body the claim the
+/// model states and the whole a link to its page; then the scope, the limits and the reading note, in which the
+/// page's name is one word that no line breaks.
 #let _front-blocks(r) = {
   let words = r.words
   let flow(body) = block(width: _half, spacing: 0pt, { set block(spacing: 0pt); body })
   // A label is tracked capitals, as `_caps` sets them, and is recorded with its words: the tracking is set about
   // the text, where `_caps` would hand the record a styled text it cannot read.
-  let note(name, body) = (
-    head: { set text(tracking: _tracking); tx(0pt, 0pt, upper(name), size: "small", weight: "semibold", fill: soft) },
-    lead-in: 32pt, body: flow(body), to: none)
+  let head(name) = { set text(tracking: _tracking); tx(0pt, 0pt, upper(name), size: "small", weight: "semibold", fill: soft) }
+  let note(name, body) = (head: head(name), lead-in: 32pt, body: flow(body), to: none)
   let blocks = ()
   if r.front != none {
     blocks.push((
-      head: {
-        tx(0pt, 0pt, r.front.number, .._number)
-        tx(_indent, 0pt, r.front.title, size: "head", font: serif)
-      },
-      lead-in: 54pt,
+      head: head(r.front.title),
+      lead-in: 48pt,
       body: flow({
         if r.front.claim != none {
           block(width: _half, spacing: 0pt, {
