@@ -18,6 +18,12 @@ remain pre-release contracts and may contain incompatible changes.
   named by the model's id, a page's name and a number in two digits, a plate's key, a revision cut to seven
   characters and the Typst version are taken from it where fifteen modules formed or restated them, and a test
   refuses a module that writes one again. No delivered byte changes.
+- The JavaScript and the house class read the names they share from one table, `src/shared.json`: the files
+  staged for the class and their directory, the name the edition attaches the model under, the five labels the
+  class sets and the publisher queries, and what a plate's key begins with, where each was written on both
+  sides; a test refuses one written again in either language. No page, image, figure or file a delivery lists
+  changes. The manifest's digests of the class's inputs, `edition.house` and `overview.house`, change: they
+  cover the edited class and drawing, and the table.
 - The queue's item `page` says that a page carries each cited file once and is measured on the published works,
   and `docs/research/page-weight.md` records what makes up the pages 0.16.0 builds: 4 to 12 MB, of which a cited
   file repeated once per citation takes 21% to 52%.

@@ -2,26 +2,30 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { HOUSE, HOUSE_FILE } from "../src/house.mjs";
 import * as NAMES from "../src/names.mjs";
 
 /**
  * The queue item `one-source`: a fact the product's source forms stands in one place of it, and what repeats the
- * fact reads it there. Each search below reads the shipped JavaScript without its comments and names every module
- * that repeats a fact it should read.
+ * fact reads it there. Each search below reads the shipped JavaScript, and where a name is shared with the house
+ * class the Typst as well, without comments, and names every file that repeats a fact it should read.
  */
 
 const root = path.resolve(import.meta.dirname, "..");
 const source = path.join(root, "src");
 
-/** A module's source without its comments, where a fact may be named freely. */
+/** A file's source without its comments, where a fact may be named freely; Typst writes its comments as JavaScript does. */
 const code = (text) => text.replace(/\/\*[\s\S]*?\*\//gu, "").replace(/^\s*\/\/.*$/gmu, "");
 
-/** The shipped JavaScript: each module by its path from the repository's root, and its code. */
-async function modules() {
+/**
+ * The shipped source in the languages named by their extensions, the JavaScript unless others are named: each file
+ * by its path from the repository's root, and its code.
+ */
+async function modules(extensions = [".mjs"]) {
   const found = [];
   for (const entry of await fs.readdir(source, { withFileTypes: true, recursive: true }))
-    if (entry.isFile() && entry.name.endsWith(".mjs")) {
+    if (entry.isFile() && extensions.includes(path.extname(entry.name))) {
       const file = path.join(entry.parentPath, entry.name);
       const text = await fs.readFile(file, "utf8");
       found.push({ file: path.relative(root, file).split(path.sep).join("/"), code: code(text) });
@@ -61,6 +65,9 @@ const restatements = (found) =>
 /** The module that names a delivery's files and forms the names of its pages, plates and revisions. */
 const NAMES_MODULE = "src/names.mjs";
 
+/** A file's name as a word of a text: between quotes, spaces or a path's slash, and not inside a longer name. */
+const asWord = (name) => new RegExp(`(?<=[\\s"'\`/])${escaped(name)}(?![\\w-]|\\.\\w)`, "u");
+
 /** The extensions of the files a delivery names by its model's id. */
 const OWN = Object.values(NAMES.filesOf("id")).map((file) => escaped(path.extname(file)));
 
@@ -75,7 +82,7 @@ const NAMED = Object.freeze([
     (value) => ({
       what: value,
       pattern: value.includes(".")
-        ? new RegExp(`(?<=[\\s"'\`/])${escaped(value)}(?![\\w-]|\\.\\w)`, "u")
+        ? asWord(value)
         : new RegExp(`(?<=["'\`])${escaped(value)}(?=["'\`/])`, "u"),
     }),
   ),
@@ -87,7 +94,6 @@ const NAMED = Object.freeze([
     what: "a number in two digits",
     pattern: /(?<!toString\(16\))\.padStart\(\s*2\s*,\s*(["'`])0\1\s*\)/u,
   },
-  { what: "a plate's key", pattern: /["'`]plate-/u },
   { what: "a revision cut to seven", pattern: /\.(?:slice|substring)\(\s*0\s*,\s*7\s*\)/u },
 ]);
 
@@ -100,6 +106,58 @@ const repetitions = (found) =>
         ({ what }) => `${file} repeats ${what}`,
       ),
     );
+
+/** The table of the names the JavaScript shares with the house class, which both read. */
+const { SHARED } = NAMES;
+
+/**
+ * A staged directory's name where a staged path is formed: at the head of a path in quotes, from the staged root
+ * or not, joined to a path by `path.join`, or given whole to a name; not a JSON pointer into a field of that name
+ * (`/plates/${…}`), a field read by its name, a comparison or a word.
+ */
+const asDirectory = (name) => {
+  const it = escaped(name);
+  return new RegExp(
+    [
+      `(?<=["'\`])${it}/`,
+      `(?<=["'\`]/)${it}/(?!\\$\\{)`,
+      `path\\.join\\([^()]*["'\`]${it}["'\`]`,
+      `(?<![=!<>])=\\s*["'\`]${it}["'\`]`,
+    ].join("|"),
+    "u",
+  );
+};
+
+/**
+ * Each name of the table, with the search that finds it written again in the JavaScript or the Typst: a staged or
+ * delivered file's name as a word, a staged directory's where a path is formed, a label whole between quotes or
+ * angle brackets, and a quoted text that begins as a plate's key does.
+ */
+const SHARED_NAMES = Object.freeze([
+  ...[...new Set([...Object.values(SHARED.files), ...Object.values(SHARED.delivered)])].map(
+    (name) => ({ what: name, pattern: asWord(name) }),
+  ),
+  ...[SHARED.directory, SHARED.plates].map((name) => ({ what: name, pattern: asDirectory(name) })),
+  ...Object.values(SHARED.labels).map((name) => ({
+    what: name,
+    pattern: new RegExp(`[<"'\`]${escaped(name)}[>"'\`]`, "u"),
+  })),
+  { what: "a plate's key", pattern: new RegExp(`["'\`]${escaped(SHARED.key)}`, "u") },
+]);
+
+/** A source file's address, relative to the module that holds it: the file in `src/`, not a staged one. */
+const SOURCE = /new URL\(\s*(["'`])[^"'`]*\1\s*,\s*import\.meta\.url\s*\)/gu;
+
+/**
+ * Each name of the table that a file of the JavaScript or the Typst writes again, as `<file> repeats <name>`. A
+ * source file's address names the file in `src/`, which the staging may copy under a name of the table.
+ */
+const sharedRepetitions = (found) =>
+  found.flatMap(({ file, code: text }) =>
+    SHARED_NAMES.filter(({ pattern }) => pattern.test(text.replace(SOURCE, ""))).map(
+      ({ what }) => `${file} repeats ${what}`,
+    ),
+  );
 
 test("the JavaScript addresses the house tokens' file in one module", async () => {
   assert.deepEqual(readersOfHouse(await modules()), ["src/house.mjs"]);
@@ -171,10 +229,7 @@ test("a name written again is found however it is written, and a placeholder, a 
     found('level.toString(16).padStart(2, "0") + String(page).padStart(8, "0");'),
     [],
   );
-  assert.deepEqual(found('const key = `plate-${number}`;\nnames.set("plate-00", page);'), [
-    "src/scratch.mjs repeats plate-00",
-    "src/scratch.mjs repeats a plate's key",
-  ]);
+  assert.deepEqual(found('names.set("plate-00", page);'), ["src/scratch.mjs repeats plate-00"]);
   assert.deepEqual(found("`at ${commit.slice(0, 7)}` + manifest.slice(0, 12);"), [
     "src/scratch.mjs repeats a revision cut to seven",
   ]);
@@ -202,4 +257,100 @@ test("the names a delivery's files take are the ones it has always delivered", (
   assert.deepEqual([NAMES.plateKey(7), NAMES.OVERVIEW_KEY], ["plate-07", "plate-00"]);
   assert.deepEqual([NAMES.plateNumber(NAMES.plateKey(7)), NAMES.plateNumber("plate-12")], [7, 12]);
   assert.equal(NAMES.shortRevision("37848a34c0ffee"), "37848a3");
+});
+
+test("the labels, a plate's key and the files staged for Typst are named in the table the JavaScript and the class share", async () => {
+  assert.deepEqual(sharedRepetitions(await modules([".mjs", ".typ"])), []);
+});
+
+test("the table's own name is the one name both languages state: where the JavaScript addresses it and where the class reads it", async () => {
+  const table = asWord(path.basename(fileURLToPath(NAMES.SHARED_FILE)));
+  const naming = (await modules([".mjs", ".typ"])).filter(({ code: text }) => table.test(text));
+  assert.deepEqual(
+    naming.map(({ file }) => file),
+    [NAMES_MODULE, "src/overview/house.typ"],
+  );
+});
+
+test("a shared name written again is found in either language, and a field, a pointer, a word or another label is not", () => {
+  const found = (text, file = "src/scratch.mjs") => sharedRepetitions([{ file, code: code(text) }]);
+  const typst = "src/scratch.typ";
+  const { files, labels } = SHARED;
+  assert.deepEqual(found('await fs.writeFile(path.join(own, "edition.json"), record);'), [
+    `src/scratch.mjs repeats ${files.edition}`,
+  ]);
+  assert.deepEqual(found('#let _model = json("/archpub/model.json")', typst), [
+    `${typst} repeats ${files.model}`,
+    `${typst} repeats ${SHARED.directory}`,
+  ]);
+  assert.deepEqual(found('fs.mkdir(path.join(own, "plates"));\nconst file = `plates/${n}.svg`;'), [
+    `src/scratch.mjs repeats ${SHARED.plates}`,
+  ]);
+  assert.deepEqual(found('"(query(<archpub-end>).first().location().page())"'), [
+    `src/scratch.mjs repeats ${labels.end}`,
+  ]);
+  assert.deepEqual(found('[#metadata((kind: "ring")) <archpub-mark>]', typst), [
+    `${typst} repeats ${labels.mark}`,
+  ]);
+  assert.deepEqual(found('link(label("plate-" + number), number)', typst), [
+    `${typst} repeats a plate's key`,
+  ]);
+  assert.deepEqual(
+    found('g.at("plates", default: (:))\n[#heading(it) <archpub-contents>]', typst),
+    [],
+  );
+  assert.deepEqual(
+    found('const at = `/plates/${n}`;\nconst word = n === 1 ? "plate" : "plates";'),
+    [],
+  );
+  assert.deepEqual(found('export const STAGED = "archpub";'), [
+    `src/scratch.mjs repeats ${SHARED.directory}`,
+  ]);
+  assert.deepEqual(
+    found('new Command("archpub");\nfs.mkdtemp(path.join(os.tmpdir(), "archpub-out-"));'),
+    [],
+  );
+  assert.deepEqual(
+    found('if (kind === "plates") return new URL("../house.json", import.meta.url);'),
+    [],
+  );
+  assert.deepEqual(
+    found("// staged as house.json\n#let _house = json(_shared.files.tokens)", typst),
+    [],
+  );
+  assert.deepEqual(found('pdf.attach("model.json", read(_shared.files.model))', typst), [
+    `${typst} repeats ${SHARED.delivered.model}`,
+  ]);
+  assert.deepEqual(found('export const MODEL = "model.json";'), [
+    `src/scratch.mjs repeats ${files.model}`,
+  ]);
+});
+
+test("the table names what the class has always been staged under and labelled with, read-only", () => {
+  assert.deepEqual(SHARED, {
+    directory: "archpub",
+    files: {
+      tokens: "house.json",
+      model: "model.json",
+      breaks: "breaks.json",
+      overview: "overview-inputs.json",
+      edition: "edition.json",
+      colophon: "colophon.json",
+    },
+    delivered: { model: "model.json" },
+    plates: "plates",
+    labels: {
+      box: "archpub-box",
+      loose: "archpub-loose",
+      line: "archpub-line",
+      mark: "archpub-mark",
+      end: "archpub-end",
+    },
+    key: "plate-",
+  });
+  assert.ok(
+    Object.isFrozen(SHARED) && Object.isFrozen(SHARED.files) && Object.isFrozen(SHARED.labels),
+  );
+  assert.equal(NAMES.MODEL, SHARED.delivered.model);
+  assert.equal(NAMES.stagedPlate(3), "plates/03.svg");
 });

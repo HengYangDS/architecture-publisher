@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
 import { HOUSE_FILE } from "../house.mjs";
-import { STAGED_MODEL, TYPST_VERSION } from "../names.mjs";
+import { SHARED, SHARED_FILE, TYPST_VERSION } from "../names.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 import { checkBoxes, checkLines } from "./checks.mjs";
@@ -23,13 +23,21 @@ import { requireOverviewGlyphs } from "./glyphs.mjs";
 const run = promisify(execFile);
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
-/** The house class, staged beside the model under this directory of the root. */
-export const STAGED = "archpub";
+/**
+ * What the class records under a label of the shared table, as an expression of the typeset document.
+ * @param {string} label
+ */
+export const recordsUnder = (label) => `query(<${label}>).map(it => it.value)`;
+
+/** The house class, staged beside the model under this directory of the root, which the shared table names. */
+export const STAGED = SHARED.directory;
 const CLASS = fileURLToPath(new URL("./house.typ", import.meta.url));
 /** The drawing of the overview from a model's statement, staged beside the class it imports. */
 const DRAWING = fileURLToPath(new URL("./drawn.typ", import.meta.url));
 /** The house tokens, staged beside the class, which reads them. */
 const TOKENS = fileURLToPath(HOUSE_FILE);
+/** The table of the names the class shares with the publisher, staged beside the class by its own name. */
+const TABLE = fileURLToPath(SHARED_FILE);
 /** The bundled face that sets Han characters on the overview as on the posters. */
 export const CJK = "noto-sans-cjk-sc";
 
@@ -89,26 +97,30 @@ function breaksOf(modelBytes) {
 }
 
 /**
- * Stage the class, the drawing of the overview, the model and its statement's breaks in a new root. The class reads its tokens and the
- * model there.
+ * Stage the class, the drawing of the overview, the table of the names they share with the publisher, the model and
+ * its statement's breaks in a new root. The class reads the table, its tokens and the model there.
  * @param {Buffer} modelBytes the model file as read
  * @param {{ palette: object, figure: object, dye: object } | null} [tokens] the edition's resolved palette
  */
 export async function stage(modelBytes, tokens = null) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-"));
-  await fs.mkdir(path.join(root, STAGED));
+  const own = path.join(root, STAGED);
+  await fs.mkdir(own);
   const classBytes = await fs.readFile(CLASS);
   const drawingBytes = await fs.readFile(DRAWING);
-  await fs.writeFile(path.join(root, STAGED, "house.typ"), classBytes);
-  await fs.writeFile(path.join(root, STAGED, "drawn.typ"), drawingBytes);
+  const tableBytes = await fs.readFile(TABLE);
+  await fs.writeFile(path.join(own, "house.typ"), classBytes);
+  await fs.writeFile(path.join(own, "drawn.typ"), drawingBytes);
+  await fs.writeFile(path.join(own, path.basename(TABLE)), tableBytes);
   const tokenBytes = stagedTokens(await fs.readFile(TOKENS), tokens);
-  await fs.writeFile(path.join(root, STAGED, "house.json"), tokenBytes);
-  await fs.writeFile(path.join(root, STAGED, STAGED_MODEL), modelBytes);
-  await fs.writeFile(path.join(root, STAGED, "breaks.json"), JSON.stringify(breaksOf(modelBytes)));
+  const { files } = SHARED;
+  await fs.writeFile(path.join(own, files.tokens), tokenBytes);
+  await fs.writeFile(path.join(own, files.model), modelBytes);
+  await fs.writeFile(path.join(own, files.breaks), JSON.stringify(breaksOf(modelBytes)));
   return {
     root,
-    // The class reads its tokens, and the drawing the class, so the digest covers all three.
-    house: sha256(Buffer.concat([classBytes, drawingBytes, tokenBytes])),
+    // The class reads the table and its tokens, and the drawing the class, so the digest covers all four.
+    house: sha256(Buffer.concat([classBytes, drawingBytes, tokenBytes, tableBytes])),
   };
 }
 
@@ -119,24 +131,23 @@ export async function stage(modelBytes, tokens = null) {
 const statementDigest = (statement) => sha256(Buffer.from(JSON.stringify(statement)));
 
 /**
- * The Typst source that draws a staged model's overview, with the masthead's note of the files read beside it in
- * `overview-inputs.json`.
+ * The Typst source that draws a staged model's overview, with the masthead's note of the files read and each view's
+ * plate number staged beside it.
  * @param {string} root the staged root
  * @param {string | null} writtenFrom
  * @param {Record<string, string>} [plates] each view's plate number, by the view's id
  */
 async function overviewEntry(root, writtenFrom, plates = {}) {
-  await fs.writeFile(
-    path.join(root, STAGED, "overview-inputs.json"),
-    JSON.stringify({ writtenFrom, plates }),
-  );
+  const { model, overview } = SHARED.files;
+  await fs.writeFile(path.join(root, STAGED, overview), JSON.stringify({ writtenFrom, plates }));
+  const inputs = `json("/${STAGED}/${overview}")`;
   const entry = path.join(root, "overview.typ");
   await fs.writeFile(
     entry,
     [
       `#import "/${STAGED}/drawn.typ": *`,
       "#show: overview",
-      `#drawn(json("/${STAGED}/${STAGED_MODEL}").overview, written-from: json("/${STAGED}/overview-inputs.json").writtenFrom, plates: json("/${STAGED}/overview-inputs.json").plates)`,
+      `#drawn(json("/${STAGED}/${model}").overview, written-from: ${inputs}.writtenFrom, plates: ${inputs}.plates)`,
       "",
     ].join("\n"),
   );
@@ -211,6 +222,7 @@ export async function checkOverview(input) {
   const staged = await stage(input.modelBytes, input.tokens ?? null);
   const entry = await overviewEntry(staged.root, input.writtenFrom ?? null, input.plates ?? {});
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-overview-out-"));
+  const { labels } = SHARED;
   try {
     const roots = [staged.root, await fs.realpath(staged.root)];
     let result;
@@ -219,7 +231,7 @@ export async function checkOverview(input) {
         typst,
         [
           "eval",
-          "(boxes: query(<archpub-box>).map(it => it.value), marks: query(<archpub-mark>).map(it => it.value), lines: query(<archpub-line>).map(it => it.value), loose: query(<archpub-loose>).map(it => it.value))",
+          `(boxes: ${recordsUnder(labels.box)}, marks: ${recordsUnder(labels.mark)}, lines: ${recordsUnder(labels.line)}, loose: ${recordsUnder(labels.loose)})`,
           "--in",
           entry,
           "--root",

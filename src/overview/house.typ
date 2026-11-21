@@ -4,8 +4,9 @@
 // primitives below on one 1600 by 900 point page. Every text primitive records its box as `<archpub-box>` metadata so that the publisher can
 // check the typeset page; sizes and colours come only from the house tokens, `house.json`, staged beside this class.
 
-// The house tokens, which the poster engine reads too: the palette, the faces and the four type sizes.
-#let _house = json("house.json")
+// The names this class shares with the publisher, and the house tokens, which the poster engine reads too.
+#let _shared = json("shared.json")
+#let _house = json(_shared.files.tokens)
 #let paper = rgb(_house.palette.paper)
 #let ink = rgb(_house.palette.ink)
 #let green = rgb(_house.palette.green)
@@ -24,7 +25,7 @@
 #let page-height = _house.page.height * 1pt
 #let margin = _house.page.margin * 1pt
 
-#let _model = json("/archpub/model.json")
+#let _model = json(_shared.files.model)
 #let _inputs = sys.inputs
 
 /// The size token's length; anything else stops the page.
@@ -54,7 +55,7 @@
 
 /// Record a text box: x and top, width and height in points, and its first baseline, as the publisher reads them
 /// back.
-#let _record(x, top, w, h, body, size, b) = [#metadata((x: x.pt(), y: top.pt(), w: w.pt(), h: h.pt(), size: size.pt(), b: b.pt(), text: _plain(body))) <archpub-box>]
+#let _record(x, top, w, h, body, size, b) = [#metadata((x: x.pt(), y: top.pt(), w: w.pt(), h: h.pt(), size: size.pt(), b: b.pt(), text: _plain(body))) #label(_shared.labels.box)]
 
 /// How far the glyphs of body rise above and fall below the baseline.
 #let _extent(style, body) = (
@@ -299,7 +300,7 @@
 /// justified to the column their spaces would stand apart: there the text is a caption, justified to a measure of
 /// its own where one holds it, and otherwise set flush left on lines of nearly one length.
 #let wrapped(body, w, style, pitch: 16pt, spread: false) = {
-  let breaks = if spread and type(body) == str { json("breaks.json") } else { (texts: (:)) }
+  let breaks = if spread and type(body) == str { json(_shared.files.breaks) } else { (texts: (:)) }
   let stated = if type(body) == str and w != auto { breaks.texts.at(body, default: none) } else { none }
   let narrow = w != auto and w < 20 * style.size
   let caption = stated != none and not stated.unspaced and narrow
@@ -313,7 +314,7 @@
         for line in lines {
           let set-line = text(..style, top-edge: "baseline", bottom-edge: "baseline", line.text)
           if stated.unspaced and not narrow and not line.last and not line.spread and line.rows == 1 {
-            [#metadata((text: body, line: line.text, opening: line.opens)) <archpub-loose>]
+            [#metadata((text: body, line: line.text, opening: line.opens)) #label(_shared.labels.loose)]
           }
           place(top + left, dy: row * pitch, if line.spread {
             box(width: made.measure, {
@@ -435,17 +436,16 @@
   tx(claim-x, 52pt, claim, size: "title", font: display)
   tx(margin, 84pt, lead, fill: soft)
   // In the edition the build line is the record's, in the model's language; the overview checked alone keeps English.
-  let built = if _in-edition { json("edition.json").words.built } else {
+  let built = if _in-edition { json(_shared.files.edition).words.built } else {
     "As built at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { " · " + date } else { "" })
   }
   if built != none { txr(page-width - margin, 34pt, 420pt, built, fill: soft) }
   if read-from != none { txr(page-width - margin, 50pt, 420pt, read-from, fill: soft) }
 }
 
-
 /// The edition's foot: a rule, the work's title, release, revision and date linked to the contents, and the folio.
 #let edition-foot() = {
-  let words = json("edition.json").words
+  let words = json(_shared.files.edition).words
   hrule(_house.edition.rule * 1pt)
   tx(margin, _house.edition.foot * 1pt, link(<archpub-contents>, words.foot), size: "small", fill: soft)
   context txr(page-width - margin, _house.edition.foot * 1pt, 300pt, counter(page).display(), size: "small", fill: soft)
@@ -971,7 +971,7 @@
     font: sans, size: sizes.text, fill: ink, stretch: 100%)
   set par(leading: 6.6pt, spacing: 6.6pt)
   show heading: it => place(hide(it.body))
-  pdf.attach("model.json", read("model.json", encoding: none), relationship: "source", mime-type: "application/json",
+  pdf.attach(_shared.delivered.model, read(_shared.files.model, encoding: none), relationship: "source", mime-type: "application/json",
     description: words.attached)
 
   // Title page: the name and question on the left, the summary as a standfirst on the right, the byline below.
@@ -1037,7 +1037,7 @@
   _index(r)
   _closing(r.closing)
   edition-foot()
-  [#metadata(none) <archpub-end>]
+  [#metadata(none) #label(_shared.labels.end)]
 }
 
 /// The figures alone, for use outside the edition: one page a plate, cut to what its figure draws on with a pad about

@@ -103,7 +103,12 @@ tokens of `src/house.json`, as one read-only object, and imports no other unit;
 a page's measure that it states. The unit `names` (`src/names.mjs`) imports no other unit and is the one
 module that names a delivery's files, forms a page's and a plate's names, a number in two digits and a
 revision cut to seven characters, and states the Typst version; `tests/one-source.test.mjs` refuses a
-module that writes one of them again. The unit `pinned` (`src/pinned`) writes the data and the reader file of a
+module that writes one of them again. It reads the table `src/shared.json`, which the overview stages
+beside the house class: the files staged for the class and their directory, the delivered model's name,
+under which the class attaches the model to the edition, the labels the class sets for the publisher to
+query, and what a plate's key begins with. The class reads the table by its own name, and the test
+refuses a name of it written again in the JavaScript or the Typst. The unit `pinned`
+(`src/pinned`) writes the data and the reader file of a
 delivery, builds the evidence table and a plate's face, and holds the three invariants of
 projection; it imports `locale`, `names` and `refusal` alone and is handed everything else as values. Two flat
 units stand beside the build: `manifest` (`src/manifest.mjs`) assembles the manifest and the summaries a

@@ -6,10 +6,10 @@
 // lower, set cluster by cluster along the arc; the name crosses the centre straight, in a band between two rules, and is
 // shaped like any other text, so every script keeps its form. The mark states only those three facts; the slip beside
 // it states the rest.
-#import "house.typ": hrule, ink, margin, page-height, page-width, paper, rule, sans, serif, sizes, soft, tx
+#import "house.typ": _shared, hrule, ink, margin, page-height, page-width, paper, rule, sans, serif, sizes, soft, tx
 
-#let r = json("colophon.json")
-#let _house = json("house.json")
+#let r = json(_shared.files.colophon)
+#let _house = json(_shared.files.tokens)
 #let _e = _house.edition
 #let cinnabar = rgb("#A93D31")
 /// The mark's diameter on the page.
@@ -106,7 +106,7 @@
         text(.._name-style(fit.size), fill: cinnabar, top-edge: "baseline", bottom-edge: "baseline", line))
     }
     [#metadata((mark: size.pt(), size: fit.size.pt(), lines: fit.lines, width: fit.ink.width.pt(),
-      height: fit.ink.height.pt(), bandWidth: width.pt(), bandHeight: room.pt())) <archpub-mark>]
+      height: fit.ink.height.pt(), bandWidth: width.pt(), bandHeight: room.pt())) #label(_shared.labels.mark)]
   }
 })
 

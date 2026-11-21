@@ -1,23 +1,38 @@
+import fs from "node:fs";
+
 /**
  * The names of a delivery: the files a build and an acceptance write, the names the publisher forms for a page, a
- * plate and a revision, and the Typst release its pages are set with. Each is stated here once; a module that
- * writes, lists, reads or reports one takes it from here rather than forming it again. The unit imports nothing.
+ * plate and a revision, and the Typst release its pages are set with; and the names the publisher shares with the
+ * house class, which a table beside this module states for both. Each is stated here or in the table once; a module
+ * that writes, lists, reads or reports one takes it from here rather than forming it again. The unit imports no
+ * other unit.
  */
 
 /** The Typst release the edition, the overview and the colophon page are set with; any other is refused. */
 export const TYPST_VERSION = "0.15.1";
 
+/**
+ * The table of the names the publisher shares with the house class: the directory the class is staged in and the
+ * files staged beside it, the delivered file the class names too, the directory of the plates' figures, the labels
+ * the class sets for the publisher to query, and what a plate's key begins with. The class reads the table where it
+ * is staged beside it, by this file's own name, the one name that both the JavaScript and the Typst state.
+ */
+export const SHARED_FILE = new URL("./shared.json", import.meta.url);
+
+/** The names of the table, read once and read-only. */
+export const SHARED = JSON.parse(fs.readFileSync(SHARED_FILE, "utf8"), (_key, value) =>
+  value && typeof value === "object" ? Object.freeze(value) : value,
+);
+
 /** The manifest, which names every other file a build delivers, with its digest. */
 export const MANIFEST = "manifest.json";
 
-/** The model as the build read it, which a delivery carries beside its data. */
-export const MODEL = "model.json";
-
 /**
- * The model as it is staged for Typst, beside the class that reads it by this name: a name of the staging, spelt as
- * the delivered model's is, and not the same fact.
+ * The model as the build read it, which a delivery carries beside its data and the edition attaches by the same
+ * name: the table states it, since the class names it too. The model staged for the class is spelt alike and is not
+ * the same fact.
  */
-export const STAGED_MODEL = "model.json";
+export const MODEL = SHARED.delivered.model;
 
 /** The acceptance record, which an acceptance writes beside a build. */
 export const ACCEPTANCE = "acceptance.json";
@@ -88,14 +103,11 @@ export const figureFiles = (name) => [
   { format: "svg", file: `${FIGURES}/${name}.svg` },
 ];
 
-/** What every plate's key begins with. */
-const KEY = "plate-";
-
 /**
- * The label the edition finds a plate's page by, of its number.
+ * The label the edition finds a plate's page by, of its number: the table's beginning of a key, then the number.
  * @param {number} page the plate's number
  */
-export const plateKey = (page) => `${KEY}${two(page)}`;
+export const plateKey = (page) => `${SHARED.key}${two(page)}`;
 
 /** The label of the overview's page, which takes the number no plate has. */
 export const OVERVIEW_KEY = plateKey(OVERVIEW);
@@ -104,7 +116,13 @@ export const OVERVIEW_KEY = plateKey(OVERVIEW);
  * The number of the plate whose page a label finds.
  * @param {string} key a plate's key
  */
-export const plateNumber = (key) => Number(key.slice(KEY.length));
+export const plateNumber = (key) => Number(key.slice(SHARED.key.length));
+
+/**
+ * The file a plate's figure is staged in beside the class, by which the edition's record names it to the class.
+ * @param {number} page the plate's number
+ */
+export const stagedPlate = (page) => `${SHARED.plates}/${two(page)}.svg`;
 
 /**
  * A revision as a reader is shown it: its first seven characters.

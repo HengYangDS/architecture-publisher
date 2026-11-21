@@ -1,0 +1,23 @@
+{
+  "directory": "archpub",
+  "files": {
+    "tokens": "house.json",
+    "model": "model.json",
+    "breaks": "breaks.json",
+    "overview": "overview-inputs.json",
+    "edition": "edition.json",
+    "colophon": "colophon.json"
+  },
+  "delivered": {
+    "model": "model.json"
+  },
+  "plates": "plates",
+  "labels": {
+    "box": "archpub-box",
+    "loose": "archpub-loose",
+    "line": "archpub-line",
+    "mark": "archpub-mark",
+    "end": "archpub-end"
+  },
+  "key": "plate-"
+}

@@ -37,29 +37,29 @@
 /// A line through the given points, recorded with its width for the publisher's check that no text lies under a line.
 #let _seg(..pts, w: 1.15pt, c: ink, dash: none) = {
   seg(..pts, w: w, c: c, dash: dash)
-  [#metadata((kind: "line", points: pts.pos().map(p => (p.at(0).pt(), p.at(1).pt())), w: w.pt())) <archpub-line>]
+  [#metadata((kind: "line", points: pts.pos().map(p => (p.at(0).pt(), p.at(1).pt())), w: w.pt())) #label(_shared.labels.line)]
 }
 
 /// A rule across a row or a block, recorded as a line.
 #let _hrule(y, x0: margin, x1: page-width - margin) = {
   hrule(y, x0: x0, x1: x1)
-  [#metadata((kind: "line", points: ((x0.pt(), y.pt()), (x1.pt(), y.pt())), w: 0.8)) <archpub-line>]
+  [#metadata((kind: "line", points: ((x0.pt(), y.pt()), (x1.pt(), y.pt())), w: 0.8)) #label(_shared.labels.line)]
 }
 
 /// An arrowhead pointing down or up at (x, y), recorded as a line as wide as its base.
 #let _down(x, y, c: ochre, s: 5pt) = {
   down(x, y, c: c, s: s)
-  [#metadata((kind: "line", points: ((x.pt(), (y - s).pt()), (x.pt(), y.pt())), w: (s * 1.2).pt())) <archpub-line>]
+  [#metadata((kind: "line", points: ((x.pt(), (y - s).pt()), (x.pt(), y.pt())), w: (s * 1.2).pt())) #label(_shared.labels.line)]
 }
 #let _up(x, y, c: ochre, s: 5pt) = {
   up(x, y, c: c, s: s)
-  [#metadata((kind: "line", points: ((x.pt(), y.pt()), (x.pt(), (y + s).pt())), w: (s * 1.2).pt())) <archpub-line>]
+  [#metadata((kind: "line", points: ((x.pt(), y.pt()), (x.pt(), (y + s).pt())), w: (s * 1.2).pt())) #label(_shared.labels.line)]
 }
 
 /// A ring on a course, recorded as a mark of its kind for the publisher's checks.
 #let _ring(x, y, r: 5pt, w: 1.7pt, c: green) = {
   ring(x, y, r: r, w: w, c: c)
-  [#metadata((kind: "ring", x: x.pt(), y: y.pt(), r: r.pt())) <archpub-mark>]
+  [#metadata((kind: "ring", x: x.pt(), y: y.pt(), r: r.pt())) #label(_shared.labels.mark)]
 }
 
 /// The name a step or a station is shown by: its label, or the model's label for the part it is.
@@ -98,7 +98,7 @@
   _number-gap + _natural(number, size: "small", weight: "semibold")
 }
 #let _numbered(number, x, b) = if number == none { none } else {
-  tx(x + _number-gap, b, if _in-edition { link(label("plate-" + number), number) } else { number }, size: "small",
+  tx(x + _number-gap, b, if _in-edition { link(label(_shared.key + number), number) } else { number }, size: "small",
     weight: "semibold", fill: green)
 }
 

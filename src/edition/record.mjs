@@ -1,4 +1,4 @@
-import { OVERVIEW_KEY, filesOf, plateKey, shortRevision, two } from "../names.mjs";
+import { OVERVIEW_KEY, filesOf, plateKey, shortRevision, stagedPlate, two } from "../names.mjs";
 import { editionWordsOf } from "./words.mjs";
 
 /**
@@ -109,7 +109,7 @@ export function editionRecord(input) {
       // Above a figure that keeps the full width: the summary alone, and the lines the engine broke it into.
       standfirst: plate.reading === "above" ? plate.standfirst.lines : null,
       places,
-      file: `plates/${number}.svg`,
+      file: stagedPlate(plate.page),
       title: plate.title,
       question: plate.question,
       alt: words.plate(number, plate.title, plate.question),

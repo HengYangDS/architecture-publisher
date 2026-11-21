@@ -5,9 +5,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
-import { ACCEPTANCE, COLOPHON, SIGNATURE, shortRevision } from "../names.mjs";
+import { ACCEPTANCE, COLOPHON, SHARED, SIGNATURE, shortRevision } from "../names.mjs";
 import { requireOverviewGlyphs } from "../overview/glyphs.mjs";
-import { CJK, STAGED, stage, typstProblems, typstVersion } from "../overview/typeset.mjs";
+import {
+  CJK,
+  STAGED,
+  recordsUnder,
+  stage,
+  typstProblems,
+  typstVersion,
+} from "../overview/typeset.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 import { editionWordsOf } from "./words.mjs";
@@ -107,7 +114,7 @@ export async function typesetColophon(input) {
     const own = path.join(staged.root, STAGED);
     const entry = path.join(own, "colophon.typ");
     await fs.copyFile(PAGE, entry);
-    await fs.writeFile(path.join(own, "colophon.json"), JSON.stringify(record));
+    await fs.writeFile(path.join(own, SHARED.files.colophon), JSON.stringify(record));
     const roots = [staged.root, await fs.realpath(staged.root)];
     const common = [
       "--root",
@@ -136,14 +143,7 @@ export async function typesetColophon(input) {
       return result.stdout;
     };
     const [measured] = JSON.parse(
-      await typeset([
-        "eval",
-        "query(<archpub-mark>).map(it => it.value)",
-        "--in",
-        entry,
-        "--format",
-        "json",
-      ]),
+      await typeset(["eval", recordsUnder(SHARED.labels.mark), "--in", entry, "--format", "json"]),
     );
     const fit = Object.fromEntries(
       Object.entries(measured).map(([key, value]) => [key, key === "lines" ? value : round(value)]),

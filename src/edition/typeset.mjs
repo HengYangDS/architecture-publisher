@@ -8,13 +8,13 @@ import { HOUSE } from "../house.mjs";
 import {
   OVERVIEW_KEY,
   OVERVIEW_PAGE,
-  STAGED_MODEL,
+  SHARED,
   figureFiles,
   imageFile,
   pageName,
   plateKey,
   plateNumber,
-  two,
+  stagedPlate,
 } from "../names.mjs";
 import { CJK, STAGED, stage, typstProblems, typstVersion } from "../overview/typeset.mjs";
 import { refuse } from "../refusal.mjs";
@@ -73,10 +73,10 @@ export async function typesetEdition(input) {
   const out = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-edition-out-"));
   try {
     const own = path.join(staged.root, STAGED);
-    await fs.writeFile(path.join(own, "edition.json"), JSON.stringify(input.record));
-    await fs.mkdir(path.join(own, "plates"));
+    await fs.writeFile(path.join(own, SHARED.files.edition), JSON.stringify(input.record));
+    await fs.mkdir(path.join(own, SHARED.plates));
     for (const plate of input.plates)
-      await fs.writeFile(path.join(own, "plates", `${two(plate.page)}.svg`), plate.svg);
+      await fs.writeFile(path.join(own, stagedPlate(plate.page)), plate.svg);
     // The overview is drawn from the model's statement, with the masthead's note of the files read.
     const entry = path.join(own, "edition.typ");
     await fs.writeFile(
@@ -84,8 +84,8 @@ export async function typesetEdition(input) {
       [
         '#import "house.typ": edition',
         '#import "drawn.typ": drawn',
-        '#let r = json("edition.json")',
-        `#let stated = json("${STAGED_MODEL}").at("overview", default: none)`,
+        `#let r = json("${SHARED.files.edition}")`,
+        `#let stated = json("${SHARED.files.model}").at("overview", default: none)`,
         "#let numbers = r.plates.map(p => p.views.map(v => (v, p.number))).sum(default: ()).to-dict()",
         "#edition(r, overview: if stated == none { none } else { drawn(stated, written-from: r.words.writtenFrom, plates: numbers) })",
         "",
@@ -139,7 +139,7 @@ export async function typesetEdition(input) {
     const [pages, last] = JSON.parse(
       await typeset([
         "eval",
-        "(query(heading.where(outlined: true)).map(h => (str(h.label), h.location().page())), query(<archpub-end>).first().location().page())",
+        `(query(heading.where(outlined: true)).map(h => (str(h.label), h.location().page())), query(<${SHARED.labels.end}>).first().location().page())`,
         "--in",
         entry,
         ...common,
@@ -181,7 +181,7 @@ export async function typesetEdition(input) {
         alone,
         [
           '#import "house.typ": figures-alone',
-          '#let r = json("edition.json")',
+          `#let r = json("${SHARED.files.edition}")`,
           '#figures-alone(r, float(sys.inputs.at("density")))',
           "",
         ].join("\n"),
