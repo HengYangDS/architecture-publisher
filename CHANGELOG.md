@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The repository runs ETHOS 0.2.0-beta.11 instead of 0.2.0-beta.10, bound through the release's own declaration;
+  0.2.0-beta.10 stays the rollback. The pipeline and the supply are unchanged.
 - Third-party supply is held 24 hours in the repository's own configuration: Mise takes no tool younger than a
   day (`minimum_release_age = "24h"`) and npm no package younger (`min-release-age=1` in `.config/npm/npmrc`,
   which the Mise environment names as npm's user configuration). Under Mise, npm in this repository no longer
