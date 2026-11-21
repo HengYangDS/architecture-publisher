@@ -397,4 +397,7 @@ what it says of positions: a guide's diagram file states nothing the model holds
       reviewer's Skill.
 - [ ] `foreign-work`: one work on a repository that is not the maintainer's, written by an agent from the Skill
       alone.
-- [ ] `gallery`: the published works shown in public as a gallery, once the product's form is whole.
+- [ ] `gallery`: the published works shown in public as a gallery, once the product's form is whole. The
+      gallery is made by the publisher's own command from the works a publications repository declares, so a
+      new work, a new language or a new medium appears in it with nothing listed or placed by hand; the owner
+      consented to publishing the works on 2026-11-21 and said that they will grow (「未来会扩展」).

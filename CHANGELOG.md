@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The queue's last item, `gallery`, says that the gallery is made by the publisher's command from the works a
+  publications repository declares, so that it grows with them and nothing in it is listed by hand.
 - The repository runs ETHOS 0.2.0-beta.11 instead of 0.2.0-beta.10, bound through the release's own declaration;
   0.2.0-beta.10 stays the rollback. The pipeline and the supply are unchanged.
 - Third-party supply is held 24 hours in the repository's own configuration: Mise takes no tool younger than a
