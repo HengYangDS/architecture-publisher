@@ -372,7 +372,8 @@ what it says of positions: a guide's diagram file states nothing the model holds
       claim, its terms, its pin and the plates' numbers with the editions, gives each view and part a stable
       address, and is checked against the model for them; then it is measured against what Archify offers, and
       what it leaves unused is taken up. It opens with an overview drawn from the model's statement and is titled
-      with the model's question.
+      with the model's question. It carries what its reader uses and each cited file once, and its weight is
+      measured on the published works ([record](research/page-weight.md)).
 - [ ] `delivery-layout`: a delivery laid out by kind, so a reader finds each thing where its kind says: the print
       edition, the page and the manifest at the top; each page's image in `images/`, named by what it shows (the
       overview, a plate's number and view), where `00-overview` and a first plate of a view named overview read alike

@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The queue's item `page` says that a page carries each cited file once and is measured on the published works,
+  and `docs/research/page-weight.md` records what makes up the pages 0.16.0 builds: 4 to 12 MB, of which a cited
+  file repeated once per citation takes 21% to 52%.
 - The queue's last item, `gallery`, says that the gallery is made by the publisher's command from the works a
   publications repository declares, so that it grows with them and nothing in it is listed by hand.
 - The repository runs ETHOS 0.2.0-beta.11 instead of 0.2.0-beta.10, bound through the release's own declaration;
