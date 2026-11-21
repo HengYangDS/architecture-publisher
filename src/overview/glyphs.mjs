@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { HOUSE } from "../house.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -25,7 +26,7 @@ async function loadCoverage() {
       .filter((file) => file.family)
       .map((file) => path.join(house.root, file.path)),
     ...fonts.manifest.files
-      .filter((file) => file.family === "Noto Sans CJK SC")
+      .filter((file) => file.family === HOUSE.faces.han)
       .map((file) => path.join(fonts.root, file.path)),
   ];
   const faces = [];

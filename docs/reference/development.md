@@ -97,7 +97,10 @@ and installed package, module boundaries, the version projection and the CI
 projection. The unit `facts` (`src/facts`) measures every fact a plate draws that its
 author did not state; `tests/module-boundaries.test.mjs` lets it import no other unit, lets
 no unit that draws import it or `sources`, and refuses a measure of its catalogue defined or
-called anywhere else. The unit `pinned` (`src/pinned`) writes the data and the reader file of a
+called anywhere else. The unit `house` (`src/house.mjs`) is the one module that reads the house
+tokens of `src/house.json`, as one read-only object, and imports no other unit;
+`tests/one-source.test.mjs` refuses a module that reads the file again or restates a face's name or
+a page's measure that it states. The unit `pinned` (`src/pinned`) writes the data and the reader file of a
 delivery, builds the evidence table and a plate's face, and holds the three invariants of
 projection; it imports `locale` and `refusal` alone and is handed everything else as values. Two flat
 units stand beside the build: `manifest` (`src/manifest.mjs`) assembles the manifest and the summaries a

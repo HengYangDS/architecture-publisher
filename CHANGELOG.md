@@ -9,6 +9,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The JavaScript reads the house tokens of `src/house.json` in one module, `src/house.mjs`, as one read-only
+  object: the palettes, the page's width and margins and the faces' names are read from it where two modules
+  parsed the file and four restated its values, and a test refuses a module that reads the file again or
+  restates them. No delivered byte changes.
 - The queue's item `page` says that a page carries each cited file once and is measured on the published works,
   and `docs/research/page-weight.md` records what makes up the pages 0.16.0 builds: 4 to 12 MB, of which a cited
   file repeated once per citation takes 21% to 52%.

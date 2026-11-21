@@ -7,6 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
+import { HOUSE_FILE } from "../house.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 import { checkBoxes, checkLines } from "./checks.mjs";
@@ -29,7 +30,7 @@ const CLASS = fileURLToPath(new URL("./house.typ", import.meta.url));
 /** The drawing of the overview from a model's statement, staged beside the class it imports. */
 const DRAWING = fileURLToPath(new URL("./drawn.typ", import.meta.url));
 /** The house tokens, staged beside the class, which reads them. */
-const TOKENS = fileURLToPath(new URL("../house.json", import.meta.url));
+const TOKENS = fileURLToPath(HOUSE_FILE);
 /** The bundled face that sets Han characters on the overview as on the posters. */
 export const CJK = "noto-sans-cjk-sc";
 

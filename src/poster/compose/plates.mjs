@@ -1,3 +1,4 @@
+import { HOUSE } from "../../house.mjs";
 import { presentation } from "../../kinds.mjs";
 import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
@@ -6,7 +7,7 @@ import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
 import { setWidth } from "../spread.mjs";
 import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
-import { HOUSE, HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
+import { HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
 
 /**

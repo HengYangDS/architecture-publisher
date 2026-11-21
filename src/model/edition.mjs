@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import { HOUSE } from "../house.mjs";
 
 /**
  * The edition's palette: how a model names it, the rules a palette it gives itself
@@ -6,9 +6,6 @@ import fs from "node:fs";
  * whose lightness tells the dye steps apart even on a photocopy, and in WCAG 2 contrast against
  * the ground, the measure readers' tools report.
  */
-
-/** The built-in palettes, read once; the poster tokens read the same file. */
-const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
 /** The built-in palettes, in the house's order. */
 export const PALETTES = Object.freeze(Object.keys(HOUSE.palettes));

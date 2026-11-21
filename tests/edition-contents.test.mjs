@@ -3,7 +3,7 @@ import test from "node:test";
 import { editionWordsOf } from "../src/edition/words.mjs";
 import { LOCALES } from "../src/locale.mjs";
 import { validateModel } from "../src/model/load.mjs";
-import { HOUSE } from "../src/poster/tokens.mjs";
+import { HOUSE } from "../src/house.mjs";
 import { SET, evalEdition, plateOf, recordOf } from "./fixtures/edition-typeset.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { everyBlock } from "./fixtures/overview-statements.mjs";

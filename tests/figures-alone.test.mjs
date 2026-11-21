@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { inlined } from "../src/edition/typeset.mjs";
-import { HOUSE } from "../src/poster/tokens.mjs";
+import { HOUSE } from "../src/house.mjs";
 import { cardWork, groupedWork, stripWork, typesetWork } from "./fixtures/pinned-face.mjs";
 import { readPng } from "./fixtures/png.mjs";
 import { arrowsOf, gapsOf, rectsOf, wiresOf } from "./fixtures/strips.mjs";

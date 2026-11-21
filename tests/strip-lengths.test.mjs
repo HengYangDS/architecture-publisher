@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { refuse } from "../src/refusal.mjs";
 import { STRIP_LENGTHS, longestOf, withStripLength } from "../src/poster/strip.mjs";
-import { HOUSE, POSTER, figureMetrics, figureStyles } from "../src/poster/tokens.mjs";
+import { HOUSE } from "../src/house.mjs";
+import { POSTER, figureMetrics, figureStyles } from "../src/poster/tokens.mjs";
 
 // An edition keeps one scale for its strips. When a view cannot hold them at the longest length, every strip of the
 // edition is drawn shorter and the views are planned again, until one length lays out every view.

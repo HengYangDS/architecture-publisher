@@ -4,7 +4,7 @@ import { editionRecord } from "../src/edition/record.mjs";
 import { typesetEdition } from "../src/edition/typeset.mjs";
 import { loadIcons } from "../src/icons.mjs";
 import { validateModel } from "../src/model/load.mjs";
-import { HOUSE } from "../src/poster/tokens.mjs";
+import { HOUSE } from "../src/house.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
 import { recordFacts } from "./fixtures/record-facts.mjs";

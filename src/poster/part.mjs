@@ -1,10 +1,11 @@
 import { atoms } from "../breaks.mjs";
+import { HOUSE } from "../house.mjs";
 import { presentation } from "../kinds.mjs";
 import { detailText, wordsOf, writtenUnspaced } from "../locale.mjs";
 import { DARKNESS } from "./balance.mjs";
 import { spreadOf } from "./spread.mjs";
 import { drawSegments, kilobytes, stripOf } from "./strip.mjs";
-import { HOUSE, POSTER, fixed, measureWidth } from "./tokens.mjs";
+import { POSTER, fixed, measureWidth } from "./tokens.mjs";
 
 /**
  * One part: a card whose regions compose. From its top, a part is its outline on its ground, which says whether it

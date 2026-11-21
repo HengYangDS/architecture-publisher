@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { SPACE, atoms, joined, orphan } from "../breaks.mjs";
+import { HOUSE } from "../house.mjs";
 import { detailPieces, detailText } from "../locale.mjs";
 import { kerningOf } from "./kerning.mjs";
 import { refuse } from "../refusal.mjs";
@@ -16,10 +17,10 @@ import { verifySupply } from "../supply.mjs";
 let loaded;
 
 /**
- * Load the faces text is measured in, once: the house's Source Sans 3, which the edition sets figure text in, and
- * Source Serif 4, which it sets a view's summary in, each followed by Noto Sans CJK SC for Han. Heavy text takes
- * Source Sans 3's semibold and the CJK face's bold. The house faces are measured with their own pair kerning, as
- * Typst sets them.
+ * Load the faces text is measured in, once, as the house names them: its sans, which the edition sets figure text
+ * in, and its serif, which it sets a view's summary in, each followed by its face for Han. Heavy text takes the
+ * sans's semibold and the Han face's bold. The house faces are measured with their own pair kerning, as Typst
+ * sets them.
  */
 export async function loadTypefaces() {
   if (loaded) return loaded;
@@ -42,15 +43,13 @@ export async function loadTypefaces() {
     if (supply === house) kerning.set(parsed, kerningOf(buffer));
     return parsed;
   };
-  const han = await face(fonts, "Noto Sans CJK SC", 400);
+  const { faces } = HOUSE;
+  const han = await face(fonts, faces.han, 400);
   /** @type {Array<[number | "serif", any[]]>} */
   const entries = [
-    [400, [await face(house, "Source Sans 3", 400), han]],
-    [
-      700,
-      await Promise.all([face(house, "Source Sans 3", 600), face(fonts, "Noto Sans CJK SC", 700)]),
-    ],
-    ["serif", [await face(house, "Source Serif 4", 400), han]],
+    [400, [await face(house, faces.sans, 400), han]],
+    [700, await Promise.all([face(house, faces.sans, 600), face(fonts, faces.han, 700)])],
+    ["serif", [await face(house, faces.serif, 400), han]],
   ];
   const chains = new Map(entries);
   loaded = createTypefaces(chains, kerning);

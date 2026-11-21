@@ -1,11 +1,13 @@
+import { HOUSE } from "../house.mjs";
 import { refuse } from "../refusal.mjs";
 
-/** The overview page and the area its text must stay within, in points. */
+/**
+ * The area the overview's text must stay within, in points: across, between the page's margins, which the house
+ * states; down, within the check's own bounds.
+ */
 const LIVE_AREA = Object.freeze({
-  width: 1600,
-  height: 900,
-  left: 48,
-  right: 1552,
+  left: HOUSE.page.margin,
+  right: HOUSE.page.width - HOUSE.page.margin,
   top: 16,
   bottom: 892,
 });

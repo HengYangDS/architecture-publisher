@@ -1,8 +1,5 @@
-import fs from "node:fs";
+import { HOUSE } from "../house.mjs";
 import { ROUTE } from "../layout/measure.mjs";
-
-/** The house tokens: the palette and faces the overview class sets in, read once. */
-export const HOUSE = JSON.parse(fs.readFileSync(new URL("../house.json", import.meta.url), "utf8"));
 
 /**
  * The figure's design tokens: one type scale, one baseline grid and one

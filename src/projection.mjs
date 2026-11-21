@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { CATALOGUE } from "./facts/catalogue.mjs";
+import { HOUSE } from "./house.mjs";
 import { archifyIds } from "./map/archify.mjs";
 import { guideCitations, guideSummary, readGuide } from "./map/guide.mjs";
 import { MODEL_FORMAT, MODEL_VERSION } from "./model/load.mjs";
@@ -14,7 +15,6 @@ import {
   requireReaderIds,
 } from "./pinned/invariants.mjs";
 import { parseReader, readerFile } from "./pinned/reader.mjs";
-import { HOUSE } from "./poster/tokens.mjs";
 import { refuse } from "./refusal.mjs";
 import { readAtPin } from "./sources/bind.mjs";
 import { DELIVERY_FORMAT, DELIVERY_VERSION, overviewImages, plateSummary } from "./manifest.mjs";

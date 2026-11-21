@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
+import { HOUSE } from "../house.mjs";
 import { CJK, STAGED, stage, typstProblems, typstVersion } from "../overview/typeset.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
@@ -15,8 +16,11 @@ import { verifySupply } from "../supply.mjs";
  */
 
 const run = promisify(execFile);
-/** The edition's page width in points; a PNG of w pixels is rendered at w * 72 / PAGE_WIDTH pixels per inch. */
-const PAGE_WIDTH = 1600;
+/**
+ * The edition's page width in points, as the house states it; a PNG of w pixels is rendered at w * 72 / PAGE_WIDTH
+ * pixels per inch.
+ */
+const PAGE_WIDTH = HOUSE.page.width;
 /**
  * The width in pixels a page's image is rendered at unless the caller names its widths. The image at this width is
  * named without its width.

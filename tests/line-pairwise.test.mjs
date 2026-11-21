@@ -2,16 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { editionRecord } from "../src/edition/record.mjs";
 import { typesetEdition } from "../src/edition/typeset.mjs";
+import { HOUSE } from "../src/house.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { drawLines } from "../src/poster/lines.mjs";
-import {
-  HOUSE,
-  POSTER,
-  colorsOf,
-  figureMetrics,
-  figureStyles,
-  linesOf,
-} from "../src/poster/tokens.mjs";
+import { POSTER, colorsOf, figureMetrics, figureStyles, linesOf } from "../src/poster/tokens.mjs";
 import { BROKEN, TABLE } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
