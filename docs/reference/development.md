@@ -100,9 +100,12 @@ no unit that draws import it or `sources`, and refuses a measure of its catalogu
 called anywhere else. The unit `house` (`src/house.mjs`) is the one module that reads the house
 tokens of `src/house.json`, as one read-only object, and imports no other unit;
 `tests/one-source.test.mjs` refuses a module that reads the file again or restates a face's name or
-a page's measure that it states. The unit `pinned` (`src/pinned`) writes the data and the reader file of a
+a page's measure that it states. The unit `names` (`src/names.mjs`) imports no other unit and is the one
+module that names a delivery's files, forms a page's and a plate's names, a number in two digits and a
+revision cut to seven characters, and states the Typst version; `tests/one-source.test.mjs` refuses a
+module that writes one of them again. The unit `pinned` (`src/pinned`) writes the data and the reader file of a
 delivery, builds the evidence table and a plate's face, and holds the three invariants of
-projection; it imports `locale` and `refusal` alone and is handed everything else as values. Two flat
+projection; it imports `locale`, `names` and `refusal` alone and is handed everything else as values. Two flat
 units stand beside the build: `manifest` (`src/manifest.mjs`) assembles the manifest and the summaries a
 check reports, and `projection` (`src/projection.mjs`) gathers the pinned edition from what the build
 prepared, has `sources` read at the pin the files only the guide cites and refuses a model id that takes a

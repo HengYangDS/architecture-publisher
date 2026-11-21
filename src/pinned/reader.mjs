@@ -1,4 +1,5 @@
 import { detailText, readerWordsOf, wordsOf } from "../locale.mjs";
+import { FIGURES, IMAGES, MANIFEST, MODEL, filesOf } from "../names.mjs";
 import { dataCounts } from "./data.mjs";
 
 /**
@@ -82,6 +83,7 @@ export function readerFile(data, { sha256, draft }) {
   const { work, pin, statements } = data;
   const words = readerWordsOf(work.locale);
   const marks = wordsOf(work.locale);
+  const files = filesOf(work.id);
   const factsOf = factLines(data.facts);
   /** A statement's item where it first stands: its text and fields, its details, its facts. */
   const item = (type, statement) => [
@@ -123,15 +125,15 @@ export function readerFile(data, { sha256, draft }) {
       .filter(Boolean)
       .join(FIELD)}`,
     `- ${words.model}${marks.colon}${modelFields.join(FIELD)}`,
-    `- ${words.data}${marks.colon}${code(`${work.id}.json`)}${FIELD}sha256 ${code(sha256)}`,
+    `- ${words.data}${marks.colon}${code(files.data)}${FIELD}sha256 ${code(sha256)}`,
     `- ${words.statements}${marks.colon}${Object.entries(counts)
       .map(([key, count]) => `${key} ${count}`)
       .join(FIELD)}`,
     `- ${words.delivery}${marks.colon}${[
       ...data.media.flatMap((medium) =>
-        medium === "edition" ? [`${work.id}.pdf`, "images/", "figures/"] : [`${work.id}.html`],
+        medium === "edition" ? [files.edition, `${IMAGES}/`, `${FIGURES}/`] : [files.page],
       ),
-      "manifest.json",
+      MANIFEST,
     ]
       .map(code)
       .join(", ")}`,
@@ -215,7 +217,7 @@ export function readerFile(data, { sha256, draft }) {
     ...section(words.notCovered, uncovered),
     ...section(words.checking, [
       `- ${words.verify}${marks.colon}${code("archpub verify <delivery>")}`,
-      `- ${words.check}${marks.colon}${code("archpub check model.json --repo <checkout>")}`,
+      `- ${words.check}${marks.colon}${code(`archpub check ${MODEL} --repo <checkout>`)}`,
     ]),
     ...(data.guide ? [[`## ${words.guide}`]] : []),
   ];

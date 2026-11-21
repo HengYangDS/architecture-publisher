@@ -4,6 +4,7 @@ import test from "node:test";
 import { typesetColophon } from "../src/edition/colophon.mjs";
 import { editionWordsOf } from "../src/edition/words.mjs";
 import { LOCALES } from "../src/locale.mjs";
+import { ACCEPTANCE, SIGNATURE } from "../src/names.mjs";
 import { temporaryDirectory } from "./fixtures/models.mjs";
 import { readPdf } from "./fixtures/pdf.mjs";
 
@@ -170,7 +171,7 @@ test("every language names the record's files on the page, and the signature onl
   for (const locale of LOCALES) {
     const words = editionWordsOf(locale);
     for (const signed of [true, false]) {
-      const note = words.colophonNote(signed);
+      const note = words.colophonNote(ACCEPTANCE, signed ? SIGNATURE : null);
       assert.match(note, /acceptance\.json/u, locale);
       assert.equal(note.includes("acceptance.sig"), signed, `${locale} ${signed}`);
       assert.match(note, /archpub verify/u, locale);

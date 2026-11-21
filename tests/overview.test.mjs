@@ -5,12 +5,8 @@ import path from "node:path";
 import test from "node:test";
 import { buildDelivery, checkModel } from "../src/build.mjs";
 import { checkBoxes } from "../src/overview/checks.mjs";
-import {
-  TYPST_VERSION,
-  checkOverview,
-  typstProblems,
-  typstVersion,
-} from "../src/overview/typeset.mjs";
+import { TYPST_VERSION } from "../src/names.mjs";
+import { checkOverview, typstProblems, typstVersion } from "../src/overview/typeset.mjs";
 import { minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { everyBlock } from "./fixtures/overview-statements.mjs";
 import { repository } from "./fixtures/repository.mjs";

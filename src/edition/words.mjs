@@ -3,7 +3,8 @@
  * contents and the plates a page of them lists, its reading note, the index and the labels of the facts under it,
  * and its foot; and on the colophon page of an accepted delivery the word on the mark's rim and the labels of the
  * acceptance's facts. Everything else in the edition is the model's own text or a fact the publisher records. The
- * reading note calls the page in a browser by `page`, the word that labels it under the index.
+ * reading note calls the page in a browser by `page`, the word that labels it under the index, and the colophon's
+ * note names the acceptance record and its signature by the names it is given.
  */
 
 import { DEFAULT_LOCALE } from "../locale.mjs";
@@ -24,7 +25,7 @@ import { DEFAULT_LOCALE } from "../locale.mjs";
  *   places: string, list: string,
  *   colophon: string, accepted: string, reviewer: string, acceptedAt: string, object: string, commit: string,
  *   manifest: string, signingKey: string, unsigned: string, note: string, colophonScope: string,
- *   colophonNote: (signed: boolean) => string,
+ *   colophonNote: (record: string, signature: string | null) => string,
  * }} EditionWords
  */
 
@@ -73,8 +74,8 @@ const WORDS = Object.freeze({
     note: "Note",
     colophonScope:
       "Acceptance records who accepted which bytes and when; it does not certify that the architecture is correct.",
-    colophonNote: (signed) =>
-      `The acceptance record published with this edition (${signed ? "acceptance.json and acceptance.sig" : "acceptance.json"}) holds the SHA-256 of this page and the manifest; check it with archpub verify.`,
+    colophonNote: (record, signature) =>
+      `The acceptance record published with this edition (${signature ? `${record} and ${signature}` : record}) holds the SHA-256 of this page and the manifest; check it with archpub verify.`,
   }),
   "zh-CN": Object.freeze({
     edition: "架构图册",
@@ -117,8 +118,8 @@ const WORDS = Object.freeze({
     unsigned: "未签名",
     note: "备注",
     colophonScope: "验收记录写明谁在何时验收了哪些字节，并不证明架构正确。",
-    colophonNote: (signed) =>
-      `随本图册出版的验收记录（${signed ? "acceptance.json 与 acceptance.sig" : "acceptance.json"}）载有本页与清单的 SHA-256，可用 archpub verify 核验。`,
+    colophonNote: (record, signature) =>
+      `随本图册出版的验收记录（${signature ? `${record} 与 ${signature}` : record}）载有本页与清单的 SHA-256，可用 archpub verify 核验。`,
   }),
   "zh-TW": Object.freeze({
     edition: "架構圖冊",
@@ -161,8 +162,8 @@ const WORDS = Object.freeze({
     unsigned: "未簽章",
     note: "備註",
     colophonScope: "驗收記錄寫明誰在何時驗收了哪些位元組，並不證明架構正確。",
-    colophonNote: (signed) =>
-      `隨本圖冊出版的驗收記錄（${signed ? "acceptance.json 與 acceptance.sig" : "acceptance.json"}）載有本頁與清單的 SHA-256，可用 archpub verify 核驗。`,
+    colophonNote: (record, signature) =>
+      `隨本圖冊出版的驗收記錄（${signature ? `${record} 與 ${signature}` : record}）載有本頁與清單的 SHA-256，可用 archpub verify 核驗。`,
   }),
   es: Object.freeze({
     edition: "Edición de arquitectura",
@@ -207,8 +208,8 @@ const WORDS = Object.freeze({
     note: "Nota",
     colophonScope:
       "La aceptación registra quién aceptó qué bytes y cuándo; no certifica que la arquitectura sea correcta.",
-    colophonNote: (signed) =>
-      `El registro de aceptación publicado con esta edición (${signed ? "acceptance.json y acceptance.sig" : "acceptance.json"}) contiene el SHA-256 de esta página y del manifiesto; compruébelo con archpub verify.`,
+    colophonNote: (record, signature) =>
+      `El registro de aceptación publicado con esta edición (${signature ? `${record} y ${signature}` : record}) contiene el SHA-256 de esta página y del manifiesto; compruébelo con archpub verify.`,
   }),
   ko: Object.freeze({
     edition: "아키텍처 판",
@@ -252,8 +253,8 @@ const WORDS = Object.freeze({
     note: "메모",
     colophonScope:
       "승인은 누가 언제 어떤 바이트를 승인했는지 기록하며, 아키텍처가 옳음을 보증하지는 않습니다.",
-    colophonNote: (signed) =>
-      `이 판과 함께 발행된 승인 기록(${signed ? "acceptance.json 및 acceptance.sig" : "acceptance.json"})에는 이 쪽과 매니페스트의 SHA-256이 담겨 있으며, archpub verify로 확인할 수 있습니다.`,
+    colophonNote: (record, signature) =>
+      `이 판과 함께 발행된 승인 기록(${signature ? `${record} 및 ${signature}` : record})에는 이 쪽과 매니페스트의 SHA-256이 담겨 있으며, archpub verify로 확인할 수 있습니다.`,
   }),
 });
 

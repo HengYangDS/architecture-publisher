@@ -1,3 +1,4 @@
+import { OVERVIEW_KEY, filesOf, plateKey, shortRevision, two } from "../names.mjs";
 import { editionWordsOf } from "./words.mjs";
 
 /**
@@ -5,11 +6,6 @@ import { editionWordsOf } from "./words.mjs";
  * records, the edition's words in the model's language, each plate's figure, runs, key and links, and the index
  * of the parts by name.
  */
-
-const two = (number) => String(number).padStart(2, "0");
-
-/** The label a plate's page is found by, of its number; the overview's page takes 00's, which no plate has. */
-const keyOf = (number) => `plate-${number}`;
 
 /** The components a plate draws, each once, in the order of its runs. */
 const partsOf = (plate) => [
@@ -76,7 +72,7 @@ export function editionRecord(input) {
   const { release } = facts;
   const words = editionWordsOf(model.locale);
   const repository = model.repository;
-  const short = repository ? repository.revision.slice(0, 7) : null;
+  const short = repository ? shortRevision(repository.revision) : null;
   const { date } = facts;
   const editors = model.editors.map(({ name }) => name);
   const subject = `${repository?.name ?? model.title}${release ? ` ${release}` : ""}`;
@@ -103,7 +99,7 @@ export function editionRecord(input) {
           })
         : [];
     return {
-      key: keyOf(number),
+      key: plateKey(plate.page),
       number,
       views: plate.views,
       figureWidth: plate.width,
@@ -134,7 +130,7 @@ export function editionRecord(input) {
   const note = words.readingNote(linked, input.page).split(input.page);
   if (note.length !== 2) throw new Error("The reading note names the page once.");
   const [before, after] = note;
-  const data = `${model.id}.json`;
+  const { data } = filesOf(model.id);
   const url = repository?.url ? repository.url.replace(/\.git$/u, "") : null;
   return {
     locale: model.locale,
@@ -182,7 +178,7 @@ export function editionRecord(input) {
     // page. The contents' rows are the plates themselves.
     front: input.overview
       ? {
-          key: keyOf(two(0)),
+          key: OVERVIEW_KEY,
           title: words.overview,
           claim: model.overview?.claim ?? null,
         }

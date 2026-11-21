@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
 import { HOUSE_FILE } from "../house.mjs";
+import { STAGED_MODEL, TYPST_VERSION } from "../names.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 import { checkBoxes, checkLines } from "./checks.mjs";
@@ -22,8 +23,6 @@ import { requireOverviewGlyphs } from "./glyphs.mjs";
 const run = promisify(execFile);
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
-/** The Typst release the overview's bytes depend on. */
-export const TYPST_VERSION = "0.15.1";
 /** The house class, staged beside the model under this directory of the root. */
 export const STAGED = "archpub";
 const CLASS = fileURLToPath(new URL("./house.typ", import.meta.url));
@@ -104,7 +103,7 @@ export async function stage(modelBytes, tokens = null) {
   await fs.writeFile(path.join(root, STAGED, "drawn.typ"), drawingBytes);
   const tokenBytes = stagedTokens(await fs.readFile(TOKENS), tokens);
   await fs.writeFile(path.join(root, STAGED, "house.json"), tokenBytes);
-  await fs.writeFile(path.join(root, STAGED, "model.json"), modelBytes);
+  await fs.writeFile(path.join(root, STAGED, STAGED_MODEL), modelBytes);
   await fs.writeFile(path.join(root, STAGED, "breaks.json"), JSON.stringify(breaksOf(modelBytes)));
   return {
     root,
@@ -137,7 +136,7 @@ async function overviewEntry(root, writtenFrom, plates = {}) {
     [
       `#import "/${STAGED}/drawn.typ": *`,
       "#show: overview",
-      `#drawn(json("/${STAGED}/model.json").overview, written-from: json("/${STAGED}/overview-inputs.json").writtenFrom, plates: json("/${STAGED}/overview-inputs.json").plates)`,
+      `#drawn(json("/${STAGED}/${STAGED_MODEL}").overview, written-from: json("/${STAGED}/overview-inputs.json").writtenFrom, plates: json("/${STAGED}/overview-inputs.json").plates)`,
       "",
     ].join("\n"),
   );

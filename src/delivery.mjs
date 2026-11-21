@@ -5,12 +5,9 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { DELIVERY_FORMAT, digestTree } from "./build.mjs";
 import { typesetColophon } from "./edition/colophon.mjs";
+import { ACCEPTANCE, COLOPHON, MANIFEST, SIGNATURE } from "./names.mjs";
 import { refuse } from "./refusal.mjs";
 
-const ACCEPTANCE = "acceptance.json";
-const SIGNATURE = "acceptance.sig";
-const COLOPHON = "colophon.pdf";
-const MANIFEST = "manifest.json";
 /**
  * The acceptance record is an in-toto Statement: its subjects are the bytes accepted, the manifest and the colophon
  * page, by digest, and its predicate says who accepted them and when, so attestation tools read it as they read any

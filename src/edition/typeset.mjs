@@ -5,6 +5,17 @@ import path from "node:path";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
 import { HOUSE } from "../house.mjs";
+import {
+  OVERVIEW_KEY,
+  OVERVIEW_PAGE,
+  STAGED_MODEL,
+  figureFiles,
+  imageFile,
+  pageName,
+  plateKey,
+  plateNumber,
+  two,
+} from "../names.mjs";
 import { CJK, STAGED, stage, typstProblems, typstVersion } from "../overview/typeset.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
@@ -21,38 +32,6 @@ const run = promisify(execFile);
  * pixels per inch.
  */
 const PAGE_WIDTH = HOUSE.page.width;
-/**
- * The width in pixels a page's image is rendered at unless the caller names its widths. The image at this width is
- * named without its width.
- */
-export const DEFAULT_WIDTH = 3840;
-/** The name of the overview's page among an edition's images. */
-export const OVERVIEW_PAGE = "00-overview";
-
-/**
- * The name of a plate's page among an edition's images and figures: `NN-<view>`.
- * @param {{ page: number, views: readonly string[] }} plate
- */
-export const pageName = (plate) =>
-  `${String(plate.page).padStart(2, "0")}-${plate.views.join("+")}`;
-
-/**
- * The image file of one page of an edition at one width.
- * @param {number} width
- * @param {string} name a page's name, `00-overview` or `NN-<view>`
- */
-export const imageFile = (width, name) =>
-  width === DEFAULT_WIDTH ? `images/${name}.png` : `images/${name}-${width}.png`;
-
-/**
- * The two files of a plate's figure set alone, by format, in the order a delivery records them.
- * @param {string} name the plate's page name, `NN-<view>`
- * @returns {Array<{ format: "png" | "svg", file: string }>}
- */
-export const figureFiles = (name) => [
-  { format: "png", file: `figures/${name}.png` },
-  { format: "svg", file: `figures/${name}.svg` },
-];
 
 /**
  * A figure's SVG as one file of shapes: Typst nests the figure's own SVG as an image with a data URI, which opens
@@ -97,10 +76,7 @@ export async function typesetEdition(input) {
     await fs.writeFile(path.join(own, "edition.json"), JSON.stringify(input.record));
     await fs.mkdir(path.join(own, "plates"));
     for (const plate of input.plates)
-      await fs.writeFile(
-        path.join(own, "plates", `${String(plate.page).padStart(2, "0")}.svg`),
-        plate.svg,
-      );
+      await fs.writeFile(path.join(own, "plates", `${two(plate.page)}.svg`), plate.svg);
     // The overview is drawn from the model's statement, with the masthead's note of the files read.
     const entry = path.join(own, "edition.typ");
     await fs.writeFile(
@@ -109,7 +85,7 @@ export async function typesetEdition(input) {
         '#import "house.typ": edition',
         '#import "drawn.typ": drawn',
         '#let r = json("edition.json")',
-        '#let stated = json("model.json").at("overview", default: none)',
+        `#let stated = json("${STAGED_MODEL}").at("overview", default: none)`,
         "#let numbers = r.plates.map(p => p.views.map(v => (v, p.number))).sum(default: ()).to-dict()",
         "#edition(r, overview: if stated == none { none } else { drawn(stated, written-from: r.words.writtenFrom, plates: numbers) })",
         "",
@@ -171,13 +147,8 @@ export async function typesetEdition(input) {
         "json",
       ]),
     );
-    const names = new Map(
-      input.plates.map((plate) => [
-        `plate-${String(plate.page).padStart(2, "0")}`,
-        pageName(plate),
-      ]),
-    );
-    names.set("plate-00", OVERVIEW_PAGE);
+    const names = new Map(input.plates.map((plate) => [plateKey(plate.page), pageName(plate)]));
+    names.set(OVERVIEW_KEY, OVERVIEW_PAGE);
     const shown = pages.filter(([label]) => names.has(label));
     const png = [];
     for (const width of input.widths) {
@@ -250,8 +221,8 @@ export async function typesetEdition(input) {
       pages: last,
       // Each plate's page in the PDF, counted from 1, in the edition's order; the overview's page is no plate.
       platePages: shown
-        .filter(([label]) => label !== "plate-00")
-        .map(([label, page]) => ({ number: Number(label.slice("plate-".length)), page })),
+        .filter(([label]) => label !== OVERVIEW_KEY)
+        .map(([label, page]) => ({ number: plateNumber(label), page })),
       png,
     };
   } finally {

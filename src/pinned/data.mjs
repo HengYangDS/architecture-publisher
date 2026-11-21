@@ -1,3 +1,4 @@
+import { MODEL } from "../names.mjs";
 import { refuse } from "../refusal.mjs";
 
 /**
@@ -207,7 +208,7 @@ export function editionData(build) {
     publisher: { name: build.publisher.name, version: build.publisher.version },
     work: workOf(model),
     model: {
-      file: "model.json",
+      file: MODEL,
       sha256: build.file.sha256,
       bytes: build.file.bytes,
       format: build.file.format,

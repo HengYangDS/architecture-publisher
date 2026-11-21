@@ -4,6 +4,7 @@ import { styleText } from "node:util";
 import { cancel, intro, log, outro, taskLog } from "@clack/prompts";
 import stringWidth from "fast-string-width";
 import { wrapAnsi } from "fast-wrap-ansi";
+import { filesOf, shortRevision, two } from "../names.mjs";
 import { comparisonReport } from "./comparison.mjs";
 import { attention, count, dataGroup, near, noted, passed, refused, series } from "./facts.mjs";
 
@@ -154,7 +155,7 @@ const READING = Object.freeze({
  * each named as the result spells it, with what was measured and the limit it passed.
  */
 function plateFact(plate) {
-  const page = String(plate.page).padStart(2, "0");
+  const page = two(plate.page);
   const misses = plate.misses ?? [];
   const drawn =
     `${plate.views.join(", ")} · figure ${Math.round(plate.share * 100)}% of the body` +
@@ -203,7 +204,7 @@ function worklistFacts(worklist, commit) {
   if (worklist.refused.length)
     facts.push(
       refused(
-        `Refused at ${commit.slice(0, 7)}`,
+        `Refused at ${shortRevision(commit)}`,
         worklist.refused
           .map((entry) =>
             entry.code === "claim_unmatched"
@@ -252,7 +253,7 @@ function currencyGroups(currency) {
   const { revision, commit } = currency.against;
   return [
     {
-      heading: `Currency against ${revision} at ${commit.slice(0, 7)}`,
+      heading: `Currency against ${revision} at ${shortRevision(commit)}`,
       facts: [
         (currency.commits || !currency.ancestor ? attention : passed)(
           "Commits",
@@ -275,7 +276,7 @@ function coverageGroups(coverage) {
   const { files, largestUncovered, unmatched, citedOutsideScope, currency } = coverage;
   return [
     {
-      heading: `Coverage at ${coverage.revision.slice(0, 7)}`,
+      heading: `Coverage at ${shortRevision(coverage.revision)}`,
       facts: [
         (files.uncovered ? attention : passed)(
           "Files",
@@ -379,9 +380,16 @@ const RESULT = Object.freeze({
           facts: [
             passed("Views", count(result.views.length, "view")),
             ...(result.media.includes("edition")
-              ? [passed("Edition", `${count(result.plates, "plate")} in ${result.model.id}.pdf`)]
+              ? [
+                  passed(
+                    "Edition",
+                    `${count(result.plates, "plate")} in ${filesOf(result.model.id).edition}`,
+                  ),
+                ]
               : []),
-            ...(result.media.includes("page") ? [passed("Page", `${result.model.id}.html`)] : []),
+            ...(result.media.includes("page")
+              ? [passed("Page", filesOf(result.model.id).page)]
+              : []),
             passed("Files", count(result.artifacts, "file")),
             passed("Directory", near(result.out)),
           ],

@@ -2,6 +2,7 @@ import { HOUSE } from "../../house.mjs";
 import { presentation } from "../../kinds.mjs";
 import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
+import { two } from "../../names.mjs";
 import { refuse } from "../../refusal.mjs";
 import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
 import { setWidth } from "../spread.mjs";
@@ -85,7 +86,7 @@ function legendOf(model, view, boundary, drawn, rows) {
  * @returns {Array<{ code: string, path?: string, message: string }>}
  */
 export function lineWarnings(plates, style) {
-  const number = ({ page }) => String(page).padStart(2, "0");
+  const number = ({ page }) => two(page);
   const touching = plates.flatMap((plate) =>
     plate.touching.map((id) => ({
       code: "citation_count_touches",

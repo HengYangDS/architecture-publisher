@@ -1,11 +1,13 @@
+import { guideSummary } from "./map/guide.mjs";
 import {
   DEFAULT_WIDTH,
+  MODEL,
   OVERVIEW_PAGE,
   figureFiles,
+  filesOf,
   imageFile,
   pageName,
-} from "./edition/typeset.mjs";
-import { guideSummary } from "./map/guide.mjs";
+} from "./names.mjs";
 
 /**
  * The manifest of a delivery: the record of one build, which names every file the delivery holds with its digest.
@@ -14,7 +16,7 @@ import { guideSummary } from "./map/guide.mjs";
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
 export const DELIVERY_VERSION = 8;
-/** The widths the edition's images are rendered at by default: the one the edition names as its default. */
+/** The widths the edition's images are rendered at by default: the one whose image is named without its width. */
 export const PNG_WIDTHS = Object.freeze([DEFAULT_WIDTH]);
 
 /**
@@ -101,6 +103,7 @@ export function deliveryManifest(build) {
   const { prepared, chosen, edition, page, dated, pinned } = build;
   const { fonts, house, opentype } = build.supplies;
   const { overview, model } = prepared;
+  const files = filesOf(model.id);
   return {
     format: DELIVERY_FORMAT,
     version: DELIVERY_VERSION,
@@ -109,7 +112,7 @@ export function deliveryManifest(build) {
       id: prepared.model.id,
       title: prepared.model.title,
       locale: prepared.model.locale,
-      file: "model.json",
+      file: MODEL,
       sha256: prepared.loaded.sha256,
       bytes: prepared.loaded.bytes,
     },
@@ -128,7 +131,7 @@ export function deliveryManifest(build) {
     views: prepared.views.map((view) => viewSummary(view, prepared.plates)),
     edition: edition
       ? {
-          file: `${model.id}.pdf`,
+          file: files.edition,
           pages: edition.pages,
           typst: edition.typst,
           house: edition.house,
@@ -144,21 +147,21 @@ export function deliveryManifest(build) {
         ? null
         : prepared.page.kind === "guide"
           ? {
-              file: `${model.id}.html`,
+              file: files.page,
               quality: page.receipt.quality,
               gates: page.receipt.gates,
               guide: guideSummary(prepared.page),
             }
           : {
-              file: `${model.id}.html`,
+              file: files.page,
               quality: page.receipt.quality,
               gates: page.receipt.gates,
               diagrams: prepared.page.diagrams.map(diagramSummary),
               withheld: prepared.page.withheld,
             },
     ...(overview ? { overview: overviewSummary(prepared.model, overview) } : {}),
-    data: { file: `${model.id}.json`, ...pinned.counts },
-    reader: { file: `${model.id}.md`, bytes: pinned.reader.length, statements: pinned.statements },
+    data: { file: files.data, ...pinned.counts },
+    reader: { file: files.reader, bytes: pinned.reader.length, statements: pinned.statements },
     artifacts: build.artifacts,
   };
 }

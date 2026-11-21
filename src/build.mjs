@@ -15,6 +15,7 @@ import { loadIcons } from "./icons.mjs";
 import { explainerPage, writeDelivery, writePage } from "./map/explainer.mjs";
 import { guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
+import { FIGURES, IMAGES, MANIFEST, TYPST_VERSION, filesOf, two } from "./names.mjs";
 import { editionRecord } from "./edition/record.mjs";
 import { editionWordsOf } from "./edition/words.mjs";
 import { typesetEdition } from "./edition/typeset.mjs";
@@ -219,9 +220,7 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   warnings.push(...lineWarnings(plates, style));
   // The overview is the edition's map: where a step or a block names a view, the page sets that view's plate number.
   const plateNumbers = Object.fromEntries(
-    plates.flatMap((plate) =>
-      plate.views.map((view) => [view, String(plate.page).padStart(2, "0")]),
-    ),
+    plates.flatMap((plate) => plate.views.map((view) => [view, two(plate.page)])),
   );
   const overview =
     printed && model.overview
@@ -243,7 +242,7 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const paged = media.includes("page");
   if (paged) listener("preparing the page");
-  const deliverAs = deliver ? `${model.id}.html` : undefined;
+  const deliverAs = deliver ? filesOf(model.id).page : undefined;
   const page = !paged
     ? null
     : guide
@@ -381,6 +380,7 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
   const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
   try {
     const { overview, model } = prepared;
+    const files = filesOf(model.id);
     // The edition is dated by its revision's commit; without the checkout, by SOURCE_DATE_EPOCH when the caller
     // sets one, as reproducible builds do; otherwise by the time it is typeset, and then it is not reproducible.
     const epoch = process.env.SOURCE_DATE_EPOCH;
@@ -400,9 +400,9 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
             icons: prepared.icons,
             facts: prepared.facts,
             publisher: await publisherVersion(),
-            typst: "0.15.1",
+            typst: TYPST_VERSION,
             overview: Boolean(overview),
-            page: `${model.id}.html`,
+            page: files.page,
             time: dated.time,
           }),
           plates: prepared.plates,
@@ -415,11 +415,11 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
           tokens: prepared.style.tokens,
         });
     if (edition) {
-      await fs.writeFile(path.join(staging, `${model.id}.pdf`), edition.pdf);
-      await fs.mkdir(path.join(staging, "images"));
+      await fs.writeFile(path.join(staging, files.edition), edition.pdf);
+      await fs.mkdir(path.join(staging, IMAGES));
       for (const { file, bytes } of edition.png)
         await fs.writeFile(path.join(staging, file), bytes);
-      await fs.mkdir(path.join(staging, "figures"));
+      await fs.mkdir(path.join(staging, FIGURES));
       for (const { file, bytes } of edition.figures)
         await fs.writeFile(path.join(staging, file), bytes);
     }
@@ -451,10 +451,7 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
       pinned,
       artifacts: await digestTree(staging),
     });
-    await fs.writeFile(
-      path.join(staging, "manifest.json"),
-      `${JSON.stringify(manifest, null, 2)}\n`,
-    );
+    await fs.writeFile(path.join(staging, MANIFEST), `${JSON.stringify(manifest, null, 2)}\n`);
     await fs.rename(staging, target);
     return {
       out: target,

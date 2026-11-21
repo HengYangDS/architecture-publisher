@@ -13,6 +13,11 @@ remain pre-release contracts and may contain incompatible changes.
   object: the palettes, the page's width and margins and the faces' names are read from it where two modules
   parsed the file and four restated its values, and a test refuses a module that reads the file again or
   restates them. No delivered byte changes.
+- The JavaScript names a delivery's files in one module, `src/names.mjs`: the manifest, the acceptance record,
+  its signature, the colophon page, the delivered model, the image and figure directories and the four files
+  named by the model's id, a page's name and a number in two digits, a plate's key, a revision cut to seven
+  characters and the Typst version are taken from it where fifteen modules formed or restated them, and a test
+  refuses a module that writes one again. No delivered byte changes.
 - The queue's item `page` says that a page carries each cited file once and is measured on the published works,
   and `docs/research/page-weight.md` records what makes up the pages 0.16.0 builds: 4 to 12 MB, of which a cited
   file repeated once per citation takes 21% to 52%.

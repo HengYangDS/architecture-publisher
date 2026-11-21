@@ -12,6 +12,7 @@ import {
 } from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
 import { migrateModel } from "../importers/model.mjs";
+import { ACCEPTANCE, SIGNATURE } from "../names.mjs";
 import { Refusal } from "../refusal.mjs";
 import { reportFailure, reportProgress, reportRefusal, reportResult } from "./report.mjs";
 
@@ -248,7 +249,7 @@ function commands({ version: current, write, action, listener }) {
     .option("--note <text>", "record this note in the acceptance")
     .option(
       "--sign <key>",
-      "sign acceptance.json into acceptance.sig with this SSH key, or the key ssh-agent holds for this public key",
+      `sign ${ACCEPTANCE} into ${SIGNATURE} with this SSH key, or the key ssh-agent holds for this public key`,
     )
     .action(
       action("accept", (delivery, options) =>
@@ -268,7 +269,7 @@ function commands({ version: current, write, action, listener }) {
     .argument("<delivery>", "the delivery's directory")
     .option(
       "--allowed-signers <file>",
-      "check acceptance.sig against acceptance.json for the reviewer with this ssh-keygen allowed signers file",
+      `check ${SIGNATURE} against ${ACCEPTANCE} for the reviewer with this ssh-keygen allowed signers file`,
     )
     .action(
       action("verify", (delivery, options) =>

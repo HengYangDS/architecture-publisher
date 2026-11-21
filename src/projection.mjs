@@ -5,6 +5,7 @@ import { HOUSE } from "./house.mjs";
 import { archifyIds } from "./map/archify.mjs";
 import { guideCitations, guideSummary, readGuide } from "./map/guide.mjs";
 import { MODEL_FORMAT, MODEL_VERSION } from "./model/load.mjs";
+import { ACCEPTANCE, COLOPHON, MANIFEST, MODEL, SIGNATURE, filesOf } from "./names.mjs";
 import { dataCounts, editionData, serializeData } from "./pinned/data.mjs";
 import { evidenceTable } from "./pinned/evidence.mjs";
 import { plateEntry, plateScales } from "./pinned/face.mjs";
@@ -26,27 +27,38 @@ import { DELIVERY_FORMAT, DELIVERY_VERSION, overviewImages, plateSummary } from 
  */
 
 /**
- * The ids that would give two files of a delivery one name, each with the name, the file the id names and the
- * file that has the name already.
- * @type {ReadonlyMap<string, readonly [string, string, string]>}
+ * The files a delivery names whatever its model, each with what it holds.
+ * @type {ReadonlyMap<string, string>}
  */
-const TAKEN = new Map([
-  ["model", ["model.json", "its data", "the model the build read"]],
-  ["manifest", ["manifest.json", "its data", "the manifest"]],
-  ["acceptance", ["acceptance.json", "its data", "the record an acceptance writes"]],
-  ["colophon", ["colophon.pdf", "its print edition", "the colophon page an acceptance writes"]],
+const FIXED = new Map([
+  [MODEL, "the model the build read"],
+  [MANIFEST, "the manifest"],
+  [ACCEPTANCE, "the record an acceptance writes"],
+  [SIGNATURE, "the signature an acceptance writes"],
+  [COLOPHON, "the colophon page an acceptance writes"],
 ]);
 
 /**
- * Refuse a model whose id would name two files of its delivery alike: the data is `<model id>.json` and the print
- * edition `<model id>.pdf`, beside files the delivery names itself.
+ * What each file a delivery names by its model's id holds.
+ * @type {Readonly<Record<string, string>>}
+ */
+const OWN = Object.freeze({
+  edition: "its print edition",
+  page: "its page",
+  data: "its data",
+  reader: "its reader file",
+});
+
+/**
+ * Refuse a model whose id would name two files of its delivery alike: a file named by the id, such as its data
+ * `<model id>.json` or its print edition `<model id>.pdf`, that takes the name of a file the delivery names itself.
  * @param {string} id the model's id
  */
 export function requireDeliveryNames(id) {
-  const taken = TAKEN.get(id);
+  const taken = Object.entries(filesOf(id)).find(([, file]) => FIXED.has(file));
   if (!taken) return;
-  const [file, named, held] = taken;
-  const message = `\`${file}\` would be both ${named} and ${held}`;
+  const [kind, file] = taken;
+  const message = `\`${file}\` would be both ${OWN[kind]} and ${FIXED.get(file)}`;
   refuse(
     "delivery_name_taken",
     `A delivery of the model \`${id}\` would hold two files of one name: ${message}. Give the model another id.`,
@@ -211,6 +223,7 @@ export function pinnedEdition(held, widths, platePages = null) {
   requireFaces(data);
   requireProjections(data, text, pageProjections(held.page, views));
   const { components, relations, groups } = parseReader(text, model.locale).stated;
+  const named = filesOf(model.id);
   return {
     data,
     counts: dataCounts(data),
@@ -218,9 +231,9 @@ export function pinnedEdition(held, widths, platePages = null) {
     statements: components.length + relations.length + groups.length,
     /** The three files of the pinned edition, by name, as the delivery holds them. */
     files: /** @type {Array<[string, Uint8Array]>} */ ([
-      ["model.json", held.loaded.content],
-      [`${model.id}.json`, json],
-      [`${model.id}.md`, reader],
+      [MODEL, held.loaded.content],
+      [named.data, json],
+      [named.reader, reader],
     ]),
   };
 }

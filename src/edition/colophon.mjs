@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import { childEnvironment } from "../environment.mjs";
+import { ACCEPTANCE, COLOPHON, SIGNATURE, shortRevision } from "../names.mjs";
 import { requireOverviewGlyphs } from "../overview/glyphs.mjs";
 import { CJK, STAGED, stage, typstProblems, typstVersion } from "../overview/typeset.mjs";
 import { refuse } from "../refusal.mjs";
@@ -70,9 +71,9 @@ function colophonRecord(input, reviewer) {
       ...(input.note ? [{ label: words.note, value: input.note }] : []),
     ],
     scope: words.colophonScope,
-    note: words.colophonNote(Boolean(input.signer)),
+    note: words.colophonNote(ACCEPTANCE, input.signer ? SIGNATURE : null),
     foot: input.revision
-      ? words.foot(input.title, input.release, input.revision.slice(0, 7), input.date)
+      ? words.foot(input.title, input.release, shortRevision(input.revision), input.date)
       : input.title,
   };
 }
@@ -152,7 +153,7 @@ export async function typesetColophon(input) {
         "acceptance_name_too_long",
         `${JSON.stringify(name)} does not fit the mark's band on two lines at ${fit.size} pt; give the mark a shorter name with --seal-name.`,
       );
-    const file = path.join(out, "colophon.pdf");
+    const file = path.join(out, COLOPHON);
     await typeset([
       "compile",
       "--creation-timestamp",

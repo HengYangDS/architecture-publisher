@@ -1,3 +1,4 @@
+import { two } from "../names.mjs";
 import { attention, count, near, passed, series } from "./facts.mjs";
 
 /** How a file differs between two deliveries: in its bytes, or by standing in one of them alone. */
@@ -41,7 +42,7 @@ export function comparisonReport({ first, second, identical, plates, files }) {
         heading: "Plates that differ",
         facts: plates.map((plate) =>
           attention(
-            String(plate.page).padStart(2, "0"),
+            two(plate.page),
             `${plate.views.join(", ")} · ${plate.files
               .map((file) => `${file.path} ${difference(file)}`)
               .join(", ")}`,
