@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { refuse } from "../src/refusal.mjs";
 import { STRIP_LENGTHS, longestOf, withStripLength } from "../src/poster/strip.mjs";
-import { HOUSE } from "../src/house.mjs";
+import { HOUSE, HOUSE_BODY } from "../src/house.mjs";
 import { POSTER, figureMetrics, figureStyles } from "../src/poster/tokens.mjs";
 
 // An edition keeps one scale for its strips. When a view cannot hold them at the longest length, every strip of the
@@ -48,7 +48,7 @@ test("a strip that a row of six held bare, it holds within a card at the two den
   // six columns held any strip as long as a column; the scale is shortened so that the same strip, on the new
   // scale and inside its card, still stands in that column.
   const BARE = 360;
-  const body = Math.round(HOUSE.plate.width * HOUSE.plate.pixelsPerPoint);
+  const body = Math.round(HOUSE_BODY.width * HOUSE.plate.pixelsPerPoint);
   for (const step of POSTER.steps.slice(0, 2)) {
     const { card, spacing } = figureMetrics(figureStyles(step));
     const column = Math.floor((body - 2 * spacing.inset - 5 * spacing.column) / 6);

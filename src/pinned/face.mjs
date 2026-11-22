@@ -1,3 +1,5 @@
+import { bodyOf } from "../house.mjs";
+
 /**
  * A plate's entry in the pinned data: its number and views, its page in the PDF, its images and the files of its
  * figure set alone where an edition was typeset, the frame its figure stands in on that page, the scales it draws
@@ -71,19 +73,18 @@ export function plateScales({ longest, scale }) {
  * drawing space: an element at `x` in the drawing space stands at `x / pixelsPerPoint` points right of the
  * frame's left edge. The house class sets a figure at the page's margin: at the body's top and as tall as the
  * body, or, under a summary set above it, as tall as it was composed and standing on the body's bottom. The
- * frame repeats that arithmetic on the same tokens, so no typesetting is asked for it.
+ * frame repeats that arithmetic on the body's box the same tokens give, so no typesetting is asked for it.
  * @param {{ width: number, height: number, reading: string }} plate a composed plate: its figure's width and
  *   height in the drawing space, and whether its summary is set above it
- * @param {{ page: { margin: number }, edition: { bodyTop: number, bodyBottom: number },
- *   plate: { pixelsPerPoint: number } }} house the house's tokens
+ * @param {Parameters<typeof bodyOf>[0] & { plate: { pixelsPerPoint: number } }} house the house's tokens
  */
 export function plateFrame(plate, house) {
   const { pixelsPerPoint } = house.plate;
-  const { bodyTop, bodyBottom } = house.edition;
-  const height = plate.reading === "above" ? plate.height / pixelsPerPoint : bodyBottom - bodyTop;
+  const body = bodyOf(house);
+  const height = plate.reading === "above" ? plate.height / pixelsPerPoint : body.height;
   return {
-    x: house.page.margin,
-    y: plate.reading === "above" ? bodyBottom - height : bodyTop,
+    x: body.x,
+    y: plate.reading === "above" ? body.y + body.height - height : body.y,
     width: plate.width / pixelsPerPoint,
     height,
     pixelsPerPoint,

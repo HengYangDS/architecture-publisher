@@ -21,7 +21,7 @@ const RETIRED = Object.freeze({
 });
 const COLOR = /^#[0-9a-f]{6}$/iu;
 /** The seal's cinnabar: no colour of a palette may be mistaken for it. */
-const CINNABAR = "#a93d31";
+const CINNABAR = HOUSE.seal.cinnabar;
 
 /**
  * The shares by which a derived token mixes a palette's ink toward its ground in OKLab, 0 being

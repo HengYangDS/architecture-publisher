@@ -10,7 +10,7 @@
 
 #let r = json(_shared.files.colophon)
 #let _e = _house.edition
-#let cinnabar = rgb("#A93D31")
+#let cinnabar = rgb(_house.seal.cinnabar)
 /// The mark's diameter on the page.
 #let mark-size = 460pt
 

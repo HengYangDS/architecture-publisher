@@ -1,4 +1,4 @@
-import { HOUSE } from "../../house.mjs";
+import { HOUSE, HOUSE_BODY } from "../../house.mjs";
 import { presentation } from "../../kinds.mjs";
 import { wordsOf } from "../../locale.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
@@ -26,8 +26,8 @@ import { gateFailures } from "./gates.mjs";
 
 /** The edition's body in pixels, each two thirds of a point. */
 const BODY = Object.freeze({
-  width: Math.round(HOUSE.plate.width * HOUSE.plate.pixelsPerPoint),
-  height: Math.round(HOUSE.plate.height * HOUSE.plate.pixelsPerPoint),
+  width: Math.round(HOUSE_BODY.width * HOUSE.plate.pixelsPerPoint),
+  height: Math.round(HOUSE_BODY.height * HOUSE.plate.pixelsPerPoint),
 });
 
 /**

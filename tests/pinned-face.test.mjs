@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
+import { HOUSE as house } from "../src/house.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { plateEntry, plateFace, plateFrame, plateScales } from "../src/pinned/face.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
@@ -13,7 +14,6 @@ import {
 } from "./fixtures/pinned-face.mjs";
 import { gapsOf, outlineOf, platesIn, stripOf, wiresOf } from "./fixtures/strips.mjs";
 
-const house = JSON.parse(await fs.readFile(new URL("../src/house.json", import.meta.url), "utf8"));
 const [strips, cards, grouped] = [await stripWork(), await cardWork(), await groupedWork()];
 
 const relationOf = (face, id) => face.relations.find((relation) => relation.id === id);

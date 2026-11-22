@@ -517,7 +517,7 @@
 }
 
 /// A key entry's mark: a kind's icon, drawn as the figure draws it, or the style of the boundary, an outside system or
-/// a status. Marks are artifacts: the label beside each says what it is.
+/// a status, dashed as its row of lines names for the key. Marks are artifacts: the label beside each says what it is.
 #let _sample(entry) = if "artwork" in entry {
   image(bytes("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='" + entry.color
     + "' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + entry.artwork + "</svg>"),
@@ -547,7 +547,7 @@
   })
 } else {
   line(length: 16pt, stroke: (paint: rgb(if entry.shape == "retired" { _house.figure.retired } else { _house.palette.mid }),
-    thickness: 1pt, dash: if entry.shape == "retired" { "dotted" } else { "dashed" }))
+    thickness: 1pt, dash: _house.lines.rows.values().find(row => row.key == entry.shape).keyDash))
 }
 
 /// A key entry's mark, centred on the middle of the text beside it, `mark.middle` em above the baseline: the middle of a

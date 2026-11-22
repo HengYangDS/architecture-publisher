@@ -1,13 +1,27 @@
 /** The product's table of line values, copies of it, and the invariants a table is held to. */
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
-
-const house = JSON.parse(
-  await fs.readFile(new URL("../../src/house.json", import.meta.url), "utf8"),
-);
+import { HOUSE } from "../../src/house.mjs";
 
 /** The product's table: the `lines` section of the house tokens. */
-export const TABLE = house.lines;
+export const TABLE = HOUSE.lines;
+
+/**
+ * The image widths the trials measured the table's values at, widest first: the drawing space's own, in which one
+ * pixel is one pixel of the image, and two narrower. No plate is drawn by them; the reference page names them.
+ */
+export const WIDTHS = Object.freeze([2400, 1920, 960]);
+
+/** The levels of a channel that the trials kept apart. */
+const LEVELS = Object.freeze({ weight: 2 });
+
+/**
+ * The channel a row is read on, from what it holds: a pattern where it has a dash, a weight where it has a stroke
+ * or a factor of the relation's, and a number where it has neither.
+ */
+export const channelOf = (row) => {
+  if (row.dash) return "pattern";
+  return "stroke" in row || "factor" in row ? "weight" : "number";
+};
 
 const copy = (change) => {
   const table = structuredClone(TABLE);
@@ -53,8 +67,9 @@ export const BROKEN = Object.freeze({
 /** The value a row puts on its channel, as a reader meets it on a plate. */
 export function valueOf(table, id) {
   const row = table.rows[id];
-  if (row.channel === "weight") return row.stroke ?? table.rows.relation.stroke * row.factor;
-  return row.channel === "pattern" ? row.dash.join(" ") : row.channel;
+  const channel = channelOf(row);
+  if (channel === "weight") return row.stroke ?? table.rows.relation.stroke * row.factor;
+  return channel === "pattern" ? row.dash.join(" ") : channel;
 }
 
 /** One meaning for each value of a channel, and no more levels than the channel keeps apart. */
@@ -62,12 +77,12 @@ export function assertOneMeaning(table) {
   const ids = Object.keys(table.rows);
   const seen = new Map();
   for (const id of ids) {
-    const value = `${table.rows[id].channel} ${valueOf(table, id)}`;
+    const value = `${channelOf(table.rows[id])} ${valueOf(table, id)}`;
     assert.ok(!seen.has(value), `rows ${seen.get(value)} and ${id} both draw ${value}`);
     seen.set(value, id);
   }
-  for (const [channel, most] of Object.entries(table.levels)) {
-    const rows = ids.filter((id) => table.rows[id].channel === channel);
+  for (const [channel, most] of Object.entries(LEVELS)) {
+    const rows = ids.filter((id) => channelOf(table.rows[id]) === channel);
     assert.ok(rows.length <= most, `${channel} keeps ${most} levels apart: ${rows.join(", ")}`);
   }
 }

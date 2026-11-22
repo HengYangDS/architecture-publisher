@@ -9,9 +9,11 @@ relations:
 # Line values
 
 A plate's lines are drawn from one table inside the product, the `lines` section of `src/house.json`. The figure,
-the key, this page and the tests read it; a model cannot name, add or change a row. Values are in the plate's
-drawing space, in which one pixel is one pixel of an image 2400 px wide, 0.8 px of one 1920 px wide and 0.4 px of
-one 960 px wide: the three widths the table names for measuring.
+the key and the tests read it; a model cannot name, add or change a row. The table holds what a row means, how it
+is drawn, whether a work has tested it and its sample in the key; the table below states also what each row
+answers and what a delivery's HTML page does for it, and a test holds the rest of it to the table. Values are in
+the plate's drawing space, in which one pixel is one pixel of an image 2400 px wide, 0.8 px of one 1920 px wide
+and 0.4 px of one 960 px wide: the three widths the trials measured at.
 
 | Row         | Means                                | Drawn on a plate                                                 | Answers                                              | Tested by a work         | On the page                                                       |
 | ----------- | ------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------- | ------------------------ | ----------------------------------------------------------------- |
@@ -44,4 +46,6 @@ Widths that are not a relation's line or the boundary are not in the table: a ti
 icon's strokes.
 
 The key of a plate holds the sample of a row exactly when its figure draws the row; a plain relation's line has
-none. The page has no expression of emphasis or of the number of cited files; nothing refuses on that column.
+none. The sample of a planned or a retired row is a line of the dash its row names for the key, Typst's `dashed`
+and `dotted`, not the dashes the figure draws. The page has no expression of emphasis or of the number of cited
+files; nothing refuses on that column.

@@ -29,7 +29,7 @@ const ALLOWED = Object.freeze({
   edition: ["edition", "environment", "house", "locale", "names", "overview", "refusal", "supply"],
   importers: ["locale", "model", "refusal", "supply"],
   style: ["model", "refusal"],
-  pinned: ["locale", "names", "pinned", "refusal"],
+  pinned: ["house", "locale", "names", "pinned", "refusal"],
   manifest: ["map", "names"],
   projection: [
     "facts",

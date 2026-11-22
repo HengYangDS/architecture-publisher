@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { editionRecord } from "../src/edition/record.mjs";
 import { typesetEdition } from "../src/edition/typeset.mjs";
-import { HOUSE } from "../src/house.mjs";
+import { HOUSE, HOUSE_BODY } from "../src/house.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { drawLines } from "../src/poster/lines.mjs";
 import { POSTER, colorsOf, figureMetrics, figureStyles, linesOf } from "../src/poster/tokens.mjs";
-import { BROKEN, TABLE } from "./fixtures/line-tables.mjs";
+import { BROKEN, TABLE, WIDTHS } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
 import { recordFacts } from "./fixtures/record-facts.mjs";
@@ -26,16 +26,16 @@ import {
 // widths at least 1 px apart, a pattern from a continuous line by a median dash and a median gap of 2 px each.
 // The lifecycle rows are not tested by a work and are left out.
 
-const WIDTH = TABLE.widths[1];
+const WIDTH = WIDTHS[1];
 const LIMITS = Object.freeze({ effective: 1.0, core: 1, pitch: 2 });
 /** Image px to a page point, and to a px of the plate's drawing space. */
 const PX = WIDTH / HOUSE.page.width;
 const UNIT = PX / HOUSE.plate.pixelsPerPoint;
-const across = (x) => HOUSE.plate.x * PX + x * UNIT;
-const down = (y) => HOUSE.plate.y * PX + y * UNIT;
+const across = (x) => HOUSE_BODY.x * PX + x * UNIT;
+const down = (y) => HOUSE_BODY.y * PX + y * UNIT;
 const BODY = Object.freeze({
-  width: HOUSE.plate.width * HOUSE.plate.pixelsPerPoint,
-  height: HOUSE.plate.height * HOUSE.plate.pixelsPerPoint,
+  width: HOUSE_BODY.width * HOUSE.plate.pixelsPerPoint,
+  height: HOUSE_BODY.height * HOUSE.plate.pixelsPerPoint,
 });
 
 const rgb = (color) => [1, 3, 5].map((at) => Number.parseInt(color.slice(at, at + 2), 16));

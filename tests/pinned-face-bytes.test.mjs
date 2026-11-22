@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import fs from "node:fs/promises";
 import test from "node:test";
+import { HOUSE as house } from "../src/house.mjs";
 import { plateEntry } from "../src/pinned/face.mjs";
 import {
   IMAGE_WIDTH,
@@ -13,7 +13,6 @@ import {
 import { readPng } from "./fixtures/png.mjs";
 import { INDIGO, stripOf } from "./fixtures/strips.mjs";
 
-const house = JSON.parse(await fs.readFile(new URL("../src/house.json", import.meta.url), "utf8"));
 const works = { strips: await stripWork(), cards: await cardWork(), grouped: await groupedWork() };
 const typeset = await typesetWork(works.grouped);
 

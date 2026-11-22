@@ -15,6 +15,15 @@ remain pre-release contracts and may contain incompatible changes.
   again on 2026-12-06: `dev` is published only at a commit that a proposal branch's pipeline has run with the
   same commands, and a release commit is verified when `main` moves. A release first runs one protected
   pipeline of `dev`. GitHub runs as before.
+- The house tokens of `src/house.json` hold the seal's cinnabar, which the colophon page and the palette check
+  read, and the dash of a planned and a retired row's sample in the key, which the house class reads. They no
+  longer state the body's box, which `src/house.mjs` derives from the page and the edition for the plates, a
+  plate's frame in the data and the tests, nor what only the tests and the line reference read: the widths and
+  levels the trials measured, now the tests' record of them, and each row's channel, which follows from its
+  values, question and page, which the reference page states. A test refuses a value of the tokens written
+  again and a key of them that no file of the source reads. No page, image, figure or file a delivery lists
+  changes. The manifest's digests of the class's inputs, `edition.house` and `overview.house`, change: they
+  cover the edited class and tokens.
 
 ## [0.17.0] - 2026-11-22
 

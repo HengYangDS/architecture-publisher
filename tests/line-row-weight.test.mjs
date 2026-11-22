@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { editionRecord } from "../src/edition/record.mjs";
 import { typesetEdition } from "../src/edition/typeset.mjs";
-import { HOUSE } from "../src/house.mjs";
+import { HOUSE, HOUSE_BODY } from "../src/house.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { drawLines } from "../src/poster/lines.mjs";
 import { POSTER, colorsOf, figureMetrics, figureStyles, linesOf } from "../src/poster/tokens.mjs";
-import { TABLE } from "./fixtures/line-tables.mjs";
+import { TABLE, WIDTHS } from "./fixtures/line-tables.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { readPng } from "./fixtures/png.mjs";
 import { recordFacts } from "./fixtures/record-facts.mjs";
@@ -23,8 +23,8 @@ const CALLERS = Object.freeze([1012, 1366]);
 /** A piece is read when it is this long on the picture, and is absent when it leaves less ink than this. */
 const LIMITS = Object.freeze({ length: 40, share: 0.75, absent: 0.05 });
 const BODY = Object.freeze({
-  width: HOUSE.plate.width * HOUSE.plate.pixelsPerPoint,
-  height: HOUSE.plate.height * HOUSE.plate.pixelsPerPoint,
+  width: HOUSE_BODY.width * HOUSE.plate.pixelsPerPoint,
+  height: HOUSE_BODY.height * HOUSE.plate.pixelsPerPoint,
 });
 /** The figure's middle column and middle row, in the plate's drawing space. */
 const MIDDLE = Object.freeze({ x: BODY.width / 2, y: BODY.height / 2 });
@@ -151,8 +151,8 @@ function piecesOn(image, svg) {
       const [[x1, y1], [x2, y2]] = [points[index - 1], points[index]];
       const upright = x1 === x2;
       if ((!upright && y1 !== y2) || Math.hypot(x2 - x1, y2 - y1) * unit < LIMITS.length) continue;
-      const column = Math.round(HOUSE.plate.x * px + ((x1 + x2) / 2) * unit);
-      const row = Math.round(HOUSE.plate.y * px + ((y1 + y2) / 2) * unit);
+      const column = Math.round(HOUSE_BODY.x * px + ((x1 + x2) / 2) * unit);
+      const row = Math.round(HOUSE_BODY.y * px + ((y1 + y2) / 2) * unit);
       const reach = Math.ceil((weight * unit) / 2) + 3;
       let effective = 0;
       for (let step = -reach; step <= reach; step += 1) {
@@ -226,7 +226,7 @@ function lostOn(image) {
   ])
     for (const start of SLOPES) {
       // Rows are counted from the figure's top, columns from the line's first.
-      const origin = rows ? HOUSE.plate.y * px : HOUSE.plate.x * px + start * unit;
+      const origin = rows ? HOUSE_BODY.y * px : HOUSE_BODY.x * px + start * unit;
       const end = Math.min(
         rows ? image.height : image.width,
         Math.floor(origin + (BODY.height - 8) * unit),
@@ -235,8 +235,8 @@ function lostOn(image) {
       for (let at = Math.ceil(origin + 8 * unit); at < end; at += 1) {
         const along = (at + 0.5 - origin) / unit;
         const expected = rows
-          ? HOUSE.plate.x * px + (start + along) * unit
-          : HOUSE.plate.y * px + along * unit;
+          ? HOUSE_BODY.x * px + (start + along) * unit
+          : HOUSE_BODY.y * px + along * unit;
         let [sum, moment] = [0, 0];
         for (let step = -reach; step <= reach; step += 1) {
           const across = Math.round(expected) + step;
@@ -265,20 +265,20 @@ function lostOn(image) {
 const SVG = figureOf();
 /** The pictures of the pieces are typeset once, by the first test that reads one. */
 let pictures = null;
-const pictureAt = async (width) => (await (pictures ??= picturesOf(SVG, TABLE.widths))).get(width);
+const pictureAt = async (width) => (await (pictures ??= picturesOf(SVG, WIDTHS))).get(width);
 
-for (const width of TABLE.widths)
+for (const width of WIDTHS)
   test(`at ${width} px every piece of a row has one weight, on the figure's middle as beside it`, async (t) => {
     assertOneWeight(await pictureAt(width), SVG, (line) => t.diagnostic(line));
   });
 
 test("a picture that draws a row's piece on the middle column without its ink fails and names the piece", async () => {
   // The middle column's ink is taken off a copy of a picture, as a lost column of the figure thins it.
-  const image = await pictureAt(TABLE.widths[0]);
+  const image = await pictureAt(WIDTHS[0]);
   const thinned = { ...image, pixels: Buffer.from(image.pixels) };
   const paper = rgb(HOUSE.palette.paper);
   const column = Math.round(
-    (HOUSE.plate.x + MIDDLE.x / HOUSE.plate.pixelsPerPoint) * (image.width / HOUSE.page.width),
+    (HOUSE_BODY.x + MIDDLE.x / HOUSE.plate.pixelsPerPoint) * (image.width / HOUSE.page.width),
   );
   for (let y = 0; y < image.height; y += 1)
     for (const x of [column - 1, column])
