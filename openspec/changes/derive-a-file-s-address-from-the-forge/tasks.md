@@ -14,4 +14,4 @@
 
 ## 4. Release 0.17.0
 
-- [ ] 4.1 Record release 0.17.0 with this Change, the last of the train that publishes `dev`: date the `Unreleased` notes in `CHANGELOG.md` on the day of the lane's work, link the release, and move `VERSION` to 0.17.0 with the version tool's projections. Done when `node tools/release/version.mjs --check` passes.
+- [x] 4.1 Record release 0.17.0 with this Change, the last of the train that publishes `dev`: date the `Unreleased` notes in `CHANGELOG.md` on the day of the lane's work, link the release, and move `VERSION` to 0.17.0 with the version tool's projections. Done when `node tools/release/version.mjs --check` passes. `VERSION` is 0.17.0, `node tools/release/version.mjs --check` passes, and the changelog dates 0.17.0 and links it.
