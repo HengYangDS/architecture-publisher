@@ -7,6 +7,15 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- A model whose `repository.url` is an `https` address on GitHub or GitLab need not declare
+  `repository.browse`: the publisher derives the template the address implies, the address without a trailing
+  `.git` followed by `/blob/{revision}/{path}` or `/-/blob/{revision}/{path}`, so its cards link to their files
+  where they had no link. A declared template stands, and any other address implies none. A test refuses a
+  bundled example, fixture or test that declares the template its address implies. No bundled example or
+  published work changes.
+
 ### Changed
 
 - The JavaScript reads the house tokens of `src/house.json` in one module, `src/house.mjs`, as one read-only

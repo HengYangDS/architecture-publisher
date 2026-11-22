@@ -246,8 +246,9 @@ before it, and each line but a detail's last is spread to their measure unless
 its slack is over a tenth of an em for each place it opens. A run Typst sets
 wider, or a summary line above its figure wider than 32 ems, is refused with
 `edition_text_wider`, a title longer than its line with
-`edition_title_too_long`. With `repository.browse`, a card's title links to its
-component's first file at the pinned revision. Each plate is a figure with alt
+`edition_title_too_long`. With `repository.browse`, declared or implied by a
+GitHub or GitLab address, a card's title links to its component's first file
+at the pinned revision. Each plate is a figure with alt
 text of its title and question, its shapes and key artifacts; the model is
 attached as `model.json` with the relationship `source`, so the PDF conforms to
 PDF/A-3a and PDF/UA-1. Its title, authors, subject, keywords and language come

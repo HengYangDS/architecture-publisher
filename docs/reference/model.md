@@ -185,7 +185,11 @@ cites the component's next one and records the withheld file in the manifest.
 When the model declares `repository.browse`, a URL holding `{revision}` and
 `{path}`, such as `https://github.com/o/r/blob/{revision}/{path}`, each card
 title on the edition's plates links to the component's first file at the
-pinned revision, its path encoded segment by segment.
+pinned revision, its path encoded segment by segment. A model whose
+`repository.url` is an `https` address on GitHub or GitLab need not declare it:
+the address without a trailing `.git`, then `/blob/{revision}/{path}` on GitHub
+or `/-/blob/{revision}/{path}` on GitLab, is the template it implies. A declared
+template stands; any other address implies none.
 
 A revision cannot name the commit that contains it, so a model kept in the
 repository it describes pins an earlier commit.

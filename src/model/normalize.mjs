@@ -53,7 +53,7 @@ export function normalize(value, parts) {
       ? {
           name: value.repository.name,
           url: value.repository.url ?? null,
-          browse: value.repository.browse ?? null,
+          browse: value.repository.browse ?? browseOf(value.repository.url),
           revision: value.repository.revision,
         }
       : null,
@@ -78,6 +78,36 @@ export function normalize(value, parts) {
     overview: value.overview ?? null,
     guide: value.guide ?? null,
   });
+}
+
+/**
+ * The Forges whose address implies the address of one file: each host, the number of the address's segments it
+ * takes (an owner and a name; a group's path and a name), and its path to a file at a revision.
+ */
+const FORGES = new Map([
+  ["github.com", { takes: (count) => count === 2, file: "/blob/{revision}/{path}" }],
+  ["gitlab.com", { takes: (count) => count >= 2, file: "/-/blob/{revision}/{path}" }],
+]);
+
+/**
+ * The browse template a repository's address implies, or null: an `https` address on GitHub or GitLab, with no
+ * user, port, query or fragment, implies itself without a trailing `.git`, followed by its Forge's path to one file
+ * at one revision. Any other address implies none.
+ * @param {string | undefined} url
+ */
+export function browseOf(url) {
+  if (typeof url !== "string" || !URL.canParse(url)) return null;
+  const address = new URL(url);
+  const forge = FORGES.get(address.host);
+  if (!forge || address.protocol !== "https:" || address.username || address.password) return null;
+  if (address.search || address.hash || url.includes("?") || url.includes("#")) return null;
+  const segments = address.pathname
+    .replace(/\/$/u, "")
+    .replace(/\.git$/u, "")
+    .split("/")
+    .slice(1);
+  if (!forge.takes(segments.length) || segments.includes("")) return null;
+  return `https://${address.host}/${segments.join("/")}${forge.file}`;
 }
 
 function deepFreeze(value) {

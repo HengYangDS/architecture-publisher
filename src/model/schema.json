@@ -81,7 +81,7 @@
           "pattern": "^([0-9a-f]{40}|[0-9a-f]{64})$"
         },
         "browse": {
-          "description": "A URL that shows one file of the repository at one revision, with the placeholders {revision} and {path}.",
+          "description": "A URL that shows one file of the repository at one revision, with the placeholders {revision} and {path}. Without it, an https url on github.com or gitlab.com implies url/blob/{revision}/{path} or url/-/blob/{revision}/{path}, without a trailing .git.",
           "type": "string",
           "pattern": "\\{revision\\}[\\s\\S]*\\{path\\}|\\{path\\}[\\s\\S]*\\{revision\\}"
         }

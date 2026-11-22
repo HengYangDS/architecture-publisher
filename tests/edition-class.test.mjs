@@ -66,7 +66,6 @@ const modelWith = (alpha) =>
         name: "minimal",
         url: "https://github.com/o/minimal.git",
         revision: "a".repeat(40),
-        browse: "https://github.com/o/minimal/blob/{revision}/{path}",
       },
     }),
   );

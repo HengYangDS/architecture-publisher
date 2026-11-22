@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { HOUSE, HOUSE_FILE } from "../src/house.mjs";
+import { browseOf } from "../src/model/normalize.mjs";
 import * as NAMES from "../src/names.mjs";
 
 /**
@@ -491,4 +492,71 @@ test("the class's measures are the numbers it has always set its pages by", () =
     "weights.hair": 0.4,
     "weights.ring": 1.7,
   });
+});
+
+/** The files a repository block may stand in: the bundled examples, the fixtures and the tests, this one aside. */
+async function bundled() {
+  const found = [];
+  for (const top of ["examples", "tests"])
+    for (const entry of await fs.readdir(path.join(root, top), {
+      withFileTypes: true,
+      recursive: true,
+    })) {
+      const file = path.join(entry.parentPath, entry.name);
+      if (!entry.isFile() || ![".json", ".mjs"].includes(path.extname(entry.name))) continue;
+      if (file === fileURLToPath(import.meta.url)) continue;
+      found.push({
+        file: path.relative(root, file).split(path.sep).join("/"),
+        code: await fs.readFile(file, "utf8"),
+      });
+    }
+  return found.sort((one, other) => (one.file < other.file ? -1 : 1));
+}
+
+/** A field's text in a JSON object or a JavaScript object literal, quoted or not. */
+const fieldOf = (block, name) =>
+  block.match(new RegExp(`(?:^|[\\s,{])["']?${name}["']?\\s*:\\s*(["'\`])(.*?)\\1`, "u"))?.[2];
+
+/**
+ * Each object that declares the browse template its address implies, as `<file> declares the template <url>
+ * implies`. A template's placeholders are braces too; they are set aside so that an object is read whole.
+ */
+const restatedTemplates = (found) =>
+  found.flatMap(({ file, code: text }) =>
+    (text.replace(/\{(revision|path)\}/gu, "\uE000$1\uE000").match(/\{[^{}]*\}/gu) ?? []).flatMap(
+      (block) => {
+        const url = fieldOf(block, "url");
+        const browse = fieldOf(block, "browse")?.replace(/\uE000(revision|path)\uE000/gu, "{$1}");
+        return url && browse && browse === browseOf(url)
+          ? [`${file} declares the template ${url} implies`]
+          : [];
+      },
+    ),
+  );
+
+test("no bundled example, fixture or test declares the browse template its repository's address implies", async () => {
+  assert.deepEqual(restatedTemplates(await bundled()), []);
+});
+
+test("a template its address implies is found in JSON and in JavaScript, and another template is not", () => {
+  const found = (code, file = "tests/scratch.mjs") => restatedTemplates([{ file, code }]);
+  const github = "https://github.com/o/r/blob/{revision}/{path}";
+  assert.deepEqual(found(`{ name: "r", url: "https://github.com/o/r.git", browse: "${github}" }`), [
+    "tests/scratch.mjs declares the template https://github.com/o/r.git implies",
+  ]);
+  assert.deepEqual(
+    found(
+      `{"repository": {"url": "https://github.com/o/r", "browse": "${github}"}}`,
+      "examples/x/model.json",
+    ),
+    ["examples/x/model.json declares the template https://github.com/o/r implies"],
+  );
+  assert.deepEqual(
+    found(
+      `{ url: "https://github.com/o/r.git", browse: "https://example.invalid/{revision}/{path}" }`,
+    ),
+    [],
+  );
+  assert.deepEqual(found(`{ url: "https://git.example.invalid/o/r", browse: "${github}" }`), []);
+  assert.deepEqual(found(`{ name: "o/r", browse: "${github}" }`), []);
 });

@@ -384,6 +384,38 @@ test("editors, a licence and a browse template validate, and an attribution is r
   assert.deepEqual(refusedAt({ version: 2 }), ["/version"]);
 });
 
+test("a GitHub or GitLab address implies its browse template, and a declared one or another address stands", () => {
+  const browse = (repository) =>
+    validateModel(
+      minimalModel({ repository: { name: "r", revision: "a".repeat(40), ...repository } }),
+    ).repository?.browse;
+  const implied = {
+    "https://github.com/o/r.git": "https://github.com/o/r/blob/{revision}/{path}",
+    "https://github.com/o/r/": "https://github.com/o/r/blob/{revision}/{path}",
+    "https://GitHub.com/o/r": "https://github.com/o/r/blob/{revision}/{path}",
+    "https://gitlab.com/g/s/r.git": "https://gitlab.com/g/s/r/-/blob/{revision}/{path}",
+  };
+  for (const [url, template] of Object.entries(implied))
+    assert.equal(browse({ url }), template, url);
+  const declared = "https://example.invalid/{revision}/{path}";
+  assert.equal(browse({ url: "https://github.com/o/r.git", browse: declared }), declared);
+  for (const url of [
+    "https://github.com/o",
+    "https://github.com/o/r/tree/main",
+    "https://gitlab.com/r",
+    "http://github.com/o/r",
+    "git@github.com:o/r.git",
+    "https://github.com:8443/o/r",
+    "https://user@github.com/o/r",
+    "https://github.com/o/r?tab=readme",
+    "https://github.com/o/r#readme",
+    "https://git.example.invalid/o/r",
+    "o/r",
+  ])
+    assert.equal(browse({ url }), null, url);
+  assert.equal(browse({}), null);
+});
+
 test("a misspelt field names the field it is nearest to", () => {
   const messageAt = (model, where) => {
     try {
