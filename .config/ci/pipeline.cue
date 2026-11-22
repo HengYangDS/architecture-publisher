@@ -137,10 +137,12 @@ peers: gitlab: {
 				// $PATH there, and the shell would then find no `rm` or `hostname`.
 				"export PATH=\"\(peers.gitlab.workspace)/build/runtime/tool-cache/mise/bootstrap:$PATH\"",
 			]
+			// Chromium stands in the job's tool cache, as on the other platforms. The image's own browsers are
+			// those of the Playwright release it was built from; a job that kept them in the image's path fetched
+			// Chromium anew whenever the lockfile's release was another (every job from 2026-11-10 to 2026-11-22).
 			"variables": {
 				"FF_USE_INIT_WITH_DOCKER_EXECUTOR":     "true"
 				"FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR": "true"
-				"PLAYWRIGHT_BROWSERS_PATH":             "/ms-playwright"
 			}
 		}
 		"macos": {

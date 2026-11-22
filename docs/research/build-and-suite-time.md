@@ -125,6 +125,16 @@ it saves about 16.8 hours a week, 16.6 of `dev` and 1.2 of tags less about one f
 pipelines' time. It is measured again on 2026-12-06 by the same count, the failures and the slot's hours, before
 it is kept, reverted or offered to the other repositories ETHOS governs.
 
+### The Linux job's download of Chromium (2026-11-22)
+
+Read from the logs of the Linux jobs of the same 66 pipelines: each of the 65 jobs whose log shows the step
+downloaded Chromium, 198 MiB, in a median of 51 s, at most 629 s and 1.6 hours in all. On 2026-11-22 one took
+1797 s with a request timed out, and its job 47 minutes where the macOS job took 9. The job kept its browsers in
+the image's own path, and the image was built from Playwright 1.64.1 while the lockfile has held 1.65 since
+2026-11-10: each job removed the image's browsers and fetched the lockfile's into a container that ends with the
+job. The other two platforms keep Chromium in the tool cache that a job's clean spares, where the Linux job
+already keeps its tools. From this Change the Linux job keeps Chromium there too.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |
@@ -163,6 +173,8 @@ the numbers went to ETHOS's owner session on 2026-11-18; from 2026-11-22 GitLab 
 - How the protected runners differ from the review runners beyond the one Windows path of 2026-10-31, and whether
   GitLab holds protected variables for this project: neither was read, the second because its interface returns
   the values.
+- What the Linux job's Chromium step takes with the browser kept between jobs: no job has run with it. It is read
+  at the next landings.
 - Every time here is one run. The large builds' changes are far beyond what the load explains; the smallest pair's
   six seconds of 38 are not.
 
@@ -170,4 +182,5 @@ the numbers went to ETHOS's owner session on 2026-11-18; from 2026-11-22 GitLab 
 
 2026-11-18 and 2026-11-19, the holder of the lane. The traces, profiles, scripts and the ledger of attempts lie in
 the checkout's ignored `build/runtime/work/perf-20261118/`. The pipelines of seven days: 2026-11-22, the holder,
-from GitLab's interface (its readings, `build/runtime/work/retro-20261122/gl-each/` and `gl-30d/`).
+from GitLab's interface (its readings, `build/runtime/work/retro-20261122/gl-each/` and `gl-30d/`). The Linux jobs' steps:
+`build/runtime/work/perf-20261122/linux-install-7d.tsv`.

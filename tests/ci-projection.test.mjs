@@ -81,6 +81,15 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   // A job variable cannot extend the image's PATH: GitLab does not expand $PATH
   // there, and the job's shell then finds no `rm` or `hostname` to prepare with.
   assert.equal(pipeline[".verify-linux"].variables.PATH, undefined);
+  // Chromium stands in the tool cache that a job's clean spares, on every platform: a job that kept it in the
+  // image's own path fetched it anew whenever the lockfile's Playwright was not the image's.
+  for (const platform of ["linux", "macos", "windows"])
+    assert.equal(pipeline[`.verify-${platform}`].variables.PLAYWRIGHT_BROWSERS_PATH, undefined);
+  assert.equal(
+    pipeline.variables.PLAYWRIGHT_BROWSERS_PATH,
+    "$CI_PROJECT_DIR/build/runtime/tool-cache/playwright",
+  );
+  assert.match(pipeline.variables.GIT_CLEAN_FLAGS, /-e build\/runtime\/tool-cache\//u);
   const checksum = await fs.readFile(path.join(root, ".config/ci/linux/mise.sha256"), "utf8");
   assert.match(checksum, new RegExp(`^[a-f0-9]{64}  ${staged.replaceAll(".", "\\.")}\\n$`, "u"));
   assert.equal(pipeline[".verify-native"].script[0], "mise --version");

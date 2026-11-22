@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The Linux job of the GitLab pipeline keeps Chromium between jobs, in the tool cache, as the other platforms do.
+  It had fetched 198 MiB in every job since the lockfile's Playwright left the image's release on 2026-11-10.
 - GitLab runs no pipeline for a tag or a push of `dev`, a trial the owner approved on 2026-11-22 and measured
   again on 2026-12-06: `dev` is published only at a commit that a proposal branch's pipeline has run with the
   same commands, and a release commit is verified when `main` moves. A release first runs one protected

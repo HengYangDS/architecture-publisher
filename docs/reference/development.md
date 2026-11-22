@@ -177,7 +177,10 @@ test's standalone page alone, runs the archive command journey and runs
 
 Linux Docker jobs set `FF_USE_INIT_WITH_DOCKER_EXECUTOR=true` so an init process
 reaps orphaned children, use a registry-verified Playwright image with a non-root
-default user and keep Chromium's sandbox. The npm test environment sets
+default user and keep Chromium's sandbox. Every platform keeps Chromium in the
+job's tool cache, which a job's clean spares, so a move of `playwright-core`
+costs one download a runner; the Linux image supplies Chromium's system
+libraries. The npm test environment sets
 `umask 022` within its own POSIX process. Repository text checks out as LF
 through `.gitattributes`; third-party supply keeps its bytes. Windows refreshes
 every tracked file with `git checkout-index --all --force` before tools run.

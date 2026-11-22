@@ -68,7 +68,6 @@ stages:
   variables:
     FF_USE_INIT_WITH_DOCKER_EXECUTOR: "true"
     FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
-    PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
 .verify-macos:
   before_script: []
   extends: .verify-native

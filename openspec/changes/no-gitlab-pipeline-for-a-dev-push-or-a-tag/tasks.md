@@ -9,4 +9,4 @@
 
 ## 3. Chromium between the Linux jobs
 
-- [ ] 3.1 Drop the Linux job's own path for Playwright's browsers in `.config/ci/pipeline.cue`, generate `.gitlab-ci.yml`, hold it in `tests/ci-projection.test.mjs`, and say so in the guide, the record and `CHANGELOG.md`. Done when the projection's tests and `npm run check:static` pass.
+- [x] 3.1 Drop the Linux job's own path for Playwright's browsers in `.config/ci/pipeline.cue`, generate `.gitlab-ci.yml`, hold it in `tests/ci-projection.test.mjs`, and say so in the guide, the record and `CHANGELOG.md`. Done when the projection's tests and `npm run check:static` pass. The projection's tests and `npm run check:static` pass; `.gitlab-ci.yml` names no path of its own for the Linux job's browsers.
