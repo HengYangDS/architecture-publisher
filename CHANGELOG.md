@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The queue's item `performance` stands before the open rest of `edition-map`: this publisher's proofs took 13.0
+  hours in the seven days to 2026-11-22, and every repository's heavy work waits for the slot they hold. The item
+  `one-source` is finished; the publisher accepts a model that states a template its address implies.
 - The Linux job of the GitLab pipeline keeps Chromium between jobs, in the tool cache, as the other platforms do.
   It had fetched 198 MiB in every job since the lockfile's Playwright left the image's release on 2026-11-10.
 - GitLab runs no pipeline for a tag or a push of `dev`, a trial the owner approved on 2026-11-22 and measured

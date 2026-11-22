@@ -1,10 +1,10 @@
 ## 1. The queue
 
-- [ ] 1.1 Move `performance` before `edition-map` in `docs/product-contract.md`, add the paragraph of 2026-11-22, tick `one-source` and record how it ended in `docs/research/one-source.md`. Done when `tests/evolution-queue.test.mjs` passes.
+- [x] 1.1 Move `performance` before `edition-map` in `docs/product-contract.md`, add the paragraph of 2026-11-22, tick `one-source` and record how it ended in `docs/research/one-source.md`. Done when `tests/evolution-queue.test.mjs` passes. `tests/evolution-queue.test.mjs` passes in the lane.
 
 ## 2. The record
 
-- [ ] 2.1 Add the seven days' proofs to `docs/research/build-and-suite-time.md`, and record the change under `Unreleased` in `CHANGELOG.md`. Done when `npm run check:static` passes.
+- [x] 2.1 Add the seven days' proofs to `docs/research/build-and-suite-time.md`, and record the change under `Unreleased` in `CHANGELOG.md`. Done when `npm run check:static` passes. `npm run check:static` passes.
 
 ## 3. The owner's pronouns
 

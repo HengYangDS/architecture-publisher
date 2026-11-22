@@ -135,6 +135,15 @@ the image's own path, and the image was built from Playwright 1.64.1 while the l
 job. The other two platforms keep Chromium in the tool cache that a job's clean spares, where the Linux job
 already keeps its tools. From this Change the Linux job keeps Chromium there too.
 
+### The proofs of seven days (2026-11-22)
+
+Read from the repository's own proof records (`.git/ethos/artifacts`) on 2026-11-22 at 12:5x: in the seven days
+before, 41 proofs ran the heavy gates, 13.0 hours from each proof's first gate to its last in all. The behaviour
+gate (`node-behavior`, the suite) took a median of 927 seconds and at most 1881, and did not pass five times; the
+format gate (`source-format`) a median of 145 seconds and at most 218; every other gate under a minute. In the
+latest proof (`9c6a0772`, 11:00) the suite took 533 seconds and the format gate 150 of its 708. By the count of the
+session that measures the host, these were about half the proof time of the thirteen repositories with records.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |
@@ -181,6 +190,7 @@ the numbers went to ETHOS's owner session on 2026-11-18; from 2026-11-22 GitLab 
 ## Record
 
 2026-11-18 and 2026-11-19, the holder of the lane. The traces, profiles, scripts and the ledger of attempts lie in
-the checkout's ignored `build/runtime/work/perf-20261118/`. The pipelines of seven days: 2026-11-22, the holder,
+the checkout's ignored `build/runtime/work/perf-20261118/`. The proofs of seven days: 2026-11-22, the holder, from
+`.git/ethos/artifacts` (its reading, `build/runtime/work/retro-20261122/proof-times-7d.txt`). The pipelines of seven days: 2026-11-22, the holder,
 from GitLab's interface (its readings, `build/runtime/work/retro-20261122/gl-each/` and `gl-30d/`). The Linux jobs' steps:
 `build/runtime/work/perf-20261122/linux-install-7d.tsv`.

@@ -295,6 +295,16 @@ rest of `edition-map` and every item after it back by one. `derived-references` 
 moves `performance` and every item after it back by one more. `page-figures` says of the repository and the pin
 what it says of positions: a guide's diagram file states nothing the model holds.
 
+On 2026-11-22 the owner asked, of ETHOS and every repository it governs, for the strategy that optimises
+performance and speeds iteration to the limit; the session that measures the host relayed it with this
+publisher's share of the host's proofs. Its own records count 41 proofs in the seven days before, 13.0 hours in
+all, its behaviour gate a median of 927 seconds, and its pipelines on the host's guests ran 40.9 hours, nearly half
+of it a commit run a second time ([record](research/build-and-suite-time.md)); every heavy step of every
+repository waits for the one slot they hold. The reason that moved `edition-map` before `performance` on
+2026-11-19, its contents and last page, is met. `performance` moves before the open rest of `edition-map`, after
+`one-source`; that moves the rest of `edition-map`, `page-figures`, `reader-file` and `derived-references` back by
+one.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -320,13 +330,21 @@ what it says of positions: a guide's diagram file states nothing the model holds
       figure and its key alone, without the page around them, as PNG on a transparent ground and as SVG. A line or
       a boundary is broken where a label stands on it, so no patch of the ground covers anything and the figure
       reads on any light ground. A page's image is 3840 px wide unless the caller names its widths.
-- [ ] `one-source`: a fact that the product's source forms stands in one place of it, and what repeats the fact
+- [x] `one-source`: a fact that the product's source forms stands in one place of it, and what repeats the fact
       reads it there. A model states its repository's address once: the address of a file follows from it for
       the two public Forges and is stated only for another host. A delivery's file names, a plate's key and its
       number in two digits, the labels and the staged files that the JavaScript and the Typst share, and the
       house's measures each have one place that states them; a literal that restates a token of the house reads
       the token, and a measure the class repeats becomes a token. A test refuses each repetition that a search
       can find. No delivered byte changes.
+- [ ] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
+      profile shows is removed with every delivered byte unchanged, one cause to a commit, measured before and
+      after under like conditions and recorded whether it is kept or taken back; the suite runs as wide as its
+      machine allows; the two media of a build are made side by side where a measurement shows a gain; and what
+      would bring a cost back is refused by a test that counts work, where a bound in
+      seconds would fail for the host's reasons. The item ends when the largest cause that a profile of a build
+      and of the suite still shows holds under a tenth of its time, or lies in another product and is reported
+      there. The times stand in the [record](research/build-and-suite-time.md) and are read at each landing.
 - [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
       enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
       three sizes with fixed roles, for a room, a screen and the zoom. The contents set the overview apart from the
@@ -349,14 +367,6 @@ what it says of positions: a guide's diagram file states nothing the model holds
       restates the source (the commands and their options, the refusal codes, a delivery's files, the versions
       of supplies) is written from the source by a command, so that a document cannot say what the source does
       not.
-- [ ] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
-      profile shows is removed with every delivered byte unchanged, one cause to a commit, measured before and
-      after under like conditions and recorded whether it is kept or taken back; the suite runs as wide as its
-      machine allows; the two media of a build are made side by side where a measurement shows a gain; and what
-      would bring a cost back is refused by a test that counts work, where a bound in
-      seconds would fail for the host's reasons. The item ends when the largest cause that a profile of a build
-      and of the suite still shows holds under a tenth of its time, or lies in another product and is reported
-      there. The times stand in the [record](research/build-and-suite-time.md) and are read at each landing.
 - [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
       tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
       and no longer only recorded. What a census of a built page still finds untidy and no gate holds, more

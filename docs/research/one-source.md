@@ -131,6 +131,16 @@ schema's, or are read from it); a table of a document kept by hand (the table eq
 the source). What holds for the publisher's source at `aa31551e`; the works' diagram files belong to the queue
 item `page-figures`.
 
+### How the item ended (2026-11-23)
+
+Six Changes held it, from `name-a-delivery-s-files-in-one-module` to `derive-the-body-s-box-and-read-every-token`,
+the last landed on 2026-11-23, each with a test that refuses the repetition it removed and every delivered byte
+the same. The publisher derives a file's address on the two public Forges from the repository's own; the works
+state their addresses once since the publications' Change `drop-the-derived-browse-from-the-works` of the same
+day, whose input check refuses a template the address implies. The publisher does not refuse one: a model that
+states it builds the same pages, and refusing a model another release accepted is a breaking release (the
+contract's Evolution), which a repetition with no effect on a page does not warrant.
+
 ## What is not established
 
 - The rows marked a reader's count: their places were not counted again by the maintainer.
