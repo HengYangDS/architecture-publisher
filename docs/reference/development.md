@@ -162,6 +162,15 @@ publishes the package to npm through its OIDC trust when the repository variable
 `NPM_PUBLISH` is `enabled`. Its owner first publishes the package and names
 `.github/workflows/verify.yml` as its trusted publisher on npm. GitLab and GitHub are equal optional
 peers; `npm run check:ci` verifies the projections without contacting either.
+
+GitLab runs no pipeline for a tag or a push of `dev`. Its holder publishes `dev`
+only at a commit that a proposal branch's pipeline has run with the same commands:
+ETHOS lands by fast-forward, and where several lanes land one after another, the
+last one's proposal holds them all. A release commit is verified again when `main`
+moves. Before a
+release its holder starts one pipeline of `dev` through GitLab's API, which runs
+the protected jobs, and releases only when it passes. GitHub, which does not run
+on this host's guests, runs on every push and tag.
 Each job installs Chromium through Playwright, admits it by opening the browser
 test's standalone page alone, runs the archive command journey and runs
 `npm run check`, whose suite measures the delivered pages in the browser once.

@@ -1,11 +1,11 @@
 ## 1. The pipeline
 
-- [ ] 1.1 Add the two rules to `.config/ci/pipeline.cue`, drop tags from the rule for protected references, and generate `.gitlab-ci.yml`. Done when `npm run check:ci` passes.
-- [ ] 1.2 Add the test of which jobs each event starts to `tests/ci-projection.test.mjs`. Done when the file's tests pass.
+- [x] 1.1 Add the two rules to `.config/ci/pipeline.cue`, drop tags from the rule for protected references, and generate `.gitlab-ci.yml`. Done when `npm run check:ci` passes. `npm run check:ci` passes; `.gitlab-ci.yml` is generated.
+- [x] 1.2 Add the test of which jobs each event starts to `tests/ci-projection.test.mjs`. Done when the file's tests pass. `tests/ci-projection.test.mjs` passes in the lane.
 
 ## 2. The record
 
-- [ ] 2.1 Say so in `docs/reference/development.md`, the performance record and `CHANGELOG.md`. Done when `npm run check:static` passes.
+- [x] 2.1 Say so in `docs/reference/development.md`, the performance record and `CHANGELOG.md`. Done when `npm run check:static` passes. `npm run check:static` passes.
 
 ## 3. Chromium between the Linux jobs
 

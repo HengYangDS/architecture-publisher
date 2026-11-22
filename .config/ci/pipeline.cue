@@ -79,11 +79,23 @@ shared: {
 peers: gitlab: {
 	"workflow": {
 		"rules": [
+			// No pipeline for a tag or a push of dev, the owner's trial of 2026-11-22 (measured again on 2026-12-06):
+			// dev is published only at a commit that a proposal branch's pipeline has run with the same commands,
+			// and a release commit is verified when main moves. A release first starts one pipeline of dev through
+			// the API, which the protected rule below takes.
+			{
+				"if":   "$CI_COMMIT_TAG"
+				"when": "never"
+			},
+			{
+				"if":   "$CI_COMMIT_BRANCH == \"dev\" && $CI_PIPELINE_SOURCE == \"push\""
+				"when": "never"
+			},
 			{
 				"if": "$CI_PIPELINE_SOURCE == \"merge_request_event\""
 			},
 			{
-				"if": "$CI_COMMIT_TAG || $CI_COMMIT_REF_PROTECTED == \"true\""
+				"if": "$CI_COMMIT_REF_PROTECTED == \"true\""
 			},
 			{
 				"if":   "$CI_PIPELINE_SOURCE == \"push\" && $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"

@@ -108,6 +108,23 @@ the host ran, with the 1-minute load given.
    the change removed was only what a pair worked out twice. The counts keep a cost from returning; the profile
    says what it was.
 
+### The pipelines of seven days (2026-11-22)
+
+Read from GitLab on 2026-11-22: in the seven days before, 66 pipelines ran on this host's guests, 40.9 hours in
+all, a median of 31.3 minutes and at most 71.4, each holding the host's one slot while it ran. Proposal branches
+took 21.8 hours, `dev` 16.6, `main` 1.3 and tags 1.2. A commit's second and later pipelines took 19.1 hours (47 %):
+a landed commit ran on its proposal branch and again on `dev`, a release commit four times. 31 of these repeats
+followed a passing proposal pipeline in the seven days, and none failed. In the thirty days GitLab keeps (185
+pipelines), two did, both on 2026-10-31 and both on the protected Windows runner: on `dev` a linker could not
+open a file in that runner's build directory, and on `main` a job reached its hour's limit. Neither was a fault
+the proposal's pipeline had missed.
+
+On 2026-11-22 the owner approved a trial of two weeks on this repository: GitLab runs no pipeline for a tag or a
+push of `dev`, and a release first runs one protected pipeline of `dev`, before `main` moves. By the seven days
+it saves about 16.8 hours a week, 16.6 of `dev` and 1.2 of tags less about one for two releases' runs, 41 % of the
+pipelines' time. It is measured again on 2026-12-06 by the same count, the failures and the slot's hours, before
+it is kept, reverted or offered to the other repositories ETHOS governs.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |
@@ -128,8 +145,9 @@ out what two spans are to one another once a pair (`src/layout/channel-solver/tr
 its own facts from where it is made (`src/layout/measure.mjs`). The next causes, in the order the measurements give
 them: the suite's width; the number of assignments the search measures (`routesOf`), where no fact is now worked out
 twice; the page's one run of Archify, which is another product's; the two media of a build, which are made one after
-the other; `npm ci` on the Windows guest. The pipelines that repeat on one commit are the fleet's paradigm and not
-this repository's to change: the numbers went to ETHOS's owner session on 2026-11-18.
+the other; `npm ci` on the Windows guest. The pipelines that repeat on one commit were the fleet's paradigm, and
+the numbers went to ETHOS's owner session on 2026-11-18; from 2026-11-22 GitLab runs none for a tag or a push of
+`dev` here, the owner's trial (above), and whether the other repositories follow is that session's to decide.
 
 ## Not established
 
@@ -142,10 +160,14 @@ this repository's to change: the numbers went to ETHOS's owner session on 2026-1
 - Why the Windows guest loses more than the other two beside other work (its tests summed 6257 s there and 4352 s
   alone), and how much of what is left alone is the starting of processes: nothing was read inside the guest.
 - Whether coverage costs the suite a noticeable share: the gate runs it under `c8` and was not run without.
+- How the protected runners differ from the review runners beyond the one Windows path of 2026-10-31, and whether
+  GitLab holds protected variables for this project: neither was read, the second because its interface returns
+  the values.
 - Every time here is one run. The large builds' changes are far beyond what the load explains; the smallest pair's
   six seconds of 38 are not.
 
 ## Record
 
 2026-11-18 and 2026-11-19, the holder of the lane. The traces, profiles, scripts and the ledger of attempts lie in
-the checkout's ignored `build/runtime/work/perf-20261118/`.
+the checkout's ignored `build/runtime/work/perf-20261118/`. The pipelines of seven days: 2026-11-22, the holder,
+from GitLab's interface (its readings, `build/runtime/work/retro-20261122/gl-each/` and `gl-30d/`).

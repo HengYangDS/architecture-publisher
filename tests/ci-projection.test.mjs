@@ -312,3 +312,57 @@ test("GitHub alone also verifies Linux and Windows on x86-64 and publishes to np
     "git+https://github.com/HengYangDS/architecture-publisher.git",
   );
 });
+
+// GitLab's rules for one event: the first rule whose `if` holds decides, and none holding means no pipeline or no
+// job. The file's expressions are `||` of `&&` of `$NAME`, `$NAME == "x"` and `$NAME != "x"`, which is all this reads.
+function ruleAdmits(rules, event) {
+  const term = (text) => {
+    const match = /^\$(\w+)(?:\s*(==|!=)\s*"([^"]*)")?$/u.exec(text.trim());
+    assert.ok(match, `an expression this test does not read: ${text}`);
+    const [, name, operator, literal] = match;
+    const value = event[name] ?? "";
+    if (operator === "==") return value === literal;
+    if (operator === "!=") return value !== literal;
+    return value !== "";
+  };
+  const rule = rules.find((candidate) =>
+    candidate.if.split("||").some((part) => part.split("&&").every(term)),
+  );
+  return rule !== undefined && rule.when !== "never";
+}
+
+test("GitLab runs no pipeline for a tag or a push of dev, and the protected jobs for dev through the API", async () => {
+  const gitlab = parse(await fs.readFile(path.join(root, projections[0]), "utf8"));
+  const protectedRef = { CI_COMMIT_REF_PROTECTED: "true" };
+  // Which jobs each event starts: none where the workflow refuses it, else the jobs whose rules admit it.
+  const cases = [
+    ["a tag", { ...protectedRef, CI_COMMIT_TAG: "v0.18.0", CI_PIPELINE_SOURCE: "push" }, []],
+    ["a push of dev", { ...protectedRef, CI_COMMIT_BRANCH: "dev", CI_PIPELINE_SOURCE: "push" }, []],
+    [
+      "dev through the API",
+      { ...protectedRef, CI_COMMIT_BRANCH: "dev", CI_PIPELINE_SOURCE: "api" },
+      ["protected"],
+    ],
+    [
+      "a push of main",
+      { ...protectedRef, CI_COMMIT_BRANCH: "main", CI_PIPELINE_SOURCE: "push" },
+      ["protected"],
+    ],
+    [
+      "a proposal branch",
+      { CI_COMMIT_BRANCH: "proposal/x", CI_PIPELINE_SOURCE: "push" },
+      ["review"],
+    ],
+  ];
+  for (const [name, event, roles] of cases) {
+    const jobs = ruleAdmits(gitlab.workflow.rules, event)
+      ? Object.keys(gitlab).filter(
+          (job) => job.startsWith("verify:") && ruleAdmits(gitlab[job].rules, event),
+        )
+      : [];
+    const expected = roles.flatMap((role) =>
+      ["linux", "macos", "windows"].map((platform) => `verify:${platform}:${role}`),
+    );
+    assert.deepEqual(jobs.toSorted(), expected.toSorted(), name);
+  }
+});
