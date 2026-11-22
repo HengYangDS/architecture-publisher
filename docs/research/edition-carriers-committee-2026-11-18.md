@@ -31,7 +31,7 @@ number and as a link the plate that enlarges each of its parts. The last page is
 
 - The owner's words on the edition's design, selected verbatim from the ledger of this product's sessions
   (`build/runtime/work/owner-words/`), read directly by every seat. The selection was the holder's, by key phrases,
-  and lacked his repeated requirement that paragraph text be justified; it was added after the rounds.
+  and lacked their repeated requirement that paragraph text be justified; it was added after the rounds.
 - The landscape edition of one work, ETHOS in Chinese, as Architecture Publisher 0.14.0 with the one-part change
   builds it: the text of its fourteen pages, read directly. No seat saw a picture, and every seat said so where a
   judgment needed one.
@@ -104,7 +104,7 @@ holder's sample last page already stood on the title and contents pages.
   Three hold that the committee settles it, since it removes nothing; the keeper and the editorial designer hold
   that every fact or every topic with its plate and one line is the owner's to say.
 - Whether the last page is drawn before the owner confirms its job: two would draw it with its job in a caption,
-  three would say the job to him first.
+  three would say the job to them first.
 - Where a component's file locations stand in the portrait edition: in each view's row, or once in a catalogue at
   the back.
 

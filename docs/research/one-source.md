@@ -16,9 +16,9 @@ gone wrong. It decides nothing; the decisions that rest on it are in the designs
 ## What was asked
 
 On 2026-11-20 the owner asked how the address of a work's repository is written, and then where it is written:
-「事实出处应该唯一，否则要维护多处」. The same morning he made it a rule for everything built here:
+「事实出处应该唯一，否则要维护多处」. The same morning they made it a rule for everything built here:
 「SSOT,DRY,MECE,SOLID, 深模块，小表面积，充分解耦，声明式等最佳实践，是硬性要求」. Glosses, which are translations
-and not his words: "a fact should have one place it comes from, or several places have to be maintained"; "SSOT,
+and not their words: "a fact should have one place it comes from, or several places have to be maintained"; "SSOT,
 DRY, MECE, SOLID, deep modules, a small surface, full decoupling and declarative form are hard requirements."
 
 The question for this page: where does the product state one fact in more than one place, and what would its one

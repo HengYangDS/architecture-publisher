@@ -100,7 +100,7 @@ base; the full point list (6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 21, 24, 28, 36, 4
 to one another in a meaningful way." Built from a ratio plus a base number; the only ratio given numerically is
 1:1.618; example 10 → 16.180 → 26.179 → 42.358 upward and 6.180 → 3.819 → 2.360 downward. The scale applies to "type
 sizes, line height, line length, margins, column widths, and more"; Brown's own project used 18 px @ 1.618.
-Caveat, his words: "Modular scales are a tool, they're not magic."
+Caveat, in Brown's words: "Modular scales are a tool, they're not magic."
 
 **Apple Human Interface Guidelines, "Typography"** (change log to 16 December 2025). **[text]**. Default and minimum
 sizes: iOS/iPadOS 17/11, macOS 13/10, tvOS 29/23, visionOS 17/12, watchOS 16/12 pt. **tvOS built-in text styles**:
@@ -228,7 +228,7 @@ gave a numeric margin or white-space percentage for presentation pages.
 ### Tables
 
 **Richard Rutter, "Web Typography: Designing Tables to be Read, Not Looked At", A List Apart, 31 October 2017**
-(excerpted from his book _Web Typography_, ch. 2). **[fetch]**
+(excerpted from Rutter's book _Web Typography_, ch. 2). **[fetch]**
 <https://alistapart.com/article/web-typography-tables/>
 
 - Alignment: "don't centre text within tables"; "align table text … aligned left"; do not justify, "leave it
@@ -271,7 +271,7 @@ aligned with each other". Invoice numbers right-aligned; money right-aligned "so
 weights "aligned with decimal tabs"; "If a quantity is between 0 and 1, add a leading zero"; zip codes left; "In a
 grid … I prefer the look of lining figures, because of their vertical consistency"; thousands comma mandatory in a
 column ("Without it, $6736 won't quite line up with $16,736"); column labels last, and they may need "an
-inconsistent formatting choice" — his example centres the "Weight" heading over decimal-aligned numbers.
+inconsistent formatting choice" — Rutter's example centres the "Weight" heading over decimal-aligned numbers.
 
 **Chicago Manual of Style, 18th edition** — read only via CMOS's own quiz, "Chicago Style Workout 14: Editing
 Tables", posted 2017, updated 25 January 2025, tied to ¶¶ 3.82–89. **[fetch]**
@@ -307,7 +307,7 @@ go below it, above the 表脚注; 表头中不准许使用斜线; the table's co
 confirmed. **[not established]**
 
 **Units in the column head.** Chicago (signs), Rutter (headings match data; unit abbreviations placed in the
-cells of his example, "millimetres (mm)") — no source read states "unit in the head" for units themselves except
+cells of Rutter's example, "millimetres (mm)") — no source read states "unit in the head" for units themselves except
 Chicago's signs in the head. Treat "unit in the head" as practice, not a read rule.
 
 ### Code blocks and monospace

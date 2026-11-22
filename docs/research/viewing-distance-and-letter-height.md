@@ -241,7 +241,7 @@ ISO 9241-303:2011 appears in the standards catalogue. **[snippet]**; no clause t
   character's notional box, a seven-point rating): ease of reading rose from 12.5′ to 27.5′; 20′ sat at the middle
   of the scale; 27.5′ reached "somewhat easy to read"; no gain from there to 37.5′. Akutsu's own experiment (print
   at 40 cm, 49 participants): 13.5′ hard to read, 18′ neutral, 22.5′ somewhat easy, no ceiling found up to 22.5′.
-  He cites JIS Z 8513 (1995) for 25′ as the recommended minimum in display work.
+  Akutsu cites JIS Z 8513 (1995) for 25′ as the recommended minimum in display work.
 - Yoshitake (IBM Japan) is reported to find that users chose about 20–25′ in the field and to propose 20′ as the
   requirement. **[snippet]**
 
@@ -286,14 +286,14 @@ height by viewing ratio: 2.00 % for 3–4, 2.50 % for 4–5, 3.00 % for 5–6, 3
   few words). It says the rule derives from studies of the minimum symbol height the eye resolves, and names none.
   **[fetch]** <https://ta-inc.com/presenting-the-perfect-picture/>
 - Garry Musgrave, "Legibility of Projected Information", Conceptron Associates, 1999, updated 2001: the older single
-  rule of 8 image heights is no longer universally applicable; his own table puts the farthest viewer at 4 H for
-  critical content, 6 H for general and 8 H for video. He also reports 10′ for a lower-case character from unnamed
+  rule of 8 image heights is no longer universally applicable; Musgrave's own table puts the farthest viewer at 4 H for
+  critical content, 6 H for general and 8 H for video. Musgrave also reports 10′ for a lower-case character from unnamed
   empirical studies, 16′ minimum and 20 to 22′ recommended from an ANSI standard, and 15′ at the principal viewer
   and 10′ at the maximum distance from a US military standard (which matches MIL-STD-1472F 5.2.5.3.4.2). **[fetch]**
   <https://conceptron.com/articles/legibility_of_projected_information.html>
 - The older single rule, "8H": Stephen Rindsberg and others, PPT FAQ, "How big should text be? What's the ideal font
   size?" (updated 7 June 2011): the farthest viewer no more than 8 screen heights away, and text at least 1/50 of
-  the screen's height, stated as an absolute minimum for good eyesight and a crisp image; for projected screens he
+  the screen's height, stated as an absolute minimum for good eyesight and a crisp image; for projected screens the FAQ
   doubles it to 1/25. No source is cited. **[fetch]**
   <http://www.rdpslides.com/pptfaq/FAQ00125_How_big_should_text_be-_What-s_the_ideal_font_size-.htm>. A 1980 guide
   in the ERIC archive (ED186260) is reported to credit a pamphlet "Legibility: Art Work to Screen" for the 1:50

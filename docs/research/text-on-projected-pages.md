@@ -152,7 +152,7 @@ sources; two columns of 30 characters with a 2 em gutter hold nearly the same at
   Counted data: median words on text-only slides 97 (26 slides in three Boeing reports on Columbia), 40 (1,460
   slides in 189 reports found online, March 2003), 15 (654 slides in 28 textbooks). Characters per page: 250 for
   those reports, 98 for the textbooks, 630 for the Boeing slides, against 2,500 to 13,600 for a page of the
-  best-selling books he counted and 2,400 to 4,100 for a screen of news sites. Argument, not data: that the format
+  best-selling books Tufte counted and 2,400 to 4,100 for a screen of news sites. Argument, not data: that the format
   weakens reasoning; that printed handouts should largely replace slides (a sheet of 11 × 17 in folded in half, up
   to 60,000 characters).
 - Amazon, 2017 Letter to Shareholders (Jeffrey P. Bezos, published 18 April 2018): the company does not do

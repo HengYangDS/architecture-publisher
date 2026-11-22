@@ -18,7 +18,7 @@ contents and index of the queue item `edition-map`.
 
 The committee of 2026-11-18 ruled a last page that sets the parts against the plates
 ([record](edition-carriers-committee-2026-11-18.md)). The owner saw it drawn on 2026-11-19 and ruled that both
-pages are designed again. His words, as the holder's scratch record holds them with their times:
+pages are designed again. The owner's words, as the holder's scratch record holds them with their times:
 
 > 「目录页和尾页的设计都需要重新思索；目录页是允许多页的；如果真的中间页数比较多，尾页也不是不能允许多页」 (21:42)
 >
@@ -28,17 +28,17 @@ pages are designed again. His words, as the holder's scratch record holds them w
 
 Glosses, which are translations and not the owner's words: the contents and the last page both need rethinking, and
 either may take several pages; parts times plates will not do, since the plates of one part are sparse; sixteen
-rows on a page of contents are too crowded. At 22:29 he asked that the overview stand by itself on the left of the
+rows on a page of contents are too crowded. At 22:29 they asked that the overview stand by itself on the left of the
 contents and that each side hold ten rows at most; that sentence names a work by its id and is given here in gloss
-alone. On 2026-11-20 at 05:35, on the drawings of ten and of eleven rows a side, he ruled the contents again, in a
+alone. On 2026-11-20 at 05:35, on the drawings of ten and of eleven rows a side, they ruled the contents again, in a
 sentence that names the same work and is given in gloss alone: the arrangement was wrong; the first page has the
 overview on the left and ten rows on the right, and the second page one row on its left; a page the contents
 continue on is not to be filled; the rows are equally spaced and not stretched to fill; and the holder's
-constraints had not been his. At 06:05 he set the index by the same rule:
+constraints had not been theirs. At 06:05 they set the index by the same rule:
 
 > 「索引那里左右每边 20 个，你看下高度和字体怎么排」
 
-A gloss, which is a translation and not his words: in the index, twenty on each side, left and right; the height and
+A gloss, which is a translation and not their words: in the index, twenty on each side, left and right; the height and
 the type are for the holder to work out. Which form lets a reader of 6, 11 or 28 plates find a plate by its question and a part by its name, on pages
 that stay full?
 
@@ -226,7 +226,7 @@ rows, a stated number a half. The owner asked for the third at ten a half. The h
 out evenly, found the largest published work on two sparse pages at ten and on one page at eleven, and proposed
 eleven. Shown both, the owner ruled that the sharing was the fault: ten a half at one pitch, the eleventh row on a
 second page. A first page of fewer than ten rows was then drawn both ways for a work of six plates, at the pitch
-and opened to fill its half, and put to him with the holder's reading, the pitch; he answered 「按照你建议的方式」
+and opened to fill its half, and put to them with the holder's reading, the pitch; they answered 「按照你建议的方式」
 (05:53). The pages of contents drawn so far named the plates each lists, which their rows already show; after a
 review of the code against the owner's design principles (07:00) a page says how many plates the edition has, and
 both lists are set by one mechanism.
@@ -264,7 +264,7 @@ booklet and the page in a browser are other carriers with their own designs.
 2026-11-19: the measurements, the three drawings and the samples, by the holder of the product's lane; the
 committee of five read-only agents, about 22:24 to 22:35; the report on practice elsewhere by one read-only agent.
 2026-11-20: this page and its own measurement, by an agent that carried the trial into the product in a scratch
-copy; the drawings of ten and of eleven a half shown to the owner at 05:30, his ruling at 05:35, the third drawing
+copy; the drawings of ten and of eleven a half shown to the owner at 05:30, their ruling at 05:35, the third drawing
 and the two of a work of six plates at 05:49, by the holder. The working material lies in `build/runtime/work/edition-map/` (`redesign/PURPOSES.md`,
 `redesign/committee/RESULT.md`, `research-end-pages-20261119.md`, the pictures under `redesign/`), which is
 ignored and local to one checkout.

@@ -269,8 +269,8 @@ seventy minutes. `performance` joined the list before `edition-map`: every Chang
 suite in its proof and in two pipelines, so what the suite and a build cost is paid by each of them. That moves
 every open item back by one.
 
-On 2026-11-19 the owner read the six works as 0.15.0 built them and named what they lacked that he had asked
-for (「不要漏我的指示」). Readers other than the maintainer went through all he had said since 2026-10-26 and gave
+On 2026-11-19 the owner read the six works as 0.15.0 built them and named what the works lacked that the owner had asked
+for (「不要漏我的指示」). Readers other than the maintainer went through all the owner had said since 2026-10-26 and gave
 each ask what holds it; twenty-four had nothing. Three of them are items of their own and joined the list before
 `performance`, since each is an ask that was dropped and no new wish: `figures-alone`, promised on 2026-11-17 and
 never listed; `page-figures`, since nothing is placed by hand and the page's diagrams were; and `reader-file`.
@@ -279,7 +279,7 @@ That moves `performance` and every item after it back by three. Seven items took
 
 On 2026-11-19 the owner asked where the last page had gone (「之前提到的尾页设计，怎么没有任何提及了」): the committee's
 ruling of 2026-11-18 had stood a day without a drawing. `edition-map` moved to follow `figures-alone`, which moves
-`page-figures`, `reader-file` and `performance` back by one. He then saw the page drawn and ruled on it and on the
+`page-figures`, `reader-file` and `performance` back by one. The owner then saw the page drawn and ruled on it and on the
 contents: both are designed again, the contents may take further pages and so may the last page of a large work
 (「目录页是允许多页的；如果真的中间页数比较多，尾页也不是不能允许多页」), and a table of parts against plates is out, since
 a part stands on few plates (「单一组件所属图版是稀疏的」). The item below says so; it no longer holds the contents to

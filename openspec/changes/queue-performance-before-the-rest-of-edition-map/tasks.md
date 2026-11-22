@@ -8,4 +8,4 @@
 
 ## 3. The owner's pronouns
 
-- [ ] 3.1 Call the owner they or the owner in `docs/product-contract.md` and four research records, and name the authors cited in three more instead of giving them a pronoun, outside quotations. Done when no `he`, `him` or `his` is left outside quotations in `docs/` (archived Changes and released changelog sections aside) and `npm run check:static` passes.
+- [x] 3.1 Call the owner they or the owner in `docs/product-contract.md` and four research records, and name the authors cited in three more instead of giving them a pronoun, outside quotations. Done when no `he`, `him` or `his` is left outside quotations in `docs/` (archived Changes and released changelog sections aside) and `npm run check:static` passes. No `he`, `him` or `his` is left outside quotations in `docs/` (`pronouns-left.py` of the work directory); `npm run check:static` passes.
