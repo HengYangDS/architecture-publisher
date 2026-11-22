@@ -10,6 +10,28 @@
     "text": 12.5,
     "small": 11
   },
+  "text": {
+    "pitch": 16,
+    "leading": 6.6
+  },
+  "baselines": {
+    "label": 64,
+    "title": 52,
+    "lead": 84
+  },
+  "summary": {
+    "size": 17,
+    "pitch": 24
+  },
+  "mark": {
+    "gap": 5,
+    "middle": 0.36
+  },
+  "weights": {
+    "rule": 0.8,
+    "hair": 0.4,
+    "ring": 1.7
+  },
   "faces": {
     "sans": "Source Sans 3",
     "serif": "Source Serif 4",

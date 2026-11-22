@@ -111,12 +111,17 @@ export function lineWarnings(plates, style) {
 }
 
 /**
- * A summary set above a figure that keeps the full width: 17 points of the summary's face on 24-point lines, at most
- * the house's measure to a line, and 16 points more before the figure.
+ * A summary set above a figure that keeps the full width: the summary's face at a view summary's size and pitch,
+ * as the house class sets it, at most the house's measure to a line, and 16 points more before the figure.
  */
 const STANDFIRST = Object.freeze({
-  style: Object.freeze({ size: 17, weight: 400, line: 24, face: /** @type {const} */ ("serif") }),
-  measure: HOUSE.edition.measure * 17,
+  style: Object.freeze({
+    size: HOUSE.summary.size,
+    weight: 400,
+    line: HOUSE.summary.pitch,
+    face: /** @type {const} */ ("serif"),
+  }),
+  measure: HOUSE.edition.measure * HOUSE.summary.size,
   before: 16,
 });
 

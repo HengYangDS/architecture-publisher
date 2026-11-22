@@ -100,7 +100,11 @@ no unit that draws import it or `sources`, and refuses a measure of its catalogu
 called anywhere else. The unit `house` (`src/house.mjs`) is the one module that reads the house
 tokens of `src/house.json`, as one read-only object, and imports no other unit;
 `tests/one-source.test.mjs` refuses a module that reads the file again or restates a face's name or
-a page's measure that it states. The unit `names` (`src/names.mjs`) imports no other unit and is the one
+a page's measure that it states. The tokens hold the measures the house class sets its pages by:
+the pitch and the leading of text, the baselines of a page's head, a view summary's size and pitch, a
+key mark's gap and middle, and the weights of a rule, a hair rule and a ring. The class reads them once,
+the drawing and the colophon page take them from it, and the test refuses one written again as a number:
+in the Typst always, in the JavaScript when no other measure has that number. The unit `names` (`src/names.mjs`) imports no other unit and is the one
 module that names a delivery's files, forms a page's and a plate's names, a number in two digits and a
 revision cut to seven characters, and states the Typst version; `tests/one-source.test.mjs` refuses a
 module that writes one of them again. It reads the table `src/shared.json`, which the overview stages

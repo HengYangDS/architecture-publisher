@@ -60,8 +60,8 @@ export function checkBoxes(boxes) {
 /** How far a line or a ring may reach into a text's box before it counts as lying over it, in points. */
 const LINE_TOLERANCE = 0.5;
 
-/** The half width of a ring's stroke, in points: the drawing strokes its rings at 1.7 pt and less. */
-const RING_STROKE = 0.85;
+/** The half width of a ring's stroke, in points: the drawing strokes its rings at the house's weight and less. */
+const RING_STROKE = HOUSE.weights.ring / 2;
 
 /**
  * Whether the segment from p to q, widened by `half` on each side, meets the rectangle: the rectangle is widened

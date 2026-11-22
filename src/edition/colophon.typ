@@ -6,10 +6,9 @@
 // lower, set cluster by cluster along the arc; the name crosses the centre straight, in a band between two rules, and is
 // shaped like any other text, so every script keeps its form. The mark states only those three facts; the slip beside
 // it states the rest.
-#import "house.typ": _shared, hrule, ink, margin, page-height, page-width, paper, rule, sans, serif, sizes, soft, tx
+#import "house.typ": _baseline, _house, _line, _shared, _text, hrule, ink, margin, page-height, page-width, paper, rule, sans, serif, sizes, soft, tx
 
 #let r = json(_shared.files.colophon)
-#let _house = json(_shared.files.tokens)
 #let _e = _house.edition
 #let cinnabar = rgb("#A93D31")
 /// The mark's diameter on the page.
@@ -117,11 +116,11 @@
 #set page(width: page-width, height: page-height, margin: 0pt, fill: paper)
 #set text(lang: r.locale.split("-").first(), region: if "-" in r.locale { r.locale.split("-").last() } else { none },
   font: sans, size: sizes.text, fill: ink, stretch: 100%)
-#set par(leading: 6.6pt, spacing: 6.6pt)
+#set par(leading: _text.leading, spacing: _text.leading)
 #show heading: it => place(hide(it.body))
 
 #heading(outlined: false, bookmarked: true, r.words.colophon)
-#tx(margin, 64pt, r.words.edition, size: "small", weight: "semibold", fill: soft)
+#tx(margin, _baseline.label, r.words.edition, size: "small", weight: "semibold", fill: soft)
 #tx(margin, 112pt, r.words.colophon, size: "title", font: serif)
 
 // The mark stands in the left of the body and the slip in the contents' column beside it, both centred on the body.
@@ -132,7 +131,7 @@
 // The slip: the record's facts as a card of label and value rows in sentence case, then what acceptance does and does
 // not establish, and where the record is published and how to check it.
 #let _slip-width = page-width - margin - _e.column * 1pt
-#let _slip = block(width: _slip-width, fill: rgb(_house.figure.card), stroke: 0.8pt + rgb(_house.figure.cardStroke),
+#let _slip = block(width: _slip-width, fill: rgb(_house.figure.card), stroke: _line.rule + rgb(_house.figure.cardStroke),
   inset: (x: 36pt, top: 14pt, bottom: 32pt), {
   set par(leading: 9pt, spacing: 0pt, justify: false)
   grid(columns: (190pt, 1fr), inset: (x: 0pt, y: 14pt), align: (left + horizon, left + horizon),

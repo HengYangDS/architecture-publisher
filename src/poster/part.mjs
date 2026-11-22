@@ -19,10 +19,13 @@ import { POSTER, fixed, measureWidth } from "./tokens.mjs";
  */
 
 /**
- * A caption's icon as the edition's key sets a mark beside its label: 5 points before the label, in plate px, and
- * centred on the middle of the label's text, 0.36 em above its baseline.
+ * A caption's icon as the edition's key sets a mark beside its label: the house's gap before the label, in plate
+ * px, and centred on the middle of the label's text, the house's middle in ems above its baseline.
  */
-const MARK = Object.freeze({ gap: 5 * HOUSE.plate.pixelsPerPoint, middle: 0.36 });
+const MARK = Object.freeze({
+  gap: HOUSE.mark.gap * HOUSE.plate.pixelsPerPoint,
+  middle: HOUSE.mark.middle,
+});
 
 /**
  * How parts size and set their regions at one type step: each box as wide as its name, its strip, its caption

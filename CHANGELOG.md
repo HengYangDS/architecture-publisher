@@ -24,6 +24,14 @@ remain pre-release contracts and may contain incompatible changes.
   sides; a test refuses one written again in either language. No page, image, figure or file a delivery lists
   changes. The manifest's digests of the class's inputs, `edition.house` and `overview.house`, change: they
   cover the edited class and drawing, and the table.
+- The house class reads the measures it repeated as numbers from the house tokens of `src/house.json`: the
+  pitch and the leading of text, the baselines of a page's head, a view summary's size and pitch, a key mark's
+  gap and middle, and the weights of a rule, a hair rule and a ring. The overview's foot reads the edition's
+  rule and foot, the colophon page takes the tokens from the class instead of reading them again, and the
+  JavaScript that repeated the summary's size and pitch, the mark's gap and middle or the ring's weight reads
+  them; a test refuses one written again. No page, image, figure or file a delivery lists changes. The
+  manifest's digests of the class's inputs, `edition.house` and `overview.house`, change: they cover the
+  edited class, drawing and tokens.
 - The queue's item `page` says that a page carries each cited file once and is measured on the published works,
   and `docs/research/page-weight.md` records what makes up the pages 0.16.0 builds: 4 to 12 MB, of which a cited
   file repeated once per citation takes 21% to 52%.

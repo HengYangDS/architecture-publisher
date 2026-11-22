@@ -8,8 +8,8 @@ import * as NAMES from "../src/names.mjs";
 
 /**
  * The queue item `one-source`: a fact the product's source forms stands in one place of it, and what repeats the
- * fact reads it there. Each search below reads the shipped JavaScript, and where a name is shared with the house
- * class the Typst as well, without comments, and names every file that repeats a fact it should read.
+ * fact reads it there. Each search below reads the shipped JavaScript, and where a name or a measure is shared with
+ * the house class the Typst as well, without comments, and names every file that repeats a fact it should read.
  */
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -353,4 +353,142 @@ test("the table names what the class has always been staged under and labelled w
   );
   assert.equal(NAMES.MODEL, SHARED.delivered.model);
   assert.equal(NAMES.stagedPlate(3), "plates/03.svg");
+});
+
+/**
+ * The measures the class sets its pages by, which it reads from the house tokens: each token's path, and the forms
+ * in which a file would write it again. In the Typst: `length`, any length of its number, for a number that no
+ * other measure of the class takes; `named`, a pitch, a leading or a spacing given its number; `baseline`, the
+ * baseline a text is set on; `space`, a space across; `weight`, a weight given or recorded. In the JavaScript:
+ * `script`, the bare number, for a number the JavaScript takes for nothing else.
+ */
+const MEASURES = Object.freeze({
+  "edition.rule": ["length", "script"],
+  "edition.foot": ["length", "script"],
+  "text.pitch": ["named"],
+  "text.leading": ["length", "script"],
+  "baselines.label": ["length", "baseline"],
+  "baselines.title": ["length", "baseline"],
+  "baselines.lead": ["baseline"],
+  "summary.size": ["length", "script"],
+  "summary.pitch": ["named"],
+  "mark.gap": ["space"],
+  "mark.middle": ["length", "script"],
+  "weights.rule": ["length", "weight"],
+  "weights.hair": ["length", "weight"],
+  "weights.ring": ["length", "weight", "script"],
+});
+
+/** A house token's value, by its path. */
+const token = (key) => key.split(".").reduce((group, name) => group[name], HOUSE);
+
+/** The search of each form, for a number written as the source writes it. */
+const FORMS = Object.freeze({
+  length: (number) => `(?<![\\w.])${number}(?:pt|em)\\b`,
+  named: (number) => `\\b(?:pitch|leading|spacing)\\s*:\\s*${number}pt\\b`,
+  baseline: (number) => `\\btx[rc]?\\(\\s*[^,()]*,\\s*${number}pt\\b`,
+  space: (number) => `\\bh\\(\\s*${number}pt\\b`,
+  weight: (number) => `\\bw\\s*:\\s*${number}(?:pt)?(?![\\w.])`,
+  script: (number) => `(?<![\\w.])${number}(?![\\w.])`,
+});
+
+/**
+ * Each measure of the class that a file writes again as a number, as `<file> repeats <token>`: a Typst file in the
+ * measure's forms, a module of the JavaScript as a bare number where `script` marks it.
+ */
+const measureRepetitions = (found) =>
+  found.flatMap(({ file, code: text }) =>
+    Object.entries(MEASURES)
+      .filter(([key, forms]) =>
+        forms
+          .filter((form) => (form === "script") === file.endsWith(".mjs"))
+          .some((form) => new RegExp(FORMS[form](escaped(String(token(key)))), "u").test(text)),
+      )
+      .map(([key]) => `${file} repeats ${key}`),
+  );
+
+/** A reading of the house tokens in the Typst: by the table's name for their staged file, or by that name. */
+const READS_TOKENS = new RegExp(
+  `json\\(\\s*(?:_shared\\.files\\.tokens|(["'])[^"']*${escaped(SHARED.files.tokens)}\\1)\\s*\\)`,
+  "gu",
+);
+
+test("the class reads the house tokens once, and the drawing and the colophon page take them from it", async () => {
+  const readings = (await modules([".typ"])).flatMap(({ file, code: text }) =>
+    [...text.matchAll(READS_TOKENS)].map(() => file),
+  );
+  assert.deepEqual(readings, ["src/overview/house.typ"]);
+});
+
+test("a measure the class reads from the house tokens is not written again as a number", async () => {
+  assert.deepEqual(measureRepetitions(await modules([".mjs", ".typ"])), []);
+});
+
+test("a measure written again is found in its forms, and another measure of its number or a comment is not", () => {
+  const found = (text, file = "src/scratch.typ") =>
+    measureRepetitions([{ file, code: code(text) }]);
+  const { edition, text, baselines, summary, mark, weights } = HOUSE;
+  const repeats = (file, ...keys) => keys.map((key) => `${file} repeats ${key}`);
+  const typst = (...keys) => repeats("src/scratch.typ", ...keys);
+  assert.deepEqual(found(`hrule(${edition.rule}pt)`), typst("edition.rule"));
+  assert.deepEqual(
+    found(`set par(leading: ${text.leading}pt, spacing: ${text.leading}pt)`),
+    typst("text.leading"),
+  );
+  assert.deepEqual(found(`#let tx(x, b, body, pitch: ${text.pitch}pt) = {}`), typst("text.pitch"));
+  assert.deepEqual(found(`p.cell - ${text.pitch}pt\nrect(width: ${text.pitch}pt)`), []);
+  assert.deepEqual(
+    found(`tx(margin, ${baselines.lead}pt, lead)\nv(${baselines.lead}pt)`),
+    typst("baselines.lead"),
+  );
+  assert.deepEqual(
+    found(`[#_mark(entry)#h(${mark.gap}pt)#entry.label]\nring(x, y, r: ${mark.gap}pt)`),
+    typst("mark.gap"),
+  );
+  assert.deepEqual(
+    found(`place(left + horizon, dy: -${mark.middle}em, sample)`),
+    typst("mark.middle"),
+  );
+  assert.deepEqual(
+    found(`[#metadata((kind: "line", w: ${weights.rule})) <l>]`),
+    typst("weights.rule"),
+  );
+  assert.deepEqual(
+    found(`let size = ${summary.size}pt\nprose(w, s, pitch: ${summary.pitch}pt)`),
+    typst("summary.size", "summary.pitch"),
+  );
+  assert.deepEqual(found(`// at ${edition.foot}pt\ntx(margin, _house.edition.foot * 1pt, x)`), []);
+  assert.deepEqual(found(`seg(a, b, w: 1${weights.ring}pt)\nv(${baselines.title}.5pt)`), []);
+  assert.deepEqual(
+    found(`const MARK = { middle: ${mark.middle} };`, "src/scratch.mjs"),
+    repeats("src/scratch.mjs", "mark.middle"),
+  );
+  assert.deepEqual(
+    found(
+      `const SHARES = [1, ${weights.rule}];\nconst gap = ${mark.gap} * 1.5;`,
+      "src/scratch.mjs",
+    ),
+    [],
+  );
+  const both = code(`#let _house = json(_shared.files.tokens)\n#let h = json("house.json")`);
+  assert.equal([...both.matchAll(READS_TOKENS)].length, 2);
+});
+
+test("the class's measures are the numbers it has always set its pages by", () => {
+  assert.deepEqual(Object.fromEntries(Object.keys(MEASURES).map((key) => [key, token(key)])), {
+    "edition.rule": 866,
+    "edition.foot": 886,
+    "text.pitch": 16,
+    "text.leading": 6.6,
+    "baselines.label": 64,
+    "baselines.title": 52,
+    "baselines.lead": 84,
+    "summary.size": 17,
+    "summary.pitch": 24,
+    "mark.gap": 5,
+    "mark.middle": 0.36,
+    "weights.rule": 0.8,
+    "weights.hair": 0.4,
+    "weights.ring": 1.7,
+  });
 });

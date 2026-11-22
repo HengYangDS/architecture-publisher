@@ -19,8 +19,11 @@
 #let serif = (_house.faces.serif, _house.faces.han)
 #let display = (_house.faces.display, _house.faces.han)
 
-// The four type sizes of the house style.
-#let sizes = _house.sizes.pairs().map(((name, size)) => (name, size * 1pt)).to-dict()
+// The tokens' measures in points: the four type sizes of the house style; the pitch and the leading of text; the
+// baselines of a page's head; a view summary's size and pitch on its plate; and the weights of a rule (across the
+// page, over a list's half, between the contents' rows), a hair rule (between an index's lines) and a ring.
+#let _points(group) = group.pairs().map(((name, value)) => (name, value * 1pt)).to-dict()
+#let (sizes, _text, _baseline, _view-summary, _line) = ("sizes", "text", "baselines", "summary", "weights").map(group => _points(_house.at(group)))
 #let page-width = _house.page.width * 1pt
 #let page-height = _house.page.height * 1pt
 #let margin = _house.page.margin * 1pt
@@ -299,7 +302,7 @@
 /// is cheap, where its measure is twenty ems or more. In a narrower column a line holds three or four words, and
 /// justified to the column their spaces would stand apart: there the text is a caption, justified to a measure of
 /// its own where one holds it, and otherwise set flush left on lines of nearly one length.
-#let wrapped(body, w, style, pitch: 16pt, spread: false) = {
+#let wrapped(body, w, style, pitch: _text.pitch, spread: false) = {
   let breaks = if spread and type(body) == str { json(_shared.files.breaks) } else { (texts: (:)) }
   let stated = if type(body) == str and w != auto { breaks.texts.at(body, default: none) } else { none }
   let narrow = w != auto and w < 20 * style.size
@@ -341,7 +344,7 @@
 }
 
 /// Text whose first baseline sits at b; with w it wraps within w at the given line pitch, justified when `spread`.
-#let tx(x, b, body, size: "text", font: sans, weight: "regular", fill: ink, w: none, style: "normal", pitch: 16pt,
+#let tx(x, b, body, size: "text", font: sans, weight: "regular", fill: ink, w: none, style: "normal", pitch: _text.pitch,
   spread: false) = {
   let s = _size(size)
   let set-text(it) = text(.._style(s, font, weight, fill, style), top-edge: "baseline", bottom-edge: "baseline", it)
@@ -375,7 +378,7 @@
 #let txc(x, b, w, body, size: "text", font: sans, weight: "regular", fill: ink) = {
   let s = _size(size)
   let set-text(it) = text(.._style(s, font, weight, fill, "normal"), top-edge: "baseline", bottom-edge: "baseline", it)
-  let content = align(center, { set par(leading: 16pt, spacing: 16pt); set-text(body) })
+  let content = align(center, { set par(leading: _text.pitch, spacing: _text.pitch); set-text(body) })
   place(top + left, dx: x - w / 2, dy: b, box(width: w, content))
   context {
     let natural = measure(set-text(body)).width
@@ -394,7 +397,7 @@
 ))
 
 /// A station that is reached: a ring.
-#let ring(x, y, r: 5pt, w: 1.7pt, c: green) = place(top + left, dx: x - r, dy: y - r, circle(radius: r, fill: paper, stroke: w + c))
+#let ring(x, y, r: 5pt, w: _line.ring, c: green) = place(top + left, dx: x - r, dy: y - r, circle(radius: r, fill: paper, stroke: w + c))
 /// A station that holds state: a disc.
 #let disc(x, y, r: 5pt, c: green) = place(top + left, dx: x - r, dy: y - r, circle(radius: r, fill: c))
 /// A step that passes through: a tick across the line.
@@ -409,7 +412,7 @@
 #let right-arrow(x, y, c: mid, s: 5pt) = place(top + left, polygon(fill: c, (x, y), (x - s, y - s * 0.6), (x - s, y + s * 0.6)))
 
 /// A definition list: terms in semibold at x, definitions at x + tw within w, one per pitch.
-#let dl(x, b, tw, w, rows, size: "text", pitch: 16pt) = {
+#let dl(x, b, tw, w, rows, size: "text", pitch: _text.pitch) = {
   for (k, (term, def)) in rows.enumerate() {
     tx(x, b + k * pitch, term, weight: "semibold", size: size)
     tx(x + tw, b + k * pitch, def, w: w - tw, size: size)
@@ -420,9 +423,6 @@
 #let head(x, b, body, size: "head") = tx(x, b, body, size: size, font: serif)
 
 /// A horizontal rule across the live area or between two x positions.
-/// The weights of the rules a page sets: across the page, over a list's half and between the contents' rows; and
-/// between an index's lines.
-#let _line = (rule: 0.8pt, hair: 0.4pt)
 #let hrule(y, x0: margin, x1: page-width - margin) = seg((x0, y), (x1, y), w: _line.rule, c: rule)
 
 /// Whether the page is set inside the print edition, where the edition's foot replaces the imprint.
@@ -432,9 +432,9 @@
 #let masthead(name, claim, lead, read-from: none, claim-x: 196pt) = {
   let rev = _inputs.at("revision", default: "")
   let date = _inputs.at("date", default: "")
-  tx(margin, 52pt, name, size: "head", weight: "semibold")
-  tx(claim-x, 52pt, claim, size: "title", font: display)
-  tx(margin, 84pt, lead, fill: soft)
+  tx(margin, _baseline.title, name, size: "head", weight: "semibold")
+  tx(claim-x, _baseline.title, claim, size: "title", font: display)
+  tx(margin, _baseline.lead, lead, fill: soft)
   // In the edition the build line is the record's, in the model's language; the overview checked alone keeps English.
   let built = if _in-edition { json(_shared.files.edition).words.built } else {
     "As built at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { " · " + date } else { "" })
@@ -455,10 +455,10 @@
 #let imprint(note) = if _in-edition { edition-foot() } else {
   let rev = _inputs.at("revision", default: "")
   let date = _inputs.at("date", default: "")
-  hrule(866pt)
+  hrule(_house.edition.rule * 1pt)
   let built = "As built from " + _model.title + " at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { ", " + date } else { "" }) + ". "
-  tx(margin, 886pt, built + note, size: "small", fill: soft)
-  txr(page-width - margin, 886pt, 300pt, "Architecture Publisher", size: "small", fill: soft)
+  tx(margin, _house.edition.foot * 1pt, built + note, size: "small", fill: soft)
+  txr(page-width - margin, _house.edition.foot * 1pt, 300pt, "Architecture Publisher", size: "small", fill: soft)
 }
 
 /// Apply the page: `#show: overview`.
@@ -468,7 +468,7 @@
   let locale = _model.at("locale", default: "en")
   set text(lang: locale.split("-").first(), region: if "-" in locale { locale.split("-").last() } else { none },
     font: sans, size: sizes.text, fill: ink, stretch: 100%)
-  set par(leading: 6.6pt, spacing: 6.6pt)
+  set par(leading: _text.leading, spacing: _text.leading)
   body
 }
 
@@ -487,7 +487,7 @@
 
 /// Prose: justified on optimized lines, hyphenated where a break is cheap, within the limits of a justified line, at
 /// most `measure` em to a line unless `bound` is false, where the width given is the line.
-#let prose(width, body, size: sizes.text, font: sans, fill: ink, pitch: 16pt, bound: true) = {
+#let prose(width, body, size: sizes.text, font: sans, fill: ink, pitch: _text.pitch, bound: true) = {
   set text(size: size, font: font, fill: fill, hyphenate: true, costs: (hyphenation: 40%, runt: 150%),
     top-edge: "baseline", bottom-edge: "baseline")
   set par(justify: true, linebreaks: "optimized", leading: pitch, spacing: 0pt, justification-limits: _limits)
@@ -507,13 +507,13 @@
 
 #let _head(label, title, lead: none, label-style: (size: "head", font: sans, fill: ink)) = {
   if label != none {
-    tx(margin, 52pt, label, size: label-style.size, font: label-style.font, fill: label-style.fill,
+    tx(margin, _baseline.title, label, size: label-style.size, font: label-style.font, fill: label-style.fill,
       weight: if label-style.font == sans { "semibold" } else { "regular" })
   }
   // The lead stands under the title, where the title begins.
   let x = if label == none { margin } else { _e.claim * 1pt }
-  tx(x, 52pt, title, size: "title", font: display)
-  if lead != none { tx(x, 84pt, lead, fill: soft) }
+  tx(x, _baseline.title, title, size: "title", font: display)
+  if lead != none { tx(x, _baseline.lead, lead, fill: soft) }
 }
 
 /// A key entry's mark: a kind's icon, drawn as the figure draws it, or the style of the boundary, an outside system or
@@ -550,27 +550,27 @@
     thickness: 1pt, dash: if entry.shape == "retired" { "dotted" } else { "dashed" }))
 }
 
-/// A key entry's mark, centred on the middle of the text beside it, 0.36 em above the baseline: the middle of a
+/// A key entry's mark, centred on the middle of the text beside it, `mark.middle` em above the baseline: the middle of a
 /// capital of the sans and of a Han character alike, to within a third of a point at the key's size. Its box has no
 /// height, so no mark moves the line it stands in.
 #let _mark(entry) = pdf.artifact(context {
   let sample = _sample(entry)
   let size = measure(sample)
   // The sample keeps its own size in a box of it: an image set in a box of no height would take none.
-  box(width: size.width, height: 0pt, place(left + horizon, dy: -0.36em, box(width: size.width, height: size.height, sample)))
+  box(width: size.width, height: 0pt, place(left + horizon, dy: -_house.mark.middle * 1em, box(width: size.width, height: size.height, sample)))
 })
 
 /// A plate's key: one line set by its baseline, which stands at the frame's key line on every plate. A key longer
-/// than the body is wide breaks between two entries onto a second line, the two 16 points apart about the key's
+/// than the body is wide breaks between two entries onto a second line, the two a pitch apart about the key's
 /// line; an entry is never broken. A key that needs a third line, or holds an entry wider than the body, is
 /// refused, since text is never shrunk.
 #let _key(entries, title) = {
-  let (pitch, body) = (16pt, page-width - 2 * margin)
+  let (pitch, body) = (_text.pitch, page-width - 2 * margin)
   let set-key = text.with(size: sizes.small, fill: soft, top-edge: "baseline", bottom-edge: "baseline")
   let items = entries.map(entry =>
     // The commit's entry stands in words alone, before the bands it dates, and without its date, which the page's
     // foot states.
-    box(if entry.at("shape", default: none) == "reference" { entry.at("undated", default: entry.label) } else [#_mark(entry)#h(5pt)#entry.label]))
+    box(if entry.at("shape", default: none) == "reference" { entry.at("undated", default: entry.label) } else [#_mark(entry)#h(_house.mark.gap * 1pt)#entry.label]))
   let lines = block(width: body, {
     set par(justify: false, leading: pitch, spacing: 0pt, first-line-indent: 0pt, hanging-indent: 0pt)
     set-key(items.join(h(20pt, weak: true)))
@@ -590,11 +590,11 @@
 /// set alone, without the heading or the paths. A summary, or paths beside none, taller than the body is refused,
 /// since text is never shrunk.
 #let _reading(p, words, x, w, height) = {
-  let size = 17pt
+  let (size, pitch) = (_view-summary.size, _view-summary.pitch)
   let reading-column(with-places) = block(width: w, {
     set block(spacing: 0pt)
     if p.summary != none {
-      prose(w, p.summary, size: size, font: serif, pitch: 24pt)
+      prose(w, p.summary, size: size, font: serif, pitch: pitch)
       if with-places { v(40pt) }
     }
     if with-places and p.places.len() > 0 {
@@ -612,31 +612,31 @@
     }
   })
   context {
-    let limit = height - 24pt
+    let limit = height - pitch
     let whole = reading-column(true)
     let chosen = if measure(whole).height <= limit { whole } else {
       let alone = reading-column(false)
       if p.summary == none or measure(alone).height > limit { panic("edition_reading_too_long: " + p.title) }
       alone
     }
-    place(top + left, dx: x, dy: _e.bodyTop * 1pt + 24pt, chosen)
+    place(top + left, dx: x, dy: _e.bodyTop * 1pt + pitch, chosen)
   }
 }
 
-/// A summary above a figure that keeps the full width, at 17 points in the title's column with its first baseline 24
-/// points below the body's top: justified as prose within the house's measure when that takes no more lines than the
+/// A summary above a figure that keeps the full width, at a view summary's size in the title's column, its first
+/// baseline a pitch below the body's top: justified as prose within the house's measure when that takes no more lines than the
 /// engine broke it into, since the engine reserved the figure's height for those lines, and otherwise on the engine's
 /// own lines, flush left. An engine line wider than the measure is refused either way.
 #let _standfirst(lines, summary) = {
-  let size = 17pt
-  let (x, y) = (_e.claim * 1pt, _e.bodyTop * 1pt + 24pt)
-  let justified = prose(_e.measure * size, summary, size: size, font: serif, pitch: 24pt)
+  let (size, pitch) = (_view-summary.size, _view-summary.pitch)
+  let (x, y) = (_e.claim * 1pt, _e.bodyTop * 1pt + pitch)
+  let justified = prose(_e.measure * size, summary, size: size, font: serif, pitch: pitch)
   let set-line = text.with(size: size, font: serif, fill: ink, hyphenate: false, top-edge: "baseline",
     bottom-edge: "baseline")
   context {
     for line in lines { if measure(set-line(line)).width > _e.measure * size + 0.5pt { panic("edition_text_wider: " + line) } }
-    if measure(justified).height <= (lines.len() - 1) * 24pt + 0.5pt { place(top + left, dx: x, dy: y, justified) } else {
-      for (i, line) in lines.enumerate() { place(top + left, dx: x, dy: y + i * 24pt, set-line(line)) }
+    if measure(justified).height <= (lines.len() - 1) * pitch + 0.5pt { place(top + left, dx: x, dy: y, justified) } else {
+      for (i, line) in lines.enumerate() { place(top + left, dx: x, dy: y + i * pitch, set-line(line)) }
     }
   }
 }
@@ -969,15 +969,15 @@
   set page(width: page-width, height: page-height, margin: 0pt, fill: paper)
   set text(lang: r.locale.split("-").first(), region: if "-" in r.locale { r.locale.split("-").last() } else { none },
     font: sans, size: sizes.text, fill: ink, stretch: 100%)
-  set par(leading: 6.6pt, spacing: 6.6pt)
+  set par(leading: _text.leading, spacing: _text.leading)
   show heading: it => place(hide(it.body))
   pdf.attach(_shared.delivered.model, read(_shared.files.model, encoding: none), relationship: "source", mime-type: "application/json",
     description: words.attached)
 
   // Title page: the name and question on the left, the summary as a standfirst on the right, the byline below.
   [#heading(outlined: false, bookmarked: true, r.title) <archpub-cover>]
-  tx(margin, 64pt, _caps(words.edition), size: "small", weight: "semibold", fill: soft)
-  if r.subject.date != none { txr(page-width - margin, 64pt, 400pt, _caps(r.subject.date), size: "small", weight: "semibold", fill: soft) }
+  tx(margin, _baseline.label, _caps(words.edition), size: "small", weight: "semibold", fill: soft)
+  if r.subject.date != none { txr(page-width - margin, _baseline.label, 400pt, _caps(r.subject.date), size: "small", weight: "semibold", fill: soft) }
   _band(margin, 96pt, 900pt, 640pt, {
     set text(top-edge: "baseline", bottom-edge: "baseline")
     line(length: 72pt, stroke: 2.4pt + green)
@@ -1055,7 +1055,7 @@
   let number(value) = if value < 0 { "-" + str(-value) } else { str(value) }
   for p in r.plates {
     let items = p.marks.map(entry =>
-      box(if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(5pt)#entry.label]))
+      box(if entry.at("shape", default: none) == "reference" { entry.label } else [#_mark(entry)#h(_house.mark.gap * 1pt)#entry.label]))
     let set-key = text.with(size: sizes.small, fill: soft)
     context {
       let widest = calc.max(..items.map(item => measure(set-key(item)).width), 0pt)
@@ -1063,7 +1063,7 @@
       let height = whole(p.extent.height * _k + 2 * pad)
       let (x, y) = (p.extent.x * _k - pad, p.extent.y * _k - pad)
       page(width: width, height: auto, margin: 0pt, fill: none, {
-        set par(leading: 6.6pt, spacing: 0pt)
+        set par(leading: _text.leading, spacing: 0pt)
         block(width: width, height: height, spacing: 0pt, {
           let shown = (width / _k, height / _k).map(str)
           place(top + left, image(bytes("<svg xmlns='http://www.w3.org/2000/svg' width='" + shown.at(0) + "' height='"

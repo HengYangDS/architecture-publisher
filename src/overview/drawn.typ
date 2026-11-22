@@ -29,7 +29,7 @@
 /// the one before it at the pitch of a line and its spacing's item gap, so a list reads as one text in two columns.
 #let _spacing = (
   (head: 24pt, note: 24pt, channel: 24pt, label: 24pt, line: 16pt, under: 24pt, text: 24pt, row: 30pt, item: 8pt,
-    first: 24pt, lead: 24pt, size: "text", pitch: 16pt),
+    first: 24pt, lead: 24pt, size: "text", pitch: _text.pitch),
   (head: 21pt, note: 21pt, channel: 21pt, label: 21pt, line: 14pt, under: 21pt, text: 21pt, row: 14pt, item: 7pt,
     first: 21pt, lead: 21pt, size: "small", pitch: 14pt),
 )
@@ -43,7 +43,7 @@
 /// A rule across a row or a block, recorded as a line.
 #let _hrule(y, x0: margin, x1: page-width - margin) = {
   hrule(y, x0: x0, x1: x1)
-  [#metadata((kind: "line", points: ((x0.pt(), y.pt()), (x1.pt(), y.pt())), w: 0.8)) #label(_shared.labels.line)]
+  [#metadata((kind: "line", points: ((x0.pt(), y.pt()), (x1.pt(), y.pt())), w: _line.rule.pt())) #label(_shared.labels.line)]
 }
 
 /// An arrowhead pointing down or up at (x, y), recorded as a line as wide as its base.
@@ -57,7 +57,7 @@
 }
 
 /// A ring on a course, recorded as a mark of its kind for the publisher's checks.
-#let _ring(x, y, r: 5pt, w: 1.7pt, c: green) = {
+#let _ring(x, y, r: 5pt, w: _line.ring, c: green) = {
   ring(x, y, r: r, w: w, c: c)
   [#metadata((kind: "ring", x: x.pt(), y: y.pt(), r: r.pt())) #label(_shared.labels.mark)]
 }
@@ -67,7 +67,7 @@
 
 /// How far below its first baseline a text set within w ends, at its line pitch, justified when `spread`: measured
 /// on the box the class sets it in. Needs context.
-#let _depth(body, w, size: "text", font: sans, weight: "regular", pitch: 16pt, spread: false) = {
+#let _depth(body, w, size: "text", font: sans, weight: "regular", pitch: _text.pitch, spread: false) = {
   if body == none { return 0pt }
   measure(wrapped(body, w, (font: font, size: sizes.at(size), weight: weight, stretch: 100%), pitch: pitch,
     spread: spread)).height
@@ -383,7 +383,7 @@
       let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
       for k in range(p.tracks) {
         let offset = (k - (p.tracks - 1) / 2) * _track
-        _ring(p.x, line-y + offset, r: r, w: if p.tracks > 1 { 1.4pt } else { 1.7pt })
+        _ring(p.x, line-y + offset, r: r, w: if p.tracks > 1 { 1.4pt } else { _line.ring })
       }
     }
     // A fork the course goes on from: a bar down from the course before it, a path to each branch's ring, its name
