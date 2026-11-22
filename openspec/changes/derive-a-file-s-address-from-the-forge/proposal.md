@@ -34,7 +34,7 @@ None.
 
 Changed: `src/model/normalize.mjs`, `src/model/schema.json` (the template's description);
 `tests/model-input.test.mjs`, `tests/edition-class.test.mjs`, `tests/one-source.test.mjs`;
-`docs/reference/model.md`, `docs/reference/operations.md` and `CHANGELOG.md`. Not breaking: every model valid
+`docs/reference/model.md` and `CHANGELOG.md`. Not breaking: every model valid
 before is valid and builds as it did when it declares `browse` or states no GitHub or GitLab address. A model with
 such an address and no template, which had no links, gains them, and its manifest and data name the template. No
 bundled example or published work changes: the six works declare the template their address implies, and the

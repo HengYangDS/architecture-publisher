@@ -5,12 +5,12 @@
 
 ## 2. Nothing published changes
 
-- [x] 2.1 Build at the lane's base and at its head, with one `SOURCE_DATE_EPOCH` and the default widths: the bundled `examples/big-bank`, and the publications' `architecture-publisher` work in both its languages with its checkout at its pin. Done when `archpub compare` reports each of the three pairs identical. compare big-bank exit 0: identical; manifest same compare architecture-publisher-zh exit 0: identical; manifest same compare architecture-publisher-en exit 0: identical; manifest same END identical 
+- [x] 2.1 Build at the lane's base and at its head, with one `SOURCE_DATE_EPOCH` and the default widths: the bundled `examples/big-bank`, and the publications' `architecture-publisher` work in both its languages with its checkout at its pin. Done when `archpub compare` reports each of the three pairs identical. compare big-bank exit 0: identical; manifest same compare architecture-publisher-zh exit 0: identical; manifest same compare architecture-publisher-en exit 0: identical; manifest same END identical
 - [x] 2.2 Run the test files the Change reaches (`affected-tests.py`): the light ones one at a time, among them `model-input`, `edition-class`, `edition-contents` and `edition-index`, and those on the host's heavy list, among them `edition-plates`, `delivery` and `delivery-data`, under one ticket of the host's queue. Done when every one passes, none changed but those 1.1 and 1.2 name. The light files the Change reaches pass (END heavy exit 0 ℹ pass 100 ℹ fail 0 in 143 s), and the heavy ones under one ticket.
 
 ## 3. Records
 
-- [x] 3.1 Say in `docs/reference/model.md` and `docs/reference/operations.md` which addresses imply the template, and record the Change under `Unreleased`, `Added`, in `CHANGELOG.md`. Done when `npm run check:static` passes. Done in the lane; the check of its task passes.
+- [x] 3.1 Say in `docs/reference/model.md` which addresses imply the template (the operations reference reads the normalized template, which holds the derived one, and stays as it was), and record the Change under `Unreleased`, `Added`, in `CHANGELOG.md`. Done when `npm run check:static` passes. Done in the lane; the check of its task passes.
 
 ## 4. Release 0.17.0
 
