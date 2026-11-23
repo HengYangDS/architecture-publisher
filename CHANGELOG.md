@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The suite keeps Archify's answers between its runs on a machine, for a week: a run with them took 130 s where
+  one without took 240 s, and started Archify 138 times instead of 4332.
 - `npm test` runs as many test files at once as the machine's cores carry, two at least and four at most
   (`tools/test/suite.mjs`): four on an eighteen-core host, where the whole suite took 156 s against 250 s at two.
 - The queue's item `performance` stands before the open rest of `edition-map`: this publisher's proofs took 13.0

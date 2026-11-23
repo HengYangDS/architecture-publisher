@@ -141,10 +141,12 @@ headless browser; CI requires it.
 
 The suite's files are processes of their own and build the same fixtures. Unless
 the caller names a directory of Archify's answers, the environment fixture
-names one for the run (`tests/fixtures/archify-answers.mjs`, through
-`ARCHPUB_ARCHIFY_ANSWERS`) and removes it when the run ends, so each candidate
-diagram of a fixture is measured once a run. A run ended by a signal leaves
-its directory, and a later run removes those a day old. Three tests count work and no seconds:
+names `archpub-test-answers` in the system's temporary directory
+(`tests/fixtures/archify-answers.mjs`, through `ARCHPUB_ARCHIFY_ANSWERS`) and
+keeps it between runs, so a candidate diagram is measured once on a machine
+until its answer is a week old. An answer is kept by everything it answers (the
+supply's digest, Node.js, the platform, the kind, the quality and the
+document), so a changed candidate is asked again. Three tests count work and no seconds:
 `tests/channel-conflicts.test.mjs` the reads of the channel solver's check,
 `tests/page-single-run.test.mjs` the runs of Archify a build and a check start
 for a page, and `tests/archify-answers.test.mjs` the runs a question starts

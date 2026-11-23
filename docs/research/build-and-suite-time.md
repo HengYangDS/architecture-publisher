@@ -165,6 +165,16 @@ a wider bound waits for a measurement under a ticket. Under the host's queue the
 run it admits (`ETHOS_HOST_CPU_CAP`): 14 with one slot, 7 with two (from 2026-11-23 10:45, the owner's measurement
 of two slots), where the suite runs two files.
 
+### Archify's answers kept between runs (2026-11-23)
+
+Measured under one ticket, 11:08 to 11:14, the host's two slots shared with another ticket, on a copy of `dev`
+with the answers kept between runs, the whole suite without coverage at two files: the first run, no answer kept,
+240 s, CPU 1249 s, Archify started 4332 times (792 s of its processes); the second, with the first run's 4044
+answers, 130 s, CPU 346 s, 138 times (20 s). Both runs passed all 660 tests. The second run's 138 are the
+candidates whose answer is no whole verdict or layout, which are never kept. By the timing of the five longest
+test files the same morning, Archify's processes were most of what those files spent their time on (one file
+started it 2116 times, 333 s). A run on a new machine or after a week pays the first run's cost once.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |
