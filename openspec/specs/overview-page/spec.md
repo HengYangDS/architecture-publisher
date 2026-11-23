@@ -232,7 +232,7 @@ SHALL stand in two columns.
 ### Requirement: An overview too tall for its page
 
 The page SHALL be laid out at the house's spacing, and at a closer one, with
-notes and texts a size smaller, when the first reaches below the foot. A page
+narrower gaps at the same sizes, when the first reaches below the foot. A page
 that fits at neither SHALL be refused with `overview_too_tall`, naming the
 first block that does not fit.
 
@@ -244,7 +244,7 @@ first block that does not fit.
 #### Scenario: A page that fits only closer
 
 - **WHEN** a statement's blocks reach below the foot at the house's spacing and not at the closer one
-- **THEN** the page is set at the closer spacing, its notes and texts a size smaller
+- **THEN** the page is set at the closer spacing, its items closer together and its sizes unchanged
 
 ### Requirement: Text clear of the page's lines
 
@@ -374,8 +374,8 @@ narrower column no line SHALL be reported.
 Every name, note, term, cell and text of the overview SHALL begin a whole
 number of 8 point modules from the left margin, and a text justified to its
 column SHALL end at one. Under a block's top and under a course's names, every
-step down to a baseline SHALL be a whole number of half lines of the page's
-spacing, and a name on two lines SHALL keep the pitch of the notes beside it.
+step down to a baseline SHALL be a whole number of half lines of the text's
+pitch, and a name on two lines SHALL keep the pitch of the notes beside it.
 
 #### Scenario: Two left edges that nearly meet
 
@@ -435,3 +435,16 @@ to reword the text so that its lines fill.
 
 - **WHEN** a line of a note would open a quarter of an em at each place to reach the note's longest line
 - **THEN** it is set as it is, flush left, and the build's warnings name no line of the note
+
+### Requirement: Three sizes with fixed roles
+
+Below its claim, which stands at the title's size as every page's title does,
+the overview page SHALL set its text in three sizes with fixed roles, at either
+spacing: step names and block titles at the head's size, to read across a room;
+names, notes, texts and items at the text's size, to read on a screen; labels,
+track names and plate numbers at the small size, to read when zoomed.
+
+#### Scenario: A page set at the closer spacing
+
+- **WHEN** a statement fits its page only at the closer spacing
+- **THEN** its notes, texts and items stand at the text's size, and the page sets no size but the title's, the head's, the text's and the small one
