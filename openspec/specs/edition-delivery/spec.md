@@ -504,7 +504,7 @@ each part lives or the paths.
 
 - **WHEN** a view's figure wires worse both at 80 percent of the width and below
   its summary
-- **THEN** the plate leaves its reading out, with the figure at the full body
+- **THEN** the figure keeps the full body, and the summary stands in the plate's head
 
 ### Requirement: Command help
 
@@ -1235,3 +1235,21 @@ A line back that would pass the margin SHALL be refused with `edition_text_wider
 
 - **WHEN** no element of the overview names a plate's views
 - **THEN** the plate's head has no line back
+
+### Requirement: An answer in the head band
+
+Where a plate's figure keeps the full body and sets no summary above it, the
+plate's head SHALL set its view's summary right of the title and of the
+question's line with its line back, 48 points clear of the wider, from the
+title's baseline at 17 points on a 24-point pitch, in three lines at most above
+the body. A longer one SHALL be refused with `edition_reading_too_long`.
+
+#### Scenario: A silent plate's answer
+
+- **WHEN** a view's figure can neither narrow nor shorten below its summary
+- **THEN** the summary begins on the title's baseline, clear of the question, and ends above the body
+
+#### Scenario: An answer too long for the head
+
+- **WHEN** the summary would take more than three lines there
+- **THEN** the build refuses with `edition_reading_too_long`
