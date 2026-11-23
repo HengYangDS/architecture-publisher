@@ -438,8 +438,7 @@ test("texts of one size in a row of blocks stand on one baseline or half a line 
     "the third",
     "the fourth",
   ];
-  const size = boxes.find(({ text }) => text === texts[0]).size;
-  const half = size === 12.5 ? 8 : 7;
+  const half = 8;
   for (const said of texts) {
     const away = Math.abs(baseline(said) - baseline(texts[0])) % half;
     assert.ok(
@@ -487,7 +486,7 @@ test("a name on two lines keeps the pitch of the notes beside it, at either spac
     assert.equal(name.b, short.b);
     assert.ok(name.h > 1.6 * name.size, "the name does not wrap");
     // The note under the short name begins where the long name's second line stands.
-    const pitch = note.size === 12.5 ? 16 : 14;
+    const pitch = 16;
     assert.ok(
       Math.abs(note.b - short.b - pitch) < 0.01,
       `the note begins ${note.b - short.b} pt under its name`,
@@ -495,6 +494,37 @@ test("a name on two lines keeps the pitch of the notes beside it, at either spac
     const lines = Math.round((name.h - name.size) / pitch) + 1;
     assert.equal(lines, 2, `the name's lines stand ${(name.h - name.size).toFixed(1)} pt apart`);
   }
-  const closer = (await drawn(tall)).boxes.find(({ text }) => text === "for people").size;
-  assert.equal(closer, 11, "the taller statement is not set at the closer spacing");
+  // The taller statement is set at the closer spacing, whose items stand 7 pt apart rather than 8.
+  const { boxes } = await drawn(tall);
+  const item = (said) => boxes.find(({ text }) => text === said).b;
+  assert.equal(item("text 1 of list 1") - item("text 0 of list 1"), 16 + 7);
+});
+
+test("the overview keeps three sizes at either spacing, each with its role", async () => {
+  // The owner's clause of `edition-map`: one size to read across a room, one on a screen, one when zoomed. The
+  // closer spacing narrows the gaps only; until 2026-11-23 it set notes and texts at the small size.
+  const statement = everyBlock();
+  // One list more than the page holds at the house's spacing: it is set at the closer one, items 7 pt apart.
+  const list = {
+    title: "List 1",
+    items: Array.from({ length: 6 }, (_, i) => [`term ${i}`, `text ${i} of list 1`]),
+  };
+  const tall = { ...statement, blocks: [...statement.blocks, list] };
+  for (const stated of [statement, tall]) {
+    const { boxes } = await drawn(stated);
+    const box = (said) => boxes.find(({ text }) => text === said);
+    const size = (said) => box(said).size;
+    if (stated === tall)
+      assert.equal(box("text 1 of list 1").b - box("text 0 of list 1").b, 16 + 7);
+    assert.deepEqual(
+      [...new Set(boxes.map((each) => each.size))].sort((a, b) => b - a),
+      [34, 18, 12.5, 11],
+    );
+    assert.equal(size(stated.claim), 34, "the claim is not read across a room");
+    assert.equal(size(stated.course.steps[0].label), 18, "a step's name is not read across a room");
+    assert.equal(size(stated.blocks[0].title), 18, "a block's title is not read across a room");
+    for (const said of ["Log", "for people", stated.blocks[0].text])
+      assert.equal(size(said), 12.5, `${said} is not read on a screen`);
+    assert.equal(size(stated.course.lines[0].label), 11, "a line's label is not read when zoomed");
+  }
 });

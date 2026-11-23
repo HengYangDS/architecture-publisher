@@ -338,8 +338,8 @@ The publisher draws the overview from the model's
 wide as what it holds, and the blocks in the order stated, in halves and thirds
 chosen by measured height. A point or a block that names its view is followed by
 its plate's number, a link in the edition. A text of more than one line is
-justified. A page too tall at the house's spacing is set closer, notes and texts
-a size smaller, and one too tall at both is refused with `overview_too_tall`,
+justified. A page too tall at the house's spacing is set closer, at the same
+sizes, and one too tall at both is refused with `overview_too_tall`,
 naming the first block that does not fit; the rows share the height they leave,
 so the page is full. The page is drawn in a root Typst may not leave, with the
 house faces, Noto Sans CJK SC and no package; each text's glyph box must stay 48

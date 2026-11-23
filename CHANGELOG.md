@@ -9,6 +9,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The overview keeps three sizes when a page runs long: the closer spacing narrows only the gaps, and notes and
+  texts no longer drop a size. A statement that fitted only with smaller notes is now refused with
+  `overview_too_tall`, naming its first block that does not fit; the publications shortened the four overviews
+  that did, two works in both languages.
 - The suite keeps Archify's answers between its runs on a machine, for a week: a run with them took 130 s where
   one without took 240 s, and started Archify 138 times instead of 4332.
 - `npm test` runs as many test files at once as the machine's cores carry, two at least and four at most
