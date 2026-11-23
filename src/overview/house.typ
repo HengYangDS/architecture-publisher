@@ -1036,6 +1036,25 @@
         tx(x, _baseline.lead, link(label(r.front.key), back), fill: green)
       }
     }
+    // The answer of a plate whose figure keeps the full body: right of the title and of the question's line with its
+    // line back, from the title's baseline, at most three lines above the body.
+    if p.answer != none {
+      let (size, pitch) = (_view-summary.size, _view-summary.pitch)
+      context {
+        let lead = text.with(size: _size("text"), font: sans)
+        let question = measure(lead(p.question)).width
+        let back = if p.back == none { 0pt } else { 24pt + measure(lead("↖ " + p.back)).width }
+        let title = measure(text(font: display, size: sizes.title, p.title)).width
+        let x = _e.claim * 1pt + calc.max(title, question + back) + 48pt
+        let w = page-width - margin - x
+        let answer = prose(w, p.answer, size: size, font: serif, pitch: pitch, bound: false)
+        let height = measure(answer).height
+        if w < 8 * size or height > 2 * pitch + 0.5pt { panic("edition_reading_too_long: " + p.title) }
+        place(top + left, dx: x, dy: _baseline.title, answer)
+        let (ascent, descent) = _extent(_style(size, serif, "regular", ink, "normal"), p.answer)
+        _record(x, _baseline.title - ascent, w, height + ascent + descent, p.answer, size, _baseline.title)
+      }
+    }
     _plate(p, words)
     _key(p.marks, p.title)
     edition-foot()

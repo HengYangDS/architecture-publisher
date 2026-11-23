@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- Every plate prints its answer: where the figure keeps the full body and no summary stands above it, the view's
+  summary stands in the plate's head, right of the title and the question, three lines at most.
 - A plate's head links back to the overview: after the question, the overview's element that names the plate's
   view, or the overview by name where that element bears the plate's title.
 - The overview keeps three sizes when a page runs long: the closer spacing narrows only the gaps, and notes and

@@ -132,6 +132,8 @@ export function editionRecord(input) {
       figureHeight: plate.height,
       extent: plate.extent,
       summary: ["set", "above"].includes(plate.reading) ? (plate.summary ?? null) : null,
+      // A figure that keeps the full body and sets no summary above it: the answer stands in the plate's head.
+      answer: plate.reading === "omitted" ? (plate.summary ?? null) : null,
       // Above a figure that keeps the full width: the summary alone, and the lines the engine broke it into.
       standfirst: plate.reading === "above" ? plate.standfirst.lines : null,
       places,
