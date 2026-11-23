@@ -235,7 +235,10 @@ compiled: gitlab: {
 peers: github: {
 	repository: "HengYangDS/architecture-publisher"
 	workspace:  "${{ github.workspace }}"
-	events: {pull_request: null, push: null, workflow_dispatch: null}
+	// No run for a push of dev, as on GitLab (the owner's trial, widened to GitHub on 2026-11-23 and measured on
+	// 2026-12-06): dev is published only at a commit a proposal branch has run with the same commands. Tags still
+	// run; a push filter that named branches alone would drop them.
+	events: {pull_request: null, push: {"branches-ignore": ["dev"], tags: ["**"]}, workflow_dispatch: null}
 	permissions: contents: "read"
 	trust: {
 		review:    "${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' && !github.ref_protected) }}"

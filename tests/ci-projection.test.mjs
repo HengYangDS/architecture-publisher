@@ -242,6 +242,8 @@ test("the selected peer invokes the shared quality and projection owners on all 
   assert.deepEqual(github, compiled.github.document);
   assert.deepEqual(github.permissions, { contents: "read" });
   assert.deepEqual(Object.keys(github.on), ["pull_request", "push", "workflow_dispatch"]);
+  // No run for a push of dev, as on GitLab; every other branch and every tag still runs.
+  assert.deepEqual(github.on.push, { "branches-ignore": ["dev"], tags: ["**"] });
   // Every platform runs the shared acceptance as it is, after the shared preparation.
   assert.deepEqual(common.script, [...shared.preparation, ...shared.acceptance]);
   for (const platform of shared.platforms) {

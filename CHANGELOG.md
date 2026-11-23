@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- GitHub runs no workflow for a push of `dev`, as GitLab runs no pipeline for one: each Forge verifies a commit once,
+  on its proposal branch. Every other branch and every tag still runs.
 - The suite keeps Archify's answers between its runs on a machine, for a week: a run with them took 130 s where
   one without took 240 s, and started Archify 138 times instead of 4332.
 - `npm test` runs as many test files at once as the machine's cores carry, two at least and four at most

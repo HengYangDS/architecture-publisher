@@ -126,6 +126,11 @@ it saves about 16.8 hours a week, 16.6 of `dev` and 1.2 of tags less about one f
 pipelines' time. It is measured again on 2026-12-06 by the same count, the failures and the slot's hours, before
 it is kept, reverted or offered to the other repositories ETHOS governs.
 
+On 2026-11-23 the owner widened the trial to GitHub: it runs no workflow for a push of `dev` either. A landing had
+waited for GitHub's second run of a commit its proposal had passed: the width Change's commit ran 38 minutes on
+its proposal branch and 38 again on `dev`, and `dev` was green 39 minutes after its push. Tags still run. GitHub's
+half is measured with GitLab's on 2026-12-06.
+
 ### The Linux job's download of Chromium (2026-11-22)
 
 Read from the logs of the Linux jobs of the same 66 pipelines: each of the 65 jobs whose log shows the step

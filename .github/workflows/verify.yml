@@ -3,7 +3,11 @@
 name: Architecture Publisher verification
 on:
   pull_request: null
-  push: null
+  push:
+    branches-ignore:
+      - dev
+    tags:
+      - "**"
   workflow_dispatch: null
 permissions:
   contents: read
