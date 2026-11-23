@@ -25,6 +25,7 @@ variables:
   MISE_CACHE_DIR: $CI_PROJECT_DIR/build/runtime/tool-cache/mise/cache
   MISE_TRUSTED_CONFIG_PATHS: $CI_PROJECT_DIR
   PLAYWRIGHT_BROWSERS_PATH: $CI_PROJECT_DIR/build/runtime/tool-cache/playwright
+  ARCHPUB_ARCHIFY_ANSWERS_ROOT: $CI_PROJECT_DIR/build/runtime/tool-cache
 stages:
   - verify
 .verify-native:

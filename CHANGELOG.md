@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- CI keeps Archify's answers between runs: in the tool cache on the guests, and in GitHub's cache on its hosted
+  jobs, where `npm run check` had asked Archify anew in every job (26 min on Windows ARM64).
 - GitHub runs no workflow for a push of `dev`, as GitLab runs no pipeline for one: each Forge verifies a commit once,
   on its proposal branch. Every other branch and every tag still runs.
 - The suite keeps Archify's answers between its runs on a machine, for a week: a run with them took 130 s where

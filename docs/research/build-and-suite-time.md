@@ -131,6 +131,14 @@ waited for GitHub's second run of a commit its proposal had passed: the width Ch
 its proposal branch and 38 again on `dev`, and `dev` was green 39 minutes after its push. Tags still run. GitHub's
 half is measured with GitLab's on 2026-12-06.
 
+### Archify's answers in CI (2026-11-23)
+
+Every hosted GitHub job is a fresh machine and the Linux guest a fresh container, so the answers kept on a machine
+never reached them. In run 45125291928 `npm run check` took 26.1 min on Windows ARM64, 19.6 on Windows x64, 15.3 on
+macOS and 14 on Linux; every other step under 3 min. The Windows and macOS guests, which keep their temporary
+directory, already gained (pipeline 17410: 14.8 and 7.2 min, against 26.3 and 12.9 that morning). From this
+Change the answers stand in the tool cache on every Forge, and GitHub restores them from its cache.
+
 ### The Linux job's download of Chromium (2026-11-22)
 
 Read from the logs of the Linux jobs of the same 66 pipelines: each of the 65 jobs whose log shows the step
