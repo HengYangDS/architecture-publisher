@@ -402,21 +402,29 @@ export async function candidateAnswer(file, document, { layout, whole }) {
     quality,
     ...(layout ? ["--layout-json"] : []),
   ];
+  return keptAnswer(
+    [layout ? "layout" : "verdict", quality, document],
+    async () => (await runArchify(args)).answer,
+    whole,
+  );
+}
+
+/**
+ * An answer of Archify's kept in the directory the environment names, by a SHA-256 of the supply's digest, the
+ * Node.js and platform that run Archify, and the parts given, which hold everything else the answer depends on: read
+ * when a whole one is there, else asked and, when whole, kept. Without the directory, asked.
+ * @param {readonly unknown[]} parts
+ * @param {() => Promise<any>} ask
+ * @param {(answer: any) => boolean} whole
+ */
+export async function keptAnswer(parts, ask, whole) {
   const store = process.env[ANSWERS];
-  if (!store) return (await runArchify(args)).answer;
+  if (!store) return ask();
   await holdsAnswers(store);
   const supply = await verifySupply("archify");
   const key = createHash("sha256")
     .update(
-      JSON.stringify([
-        supply.sha256,
-        process.version,
-        process.platform,
-        process.arch,
-        layout ? "layout" : "verdict",
-        quality,
-        document,
-      ]),
+      JSON.stringify([supply.sha256, process.version, process.platform, process.arch, ...parts]),
     )
     .digest("hex");
   const kept = path.join(store, `${key}.json`);
@@ -426,7 +434,7 @@ export async function candidateAnswer(file, document, { layout, whole }) {
   } catch {
     // Not kept yet, or no answer: Archify is asked.
   }
-  const { answer } = await runArchify(args);
+  const answer = await ask();
   if (!whole(answer)) return answer;
   // Written beside its place and moved there, so no reader meets half an answer. A write that fails keeps
   // nothing: a full disk, a directory removed meanwhile or a file another program holds costs a later question.
@@ -467,21 +475,20 @@ function holdsAnswers(store) {
 
 /**
  * Run the vendored Archify CLI and return its JSON answer, also when it exits
- * with a refusal.
+ * with a refusal. `started` is told once Archify's process has begun.
  * @param {string[]} args
+ * @param {{ started?: () => void }} [options]
  */
-export async function runArchify(args) {
+export async function runArchify(args, options = {}) {
   const supply = await verifySupply("archify");
   try {
-    const { stdout } = await run(
-      process.execPath,
-      [path.join(supply.root, "bin", "archify.mjs"), ...args],
-      {
-        env: childEnvironment({ ARCHIFY_UPDATE_CHECK_DISABLED: "1" }),
-        maxBuffer: 16 * 1024 * 1024,
-        timeout: 300_000,
-      },
-    );
+    const running = run(process.execPath, [path.join(supply.root, "bin", "archify.mjs"), ...args], {
+      env: childEnvironment({ ARCHIFY_UPDATE_CHECK_DISABLED: "1" }),
+      maxBuffer: 16 * 1024 * 1024,
+      timeout: 300_000,
+    });
+    options.started?.();
+    const { stdout } = await running;
     return { supply, answer: JSON.parse(stdout) };
   } catch (error) {
     const failure = /** @type {any} */ (error);

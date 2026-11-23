@@ -9,7 +9,9 @@ import path from "node:path";
  * candidate diagrams no earlier run asked for. On 2026-11-23 one test file started Archify 2116 times, 333 s of its
  * processes' time. The process that finds no directory named names this one to every process it starts: the runner
  * of `node --test`, or a test file run on its own. An answer written more than a week ago is removed by the next run,
- * which asks again; a run that cannot remove one changes nothing of what it measures.
+ * which asks again; a run that cannot remove one changes nothing of what it measures. The directory stands under
+ * `ARCHPUB_ARCHIFY_ANSWERS_ROOT` where that is set (CI's tool cache, which a job's clean spares), else under the
+ * system's temporary directory.
  */
 const VARIABLE = "ARCHPUB_ARCHIFY_ANSWERS";
 const NAME = "archpub-test-answers";
@@ -25,7 +27,7 @@ function remove(entry) {
 }
 
 if (!process.env[VARIABLE]) {
-  const home = os.tmpdir();
+  const home = process.env.ARCHPUB_ARCHIFY_ANSWERS_ROOT || os.tmpdir();
   const directory = path.join(home, NAME);
   try {
     // The directories a run of the suite made for itself until 2026-11-23 (`archpub-test-answers-<suffix>`).

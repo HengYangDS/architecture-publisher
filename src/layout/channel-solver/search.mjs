@@ -29,9 +29,9 @@ const PAIRS = 1 << 22;
 
 /**
  * Route defects of one assignment, measured on the channel drawn between the
- * cards beside it.
+ * cards beside it, counted as far as `limit`.
  */
-function routesOf(channel, assignment, rows, spacing) {
+function routesOf(channel, assignment, rows, spacing, limit) {
   const solution = finish(channel, assignment, rows, spacing);
   const { paths, labels } = channelGeometry(channel, solution, 0, solution.height, 0, spacing);
   /** @returns {Array<[string, any]>} */
@@ -40,7 +40,22 @@ function routesOf(channel, assignment, rows, spacing) {
     ...beside(channel.beside?.upper, -FAR),
     ...beside(channel.beside?.lower, solution.height),
   ]);
-  return measureRoutes({ cards, paths, labels }).length;
+  return measureRoutes({ cards, paths, labels }, limit).length;
+}
+
+/**
+ * The fewest route defects with which an assignment of the score `unmeasured`
+ * before its measure scores no better than `best`: where its count can stop.
+ * It is found by the comparison the search makes, so a count stopped there
+ * decides as the whole count would.
+ * @param {number} unmeasured
+ * @param {number | undefined} best
+ */
+function losing(unmeasured, best) {
+  if (best === undefined) return Infinity;
+  let count = Math.max(0, Math.floor((best - unmeasured) / ROUTE_DEFECT) - 1);
+  while (unmeasured + count * ROUTE_DEFECT < best) count += 1;
+  return count;
 }
 
 /**
@@ -140,7 +155,11 @@ function search(
           up,
           low,
         };
-        const routes = measured ? routesOf(channel, assignment, rows, spacing) : 0;
+        // An assignment loses once its defects bring its score to the best one's, so they are counted no
+        // further; the best keeps its whole count, which stays below that.
+        const routes = measured
+          ? routesOf(channel, assignment, rows, spacing, losing(unmeasured, best?.score))
+          : 0;
         const score = unmeasured + routes * ROUTE_DEFECT;
         if (!best || score < best.score) best = { ...assignment, score, routes };
         return;

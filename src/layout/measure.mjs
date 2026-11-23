@@ -161,11 +161,13 @@ export function measureLayout(geometry) {
 
 /**
  * Route defects of part of a layout, such as one channel and the cards beside
- * it, by the same measure as the whole.
+ * it, by the same measure as the whole. Given a limit, the measure stops once
+ * it has found that many: the first of those it finds without one.
  * @param {Parameters<typeof routeDefects>[0]} geometry
+ * @param {number} [limit]
  */
-export function measureRoutes(geometry) {
-  return routeDefects(geometry, segmentsOf(geometry.paths));
+export function measureRoutes(geometry, limit = Infinity) {
+  return routeDefects(geometry, segmentsOf(geometry.paths), limit);
 }
 
 /**
@@ -210,12 +212,15 @@ const staggered = ([a1, a2, b1, b2]) =>
  *   arrows?: Array<{ relations: Array<{ id: string }>, x: number, y: number }>,
  *   arrow?: number }} geometry `arrow` is the length of one arrowhead
  * @param {ReturnType<typeof segmentsOf>} segments
+ * @param {number} [limit] the most defects to find: the measure stops there
  * @returns {Array<{ code: string, relations: string, at: number[], apart?: number[] }>}
  *   `at` is a point of the layout where the defect lies, and `apart` how far a
  *   label stands from the other wire across and down
  */
-function routeDefects(geometry, segments) {
+function routeDefects(geometry, segments, limit = Infinity) {
   const found = [];
+  /** Adds a defect, and says whether as many are found as were asked for. */
+  const add = (defect) => found.push(defect) >= limit;
   // Two relations from one card or into one card read as its fan when in line.
   const fan = (s, u) =>
     s.relations.some((p) =>
@@ -264,15 +269,18 @@ function routeDefects(geometry, segments) {
       const b = segments[j];
       if (a.owner === b.owner || a.vertical !== b.vertical) continue;
       const code = between(a, b);
-      if (code)
-        found.push({
+      if (
+        code &&
+        add({
           code,
           relations: `${a.owner} ${b.owner}`,
           at: [
             (Math.max(a.x1, b.x1) + Math.min(a.x2, b.x2)) / 2,
             (Math.max(a.y1, b.y1) + Math.min(a.y2, b.y2)) / 2,
           ],
-        });
+        })
+      )
+        return found;
     }
   }
   // A turn beside a card's edge, within its span, reads as the wire leaving
@@ -288,12 +296,13 @@ function routeDefects(geometry, segments) {
             : y > card.y + 0.5 && y < card.y + card.height - 0.5
               ? Math.max(card.x - x, x - card.x - card.width)
               : Infinity;
-        if (across > 0 && across < ROUTE.join && !connects(id))
-          found.push({
-            code: "route_turn_by_card",
-            relations: `${owner(relations)} ${id}`,
-            at: [x, y],
-          });
+        if (
+          across > 0 &&
+          across < ROUTE.join &&
+          !connects(id) &&
+          add({ code: "route_turn_by_card", relations: `${owner(relations)} ${id}`, at: [x, y] })
+        )
+          return found;
       }
   }
   const arrows = geometry.arrows ?? [];
@@ -301,12 +310,15 @@ function routeDefects(geometry, segments) {
     for (let j = i + 1; j < arrows.length; j += 1) {
       const [p, q] = [arrows[i], arrows[j]];
       if (owner(p.relations) === owner(q.relations)) continue;
-      if (Math.hypot(p.x - q.x, p.y - q.y) < ROUTE.heads * (geometry.arrow ?? 0))
-        found.push({
+      if (
+        Math.hypot(p.x - q.x, p.y - q.y) < ROUTE.heads * (geometry.arrow ?? 0) &&
+        add({
           code: "route_arrows_close",
           relations: `${owner(p.relations)} ${owner(q.relations)}`,
           at: [(p.x + q.x) / 2, (p.y + q.y) / 2],
-        });
+        })
+      )
+        return found;
     }
   for (const label of geometry.labels) {
     const name = owner(label.relations);
@@ -326,7 +338,7 @@ function routeDefects(geometry, segments) {
           height: box.y2 - box.y1 + 1,
         })
       ) {
-        found.push({
+        const enough = add({
           code: "route_label_near_wire",
           relations: `${name} ${box.owner}`,
           at: [label.x + label.width / 2, label.y + label.height / 2],
@@ -335,6 +347,7 @@ function routeDefects(geometry, segments) {
             Math.max(0, box.y1 - label.y - label.height, label.y - box.y2),
           ],
         });
+        if (enough) return found;
         break;
       }
     }
@@ -367,12 +380,15 @@ function routeDefects(geometry, segments) {
           );
         }),
     );
-    if (turn)
-      found.push({
+    if (
+      turn &&
+      add({
         code: "route_label_over_turn",
         relations: `${name} ${owner(turn.relations)}`,
         at: [label.x + label.width / 2, label.y + label.height / 2],
-      });
+      })
+    )
+      return found;
   }
   return found;
 }

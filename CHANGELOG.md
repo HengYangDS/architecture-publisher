@@ -13,6 +13,21 @@ remain pre-release contracts and may contain incompatible changes.
   texts no longer drop a size. A statement that fitted only with smaller notes is now refused with
   `overview_too_tall`, naming its first block that does not fit; the publications shortened the four overviews
   that did, two works in both languages.
+- The queue's item `performance` is finished: a build of ETHOS's Chinese edition took 33 s on 2026-11-23 and 397 s
+  on 2026-11-18, each built alone, and the suite 98 s at two files where it took 140 s that afternoon. The largest
+  cause left is Archify's run for the page, reported to Archify.
+- A build starts its page's run of Archify once its views are planned, so the run goes on while the plates are laid
+  out: ETHOS's Chinese edition builds about 16 % faster, with the same files.
+- A channel's search stops counting an assignment's route defects once they show it has lost: ETHOS's Chinese
+  edition builds about 12 % faster, with the same files.
+- A build makes its page beside its edition: Archify's run for the page and Typst's for the edition no longer wait
+  for one another.
+- Where Archify's answers are kept, a generated page's delivery is kept too: the suite had asked Archify 175 times,
+  63 s of its 140 s, mostly to deliver pages it had delivered before.
+- CI keeps Archify's answers between runs: in the tool cache on the guests, and in GitHub's cache on its hosted
+  jobs, where `npm run check` had asked Archify anew in every job (26 min on Windows ARM64).
+- GitHub runs no workflow for a push of `dev`, as GitLab runs no pipeline for one: each Forge verifies a commit once,
+  on its proposal branch. Every other branch and every tag still runs.
 - The suite keeps Archify's answers between its runs on a machine, for a week: a run with them took 130 s where
   one without took 240 s, and started Archify 138 times instead of 4332.
 - `npm test` runs as many test files at once as the machine's cores carry, two at least and four at most

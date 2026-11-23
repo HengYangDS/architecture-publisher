@@ -177,7 +177,10 @@ last one's proposal holds them all. A release commit is verified again when `mai
 moves. Before a
 release its holder starts one pipeline of `dev` through GitLab's API, which runs
 the protected jobs, and releases only when it passes. GitHub, which does not run
-on this host's guests, runs on every push and tag.
+on this host's guests, runs no workflow for a push of `dev` either, and runs on
+every other push and on every tag.
+Archify's answers to the suite's candidate diagrams stand in the tool cache,
+kept between a guest's jobs and restored on GitHub from its cache.
 Each job installs Chromium through Playwright, admits it by opening the browser
 test's standalone page alone, runs the archive command journey and runs
 `npm run check`, whose suite measures the delivered pages in the browser once.

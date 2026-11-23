@@ -242,6 +242,33 @@ test("the selected peer invokes the shared quality and projection owners on all 
   assert.deepEqual(github, compiled.github.document);
   assert.deepEqual(github.permissions, { contents: "read" });
   assert.deepEqual(Object.keys(github.on), ["pull_request", "push", "workflow_dispatch"]);
+  // Archify's answers stand in the tool cache on every Forge; a hosted job restores them before the suite.
+  assert.equal(
+    pipeline.variables.ARCHPUB_ARCHIFY_ANSWERS_ROOT,
+    "$CI_PROJECT_DIR/build/runtime/tool-cache",
+  );
+  assert.equal(
+    github.env.ARCHPUB_ARCHIFY_ANSWERS_ROOT,
+    "${{ github.workspace }}/build/runtime/tool-cache",
+  );
+  for (const [name, job] of Object.entries(github.jobs).filter(([, one]) => one.steps)) {
+    const cached = job.steps.some((step) => String(step.uses).startsWith("actions/cache@"));
+    assert.equal(
+      cached,
+      name.endsWith("-review"),
+      `${name}: only a review job restores the answers`,
+    );
+    if (!cached) continue;
+    const cache = job.steps.findIndex((step) => String(step.uses).startsWith("actions/cache@"));
+    const check = job.steps.findIndex((step) => step.run === "mise exec -- npm run check");
+    assert.ok(
+      cache >= 0 && cache < check,
+      `${job.name}: the answers are restored before the suite`,
+    );
+    assert.equal(job.steps[cache].with.path, "build/runtime/tool-cache/archpub-test-answers");
+  }
+  // No run for a push of dev, as on GitLab; every other branch and every tag still runs.
+  assert.deepEqual(github.on.push, { "branches-ignore": ["dev"], tags: ["**"] });
   // Every platform runs the shared acceptance as it is, after the shared preparation.
   assert.deepEqual(common.script, [...shared.preparation, ...shared.acceptance]);
   for (const platform of shared.platforms) {

@@ -11,7 +11,7 @@ relations:
 A research page. It records the first measurement of what a build, the suite and one landing cost, taken on
 2026-11-18 after the owner asked whether the product had been optimised, and each change measured against it
 since. It decides nothing; the decisions that rest on it are in the designs of the Changes of the queue item
-`performance`, the first of them `decide-a-conflict-on-two-rows`.
+`performance`, the first of them `remove-three-measured-costs-of-a-build-and-the-suite`.
 
 ## Question
 
@@ -126,6 +126,19 @@ it saves about 16.8 hours a week, 16.6 of `dev` and 1.2 of tags less about one f
 pipelines' time. It is measured again on 2026-12-06 by the same count, the failures and the slot's hours, before
 it is kept, reverted or offered to the other repositories ETHOS governs.
 
+On 2026-11-23 the owner widened the trial to GitHub: it runs no workflow for a push of `dev` either. A landing had
+waited for GitHub's second run of a commit its proposal had passed: the width Change's commit ran 38 minutes on
+its proposal branch and 38 again on `dev`, and `dev` was green 39 minutes after its push. Tags still run. GitHub's
+half is measured with GitLab's on 2026-12-06.
+
+### Archify's answers in CI (2026-11-23)
+
+Every hosted GitHub job is a fresh machine and the Linux guest a fresh container, so the answers kept on a machine
+never reached them. In run 45125291928 `npm run check` took 26.1 min on Windows ARM64, 19.6 on Windows x64, 15.3 on
+macOS and 14 on Linux; every other step under 3 min. The Windows and macOS guests, which keep their temporary
+directory, already gained (pipeline 17410: 14.8 and 7.2 min, against 26.3 and 12.9 that morning). From this
+Change the answers stand in the tool cache on every Forge, and GitHub restores them from its cache.
+
 ### The Linux job's download of Chromium (2026-11-22)
 
 Read from the logs of the Linux jobs of the same 66 pipelines: each of the 65 jobs whose log shows the step
@@ -174,6 +187,65 @@ answers, 130 s, CPU 346 s, 138 times (20 s). Both runs passed all 660 tests. The
 candidates whose answer is no whole verdict or layout, which are never kept. By the timing of the five longest
 test files the same morning, Archify's processes were most of what those files spent their time on (one file
 started it 2116 times, 333 s). A run on a new machine or after a week pays the first run's cost once.
+
+### The suite's profile and the page's answer (2026-11-23)
+
+Profiled under one ticket at 17:09, the host's share seven cores, on a detached worktree of `dev`: the whole suite
+at two files, 140 s, every test passing. Archify ran 175 times for 63 s and Typst 658 times for 33 s; no test took
+more than 4.6 % of the tests' summed time. Two of the longest test files, run alone with the same recorder: the
+explainer page's delivery took 12.4 s in 8 runs, the candidates that are never kept 4.7 s in 24, the page's
+validation 2.7 s in 4. From this Change a generated page's delivery is kept as the candidates' answers are.
+
+### The two media of a build (2026-11-23)
+
+The build's children, recorded under one ticket for ETHOS's Chinese edition (51.8 s): the page's Archify run 36.9
+to 46.5 s, then the edition's Typst runs 46.6 to 50.9 s, one after the other. The page needs the planned views, not
+the edition, so from this Change a build starts its page where it prepares it and awaits it to write it.
+
+### An assignment measured until it loses (2026-11-23)
+
+Node's CPU profile of a build of ETHOS's Chinese edition (59.5 s under the profiler) gave the channel search's measuring of the
+assignments it completes 10.25 s, 17.2 %, of it the route measure 6.00 s. An assignment loses once its defects
+bring its score to the best one's, yet each was measured whole. From this Change the measure stops at a count it
+is given, and the search gives it the fewest defects that lose, found by the comparison it makes. Measured under
+one ticket on 2026-11-23: the twelve published works built with and without it, two at a time, identical file
+by file, 326 s summed before and 279 s after; ETHOS's Chinese edition alone 34.9 and 36.0 s before, 30.9 and
+31.5 s after.
+
+### The page beside the plates (2026-11-23)
+
+The build's children, recorded under one ticket for ETHOS's Chinese edition at `006e2902` (36.2 s): the publisher's
+process planned and laid out the plates from 0 to 22.4 s, then the page's Archify run went from 23.7 to 35.3 s
+beside the edition's Typst runs, 23.7 to 28.6 s. The page needs the planned views, not the plates, so from this
+Change a build starts its page once its views are planned and waits only until Archify's process has begun. Measured
+under one ticket: the twelve published works built with and without it, two at a time, identical file by file, 379 s
+summed before and 300 s after; ETHOS's Chinese edition alone 39.2 and 38.8 s before, 32.9 and 33.0 s after, its
+page's Archify run going from 8.2 to 26.9 s, beside the plates' layout.
+
+### How the item ended (2026-11-23)
+
+Profiled under three tickets at 21:14 to 21:34, the host's share seven cores, on a detached worktree at `006e2902`,
+whose source is that of `2137d283`: one build of ETHOS's Chinese edition took 36.2 s, where it took 51.8 s at
+`1dc78eb6` the same afternoon. Its largest cause was Archify's one run for the page, 11.6 s, which is Archify's own
+time and was reported to Archify as [tt-a1i/archify#1468](https://github.com/tt-a1i/archify/issues/1468); 6.7 s of
+it came after the edition, since the page started after the plates' layout. Under Node's CPU profiler no function of
+the publisher's own holds a tenth of the build: the largest, the channel search's `walk`, spends 6.5 % of it in its
+own code; the search as a whole, the work of laying out the plates, is a third, and its file 14.5 %. The suite at
+two files took 98 s, where it took 140 s, all 664 tests passing: Archify ran 208 times for 39.4 s (a median of 121
+ms for each of its 173 candidate validations, mostly a process started), Typst 665 times for 26.8 s, and no test
+took more than 3.5 % of the tests' summed 170 s.
+
+The page's start after the plates was the last cause the publisher held, and `make-the-page-beside-the-plates`
+removes it, measured under one ticket: twelve of twelve pairs identical, 379 s summed before and 300 s after;
+ETHOS's Chinese edition 39.2 and 38.8 s before, 32.9 and 33.0 s after, its page's Archify run now going from 8.2 to
+26.9 s beside the plates' layout, so the build ends with the edition.
+
+The item's Changes, in order: `remove-three-measured-costs-of-a-build-and-the-suite`,
+`ask-a-channel-search-nothing-twice`, `keep-the-pages-archify-answer`, `make-the-two-media-side-by-side`,
+`stop-measuring-an-assignment-once-it-loses` and `make-the-page-beside-the-plates`; and, as maintenance, the suite's
+width, Archify's answers between runs and in CI, Chromium kept on the Linux guest, and each Forge verifying a commit
+once. The times stand here and are read at each landing; the tests that count work refuse each removed cost coming
+back.
 
 ## What was compared
 

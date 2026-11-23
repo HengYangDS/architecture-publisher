@@ -28,6 +28,8 @@ shared: {
 			MISE_CACHE_DIR:            "\(workspace)/build/runtime/tool-cache/mise/cache"
 			MISE_TRUSTED_CONFIG_PATHS: workspace
 			PLAYWRIGHT_BROWSERS_PATH:  "\(workspace)/build/runtime/tool-cache/playwright"
+			// Archify's answers stand in the tool cache, kept between a guest's jobs and, on GitHub, by `answers`.
+			ARCHPUB_ARCHIFY_ANSWERS_ROOT: "\(workspace)/build/runtime/tool-cache"
 		}
 	}
 	"verification": {
@@ -235,7 +237,10 @@ compiled: gitlab: {
 peers: github: {
 	repository: "HengYangDS/architecture-publisher"
 	workspace:  "${{ github.workspace }}"
-	events: {pull_request: null, push: null, workflow_dispatch: null}
+	// No run for a push of dev, as on GitLab (the owner's trial, widened to GitHub on 2026-11-23 and measured on
+	// 2026-12-06): dev is published only at a commit a proposal branch has run with the same commands. Tags still
+	// run; a push filter that named branches alone would drop them.
+	events: {pull_request: null, push: {"branches-ignore": ["dev"], tags: ["**"]}, workflow_dispatch: null}
 	permissions: contents: "read"
 	trust: {
 		review:    "${{ github.event_name == 'pull_request' || (github.ref_type == 'branch' && !github.ref_protected) }}"
@@ -287,6 +292,17 @@ peers: github: {
 			add_shims_to_path: false
 		}
 	}
+	// A hosted review job is a fresh machine: Archify's answers come back from GitHub's cache, the newest of the
+	// platform's, and the job's own are saved under a key of its run. An answer is keyed by everything it depends
+	// on, so an old one is only unused. A protected job runs without them, from nothing, as a release is verified.
+	answers: {
+		uses: "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9" // v6.1.0
+		with: {
+			path:           "build/runtime/tool-cache/archpub-test-answers"
+			key:            "archify-answers-${{ runner.os }}-${{ runner.arch }}-${{ github.run_id }}"
+			"restore-keys": "archify-answers-${{ runner.os }}-${{ runner.arch }}-"
+		}
+	}
 	artifacts: {
 		uses: "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9"
 		if:   "${{ always() }}"
@@ -324,6 +340,7 @@ compiled: github: {
 						steps: list.Concat([
 							[peer.checkout],
 							[if target.bootstrapEnv == _|_ {peer.bootstrap}, if target.bootstrapEnv != _|_ {peer.bootstrap & {env: target.bootstrapEnv}}],
+							[if role == "review" {peer.answers}],
 							[for command in native.before_script {run: command}],
 							[for command in list.Concat([shared.toolPreparation, system.readerPrerequisites, shared.readerPreparation, shared.acceptance]) {run: command}],
 							[peer.artifacts],

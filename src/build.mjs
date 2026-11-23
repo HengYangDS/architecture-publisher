@@ -160,6 +160,30 @@ const looseLines = (loose) =>
   }));
 
 /**
+ * Start a page and wait until its first run of Archify has begun, or until the page is done without one: the work
+ * that follows holds this process, and Archify's run goes on beside it in a process of its own.
+ * @param {(started: () => void) => Promise<any>} start
+ */
+async function begun(start) {
+  /** @type {() => void} */
+  let started = () => {};
+  const running = new Promise((resolve) => {
+    started = () => resolve(undefined);
+  });
+  const work = start(started);
+  work.catch(() => {});
+  await Promise.race([
+    running,
+    work.then(
+      () => {},
+      () => {},
+    ),
+  ]);
+  // Held in an object: an async function that returned the promise itself would wait for it.
+  return { work };
+}
+
+/**
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed. The listener is told each step as it is reached.
  * A build's page is prepared with its delivery, which Archify validates, writes and
@@ -202,6 +226,17 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
           },
         ]
       : [];
+  const { quality } = options;
+  // The page is the work's guide when the model names one, and the generated page otherwise.
+  const paged = media.includes("page");
+  const deliverAs = deliver ? filesOf(model.id).page : undefined;
+  /** @param {any[]} planned @returns {(started: () => void) => Promise<any>} */
+  const pageOf = (planned) => (started) =>
+    guide
+      ? guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs, started })
+      : explainerPage(model, planned, { quality, owned: facts.owned, deliver: deliverAs, started });
+  /** The page's work once started; set inside the plan, so held in an object the checker reads as it is typed. */
+  const begunPage = /** @type {{ work: Promise<any> | null }} */ ({ work: null });
   // Each view is one plate of the edition, laid out for its body, with the edition's strips as long as every view
   // can hold them.
   listener("planning views");
@@ -209,6 +244,10 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
     const planned = await planViews(model, async (view) =>
       admitsView(model, view, typefaces, icons, drawn),
     );
+    // The page needs the planned views and not the plates: it starts here, and its run of Archify goes on beside the
+    // plates' layout, which holds this process. A guide needs no view and starts once; a generated page starts again
+    // where shorter strips plan the views again.
+    if (paged && !(guide && begunPage.work)) begunPage.work = (await begun(pageOf(planned))).work;
     if (!printed) return { style: drawn, views: planned, plates: [] };
     listener("laying out the plates");
     return {
@@ -238,16 +277,11 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   const styleRecord = measuredOf(style)
     ? { ...chosenRecord, longest: longestOf(style) }
     : chosenRecord;
-  const { quality } = options;
-  // The page is the work's guide when the model names one, and the generated page otherwise.
-  const paged = media.includes("page");
   if (paged) listener("preparing the page");
-  const deliverAs = deliver ? filesOf(model.id).page : undefined;
-  const page = !paged
-    ? null
-    : guide
-      ? await guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs })
-      : await explainerPage(model, views, { quality, owned: facts.owned, deliver: deliverAs });
+  // A build's page is made beside its plates and its edition: the build awaits it to write the page, after the
+  // edition is typeset, where a page that fails fails. A check awaits it here.
+  const pageWork = begunPage.work;
+  const page = deliver ? null : await pageWork;
   const held = {
     loaded,
     model,
@@ -267,8 +301,9 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
     guide,
     publisher: await publisherVersion(),
   };
-  // The pinned edition is gathered and held to its invariants before a check reports and before a build writes.
-  return { ...held, pinned: pinnedEdition(held, options.png) };
+  // The pinned edition is gathered and held to its invariants before a check reports and before a build writes;
+  // a build gathers it again with its page.
+  return { ...held, pinned: pinnedEdition(held, options.png), pageWork: deliver ? pageWork : null };
 }
 
 /**
@@ -423,6 +458,8 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
       for (const { file, bytes } of edition.figures)
         await fs.writeFile(path.join(staging, file), bytes);
     }
+    // The page was started once its views were planned, beside the plates' layout and the edition's typesetting.
+    prepared.page = await prepared.pageWork;
     if (prepared.page) listener("delivering the page");
     // The page was delivered when it was prepared, in the one run of Archify that validated it: a build's page
     // holds its delivery.

@@ -32,10 +32,19 @@ cp.execFile = counted;
 syncBuiltinESMExports();
 const { buildDelivery, checkModel } = await import("../src/build.mjs");
 
-/** The runs on the page itself that `work` starts; a diagram's own measurement is another question. */
+/**
+ * The runs on the page itself that `work` starts, with no answers kept, so that every run is asked; a diagram's own
+ * measurement is another question.
+ */
 async function pageRuns(work) {
+  const kept = process.env.ARCHPUB_ARCHIFY_ANSWERS;
+  delete process.env.ARCHPUB_ARCHIFY_ANSWERS;
   runs.length = 0;
-  await work();
+  try {
+    await work();
+  } finally {
+    if (kept !== undefined) process.env.ARCHPUB_ARCHIFY_ANSWERS = kept;
+  }
   return runs.filter((run) => run.endsWith(" explainer"));
 }
 
