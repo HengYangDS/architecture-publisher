@@ -161,7 +161,9 @@ the vendored supply's sources.
 
 From this Change the suite runs as many files at once as the machine's cores over 2.5, two at least and four at
 most: four on the host, three on the Windows and macOS guests, two on the Linux guest. Four is the widest measured;
-a wider bound waits for a measurement under a ticket.
+a wider bound waits for a measurement under a ticket. Under the host's queue the cores are the share ETHOS gives the
+run it admits (`ETHOS_HOST_CPU_CAP`): 14 with one slot, 7 with two (from 2026-11-23 10:45, the owner's measurement
+of two slots), where the suite runs two files.
 
 ## What was compared
 

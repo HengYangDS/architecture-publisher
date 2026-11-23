@@ -32,6 +32,12 @@ launcher and passed it: 658 tests, 99.63 % of lines, no gap of its own.
    - Chosen because: the measured cores a file at four, 2.55; the bounds keep every machine at a measured width or
      between two measured ones.
    - Applies to: `tools/test/suite.mjs`, its test.
+3. Under the host's queue, the cores are the run's share, not the machine's.
+   - Rests on: ETHOS gives an admitted run `ETHOS_HOST_CPU_CAP`, the host's cores less those reserved over the slots;
+     from 2026-11-23 10:45 the host has two slots (the owner's measurement), so a run's share is 7 of 18 cores.
+   - Considered: the machine's cores alone, which at four files keeps about ten busy beside another admitted run.
+   - Chosen because: two runs admitted at once keep within the host; a guest, which gives no cap, uses its own cores.
+   - Applies to: `tools/test/suite.mjs`, its test.
 
 ## Risks / Trade-offs
 
