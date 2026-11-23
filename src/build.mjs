@@ -243,11 +243,15 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   const paged = media.includes("page");
   if (paged) listener("preparing the page");
   const deliverAs = deliver ? filesOf(model.id).page : undefined;
-  const page = !paged
+  const pageWork = !paged
     ? null
     : guide
-      ? await guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs })
-      : await explainerPage(model, views, { quality, owned: facts.owned, deliver: deliverAs });
+      ? guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs })
+      : explainerPage(model, views, { quality, owned: facts.owned, deliver: deliverAs });
+  // A build's page is made beside its edition: Archify's run starts here and the build awaits it to write the page,
+  // after the edition is typeset, where a page that fails fails. A check awaits it here.
+  pageWork?.catch(() => {});
+  const page = deliver ? null : await pageWork;
   const held = {
     loaded,
     model,
@@ -267,8 +271,9 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
     guide,
     publisher: await publisherVersion(),
   };
-  // The pinned edition is gathered and held to its invariants before a check reports and before a build writes.
-  return { ...held, pinned: pinnedEdition(held, options.png) };
+  // The pinned edition is gathered and held to its invariants before a check reports and before a build writes;
+  // a build gathers it again with its page.
+  return { ...held, pinned: pinnedEdition(held, options.png), pageWork: deliver ? pageWork : null };
 }
 
 /**
@@ -423,6 +428,8 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
       for (const { file, bytes } of edition.figures)
         await fs.writeFile(path.join(staging, file), bytes);
     }
+    // The page was started where it was prepared, beside the edition's typesetting.
+    prepared.page = await prepared.pageWork;
     if (prepared.page) listener("delivering the page");
     // The page was delivered when it was prepared, in the one run of Archify that validated it: a build's page
     // holds its delivery.

@@ -196,6 +196,12 @@ more than 4.6 % of the tests' summed time. Two of the longest test files, run al
 explainer page's delivery took 12.4 s in 8 runs, the candidates that are never kept 4.7 s in 24, the page's
 validation 2.7 s in 4. From this Change a generated page's delivery is kept as the candidates' answers are.
 
+### The two media of a build (2026-11-23)
+
+The build's children, recorded under one ticket for ETHOS's Chinese edition (51.8 s): the page's Archify run 36.9
+to 46.5 s, then the edition's Typst runs 46.6 to 50.9 s, one after the other. The page needs the planned views, not
+the edition, so from this Change a build starts its page where it prepares it and awaits it to write it.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |

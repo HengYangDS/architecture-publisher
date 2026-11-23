@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A build makes its page beside its edition: Archify's run for the page and Typst's for the edition no longer wait
+  for one another.
 - Where Archify's answers are kept, a generated page's delivery is kept too: the suite had asked Archify 175 times,
   63 s of its 140 s, mostly to deliver pages it had delivered before.
 - CI keeps Archify's answers between runs: in the tool cache on the guests, and in GitHub's cache on its hosted
