@@ -202,6 +202,16 @@ The build's children, recorded under one ticket for ETHOS's Chinese edition (51.
 to 46.5 s, then the edition's Typst runs 46.6 to 50.9 s, one after the other. The page needs the planned views, not
 the edition, so from this Change a build starts its page where it prepares it and awaits it to write it.
 
+### An assignment measured until it loses (2026-11-23)
+
+Node's CPU profile of a build of ETHOS's Chinese edition (59.5 s under the profiler) gave the channel search's measuring of the
+assignments it completes 10.25 s, 17.2 %, of it the route measure 6.00 s. An assignment loses once its defects
+bring its score to the best one's, yet each was measured whole. From this Change the measure stops at a count it
+is given, and the search gives it the fewest defects that lose, found by the comparison it makes. Measured under
+one ticket on 2026-11-23: the twelve published works built with and without it, two at a time, identical file
+by file, 326 s summed before and 279 s after; ETHOS's Chinese edition alone 34.9 and 36.0 s before, 30.9 and
+31.5 s after.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |

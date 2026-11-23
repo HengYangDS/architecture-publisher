@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A channel's search stops counting an assignment's route defects once they show it has lost: ETHOS's Chinese
+  edition builds in 31 s where it took 35, with the same files.
 - A build makes its page beside its edition: Archify's run for the page and Typst's for the edition no longer wait
   for one another.
 - Where Archify's answers are kept, a generated page's delivery is kept too: the suite had asked Archify 175 times,
