@@ -287,7 +287,7 @@ title wider than its line SHALL be refused with `edition_title_too_long`.
 
 ### Requirement: Plate head and key
 
-A plate's head SHALL be its number, its view's title and its question. Its key SHALL list what its figure shows and
+A plate's head SHALL be its number, its view's title, its question and its line back. Its key SHALL list what its figure shows and
 cannot say where it stands, and no more, on one line where the body holds it, its baseline at 850 points on every
 plate and each mark centred on its label's mid-line: what the age bands count from and the bands, the scale bar,
 the citation count, the hub, the boundary, the statuses and the ground of a part outside the repository. It SHALL
@@ -1212,3 +1212,26 @@ the page and of the data. It SHALL state no acceptance and no digest there.
 
 - **WHEN** an edition is built from a checkout of a model that states a repository's address
 - **THEN** the last page states the address, the number of files read, the page and the data on one line
+
+### Requirement: A line back to the overview
+
+Where an element of the overview names one of a plate's views, the plate's head
+SHALL carry a line back on the question's line, after the question: the words of
+the first such element in the statement's order, or the edition's word for the
+overview where those words are the plate's title, linked to the overview's page.
+A line back that would pass the margin SHALL be refused with `edition_text_wider`.
+
+#### Scenario: A block that names a view
+
+- **WHEN** a block titled Terms is the first element that names a plate's view
+- **THEN** the plate's head reads "↖ Terms" after its question, linked to the overview's page
+
+#### Scenario: An element bearing the plate's title
+
+- **WHEN** the first element that names a plate's view bears the plate's title
+- **THEN** the line back reads "↖" and the edition's word for the overview
+
+#### Scenario: A view the overview does not name
+
+- **WHEN** no element of the overview names a plate's views
+- **THEN** the plate's head has no line back
