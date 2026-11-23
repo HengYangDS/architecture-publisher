@@ -29,6 +29,7 @@ syncBuiltinESMExports();
 const { candidateAnswer } = await import("../src/map/archify.mjs");
 const { validateModel } = await import("../src/model/load.mjs");
 const { planViews } = await import("../src/plan/views.mjs");
+const { explainerPage } = await import("../src/map/explainer.mjs");
 
 const VARIABLE = "ARCHPUB_ARCHIFY_ANSWERS";
 const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
@@ -225,4 +226,19 @@ test("a build with answers kept delivers what a build without them delivers", as
   assert.ok(kept.length > 0);
   assert.deepEqual(await artifacts(build("warm", { [VARIABLE]: store })), without);
   assert.deepEqual(await written(), kept);
+});
+
+test("a generated page's delivery is kept by what it depends on, and the same page asks Archify nothing again", async (t) => {
+  const directory = await temporaryDirectory(t, "archpub-answers-");
+  named(t, path.join(directory, "kept"));
+  const model = validateModel(minimalModel());
+  const views = await planViews(model, async () => ({ fits: true, width: 2400, height: 1350 }));
+  const before = runs;
+  const first = await explainerPage(model, views, { deliver: "minimal.html" });
+  const asked = runs - before;
+  const again = await explainerPage(model, views, { deliver: "minimal.html" });
+  assert.ok(asked > 0, "the first page asked Archify nothing");
+  assert.equal(runs - before - asked, 0, "the same page asked Archify again");
+  assert.deepEqual(again.delivered.bytes, first.delivered.bytes);
+  assert.deepEqual(again.delivered.receipt, first.delivered.receipt);
 });

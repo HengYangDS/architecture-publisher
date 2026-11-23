@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- Where Archify's answers are kept, a generated page's delivery is kept too: the suite had asked Archify 175 times,
+  63 s of its 140 s, mostly to deliver pages it had delivered before.
 - CI keeps Archify's answers between runs: in the tool cache on the guests, and in GitHub's cache on its hosted
   jobs, where `npm run check` had asked Archify anew in every job (26 min on Windows ARM64).
 - GitHub runs no workflow for a push of `dev`, as GitLab runs no pipeline for one: each Forge verifies a commit once,

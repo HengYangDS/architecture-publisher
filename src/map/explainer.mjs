@@ -4,7 +4,7 @@ import path from "node:path";
 import { SPACE } from "../breaks.mjs";
 import { DEFAULT_LOCALE, detailText, sentences, wordsOf } from "../locale.mjs";
 import { refuse } from "../refusal.mjs";
-import { archifyIds, runArchify, viewCaption } from "./archify.mjs";
+import { archifyIds, keptAnswer, runArchify, viewCaption } from "./archify.mjs";
 import { chooseDiagram } from "./choice.mjs";
 
 /**
@@ -292,6 +292,34 @@ export async function explainerPage(model, views, options = {}) {
  * @param {{ repoRoot?: string | null }} [options]
  */
 export async function holdDelivery(page, file, options = {}) {
+  // A generated page delivered without a checkout depends on nothing but itself and the supply: it is kept as a
+  // candidate's answer is, its bytes as Base64. A refusal is never kept.
+  if (page.kind === "generated" && !options.repoRoot) {
+    const parts = ["page", file, page.draft, page.diagrams, page.quality, page.writing ?? null];
+    const held = await keptAnswer(
+      parts,
+      async () => {
+        const one = await holdOnce(page, file, options);
+        return one.delivered
+          ? { ...one.delivered, bytes: one.delivered.bytes.toString("base64") }
+          : one;
+      },
+      (answer) => typeof answer?.bytes === "string" && typeof answer?.supplySha256 === "string",
+    );
+    return typeof held?.bytes === "string"
+      ? { delivered: { ...held, bytes: Buffer.from(held.bytes, "base64") } }
+      : held;
+  }
+  return holdOnce(page, file, options);
+}
+
+/**
+ * One run of Archify that delivers the page and holds what it wrote, or the refusal.
+ * @param {any} page
+ * @param {string} file
+ * @param {{ repoRoot?: string | null }} options
+ */
+async function holdOnce(page, file, options) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-page-held-"));
   try {
     const { output, supplySha256, receipt } = await deliverExplainer(

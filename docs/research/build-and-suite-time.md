@@ -188,6 +188,14 @@ candidates whose answer is no whole verdict or layout, which are never kept. By 
 test files the same morning, Archify's processes were most of what those files spent their time on (one file
 started it 2116 times, 333 s). A run on a new machine or after a week pays the first run's cost once.
 
+### The suite's profile and the page's answer (2026-11-23)
+
+Profiled under one ticket at 17:09, the host's share seven cores, on a detached worktree of `dev`: the whole suite
+at two files, 140 s, every test passing. Archify ran 175 times for 63 s and Typst 658 times for 33 s; no test took
+more than 4.6 % of the tests' summed time. Two of the longest test files, run alone with the same recorder: the
+explainer page's delivery took 12.4 s in 8 runs, the candidates that are never kept 4.7 s in 24, the page's
+validation 2.7 s in 4. From this Change a generated page's delivery is kept as the candidates' answers are.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |
