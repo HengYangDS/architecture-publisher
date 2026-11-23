@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A plate's head links back to the overview: after the question, the overview's element that names the plate's
+  view, or the overview by name where that element bears the plate's title.
 - The overview keeps three sizes when a page runs long: the closer spacing narrows only the gaps, and notes and
   texts no longer drop a size. A statement that fitted only with smaller notes is now refused with
   `overview_too_tall`, naming its first block that does not fit; the publications shortened the four overviews

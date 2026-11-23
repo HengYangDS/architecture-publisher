@@ -67,6 +67,32 @@ function linkOf(browse, revision, file) {
  *   to, the number of files read, and the pin's date and release. `time` is the time the edition is dated by, in
  *   seconds, or none.
  */
+/**
+ * A plate's line back to the overview: the words of the first element of the statement that names one of its
+ * views (a block's title, a point's label or the label of the part it names), or the edition's word for the
+ * overview where those words are the plate's title; null where no element names one.
+ * @param {any} model
+ * @param {readonly string[]} views
+ * @param {string} title
+ * @param {string} overview the edition's word for the overview
+ */
+function backOf(model, views, title, overview) {
+  /** @type {string | null} */
+  let found = null;
+  const walk = (/** @type {any} */ node) => {
+    if (found !== null || !node || typeof node !== "object") return;
+    if (Array.isArray(node)) return node.forEach(walk);
+    if (typeof node.view === "string" && views.includes(node.view)) {
+      const part = model.components.find((/** @type {any} */ one) => one.id === node.part);
+      found = node.title ?? node.label ?? part?.label ?? overview;
+      return;
+    }
+    for (const value of Object.values(node)) walk(value);
+  };
+  walk(model.overview);
+  return found === title ? overview : found;
+}
+
 export function editionRecord(input) {
   const { model, plates, icons, facts, time: datedAt } = input;
   const { release } = facts;
@@ -112,6 +138,7 @@ export function editionRecord(input) {
       file: stagedPlate(plate.page),
       title: plate.title,
       question: plate.question,
+      back: input.overview ? backOf(model, plate.views, plate.title, words.overview) : null,
       alt: words.plate(number, plate.title, plate.question),
       runs: plate.runs,
       // A kind's mark is its icon; every other mark is its legend entry as the plate drew it, so the house class

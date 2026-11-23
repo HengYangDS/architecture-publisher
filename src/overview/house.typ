@@ -1025,6 +1025,17 @@
       panic("edition_title_too_long: " + p.title)
     }
     _head(p.number, p.title, lead: p.question, label-style: (size: "title", font: display, fill: green))
+    // The line back: after the question, on its line, the overview's element that names this plate's view.
+    if p.back != none {
+      let back = "↖ " + p.back
+      context {
+        let x = _e.claim * 1pt + measure(text(size: _size("text"), font: sans, p.question)).width + 24pt
+        if x + measure(text(size: _size("text"), font: sans, back)).width > page-width - margin + 0.5pt {
+          panic("edition_text_wider: " + back)
+        }
+        tx(x, _baseline.lead, link(label(r.front.key), back), fill: green)
+      }
+    }
     _plate(p, words)
     _key(p.marks, p.title)
     edition-foot()

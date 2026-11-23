@@ -224,7 +224,7 @@ The print edition is typeset by Typst 0.15.1 with the house class into
   release and revision, editors, licence and publisher;
 - contents: the overview's entry, scope, limits and reading note, then a linked row a plate, ten a half at most;
 - the overview, drawn from what the model states when it states one;
-- one plate per view, headed by its number, title and question, its figure
+- one plate per view, headed by its number, title and question and a link back to the overview, its figure
   beside the view's reading when it leaves part of the body or below it when it
   keeps the full width, with a key of what its figure shows and its cards do
   not say: the commit the age bands count from, whose date the foot states, the bands, a scale bar, a count of cited
