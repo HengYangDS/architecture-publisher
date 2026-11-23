@@ -337,7 +337,7 @@ one.
       house's measures each have one place that states them; a literal that restates a token of the house reads
       the token, and a measure the class repeats becomes a token. A test refuses each repetition that a search
       can find. No delivered byte changes.
-- [ ] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
+- [x] `performance`: a build, the suite and a pipeline take the time their work needs and no more. Each cause a
       profile shows is removed with every delivered byte unchanged, one cause to a commit, measured before and
       after under like conditions and recorded whether it is kept or taken back; the suite runs as wide as its
       machine allows; the two media of a build are made side by side where a measurement shows a gain; and what

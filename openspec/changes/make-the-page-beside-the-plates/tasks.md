@@ -12,4 +12,4 @@
 
 ## 4. The item's end
 
-- [ ] 4.1 Tick `performance` in `docs/product-contract.md`, record how it ended in `docs/research/build-and-suite-time.md` and its state in `docs/research/README.md`, and say so in `CHANGELOG.md`, in a second commit. Done when `tests/evolution-queue.test.mjs` and `npm run check:static` pass.
+- [x] 4.1 Tick `performance` in `docs/product-contract.md`, record how it ended in `docs/research/build-and-suite-time.md` and its state in `docs/research/README.md`, and say so in `CHANGELOG.md`, in a second commit. Done when `tests/evolution-queue.test.mjs` and `npm run check:static` pass. `tests/evolution-queue.test.mjs` and `npm run check:static` pass.

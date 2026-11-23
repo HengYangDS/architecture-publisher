@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The queue's item `performance` is finished: a build of ETHOS's Chinese edition took 33 s on 2026-11-23 and 397 s
+  on 2026-11-18, each built alone, and the suite 98 s at two files where it took 140 s that afternoon. The largest
+  cause left is Archify's run for the page, reported to Archify.
 - A build starts its page's run of Archify once its views are planned, so the run goes on while the plates are laid
   out: ETHOS's Chinese edition builds about 16 % faster, with the same files.
 - A channel's search stops counting an assignment's route defects once they show it has lost: ETHOS's Chinese
