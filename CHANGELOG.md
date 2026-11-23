@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- `npm test` runs as many test files at once as the machine's cores carry, two at least and four at most
+  (`tools/test/suite.mjs`): four on an eighteen-core host, where the whole suite took 156 s against 250 s at two.
 - The queue's item `performance` stands before the open rest of `edition-map`: this publisher's proofs took 13.0
   hours in the seven days to 2026-11-22, and every repository's heavy work waits for the slot they hold. The item
   `one-source` is finished; the publisher accepts a model that states a template its address implies.

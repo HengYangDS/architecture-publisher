@@ -83,7 +83,8 @@ the host ran, with the 1-minute load given.
 3. In the channel solver, the cost was a constant and not the search: `rowsPassed` built a list of at most three
    rows and was asked hundreds of millions of times. The research page on the search's cost named it on
    2026-11-17; the Change that followed made the solver remember results and left the first search as it was.
-4. The suite's width was set to two files on 2026-09-18 with no reason recorded, when the suite was small. A heavy
+4. The suite's width was set to two files on 2026-09-18 with no reason recorded, when the suite was small; from
+   2026-11-23 it follows the machine's cores (the section above). A heavy
    page test starts up to four Archify processes itself, so a width cannot be read off the count of cores. On the
    host, with fourteen cores for a ticket, four files at a time take 291 s where two take 481 s; the guests have
    eight, eight and four CPUs and were not measured.
@@ -144,6 +145,24 @@ format gate (`source-format`) a median of 145 seconds and at most 218; every oth
 latest proof (`9c6a0772`, 11:00) the suite took 533 seconds and the format gate 150 of its 708. By the count of the
 session that measures the host, these were about half the proof time of the thirteen repositories with records.
 
+### The suite's width (2026-11-23)
+
+Measured on the host under one ticket, 01:34 to 01:41, on a copy of `dev` at `fae12ca6`, the whole suite without
+coverage, 657 tests, all passing: two files at a time 250 s, CPU 1492 s (5.96 cores on average), 3.2 GiB resident
+at most; four at a time 156 s, CPU 1590 s (10.21 cores), 5.5 GiB. A file that builds a delivery keeps two to three
+cores busy. The guests have four cores (Linux) and eight (Windows, macOS), read from their virtual machines'
+settings the same night; at two files the Linux guest's suite already wants more cores than it has.
+
+ETHOS's behaviour gate ran the suite through the launcher of this Change on a copy of `dev`, under one ticket at
+04:03 (`ethos prove --host --execute --gate node-behavior --gate node-static`): `node tools/test/suite.mjs`, four
+files at a time, 658 tests passing and 99.63 % of lines covered, no gap of its own, in 369 s, where the same gate
+of the proof of `fae12ca6` had taken 458 s at two files. The copy's other gaps were its own: it holds no record of
+the vendored supply's sources.
+
+From this Change the suite runs as many files at once as the machine's cores over 2.5, two at least and four at
+most: four on the host, three on the Windows and macOS guests, two on the Linux guest. Four is the widest measured;
+a wider bound waits for a measurement under a ticket.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |
@@ -174,7 +193,9 @@ the numbers went to ETHOS's owner session on 2026-11-18; from 2026-11-22 GitLab 
   pipeline each.
 - What the track assignment's and the measure's changes save on a calm host: every pair was measured at a load of 6
   to 30, and only the modules' own seconds are read.
-- What the suite takes on the guests at any width other than two, and on the host at any other than two and four.
+- What the suite takes on the Windows and macOS guests at three files: read from this Change's own pipeline.
+- What the suite takes on the host at five or six files, which would use more than the fourteen cores a ticket
+  leaves the others by the measured cores a file.
 - How many of the suite's candidate documents are the same from one test file to the next: one file was measured.
 - Why the Windows guest loses more than the other two beside other work (its tests summed 6257 s there and 4352 s
   alone), and how much of what is left alone is the starting of processes: nothing was read inside the guest.

@@ -8,6 +8,8 @@ entry = [
   "src/importers/likec4-worker.mjs",
   "tests/conformance/journeys/command/archive.test.mjs",
   "tools/release/archive.mjs",
+  # Loaded with --import by the suite's launcher (tools/test/suite.mjs), which names it as a string.
+  "tests/fixtures/npm-environment.mjs",
   "tests/*.test.mjs",
 ]
 project = ["src/**/*.mjs", "tools/**/*.mjs", "tests/**/*.mjs"]
