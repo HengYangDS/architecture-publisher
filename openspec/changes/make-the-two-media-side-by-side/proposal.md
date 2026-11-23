@@ -7,7 +7,7 @@ runs (46.6 to 50.9 s) came one after the other, though the page needs only the p
 ## What Changes
 
 - A build starts its page where it prepares it and awaits it to write it, after the edition is typeset.
-- A page that fails fails there; a check still awaits its page where it prepares it.
+- A page that Archify refuses ends the build there; a check still awaits its page where it prepares it.
 
 ## Capabilities
 
