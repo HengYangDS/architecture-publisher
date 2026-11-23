@@ -54,3 +54,22 @@ test("a build makes its page beside its edition: the edition is typeset while th
   // Made one after the other, the page's delivery would end before the edition's typesetting began.
   assert.ok(typeset.start < page.end, "the edition waited for the page");
 });
+
+test("a build starts its page's run of Archify before it lays out its plates", async (t) => {
+  const kept = process.env.ARCHPUB_ARCHIFY_ANSWERS;
+  delete process.env.ARCHPUB_ARCHIFY_ANSWERS;
+  t.after(() => {
+    if (kept !== undefined) process.env.ARCHPUB_ARCHIFY_ANSWERS = kept;
+  });
+  runs.length = 0;
+  const model = await writeModel(t, minimalModel());
+  const out = path.join(await temporaryDirectory(t, "archpub-media-"), "built");
+  let layout = Infinity;
+  await buildDelivery(model, out, { media: ["edition", "page"] }, (step) => {
+    if (step === "laying out the plates") layout = performance.now();
+  });
+  const page = runs.find(({ what }) => what === "finalize explainer");
+  assert.ok(page, `the build ran ${runs.map(({ what }) => what).join(", ")}`);
+  // The page needs the planned views, not the plates: its run of Archify goes on while the plates are laid out.
+  assert.ok(page.start < layout, "the page waited for the plates' layout");
+});

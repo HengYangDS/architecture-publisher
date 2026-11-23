@@ -212,6 +212,16 @@ one ticket on 2026-11-23: the twelve published works built with and without it, 
 by file, 326 s summed before and 279 s after; ETHOS's Chinese edition alone 34.9 and 36.0 s before, 30.9 and
 31.5 s after.
 
+### The page beside the plates (2026-11-23)
+
+The build's children, recorded under one ticket for ETHOS's Chinese edition at `006e2902` (36.2 s): the publisher's
+process planned and laid out the plates from 0 to 22.4 s, then the page's Archify run went from 23.7 to 35.3 s
+beside the edition's Typst runs, 23.7 to 28.6 s. The page needs the planned views, not the plates, so from this
+Change a build starts its page once its views are planned and waits only until Archify's process has begun. Measured
+under one ticket: the twelve published works built with and without it, two at a time, identical file by file, 379 s
+summed before and 300 s after; ETHOS's Chinese edition alone 39.2 and 38.8 s before, 32.9 and 33.0 s after, its
+page's Archify run going from 8.2 to 26.9 s, beside the plates' layout.
+
 ## What was compared
 
 | Way                                                              | For                                                      | Against                                                                            |

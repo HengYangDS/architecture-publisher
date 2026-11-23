@@ -475,21 +475,20 @@ function holdsAnswers(store) {
 
 /**
  * Run the vendored Archify CLI and return its JSON answer, also when it exits
- * with a refusal.
+ * with a refusal. `started` is told once Archify's process has begun.
  * @param {string[]} args
+ * @param {{ started?: () => void }} [options]
  */
-export async function runArchify(args) {
+export async function runArchify(args, options = {}) {
   const supply = await verifySupply("archify");
   try {
-    const { stdout } = await run(
-      process.execPath,
-      [path.join(supply.root, "bin", "archify.mjs"), ...args],
-      {
-        env: childEnvironment({ ARCHIFY_UPDATE_CHECK_DISABLED: "1" }),
-        maxBuffer: 16 * 1024 * 1024,
-        timeout: 300_000,
-      },
-    );
+    const running = run(process.execPath, [path.join(supply.root, "bin", "archify.mjs"), ...args], {
+      env: childEnvironment({ ARCHIFY_UPDATE_CHECK_DISABLED: "1" }),
+      maxBuffer: 16 * 1024 * 1024,
+      timeout: 300_000,
+    });
+    options.started?.();
+    const { stdout } = await running;
     return { supply, answer: JSON.parse(stdout) };
   } catch (error) {
     const failure = /** @type {any} */ (error);

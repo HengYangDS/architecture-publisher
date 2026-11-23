@@ -224,8 +224,10 @@ export async function writePage(page, directory) {
  * a delivery names eight.
  * @param {any} model
  * @param {any[]} views
- * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[], deliver?: string }} [options]
- *   `owned` gives each component's files in citation order, as the layer of measured facts holds them
+ * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[], deliver?: string,
+ *   started?: () => void }} [options]
+ *   `owned` gives each component's files in citation order, as the layer of measured facts holds them; `started` is
+ *   told once the page's first run of Archify has begun
  */
 export async function explainerPage(model, views, options = {}) {
   const quality = options.quality ?? "showcase";
@@ -250,18 +252,23 @@ export async function explainerPage(model, views, options = {}) {
         withheld: [...withheld].sort(),
         delivered: /** @type {HeldDelivery | null} */ (null),
       };
-      const held = options.deliver ? await holdDelivery(page, options.deliver) : null;
+      const held = options.deliver
+        ? await holdDelivery(page, options.deliver, { started: options.started })
+        : null;
       if (held?.delivered) return { ...page, delivered: held.delivered };
-      const { answer } = await runArchify([
-        "validate",
-        "explainer",
-        await writePage(page, directory),
-        "--json",
-        "--quality",
-        quality,
-        "--writing",
-        "off",
-      ]);
+      const { answer } = await runArchify(
+        [
+          "validate",
+          "explainer",
+          await writePage(page, directory),
+          "--json",
+          "--quality",
+          quality,
+          "--writing",
+          "off",
+        ],
+        { started: options.started },
+      );
       if (answer.ok === true) {
         // The page validates and its delivery was refused: the refusal is the delivery's.
         if (held) throw held.refusal;
@@ -289,7 +296,7 @@ export async function explainerPage(model, views, options = {}) {
  * or the refusal when Archify refuses the page.
  * @param {any} page
  * @param {string} file the page's file name, `<model id>.html`
- * @param {{ repoRoot?: string | null }} [options]
+ * @param {{ repoRoot?: string | null, started?: () => void }} [options]
  */
 export async function holdDelivery(page, file, options = {}) {
   // A generated page delivered without a checkout depends on nothing but itself and the supply: it is kept as a
@@ -317,7 +324,7 @@ export async function holdDelivery(page, file, options = {}) {
  * One run of Archify that delivers the page and holds what it wrote, or the refusal.
  * @param {any} page
  * @param {string} file
- * @param {{ repoRoot?: string | null }} options
+ * @param {{ repoRoot?: string | null, started?: () => void }} options
  */
 async function holdOnce(page, file, options) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-page-held-"));
@@ -384,7 +391,7 @@ export function refusePage(answer) {
  * @param {any} page
  * @param {string} directory a staging directory that receives the page
  * @param {string} file the page's file name, `<model id>.html`
- * @param {{ repoRoot?: string | null }} [options]
+ * @param {{ repoRoot?: string | null, started?: () => void }} [options]
  */
 export async function deliverExplainer(page, directory, file, options = {}) {
   // Archify records where the draft lay relative to the page after resolving
@@ -399,20 +406,23 @@ export async function deliverExplainer(page, directory, file, options = {}) {
   // Archify writes its receipt beside the page, named for it.
   const receipt = output.replace(/\.html$/u, ".delivery.json");
   try {
-    const { supply, answer } = await runArchify([
-      "finalize",
-      "explainer",
-      draft,
-      output,
-      "--json",
-      "--quality",
-      page.quality ?? "showcase",
-      "--writing",
-      page.writing ?? "off",
-      "--out-dir",
-      work,
-      ...(options.repoRoot ? ["--repo-root", options.repoRoot] : []),
-    ]);
+    const { supply, answer } = await runArchify(
+      [
+        "finalize",
+        "explainer",
+        draft,
+        output,
+        "--json",
+        "--quality",
+        page.quality ?? "showcase",
+        "--writing",
+        page.writing ?? "off",
+        "--out-dir",
+        work,
+        ...(options.repoRoot ? ["--repo-root", options.repoRoot] : []),
+      ],
+      { started: options.started },
+    );
     if (answer.ok !== true || answer.status !== "pass") refusePage(answer);
     return {
       output: path.join(directory, file),
