@@ -33,3 +33,5 @@ None.
 Changed: `src/overview/drawn.typ`, `tests/overview-drawn.test.mjs`, `docs/reference/operations.md` and
 `CHANGELOG.md`. Every overview set at the closer spacing changes: its notes and texts grow from 11 to 12.5 pt. The
 twelve overviews build on one page each from the publications' dev, once their Change has landed.
+
+Queue: `edition-map`.

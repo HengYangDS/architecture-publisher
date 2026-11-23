@@ -1,6 +1,7 @@
 ## Context
 
-See [proposal.md](proposal.md). The overview's drawn body sets step names and block titles at the head's size (18),
+See [proposal.md](proposal.md); the queue item rests on the committee's record `docs/research/edition-carriers-committee-2026-11-18.md`, where `edition-map` joined the queue.
+The overview's drawn body sets step names and block titles at the head's size (18),
 names, notes, texts and items at the text's size (12.5) and labels, track names and plate numbers at the small size
 (11); the claim stands at the title's size (34), as every page's title does. `_spacing` in `src/overview/drawn.typ`
 held two spacings, each with its gaps, a size and a pitch; the closer one set the small size at a pitch of 14 pt.
