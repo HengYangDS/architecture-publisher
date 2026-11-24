@@ -7,6 +7,14 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Changed
+
+- The bundled Archify is 3.3.0, its latest stable release, taken whole from the official archive and now licensed
+  under Apache-2.0, whose LICENSE and NOTICE travel with it. A page is drawn by 3.3.0: its diagrams are redrawn, and
+  it gains Archify's footer panel, a GitHub star prompt and a feedback menu, which a draft's `@meta
+feedback_links=false` turns off; no text of a page is lost, and the edition, its figures and the data are
+  unchanged.
+
 ## [0.18.0] - 2026-11-24
 
 ### Changed

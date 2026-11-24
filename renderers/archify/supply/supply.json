@@ -1,22 +1,34 @@
 {
   "schema": "architecture.renderer-supply/v1",
   "name": "archify",
-  "version": "3.2.0",
-  "sourceCommit": "208acba8d412335185b2056fedf54b3405df43fb",
-  "archiveSha256": "70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5",
-  "license": "MIT",
-  "scope": "official v3.2.0 release distribution; native diagram and explainer renderers, schemas and artifact-check runtime closure, with the explainer's Pele chart vendor; required original artifact-discrimination helpers retained by static imports; optional browser/preview modules retained but not invoked; update checks disabled; no gallery assets or vendor modifications",
+  "version": "3.3.0",
+  "sourceCommit": "af3aaf3c36762f2afb62a4a09533f6c7273b07e5",
+  "archiveSha256": "00e4ff53267aee7dabf22ed333360cd3e380db20271a50264ae146ee25cf2538",
+  "license": "Apache-2.0",
+  "scope": "official v3.3.0 release distribution; native diagram and explainer renderers, schemas and artifact-check runtime closure, with the explainer's Pele chart vendor; required original artifact-discrimination helpers retained by static imports; optional browser/preview modules retained but not invoked; update checks disabled; the license files the archive's NOTICE names; no gallery assets or vendor modifications",
   "files": [
     {
       "path": "LICENSE",
-      "bytes": 1102,
-      "sha256": "b799ab081703e7821ae5096d2c1abdf14bbdc75e8ea1c4045998c36ed6db9706",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
       "origin": "archify/LICENSE"
     },
     {
+      "path": "LICENSE-MIT",
+      "bytes": 1102,
+      "sha256": "b799ab081703e7821ae5096d2c1abdf14bbdc75e8ea1c4045998c36ed6db9706",
+      "origin": "archify/LICENSE-MIT"
+    },
+    {
+      "path": "NOTICE",
+      "bytes": 1340,
+      "sha256": "4c88357b600f24214bd6d12ee70e37d66a160c6069bba2aec2d35486f6ff1a3a",
+      "origin": "archify/NOTICE"
+    },
+    {
       "path": "THIRD_PARTY_NOTICES.md",
-      "bytes": 5623,
-      "sha256": "ae6f236bd0aef72bad196099aa8687cccff6e01cc3a60e6c32bbad688266f678",
+      "bytes": 7376,
+      "sha256": "6595f9485861d8e1f46bdae09bde7288be4f82f3f286e2a41d3f8356d6fdc3b9",
       "origin": "archify/THIRD_PARTY_NOTICES.md"
     },
     {
@@ -27,14 +39,14 @@
     },
     {
       "path": "assets/template.html",
-      "bytes": 786886,
-      "sha256": "4fe243de7448f83d2123e987db5ec2539b662480a6e3ce3c90deb9e0c9ad11ef",
+      "bytes": 879177,
+      "sha256": "ce14fe404b80577bf5aceae189d78a50dded861a026f99c21997f57fdd3254fb",
       "origin": "archify/assets/template.html"
     },
     {
       "path": "bin/archify.mjs",
-      "bytes": 288781,
-      "sha256": "3cebcee3fa339e3b98deacae8cb9a5570525e003d8823368d304d904ba9ceecd",
+      "bytes": 300854,
+      "sha256": "759a026a6bc61cdf1086963f7d5547439851f1bb6b5be1c60c8ab916efe54040",
       "origin": "archify/bin/archify.mjs"
     },
     {
@@ -45,8 +57,8 @@
     },
     {
       "path": "bin/finalize.mjs",
-      "bytes": 50052,
-      "sha256": "766e053afaeaca8045b8a0558f50cb6b685dfe21cb9d00e7776d407d6db364e8",
+      "bytes": 64804,
+      "sha256": "6dd1d9a56f2a771583d8f5b7bb96f58efe9bdee651c48441178664b68539d381",
       "origin": "archify/bin/finalize.mjs"
     },
     {
@@ -57,26 +69,26 @@
     },
     {
       "path": "bin/preview.mjs",
-      "bytes": 36566,
-      "sha256": "95bdc09c7ea2679f137bf1bf4248cdb401a54da979ff4a16d518caafeae0070d",
+      "bytes": 36664,
+      "sha256": "1a4dbffc2a3611ed360b8fe0d33f510e20c3c62933aaf345379abe5bd5645f51",
       "origin": "archify/bin/preview.mjs"
     },
     {
       "path": "bin/visual-check.mjs",
-      "bytes": 120435,
-      "sha256": "b921fb7fbd826b487d6560324a75c933e26df24970bf5f992809b41c18c9b14f",
+      "bytes": 121514,
+      "sha256": "115820f97c9c89eeba94b730fb497324ab526b44db6b0b0bafaf4742a7932be5",
       "origin": "archify/bin/visual-check.mjs"
     },
     {
       "path": "explainer/browser-check.mjs",
-      "bytes": 30708,
-      "sha256": "cbbebfca2cb58cde0791f349e4f13490c0d085ce2f8653279139cf2aed334677",
+      "bytes": 31435,
+      "sha256": "675e960e9be8970ad39ac726a3032e2ceafa367e5618db5fe2ad1b1ca03b4a46",
       "origin": "archify/explainer/browser-check.mjs"
     },
     {
       "path": "explainer/charts.mjs",
-      "bytes": 5997,
-      "sha256": "bb49c5e8e5d6ba70a511d292dbac6a47953a010b67a8563e5f68222c7b220390",
+      "bytes": 11084,
+      "sha256": "c4b1c3e6b0f0f4c6cfc9729a4b538b10558fab49c0349618ee0dc84c3afe6227",
       "origin": "archify/explainer/charts.mjs"
     },
     {
@@ -87,8 +99,8 @@
     },
     {
       "path": "explainer/diagrams.mjs",
-      "bytes": 38710,
-      "sha256": "bb4aae343968db5a5ad70c368ad41dcc9d2ac93f3ace02645059daf33cab16ba",
+      "bytes": 46885,
+      "sha256": "5772d5d75cff77cd2f64dcf6a192e7c5b0d00184a70f7b04ed635e0b27eec677",
       "origin": "archify/explainer/diagrams.mjs"
     },
     {
@@ -105,8 +117,8 @@
     },
     {
       "path": "explainer/layout.mjs",
-      "bytes": 2571,
-      "sha256": "656232369fe0394e35f827c1b5295fb8f14d315e7fa53d5f16248440519736c8",
+      "bytes": 2963,
+      "sha256": "bad105de4f66f1e986dc52fbab3a0759f61df88da58242bfecf3a119f2cb963e",
       "origin": "archify/explainer/layout.mjs"
     },
     {
@@ -117,38 +129,38 @@
     },
     {
       "path": "explainer/parse.mjs",
-      "bytes": 27256,
-      "sha256": "dd0d05672e92453b1b1cea31372792cbe03aecdd80f21e2f3aa0eda49d3be853",
+      "bytes": 29816,
+      "sha256": "a1ed1447e8f76603f544952a3483614039357755620945d5cfed51b1a1c42261",
       "origin": "archify/explainer/parse.mjs"
     },
     {
       "path": "explainer/patch.mjs",
-      "bytes": 12039,
-      "sha256": "b2721021de474431537705d696325ea01eb946e9095e8476fad1802d2fb5be4d",
+      "bytes": 12067,
+      "sha256": "a571191e2b65403d49343237c2e915b81c6d0f80c13b9cfedc17de3f60dd0804",
       "origin": "archify/explainer/patch.mjs"
     },
     {
       "path": "explainer/prepare.mjs",
-      "bytes": 9819,
-      "sha256": "d8ff050738d7c858d62641b069455482814de0c4bdf7c0872d0a2a663b1b0643",
+      "bytes": 11328,
+      "sha256": "476808c5a1cd0412d7fb2a91b8de0720bfa8aec01e3bd2f54712ce1c4881fa69",
       "origin": "archify/explainer/prepare.mjs"
     },
     {
       "path": "explainer/reader.css",
-      "bytes": 47157,
-      "sha256": "20ae425a84157c2d478241250975e74fca8938b47b85c5414149710ff4a3538f",
+      "bytes": 58636,
+      "sha256": "938509ac8694c411065c5a902c7b80b57f09a44e7c75f4ca979de99f4b07b518",
       "origin": "archify/explainer/reader.css"
     },
     {
       "path": "explainer/reader.js",
-      "bytes": 51676,
-      "sha256": "202d3ad200accd89a1484fe64610d9bc8bb4544c14c3f51522ba74f965b332c6",
+      "bytes": 62013,
+      "sha256": "ad13e6c83602eb00f4fd7af6b7dc0374cce839e73fe1b1f337f8b132ad0ad6f4",
       "origin": "archify/explainer/reader.js"
     },
     {
       "path": "explainer/render.mjs",
-      "bytes": 33903,
-      "sha256": "415c8c0638f42abc3b96f1b105453780678f1e33a9994f844cfbe4833670f25d",
+      "bytes": 38606,
+      "sha256": "850979fc6c0718a43a542000724ac1d8ce157a3a274daf41b8a10781c52e8d08",
       "origin": "archify/explainer/render.mjs"
     },
     {
@@ -165,8 +177,8 @@
     },
     {
       "path": "explainer/validate.mjs",
-      "bytes": 14520,
-      "sha256": "4e14063082b4bced482e0d2f771de5b29ef805677fcc354dfd283b9e16bd1b0a",
+      "bytes": 15399,
+      "sha256": "0167697bb8201c3268b014323f291deed0ed689b041117969da9906695dd908c",
       "origin": "archify/explainer/validate.mjs"
     },
     {
@@ -309,44 +321,44 @@
     },
     {
       "path": "explainer/writing.mjs",
-      "bytes": 11389,
-      "sha256": "1030bc5b09f932e805f87390d8b51a1a23bc8dab2cc02068873621e26da8781f",
+      "bytes": 10822,
+      "sha256": "f4e676a28db4207d8bf93af7c58aa36a51da4dac9619b145a39e33709cf667ff",
       "origin": "archify/explainer/writing.mjs"
     },
     {
       "path": "locales/en.json",
-      "bytes": 27386,
-      "sha256": "1e8b43d8ba6d8ae75c2b393b2edb43cac5e142f33cbc2d1a2351e0e8baf9e1aa",
+      "bytes": 30982,
+      "sha256": "0f52c4d85f805640ddcae20532cd5f7044405d34da90190674419973f75fa8ae",
       "origin": "archify/locales/en.json"
     },
     {
       "path": "locales/es.json",
-      "bytes": 29504,
-      "sha256": "f2b971994cb9f7091758e605931b4b4959103ed0090916fe281bfb2f2e1e5cc7",
+      "bytes": 33337,
+      "sha256": "08b7e312471d84c24a3238da1cfff4e96a1216c424637d194c0e3164e1229566",
       "origin": "archify/locales/es.json"
     },
     {
       "path": "locales/ko.json",
-      "bytes": 30852,
-      "sha256": "b7f2be52c61e4ced665ea62bb0670b4c2615a6c706127246a44bbcffdf65f8be",
+      "bytes": 34903,
+      "sha256": "5b4083adb62f776ed826ae1630ce8dda6003db18c23d5cb6717d279369db0480",
       "origin": "archify/locales/ko.json"
     },
     {
       "path": "locales/manifest.json",
-      "bytes": 293,
-      "sha256": "9a377676b5d16f97a6a1f9326aadbb447321e9ceb5744718181796ce3dcce0d8",
+      "bytes": 336,
+      "sha256": "6fb461dd5a16ddc0a3dab24a89970291373dee3bb4d4766ce1ae3b591b97b085",
       "origin": "archify/locales/manifest.json"
     },
     {
       "path": "locales/zh-CN.json",
-      "bytes": 27080,
-      "sha256": "83d870452e9ff3459a3cae88be6900d9a98b268e6cfba94b608a7c10f484e485",
+      "bytes": 30584,
+      "sha256": "c71b6accccca9d907e5ea36c169c0b930ddba07693d31fe7105b30a1e5fdd510",
       "origin": "archify/locales/zh-CN.json"
     },
     {
       "path": "locales/zh-TW.json",
-      "bytes": 27147,
-      "sha256": "0db367aec82cf92b08d4335d5ed021480801f7ae79b1e2c1a0c79b27d4eafb2e",
+      "bytes": 30648,
+      "sha256": "0ad2a21ae28cb3d19f04c8702c8ffd35d5e4dbb5d96984b136e119de7e4bc044",
       "origin": "archify/locales/zh-TW.json"
     },
     {
@@ -357,9 +369,33 @@
     },
     {
       "path": "package.json",
-      "bytes": 393,
-      "sha256": "8b4afe00581e6c08965c9dfc51fab8689989060663209f95c73cb2ab6d36e214",
+      "bytes": 400,
+      "sha256": "ce41f140bd64bf0239f8c3b5c087dc8a6a687fffed2f61f0234606bca059cdf2",
       "origin": "archify/package.json"
+    },
+    {
+      "path": "renderers/architecture/automatic-placement-candidates.mjs",
+      "bytes": 27893,
+      "sha256": "60d46fda8c075cf2ee68dd34f1d10398e30989beaff54d4a9b318da90fdcdff2",
+      "origin": "archify/renderers/architecture/automatic-placement-candidates.mjs"
+    },
+    {
+      "path": "renderers/architecture/automatic-placement.mjs",
+      "bytes": 34482,
+      "sha256": "4b9d9d158a410e2ee6818ecfccd96d2d053dcfe3372b842820706af887dd2713",
+      "origin": "archify/renderers/architecture/automatic-placement.mjs"
+    },
+    {
+      "path": "renderers/architecture/crossed-leaf-placement.mjs",
+      "bytes": 10745,
+      "sha256": "05cd1722631e86f890025eca8f78c66a49edc99d20b7e015e6282cd6c310e3b9",
+      "origin": "archify/renderers/architecture/crossed-leaf-placement.mjs"
+    },
+    {
+      "path": "renderers/architecture/frame-attachment-placement.mjs",
+      "bytes": 12281,
+      "sha256": "ac2d1e445a6281efc344ae055fd2ef00d68fe1b7b7d27357ac3004bf1ff1665b",
+      "origin": "archify/renderers/architecture/frame-attachment-placement.mjs"
     },
     {
       "path": "renderers/architecture/grid.mjs",
@@ -374,27 +410,39 @@
       "origin": "archify/renderers/architecture/labels.mjs"
     },
     {
+      "path": "renderers/architecture/parallel-path-placement.mjs",
+      "bytes": 6751,
+      "sha256": "6238ff2ae023c92f8fb05a87e2f01ffd43f685d9ccc87233fe8f755e0a75c526",
+      "origin": "archify/renderers/architecture/parallel-path-placement.mjs"
+    },
+    {
       "path": "renderers/architecture/render-architecture.mjs",
-      "bytes": 58551,
-      "sha256": "50bf6f0748446ba99c4236e29e2e39755d5a2b8894fb598f104f7b3107063ca3",
+      "bytes": 98609,
+      "sha256": "c1a1994bb5866bd259e0b5d8b56fe13b451986b705e6da66c84b35a65debee1e",
       "origin": "archify/renderers/architecture/render-architecture.mjs"
     },
     {
       "path": "renderers/architecture/routing.mjs",
-      "bytes": 74482,
-      "sha256": "908ddaf85caaa2d5d4a17c0544489ad9500614914c64a1d2ee2b96c4cc9ad4b3",
+      "bytes": 126179,
+      "sha256": "5ea2508304e5392c61e3e4ea3bc3bc9bd8ebec6d0663f9351079127b8c9b1c11",
       "origin": "archify/renderers/architecture/routing.mjs"
     },
     {
+      "path": "renderers/architecture/straight-chain-placement.mjs",
+      "bytes": 1319,
+      "sha256": "ed4e4b8308bd9d5e4077e6ce57f695d4f6a16e9817566603ff32818e2677e38f",
+      "origin": "archify/renderers/architecture/straight-chain-placement.mjs"
+    },
+    {
       "path": "renderers/class/render-class.mjs",
-      "bytes": 53567,
-      "sha256": "e4943c1e91062aba7c72715e4887165f03908de03a1c99dc71f296bb0d1214cf",
+      "bytes": 58089,
+      "sha256": "b37c94d7f96c9d0bc7a49af5d07ef68f38f7fbdf36284e72037fcdc72f0eb109",
       "origin": "archify/renderers/class/render-class.mjs"
     },
     {
       "path": "renderers/dataflow/dataflow-compiler.mjs",
-      "bytes": 91209,
-      "sha256": "e27a9b69876927b7285ce14569d22b92e32e8173fd953184ac13a8a02408e257",
+      "bytes": 92283,
+      "sha256": "22d4beb1221de4e76b4d05c5f0c0f57ef9957df83f9305ad2b99f047328977ff",
       "origin": "archify/renderers/dataflow/dataflow-compiler.mjs"
     },
     {
@@ -405,26 +453,26 @@
     },
     {
       "path": "renderers/dataflow/label-capacity.mjs",
-      "bytes": 4454,
-      "sha256": "187af128f09630e512931b22bb301115d2a4d72c925cf02d3fc4736fb1846cb9",
+      "bytes": 4562,
+      "sha256": "ff7b82382bb421e90216491a5a551af9d85337f7ee4c56366b2beb34a68976cf",
       "origin": "archify/renderers/dataflow/label-capacity.mjs"
     },
     {
       "path": "renderers/dataflow/render-dataflow.mjs",
-      "bytes": 960,
-      "sha256": "befc8bdacd86c07dd0b65a4b9635632a1246dd8dae7cb98dcf6d31dde361da2c",
+      "bytes": 1185,
+      "sha256": "96adced88b09f48ec80e87242d8e3ac3637939a83d9dc5a89c1a2a208b3c479f",
       "origin": "archify/renderers/dataflow/render-dataflow.mjs"
     },
     {
       "path": "renderers/erd/grid.mjs",
-      "bytes": 7038,
-      "sha256": "1aa4644d8ef13fdebe5adf48377c0755222a0288f6cc487faf052d7957a78a32",
+      "bytes": 8944,
+      "sha256": "68f35708e08543c40388bfed22b10ba525a18dfa5385e544eb6be459f05d226a",
       "origin": "archify/renderers/erd/grid.mjs"
     },
     {
       "path": "renderers/erd/render-erd.mjs",
-      "bytes": 80473,
-      "sha256": "ed180a39c00bec377bde0c48c8af798bb93e97d0cf006dd321a9ba14d5c50d7e",
+      "bytes": 84533,
+      "sha256": "16a84c7c33f8802996c397de8e37ef9574faf231aebeca2d8db23e8ccbbc5807",
       "origin": "archify/renderers/erd/render-erd.mjs"
     },
     {
@@ -435,38 +483,50 @@
     },
     {
       "path": "renderers/lifecycle/render-lifecycle.mjs",
-      "bytes": 61373,
-      "sha256": "b700af01fa3848d7dfdf492b9efaccc7b384e6ad509a75bf9ac9af2038e4efc6",
+      "bytes": 65511,
+      "sha256": "cb75ea7955a6ed41330918bb8e949d3dcb31c25a400284a5d0643aa714866e65",
       "origin": "archify/renderers/lifecycle/render-lifecycle.mjs"
     },
     {
       "path": "renderers/sequence/render-sequence.mjs",
-      "bytes": 57144,
-      "sha256": "249689c4de5636bf7d746a04b3369f5576b91f76ea533502b313f943da4a8a95",
+      "bytes": 59998,
+      "sha256": "947cd2f9908436f57e0a85b75af0d16825f5ab1ee4c607d80e781d382de6f9da",
       "origin": "archify/renderers/sequence/render-sequence.mjs"
     },
     {
+      "path": "renderers/shared/arrowhead.mjs",
+      "bytes": 1650,
+      "sha256": "337fa3ef8a6d5918c88204fca76843dd4abc3e9ae27e49db3ccce86db2dc11ca",
+      "origin": "archify/renderers/shared/arrowhead.mjs"
+    },
+    {
       "path": "renderers/shared/atomic-output.mjs",
-      "bytes": 70372,
-      "sha256": "f804d66d1801ac2dadc9d0a4c334645cfbb7a8cd1a7de112ddfb952c056a580b",
+      "bytes": 70614,
+      "sha256": "8a5a0f84ad706e927dad7b3d3adbc7a3e39c6679962e8a9ba4ffbc5dd42c46cf",
       "origin": "archify/renderers/shared/atomic-output.mjs"
     },
     {
       "path": "renderers/shared/automatic-labels.mjs",
-      "bytes": 14771,
-      "sha256": "3f3b63cd9cfd242968a739ca703291d7788567ec5699b5e7d6a11a4079e15917",
+      "bytes": 21002,
+      "sha256": "b0c0d6c6a06e1ef3e29d008f3df3c4e6d66d51775001b024bf1af23623988f12",
       "origin": "archify/renderers/shared/automatic-labels.mjs"
     },
     {
       "path": "renderers/shared/brand-marks.mjs",
-      "bytes": 28938,
-      "sha256": "87436fa956c98dc9bbabf826d5f254587c1b3e7a829883f4098e04c62f4b5345",
+      "bytes": 30487,
+      "sha256": "329314a6c749e75cd26e9902b6cf514b4fba5306a02eb9474dca8cc6cd9cdd93",
       "origin": "archify/renderers/shared/brand-marks.mjs"
     },
     {
+      "path": "renderers/shared/change-marks.mjs",
+      "bytes": 6710,
+      "sha256": "3ab68d0fa299e64500eec209d46c546faebed56fcd478f3b706474971a90229d",
+      "origin": "archify/renderers/shared/change-marks.mjs"
+    },
+    {
       "path": "renderers/shared/cli.mjs",
-      "bytes": 18931,
-      "sha256": "9df5e6efb3dddc50b72d0daf3ca9d2b611bab31c5f1076f6769bd94999c5688c",
+      "bytes": 26755,
+      "sha256": "be9ebe98b4002b522d139dc19b8412488d978cd82041d46899137746c5cf9496",
       "origin": "archify/renderers/shared/cli.mjs"
     },
     {
@@ -495,14 +555,14 @@
     },
     {
       "path": "renderers/shared/generated-validators.mjs",
-      "bytes": 1020040,
-      "sha256": "f9e6d4f4ef5c5ab98013563c7ea1d27d58c67111832bd4167989dc0c88405181",
+      "bytes": 1510815,
+      "sha256": "fe356eeadd25c5372c39ea8fe023382d6a4b4289da97653364960d79d3886d11",
       "origin": "archify/renderers/shared/generated-validators.mjs"
     },
     {
       "path": "renderers/shared/geometry.mjs",
-      "bytes": 89929,
-      "sha256": "818f6c000595f11a915cce2f73b5deb1a82ececf6c578a22bee70099988ea7a5",
+      "bytes": 90663,
+      "sha256": "87e3452ed963f9cd0be81fa87909bd95203f979e50ddb7d135bc3311b82d5b46",
       "origin": "archify/renderers/shared/geometry.mjs"
     },
     {
@@ -513,8 +573,8 @@
     },
     {
       "path": "renderers/shared/layout-report.mjs",
-      "bytes": 1587,
-      "sha256": "979da7226c5080cb16fb352236d5705cc79c06c15d0a3550b95963af02c63b6e",
+      "bytes": 4504,
+      "sha256": "35092330fc069c11ba463f910a02591435c54292815e8e62397b2c4714879a21",
       "origin": "archify/renderers/shared/layout-report.mjs"
     },
     {
@@ -537,14 +597,14 @@
     },
     {
       "path": "renderers/shared/owned-temp-directory.mjs",
-      "bytes": 3198,
-      "sha256": "fb94515f8cd4b6b28799a7367745235822e2169534b8200791600ce7c3953a0e",
+      "bytes": 4059,
+      "sha256": "646e32e2fce9e62bdd66c0e2bce6aa314148d5369854313f4fc7d2f0624c0e2a",
       "origin": "archify/renderers/shared/owned-temp-directory.mjs"
     },
     {
       "path": "renderers/shared/path-semantics.mjs",
-      "bytes": 32406,
-      "sha256": "4ef002af9061c06634a07de6d199fd7d13e6c50561c792fd018118bf3e065f52",
+      "bytes": 33608,
+      "sha256": "79463777a03cf7c4e026773716b952205791128aa4fe0562b519ce6f58042eb2",
       "origin": "archify/renderers/shared/path-semantics.mjs"
     },
     {
@@ -555,15 +615,21 @@
     },
     {
       "path": "renderers/shared/repository-evidence.mjs",
-      "bytes": 20342,
-      "sha256": "d1e14f82ba07eb4df9fb0986b4d0c02110d1eaa05a4454f33e92bd1e5dfdc8d3",
+      "bytes": 25858,
+      "sha256": "66611f795c921c6203f76c1a10b32d1a9b901d8fd22578840994764b277b7bea",
       "origin": "archify/renderers/shared/repository-evidence.mjs"
     },
     {
       "path": "renderers/shared/repository-location.mjs",
-      "bytes": 4349,
-      "sha256": "344044d8240a093919894bd63278652bd01b3717c5b49fb174a6f77bea28b839",
+      "bytes": 4546,
+      "sha256": "7f7281105de6dce9415f0b46381e9af6105367362ec619117aedc759503f3915",
       "origin": "archify/renderers/shared/repository-location.mjs"
+    },
+    {
+      "path": "renderers/shared/route-crossings.mjs",
+      "bytes": 12707,
+      "sha256": "08796b282846b814a4755fca0bc6bda9a1fe77f94f3750353797f5b3bb29a5ab",
+      "origin": "archify/renderers/shared/route-crossings.mjs"
     },
     {
       "path": "renderers/shared/route-quality.mjs",
@@ -578,6 +644,12 @@
       "origin": "archify/renderers/shared/sidecar-path.mjs"
     },
     {
+      "path": "renderers/shared/software-notices.mjs",
+      "bytes": 506,
+      "sha256": "8bfc9ee3dc35eb0aa9860f71e7038f15647ed24d6ce7386e0e24870766e10bfe",
+      "origin": "archify/renderers/shared/software-notices.mjs"
+    },
+    {
       "path": "renderers/shared/spatial-grid.mjs",
       "bytes": 2440,
       "sha256": "e728bf6a729972f95ae09e368ea370490d10ff94d49debe2fab2e9bac923ee1a",
@@ -585,8 +657,8 @@
     },
     {
       "path": "renderers/shared/svg-path-analysis.mjs",
-      "bytes": 5429,
-      "sha256": "4c498ef5ba090a2d658c2ce3d80145f4cc63da9462f547b621206250096957c5",
+      "bytes": 5531,
+      "sha256": "dce96da166651de28498fedf6e8f4c934368a1aded81db2406cd73e7247f3421",
       "origin": "archify/renderers/shared/svg-path-analysis.mjs"
     },
     {
@@ -597,44 +669,44 @@
     },
     {
       "path": "renderers/shared/utils.mjs",
-      "bytes": 12972,
-      "sha256": "d0e8692b8acdc6993578c5d4aeb67065effdf5bf4cf2cd127bf561c677af38f5",
+      "bytes": 15095,
+      "sha256": "f70726764a6f2d56d200f9470f72d06f4aab4a3169f78d9f8127ddec2554f092",
       "origin": "archify/renderers/shared/utils.mjs"
     },
     {
       "path": "renderers/shared/validator.mjs",
-      "bytes": 3336,
-      "sha256": "f5cf5b9aa3623a456e9a07f0c5f08fe09a0a67d3ba356e32937c3287c75c3bc9",
+      "bytes": 3777,
+      "sha256": "b62ed44d604d293d75fadbfffb27a7089b39d8aed51ead1b41d1bdf464a5ed12",
       "origin": "archify/renderers/shared/validator.mjs"
     },
     {
       "path": "renderers/timeline/render-timeline.mjs",
-      "bytes": 30321,
-      "sha256": "125fc65b2cd2ac725a3ad655f4dcb8f14e158e21d04af72924839830181e294c",
+      "bytes": 33347,
+      "sha256": "fee0f07351ff37841e28594e4117ffb414745deff1c34ae57ec262f39687b266",
       "origin": "archify/renderers/timeline/render-timeline.mjs"
     },
     {
       "path": "renderers/tree/render-tree.mjs",
-      "bytes": 30666,
-      "sha256": "4e2ba7d4a3f567760c3801e7439bd18fa28acfe51e581479bd56ad549e240b68",
+      "bytes": 35962,
+      "sha256": "98cc6d9940f7d5c1df42ad46d33674816183c27f5f421f96cbf979b412697b4c",
       "origin": "archify/renderers/tree/render-tree.mjs"
     },
     {
       "path": "renderers/waterfall/render-waterfall.mjs",
-      "bytes": 23030,
-      "sha256": "df95d32ef3b790c9b830f5e7a5741d71ae14b9f602d65db84bc60235a74d3290",
+      "bytes": 26106,
+      "sha256": "384ce5cf00df8dfde1ce08efa6a2767404945528e4b35c24b64b7b7b1ca988a9",
       "origin": "archify/renderers/waterfall/render-waterfall.mjs"
     },
     {
       "path": "renderers/workflow/render-workflow.mjs",
-      "bytes": 1654,
-      "sha256": "304df0df006c44ab01ad534f34cb48cbe163f7ed2e7e2e8490dfee88827d3aba",
+      "bytes": 1752,
+      "sha256": "25d1c257613a19ef15388ff334a07720d28e1b261d8d10f3e90376ecb51741ed",
       "origin": "archify/renderers/workflow/render-workflow.mjs"
     },
     {
       "path": "renderers/workflow/workflow-compiler.mjs",
-      "bytes": 250196,
-      "sha256": "a84fa7570341166e9190892b4ab9bd5fd1ac63290cc9ec5a48dcaaf8a4183a3f",
+      "bytes": 265617,
+      "sha256": "1573ff82497cc724951e5cdc283327686f854a3f540b3fb1e3cb3113bbc1eac6",
       "origin": "archify/renderers/workflow/workflow-compiler.mjs"
     },
     {
@@ -651,80 +723,80 @@
     },
     {
       "path": "schemas/architecture.schema.json",
-      "bytes": 6024,
-      "sha256": "aef992b585a18a4016b8207254fe43a6227b0d45322a1ba95e0f69a80fc8f8c1",
+      "bytes": 7425,
+      "sha256": "196e2349a56d7f6a5712ca72c52202fb1280c11cd88015b4e563bfcb2c7c05b6",
       "origin": "archify/schemas/architecture.schema.json"
     },
     {
       "path": "schemas/class.schema.json",
-      "bytes": 8120,
-      "sha256": "0ecfb9948563166c4f23df784d618ddd93f003ee61402a9349c5f63b0284ff2a",
+      "bytes": 9204,
+      "sha256": "7e6f3323fab74ae1c4f09dd0a6172390216d5385568dda61df93ed532befa6aa",
       "origin": "archify/schemas/class.schema.json"
     },
     {
       "path": "schemas/common.schema.json",
-      "bytes": 5785,
-      "sha256": "3bb6bde1122ebc1d47f73cf12400015baa0c7e5650e5780b0e89773d7ead4def",
+      "bytes": 8820,
+      "sha256": "12904dd129f0657785b231e59004aa9613fc1ea5dad3182a81a3d95d7d986573",
       "origin": "archify/schemas/common.schema.json"
     },
     {
       "path": "schemas/dataflow.schema.json",
-      "bytes": 6320,
-      "sha256": "f01b2faafa5fd6e300f6b5045eeca70f70226552411180442d6e528dd45172f1",
+      "bytes": 7147,
+      "sha256": "7f74165d7ed44a66381791e3f22b62e3cfa28336bfa839b84e4bb0a6dabd69aa",
       "origin": "archify/schemas/dataflow.schema.json"
     },
     {
       "path": "schemas/erd.schema.json",
-      "bytes": 9329,
-      "sha256": "83aef0349f3cd415a00da4ed30c7864056dc9599627e004e6b7168ad4149ebc8",
+      "bytes": 10009,
+      "sha256": "c276c664eab63432daea482ed41043f0423940aeb5fbc88169efa9b3d8aaa838",
       "origin": "archify/schemas/erd.schema.json"
     },
     {
       "path": "schemas/explainer.schema.json",
-      "bytes": 19246,
-      "sha256": "9fc54042927602b1c37dd130061989f7d9a90718888ad75943275be2fd7d1371",
+      "bytes": 19765,
+      "sha256": "06cfdb066e5ae9ff5eae81d51e5431203042d3c758d00c231e7bcbe2865959b5",
       "origin": "archify/schemas/explainer.schema.json"
     },
     {
       "path": "schemas/lifecycle.schema.json",
-      "bytes": 5342,
-      "sha256": "151befae29a68833ba26e7848769e89ab9dc71fc5bba234a91a62307338cfa49",
+      "bytes": 6099,
+      "sha256": "426112ba7b8632f6e1e38a33f8897bf3ddb58d4d97a58ebcab24c03cf1cc4b0f",
       "origin": "archify/schemas/lifecycle.schema.json"
     },
     {
       "path": "schemas/sequence.schema.json",
-      "bytes": 6178,
-      "sha256": "97af565f8b6d8fbd4b5be40ddb52f4943accab2cf4f386d695e800d367dd4f89",
+      "bytes": 7151,
+      "sha256": "caba62503f2bca4d804178c300e2b61cc06268050c09e531063d6da315219302",
       "origin": "archify/schemas/sequence.schema.json"
     },
     {
       "path": "schemas/timeline.schema.json",
-      "bytes": 3951,
-      "sha256": "4a657251d454bde44ef4697c960fe7503eeb4db4e50f9540c7e2d54046dd0769",
+      "bytes": 4726,
+      "sha256": "1ce13f76332ec1ad380fa3a15b40e2dff8a5934c63db432d7290e759139d2006",
       "origin": "archify/schemas/timeline.schema.json"
     },
     {
       "path": "schemas/tree.schema.json",
-      "bytes": 3172,
-      "sha256": "65c794a1f522ce336afe787bd59adb63a81f57a5bba3ac266f2bae5c3a07b8c3",
+      "bytes": 3757,
+      "sha256": "d487f1b8271173768905bd4fd939af0bdbd80eddfc6fe6c92f94336370f65755",
       "origin": "archify/schemas/tree.schema.json"
     },
     {
       "path": "schemas/waterfall.schema.json",
-      "bytes": 3526,
-      "sha256": "7c3000534b491ce86b96ace528e9bd5a453ba3d14294a724da3ece4bd83b51f6",
+      "bytes": 4111,
+      "sha256": "05930ded2ec89df4bc54d72a01d7cdd5acd8cddd385ccb1e0dd9c5cd43c3cd1a",
       "origin": "archify/schemas/waterfall.schema.json"
     },
     {
       "path": "schemas/workflow.schema.json",
-      "bytes": 10165,
-      "sha256": "e13a1ce3b841376c8c6f6b9cb8152f8c0c7d70a77a2960fecdfe9025de83dc25",
+      "bytes": 11214,
+      "sha256": "d77542cef3c1226eb1c4fb2548582f0ff0a956039b65280353d2057e3aa34fd6",
       "origin": "archify/schemas/workflow.schema.json"
     },
     {
       "path": "scripts/check-render-output.mjs",
-      "bytes": 68465,
-      "sha256": "dcfb6c8eccd08bd7ce4b9fc1928cd4c3a6794b49a512e0afa1aea87e1e332195",
+      "bytes": 88750,
+      "sha256": "37a79af93faccab3a0f991a66d726423ac8c4f548432b9a692e110c9a1d7265e",
       "origin": "archify/scripts/check-render-output.mjs"
     }
   ]

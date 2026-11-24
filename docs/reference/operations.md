@@ -257,7 +257,7 @@ manifest records. Typst also renders the overview's page and each plate's page
 as PNG at each `--png` width, at width × 72 / 1600 pixels per inch.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
-Archify 3.2.0. Its heading is the model's question, its conclusion the summary,
+Archify 3.3.0. Its heading is the model's question, its conclusion the summary,
 listed beside it the titles of up to four panels, each a link to its panel, and
 its scope the model's scope, limits and editors. Each view is a panel
 titled with the view's question, or its title when it asks the model's own
@@ -372,8 +372,8 @@ self-hosted GitLab names `repo_provider=gitlab` in its `@meta`. Without
 `archpub scaffold guide` writes the page the publisher generates as a starting
 guide: `guide.archify.md` and one architecture document per view. Its prose is
 the model's, which the strict writing checks may hold to shorter sentences;
-Archify reports each one at its line. Archify 3.2.0 cuts a validation receipt
-longer than 64 KiB on macOS, which an 11-view page reaches; Archify's own
+Archify reports each one at its line. Archify 3.2.0 cut a validation receipt
+over 64 KiB on macOS, as an 11-view page's was (not measured with 3.3.0); Archify's own
 guidance keeps a page to four native diagrams.
 
 ## The delivery
