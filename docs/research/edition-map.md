@@ -30,20 +30,20 @@ found by its number and title on its first line, its line back by the arrow that
 summary (`lane-kit/census.py`), the views by the model's statement, and the room under the overview's last row from
 its image. The scripts lie in the checkout's ignored `build/runtime/work/edition-map/` and `lane-kit/`.
 
-| Edition                   | Plates | Line back | Answer printed | Views unreached | Room under the overview, pt |
-| ------------------------- | ------ | --------- | -------------- | --------------- | --------------------------- |
-| aigw-client-en            | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| aigw-client-zh            | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| architecture-publisher-en | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| architecture-publisher-zh | 6      | 6 of 6    | 6 of 6         | none            | -1                          |
-| ddwg-en                   | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| ddwg-zh                   | 6      | 6 of 6    | 6 of 6         | none            | -2                          |
-| ethos-en                  | 11     | 11 of 11  | 11 of 11       | none            | -3                          |
-| ethos-zh                  | 11     | 11 of 11  | 11 of 11       | none            | -3                          |
-| filmkit-en                | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| filmkit-zh                | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| openai-responses-proxy-en | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
-| openai-responses-proxy-zh | 6      | 6 of 6    | 6 of 6         | none            | -2                          |
+| Edition                     | Plates | Line back | Answer printed | Views unreached | Room under the overview, pt |
+| --------------------------- | ------ | --------- | -------------- | --------------- | --------------------------- |
+| `aigw-client-en`            | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `aigw-client-zh`            | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `architecture-publisher-en` | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `architecture-publisher-zh` | 6      | 6 of 6    | 6 of 6         | none            | -1                          |
+| `ddwg-en`                   | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `ddwg-zh`                   | 6      | 6 of 6    | 6 of 6         | none            | -2                          |
+| `ethos-en`                  | 11     | 11 of 11  | 11 of 11       | none            | -3                          |
+| `ethos-zh`                  | 11     | 11 of 11  | 11 of 11       | none            | -3                          |
+| `filmkit-en`                | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `filmkit-zh`                | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `openai-responses-proxy-en` | 6      | 6 of 6    | 6 of 6         | none            | -3                          |
+| `openai-responses-proxy-zh` | 6      | 6 of 6    | 6 of 6         | none            | -2                          |
 
 ## The clauses and what holds each
 
