@@ -34,14 +34,15 @@ test("Archify chooses every side when the grid's sides cross on its routes", asy
   assert.ok(chosen.candidates > diagramCandidates(model, /** @type {any} */ (action)).length);
 });
 
-test("a view whose every candidate misreads takes the one that misreads least", async () => {
-  // On Archify's routes every Big Bank tiered candidate, and every re-siding the
-  // repair measures, runs at least one pair of routes that read as one.
+test("the Big Bank tiered view takes the candidate that misreads least", async () => {
+  // On Archify 3.2.0's routes every Big Bank tiered candidate, and every re-siding the repair measured, ran at least
+  // one pair of routes that read as one, and the view took one that misread once. Archify 3.3.0 routes a candidate
+  // that reads clean, and the view takes it.
   const { model } = await loadModel(BIG_BANK_MODEL);
   const [tiered] = await viewsOf(model);
   const chosen = await chooseDiagram(model, tiered);
   const { tangles, joins, hugs } = chosen.metrics;
-  assert.equal(tangles + joins + hugs, 1);
+  assert.equal(tangles + joins + hugs, 0);
 });
 
 test("routes that read as one, run along an edge or crowd one side of a card are counted", () => {

@@ -45,5 +45,8 @@ lies in the checkout's ignored `build/runtime/work/archify-3-3-0/`.
   published page shows the panel. Whether a page the publisher generates sets it is the queue item `page`'s to decide.
 - Beyond the panel, a page differs as 3.3.0 draws it: its diagrams are redrawn (larger smallest text), and reader
   styles and a software-notices block are added; its visible text loses nothing, read on all twelve works.
+- A test held a fact of 3.2.0's routes: every candidate of Big Bank's tiered view misread, and the view took one
+  that misread once. 3.3.0 routes a candidate that reads clean; the test now holds that the view takes it, and no
+  fixture of the suite now has every candidate misread.
 - A very large diagram that 3.2.0 ranked may now be refused for its crossing check's budget, and a new refusal
   guards a page's inputs; none of the twelve works meets either.
