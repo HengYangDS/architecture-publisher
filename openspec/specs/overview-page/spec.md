@@ -270,8 +270,9 @@ A step, a station, a branch, a spur or a block of the statement MAY name, in
 `view`, the view that enlarges it; a view the model does not declare SHALL be
 refused with `model_reference_unknown` at its path. The page SHALL set that
 view's plate number after the name, and in the edition as a link to the
-plate's page. A check SHALL report with `overview_view_unreached`, at the
-view's path, every view that nothing on the overview names.
+plate's page. An edition that sets a stated overview SHALL refuse with
+`overview_view_unreached`, before it plans the views, naming the path of every
+view that nothing on the overview names.
 
 #### Scenario: A block names its view
 
@@ -280,8 +281,13 @@ view's path, every view that nothing on the overview names.
 
 #### Scenario: A view the overview does not reach
 
-- **WHEN** a model declares a view that no point or block of its overview names
-- **THEN** the check's warnings name it with `overview_view_unreached`
+- **WHEN** a model declares a view that no point or block of its overview names, and the edition is checked or built
+- **THEN** the work is refused with `overview_view_unreached`, naming that view's path
+
+#### Scenario: The page alone
+
+- **WHEN** the same model is checked for the page alone
+- **THEN** nothing is refused for the view the overview does not reach
 
 ### Requirement: Every overview page full
 
