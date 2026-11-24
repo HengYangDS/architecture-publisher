@@ -19,7 +19,7 @@ export const MAXIMUM_LABEL_ROWS = 3;
  * What an assignment costs for each route defect the channel's own wires make,
  * measured on the channel drawn: as much as a borrowed end, which predicts one.
  */
-const ROUTE_DEFECT = 8;
+export const ROUTE_DEFECT = 8;
 
 /** Far enough above and below a channel to stand for the cards beside it. */
 const FAR = 1e4;
@@ -44,17 +44,35 @@ function routesOf(channel, assignment, rows, spacing, limit) {
 }
 
 /**
+ * An assignment's score: what it costs before its routes are measured, and each route defect its channel makes.
+ * @param {number} unmeasured
+ * @param {number} routes
+ */
+const scored = (unmeasured, routes) => unmeasured + routes * ROUTE_DEFECT;
+
+/**
+ * Whether a score is kept over the best so far: the one comparison by which the search keeps or rejects.
+ * @param {number} score
+ * @param {number | undefined} best
+ */
+const wins = (score, best) => best === undefined || score < best;
+
+/**
  * The fewest route defects with which an assignment of the score `unmeasured`
  * before its measure scores no better than `best`: where its count can stop.
  * It is found by the comparison the search makes, so a count stopped there
- * decides as the whole count would.
+ * decides as the whole count would. Where it would pass 2^53, at which a count
+ * no longer grows by one, the measure is counted whole.
  * @param {number} unmeasured
  * @param {number | undefined} best
  */
-function losing(unmeasured, best) {
+export function losing(unmeasured, best) {
   if (best === undefined) return Infinity;
   let count = Math.max(0, Math.floor((best - unmeasured) / ROUTE_DEFECT) - 1);
-  while (unmeasured + count * ROUTE_DEFECT < best) count += 1;
+  while (wins(scored(unmeasured, count), best)) {
+    if (!Number.isSafeInteger(count + 1)) return Infinity;
+    count += 1;
+  }
   return count;
 }
 
@@ -160,8 +178,8 @@ function search(
         const routes = measured
           ? routesOf(channel, assignment, rows, spacing, losing(unmeasured, best?.score))
           : 0;
-        const score = unmeasured + routes * ROUTE_DEFECT;
-        if (!best || score < best.score) best = { ...assignment, score, routes };
+        const score = scored(unmeasured, routes);
+        if (wins(score, best?.score)) best = { ...assignment, score, routes };
         return;
       }
       for (const [position, option] of choices[index].entries()) {

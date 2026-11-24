@@ -4,6 +4,7 @@ import { diagramCandidates } from "../src/map/archify.mjs";
 import {
   besideSteps,
   chooseDiagram,
+  compare,
   drawingOf,
   pinSets,
   routeLayout,
@@ -484,4 +485,37 @@ test("a preview stands beside its steps when its smallest text reaches the floor
   assert.deepEqual(drawingOf(layout, { components: [{}, {}] }), { width: 790, smallest: 11 });
   const bounded = { ...layout, boundaries: [{ x: -20, y: -20, width: 740, height: 100 }] };
   assert.deepEqual(drawingOf(bounded, { components: [] }), { width: 810, smallest: 9 });
+});
+
+test("among candidates that all misread, the one that misreads least ranks first, before fewer crossings", () => {
+  // Since Archify 3.3.0 no fixture of the suite has every candidate misread (the review of 2026-11-24), so the
+  // ranking is held on hand-made measures: routes a reader takes for one outrank a crossing.
+  const clean = {
+    tangles: 0,
+    joins: 0,
+    hugs: 0,
+    crossings: 0,
+    mislabels: 0,
+    doubles: 0,
+    routesOverTwoBends: 0,
+    labels: 0,
+    crowded: 0,
+    maxStretch: 0,
+  };
+  const candidate = (index, metrics) => ({
+    metrics: { ...clean, ...metrics },
+    width: 960,
+    height: 540,
+    drawing: { width: 600, smallest: 11 },
+    index,
+  });
+  const ranked = [
+    candidate(0, { tangles: 1, joins: 1 }),
+    candidate(1, { hugs: 1, crossings: 4 }),
+    candidate(2, { joins: 3 }),
+  ].sort(compare);
+  assert.deepEqual(
+    ranked.map(({ index }) => index),
+    [1, 0, 2],
+  );
 });

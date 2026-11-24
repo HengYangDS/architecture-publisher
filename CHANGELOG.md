@@ -15,6 +15,17 @@ remain pre-release contracts and may contain incompatible changes.
 feedback_links=false` turns off; no text of a page is lost, and the edition, its figures and the data are
   unchanged.
 
+### Fixed
+
+- A plate's line back no longer refuses a model: where it would pass the margin it gives way to the overview's
+  word, and then to none. 0.18.0 refused such a plate with `edition_text_wider`.
+- A page Archify delivered while the plates' layout held the publisher is read: past Archify's 300 s limit a grace
+  of 10 s follows, where the page could read as refused.
+- A generated page runs beside the plates from its first run of Archify, where the layout waited for its candidate
+  diagrams; a refused build or check reports once its page has ended, leaving no run or work file behind.
+- A page kept in `ARCHPUB_ARCHIFY_ANSWERS` is kept by the publisher's own reading of it as well, so a release that
+  reads a page differently asks Archify again.
+
 ## [0.18.0] - 2026-11-24
 
 ### Changed

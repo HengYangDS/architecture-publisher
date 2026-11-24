@@ -169,8 +169,7 @@ export async function readGuide(draftPath) {
  * holds; only a guide it refuses is validated on its own, which names every finding.
  * @param {any} model
  * @param {Awaited<ReturnType<typeof readGuide>>} guide the guide as read
- * @param {{ quality: "showcase" | "standard", repo: string | null, deliver?: string,
- *   started?: () => void }} options `started` is told once the guide's first run of Archify has begun
+ * @param {{ quality: "showcase" | "standard", repo: string | null, deliver?: string }} options
  */
 export async function guidePage(model, guide, options) {
   const declared = draftRepository(guide.text);
@@ -198,24 +197,19 @@ export async function guidePage(model, guide, options) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-guide-"));
   try {
     return await withClone(page, async (repoRoot) => {
-      const held = options.deliver
-        ? await holdDelivery(page, options.deliver, { repoRoot, started: options.started })
-        : null;
+      const held = options.deliver ? await holdDelivery(page, options.deliver, { repoRoot }) : null;
       if (held?.delivered) return { ...page, delivered: held.delivered };
-      const { answer } = await runArchify(
-        [
-          "validate",
-          "explainer",
-          await writePage(page, directory),
-          "--json",
-          "--quality",
-          page.quality,
-          "--writing",
-          page.writing,
-          ...(repoRoot ? ["--repo-root", repoRoot] : []),
-        ],
-        { started: options.started },
-      );
+      const { answer } = await runArchify([
+        "validate",
+        "explainer",
+        await writePage(page, directory),
+        "--json",
+        "--quality",
+        page.quality,
+        "--writing",
+        page.writing,
+        ...(repoRoot ? ["--repo-root", repoRoot] : []),
+      ]);
       if (answer.ok !== true) refusePage(answer);
       // The guide validates and its delivery was refused: the refusal is the delivery's.
       if (held) throw held.refusal;

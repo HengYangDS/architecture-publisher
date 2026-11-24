@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { execFile } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
@@ -12,6 +13,36 @@ import { DEFAULT_LOCALE, detailText, wordsOf } from "../locale.mjs";
 import { verifySupply } from "../supply.mjs";
 
 const run = promisify(execFile);
+
+/**
+ * What a run of Archify reads of the work it runs in, where that work asked (`telling`): whom to tell as it begins,
+ * and the signal that stops it.
+ */
+const beginning = /** @type {AsyncLocalStorage<{ started: () => void, signal: AbortSignal }>} */ (
+  new AsyncLocalStorage()
+);
+
+/**
+ * Do `work` and tell `started` as each run of Archify inside it begins, of any kind: a candidate's measure as well
+ * as a page's own run. Once `signal` aborts, a run inside it is stopped and none starts: each throws
+ * `archify_stopped`, never an answer, so nothing keeps it. A build waits for the first run, then lays its plates out
+ * while the runs go on, and stops a page it no longer needs.
+ * @template T
+ * @param {() => void} started
+ * @param {AbortSignal} signal
+ * @param {() => T} work
+ * @returns {T}
+ */
+export const telling = (started, signal, work) => beginning.run({ started, signal }, work);
+
+/** The signal that stops the work this is called in (`telling`); none outside such work. */
+export const stopSignal = () => beginning.getStore()?.signal;
+
+/** What a run of stopped work throws. */
+const stoppedRun = () =>
+  Object.assign(new Error("Archify was stopped: the work that asked no longer needs it."), {
+    code: "archify_stopped",
+  });
 
 /**
  * The view diagrams of the interactive page: one native Archify architecture
@@ -475,35 +506,57 @@ function holdsAnswers(store) {
 
 /**
  * Run the vendored Archify CLI and return its JSON answer, also when it exits
- * with a refusal. `started` is told once Archify's process has begun.
+ * with a refusal. The work it runs in hears when Archify's process has begun, and
+ * can stop it (`telling`): a run of stopped work throws `archify_stopped`.
+ *
+ * A run may take `limit` milliseconds. The limit is the module's own, not the
+ * child's: a build lays its plates out while its page's run goes on, and the
+ * layout holds the event loop, so the limit can expire while the run's output
+ * waits unread. When it expires a grace follows, on a free loop, before the run
+ * is aborted: a run that ended meanwhile is read.
  * @param {string[]} args
- * @param {{ started?: () => void }} [options]
+ * @param {{ limit?: number, grace?: number }} [options]
  */
 export async function runArchify(args, options = {}) {
   const supply = await verifySupply("archify");
+  const { limit = 300_000, grace = 10_000 } = options;
+  const within = beginning.getStore();
+  const abort = new AbortController();
+  /** @param {string} message */
+  const failed = (message) => ({
+    supply,
+    answer: {
+      ok: false,
+      diagnostics: [{ code: "archify_failed", message: message.slice(0, 4000) }],
+    },
+  });
+  /** @type {ReturnType<typeof setTimeout>} */
+  let timer = setTimeout(() => {
+    timer = setTimeout(() => abort.abort(), grace);
+  }, limit);
   try {
+    if (within?.signal.aborted) throw stoppedRun();
     const running = run(process.execPath, [path.join(supply.root, "bin", "archify.mjs"), ...args], {
       env: childEnvironment({ ARCHIFY_UPDATE_CHECK_DISABLED: "1" }),
       maxBuffer: 16 * 1024 * 1024,
-      timeout: 300_000,
+      signal: within ? AbortSignal.any([abort.signal, within.signal]) : abort.signal,
     });
-    options.started?.();
+    within?.started();
     const { stdout } = await running;
     return { supply, answer: JSON.parse(stdout) };
   } catch (error) {
     const failure = /** @type {any} */ (error);
+    if (within?.signal.aborted) throw failure?.code === "archify_stopped" ? failure : stoppedRun();
     try {
       return { supply, answer: JSON.parse(failure.stdout) };
     } catch {
-      return {
-        supply,
-        answer: {
-          ok: false,
-          diagnostics: [
-            { code: "archify_failed", message: String(failure.message).slice(0, 4000) },
-          ],
-        },
-      };
+      return failed(
+        abort.signal.aborted
+          ? `Archify did not answer within its limit of ${limit} ms and a grace of ${grace} ms.`
+          : String(failure.message),
+      );
     }
+  } finally {
+    clearTimeout(timer);
   }
 }

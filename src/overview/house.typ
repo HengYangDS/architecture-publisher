@@ -1024,25 +1024,27 @@
       panic("edition_title_too_long: " + p.title)
     }
     _head(p.number, p.title, lead: p.question, label-style: (size: "title", font: display, fill: green))
-    // The line back: after the question, on its line, the overview's element that names this plate's view.
-    if p.back != none {
-      let back = "↖ " + p.back
-      context {
-        let x = _e.claim * 1pt + measure(text(size: _size("text"), font: sans, p.question)).width + 24pt
-        if x + measure(text(size: _size("text"), font: sans, back)).width > page-width - margin + 0.5pt {
-          panic("edition_text_wider: " + back)
-        }
-        tx(x, _baseline.lead, link(label(r.front.key), back), fill: green)
-      }
+    // The line back: after the question, on its line, the overview's element that names this plate's view. Where it
+    // passes the margin it gives way to the overview's word, and where that passes too there is none: a long question
+    // keeps its plate. The answer below stands clear of the line back as shown.
+    let lead = text.with(size: _size("text"), font: sans)
+    let back-x() = _e.claim * 1pt + measure(lead(p.question)).width + 24pt
+    let shown-back() = if p.back == none { none } else {
+      let fits(words) = back-x() + measure(lead("↖ " + words)).width <= page-width - margin + 0.5pt
+      if fits(p.back) { p.back } else if fits(words.overview) { words.overview } else { none }
+    }
+    context {
+      let back = shown-back()
+      if back != none { tx(back-x(), _baseline.lead, link(label(r.front.key), "↖ " + back), fill: green) }
     }
     // The answer of a plate whose figure keeps the full body: right of the title and of the question's line with its
     // line back, from the title's baseline, at most three lines above the body.
     if p.answer != none {
       let (size, pitch) = (_view-summary.size, _view-summary.pitch)
       context {
-        let lead = text.with(size: _size("text"), font: sans)
         let question = measure(lead(p.question)).width
-        let back = if p.back == none { 0pt } else { 24pt + measure(lead("↖ " + p.back)).width }
+        let shown = shown-back()
+        let back = if shown == none { 0pt } else { 24pt + measure(lead("↖ " + shown)).width }
         let title = measure(text(font: display, size: sizes.title, p.title)).width
         let x = _e.claim * 1pt + calc.max(title, question + back) + 48pt
         let w = page-width - margin - x

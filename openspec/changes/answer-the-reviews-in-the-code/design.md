@@ -16,7 +16,8 @@ See [proposal.md](proposal.md). The findings and their answers are kept with the
 ## Decisions
 
 1. Archify's limit is a timer of the module's own, with a grace.
-   - Rests on: `execFile`'s `timeout` starts when the child starts; the plates' layout holds the event loop, so the
+   - Rests on: `docs/research/build-and-suite-time.md` (the page run beside the plates); `execFile`'s `timeout`
+     starts when the child starts; the plates' layout holds the event loop, so the
      timer can fire while a finished run's output waits unread (the reviewer's Node probe).
    - Considered: a longer `timeout`, which moves the cliff and keeps it.
    - Chosen because: a grace on a free loop lets every finished run be read, and a run that hangs still ends.
@@ -43,7 +44,7 @@ See [proposal.md](proposal.md). The findings and their answers are kept with the
      other modules does not change it.
    - Applies to: `pageParts`, `holdDelivery`.
 5. A line back gives way: the element's words, else the overview's word, else none.
-   - Rests on: the head keeps one line for its question; a question that long is read on its own.
+   - Rests on: `docs/research/edition-map.md` (the line back); the head keeps one line for its question; a question that long is read on its own.
    - Considered: wrapping or shrinking the question, which changes every head's measure.
    - Chosen because: no model built before changes, and none is refused.
    - Applies to: `src/overview/house.typ`.

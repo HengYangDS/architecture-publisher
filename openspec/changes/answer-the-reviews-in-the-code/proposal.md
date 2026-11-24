@@ -38,5 +38,6 @@ None.
 Changed: `src/map/archify.mjs`, `src/map/explainer.mjs`, `src/map/guide.mjs`, `src/map/choice.mjs`, `src/build.mjs`,
 `src/overview/house.typ`, `src/layout/channel-solver/search.mjs`, `src/layout/measure.mjs`, six test files and
 `CHANGELOG.md`. No delivered byte of a model built before changes; a model 0.18.0 refused for its line back builds.
+Most findings are of `performance`'s Changes; the line back is of `edition-map`'s.
 
-Queue: `maintenance`.
+Queue: `performance`.

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { refuse } from "../refusal.mjs";
-import { candidateAnswer, diagramCandidates } from "./archify.mjs";
+import { candidateAnswer, diagramCandidates, stopSignal } from "./archify.mjs";
 import { clearLabels, routeDefects } from "./routes.mjs";
 
 /**
@@ -265,6 +265,11 @@ async function layoutOf(file, document) {
 const KNOWN = Object.freeze({ measured: new Map(), laid: new Map() });
 
 /**
+ * A question of this process's answers: the signal that stops the work that asked it, if any, and its answer.
+ * @typedef {{ signal: AbortSignal | undefined, answer: Promise<any> }} Question
+ */
+
+/**
  * Measure documents on Archify's routes, or only lay them out, a few at a
  * time, each in its own file under `directory`.
  * @param {string} directory
@@ -272,24 +277,35 @@ const KNOWN = Object.freeze({ measured: new Map(), laid: new Map() });
 function measurer(directory) {
   let written = 0;
   /**
-   * @param {Map<string, Promise<any>>} known
+   * @param {Map<string, Question>} known
    * @param {(file: string, document: any) => Promise<any>} answer
    * @returns {(documents: any[]) => Promise<any[]>}
    */
   const each = (known, answer) => {
-    /** @param {any} document */
+    /**
+     * A document's answer, asked once a process. A question that ends without an answer, as a stopped run does, is
+     * not kept, and a question of work since stopped is not read by other work: it asks again.
+     * @param {any} document
+     * @returns {Promise<any>}
+     */
     const once = (document) => {
       const key = JSON.stringify(document);
-      if (!known.has(key)) {
-        const file = path.join(directory, `${written++}.architecture.json`);
-        known.set(
-          key,
-          fs
-            .writeFile(file, `${JSON.stringify(document, null, 2)}\n`)
-            .then(() => answer(file, document)),
-        );
-      }
-      return known.get(key);
+      const held = known.get(key);
+      if (held && !held.signal?.aborted) return held.answer;
+      const file = path.join(directory, `${written++}.architecture.json`);
+      /** @type {Question} */
+      const entry = {
+        signal: stopSignal(),
+        answer: fs
+          .writeFile(file, `${JSON.stringify(document, null, 2)}\n`)
+          .then(() => answer(file, document))
+          .catch((error) => {
+            if (known.get(key) === entry) known.delete(key);
+            throw error;
+          }),
+      };
+      known.set(key, entry);
+      return entry.answer;
     };
     return async (documents) => {
       const answers = new Array(documents.length);
@@ -348,7 +364,13 @@ const rank = ({ metrics, width, height, drawing, index }, labels = true) => [
   index,
 ];
 
-function compare(a, b, labels = true) {
+/**
+ * Below zero where `a` ranks before `b`, above where after, by the measures above in their order.
+ * @param {any} a
+ * @param {any} b
+ * @param {boolean} [labels] whether the labels count
+ */
+export function compare(a, b, labels = true) {
   const [x, y] = [rank(a, labels), rank(b, labels)];
   const at = x.findIndex((value, position) => value !== y[position]);
   return at < 0 ? 0 : x[at] - y[at];

@@ -12,6 +12,7 @@ import {
 import { guideOf, pinnedEdition, requireDeliveryNames } from "./projection.mjs";
 import { editionFacts } from "./facts/edition.mjs";
 import { loadIcons } from "./icons.mjs";
+import { telling } from "./map/archify.mjs";
 import { explainerPage, writeDelivery, writePage } from "./map/explainer.mjs";
 import { guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
@@ -187,13 +188,57 @@ async function begun(start) {
  * Validate, bind, plan and compose without writing anything. Only the media
  * the build delivers are composed. The listener is told each step as it is reached.
  * A build's page is prepared with its delivery, which Archify validates, writes and
- * checks in one run; a check's page is validated alone.
+ * checks in one run; a check's page is validated alone. A refusal stops the page and is told
+ * once its work has ended, so that no run of Archify and no work file outlives it.
  * @param {string} modelPath
  * @param {ReturnType<typeof buildOptions>} options
  * @param {StepListener} listener
  * @param {{ deliver?: boolean }} [page]
  */
 async function prepare(modelPath, options, listener, { deliver = false } = {}) {
+  /** Set inside the plan, so held in an object the checker reads as it is typed. */
+  const begunPage = /** @type {BegunPage} */ ({ work: null, stop: null, replaced: [] });
+  try {
+    return await preparing(modelPath, options, listener, deliver, begunPage);
+  } catch (error) {
+    begunPage.stop?.abort();
+    await settled(begunPage);
+    throw error;
+  }
+}
+
+/**
+ * A build's page: its work once started, the switch that stops its runs of Archify, and the work of each page a
+ * plan made again for shorter strips replaced, which was stopped and runs on only until it ends.
+ * @typedef {{ work: Promise<any> | null, stop: AbortController | null, replaced: Promise<any>[] }} BegunPage
+ */
+
+/**
+ * Once every work of a build's page has ended, delivered, refused or stopped; at once where none was started.
+ * @param {BegunPage} page
+ */
+async function settled({ work, replaced }) {
+  await Promise.all([...replaced, work].map((each) => each?.catch(() => {})));
+}
+
+/**
+ * Stop a prepared build's page and wait until its work has ended: what a refusal does before it is told.
+ * @param {{ stopPage: AbortController | null, pageWork: Promise<any> | null }} prepared
+ */
+async function stopped(prepared) {
+  prepared.stopPage?.abort();
+  await prepared.pageWork?.catch(() => {});
+}
+
+/**
+ * The work of `prepare`, which starts the page in `begunPage`.
+ * @param {string} modelPath
+ * @param {ReturnType<typeof buildOptions>} options
+ * @param {StepListener} listener
+ * @param {boolean} deliver
+ * @param {BegunPage} begunPage
+ */
+async function preparing(modelPath, options, listener, deliver, begunPage) {
   listener("reading the model");
   const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
   const loaded = await loadModel(modelPath, { icon: icons.has });
@@ -230,13 +275,15 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   // The page is the work's guide when the model names one, and the generated page otherwise.
   const paged = media.includes("page");
   const deliverAs = deliver ? filesOf(model.id).page : undefined;
-  /** @param {any[]} planned @returns {(started: () => void) => Promise<any>} */
-  const pageOf = (planned) => (started) =>
-    guide
-      ? guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs, started })
-      : explainerPage(model, planned, { quality, owned: facts.owned, deliver: deliverAs, started });
-  /** The page's work once started; set inside the plan, so held in an object the checker reads as it is typed. */
-  const begunPage = /** @type {{ work: Promise<any> | null }} */ ({ work: null });
+  // The page hears as each of its runs of Archify begins, a candidate's as well as its own, and stops when the build
+  // no longer needs it.
+  /** @param {any[]} planned @param {AbortSignal} signal @returns {(started: () => void) => Promise<any>} */
+  const pageOf = (planned, signal) => (started) =>
+    telling(started, signal, () =>
+      guide
+        ? guidePage(model, guide, { quality, repo: options.repo, deliver: deliverAs })
+        : explainerPage(model, planned, { quality, owned: facts.owned, deliver: deliverAs }),
+    );
   // The overview is the edition's map: an edition that sets a stated overview refuses a view it does not reach,
   // before any view is planned.
   const unreached = printed && model.overview ? unreachedViews(model) : [];
@@ -257,7 +304,13 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
     // The page needs the planned views and not the plates: it starts here, and its run of Archify goes on beside the
     // plates' layout, which holds this process. A guide needs no view and starts once; a generated page starts again
     // where shorter strips plan the views again.
-    if (paged && !(guide && begunPage.work)) begunPage.work = (await begun(pageOf(planned))).work;
+    if (paged && !(guide && begunPage.work)) {
+      // A plan made again starts its page again, and stops the page it replaces.
+      begunPage.stop?.abort();
+      if (begunPage.work) begunPage.replaced.push(begunPage.work);
+      begunPage.stop = new AbortController();
+      begunPage.work = (await begun(pageOf(planned, begunPage.stop.signal))).work;
+    }
     if (!printed) return { style: drawn, views: planned, plates: [] };
     listener("laying out the plates");
     return {
@@ -290,7 +343,9 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   if (paged) listener("preparing the page");
   // A build's page is made beside its plates and its edition: the build awaits it to write the page, after the
   // edition is typeset, where a page that fails fails. A check awaits it here.
-  const pageWork = begunPage.work;
+  // The page's work ends once every page it replaced has ended too, so none outlives the build.
+  const pageWork = begunPage.work && settled(begunPage).then(() => begunPage.work);
+  pageWork?.catch(() => {});
   const page = deliver ? null : await pageWork;
   const held = {
     loaded,
@@ -313,7 +368,12 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
   };
   // The pinned edition is gathered and held to its invariants before a check reports and before a build writes;
   // a build gathers it again with its page.
-  return { ...held, pinned: pinnedEdition(held, options.png), pageWork: deliver ? pageWork : null };
+  return {
+    ...held,
+    pinned: pinnedEdition(held, options.png),
+    pageWork: deliver ? pageWork : null,
+    stopPage: deliver ? begunPage.stop : null,
+  };
 }
 
 /**
@@ -421,8 +481,14 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
     refuse("delivery_exists", `The output ${target} already exists; choose a new directory.`);
   const prepared = await prepare(modelPath, chosen, listener, { deliver: true });
   const parent = path.dirname(target);
-  await fs.mkdir(parent, { recursive: true });
-  const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
+  // A staging directory that cannot be made refuses the build as any refusal does: once its page has ended.
+  const staging = await fs
+    .mkdir(parent, { recursive: true })
+    .then(() => fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`)))
+    .catch(async (error) => {
+      await stopped(prepared);
+      throw error;
+    });
   try {
     const { overview, model } = prepared;
     const files = filesOf(model.id);
@@ -510,6 +576,7 @@ export async function buildDelivery(modelPath, out, options = {}, listener = () 
       warnings: prepared.warnings,
     };
   } catch (error) {
+    await stopped(prepared);
     await fs.rm(staging, { recursive: true, force: true });
     throw error;
   }

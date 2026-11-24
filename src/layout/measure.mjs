@@ -162,7 +162,9 @@ export function measureLayout(geometry) {
 /**
  * Route defects of part of a layout, such as one channel and the cards beside
  * it, by the same measure as the whole. Given a limit, the measure stops once
- * it has found that many: the first of those it finds without one.
+ * it has found that many: the first of those it finds without one. A limit is a
+ * whole number of at least 1, or Infinity for the whole count; the search passes
+ * no other.
  * @param {Parameters<typeof routeDefects>[0]} geometry
  * @param {number} [limit]
  */

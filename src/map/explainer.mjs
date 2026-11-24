@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -224,10 +225,8 @@ export async function writePage(page, directory) {
  * a delivery names eight.
  * @param {any} model
  * @param {any[]} views
- * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[], deliver?: string,
- *   started?: () => void }} [options]
- *   `owned` gives each component's files in citation order, as the layer of measured facts holds them; `started` is
- *   told once the page's first run of Archify has begun
+ * @param {{ quality?: "showcase" | "standard", owned?: (id: string) => readonly string[], deliver?: string }}
+ *   [options] `owned` gives each component's files in citation order, as the layer of measured facts holds them
  */
 export async function explainerPage(model, views, options = {}) {
   const quality = options.quality ?? "showcase";
@@ -252,23 +251,18 @@ export async function explainerPage(model, views, options = {}) {
         withheld: [...withheld].sort(),
         delivered: /** @type {HeldDelivery | null} */ (null),
       };
-      const held = options.deliver
-        ? await holdDelivery(page, options.deliver, { started: options.started })
-        : null;
+      const held = options.deliver ? await holdDelivery(page, options.deliver) : null;
       if (held?.delivered) return { ...page, delivered: held.delivered };
-      const { answer } = await runArchify(
-        [
-          "validate",
-          "explainer",
-          await writePage(page, directory),
-          "--json",
-          "--quality",
-          quality,
-          "--writing",
-          "off",
-        ],
-        { started: options.started },
-      );
+      const { answer } = await runArchify([
+        "validate",
+        "explainer",
+        await writePage(page, directory),
+        "--json",
+        "--quality",
+        quality,
+        "--writing",
+        "off",
+      ]);
       if (answer.ok === true) {
         // The page validates and its delivery was refused: the refusal is the delivery's.
         if (held) throw held.refusal;
@@ -296,15 +290,14 @@ export async function explainerPage(model, views, options = {}) {
  * or the refusal when Archify refuses the page.
  * @param {any} page
  * @param {string} file the page's file name, `<model id>.html`
- * @param {{ repoRoot?: string | null, started?: () => void }} [options]
+ * @param {{ repoRoot?: string | null }} [options]
  */
 export async function holdDelivery(page, file, options = {}) {
-  // A generated page delivered without a checkout depends on nothing but itself and the supply: it is kept as a
-  // candidate's answer is, its bytes as Base64. A refusal is never kept.
+  // A generated page delivered without a checkout depends on nothing but itself, this module and the supply: it is
+  // kept as a candidate's answer is, its bytes as Base64. A refusal is never kept.
   if (page.kind === "generated" && !options.repoRoot) {
-    const parts = ["page", file, page.draft, page.diagrams, page.quality, page.writing ?? null];
     const held = await keptAnswer(
-      parts,
+      await pageParts(page, file),
       async () => {
         const one = await holdOnce(page, file, options);
         return one.delivered
@@ -320,11 +313,40 @@ export async function holdDelivery(page, file, options = {}) {
   return holdOnce(page, file, options);
 }
 
+/** The digest of this module's source, read once a process; a read that failed is tried again by the next page. */
+let ownDigest = /** @type {Promise<string> | undefined} */ (undefined);
+
+/**
+ * What a kept page's delivery answers, beside the supply, Node.js and the platform its key adds: this module's own
+ * source, which forms the publisher's verdict on the page, the receipt a delivery keeps and Archify's fixed
+ * arguments, and the page's file, draft, diagrams, quality and writing level.
+ * @param {any} page
+ * @param {string} file
+ */
+export async function pageParts(page, file) {
+  ownDigest ??= fs.readFile(new URL(import.meta.url)).then(
+    (bytes) => createHash("sha256").update(bytes).digest("hex"),
+    (error) => {
+      ownDigest = undefined;
+      throw error;
+    },
+  );
+  return [
+    await ownDigest,
+    "page",
+    file,
+    page.draft,
+    page.diagrams,
+    page.quality,
+    page.writing ?? null,
+  ];
+}
+
 /**
  * One run of Archify that delivers the page and holds what it wrote, or the refusal.
  * @param {any} page
  * @param {string} file
- * @param {{ repoRoot?: string | null, started?: () => void }} options
+ * @param {{ repoRoot?: string | null }} options
  */
 async function holdOnce(page, file, options) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-page-held-"));
@@ -391,7 +413,7 @@ export function refusePage(answer) {
  * @param {any} page
  * @param {string} directory a staging directory that receives the page
  * @param {string} file the page's file name, `<model id>.html`
- * @param {{ repoRoot?: string | null, started?: () => void }} [options]
+ * @param {{ repoRoot?: string | null }} [options]
  */
 export async function deliverExplainer(page, directory, file, options = {}) {
   // Archify records where the draft lay relative to the page after resolving
@@ -406,23 +428,20 @@ export async function deliverExplainer(page, directory, file, options = {}) {
   // Archify writes its receipt beside the page, named for it.
   const receipt = output.replace(/\.html$/u, ".delivery.json");
   try {
-    const { supply, answer } = await runArchify(
-      [
-        "finalize",
-        "explainer",
-        draft,
-        output,
-        "--json",
-        "--quality",
-        page.quality ?? "showcase",
-        "--writing",
-        page.writing ?? "off",
-        "--out-dir",
-        work,
-        ...(options.repoRoot ? ["--repo-root", options.repoRoot] : []),
-      ],
-      { started: options.started },
-    );
+    const { supply, answer } = await runArchify([
+      "finalize",
+      "explainer",
+      draft,
+      output,
+      "--json",
+      "--quality",
+      page.quality ?? "showcase",
+      "--writing",
+      page.writing ?? "off",
+      "--out-dir",
+      work,
+      ...(options.repoRoot ? ["--repo-root", options.repoRoot] : []),
+    ]);
     if (answer.ok !== true || answer.status !== "pass") refusePage(answer);
     return {
       output: path.join(directory, file),

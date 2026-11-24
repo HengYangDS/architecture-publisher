@@ -4,9 +4,11 @@ import fs from "node:fs/promises";
 import { syncBuiltinESMExports } from "node:module";
 import path from "node:path";
 import test from "node:test";
+import { setTimeout as sleep } from "node:timers/promises";
 import { promisify } from "node:util";
 import { guideWork } from "./fixtures/guide-work.mjs";
 import { minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
+import { everyBlock } from "./fixtures/overview-statements.mjs";
 import { MAIN } from "./fixtures/repository.mjs";
 
 /**
@@ -24,9 +26,14 @@ function counted(file, ...rest) {
   note(rest[0]);
   return execFile.call(this, file, ...rest);
 }
+/** How long a run on the page itself waits before it starts, where a test holds the page open; none otherwise. */
+let held = 0;
 counted[promisify.custom] = (file, ...rest) => {
   note(rest[0]);
-  return execFile[promisify.custom](file, ...rest);
+  const run = () => execFile[promisify.custom](file, ...rest);
+  const [script, , type] = Array.isArray(rest[0]) ? rest[0] : [];
+  const page = String(script).endsWith(path.join("bin", "archify.mjs")) && type === "explainer";
+  return held && page ? sleep(held).then(run) : run();
 };
 cp.execFile = counted;
 syncBuiltinESMExports();
@@ -127,4 +134,66 @@ test("a page Archify refuses is validated on its own: a file is withheld, and a 
   );
   await assert.rejects(checkModel(long.model, options), refusal);
   await assert.rejects(fs.stat(built), { code: "ENOENT" });
+});
+
+test("a check lays its plates out once the page's first run of Archify has begun, not after its candidates", async (t) => {
+  // A generated page measures its candidate diagrams before its own run: the plates' layout waits for the first
+  // run of the page's work, of any kind, and the rest goes on beside it (the review of 2026-11-24). Its parts are
+  // named for this test, so no earlier test of this process has measured its candidates.
+  const model = await writeModel(
+    t,
+    minimalModel({
+      components: [
+        { id: "a", label: "Early alpha" },
+        { id: "b", label: "Early beta" },
+      ],
+    }),
+  );
+  /** The runs begun when the plates were laid out, each time they were. */
+  const seen = [];
+  await pageRuns(() =>
+    checkModel(model, {}, (step) => {
+      if (step === "laying out the plates") seen.push([...runs]);
+    }),
+  );
+  assert.ok(seen.length > 0, "the plates were laid out");
+  for (const begun of seen) {
+    assert.ok(begun.length > 0, "the layout began before any run of the page");
+    assert.deepEqual(
+      begun.filter((run) => run.endsWith(" explainer")),
+      [],
+      "the layout waited for the page's own run",
+    );
+  }
+});
+
+test("a check refused after its page began reports once the page's work has ended", async (t) => {
+  // An overview no bundled face draws is refused after the plates' layout, while the page's work goes on, held
+  // open by a delay before each run on the page itself: the refusal stops the page and is told once its work has
+  // ended, so it leaves no run and no work file behind. The tests of this file run one at a time, so TMPDIR and
+  // the delay are this test's alone while it runs.
+  const model = await writeModel(
+    t,
+    minimalModel({ overview: { ...everyBlock(), claim: "Ethiopic ሀ" } }),
+  );
+  const temporary = await temporaryDirectory(t, "archpub-settled-");
+  const before = process.env.TMPDIR;
+  process.env.TMPDIR = temporary;
+  held = 3000;
+  try {
+    await assert.rejects(
+      pageRuns(() => checkModel(model)),
+      { code: "overview_glyph_missing" },
+    );
+  } finally {
+    held = 0;
+    if (before === undefined) delete process.env.TMPDIR;
+    else process.env.TMPDIR = before;
+  }
+  // Every run counted is the page's, a candidate's or its own: the check starts no other.
+  assert.ok(runs.length > 0, "the page's work began before the refusal");
+  assert.deepEqual(
+    (await fs.readdir(temporary)).filter((name) => /^archpub-(page|diagrams)-/u.test(name)),
+    [],
+  );
 });

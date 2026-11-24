@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import cp, { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import { syncBuiltinESMExports } from "node:module";
 import path from "node:path";
@@ -26,10 +27,11 @@ counted[promisify.custom] = (file, ...rest) => {
 };
 cp.execFile = counted;
 syncBuiltinESMExports();
-const { candidateAnswer } = await import("../src/map/archify.mjs");
+const { candidateAnswer, keptAnswer, telling } = await import("../src/map/archify.mjs");
+const { chooseDiagram } = await import("../src/map/choice.mjs");
 const { validateModel } = await import("../src/model/load.mjs");
 const { planViews } = await import("../src/plan/views.mjs");
-const { explainerPage } = await import("../src/map/explainer.mjs");
+const { explainerPage, pageParts } = await import("../src/map/explainer.mjs");
 
 const VARIABLE = "ARCHPUB_ARCHIFY_ANSWERS";
 const MAIN = fileURLToPath(new URL("../src/cli/main.mjs", import.meta.url));
@@ -241,4 +243,60 @@ test("a generated page's delivery is kept by what it depends on, and the same pa
   assert.equal(runs - before - asked, 0, "the same page asked Archify again");
   assert.deepEqual(again.delivered.bytes, first.delivered.bytes);
   assert.deepEqual(again.delivered.receipt, first.delivered.receipt);
+});
+
+test("a kept page is kept under the digest of the module that forms its verdict, and another digest asks again", async (t) => {
+  // The publisher's own verdict on a page, the receipt it keeps and Archify's fixed arguments are formed in
+  // `explainer.mjs`: a page kept by another version of it is asked again (the review of 2026-11-24).
+  const directory = await temporaryDirectory(t, "archpub-answers-");
+  named(t, path.join(directory, "kept"));
+  const model = validateModel(minimalModel());
+  const views = await planViews(model, async () => ({ fits: true, width: 2400, height: 1350 }));
+  const page = await explainerPage(model, views, { deliver: "minimal.html" });
+  const parts = await pageParts(page, "minimal.html");
+  const source = await fs.readFile(new URL("../src/map/explainer.mjs", import.meta.url));
+  assert.equal(parts[0], createHash("sha256").update(source).digest("hex"));
+  const whole = (answer) => typeof answer?.bytes === "string";
+  let asked = 0;
+  const ask = async () => {
+    asked += 1;
+    return {};
+  };
+  await keptAnswer(parts, ask, whole);
+  assert.equal(asked, 0, "the page kept under its own parts was asked again");
+  await keptAnswer(["0".repeat(64), ...parts.slice(1)], ask, whole);
+  assert.equal(asked, 1, "a page kept by another verdict was read");
+});
+
+test("a page stopped while its candidates are measured keeps none of their answers, and the next page measures them", async (t) => {
+  // A plan made again stops its page and at once starts the page that replaces it, which asks for the same
+  // documents while the stopped page's runs are still ending (the reviews of the Change, 2026-11-24): a stopped run
+  // is thrown, never an answer, and a question of stopped work is not read by the next page, which asks again.
+  named(t, null);
+  const model = validateModel(
+    minimalModel({
+      components: [
+        { id: "a", label: "Stopped alpha" },
+        { id: "b", label: "Stopped beta" },
+      ],
+    }),
+  );
+  const [view] = await planViews(model, async () => ({ fits: true, width: 2400, height: 1350 }));
+  const stop = new AbortController();
+  /** @type {() => void} */
+  let begun = () => {};
+  const running = new Promise((resolve) => {
+    begun = () => resolve(undefined);
+  });
+  const stopped = telling(begun, stop.signal, () => chooseDiagram(model, view));
+  stopped.catch(() => {});
+  await running;
+  stop.abort();
+  const next = telling(
+    () => {},
+    new AbortController().signal,
+    () => chooseDiagram(model, view),
+  );
+  await assert.rejects(stopped, { code: "archify_stopped" });
+  assert.ok((await next).metrics, "the next page chose no diagram");
 });
