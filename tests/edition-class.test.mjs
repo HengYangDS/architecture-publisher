@@ -171,10 +171,8 @@ test("without a checkout the foot names the title and revision and no date, and 
     });
   const pinned = record({ model });
   assert.equal(pinned.words.foot, "Minimal at aaaaaaa");
-  assert.equal(pinned.words.built, "As built at aaaaaaa");
   const unpinned = record({ model: validateModel(minimalModel()) });
   assert.equal(unpinned.words.foot, "Minimal");
-  assert.equal(unpinned.words.built, null);
   assert.equal(unpinned.byline[0].note, null);
 });
 

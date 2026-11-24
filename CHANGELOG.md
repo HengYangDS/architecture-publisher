@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A fact is stated once a page: the cover states its date in its byline only, and the overview states its commit
+  and date in its foot only.
 - Every plate prints its answer: where the figure keeps the full body and no summary stands above it, the view's
   summary stands in the plate's head, right of the title and the question, three lines at most.
 - A plate's head links back to the overview: after the question, the overview's element that names the plate's

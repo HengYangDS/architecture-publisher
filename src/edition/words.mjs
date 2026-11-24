@@ -19,7 +19,6 @@ import { DEFAULT_LOCALE } from "../locale.mjs";
  *   writtenFrom: (files: number) => string,
  *   attached: string, edited: string, license: (license: string) => string,
  *   published: string, standards: string,
- *   built: (revision: string, date: string | null) => string,
  *   foot: (title: string, release: string | null, revision: string, date: string | null) => string,
  *   plate: (number: string, title: string, question: string) => string,
  *   places: string, list: string,
@@ -56,7 +55,6 @@ const WORDS = Object.freeze({
     license: (license) => `edition licensed under ${license}`,
     published: "Published with",
     standards: "PDF/A-3a and PDF/UA-1",
-    built: (revision, date) => `As built at ${revision}${date ? ` · ${date}` : ""}`,
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""} at ${revision}${date ? ` · ${date}` : ""}`,
     plate: (number, title, question) => `Plate ${number}: ${title}. ${question}`,
@@ -101,7 +99,6 @@ const WORDS = Object.freeze({
     license: (license) => `图册许可证：${license}`,
     published: "出版工具",
     standards: "PDF/A-3a 与 PDF/UA-1",
-    built: (revision, date) => `构建于提交 ${revision}${date ? ` · ${date}` : ""}`,
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""}，提交 ${revision}${date ? ` · ${date}` : ""}`,
     plate: (number, title, question) => `图版 ${number}：${title}。${question}`,
@@ -145,7 +142,6 @@ const WORDS = Object.freeze({
     license: (license) => `圖冊授權條款：${license}`,
     published: "出版工具",
     standards: "PDF/A-3a 與 PDF/UA-1",
-    built: (revision, date) => `建置於提交 ${revision}${date ? ` · ${date}` : ""}`,
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""}，提交 ${revision}${date ? ` · ${date}` : ""}`,
     plate: (number, title, question) => `圖版 ${number}：${title}。${question}`,
@@ -190,7 +186,6 @@ const WORDS = Object.freeze({
     license: (license) => `edición con licencia ${license}`,
     published: "Publicado con",
     standards: "PDF/A-3a y PDF/UA-1",
-    built: (revision, date) => `Generado en ${revision}${date ? ` · ${date}` : ""}`,
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""} en ${revision}${date ? ` · ${date}` : ""}`,
     plate: (number, title, question) => `Lámina ${number}: ${title}. ${question}`,
@@ -235,7 +230,6 @@ const WORDS = Object.freeze({
     license: (license) => `이 판의 라이선스: ${license}`,
     published: "출판 도구",
     standards: "PDF/A-3a 및 PDF/UA-1",
-    built: (revision, date) => `${revision}에서 빌드${date ? ` · ${date}` : ""}`,
     foot: (title, release, revision, date) =>
       `${title}${release ? ` ${release}` : ""}, 커밋 ${revision}${date ? ` · ${date}` : ""}`,
     plate: (number, title, question) => `도판 ${number}: ${title}. ${question}`,

@@ -435,11 +435,11 @@
   tx(margin, _baseline.title, name, size: "head", weight: "semibold")
   tx(claim-x, _baseline.title, claim, size: "title", font: display)
   tx(margin, _baseline.lead, lead, fill: soft)
-  // In the edition the build line is the record's, in the model's language; the overview checked alone keeps English.
-  let built = if _in-edition { json(_shared.files.edition).words.built } else {
-    "As built at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { " · " + date } else { "" })
+  // The overview checked alone states its build in its head; in the edition the foot states it, once a page.
+  if not _in-edition {
+    let built = "As built at " + rev.slice(0, calc.min(7, rev.len())) + (if date != "" { " · " + date } else { "" })
+    txr(page-width - margin, 34pt, 420pt, built, fill: soft)
   }
-  if built != none { txr(page-width - margin, 34pt, 420pt, built, fill: soft) }
   if read-from != none { txr(page-width - margin, 50pt, 420pt, read-from, fill: soft) }
 }
 
@@ -977,7 +977,6 @@
   // Title page: the name and question on the left, the summary as a standfirst on the right, the byline below.
   [#heading(outlined: false, bookmarked: true, r.title) <archpub-cover>]
   tx(margin, _baseline.label, _caps(words.edition), size: "small", weight: "semibold", fill: soft)
-  if r.subject.date != none { txr(page-width - margin, _baseline.label, 400pt, _caps(r.subject.date), size: "small", weight: "semibold", fill: soft) }
   _band(margin, 96pt, 900pt, 640pt, {
     set text(top-edge: "baseline", bottom-edge: "baseline")
     line(length: 72pt, stroke: 2.4pt + green)

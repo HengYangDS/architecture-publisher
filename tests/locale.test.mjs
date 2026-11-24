@@ -83,18 +83,15 @@ test("every language leaves out what the edition does not know: links, a release
     const sets = [
       words.readingNote(false, "Ω.html"),
       words.readValue(1),
-      words.built("abc1234", null),
       words.foot("Title", null, "abc1234", null),
     ];
     for (const text of sets) assert.doesNotMatch(text, /null|undefined/u, `${locale}: ${text}`);
     // Each optional part adds text where it is known and nothing where it is not.
     assert.ok(words.readingNote(true, "Ω.html").length > sets[0].length, locale);
     for (const files of [1, 2]) assert.match(words.readValue(files), new RegExp(`${files}`, "u"));
-    assert.match(words.built("abc1234", "2026-11-07"), /2026-11-07/u, locale);
-    assert.doesNotMatch(sets[2], /2026/u, locale);
     const full = words.foot("Title", "v1.2.0", "abc1234", "2026-11-07");
     assert.match(full, /v1\.2\.0[\s\S]*abc1234[\s\S]*2026-11-07/u, locale);
-    assert.doesNotMatch(sets[3], /v1|2026/u, locale);
+    assert.doesNotMatch(sets[2], /v1|2026/u, locale);
   }
   // A language with a plural names one file as one.
   assert.equal(editionWordsOf("en").readValue(1), "1 file");

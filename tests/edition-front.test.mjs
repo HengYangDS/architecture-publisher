@@ -27,21 +27,6 @@ const modelOf = (locale, title) =>
 const queryEdition = (t, model, selector) =>
   evalEdition(t, { model }, `query(${selector}).map(it => it.value)`);
 
-test("a Chinese edition's overview masthead sets its build line in the model's language", async (t) => {
-  const texts = (await queryEdition(t, modelOf("zh-CN", "最小"), "<archpub-box>")).map(
-    ({ text }) => text,
-  );
-  assert.ok(texts.includes("构建于提交 aaaaaaa · 2026-11-06"), texts.join(" | "));
-  assert.ok(!texts.some((text) => text.startsWith("As built")), texts.join(" | "));
-});
-
-test("an English edition's overview masthead keeps its build line", async (t) => {
-  const texts = (await queryEdition(t, modelOf("en", "Minimal"), "<archpub-box>")).map(
-    ({ text }) => text,
-  );
-  assert.ok(texts.includes("As built at aaaaaaa · 2026-11-06"), texts.join(" | "));
-});
-
 test("a CJK cover title wider than its column breaks into balanced lines, at a space where one fits", async (t) => {
   const guide = await queryEdition(
     t,

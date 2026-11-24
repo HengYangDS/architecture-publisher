@@ -252,7 +252,6 @@ export function editionRecord(input) {
       indexLead: words.indexLead,
       places: words.places,
       attached: words.attached,
-      built: at ? words.built(short ?? "", date) : null,
       foot: short ? words.foot(model.title, release, short, date) : model.title,
     },
     plates: plateRecords,
