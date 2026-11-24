@@ -8,8 +8,8 @@ and Simplified Chinese.
 
 ## What Changes
 
-- `docs/reference/terms.md` is the product's vocabulary: each concept, its word in the five languages and the keys
-  of the product's words that use it. A test refuses a listed key that names its concept by another word.
+- `docs/reference/terms.md` is the product's vocabulary: each concept, its word in English, Simplified and
+  Traditional Chinese and the keys of the product's words that use it. A test refuses a listed key that names its concept by another word.
 - The English index and reading note say component ("Components and the plates that draw them"), as the page and
   the reader file say.
 - Simplified and Traditional Chinese say 固定提交 for the pinned commit throughout.

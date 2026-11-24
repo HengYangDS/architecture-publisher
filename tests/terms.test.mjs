@@ -5,7 +5,11 @@ import { editionWordsOf } from "../src/edition/words.mjs";
 import { LOCALES, readerWordsOf, wordsOf } from "../src/locale.mjs";
 
 // Ledger row 24: the product's terms in each language, with a check of wording. The reference page is the
-// vocabulary: each row names a concept, its word in each language and the keys of the product's words that use it.
+// vocabulary in English and Chinese: each row names a concept, its word in each of those languages and the keys of the
+// product's words that use it.
+
+/** The languages the table names a word in: ledger row 24 promised a Chinese-English table. */
+const TABLE_LOCALES = ["en", "zh-CN", "zh-TW"];
 
 /** The three tables of the product's words, by the name a key begins with. */
 const TABLES = { edition: editionWordsOf, page: wordsOf, reader: readerWordsOf };
@@ -37,7 +41,7 @@ async function terms() {
         .slice(1, -1)
         .map((cell) => cell.trim()),
     );
-  assert.deepEqual(head, ["Concept", ...LOCALES.map((locale) => `\`${locale}\``), "Keys"]);
+  assert.deepEqual(head, ["Concept", ...TABLE_LOCALES.map((locale) => `\`${locale}\``), "Keys"]);
   for (const row of rows)
     assert.ok(
       row.every((cell) => cell.length > 0),
@@ -45,18 +49,19 @@ async function terms() {
     );
   return rows.map(([concept, ...cells]) => ({
     concept,
-    words: Object.fromEntries(LOCALES.map((locale, index) => [locale, cells[index]])),
-    keys: [...cells[LOCALES.length].matchAll(/`([^`]+)`/gu)].map(([, key]) => key),
+    words: Object.fromEntries(
+      TABLE_LOCALES.map((locale, index) => [locale, cells[index].replace(/^`|`$/gu, "")]),
+    ),
+    keys: [...cells[TABLE_LOCALES.length].matchAll(/`([^`]+)`/gu)].map(([, key]) => key),
   }));
 }
 
 /**
- * A text as the check compares it: lower case, accents aside, so that relación holds in relaciones.
+ * A text as the check compares it: lower case.
  * @param {string} text
  * @param {string} locale
  */
-const plain = (text, locale) =>
-  text.toLocaleLowerCase(locale).normalize("NFD").replace(/\p{M}/gu, "");
+const plain = (text, locale) => text.toLocaleLowerCase(locale);
 
 /**
  * The keys that do not name their concept by their language's word.
@@ -66,7 +71,7 @@ const plain = (text, locale) =>
 const findings = (rows, read) =>
   rows.flatMap(({ concept, words, keys }) =>
     keys.flatMap((key) =>
-      LOCALES.flatMap((locale) => {
+      TABLE_LOCALES.flatMap((locale) => {
         const text = read(key, locale);
         if (text === null) return [`${key} holds no text in ${locale}`];
         return plain(text, locale).includes(plain(words[locale], locale))

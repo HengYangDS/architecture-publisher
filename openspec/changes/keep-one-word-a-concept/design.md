@@ -8,7 +8,7 @@ ignored `build/runtime/work/edition-map/terms/`; the kit that applies this Chang
 
 **Goals:**
 
-- One place states which word names each concept in each language, and a test holds the product to it.
+- One place states which word names each concept in English and Chinese, and a test holds the product to it.
 
 **Non-Goals:**
 
@@ -47,9 +47,10 @@ ignored `build/runtime/work/edition-map/terms/`; the kit that applies this Chang
 
 ## Risks / Trade-offs
 
+- The table names no Spanish or Korean word: the prose gate's shipped spelling list reads a Spanish word as misspelt
+  English, and a repository cannot lift that list. Ledger row 24 promised English and Chinese; the key's boundary and
+  context are held in all five languages by their own test.
 - The test checks that a listed key holds its word, not that an unlisted key avoids another: a new key naming a
   concept by another word is caught only once it is listed.
-- A word held inside a longer one holds the check: the Korean 판 (edition) stands inside 도판 (plate), so a Korean
-  key that names a plate passes the edition's row.
 - An edition, page or reader file built before reads differently: the next release is breaking by the contract's
   Evolution.

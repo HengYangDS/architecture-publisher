@@ -1,6 +1,6 @@
 ## 1. The table
 
-- [x] 1.1 Write `docs/reference/terms.md` with each concept, its word in the five languages and the keys that use it, and `tests/terms.test.mjs`, which refuses a listed key without its word. Done when the test passes and refuses a key given another word. `tests/terms.test.mjs` passes and refuses a key given another word.
+- [x] 1.1 Write `docs/reference/terms.md` with each concept, its word in English, Simplified and Traditional Chinese and the keys that use it, and `tests/terms.test.mjs`, which refuses a listed key without its word. Done when the test passes and refuses a key given another word. `tests/terms.test.mjs` passes and refuses a key given another word.
 
 ## 2. The words
 

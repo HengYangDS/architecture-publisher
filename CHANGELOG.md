@@ -9,11 +9,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
-- `docs/reference/terms.md` lists each concept the product names, its word in each language and the keys that
-  use it; a test holds the product's words to it. Three words changed to it: the English index and reading note say
-  "component", as the page does; Chinese says 固定提交 for the pinned commit throughout; and a
-  plate's key names the boundary by its name alone, and the context without "for reference", in Traditional
-  Chinese, Spanish and Korean, as English and Simplified Chinese have since 0.16.0.
+- `docs/reference/terms.md` lists each concept the product names, its word in English and Chinese and the keys
+  that use it; a test holds the product's words to it. Three words changed to it: the English index and reading
+  note say "component", as the page does; Chinese says 固定提交 for the pinned commit throughout; and a plate's key
+  names the boundary by its name alone, and the context without "for reference", in Traditional Chinese, Spanish
+  and Korean, as English and Simplified Chinese have since 0.16.0.
 
 ## [0.19.0] - 2026-11-25
 
