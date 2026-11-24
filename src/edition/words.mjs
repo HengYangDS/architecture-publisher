@@ -39,9 +39,9 @@ const WORDS = Object.freeze({
     reading: "Reading this edition",
     plateCount: (count) => `${count} ${count === 1 ? "plate" : "plates"}`,
     readingNote: (links, page) =>
-      `Each plate answers the question under its title.${links ? " A card's title links to the first of its files." : ""} The index at the end lists every part by name with the plates that draw it. The page ${page} gives sources for the claims.`,
+      `Each plate answers the question under its title.${links ? " A card's title links to the first of its files." : ""} The index at the end lists every component by name with the plates that draw it. The page ${page} gives sources for the claims.`,
     index: "Index",
-    indexLead: "Parts and the plates that draw them",
+    indexLead: "Components and the plates that draw them",
     page: "Page",
     data: "Data",
     subject: "Subject",

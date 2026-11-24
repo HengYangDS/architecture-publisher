@@ -108,9 +108,9 @@ const WORDS = Object.freeze({
   }),
   "zh-TW": Object.freeze({
     editors: (names) => `編輯：${names.join("、")}`,
-    inside: (boundary) => `${boundary} 內部`,
+    inside: (boundary) => boundary,
     outside: "外部",
-    context: "本組之外，供參照",
+    context: "本組之外",
     planned: "規劃中",
     retired: "已退役",
     component: "元件",
@@ -141,9 +141,9 @@ const WORDS = Object.freeze({
   }),
   es: Object.freeze({
     editors: (names) => `Edición de ${names.join(", ")}`,
-    inside: (boundary) => `dentro de ${boundary}`,
+    inside: (boundary) => boundary,
     outside: "fuera",
-    context: "fuera de este grupo, como contexto",
+    context: "fuera de este grupo",
     planned: "planificado",
     retired: "retirado",
     component: "componente",
@@ -175,9 +175,9 @@ const WORDS = Object.freeze({
   }),
   ko: Object.freeze({
     editors: (names) => `편집: ${names.join(", ")}`,
-    inside: (boundary) => `${boundary} 내부`,
+    inside: (boundary) => boundary,
     outside: "외부",
-    context: "이 그룹 밖, 참고용",
+    context: "이 그룹 밖",
     planned: "계획됨",
     retired: "폐기됨",
     component: "구성 요소",
@@ -347,12 +347,12 @@ const READER_WORDS = Object.freeze({
   "zh-CN": Object.freeze({
     lead: (id, locale, version) =>
       `作品 \`${id}\` 的读者文件，语言 \`${locale}\`，由 Architecture Publisher ${version} 写出。`,
-    pin: "固定的提交",
+    pin: "固定提交",
     model: "模型",
     data: "数据",
     statements: "陈述",
     delivery: "本交付物另含",
-    keys: "标记说明：`stated` 为作者所写；`measured (pin)` 为出版工具在固定提交的检出目录中测得，`measured (model)` 由模型统计得出。陈述所列文件均已在固定的提交中读到，记为 `cited`；构建时没有检出目录可读，记为 `unchecked`；未列任何文件，记为 `uncited`。",
+    keys: "标记说明：`stated` 为作者所写；`measured (pin)` 为出版工具在固定提交的检出目录中测得，`measured (model)` 由模型统计得出。陈述所列文件均已在固定提交中读到，记为 `cited`；构建时没有检出目录可读，记为 `unchecked`；未列任何文件，记为 `uncited`。",
     scope: "范围与局限",
     question: "问题",
     unselected: "没有视图选入的陈述",
@@ -363,25 +363,24 @@ const READER_WORDS = Object.freeze({
     unplated: (heading, count) => `「${heading}」下所列陈述（${count} 条）没有图版绘出。`,
     noEdition: "本交付物不含图册，因此没有图版绘出任何陈述。",
     noGuide: "模型未指定导读，本文件不附导读。",
-    noCheckout:
-      "构建时没有仓库的检出目录：未在固定的提交中读取任何文件，凡列有文件的陈述均未核对。",
+    noCheckout: "构建时没有仓库的检出目录：未在固定提交中读取任何文件，凡列有文件的陈述均未核对。",
     beyond: "本文件只列组件、关系和分组，不列其他文字陈述，也不判定任何陈述是否有据。",
     notCarried:
-      "总览页的文字和导读中各幅图的文档文字未收入；这些图引用的文件见数据中的证据表，单个文件的事实只见于数据。",
+      "总览页的文字和导读中各幅图的文字未收入；这些图引用的文件见数据中的证据表，单个文件的事实只见于数据。",
     transitional:
       "最后一部分是作者所写的导读，原样收录至文件末尾；这是过渡部分，导读的内容并入模型后会缩短。",
     verify: "按清单核验本交付物的文件",
-    check: "对照固定提交的检出目录核对模型",
+    check: "用固定提交的检出目录核对模型",
   }),
   "zh-TW": Object.freeze({
     lead: (id, locale, version) =>
       `作品 \`${id}\` 的讀者檔案，語言 \`${locale}\`，由 Architecture Publisher ${version} 寫出。`,
-    pin: "固定的提交",
+    pin: "固定提交",
     model: "模型",
     data: "資料",
     statements: "陳述",
     delivery: "本交付物另含",
-    keys: "標記說明：`stated` 為作者所寫；`measured (pin)` 為出版工具在固定提交的簽出目錄中測得，`measured (model)` 由模型統計得出。陳述所列檔案均已在固定的提交中讀到，記為 `cited`；建置時沒有簽出目錄可讀，記為 `unchecked`；未列任何檔案，記為 `uncited`。",
+    keys: "標記說明：`stated` 為作者所寫；`measured (pin)` 為出版工具在固定提交的簽出目錄中測得，`measured (model)` 由模型統計得出。陳述所列檔案均已在固定提交中讀到，記為 `cited`；建置時沒有簽出目錄可讀，記為 `unchecked`；未列任何檔案，記為 `uncited`。",
     scope: "範圍與侷限",
     question: "問題",
     unselected: "沒有視圖選入的陳述",
@@ -393,14 +392,14 @@ const READER_WORDS = Object.freeze({
     noEdition: "本交付物不含圖冊，因此沒有圖版繪出任何陳述。",
     noGuide: "模型未指定導讀，本檔案不附導讀。",
     noCheckout:
-      "建置時沒有儲存庫的簽出目錄：未在固定的提交中讀取任何檔案，凡列有檔案的陳述均未核對。",
+      "建置時沒有儲存庫的簽出目錄：未在固定提交中讀取任何檔案，凡列有檔案的陳述均未核對。",
     beyond: "本檔案只列元件、關係和分組，不列其他文字陳述，也不判定任何陳述是否有據。",
     notCarried:
-      "總覽頁的文字和導讀中各幅圖的文件文字未收入；這些圖引用的檔案見資料中的證據表，單一檔案的事實只見於資料。",
+      "總覽頁的文字和導讀中各幅圖的文字未收入；這些圖引用的檔案見資料中的證據表，單一檔案的事實只見於資料。",
     transitional:
       "最後一部分是作者所寫的導讀，原樣收錄至檔案末尾；這是過渡部分，導讀的內容併入模型後會縮短。",
     verify: "按清單核驗本交付物的檔案",
-    check: "對照固定提交的簽出目錄核對模型",
+    check: "用固定提交的簽出目錄核對模型",
   }),
   es: Object.freeze({
     lead: (id, locale, version) =>

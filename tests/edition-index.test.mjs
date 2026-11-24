@@ -113,7 +113,7 @@ test("the last page indexes every part once, by name, with the plates that draw 
   // Title page, contents, three plates, the index.
   assert.equal(set.pages, 6);
   const texts = set.boxes.filter(({ page }) => page === 6).map(({ text }) => text);
-  assert.ok(texts.includes("Index") && texts.includes("Parts and the plates that draw them"));
+  assert.ok(texts.includes("Index") && texts.includes("Components and the plates that draw them"));
   assert.equal(texts.filter((text) => text === record.words.foot).length, 1);
   const index = indexOn(set, 6, new Set(parts.map(([, label]) => label)));
   // Six parts stand in the left column, in order, a twentieth of the body apart: nothing is shared out between

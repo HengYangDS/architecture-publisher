@@ -14,3 +14,4 @@ relations:
 - [Command line reference](command-line.md): help, exit statuses, JSON results, reports and progress.
 - [Development and verification](development.md): native toolchain, checks and platform prerequisites.
 - [Repository configuration](configuration.md): one carrier and native consumer per policy.
+- [Terms](terms.md): each concept the product names, and the word each language names it by.

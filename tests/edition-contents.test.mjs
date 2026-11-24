@@ -319,7 +319,7 @@ test("a left half set too tall for the page is refused", async (t) => {
 test("the reading note names the index, and the page in a browser by the word the index's facts use", () => {
   assert.equal(
     editionWordsOf("en").readingNote(true, "minimal.html"),
-    "Each plate answers the question under its title. A card's title links to the first of its files. The index at the end lists every part by name with the plates that draw it. The page minimal.html gives sources for the claims.",
+    "Each plate answers the question under its title. A card's title links to the first of its files. The index at the end lists every component by name with the plates that draw it. The page minimal.html gives sources for the claims.",
   );
   assert.equal(
     editionWordsOf("zh-CN").readingNote(true, "minimal.html"),
