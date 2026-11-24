@@ -9,6 +9,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- An edition that sets a stated overview refuses with `overview_view_unreached` a view that nothing on the
+  overview names, where a check had only warned: the overview is the edition's map.
 - A fact is stated once a page: the cover states its date in its byline only, and the overview states its commit
   and date in its foot only.
 - Every plate prints its answer: where the figure keeps the full body and no summary stands above it, the view's

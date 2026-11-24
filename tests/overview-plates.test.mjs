@@ -117,7 +117,7 @@ test("in the edition each number is a link to its plate's page", async () => {
   assert.equal(count(linked.pdf, "plate-01") - count(plain.pdf, "plate-01"), 1);
 });
 
-test("a check names the views that nothing on the overview names", async (t) => {
+test("a check refuses a view that nothing on the overview names, at its path", async (t) => {
   const views = [
     {
       id: "front",
@@ -133,11 +133,14 @@ test("a check names the views that nothing on the overview names", async (t) => 
     },
   ];
   const file = await writeModel(t, pageModel({ views, overview: statement("front") }));
-  const checked = await checkModel(file, { media: ["edition"] });
-  assert.deepEqual(
-    checked.warnings
-      .filter(({ code }) => code === "overview_view_unreached")
-      .map(({ path }) => path),
-    ["/views/1"],
-  );
+  await assert.rejects(checkModel(file, { media: ["edition"] }), (error) => {
+    assert.equal(/** @type {any} */ (error).code, "overview_view_unreached");
+    assert.deepEqual(
+      /** @type {any} */ (error).problems.map(({ path }) => path),
+      ["/views/1"],
+    );
+    return true;
+  });
+  // The page alone sets no overview, and reaches its views by its own sections.
+  await checkModel(file, { media: ["page"] });
 });

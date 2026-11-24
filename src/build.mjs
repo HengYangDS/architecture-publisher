@@ -117,8 +117,8 @@ function drawnTexts(model) {
 }
 
 /**
- * The views a model declares that nothing on its overview names: the overview is the edition's map, and a
- * view it does not reach is a plate a reader finds only in the contents.
+ * The views a model declares that nothing on its overview names, each as a problem at its path: the overview is
+ * the edition's map, and a view it does not reach is a plate a reader finds only in the contents.
  * @param {any} model
  */
 function unreachedViews(model) {
@@ -138,7 +138,7 @@ function unreachedViews(model) {
           {
             code: "overview_view_unreached",
             path: `/views/${index}`,
-            message: `Nothing on the overview names the view ${view.id}.`,
+            message: `Nothing on the overview names the view ${view.id}; name it in the step or block it enlarges.`,
           },
         ],
   );
@@ -237,6 +237,16 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
       : explainerPage(model, planned, { quality, owned: facts.owned, deliver: deliverAs, started });
   /** The page's work once started; set inside the plan, so held in an object the checker reads as it is typed. */
   const begunPage = /** @type {{ work: Promise<any> | null }} */ ({ work: null });
+  // The overview is the edition's map: an edition that sets a stated overview refuses a view it does not reach,
+  // before any view is planned.
+  const unreached = printed && model.overview ? unreachedViews(model) : [];
+  if (unreached.length)
+    refuse(
+      "overview_view_unreached",
+      `Nothing on the overview names ${unreached.length === 1 ? "one view" : `${unreached.length} views`}: ` +
+        "name each in the step or block it enlarges.",
+      unreached,
+    );
   // Each view is one plate of the edition, laid out for its body, with the edition's strips as long as every view
   // can hold them.
   listener("planning views");
@@ -272,7 +282,7 @@ async function prepare(modelPath, options, listener, { deliver = false } = {}) {
           tokens: chosen.tokens,
         })
       : null;
-  if (overview) warnings.push(...unreachedViews(model), ...looseLines(overview.loose));
+  if (overview) warnings.push(...looseLines(overview.loose));
   // Where the edition draws strips, the manifest records the length it draws its largest part at.
   const styleRecord = measuredOf(style)
     ? { ...chosenRecord, longest: longestOf(style) }

@@ -455,8 +455,8 @@ a Typst file here is refused with `model_overview_composition_retired`.
   and spurs smaller; no other mark is drawn.
 - `view`, on a step, a station, a branch, a spur or a block, names the view that
   enlarges it: the page sets that view's plate number after the name, in the
-  edition a link to the plate's page. The overview is the edition's map, and a
-  check warns with `overview_view_unreached` of a view that nothing on it names.
+  edition a link to the plate's page. The overview is the edition's map, and an
+  edition refuses with `overview_view_unreached` a view that nothing on it names.
 - A note or a text on more than one line is justified. In a measure of twenty
   ems or more it is justified to its column: English as the edition's prose
   is, Chinese line by line. There a line of Chinese that cannot be spread
