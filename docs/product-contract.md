@@ -345,7 +345,7 @@ one.
       seconds would fail for the host's reasons. The item ends when the largest cause that a profile of a build
       and of the suite still shows holds under a tenth of its time, or lies in another product and is reported
       there. The times stand in the [record](research/build-and-suite-time.md) and are read at each landing.
-- [ ] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
+- [x] `edition-map`: the landscape edition read as one map. A plate's header names the part of the overview it
       enlarges, as a link back; every plate prints the answer to its question in one place; the overview is set in
       three sizes with fixed roles, for a room, a screen and the zoom. The contents set the overview apart from the
       plates' rows and may take further pages, its rows of one height and the last page not filled; the last page is
