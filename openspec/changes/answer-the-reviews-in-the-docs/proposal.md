@@ -31,6 +31,7 @@ None.
 ## Impact
 
 Changed: `skills/architecture-publisher/SKILL.md`, `src/cli/report.mjs`, `docs/reference/operations.md`,
-`docs/reference/command-line.md` and `CHANGELOG.md`. No delivered byte; `archpub check`'s text for one case.
+`docs/reference/command-line.md`, `tests/cli-report.test.mjs` and `CHANGELOG.md`. No delivered byte; `archpub check`'s
+text for one case.
 
 Queue: `maintenance`.

@@ -31,7 +31,7 @@ test("a check's report marks what passed, what needs attention and what a build 
       "02",
       "internals, more · figure 80% of the body, beside its reading · misses emptyShare 0.19 (limit 0.12) and blankBand 112 (limit 96)",
     ],
-    ["passed", "03", "last · figure 65% of the body, its reading left out"],
+    ["passed", "03", "last · figure 65% of the body, its reading in its head"],
     ["passed", "04", "bare · figure 50% of the body"],
     ["heading", "Data"],
     [

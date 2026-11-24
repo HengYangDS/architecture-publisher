@@ -63,7 +63,7 @@ id with its files and facts and ends with the guide's text.
    stations, and lists, tables, further courses and headed texts in the order
    they are read, with no position. Name in `view`, on a step, a station or a
    block, the view that enlarges it: the page sets that plate's number there as
-   a link, and a check warns of a view nothing on the overview names. The
+   a link; an edition with a stated overview refuses a view nothing on it names. The
    publisher lays the page out; the model reference lists every field.
 7. Write the guide, the page that explains the system to its reader. Run
    `archpub scaffold guide model.json --out guide` for a starting draft and name

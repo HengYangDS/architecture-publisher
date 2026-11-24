@@ -146,7 +146,7 @@ const warningGroup = (warnings) => ({
 const READING = Object.freeze({
   set: ", beside its reading",
   above: ", its reading above the figure",
-  omitted: ", its reading left out",
+  omitted: ", its reading in its head",
   none: "",
 });
 

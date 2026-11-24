@@ -11,6 +11,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- Three changes refuse a model an earlier release accepted: a view the stated overview does not reach
+  (`overview_view_unreached`); an overview that fitted only with smaller notes (`overview_too_tall`); a plate
+  whose figure keeps the full body and whose summary needs more than three lines in its head, or finds its head
+  too narrow (`edition_reading_too_long`), where the summary was left out before.
 - The queue's item `edition-map` is finished: on all twelve published editions every plate links back to the
   overview and prints its answer, and every view is reached from the overview (82 plates).
 - An edition that sets a stated overview refuses with `overview_view_unreached` a view that nothing on the
@@ -34,7 +38,8 @@ remain pre-release contracts and may contain incompatible changes.
   edition builds about 12 % faster, with the same files.
 - A build makes its page beside its edition: Archify's run for the page and Typst's for the edition no longer wait
   for one another.
-- Where Archify's answers are kept, a generated page's delivery is kept too: the suite had asked Archify 175 times,
+- Where Archify's answers are kept, a generated page's delivery built without a checkout is kept too: the suite had
+  asked Archify 175 times,
   63 s of its 140 s, mostly to deliver pages it had delivered before.
 - CI keeps Archify's answers between runs: in the tool cache on the guests, and in GitHub's cache on its hosted
   jobs, where `npm run check` had asked Archify anew in every job (26 min on Windows ARM64).

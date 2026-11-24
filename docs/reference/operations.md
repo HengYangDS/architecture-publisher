@@ -72,7 +72,7 @@ archpub --help | --version [--json]
   in a temporary directory that it removes. It lists the components and
   relations that no planned view draws, the components that claim no file,
   the relations that cite none and the counts of the [data](data.md) a build would write. For each plate it reports its figure's share
-  of the body, whether its reading is set beside it, set above it or left out,
+  of the body, whether its reading is set beside it, above it or in its head,
   and the balance gates it misses. With
   `--repo`, it reports the model's [coverage](model.md#coverage) of the
   repository at its revision, and with `--against <revision>` how far the
@@ -198,9 +198,9 @@ lines of at most 32 ems, and the figure takes the body's height less 24 points
 for each line and 16 points more. The plate then sets the summary above the
 figure, justified within 32 ems in the title's column, its first baseline 24
 points below the body's top, and the figure stands on the body's bottom. When
-the figure would wire worse at that height too, it keeps the whole body and the
-manifest records its reading as left out. A summary above the figure carries
-neither the heading for where each part lives nor the paths. The engine measures
+the figure would wire worse there too, it keeps the whole body and the summary
+stands in its head, at most three lines (the manifest's `omitted`), more refused
+with `edition_reading_too_long`; one above has neither the paths nor their heading. The engine measures
 the summary as Typst sets it, with a quarter em between Han and the letters and
 digits beside it, some full-width marks at half their width and the faces' own
 pair kerning; should Typst need more lines than the engine reserved, the plate
@@ -515,7 +515,7 @@ or Archify reported.
 | `overview_style_refused`                                                                                                           | The overview's drawing asks the house class for a size it does not have.                                                                                                                                                                                                                                                   |
 | `overview_reference_unknown`                                                                                                       | The statement names a component the model lacks.                                                                                                                                                                                                                                                                           |
 | `overview_text_outside`, `overview_text_overlap`, `overview_text_over_line`                                                        | Text leaves the page's area, lies over other text, or lies under a line or a ring.                                                                                                                                                                                                                                         |
-| `overview_too_tall`, `overview_view_unreached`, `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`         | The statement does not fit one page; a character no face draws; or a Typst warning or error.                                                                                                                                                                                                                               |
+| `overview_too_tall`, `overview_view_unreached`, `overview_glyph_missing`, `overview_typst_warning`, `overview_typst_error`         | The statement does not fit one page, or a declared view is named nowhere on it; a character no face draws; or a Typst warning or error.                                                                                                                                                                                    |
 | `page_measures_missing`                                                                                                            | Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected.                                                                                                                                                                                                                                  |
 | `page_refused`                                                                                                                     | Archify did not validate or deliver the page.                                                                                                                                                                                                                                                                              |
 | `answers_unkept`                                                                                                                   | The path `ARCHPUB_ARCHIFY_ANSWERS` names cannot be made a directory; see [kept answers](command-line.md#answers-kept-between-builds).                                                                                                                                                                                      |

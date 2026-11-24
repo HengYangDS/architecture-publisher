@@ -204,7 +204,9 @@ candidate once. Where the environment variable `ARCHPUB_ARCHIFY_ANSWERS` names
 a directory, each whole answer is kept there as well, a verdict Archify reached
 or a layout it drew, by the Archify supply's digest, the Node.js and platform
 that ran it, the kind of answer, the quality and the document, and read from
-there before Archify is asked. Another build of the work then asks Archify
+there before Archify is asked. A generated page's delivery, built without a
+checkout, is kept there too, by its draft, diagrams, quality, writing level and
+file name. Another build of the work then asks Archify
 again only for the candidates that changed, those Archify refused and those
 whose answer could not be written. archpub makes the directory when it is
 missing and never prunes it, so it grows with every new candidate; it replaces
