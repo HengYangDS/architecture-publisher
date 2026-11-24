@@ -322,7 +322,8 @@ width spans no more than that share, and it keeps its type step there.
 A view with a summary SHALL give up at least a fifth of the body's width: its
 figure SHALL take 80 percent, at the type step that width allows, or 65 percent
 when that keeps its step at 80 percent. When 80 percent adds crossings or route
-defects, its figure SHALL keep the full width and its reading SHALL be left out.
+defects, its figure SHALL keep the full width and its reading SHALL stand in the
+plate's head.
 
 #### Scenario: A wide view with a summary
 
@@ -333,7 +334,8 @@ defects, its figure SHALL keep the full width and its reading SHALL be left out.
 ### Requirement: Recorded plates
 
 The manifest SHALL record each plate's number, view, figure width, whether its
-reading was set or left out, type step, wrapping, row shape and centring; its measures: crossings, route defects, bends, empty
+reading was set beside it, above it or in its head (the value `omitted`), type
+step, wrapping, row shape and centring; its measures: crossings, route defects, bends, empty
 share and rectangle, blank band, hole share and centroid; and each balance gate
 it misses.
 

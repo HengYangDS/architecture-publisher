@@ -361,13 +361,16 @@ never shrunk.
 
 `archpub check` SHALL report, for each plate, its figure's share of the body,
 the balance gates it misses and whether its view's reading is set beside the
-figure, set above it or left out.
+figure, set above it or set in the plate's head.
 
 #### Scenario: A plate that left its reading out
 
 - **WHEN** a view with a summary cannot give up width or height without more
   crossings or route defects
-- **THEN** `archpub check` names that plate as leaving its reading out
+- **THEN** the edition sets the reading in the plate's head, in at most three lines, and `archpub check` names
+  that plate so
+- **AND** a reading that needs more lines, or a head too narrow for it, is refused with
+  `edition_reading_too_long`
 
 #### Scenario: A plate with its reading above the figure
 
