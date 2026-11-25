@@ -166,9 +166,12 @@ parts, in order:
 5. The statements no view selects.
 6. What the file does not cover, and the two commands that check the delivery again.
 7. When the model names a guide, one heading and the guide as prose: its answer, then a section for each panel with
-   its paragraphs, terms, tables and steps; a figure is named by its title and its file, and its content stands in
-   the page and in that file. Citations are footnotes, several at one place in ascending order, after one sentence
-   naming the pin their lines are those of.
+   its paragraphs, terms, tables and steps. A figure is named by its title and its file, and what it says follows as
+   text: its parts or states as a list, each line between two under the one it leaves; a flow's steps, a sequence's
+   messages and a life's main path numbered; entities and types with their fields; a tree nested; dates and spans
+   as tables. Steps that walk a figure, each naming one of its items, stand with those items once, in the steps'
+   order. Citations, the guide's and those of a figure's items, are footnotes, several at one place in ascending
+   order, after one sentence naming the pin their lines are those of.
 
 Each line of the head is a list item: the publisher's word for it, a colon, and its fields parted by `·`, the
 other files of the delivery by commas. A view's line is

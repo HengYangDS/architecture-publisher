@@ -3,7 +3,13 @@ import path from "node:path";
 import { CATALOGUE } from "./facts/catalogue.mjs";
 import { HOUSE } from "./house.mjs";
 import { archifyIds } from "./map/archify.mjs";
-import { blockTitles, guideCitations, guideSummary, readGuide } from "./map/guide.mjs";
+import {
+  blockTitles,
+  guideCitations,
+  guideDiagrams,
+  guideSummary,
+  readGuide,
+} from "./map/guide.mjs";
 import { parsedGuide } from "./map/guide-parse.mjs";
 import { guideText } from "./map/guide-text.mjs";
 import { MODEL_FORMAT, MODEL_VERSION } from "./model/load.mjs";
@@ -224,6 +230,7 @@ export function pinnedEdition(held, widths, platePages = null) {
       guideText(guide.document, {
         locale: model.locale,
         titles: blockTitles(guide.text),
+        figures: guideDiagrams(guide.entries),
         repository: model.repository,
       }),
   });

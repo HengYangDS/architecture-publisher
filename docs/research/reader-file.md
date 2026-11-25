@@ -61,6 +61,18 @@ held to the item's "names of its fields in the model's language", which the ruli
 pin and digest as prose with code, and the data holds them keyed. All three put the figures' content in a later
 Change of the same item.
 
+## The figures as text
+
+The second Change writes each figure of a guide as text under its line. The twelve published guides (read
+2026-11-25) hold 104 figures of eleven kinds, nine named as files and three inline, and 94 lists of steps, of which
+58 walk one figure item by item. Written apart, each walked item stood twice; the steps now stand with the figure's
+items. The guides' text grows from 3710 lines to 5796 and from 1330 footnotes to 2012, a citation of a figure's
+item being one. Every text passes the check of the rendered form. An independent review of the Change found the
+cards of a life joined sentence to sentence, a document of odd types that threw, and fields the text dropped (a
+subtitle stating a measurement's basis, a relation's kind, an alert, an entity's tag). A second reader of the
+six Chinese samples found ten points of wording and form, of which nine were taken. All were answered. With this
+Change the contract's queue marks `reader-file` finished.
+
 ## Limits
 
 The sample was read by one reader, in one language. No Markdown viewer was opened for it; the form is held by a

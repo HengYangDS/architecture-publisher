@@ -137,7 +137,7 @@ test("the guide's part is prose with footnotes in ascending order, its figures n
   // A cell that is its verdict alone says it once, with its tone.
   assert.ok(part.includes("| Drop | Orders | Rejected (bad) |"));
   assert.ok(part.includes("> **Note**\n>\n> Orders are kept. [^2]"));
-  assert.ok(part.includes("> **Warning**: **Two lines**\n>\n> First.\n>\n> Second."));
+  assert.ok(part.includes("> **Warning: Two lines**\n>\n> First.\n>\n> Second."));
   // A fence longer than the text's own backticks; a Mermaid chart keeps its text; an image and a metric by name.
   assert.ok(part.includes("*Run it*\n\n````sh\nnpm test ```\n````"));
   assert.ok(part.includes("*Figure: Counts*\n\n```mermaid\npie"));
@@ -279,13 +279,13 @@ test("two lists that follow each other stay two, a checklist keeps its boxes, an
     en.includes("- **Latency**: 12 ms; limit 20 ms\n\n* **Errors**\n\n1. One\n\n1) Two"),
     en,
   );
-  assert.ok(en.includes("> **Open question**: **Why?**"), en);
+  assert.ok(en.includes("> **Open question: Why?**"), en);
   assert.ok(en.includes("| Drop | Rejected [^1] (bad) |\n| Keep | [^1] (good) |"), en);
   assert.deepEqual(readerFormProblems(`# T\n\n## G\n\n${en}`), []);
   const zh = guideText(parsed, { locale: "zh-CN" });
   assert.ok(zh.includes("| Drop | Rejected[^1]（欠佳） |\n| Keep | [^1]（良好） |"), zh);
   assert.ok(zh.includes("- **Latency**：12 ms；上限 20 ms"), zh);
-  assert.ok(zh.includes("> **待解问题**：**Why?**"), zh);
+  assert.ok(zh.includes("> **待解问题：Why?**"), zh);
   assert.deepEqual(readerFormProblems("# T\n\n- a\n\n- b\n\n1. c\n\n1) d\n\n2) e"), [
     "line 5 joins the list before it",
     "line 11 joins the list before it",

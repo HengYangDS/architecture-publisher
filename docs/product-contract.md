@@ -359,7 +359,7 @@ needs it: `page-figures` moves after `reader-file`, which needs nothing from it.
       against plates, with what the edition was built from under it, and may take further pages for a large work.
       Every view is reached from the overview, a fact is stated once a page, a note in a narrow column breaks between
       the words of its script, and no justified line is spread wide because the token after it cannot break.
-- [ ] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
+- [x] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
       does for one that parses it: one title, no line of the guide's own syntax and no empty link, the names of
       its fields in the model's language, and a check of the file as rendered.
 - [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and

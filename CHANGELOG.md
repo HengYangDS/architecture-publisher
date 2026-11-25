@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The reader file writes each of the guide's figures as text under its line: parts and the lines between them,
+  a flow's steps, a sequence's messages, entities and types with their fields, a tree, dates and spans. Steps
+  that walk a figure stand with its items once, and a citation of a figure's item is a footnote.
 - **Breaking:** the reader file is a document in the model's language: its items, lines of facts and head use
   the language's words, and ids, paths, property names, values and units stay code as the data holds them. The
   guide follows as prose, written from Archify's own parse of the draft, its citations as footnotes; the draft

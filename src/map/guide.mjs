@@ -78,6 +78,28 @@ export function blockTitles(draft) {
 }
 
 /**
+ * The diagram documents a guide names, by file name, as their author wrote them: each file after the draft whose
+ * name ends in a diagram's kind and `.json` and that reads as an object. A file that does not read is left out
+ * here: Archify judges it when the page is built.
+ * @param {ReadonlyArray<{ name: string, bytes: Buffer }>} entries the draft, then the files it names
+ * @returns {Map<string, any>}
+ */
+export function guideDiagrams(entries) {
+  const figures = new Map();
+  for (const { name, bytes } of entries.slice(1)) {
+    if (!/\.[a-z]+\.json$/u.test(name)) continue;
+    try {
+      const document = JSON.parse(bytes.toString("utf8"));
+      if (document && typeof document === "object" && !Array.isArray(document))
+        figures.set(name, document);
+    } catch {
+      // Archify refuses it when the page is built; the reader file names the figure alone.
+    }
+  }
+  return figures;
+}
+
+/**
  * The local files a draft names in its `@diagram source=`, `@chart data=` and `@image path=`
  * arguments, in the order they first appear.
  * @param {string} draft
