@@ -27,7 +27,7 @@ the checkout's ignored `build/runtime/work/page-figures/` (`d/`, `copy-d/`).
    - Applies to: `PUBLISHERS`, `publishersPaths`, `refuseStatedPlaces`, `readGuide`. A file's kind is the one its
      name ends in and its `diagram_type` states; a file where they differ reaches Archify as written.
 2. The repository from the model, the Forge and link mode from the draft, and only with a checkout.
-   - Rests on: Archify reads a public Forge (github.com, gitlab.com, gitee.com) from the address and a self-hosted
+   - Rests on: Archify reads a public Forge (`github.com`, `gitlab.com`, `gitee.com`) from the address and a self-hosted
      GitLab only from a hint, which a guide's draft already gives as `repo_provider`; an internal host needs
      `repo_link_mode=local-only`, which the draft may also name. Archify refuses a diagram that names a repository
      when it has no checkout to verify it (`repository-evidence/root-required`, asked of 3.3.0 on 2026-11-25).
