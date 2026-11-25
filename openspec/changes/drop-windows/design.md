@@ -1,7 +1,7 @@
 ## Context
 
 See [proposal.md](proposal.md). The owner's words of 2026-11-25 13:45, relayed by the session that governs ETHOS's
-repositories: 「ethos 所有纳管仓库，全面去除对 windows 的支持，从 CI 以及各个方面」. The measures of the Windows jobs are in
+repositories: 「`ethos 所有纳管仓库，全面去除对 windows 的支持，从 CI 以及各个方面`」. The measures of the Windows jobs are in
 `docs/research/build-and-suite-time.md`, which keeps them as the record of what was measured.
 
 ## Goals / Non-Goals
