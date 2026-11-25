@@ -173,6 +173,8 @@ test("every field the table names is refused, of every file of the guide at once
       diagram_type: "sequence",
       meta: { column_fit: "spread" },
       messages: [{ from: "a", to: "b", y: 40 }],
+      segments: [{ from: 30, to: 50, label: "Ask" }],
+      activations: [{ participant: "b", from: 40, to: 50 }],
     },
   };
   const expected = [
@@ -189,9 +191,13 @@ test("every field the table names is refused, of every file of the guide at once
     "c.workflow.json/edges/0/bias",
     "d.timeline.json/layout/width",
     "e.waterfall.json/layout/width",
+    "f.dataflow.json/nodes/0/row",
     "f.dataflow.json/nodes/0/yOffset",
     "f.dataflow.json/flows/0/channelY",
     "g.sequence.json/meta/column_fit",
+    "g.sequence.json/segments",
+    "g.sequence.json/activations",
+    "g.sequence.json/messages/0/y",
   ];
   await assert.rejects(
     drawnEntries(

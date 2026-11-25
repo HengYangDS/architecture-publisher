@@ -23,7 +23,7 @@ const drilldown = () => ({
     { id: "client", type: "frontend", label: "Client", stage: 0 },
     { id: "edge", type: "backend", label: "Edge", stage: 1 },
     { id: "api", type: "backend", label: "API", stage: 2 },
-    { id: "cache", type: "cache", label: "Cache", stage: 3 },
+    { id: "cache", type: "database", label: "Cache", stage: 3 },
     { id: "db", type: "database", label: "Store", stage: 3 },
   ],
   flows: [call("client", "edge"), call("edge", "api"), call("api", "cache"), call("api", "db")],
