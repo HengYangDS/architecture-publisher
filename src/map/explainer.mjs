@@ -199,7 +199,7 @@ const diagramFile = (diagramId) => `${diagramId}.architecture.json`;
  */
 export async function writePage(page, directory) {
   if (page.kind === "guide") {
-    for (const { name, bytes } of page.entries)
+    for (const { name, bytes } of page.drawn ?? page.entries)
       await fs.writeFile(path.join(directory, name), bytes);
     return path.join(directory, page.entries[0].name);
   }

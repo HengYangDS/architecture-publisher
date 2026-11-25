@@ -187,3 +187,25 @@ test("a scaffold writes today's page as a guide that builds", async (t) => {
     sources: "declared",
   });
 });
+
+test("a guide whose architecture file places nothing builds, the publisher laying it out, and the manifest keeps the author's file", async (t) => {
+  // The queue item `page-figures`: the page's diagrams are laid out by the publisher.
+  const work = await guideWork(t);
+  const parts = JSON.parse(PARTS);
+  for (const component of parts.components) {
+    delete component.pos;
+    delete component.size;
+  }
+  const authored = `${JSON.stringify(parts, null, 2)}\n`;
+  await fs.writeFile(path.join(work.root, "guide/parts.architecture.json"), authored);
+  const out = await temporaryDirectory(t, "archpub-guide-out-");
+  const options = { repo: work.source.root, media: ["page"] };
+  await buildDelivery(work.model, path.join(out, "built"), options);
+  const manifest = JSON.parse(await fs.readFile(path.join(out, "built", "manifest.json"), "utf8"));
+  assert.deepEqual(manifest.page.guide.files, [
+    { name: "parts.architecture.json", sha256: sha256(authored) },
+  ]);
+  assert.ok(
+    (await fs.readFile(path.join(out, "built", "minimal.html"), "utf8")).includes("Service"),
+  );
+});

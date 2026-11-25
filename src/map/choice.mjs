@@ -187,6 +187,7 @@ async function measure(file, document) {
 
 /** How far a shape lies outside the band a diagram should take; Infinity below the narrowest it may take. */
 function shapeDistance(width, height) {
+  if (width === undefined || height === undefined) return 0;
   const ratio = width / height;
   if (ratio < SHAPE.least) return Infinity;
   return Math.max(0, SHAPE.low - ratio, ratio - SHAPE.high);
@@ -211,17 +212,29 @@ function archifySides(document) {
 /**
  * The document once for each other pair of sides one connection can take: its
  * sides left to Archify, or a side of each card that does not face away from
- * the other card.
+ * the other card. A card stands where the document places it, or, in a document
+ * that leaves its places to Archify, where Archify's layout of it set the card.
+ * @param {any} document
+ * @param {string} id
+ * @param {any} layout Archify's layout of the document
  */
-function resided(document, id) {
+function resided(document, id, layout) {
+  const placed = document.components.every(({ pos, size }) => pos && size);
   const centre = new Map(
-    document.components.map(({ id: node, pos, size }) => [
-      node,
-      [pos[0] + size[0] / 2, pos[1] + size[1] / 2],
-    ]),
+    placed
+      ? document.components.map(({ id: node, pos, size }) => [
+          node,
+          [pos[0] + size[0] / 2, pos[1] + size[1] / 2],
+        ])
+      : layout.components.map(({ id: node, x, y, width, height }) => [
+          node,
+          [x + width / 2, y + height / 2],
+        ]),
   );
   const connection = document.connections.find((item) => item.id === id);
   const [from, to] = [centre.get(connection.from), centre.get(connection.to)];
+  // A card Archify's layout does not hold gives the connection no other sides to try.
+  if (!from || !to) return [];
   const facing = (dx, dy) =>
     Object.entries(OUTWARD)
       .filter(([, [x, y]]) => x * dx + y * dy >= 0)
@@ -394,7 +407,9 @@ async function repair(starts, measureAll) {
     let current = start;
     for (let round = 0; round < REPAIR.rounds && current.faults.length && budget; round += 1) {
       const changes = current.faults
-        .flatMap((id) => resided(current.document, id).map((document) => ({ id, document })))
+        .flatMap((id) =>
+          resided(current.document, id, current.layout).map((document) => ({ id, document })),
+        )
         .slice(0, budget);
       budget -= changes.length;
       const measured = (await measureAll(changes.map(({ document }) => document))).map(
@@ -456,15 +471,34 @@ export function pinSets(starts) {
  * @param {"showcase" | "standard"} [quality]
  */
 export async function chooseDiagram(model, view, quality = "showcase") {
-  const candidates = diagramCandidates(model, view, quality).filter(
-    ({ width, height }) => shapeDistance(width, height) !== Infinity,
-  );
+  const inShape = ({ width, height }) => shapeDistance(width, height) !== Infinity;
+  const candidates = diagramCandidates(model, view, quality).filter(inShape);
   if (!candidates.length)
     refuse(
       "page_shape_refused",
       `View ${view.id} has no diagram at least ${SHAPE.least} times as wide as it is high. ` +
         "Split the view or declare fewer tiers.",
     );
+  const chosen = await chooseAmong(candidates, {
+    path: `/views/${view.id}`,
+    name: `View ${view.id}`,
+    quality,
+    narrow: () => diagramCandidates(model, view, quality, { beside: true }).filter(inShape),
+  });
+  return { view: view.id, ...chosen };
+}
+
+/**
+ * Measure candidate diagrams of one figure on Archify's own routes and choose among them, as `chooseDiagram`
+ * says: each once with its connection sides and once with every side left to Archify, then the narrow ones where
+ * the best stands above its steps, the repair of the best few and the pins of their labels. A candidate's width and
+ * height rank its shape; a candidate without them, as Archify's own layout has, is ranked on its routes alone.
+ * @param {Array<{ document: any, width?: number, height?: number, nodes?: any, rows?: any }>} candidates
+ * @param {{ path: string, name: string, quality: string, narrow?: () => any[] }} subject the figure's path and
+ *   name in a refusal, the build's quality, and the narrow candidates to measure where the best stands above its
+ *   steps
+ */
+export async function chooseAmong(candidates, { path: at, name, quality, narrow = () => [] }) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-diagrams-"));
   try {
     const { measureAll, layoutAll } = measurer(directory);
@@ -490,17 +524,15 @@ export async function chooseDiagram(model, view, quality = "showcase") {
     // When the best diagram stands above its steps, rows of two narrow enough to
     // stand beside them are measured as well.
     if (passing.length && !besideSteps(passing[0].drawing)) {
-      const narrow = diagramCandidates(model, view, quality, { beside: true }).filter(
-        ({ width, height }) => shapeDistance(width, height) !== Infinity,
-      );
+      const narrower = narrow();
       const more = [
-        ...narrow.map(({ document }) => ({ document, sides: "grid" })),
-        ...narrow.map(({ document }) => ({ document: archifySides(document), sides: "archify" })),
+        ...narrower.map(({ document }) => ({ document, sides: "grid" })),
+        ...narrower.map(({ document }) => ({ document: archifySides(document), sides: "archify" })),
       ];
       const results = await measureAll(more.map(({ document }) => document));
       measured.push(
         ...results.map((result, index) => ({
-          ...narrow[index % narrow.length],
+          ...narrower[index % narrower.length],
           document: more[index].document,
           ...result,
           sides: more[index].sides,
@@ -514,10 +546,10 @@ export async function chooseDiagram(model, view, quality = "showcase") {
     if (!passing.length)
       return refuse(
         "page_diagram_refused",
-        `View ${view.id} has no diagram that passes Archify's ${quality} checks.`,
+        `${name} has no diagram that passes Archify's ${quality} checks.`,
         measured[0].diagnostics.slice(0, 20).map((issue) => ({
           code: String(issue.code ?? "archify"),
-          path: `/views/${view.id}`,
+          path: at,
           message: String(issue.message ?? "").slice(0, 400),
         })),
       );
@@ -584,11 +616,10 @@ export async function chooseDiagram(model, view, quality = "showcase") {
       starts = pinned.sort(byRoutes).slice(0, REPAIR.starts);
     }
     return {
-      view: view.id,
       nodes: chosen.nodes,
       document: chosen.document,
       width: chosen.width,
-      height: chosen.document.meta.viewBox[1],
+      height: chosen.document.meta.viewBox?.[1] ?? chosen.height,
       rows: chosen.rows,
       sides: chosen.sides,
       resided: chosen.resided,

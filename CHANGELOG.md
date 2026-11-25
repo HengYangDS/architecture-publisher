@@ -9,6 +9,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A guide's architecture file may state its parts and connections without a position: the publisher lays it out
+  as it lays out the generated page's diagrams, choosing among Archify's own layouts by what a reader misreads.
+  Over the 22 published architecture files, routes a reader misreads fall from 22 to 3 and misread labels from
+  51 to 4 (`docs/research/page-figures.md`). A file that places anything is drawn as written.
 - `docs/reference/terms.md` lists each concept the product names, its word in English and Chinese and the keys
   that use it; a test holds the product's words to it. Three words changed to it: the English index and reading
   note say "component", as the page does; Chinese says 固定提交 for the pinned commit throughout; and a plate's key

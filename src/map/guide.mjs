@@ -7,6 +7,7 @@ import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 import { runArchify } from "./archify.mjs";
 import { holdDelivery, refusePage, writePage } from "./explainer.mjs";
+import { drawnEntries } from "./guide-figures.mjs";
 
 /**
  * The guide: an Archify explainer draft a work's author writes beside the model, which the
@@ -186,7 +187,10 @@ export async function guidePage(model, guide, options) {
   const page = {
     kind: /** @type {const} */ ("guide"),
     path: model.guide,
+    // The author's files, which the manifest and the citations record; Archify draws `drawn`, in which the publisher
+    // has laid out each architecture diagram that places nothing.
     entries: guide.entries,
+    drawn: await drawnEntries(guide.entries, options.quality),
     quality: options.quality,
     writing: options.quality === "showcase" ? "strict" : "warn",
     repo:
