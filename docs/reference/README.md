@@ -9,7 +9,8 @@ relations:
 # Development and reference
 
 - [Model reference](model.md): the Architecture Model format.
-- [Operations reference](operations.md): commands, layout, the delivery and refusals.
+- [Operations reference](operations.md): commands, layout and the delivery.
+- [Refusals reference](refusals.md): every code a check or a build refuses with.
 - [Data and reader file reference](data.md): the model, the data and the reader file of a delivery, the evidence table and a plate's face.
 - [Command line reference](command-line.md): help, exit statuses, JSON results, reports and progress.
 - [Development and verification](development.md): native toolchain, checks and platform prerequisites.

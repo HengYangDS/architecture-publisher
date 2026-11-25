@@ -20,6 +20,7 @@ the how-to guides; for every detail, the references.
 - [Model reference](reference/model.md): every field of an Architecture Model.
 - [Line values](reference/lines.md): the weights and patterns of a plate's lines, and what each means.
 - [Data and reader file reference](reference/data.md): the model, the data and the reader file of a delivery, the evidence table and a plate's face.
-- [Operations reference](reference/operations.md): commands, layout, the delivery and refusals.
+- [Operations reference](reference/operations.md): commands, layout and the delivery.
+- [Refusals reference](reference/refusals.md): every code a check or a build refuses with.
 - [Command line reference](reference/command-line.md): help, exit statuses, JSON results, reports and progress.
 - [Development and reference](reference/README.md): toolchain, configuration and verification.
