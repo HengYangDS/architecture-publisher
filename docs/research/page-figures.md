@@ -65,6 +65,14 @@ sources and repository removed, every one lays out on the publisher's grid; a gr
 in the manifest diagram of Architecture Publisher, both languages (`erd/domain-not-drawn`), and the grid that keeps
 them is not. The ten took 11 s at about one core.
 
+## The workflows laid out by the publisher's columns
+
+Each node's column was taken as the longest path to it along the edges, an edge within one lane one step and an edge
+across lanes none, as the works' authors draw a hand-off; two nodes of one lane in one column move the later right.
+With their columns removed, all ten published workflows lay out within the six columns Archify draws and pass at
+showcase with every route measure zero. A first form that stepped across lanes too needed seven columns for the
+publisher's edition workflow and drew an arrowhead collision in AIGW Client's English rollout.
+
 ## Limits
 
 - One run each, on one host; Archify 3.3.0 as the publisher bundles it.

@@ -1,5 +1,6 @@
 import { chooseAmong } from "./choice.mjs";
 import { GRID_KINDS, gridLayout } from "./guide-grid.mjs";
+import { workflowLayout } from "./guide-workflow.mjs";
 
 /** The fields of a part that place it. */
 const PLACING = new Set(["pos", "size", "row", "col"]);
@@ -42,7 +43,8 @@ function measurable(document, quality) {
 
 /**
  * A guide's entries as Archify draws them. Each entity-relationship and class file that places nothing takes the
- * publisher's grid (`gridLayout`). Each architecture file the draft names that places nothing is laid out by the
+ * publisher's grid (`gridLayout`), and each workflow whose nodes name no column the publisher's columns
+ * (`workflowLayout`). Each architecture file the draft names that places nothing is laid out by the
  * publisher as the generated page's diagrams are: Archify's own layout, with its connections' sides and with
  * Archify's, the repair of the sides of the routes that misread and the pins of the labels, ranked by what a reader
  * misreads (`chooseAmong`). The file keeps its sources and repository; it takes the chosen layout and connections.
@@ -55,7 +57,7 @@ function measurable(document, quality) {
 export async function drawnEntries(entries, quality) {
   const drawn = [];
   for (const { name, bytes } of entries) {
-    const kind = /\.(architecture|erd|class)\.json$/u.exec(name)?.[1];
+    const kind = /\.(architecture|erd|class|workflow)\.json$/u.exec(name)?.[1];
     /** @type {any} */
     let document = null;
     if (kind)
@@ -69,7 +71,9 @@ export async function drawnEntries(entries, quality) {
         ? null
         : kind === "architecture"
           ? await architecture(document, name, quality)
-          : await grid(/** @type {"erd" | "class"} */ (kind), document, name, quality);
+          : kind === "workflow"
+            ? workflow(document, name)
+            : await grid(/** @type {"erd" | "class"} */ (kind), document, name, quality);
     drawn.push(
       laidOut
         ? { name, bytes: Buffer.from(`${JSON.stringify(laidOut, null, 2)}\n`) }
@@ -123,4 +127,24 @@ async function grid(kind, document, name, quality) {
   if (document.layout !== undefined) return null;
   if (items.some((item) => Object.keys(item).some((key) => GRIDDING.has(key)))) return null;
   return gridLayout(kind, document, measurable(document, quality), name, quality);
+}
+
+/**
+ * A workflow laid out by the publisher's columns, or null where it places anything (a node's column, or a phase or a
+ * group, which span columns) or where its nodes or edges are not lists of objects, its nodes' ids not distinct strings
+ * or their lanes not strings: Archify judges such a file.
+ * @param {any} document
+ * @param {string} name
+ */
+function workflow(document, name) {
+  const objects = (/** @type {unknown} */ list) =>
+    Array.isArray(list) && list.every((item) => item?.constructor === Object);
+  if (!objects(document.nodes) || !document.nodes.length || !objects(document.edges ?? []))
+    return null;
+  const ids = document.nodes.map((/** @type {any} */ node) => node.id);
+  if (ids.some((id) => typeof id !== "string") || new Set(ids).size !== ids.length) return null;
+  if (document.nodes.some((/** @type {any} */ node) => typeof node.lane !== "string")) return null;
+  if (document.nodes.some((/** @type {any} */ node) => "col" in node)) return null;
+  if (document.phases?.length || document.groups?.length) return null;
+  return workflowLayout(document, name);
 }

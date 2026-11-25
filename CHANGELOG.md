@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A guide's workflow may state its lanes, nodes and edges without a column: the publisher sets each step in
+  the column its edges give, a hand-off between lanes in one column. A workflow that needs more than the six
+  columns Archify draws is refused (`page_workflow_too_wide`).
 - A guide's entity-relationship or class file may state its items and relationships without a row or a column:
   the publisher lays it out on a grid, each domain filling a rectangle, choosing among two to four columns by
   Archify's route measures. A domain no grid can hold is refused (`page_diagram_unplaceable`).
