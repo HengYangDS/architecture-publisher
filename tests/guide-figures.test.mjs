@@ -114,7 +114,7 @@ test("a file of another kind takes the repository with the draft's Forge and lin
     diagram_type: "tree",
     meta: { title: "Files", output: "files.html", locale: "en" },
     layout: { direction: "right" },
-    nodes: [{ id: "root", label: "Root" }],
+    nodes: [{ id: "root", label: "Root", sources: [{ path: "src/main.mjs", line: 1 }] }],
   };
   const authored = entry("files.tree.json", tree);
   const declared = { ...REPOSITORY, provider: "gitlab", link_mode: "local-only" };
@@ -125,6 +125,10 @@ test("a file of another kind takes the repository with the draft's Forge and lin
   });
   const [kept] = await drawnEntries([authored], "showcase");
   assert.deepEqual(kept.bytes, authored.bytes, "without a repository the file is as written");
+  // A file whose items cite no source names no repository: Archify refuses one that no item cites.
+  const uncited = entry("bare.tree.json", { ...tree, nodes: [{ id: "root", label: "Root" }] });
+  const [bare] = await drawnEntries([uncited], "showcase", declared);
+  assert.deepEqual(bare.bytes, uncited.bytes);
   const spaced = entry("files.tree.json", { ...tree, layout: { direction: "right", gapX: 40 } });
   await assert.rejects(drawnEntries([spaced], "showcase"), (error) => {
     assert.equal(error.code, "page_diagram_publisher_field");

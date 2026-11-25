@@ -201,7 +201,7 @@ export async function drawnEntries(entries, quality, repository) {
       continue;
     }
     const { kind, document } = diagram;
-    const filled = withRepository(document, repository);
+    const filled = withRepository(kind, document, repository);
     const laidOut =
       kind === "architecture"
         ? await architecture(filled, entry.name, quality)
@@ -222,13 +222,39 @@ export async function drawnEntries(entries, quality, repository) {
 }
 
 /**
- * A document that names the repository, or the document as it is without one. Archify takes a public Forge from the
- * address.
+ * The list of each kind whose items Archify reads sources from, as its repository evidence counts them
+ * (`EVIDENCE_NODE_COLLECTIONS` in Archify's `renderers/shared/repository-evidence.mjs`).
+ */
+const EVIDENCE = Object.freeze({
+  architecture: "components",
+  workflow: "nodes",
+  sequence: "participants",
+  dataflow: "nodes",
+  lifecycle: "states",
+  erd: "entities",
+  tree: "nodes",
+  class: "types",
+  timeline: "events",
+  waterfall: "spans",
+});
+
+/**
+ * A document that names the repository, or the document as it is without one. A document whose items cite no source
+ * is left as it is: Archify refuses a repository that no item cites (`repository-evidence/source-required`). Archify
+ * takes a public Forge from the address.
+ * @param {keyof typeof PUBLISHERS} kind
  * @param {any} document
  * @param {Repository | undefined} repository
  */
-function withRepository(document, repository) {
+function withRepository(kind, document, repository) {
   if (!repository?.url || !repository.revision) return document;
+  const items = document[EVIDENCE[/** @type {keyof typeof EVIDENCE} */ (kind)]];
+  const cites =
+    Array.isArray(items) &&
+    items.some(
+      (/** @type {any} */ item) => Array.isArray(item?.sources) && item.sources.length > 0,
+    );
+  if (!cites) return document;
   const { url, revision, provider, link_mode } = repository;
   return {
     ...document,
