@@ -115,8 +115,10 @@ The print edition opens with a title page of the work's name, question and
 summary and a byline of its release, editors, licence and publisher, then
 contents that link to the overview and to every plate beside the scope, the
 limits and a reading note, then the overview and one plate per view, and it
-ends with an index of the parts by name, each with the plates that draw it,
-over the repository, the files read, the page and the data. A plate shows the
+ends with an index of the parts by name, each a short paragraph of what it is,
+what it relates to, the files it claims and the plates that draw it, which a
+part's name on a plate links to; over the repository, the files read, the page
+and the data. A plate shows the
 view's title and question and its figure: each component as one card of its
 name, the strip of the files it owns, its kind beside the kind's icon with the
 number and size of its files, and its details where the plate has the room,
@@ -311,6 +313,14 @@ guide's diagram. Its last step, the published works' diagram files losing their 
 waits for a release of Archify that takes a guide's files without them. An outside wait holds only the work that
 needs it: `page-figures` moves after `reader-file`, which needs nothing from it.
 
+On 2026-11-25 the owner asked whether a part on a plate of the PDF could show an explanation on hover, or behind a
+small icon, and asked for the need beneath the ask (「理解下底层的本质需求，而不是按照我表面要求的这样」). The need read
+from it: a part's explanation one action away from the plate and back, which a talk on a screen can use; links work
+in every PDF reader, hovers in few. Of three forms, the owner chose the index widened, a short paragraph a part, and
+ruled out a page a part (「可以尝试 3a，独立的部件页不是个好主意」); seen as a sample of two works, the Change was
+left to the maintainer (「按你认为最优的方式推进吧」). `parts-index` joined the list after `reader-file`, which moves
+`page-figures` and every item after it back by one.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -362,6 +372,10 @@ needs it: `page-figures` moves after `reader-file`, which needs nothing from it.
 - [x] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
       does for one that parses it: one title, no line of the guide's own syntax and no empty link, the names of
       its fields in the model's language, and a check of the file as rendered.
+- [x] `parts-index`: a reader learns about a part one link away from the plate. Each part of the index is a short
+      paragraph: its name, kind and plates, the details the model states, the parts it reaches and those that reach
+      it, each a link to that part's paragraph, and the paths it claims, each a link to the source at the pin. A
+      part's name on a plate links to its paragraph. No page a part.
 - [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
       relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
       file that places anything. The published works' diagram files lose the positions they hold. A diagram

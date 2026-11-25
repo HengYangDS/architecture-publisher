@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** each part of the edition's index is a short paragraph of its kind, details, relations and
+  files, the other parts' names and the files as links; a card's title on a plate links to its part's
+  paragraph, no longer to its first file. The index takes more pages.
 - The reader file writes each of the guide's figures as text under its line: parts and the lines between them,
   a flow's steps, a sequence's messages, entities and types with their fields, a tree, dates and spans. Steps
   that walk a figure stand with its items once, and a citation of a figure's item is a footnote.

@@ -230,7 +230,10 @@ The print edition is typeset by Typst 0.15.1 with the house class into
   not say: the commit the age bands count from, whose date the foot states, the bands, a scale bar, a count of cited
   files, a line into the hub, the boundary, the ground of a part outside it or,
   in a group's view, outside the group, and the statuses, and no kind;
-- an index of the parts by name, each with its plates' numbers as links, over the repository, files read, page and data.
+- an index of the parts by name, each a short paragraph: its kind and its plates' numbers as links, the details
+  the model states, the parts it reaches and those that reach it, each a link to that part's paragraph, and the
+  paths it claims, each a link to the source at the pin (the house's `indexPaths` at most, the rest counted; a path
+  wider than the column breaks after its slashes); over the repository, files read, page and data.
 
 Every page after the title page shares one frame: a head at the margin, a body
 from 112 to 826 points, the key and a foot of a rule and the work's title,
@@ -246,8 +249,9 @@ before it, and each line but a detail's last is spread to their measure unless
 its slack is over a tenth of an em for each place it opens. A run Typst sets
 wider, or a summary line above its figure wider than 32 ems, is refused with
 `edition_text_wider`, a title longer than its line with
-`edition_title_too_long`. With `repository.browse`, a card's title links to its
-component's first file at the pinned revision. Each plate is a figure with alt
+`edition_title_too_long`. A card's title links to its component's paragraph in
+the index, whose paths link to the source at the pinned revision where the model's
+repository has an address to browse. Each plate is a figure with alt
 text of its title and question, its shapes and key artifacts; the model is
 attached as `model.json` with the relationship `source`, so the PDF conforms to
 PDF/A-3a and PDF/UA-1. Its title, authors, subject, keywords and language come

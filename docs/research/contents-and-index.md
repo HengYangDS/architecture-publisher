@@ -238,6 +238,20 @@ constant, and so is the number of lines a half of the index; a contents row has 
 index line half of it, and both lists stand in order, so the page they end on is not filled; the last page states what the edition was built from and not who accepted it. The portrait
 booklet and the page in a browser are other carriers with their own designs.
 
+## The index as a paragraph a part
+
+On 2026-11-25 the owner asked whether a part on a plate could show an explanation on hover or behind an icon, and
+asked for the need beneath the ask. Read as a part's explanation one action from the plate and back, which a talk
+on a screen can use, it was answered in three forms: a hover or an icon (links work in every PDF reader, hovers in
+few), a page a part, and the index widened. The owner chose the third and ruled out a page a part. A sample on two
+works (AIGW Client in English, ETHOS in Chinese) gave each part a paragraph of its kind, details, relations and
+paths, its name on a plate a link to it: AIGW's index took two pages where it took one, ETHOS's four where it took
+two, the editions 11 and 19 pages. The published works' largest part claims 20 paths and the most connected has 16
+relations, so a paragraph lists 24 paths at most and counts the rest. The maintainer's first look at the sample
+found paths broken at a slash and, in Chinese, a relation's label and the other part's name hard to tell apart in
+one colour: a path is now never broken, and the other part's name takes the colour of a plate's number, as a link.
+With this Change the contract's queue marks `parts-index` finished.
+
 ## What is not established
 
 - No link of either page was clicked in a viewer; the page's and the data's are links to files beside the PDF,

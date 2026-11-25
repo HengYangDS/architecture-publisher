@@ -120,7 +120,7 @@ test("a plate drawn from a false size shows it in the part's strip and caption",
   assert.ok(Math.abs(lengthOf(stripOf(plate, "a")) - 3.2) <= 0.15);
 });
 
-test("the edition's record takes a part's first file, the files read, the date and the release from the layer", () => {
+test("the edition's record takes the files read, the date and the release from the layer", () => {
   const record = editionRecord({
     model,
     plates: [plate],
@@ -132,10 +132,6 @@ test("the edition's record takes a part's first file, the files read, the date a
     page: "minimal.html",
     time: 1_794_000_000,
   });
-  assert.equal(
-    record.plates[0].links.a,
-    `https://example.invalid/minimal/blob/${REVISION}/docs/other.md`,
-  );
   const words = editionWordsOf(model.locale);
   assert.ok(record.closing.some(({ value }) => value === words.readValue(7)));
   assert.equal(record.subject.date, "2001-02-03");

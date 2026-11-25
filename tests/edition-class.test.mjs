@@ -132,10 +132,11 @@ test("ten plates' contents fit one page, and eleven or seventeen continue on a s
   );
 });
 
-test("card titles link to the files they cite, and the edition names its editors and carries its model", async () => {
+test("card titles link to their parts in the index, whose paths link to the source, and the edition names its editors and carries its model", async () => {
   const typeset = await edition([plate(1), plate(2)]);
+  // The index links each path a part claims to the source at the pin, once; the plates link to the index.
   assert.equal(
-    countIn(typeset.pdf, /https:\/\/github\.com\/o\/minimal\/blob\/a{40}\/src\/a\.mjs/gu) >= 2,
+    countIn(typeset.pdf, /https:\/\/github\.com\/o\/minimal\/blob\/a{40}\/src\/a\.mjs/gu) >= 1,
     true,
   );
   const { text } = readPdf(typeset.pdf);

@@ -692,9 +692,10 @@
         if "measure" in r { _spread(set-run(r.text), r.measure * _k, r.text) } else { set-run(r.text) })
       // A spread run is checked against its measure where it is set; any other against the width the engine measured.
       context if "measure" not in r and measure(set-run(r.text)).width > r.width * _k + 0.5pt { panic("edition_text_wider: " + r.text) }
-      if "component" in r and r.component in p.links {
+      // A part's name leads to its paragraph in the index, whose paths lead to the source.
+      if "component" in r and r.component in p.parts {
         place(top + left, dx: r.x * _k, dy: (r.baseline - r.size) * _k,
-          link(p.links.at(r.component), box(width: r.width * _k, height: r.size * 1.3 * _k)))
+          link(label(p.parts.at(r.component)), box(width: r.width * _k, height: r.size * 1.3 * _k)))
       }
     }
   })))
@@ -877,31 +878,98 @@
   })
 }
 
-/// The index: every part once, in the order the record gives, and after it the numbers of the plates that draw it,
-/// set as the contents set a plate's number, each a link, from the column's right edge. A part on more plates than
-/// stand beside its name sets them in lines of equal length, 24 points apart. A half takes the house's `indexRows`
-/// lines at most, and a line is that share of the body high in every edition. A part whose numbers take more lines
-/// than a page holds is refused.
+/// The index: every part once, in the order the record gives, as a short paragraph, which a part's name on a plate
+/// links to. Its first line is the part's name, its kind and the numbers of the plates that draw it, each a link, set
+/// as the contents set a plate's number, a part on more plates than stand beside its name in lines of equal length,
+/// 24 points apart; a part with nothing more takes one line, a twentieth of the body high, as before. Under it, in a
+/// column after the terms, at the text's pitch: each detail the model states; the parts it reaches (→) and those
+/// that reach it (←), each by the relation's label and the other part's name, a link to that part's paragraph; and
+/// the paths it claims, each a link to the source at the pin, broken inside only where it is wider than the column,
+/// after a slash. A half takes paragraphs whole, in order, none opened up; a paragraph taller than a page's body is
+/// refused.
 #let _index(r) = context {
-  let (pitch, more) = (_body / _e.indexRows, 24pt)
+  let (pitch, more, line) = (_body / _e.indexRows, 24pt, _text.pitch)
   let cell = measure(text(font: _number.font, size: sizes.at(_number.size), "00")).width + 10pt
+  let plain = _style(_size("text"), sans, "regular", ink, "normal")
+  let small = _style(_size("small"), sans, "regular", soft, "normal")
+  let named = r.index.map(part => part.details.map(d => d.name)).flatten()
+  let term = calc.min(_half / 4, named.fold(16pt, (w, n) =>
+    calc.max(w, measure(text(size: sizes.text, weight: "semibold", n)).width)) + 14pt)
+  let w = _half - term
+  // A detail is prose, justified where it wraps, as every text of more than one line; relations and paths are runs of
+  // names, set flush left. Each row is as tall as the taller of its text and its term, each measured as it is set:
+  // a long detail's name wraps in its column.
+  let term-style(t) = _style(_size("text"), sans, if t in ("→", "←") { "regular" } else { "semibold" },
+    if t in ("→", "←") { soft } else { ink }, "normal")
+  let tall(row) = calc.max(measure(wrapped(row.body, w, row.style, spread: row.spread)).height,
+    if row.term == none { 0pt } else { measure(wrapped(row.term, term - 14pt, term-style(row.term))).height })
+  // A path stands whole on its line; one wider than the column breaks after its slashes, and a part of it between
+  // two slashes still wider than the column is refused.
+  let path(f) = {
+    let set-path(body) = if f.url == none { body } else { link(f.url, body) }
+    if measure(text(size: sizes.small, f.path)).width <= w { return box(set-path(f.path)) }
+    let parts = f.path.split("/")
+    if parts.any(one => measure(text(size: sizes.small, one + "/")).width > w) {
+      panic("edition_index_too_long: a part of the path " + f.path + " between two slashes is wider than the index's column")
+    }
+    set-path(parts.join("/" + sym.zws))
+  }
+  // The other part's name is a link, set in the colour of a plate's number, which is one too.
+  let related(list) = list.map(one => [#text(fill: soft, one.label) #link(label(one.key),
+    text(fill: _number.fill, one.other))]).join("  ·  ")
   let items = r.index.map(part => {
     let name = measure(text(font: sans, size: sizes.head, part.label)).width
-    let room = calc.max(2, calc.floor((_half - name - 28pt) / cell))
+    let kind = if part.kind == none { 0pt } else {
+      measure(text(size: sizes.small, tracking: _tracking, upper(part.kind))).width + 14pt
+    }
+    let room = calc.max(2, calc.floor((_half - name - kind - 28pt) / cell))
     let lines = calc.max(1, calc.ceil(part.plates.len() / room))
-    (label: part.label, rows: part.plates.chunks(calc.max(1, calc.ceil(part.plates.len() / lines))),
-      tall: pitch + (lines - 1) * more)
+    let rows = ()
+    for d in part.details { rows.push((term: d.name, body: d.text, style: plain, spread: true)) }
+    if part.out.len() > 0 { rows.push((term: "→", body: related(part.out), style: plain, spread: false)) }
+    if part.at("in").len() > 0 {
+      rows.push((term: "←", body: related(part.at("in")), style: plain, spread: false))
+    }
+    if part.files.len() > 0 {
+      // A line breaks between two paths.
+      rows.push((term: none, body: (part.files.map(path)
+        + if part.more == none { () } else { (box(part.more),) }).join("    "), style: small, spread: false))
+    }
+    let first = pitch / 2 + 6pt
+    let b = first + (lines - 1) * more + line + 4pt
+    let placed = ()
+    for row in rows {
+      placed.push((..row, b: b))
+      b += tall(row) + line
+    }
+    (key: part.key, label: part.label, kind: part.kind, name: name, first: first,
+      rows: part.plates.chunks(calc.max(1, calc.ceil(part.plates.len() / lines))), lines: placed,
+      tall: if placed.len() == 0 { pitch } else { b - line + pitch / 2 - 6pt })
   })
   if items.any(item => not _fits(item.tall)) {
-    panic("edition_index_too_long: a part stands on more plates than a page's lines hold")
+    panic("edition_index_too_long: a part's paragraph is taller than a page's body")
   }
   _list(r.words.index, r.words.indexLead, _halves(items, item => item.tall), (item, x, y) => {
-    let base = y + pitch / 2 + 6pt
+    let base = y + item.first
+    place(top + left, dx: x, dy: y, [#metadata(item.key) #label(item.key)])
     tx(x, base, item.label, size: "head")
+    // The kind in capitals as the house sets a label, its text recorded as set.
+    if item.kind != none {
+      set text(tracking: _tracking)
+      tx(x + item.name + 14pt, base, upper(item.kind), size: "small", fill: soft)
+    }
     for (j, row) in item.rows.enumerate() {
       for (k, plate) in row.rev().enumerate() {
         txr(x + _half - k * cell, base + j * more, cell, link(label(plate.key), plate.number), .._number)
       }
+    }
+    for row in item.lines {
+      if row.term != none {
+        let style = term-style(row.term)
+        tx(x, y + row.b, row.term, weight: style.weight, fill: style.fill, w: term - 14pt)
+      }
+      tx(x + term, y + row.b, row.body, w: w, size: if row.style == small { "small" } else { "text" },
+        fill: if row.style == small { soft } else { ink }, spread: row.spread)
     }
   }, between: _line.hair)
 }

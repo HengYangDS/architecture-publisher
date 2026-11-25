@@ -1,10 +1,11 @@
+import { HOUSE } from "../house.mjs";
 import { OVERVIEW_KEY, filesOf, plateKey, shortRevision, stagedPlate, two } from "../names.mjs";
 import { editionWordsOf } from "./words.mjs";
 
 /**
  * The record the house class typesets a delivery's print edition from: the model's own text, the facts the build
- * records, the edition's words in the model's language, each plate's figure, runs, key and links, and the index
- * of the parts by name.
+ * records, the edition's words in the model's language, each plate's figure, runs and key with the index entry of
+ * each part it draws, and the index of the parts by name, a paragraph each.
  */
 
 /** The components a plate draws, each once, in the order of its runs. */
@@ -42,6 +43,9 @@ export function compareNames(one, other, locale) {
   return one < other ? -1 : one > other ? 1 : 0;
 }
 
+/** The label of a part's paragraph in the index, which a part's name on a plate links to. */
+const partKey = (/** @type {string} */ id) => `archpub-part-${id}`;
+
 /**
  * A file's address in the model's repository browser, or null when the model names none.
  * @param {string | null} browse a URL template with `{revision}` and `{path}`
@@ -63,9 +67,8 @@ function linkOf(browse, revision, file) {
  *   publisher: string, typst: string, overview: boolean, page: string,
  *   time: number | null,
  * }} input
- *   `facts` are the edition's measured facts: each part's files in claim order, the first of which its title links
- *   to, the number of files read, and the pin's date and release. `time` is the time the edition is dated by, in
- *   seconds, or none.
+ *   `facts` are the edition's measured facts: each part's files in claim order, the number of files read, and the
+ *   pin's date and release. `time` is the time the edition is dated by, in seconds, or none.
  */
 /**
  * A plate's line back to the overview: the words of the first element of the statement that names one of its
@@ -104,14 +107,15 @@ export function editionRecord(input) {
   const subject = `${repository?.name ?? model.title}${release ? ` ${release}` : ""}`;
   const at = short ? `${short}${date ? ` · ${date}` : ""}` : null;
   const drawn = plates.map(partsOf);
+  // A relation's ends are components: the model refuses one that names none, and one from a part to itself.
+  const labelOf = (/** @type {string} */ id) =>
+    /** @type {any} */ (model.components.find((/** @type {any} */ one) => one.id === id)).label;
+  /** One line per label and other part: two relations alike say one thing. */
+  const once = (/** @type {Array<{ label: string, key: string, other: string }>} */ list) => [
+    ...new Map(list.map((one) => [JSON.stringify([one.label, one.key]), one])).values(),
+  ];
   const plateRecords = plates.map((plate, index) => {
     const number = two(plate.page);
-    const links = {};
-    for (const run of plate.runs) {
-      if (!run.component || !repository) continue;
-      const url = linkOf(repository.browse, repository.revision, facts.owned(run.component)[0]);
-      if (url) links[run.component] = url;
-    }
     // Beside a figure that leaves part of the body: the view's summary, and where each component it shows lives,
     // as the model claims it.
     const shown = drawn[index];
@@ -150,10 +154,27 @@ export function editionRecord(input) {
           ? { label: entry.label, artwork: icons.artwork(entry.icon), color: entry.color }
           : { ...entry },
       ),
-      links,
+      // Each part the plate draws, by the key of its paragraph in the index, which its name links to.
+      parts: Object.fromEntries(
+        plate.runs
+          .filter((run) => run.component && model.components.some(({ id }) => id === run.component))
+          .map((run) => [run.component, partKey(run.component)]),
+      ),
     };
   });
-  const linked = plateRecords.some(({ links }) => Object.keys(links).length > 0);
+  /**
+   * The paths a component claims, a file or a folder each (the model refuses a pattern), each a link to the source
+   * at the pin where the model's repository has an address to browse. The index lists the house's `indexPaths` at
+   * most and counts the rest, which the reader file and the data hold.
+   */
+  const claimsOf = (/** @type {any} */ component) =>
+    component.files.map((/** @type {string} */ file) => ({
+      path: file,
+      url: repository ? linkOf(repository.browse, repository.revision, file) : null,
+    }));
+  const linked = model.components.some((/** @type {any} */ component) =>
+    claimsOf(component).some(({ url }) => url),
+  );
   // The reading note about the page's name: the name is one word of it, which the class never breaks. Every
   // language names the page once.
   const note = words.readingNote(linked, input.page).split(input.page);
@@ -212,10 +233,34 @@ export function editionRecord(input) {
           claim: model.overview?.claim ?? null,
         }
       : null,
-    // The index: every part once, by name, with the plates that draw it, each by its number and its page's label.
+    // The index: every part once, by name, as a paragraph: its kind, the details the model states, the parts it
+    // reaches and those that reach it by the relations' labels, each by the key of its paragraph, the paths it
+    // claims, and the plates that draw it, each by its number and its page's label.
     index: model.components
       .map((component) => ({
+        key: partKey(component.id),
         label: component.label,
+        kind: model.kinds.find(({ id }) => id === component.kind)?.label ?? null,
+        details: component.details.map(([name, values]) => ({
+          name,
+          text: values.join(words.list),
+        })),
+        files: claimsOf(component).slice(0, HOUSE.edition.indexPaths),
+        // The paths past the house's number, counted in the model's language, or none.
+        more:
+          component.files.length > HOUSE.edition.indexPaths
+            ? words.morePaths(component.files.length - HOUSE.edition.indexPaths)
+            : null,
+        out: once(
+          model.relations
+            .filter(({ from }) => from === component.id)
+            .map(({ label, to }) => ({ label, key: partKey(to), other: labelOf(to) })),
+        ),
+        in: once(
+          model.relations
+            .filter(({ to }) => to === component.id)
+            .map(({ label, from }) => ({ label, key: partKey(from), other: labelOf(from) })),
+        ),
         plates: plateRecords
           .filter((_, index) => drawn[index].includes(component.id))
           .map(({ number, key }) => ({ number, key })),

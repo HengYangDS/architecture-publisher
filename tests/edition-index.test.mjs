@@ -97,23 +97,30 @@ test("the last page indexes every part once, by name, with the plates that draw 
     ["e", "Git engine"],
     ["b", "Beta"],
   ];
-  const model = modelOf(parts);
+  // Parts with no details, relations or files: each paragraph is its name and plates alone, one line.
+  const model = modelOf(parts, { relations: [] });
   const plates = [plateOf(1, ["a", "b"]), plateOf(2, ["g", "a"]), plateOf(3, ["e", "z", "a"])];
   const facts = recordFacts({ read: 3, date: "2026-11-06" });
   const record = recordOf({ model, plates, facts });
-  assert.deepEqual(record.index, [
-    { label: "Alpha", plates: ["01", "02", "03"].map(drawnOn) },
-    { label: "Beta", plates: ["01"].map(drawnOn) },
-    { label: "Git", plates: ["02"].map(drawnOn) },
-    { label: "Git engine", plates: ["03"].map(drawnOn) },
-    { label: "OpenSpec CLI", plates: [] },
-    { label: "Zeta", plates: ["03"].map(drawnOn) },
-  ]);
+  assert.deepEqual(
+    record.index.map(({ label, plates }) => ({ label, plates })),
+    [
+      { label: "Alpha", plates: ["01", "02", "03"].map(drawnOn) },
+      { label: "Beta", plates: ["01"].map(drawnOn) },
+      { label: "Git", plates: ["02"].map(drawnOn) },
+      { label: "Git engine", plates: ["03"].map(drawnOn) },
+      { label: "OpenSpec CLI", plates: [] },
+      { label: "Zeta", plates: ["03"].map(drawnOn) },
+    ],
+  );
   const set = await evalEdition(t, { model, plates, facts }, SET);
   // Title page, contents, three plates, the index.
   assert.equal(set.pages, 6);
   const texts = set.boxes.filter(({ page }) => page === 6).map(({ text }) => text);
-  assert.ok(texts.includes("Index") && texts.includes("Components and the plates that draw them"));
+  assert.ok(
+    texts.includes("Index") &&
+      texts.includes("Each component, what it relates to, its files and the plates that draw it"),
+  );
   assert.equal(texts.filter((text) => text === record.words.foot).length, 1);
   const index = indexOn(set, 6, new Set(parts.map(([, label]) => label)));
   // Six parts stand in the left column, in order, a twentieth of the body apart: nothing is shared out between
@@ -184,16 +191,20 @@ test("the last page indexes every part once, by name, with the plates that draw 
   // No acceptance and no digest stand on this page.
   assert.ok(!texts.some((text) => /SHA-256|accept/iu.test(text)), texts.join(" | "));
   // A model that states no address names its repository alone; one that names none states none.
-  const named = modelOf(parts, { repository: { name: "minimal", revision: "a".repeat(40) } });
+  const named = modelOf(parts, {
+    relations: [],
+    repository: { name: "minimal", revision: "a".repeat(40) },
+  });
   assert.deepEqual(recordOf({ model: named, plates, facts }).closing[0], {
     label: "Repository",
     value: "minimal",
     url: null,
   });
   assert.deepEqual(
-    recordOf({ model: modelOf(parts, { repository: undefined }), plates }).closing.map(
-      ({ label }) => label,
-    ),
+    recordOf({
+      model: modelOf(parts, { relations: [], repository: undefined }),
+      plates,
+    }).closing.map(({ label }) => label),
     ["Page", "Data"],
   );
 });
@@ -280,7 +291,7 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
   const labels = (count) => new Set(named(count).map(([, label]) => label));
   const inOrder = (count) => named(count).map(([, label]) => label);
   // 26 parts: twenty in the left column and six in the right, which keeps the pitch and is not filled.
-  const short = await evalEdition(t, { model: modelOf(named(26)) }, SET);
+  const short = await evalEdition(t, { model: modelOf(named(26), { relations: [] }) }, SET);
   assert.equal(short.pages, 3);
   const one = indexOn(short, 3, labels(26));
   assert.deepEqual(columns(one), [20, 6]);
@@ -299,7 +310,7 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
   ]);
 
   // 42 parts: forty on the first page and two at the top of a second, which is not filled.
-  const wide = await evalEdition(t, { model: modelOf(named(42)) }, SET);
+  const wide = await evalEdition(t, { model: modelOf(named(42), { relations: [] }) }, SET);
   assert.equal(wide.pages, 4);
   const two42 = [3, 4].map((page) => indexOn(wide, page, labels(42)));
   assert.deepEqual(two42.map(columns), [
@@ -319,7 +330,7 @@ test("an index sets twenty lines a half at one pitch, in order, and a long one t
   ]);
 
   // 120 parts take three pages of forty, each with its title and foot; the facts close the last page alone.
-  const long = await evalEdition(t, { model: modelOf(named(120)) }, SET);
+  const long = await evalEdition(t, { model: modelOf(named(120), { relations: [] }) }, SET);
   assert.equal(long.pages, 5);
   const pages = [3, 4, 5].map((page) => indexOn(long, page, labels(120)));
   assert.deepEqual(
