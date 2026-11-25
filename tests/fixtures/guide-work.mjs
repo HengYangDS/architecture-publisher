@@ -45,8 +45,8 @@ export const PARTS = `${JSON.stringify(
     diagram_type: "architecture",
     meta: { title: "The shop", output: "parts.html", quality_profile: "showcase", locale: "en" },
     components: [
-      { id: "web", type: "frontend", label: "Front end", pos: [40, 40], size: [180, 68] },
-      { id: "api", type: "backend", label: "Service", pos: [340, 40], size: [180, 68] },
+      { id: "web", type: "frontend", label: "Front end" },
+      { id: "api", type: "backend", label: "Service" },
     ],
     connections: [{ id: "calls", from: "web", to: "api", label: "calls" }],
   },

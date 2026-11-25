@@ -7,7 +7,7 @@ import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 import { runArchify } from "./archify.mjs";
 import { holdDelivery, refusePage, writePage } from "./explainer.mjs";
-import { drawnEntries } from "./guide-figures.mjs";
+import { drawnEntries, refuseStatedPlaces } from "./guide-figures.mjs";
 
 /**
  * The guide: an Archify explainer draft a work's author writes beside the model, which the
@@ -63,8 +63,8 @@ export function referencedFiles(draft) {
 }
 
 /**
- * The repository a draft's `@meta` names: its URL and revision, each `null` when the draft names
- * none.
+ * The repository a draft's `@meta` names: its URL, revision, Forge and link mode, each `null` when
+ * the draft names none.
  * @param {string} draft
  */
 export function draftRepository(draft) {
@@ -72,7 +72,12 @@ export function draftRepository(draft) {
     .filter((line) => directiveOf(line) === "@meta")
     .map(argumentsOf);
   const named = (key) => meta.map((entry) => entry[key]).find((value) => value !== undefined);
-  return { url: named("repo_url") ?? null, revision: named("repo_revision") ?? null };
+  return {
+    url: named("repo_url") ?? null,
+    revision: named("repo_revision") ?? null,
+    provider: named("repo_provider") ?? null,
+    link_mode: named("repo_link_mode") ?? null,
+  };
 }
 
 /** A file name without a directory part. */
@@ -131,7 +136,7 @@ export function guideCitations(entries) {
 
 /**
  * Read a guide: its draft and every local file the draft names, each a regular file in the
- * draft's own directory.
+ * draft's own directory, refused where a diagram file states a field the publisher sets.
  * @param {string} draftPath the draft's path
  */
 export async function readGuide(draftPath) {
@@ -158,6 +163,7 @@ export async function readGuide(draftPath) {
       ),
     );
   }
+  refuseStatedPlaces(entries);
   return { text, entries };
 }
 
@@ -184,17 +190,25 @@ export async function guidePage(model, guide, options) {
       `The guide names ${declared.url ?? "the model's repository"} at ${declared.revision ?? "the model's revision"}; ` +
         `the model is pinned to ${repository?.url ?? "no repository"} at ${repository?.revision ?? "no revision"}.`,
     );
+  // A checkout verifies the sources the guide cites at the model's revision; without one, Archify refuses a diagram
+  // that names a repository, so the publisher names it only where it can be verified.
+  const repo =
+    options.repo && repository?.url && repository?.revision ? path.resolve(options.repo) : null;
   const page = {
     kind: /** @type {const} */ ("guide"),
     path: model.guide,
     // The author's files, which the manifest and the citations record; Archify draws `drawn`, in which the publisher
-    // has laid out each architecture diagram that places nothing.
+    // has laid out each diagram and, with a checkout, named the repository, with the Forge and link mode the draft
+    // names.
     entries: guide.entries,
-    drawn: await drawnEntries(guide.entries, options.quality),
+    drawn: await drawnEntries(
+      guide.entries,
+      options.quality,
+      repo ? { ...declared, url: repository?.url, revision: repository?.revision } : undefined,
+    ),
     quality: options.quality,
     writing: options.quality === "showcase" ? "strict" : "warn",
-    repo:
-      options.repo && repository?.url && repository?.revision ? path.resolve(options.repo) : null,
+    repo,
     repository,
     delivered: /** @type {import("./explainer.mjs").HeldDelivery | null} */ (null),
   };

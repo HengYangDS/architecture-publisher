@@ -9,6 +9,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** a guide's diagram files state what their diagrams show and leave where it goes to the
+  publisher. A guide whose files state a position, a size, a cell, a column, a layout, a width or gap, the
+  course of a line, a workflow's phases or groups, or a repository is refused by a check as by a build
+  (`page_diagram_publisher_field`), every field named. With `--repo` every file names the model's repository
+  and revision, and the Forge and link mode the draft's `repo_provider` and `repo_link_mode` name. `archpub
+scaffold guide` writes its diagrams without them. Remove these fields from a guide's files before building
+  it with this version.
 - A guide's workflow may state its lanes, nodes and edges without a column: the publisher sets each step in
   the column its edges give, a hand-off between lanes in one column. A workflow that needs more than the six
   columns Archify draws is refused (`page_workflow_too_wide`).

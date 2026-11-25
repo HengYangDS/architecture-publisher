@@ -522,7 +522,15 @@ The gateway checks the session and hands the order to the service.[](source:gate
 A draft names local files only in `@diagram source=`, `@chart data=` and
 `@image path=`, each a regular file in the draft's own directory. A draft's
 `@meta`, when it names `repo_url` or `repo_revision`, names the model's
-repository URL and revision. `archpub scaffold guide` writes the page the
+repository URL and revision. A diagram file states what its diagram shows and leaves where it goes to the
+publisher: the publisher lays out each architecture, entity-relationship,
+class and workflow file. A file that states a position, a size, a cell, a
+column, a layout, a width or gap, the course of a line, a workflow's phases or
+groups, or a repository is refused (`page_diagram_publisher_field`), every
+field of every file named. A dataflow's rows and a sequence's message heights
+stay the author's until the publisher sets them. With `--repo`, every diagram
+file names the model's repository URL and revision, and the Forge and link
+mode the draft's `repo_provider` and `repo_link_mode` name. `archpub scaffold guide` writes the page the
 publisher generates as a starting guide, and the
 [operations reference](operations.md#the-guide) describes how a guide is checked
 and delivered.

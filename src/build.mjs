@@ -14,6 +14,7 @@ import { editionFacts } from "./facts/edition.mjs";
 import { loadIcons } from "./icons.mjs";
 import { telling } from "./map/archify.mjs";
 import { explainerPage, writeDelivery, writePage } from "./map/explainer.mjs";
+import { asAuthored } from "./map/guide-figures.mjs";
 import { guidePage, guideSummary } from "./map/guide.mjs";
 import { loadModel } from "./model/load.mjs";
 import { FIGURES, IMAGES, MANIFEST, TYPST_VERSION, filesOf, two } from "./names.mjs";
@@ -587,7 +588,8 @@ const GUIDE_DRAFT = "guide.archify.md";
 
 /**
  * Write the page the publisher generates for a model as a starting guide: its draft and one
- * architecture document per view, into `out`, which must not exist. Its prose is the model's, which
+ * architecture document per view, without the places, sizes, routes and repository the publisher sets
+ * when the guide is built, into `out`, which must not exist. Its prose is the model's, which
  * Archify's strict writing checks may hold to shorter sentences, each reported at its line. The
  * output is staged beside it and moved into place only when complete.
  * @param {string} modelPath
@@ -608,7 +610,14 @@ export async function scaffoldGuide(modelPath, out) {
   await fs.mkdir(parent, { recursive: true });
   const staging = await fs.mkdtemp(path.join(parent, `.${path.basename(target)}.partial-`));
   try {
-    await fs.rename(await writePage(page, staging), path.join(staging, GUIDE_DRAFT));
+    const authored = page.diagrams.map((diagram) => ({
+      ...diagram,
+      document: asAuthored("architecture", diagram.document),
+    }));
+    await fs.rename(
+      await writePage({ ...page, diagrams: authored }, staging),
+      path.join(staging, GUIDE_DRAFT),
+    );
     await fs.rename(staging, target);
   } catch (error) {
     await fs.rm(staging, { recursive: true, force: true });

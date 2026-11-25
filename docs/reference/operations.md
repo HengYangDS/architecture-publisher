@@ -356,8 +356,16 @@ reads the draft and the files its `@diagram source=`, `@chart data=` and `@image
 path=` arguments name, each a regular file in the draft's own directory, and
 refuses a link, another path or a missing file. A draft whose `@meta` names a
 `repo_url` or `repo_revision` other than the model's repository URL and revision
-is refused. Archify validates and delivers the draft at the build's quality,
-with its writing checks strict at `showcase` and warnings at `standard`.
+is refused. Before Archify reads the draft, the publisher lays out its diagrams: an
+architecture file among Archify's own layouts, ranked by what a reader
+misreads, as the generated page's diagrams are; an entity-relationship or class
+file on a grid of two to four columns, a domain's members side by side; a
+workflow in the columns its edges give. With `--repo`, each file names the
+model's repository and revision, and the Forge and link mode the draft names,
+so that Archify verifies the sources it cites. The manifest records the files
+as the author wrote them. Archify validates and delivers the
+draft at the build's quality, with its writing checks strict at `showcase` and
+warnings at `standard`.
 
 With `--repo` and a model that names its repository URL and revision, the build
 hands Archify a temporary clone of the checkout that shares its objects, with
@@ -370,7 +378,8 @@ self-hosted GitLab names `repo_provider=gitlab` in its `@meta`. Without
 `--repo`, or when no page is built, the guide's sources are recorded as declared.
 
 `archpub scaffold guide` writes the page the publisher generates as a starting
-guide: `guide.archify.md` and one architecture document per view. Its prose is
+guide: `guide.archify.md` and one architecture document per view, without the
+layout and repository the publisher sets when the guide is built. Its prose is
 the model's, which the strict writing checks may hold to shorter sentences;
 Archify reports each one at its line. Archify 3.2.0 cut a validation receipt
 over 64 KiB on macOS, as an 11-view page's was (not measured with 3.3.0); Archify's own
@@ -510,6 +519,8 @@ or Archify reported.
 | `source_history_unavailable`                                                                                                       | The checkout is shallow, or a cited file has no change in its history, so its age cannot be read.                                                                                                                                                                                                                          |
 | `page_label_too_long`, `page_shape_refused`                                                                                        | A label exceeds the widest diagram card, or no diagram has a usable shape.                                                                                                                                                                                                                                                 |
 | `page_layout_refused`, `page_diagram_refused`                                                                                      | A view's diagram cannot be wired, or none passes Archify's checks at the build's quality.                                                                                                                                                                                                                                  |
+| `page_diagram_publisher_field`                                                                                                     | A guide's diagram files state fields the publisher sets: a position, size, cell, column, layout, width or gap, a line's course, a workflow's phase or group, or a repository; each is named.                                                                                                                               |
+| `page_diagram_unplaceable`, `page_workflow_too_wide`                                                                               | No grid of two to four columns holds a domain of a guide's entity-relationship file, or a guide's workflow needs more than the six columns Archify draws.                                                                                                                                                                  |
 | `model_overview_composition_retired`, `model_overview_invalid`                                                                     | The model names an overview composition, which is retired, or states an overview the statement's form refuses.                                                                                                                                                                                                             |
 | `overview_typst_missing`, `overview_typst_version`                                                                                 | Typst is not on the path or is not 0.15.1.                                                                                                                                                                                                                                                                                 |
 | `overview_style_refused`                                                                                                           | The overview's drawing asks the house class for a size it does not have.                                                                                                                                                                                                                                                   |

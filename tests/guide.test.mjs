@@ -11,6 +11,7 @@ import {
   readGuide,
   referencedFiles,
 } from "../src/map/guide.mjs";
+import { publishersPaths } from "../src/map/guide-figures.mjs";
 import { PARTS, URL, draft, guideWork } from "./fixtures/guide-work.mjs";
 import { minimalModel, temporaryDirectory } from "./fixtures/models.mjs";
 import { MAIN } from "./fixtures/repository.mjs";
@@ -68,11 +69,18 @@ test("a guide cites its sources' line ranges and its diagrams' node sources", ()
 });
 
 test("a draft's @meta names the repository it cites", () => {
-  assert.deepEqual(draftRepository(draft("a".repeat(40))), { url: URL, revision: "a".repeat(40) });
-  assert.deepEqual(draftRepository("# Title {#t}\n\n@meta locale=en\n"), {
-    url: null,
-    revision: null,
+  assert.deepEqual(draftRepository(draft("a".repeat(40))), {
+    url: URL,
+    revision: "a".repeat(40),
+    provider: null,
+    link_mode: null,
   });
+  assert.deepEqual(
+    draftRepository(
+      "# Title {#t}\n\n@meta locale=en repo_provider=gitlab repo_link_mode=local-only\n",
+    ),
+    { url: null, revision: null, provider: "gitlab", link_mode: "local-only" },
+  );
 });
 
 test("a guide stages its draft and exactly the files it names", async (t) => {
@@ -98,6 +106,14 @@ test("a guide stages its draft and exactly the files it names", async (t) => {
     path.join(directory, "link.json"),
   );
   await refused("@diagram architecture id=a source=link.json\n", "guide_file_invalid");
+  // A diagram file that places a part is refused as the guide is read, so a check refuses what a build would.
+  const placed = JSON.parse(PARTS);
+  placed.components[0].pos = [40, 40];
+  await fs.writeFile(path.join(directory, "placed.architecture.json"), JSON.stringify(placed));
+  await refused(
+    "@diagram architecture id=a source=placed.architecture.json\n",
+    "page_diagram_publisher_field",
+  );
   await assert.rejects(readGuide(path.join(directory, "absent.archify.md")), {
     code: "guide_missing",
   });
@@ -159,7 +175,7 @@ test("a guide for another revision or with a sentence too long is refused", asyn
   assert.equal(relaxed.guide.writing, "warn");
 });
 
-test("a scaffold writes today's page as a guide that builds", async (t) => {
+test("a scaffold writes today's page as a guide that places nothing and builds", async (t) => {
   const root = await temporaryDirectory(t, "archpub-scaffold-");
   const file = path.join(root, "model.json");
   const model = minimalModel({ summary: "Alpha calls Beta." });
@@ -171,6 +187,14 @@ test("a scaffold writes today's page as a guide that builds", async (t) => {
   assert.ok(
     result.files.length && result.files.every((name) => name.endsWith(".architecture.json")),
   );
+  for (const name of result.files) {
+    const document = JSON.parse(await fs.readFile(path.join(root, "guide", name), "utf8"));
+    assert.deepEqual(
+      publishersPaths("architecture", document),
+      [],
+      `${name} states what an author may`,
+    );
+  }
   await assert.rejects(scaffoldGuide(file, path.join(root, "guide")), {
     code: "scaffold_output_exists",
   });
@@ -188,16 +212,10 @@ test("a scaffold writes today's page as a guide that builds", async (t) => {
   });
 });
 
-test("a guide whose architecture file places nothing builds, the publisher laying it out, and the manifest keeps the author's file", async (t) => {
+test("a guide's architecture file builds, the publisher laying it out, and the manifest keeps the author's file", async (t) => {
   // The queue item `page-figures`: the page's diagrams are laid out by the publisher.
   const work = await guideWork(t);
-  const parts = JSON.parse(PARTS);
-  for (const component of parts.components) {
-    delete component.pos;
-    delete component.size;
-  }
-  const authored = `${JSON.stringify(parts, null, 2)}\n`;
-  await fs.writeFile(path.join(work.root, "guide/parts.architecture.json"), authored);
+  const authored = PARTS;
   const out = await temporaryDirectory(t, "archpub-guide-out-");
   const options = { repo: work.source.root, media: ["page"] };
   await buildDelivery(work.model, path.join(out, "built"), options);

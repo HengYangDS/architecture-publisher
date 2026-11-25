@@ -81,12 +81,24 @@ test("a guide's workflow whose nodes name no column takes the publisher's, its s
   assert.deepEqual(laidOut.nodes[0].sources, author.nodes[0].sources);
 });
 
-test("a workflow that names a column is drawn as written, and one that needs seven columns is refused", async () => {
+test("a workflow that names a column or a phase is refused, and one that needs seven columns is refused", async () => {
   const placed = rollout();
-  placed.nodes.forEach((item, index) => Object.assign(item, { col: index }));
-  const authored = { name: "rollout.workflow.json", bytes: Buffer.from(JSON.stringify(placed)) };
-  const [kept] = await drawnEntries([authored], "showcase");
-  assert.deepEqual(kept.bytes, authored.bytes);
+  placed.nodes[0].col = 0;
+  placed.phases = [{ id: "p", label: "Phase", fromCol: 0, toCol: 1 }];
+  await assert.rejects(
+    drawnEntries(
+      [{ name: "rollout.workflow.json", bytes: Buffer.from(JSON.stringify(placed)) }],
+      "showcase",
+    ),
+    (error) => {
+      assert.equal(error.code, "page_diagram_publisher_field");
+      assert.deepEqual(
+        error.problems.map(({ path }) => path),
+        ["rollout.workflow.json/phases", "rollout.workflow.json/nodes/0/col"],
+      );
+      return true;
+    },
+  );
   const long = rollout();
   long.nodes = Array.from({ length: 7 }, (_, index) => node(`s${index}`, "maintainer"));
   long.edges = long.nodes.slice(1).map((item, index) => ({ from: `s${index}`, to: item.id }));
@@ -99,9 +111,8 @@ test("a workflow that names a column is drawn as written, and one that needs sev
   );
 });
 
-test("a workflow of six columns is laid out, one with a phase or a repeated id is passed to Archify as written", async () => {
-  // The review of the Change (2026-11-25): a repeated id held the columns' loop for ever; a phase spans columns the
-  // author chose.
+test("a workflow of six columns is laid out, and one with a repeated id is passed to Archify as written", async () => {
+  // The review of the Change (2026-11-25): a repeated id held the columns' loop for ever.
   const six = rollout();
   six.nodes = Array.from({ length: 6 }, (_, index) => node(`s${index}`, "maintainer"));
   six.edges = six.nodes.slice(1).map((item, index) => ({ from: `s${index}`, to: item.id }));
@@ -113,14 +124,9 @@ test("a workflow of six columns is laid out, one with a phase or a repeated id i
     JSON.parse(wide.bytes.toString("utf8")).nodes.map(({ col }) => col),
     [0, 1, 2, 3, 4, 5],
   );
-  for (const change of [
-    (document) => document.nodes.push(node("curate", "member")),
-    (document) => (document.phases = [{ id: "p", label: "Phase", fromCol: 0, toCol: 1 }]),
-  ]) {
-    const author = rollout();
-    change(author);
-    const authored = { name: "rollout.workflow.json", bytes: Buffer.from(JSON.stringify(author)) };
-    const [kept] = await drawnEntries([authored], "showcase");
-    assert.deepEqual(kept.bytes, authored.bytes);
-  }
+  const repeated = rollout();
+  repeated.nodes.push(node("curate", "member"));
+  const authored = { name: "rollout.workflow.json", bytes: Buffer.from(JSON.stringify(repeated)) };
+  const [kept] = await drawnEntries([authored], "showcase");
+  assert.deepEqual(kept.bytes, authored.bytes);
 });

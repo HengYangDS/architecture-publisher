@@ -73,6 +73,17 @@ With their columns removed, all ten published workflows lay out within the six c
 showcase with every route measure zero. A first form that stepped across lanes too needed seven columns for the
 publisher's edition workflow and drew an arrowhead collision in AIGW Client's English rollout.
 
+## What the published files state that the publisher sets
+
+All 78 published diagram files were read on 2026-11-25. 74 state a repository block, every one a GitHub address
+with its revision and `provider: github`, which Archify reads from the address itself. The 22 architecture files give
+each of their 166 components a position and a size; the 6 entity-relationship files give 34 entities a cell, 8 a
+width and their layouts a gap; the 4 class files give 20 types a cell; the 10 workflows give 70 nodes a column; one
+timeline gives its axis a width. None routes a line, and no workflow states a phase or a group. 8 trees name a
+direction, which stays the author's. So 74 files are refused as they stand, and the 4 others (2 waterfalls and 2
+trees) build unchanged; each refused file builds once those fields are removed, the publisher laying it out
+(the sections above).
+
 ## Limits
 
 - One run each, on one host; Archify 3.3.0 as the publisher bundles it.

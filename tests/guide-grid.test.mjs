@@ -104,14 +104,6 @@ test("a guide's entity-relationship file that places nothing takes the publisher
   assert.equal(Math.abs(order.col - line.col), 1, "side by side");
 });
 
-test("a guide's entity-relationship file that places its entities is drawn as written", async () => {
-  const placed = records();
-  placed.entities.forEach((entity, index) => Object.assign(entity, { row: 0, col: index }));
-  const authored = entry("records.erd.json", placed);
-  const [drawn] = await drawnEntries([authored], "showcase");
-  assert.deepEqual(drawn.bytes, authored.bytes);
-});
-
 /** A class diagram that places nothing: a record composed of two parts. */
 const kernel = () => ({
   schema_version: 1,
@@ -143,17 +135,33 @@ const kernel = () => ({
   ],
 });
 
-test("a guide's class file that places nothing takes the grid, and one that places its types is drawn as written", async () => {
+test("a guide's class file that places nothing takes the grid", async () => {
   const [drawn] = await drawnEntries([entry("kernel.class.json", kernel())], "showcase");
   const laidOut = JSON.parse(drawn.bytes.toString("utf8"));
   assert.deepEqual(laidOut.layout, { mode: "grid" });
   const cells = laidOut.types.map(({ row, col }) => `${row}:${col}`);
   assert.equal(new Set(cells).size, 3, `three cells: ${cells}`);
-  const placed = kernel();
-  placed.types.forEach((type, index) => Object.assign(type, { row: 0, col: index }));
-  const authored = entry("kernel.class.json", placed);
-  const [kept] = await drawnEntries([authored], "showcase");
-  assert.deepEqual(kept.bytes, authored.bytes);
+});
+
+test("a guide's entity-relationship or class file that places its items is refused", async () => {
+  const placed = records();
+  placed.entities.forEach((entity, index) => Object.assign(entity, { row: 0, col: index }));
+  await assert.rejects(drawnEntries([entry("records.erd.json", placed)], "showcase"), (error) => {
+    assert.equal(error.code, "page_diagram_publisher_field");
+    assert.deepEqual(
+      error.problems.map(({ path }) => path),
+      [0, 1, 2].flatMap((index) => [
+        `records.erd.json/entities/${index}/row`,
+        `records.erd.json/entities/${index}/col`,
+      ]),
+    );
+    return true;
+  });
+  const sized = kernel();
+  sized.types[0].width = 240;
+  await assert.rejects(drawnEntries([entry("kernel.class.json", sized)], "showcase"), {
+    code: "page_diagram_publisher_field",
+  });
 });
 
 test("a domain that no column count from two to four can hold is refused before Archify is asked", async () => {
