@@ -84,6 +84,17 @@ direction, which stays the author's. So 74 files are refused as they stand, and 
 trees) build unchanged; each refused file builds once those fields are removed, the publisher laying it out
 (the sections above).
 
+## The dataflows and sequences laid out by the publisher
+
+No published work holds a dataflow or a sequence as a file, so Archify 3.3.0's own examples stood in: three
+dataflows and four sequences, each validated at showcase without its sources. A dataflow's row is one of Archify's
+five; spreading each stage over a band of three to five rows passed one example of three, rows that follow the flows
+none, and each stage in one of the row patterns the examples' authors use, its nodes in the layered order of their
+neighbours, passed all three with every route measure zero. In the order the publisher measures them (the
+candidates nearest every stage's preferred pattern first, at most 64), they passed at the 3rd, 9th and 14th. The four sequences,
+their segments and activations removed, pass with every measure zero at the heights Archify's own draft shorthand
+sets, 48 apart from 160.
+
 ## Limits
 
 - One run each, on one host; Archify 3.3.0 as the publisher bundles it.

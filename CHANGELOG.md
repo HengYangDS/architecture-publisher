@@ -9,6 +9,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** a guide's dataflow and sequence files leave their rows and heights to the publisher: a
+  dataflow takes rows in the patterns Archify's own examples use, the first Archify passes, and a sequence's
+  messages stand 48 apart from 160 down. A file that sets a row or a height, or states a sequence's segments or
+  activations, is refused (`page_diagram_publisher_field`); a stage of more than five nodes is refused
+  (`page_dataflow_too_tall`).
 - **Breaking:** a release no longer ships the Windows archives, `windows-arm64` and `windows-x64`; its mise
   declaration names Linux on ARM64 and x86-64 and macOS on ARM64. CI runs no Windows job: GitLab verifies
   Linux and macOS on ARM64, and GitHub those and Linux on x86-64; macOS runs on `macos-latest` on both.

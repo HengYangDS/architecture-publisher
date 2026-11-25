@@ -1,5 +1,6 @@
 import { chooseAmong } from "./choice.mjs";
 import { GRID_KINDS, gridLayout } from "./guide-grid.mjs";
+import { dataflowLayout, sequenceLayout } from "./guide-rows.mjs";
 import { workflowLayout } from "./guide-workflow.mjs";
 import { refuse } from "../refusal.mjs";
 
@@ -25,9 +26,8 @@ const ROUTE = Object.freeze([
  * The fields a guide's file leaves to the publisher, by kind (the queue item `page-figures`): the coordinates and
  * sizes of the document and of each item of each list it holds, and the course of each line, as Archify 3.3.0's
  * schemas name them, with the repository the publisher fills from the model. A tree's direction, a line's weight
- * and every word stay the author's. A workflow's phases and groups span columns the publisher sets, so a guide's
- * workflow states none. A dataflow's rows and a sequence's heights, which Archify requires, stay the author's until
- * the publisher sets them; their other places and sizes are the publisher's already.
+ * and every word stay the author's. A workflow's phases and groups span columns the publisher sets, and a sequence's
+ * segments and activations span heights it sets, so a guide's file states none of them.
  */
 const PUBLISHERS = Object.freeze({
   architecture: {
@@ -58,10 +58,13 @@ const PUBLISHERS = Object.freeze({
   },
   dataflow: {
     document: ["meta.viewBox"],
-    nodes: ["width", "height", "yOffset"],
+    nodes: ["row", "width", "height", "yOffset"],
     flows: [...ROUTE, "channelX", "channelY"],
   },
-  sequence: { document: ["meta.viewBox", "meta.column_fit"] },
+  sequence: {
+    document: ["meta.viewBox", "meta.column_fit", "segments", "activations"],
+    messages: ["y"],
+  },
   lifecycle: {},
 });
 
@@ -183,7 +186,8 @@ export function refuseStatedPlaces(entries) {
  * (`refuseStatedPlaces`). With a repository, every diagram file names it; then each is laid out by its kind: an
  * architecture diagram by the chooser, among Archify's own layouts ranked by what a reader misreads
  * (`chooseAmong`); an entity-relationship or class diagram on the publisher's grid (`gridLayout`); a workflow by the
- * publisher's columns (`workflowLayout`); the other kinds as written. A file that is no JSON object of its named
+ * publisher's columns (`workflowLayout`); a dataflow on the publisher's rows (`dataflowLayout`); a sequence at the
+ * publisher's heights (`sequenceLayout`); the other kinds as written. A file that is no JSON object of its named
  * kind, or whose lists are not what its kind holds, reaches Archify as written: Archify judges it. The draft and
  * every other file are as the author wrote them.
  * @param {ReadonlyArray<{ name: string, bytes: Buffer }>} entries the draft, then the files it names
@@ -209,7 +213,11 @@ export async function drawnEntries(entries, quality, repository) {
           ? workflow(filled, entry.name)
           : kind === "erd" || kind === "class"
             ? await grid(kind, filled, entry.name, quality)
-            : null;
+            : kind === "dataflow"
+              ? await dataflow(filled, entry.name, quality)
+              : kind === "sequence"
+                ? sequence(filled)
+                : null;
     drawn.push({
       name: entry.name,
       bytes:
@@ -327,4 +335,28 @@ function workflow(document, name) {
   if (ids.some((id) => typeof id !== "string") || new Set(ids).size !== ids.length) return null;
   if (document.nodes.some((/** @type {any} */ node) => typeof node.lane !== "string")) return null;
   return workflowLayout(document, name);
+}
+
+/**
+ * A dataflow laid out on the publisher's rows, or null where its nodes or flows are not lists of objects, its nodes'
+ * ids not distinct strings or their stages not whole numbers.
+ * @param {any} document
+ * @param {string} name
+ * @param {string} quality
+ */
+async function dataflow(document, name, quality) {
+  if (!objects(document.nodes) || !document.nodes.length || !objects(document.flows ?? []))
+    return null;
+  const ids = document.nodes.map((/** @type {any} */ node) => node.id);
+  if (ids.some((id) => typeof id !== "string") || new Set(ids).size !== ids.length) return null;
+  if (document.nodes.some((/** @type {any} */ node) => !Number.isInteger(node.stage))) return null;
+  return dataflowLayout(document, measurable(document, quality), name, quality);
+}
+
+/**
+ * A sequence with the publisher's heights, or null where its messages are not a list of objects.
+ * @param {any} document
+ */
+function sequence(document) {
+  return objects(document.messages) && document.messages.length ? sequenceLayout(document) : null;
 }

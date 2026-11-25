@@ -360,7 +360,10 @@ is refused. Before Archify reads the draft, the publisher lays out its diagrams:
 architecture file among Archify's own layouts, ranked by what a reader
 misreads, as the generated page's diagrams are; an entity-relationship or class
 file on a grid of two to four columns, a domain's members side by side; a
-workflow in the columns its edges give. With `--repo`, each file names the
+workflow in the columns its edges give; a dataflow on Archify's five rows, each
+stage in a row pattern of Archify's own examples, the first candidate Archify
+passes with every route measure zero, else the first it passes; a
+sequence's messages 48 apart from 160 down, as Archify's draft shorthand sets them. With `--repo`, each file names the
 model's repository and revision, and the Forge and link mode the draft names,
 so that Archify verifies the sources it cites. The manifest records the files
 as the author wrote them. Archify validates and delivers the
