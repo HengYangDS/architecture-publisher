@@ -47,7 +47,7 @@ test("the data holds its members in one order, and only those the build holds", 
     "plates",
     "media",
   ]);
-  assert.deepEqual(data.delivery, { format: "architecture-publisher.delivery", version: 8 });
+  assert.deepEqual(data.delivery, { format: "architecture-publisher.delivery", version: 9 });
   assert.deepEqual(data.publisher, { name: "architecture-publisher", version: "0.15.0" });
   assert.deepEqual(data.model, { file: "model.json", ...input.file });
   assert.deepEqual(Object.keys(data.model), ["file", "sha256", "bytes", "format", "version"]);

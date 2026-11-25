@@ -1,11 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readerWordsOf } from "../src/locale.mjs";
+import { readerWordsOf } from "../src/reader-words.mjs";
 import { editionData, serializeData } from "../src/pinned/data.mjs";
 import { evidenceTable } from "../src/pinned/evidence.mjs";
-import { parseReader, readerFile } from "../src/pinned/reader.mjs";
-import { CITATIONS, DRAFT, GUIDE, READ, REVISION, sha256, shopBuild } from "./fixtures/pinned.mjs";
+import { readerFile, readerIds } from "../src/pinned/reader.mjs";
+import { CITATIONS, GUIDE, READ, REVISION, sha256, shopBuild } from "./fixtures/pinned.mjs";
 import { holderWordingLines } from "./fixtures/role-wording.mjs";
+
+/** The guide's part as the projection writes it, its own heading and a list shaped like a statement in it. */
+const GUIDE_TEXT = [
+  "How does the shop take an order? The client asks.[^1]",
+  "",
+  "### Which parts take part?",
+  "",
+  "- component `ghost`: a part the model lacks",
+  "",
+  "[^1]: Commit: `src/store/store.go` lines 10 to 20",
+  "",
+].join("\n");
 
 /** The reader file of the shop, with the data it is written from. */
 async function shopReader(locale = "en", options = {}, extra = {}) {
@@ -24,7 +36,7 @@ async function shopReader(locale = "en", options = {}, extra = {}) {
     ...extra,
   });
   const digest = sha256(serializeData(data));
-  const bytes = readerFile(data, { sha256: digest, draft: guided ? DRAFT : null });
+  const bytes = readerFile(data, { sha256: digest, guide: guided ? GUIDE_TEXT : null });
   return { ...built, data, digest, bytes, text: bytes.toString("utf8") };
 }
 
@@ -38,7 +50,7 @@ function section(text, heading) {
   return lines.slice(start + 1, end === -1 ? undefined : end).filter(Boolean);
 }
 
-test("the reader file holds its parts in order and ends with the guide's text", async () => {
+test("the reader file holds its parts in order and ends with the guide's part", async () => {
   const { text, model } = await shopReader();
   assert.deepEqual(headings(text).slice(0, 9), [
     "# Shop",
@@ -49,7 +61,7 @@ test("the reader file holds its parts in order and ends with the guide's text", 
     "## Statements no view selects",
     "## Not covered",
     "## Checking again",
-    "## The guide's text",
+    "## The guide",
   ]);
   assert.ok(text.startsWith("# Shop\n\nReader file of the work `shop` in `en`, written by "));
   assert.deepEqual(section(text, "Scope and limits"), [
@@ -67,78 +79,75 @@ test("the head states the pin, the model, the data's digest, the counts and the 
   const head = text.slice(0, text.indexOf("\n## ")).split("\n").filter(Boolean);
   assert.deepEqual(head.slice(1, 8), [
     "Reader file of the work `shop` in `en`, written by Architecture Publisher 0.15.0.",
-    `- Pin: \`shop\` \`${REVISION}\` · state verified · date 2026-11-10 · release \`v1.2.0\``,
-    `- Model: \`model.json\` · version 3 · bytes ${data.model.bytes} · sha256 \`${data.model.sha256}\``,
-    `- Data: \`shop.json\` · sha256 \`${digest}\``,
+    `- Pin: \`shop\` \`${REVISION}\` · verified at the pin · date 2026-11-10 · release \`v1.2.0\``,
+    `- Model: \`model.json\` · version 3 · ${data.model.bytes} bytes · SHA-256 \`${data.model.sha256}\``,
+    `- Data: \`shop.json\` · SHA-256 \`${digest}\``,
     "- Statements: components 4 · relations 4 · groups 1 · cited 4 · unchecked 0 · uncited 4",
     "- Also in this delivery: `shop.pdf`, `images/`, `figures/`, `shop.html`, `manifest.json`",
-    "- measured (pin): `largest-part` 4000 bytes · `pin-date` `2026-11-10` date · `pin-release` `v1.2.0` release · `files-read` 3 files",
+    "- measured at the pin: `largest-part` `4000 bytes` · `pin-date` `2026-11-10` · `pin-release` `v1.2.0` · `files-read` `3 files`",
   ]);
-  // The keys of the lines are explained once, in the model's language.
-  assert.match(
-    head[8],
-    /`stated`.*`measured \(pin\)`.*`measured \(model\)`.*`cited`.*`unchecked`.*`uncited`/u,
-  );
+  // The words of the lines are explained once, in the model's language.
+  assert.match(head[8], /“stated”.*“measured at the pin”.*“counted from the model”.*“cited”/u);
   assert.equal(head.length, 9);
 });
 
 test("without a checkout the head counts unchecked statements and states no date", async () => {
   const { text } = await shopReader("en", { verified: false });
-  assert.ok(text.includes(`- Pin: \`shop\` \`${REVISION}\` · state unverified\n`));
+  assert.ok(text.includes(`- Pin: \`shop\` \`${REVISION}\` · unverified, no checkout\n`));
   assert.ok(
     text.includes(
       "- Statements: components 4 · relations 4 · groups 1 · cited 0 · unchecked 4 · uncited 4\n",
     ),
   );
-  assert.ok(text.includes("- stated: `files-read` 3 files\n"));
-  assert.ok(text.includes("  - stated: `owned-files` 1 paths\n"));
-  // The keys' explanation names the origin; no line of facts states one measured at the pin.
-  assert.ok(!/^ *- measured \(pin\)/mu.test(text));
+  assert.ok(text.includes("- stated: `files-read` `3 files`\n"));
+  assert.ok(text.includes("  - stated: `owned-files` `1 paths`\n"));
+  // The words' explanation names the origin; no line of facts states one measured at the pin.
+  assert.ok(!/^ *- measured at the pin/mu.test(text));
   assert.match(section(text, "Not covered").join("\n"), /no checkout/u);
   // A model without a repository names no pin beyond the binding's state.
   const { input } = await shopBuild("en", { verified: false });
   const unbound = { model: { ...input.model, repository: null }, state: "none" };
   const none = await shopReader("en", { verified: false }, unbound);
-  assert.ok(none.text.includes("- Pin: state none\n"));
+  assert.ok(none.text.includes("- Pin: no repository\n"));
 });
 
 test("a view's section is headed by its question, names its plate, its image and its figure's two files, and holds one item for each statement", async () => {
   const { text, model } = await shopReader();
   assert.deepEqual(section(text, model.question), [
     "- view `overview` · plate 1 · `images/01-overview.png` · `figures/01-overview.png` · `figures/01-overview.svg`",
-    "- measured (pin): `bands-shown` 3 bands",
+    "- measured at the pin: `bands-shown` `3 bands`",
     "- component `bill`: Billing · stated",
-    "  - measured (pin): `owned-files` 0 paths",
+    "  - measured at the pin: `owned-files` `0 paths`",
     "- group `core`: Core · stated · members `sync`, `store`",
-    "  - measured (pin): `owned-files` 3 paths · `owned-bytes` 4000 bytes",
+    "  - measured at the pin: `owned-files` `3 paths` · `owned-bytes` `4000 bytes`",
     "- relation `sync-bill`: sync —charges→ bill · stated",
     "  - via: queue",
-    "  - measured (model): `cited-files` 0 files",
+    "  - counted from the model: `cited-files` `0 files`",
     "- relation `store-bill`: store —invoices→ bill · stated",
-    "  - measured (model): `cited-files` 0 files",
+    "  - counted from the model: `cited-files` `0 files`",
     "- relation `bill-store`: bill —reads→ store · stated · files `src/store/store.go`",
-    "  - measured (model): `cited-files` 1 files",
+    "  - counted from the model: `cited-files` `1 files`",
   ]);
   // A later view names a statement it shares by type and id alone; one whose question an earlier section
   // already carries is headed by its title.
   assert.deepEqual(section(text, "Core"), [
     "- view `core` · plate 2 · `images/02-core.png` · `figures/02-core.png` · `figures/02-core.svg`",
-    "- measured (pin): `bands-shown` 3 bands",
+    "- measured at the pin: `bands-shown` `3 bands`",
     "- component `sync`: Synchronization · stated · files `src/sync/`",
     "  - converges: selections, files",
-    "  - measured (pin): `owned-files` 2 paths · `owned-bytes` 3000 bytes",
+    "  - measured at the pin: `owned-files` `2 paths` · `owned-bytes` `3000 bytes`",
     "- component `store`: Configuration store, authority · planned · stated · files `src/store/store.go`",
-    "  - measured (pin): `owned-files` 1 paths · `owned-bytes` 1000 bytes",
+    "  - measured at the pin: `owned-files` `1 paths` · `owned-bytes` `1000 bytes`",
     "- component `bill`",
     "- relation `sync-store`: sync —persists→ store · stated · files `src/store/store.go`, `src/sync/a.go`",
-    "  - measured (model): `cited-files` 2 files",
+    "  - counted from the model: `cited-files` `2 files`",
     "- relation `sync-bill`",
     "- relation `store-bill`",
     "- relation `bill-store`",
   ]);
   assert.deepEqual(section(text, "Statements no view selects"), [
     "- component `audit`: Audit · stated",
-    "  - measured (pin): `owned-files` 0 paths",
+    "  - measured at the pin: `owned-files` `0 paths`",
   ]);
 });
 
@@ -154,8 +163,8 @@ test("a view with a summary states it, and one with a hub states the hub as meas
   assert.deepEqual(section(text, "How does the core persist?").slice(0, 4), [
     "It persists once.",
     "- view `core` · plate 2 · `images/02-core.png` · `figures/02-core.png` · `figures/02-core.svg`",
-    "- measured (model): `hub` `store` part",
-    "- measured (pin): `bands-shown` 3 bands",
+    "- counted from the model: `hub` `store`",
+    "- measured at the pin: `bands-shown` `3 bands`",
   ]);
   // A view that asks no question is headed by its title, whichever view comes first.
   const unasked = { ...core, question: null };
@@ -163,123 +172,51 @@ test("a view with a summary states it, and one with a hub states the hub as meas
   assert.deepEqual(headings(titled.text).slice(3, 5), ["## Core", `## ${input.model.question}`]);
 });
 
-test("the guide's draft follows one heading byte for byte, and no line of it is taken for a statement", async () => {
-  const { bytes, text, data, model } = await shopReader();
-  const heading = Buffer.from("\n## The guide's text\n\n");
-  const at = bytes.indexOf(heading);
+test("the guide's part follows one heading as prose, and no line of it is taken for a statement", async () => {
+  const { text, model } = await shopReader();
+  const at = text.indexOf("\n## The guide\n\n");
   assert.notEqual(at, -1);
-  const tail = bytes.subarray(at + heading.length);
-  assert.ok(tail.equals(DRAFT));
-  assert.equal(sha256(tail), data.guide.sha256);
-  // The draft holds an item shaped like a statement of a part the model lacks: the parser stops before it.
-  assert.ok(text.includes("- component `ghost`: a part the model lacks"));
-  const parsed = parseReader(text, model.locale);
-  assert.deepEqual(parsed.stated, {
+  const part = text.slice(at + "\n## The guide\n\n".length);
+  assert.equal(part, GUIDE_TEXT);
+  assert.ok(part.includes("- component `ghost`: a part the model lacks"));
+  // The guide's part holds an item shaped like a statement of a part the model lacks: the scan stops before it.
+  const read = readerIds(text, model.locale);
+  assert.deepEqual(read.stated, {
     components: ["bill", "sync", "store", "audit"],
     relations: ["sync-bill", "store-bill", "bill-store", "sync-store"],
     groups: ["core"],
   });
-  assert.deepEqual(parsed.named, {
+  assert.deepEqual(read.named, {
     components: ["bill"],
     relations: ["sync-bill", "store-bill", "bill-store"],
     groups: [],
   });
-  assert.match(section(text, "Not covered").join("\n"), /as its author wrote it/u);
+});
+
+test("a view headed by the guide's words is read as a view, with a guide and without", async () => {
+  // The review of the Change (2026-11-25): the reading stopped at the first such heading.
+  const { input } = await shopBuild();
+  const [, core] = input.views;
+  const views = [input.views[0], { ...core, question: "The guide" }];
+  for (const guide of [true, false]) {
+    const { text, model } = await shopReader("en", { guide }, { views });
+    assert.deepEqual(readerIds(text, "en", guide).stated.components.sort(), [
+      "audit",
+      "bill",
+      "store",
+      "sync",
+    ]);
+    assert.ok(text.includes("\n## The guide\n"), String(model.id));
+  }
 });
 
 test("a model without a guide has no such part, and the file says so and ends with its last generated line", async () => {
   const { text } = await shopReader("en", { guide: false });
-  assert.ok(!headings(text).includes("## The guide's text"));
+  assert.ok(!headings(text).includes("## The guide"));
   assert.match(section(text, "Not covered").join("\n"), /names no guide/u);
   assert.equal(headings(text).at(-1), "## Checking again");
   assert.ok(text.endsWith("--repo <checkout>`\n"));
   assert.ok(!text.endsWith("\n\n"));
-});
-
-test("the parser reads the lines of facts back to values, each with what it is a fact of", async () => {
-  const { text, model } = await shopReader();
-  const { facts } = parseReader(text, model.locale);
-  assert.deepEqual(facts.slice(0, 5), [
-    {
-      property: "largest-part",
-      of: { kind: "edition" },
-      value: 4000,
-      unit: "bytes",
-      origin: "measured",
-      from: "pin",
-    },
-    {
-      property: "pin-date",
-      of: { kind: "edition" },
-      value: "2026-11-10",
-      unit: "date",
-      origin: "measured",
-      from: "pin",
-    },
-    {
-      property: "pin-release",
-      of: { kind: "edition" },
-      value: "v1.2.0",
-      unit: "release",
-      origin: "measured",
-      from: "pin",
-    },
-    {
-      property: "files-read",
-      of: { kind: "edition" },
-      value: 3,
-      unit: "files",
-      origin: "measured",
-      from: "pin",
-    },
-    {
-      property: "bands-shown",
-      of: { kind: "view", id: "overview" },
-      value: 3,
-      unit: "bands",
-      origin: "measured",
-      from: "pin",
-    },
-  ]);
-  const of = (kind, id) => facts.filter((fact) => fact.of.kind === kind && fact.of.id === id);
-  assert.deepEqual(of("group", "core"), [
-    {
-      property: "owned-files",
-      of: { kind: "group", id: "core" },
-      value: 3,
-      unit: "paths",
-      origin: "measured",
-      from: "pin",
-    },
-    {
-      property: "owned-bytes",
-      of: { kind: "group", id: "core" },
-      value: 4000,
-      unit: "bytes",
-      origin: "measured",
-      from: "pin",
-    },
-  ]);
-  assert.deepEqual(of("relation", "sync-store"), [
-    {
-      property: "cited-files",
-      of: { kind: "relation", id: "sync-store" },
-      value: 2,
-      unit: "files",
-      origin: "measured",
-      from: "model",
-    },
-  ]);
-  // A stated fact names nothing it was measured from.
-  const unpinned = await shopReader("en", { verified: false });
-  const stated = parseReader(unpinned.text, "en").facts.find(({ origin }) => origin === "stated");
-  assert.deepEqual(stated, {
-    property: "files-read",
-    of: { kind: "edition" },
-    value: 3,
-    unit: "files",
-    origin: "stated",
-  });
 });
 
 test("a delivery of the page alone names no plate and says that no plate draws a statement", async () => {
@@ -287,7 +224,7 @@ test("a delivery of the page alone names no plate and says that no plate draws a
   assert.equal(section(text, model.question)[0], "- view `overview`");
   assert.ok(text.includes("- Also in this delivery: `shop.html`, `manifest.json`\n"));
   assert.match(section(text, "Not covered").join("\n"), /no print edition/u);
-  assert.deepEqual(parseReader(text, "en").stated.components.sort(), [
+  assert.deepEqual(readerIds(text, "en").stated.components.sort(), [
     "audit",
     "bill",
     "store",
@@ -337,7 +274,7 @@ test("a text of the model that holds line breaks is written on one line, and is 
   const model = {
     ...input.model,
     title: "Shop\nand more",
-    summary: "Orders are taken.\n- component `ghost`: no statement\n## The guide's text",
+    summary: "Orders are taken.\n- component `ghost`: no statement\n## The guide",
     limits: ["No mobile\r\n  client."],
     components: input.model.components.map((component) =>
       component.id === "sync"
@@ -353,17 +290,17 @@ test("a text of the model that holds line breaks is written on one line, and is 
   assert.equal(headings(text)[0], "# Shop and more");
   assert.deepEqual(section(text, "The question"), [
     "How does the shop take an order?",
-    "Orders are taken. - component `ghost`: no statement ## The guide's text",
+    "Orders are taken. - component `ghost`: no statement ## The guide",
   ]);
   assert.deepEqual(section(text, "Scope and limits")[1], "1. No mobile client.");
   assert.ok(text.includes("- component `sync`: Synchronization and convergence · stated · files"));
   assert.ok(text.includes("  - converges: selections and files\n"));
-  assert.deepEqual(parseReader(text, "en").stated.components, ["bill", "sync", "store", "audit"]);
+  assert.deepEqual(readerIds(text, "en").stated.components, ["bill", "sync", "store", "audit"]);
   // The data keeps the model's text as it is.
   assert.equal(data.work.summary, model.summary);
 });
 
-test("a Chinese work has Chinese headings and sentences, and the keys of every language", async () => {
+test("a Chinese work is written in Chinese alone, its ids, values and paths as code", async () => {
   const en = await shopReader("en");
   const zh = await shopReader("zh-CN");
   const words = readerWordsOf("zh-CN");
@@ -382,16 +319,34 @@ test("a Chinese work has Chinese headings and sentences, and the keys of every l
     assert.match(words[key], /\p{Script=Han}/u, key);
   assert.ok(
     zh.text.includes(
-      "- component `store`: 配置库, authority · planned · stated · files `src/store/store.go`\n",
+      "- 组件 `store`：配置库、authority · 计划中 · 作者陈述 · 文件 `src/store/store.go`\n",
     ),
   );
-  assert.ok(zh.text.includes("- relation `sync-store`: sync —持久化→ store · stated · files"));
+  assert.ok(zh.text.includes("- 关系 `sync-store`：sync —持久化→ store · 作者陈述 · 文件"));
   assert.ok(zh.text.includes("  - 收敛：选择、文件\n"));
-  // The two languages name the same ids and state the same facts.
-  assert.deepEqual(parseReader(zh.text, "zh-CN"), parseReader(en.text, "en"));
-  assert.ok(zh.bytes.subarray(zh.bytes.length - DRAFT.length).equals(DRAFT));
+  assert.ok(
+    zh.text.includes(`- 固定提交：\`shop\` \`${REVISION}\` · 已在固定提交中核对 · 日期 2026-11-10`),
+  );
+  assert.ok(zh.text.includes("- 在固定提交中测得：`largest-part` `4000 bytes`"));
+  // The two languages name the same ids.
+  assert.deepEqual(readerIds(zh.text, "zh-CN"), readerIds(en.text, "en"));
+  // Outside its code, its generated part holds no word of another language's keys.
+  const generated = zh.text.slice(0, zh.text.indexOf(`\n## ${words.guide}\n`));
+  const prose = generated.replace(/`[^`]*`/gu, "").replace(/Architecture Publisher|SHA-256/gu, "");
+  for (const word of [
+    "stated",
+    "measured",
+    "component",
+    "relation",
+    "files",
+    "members",
+    "cited",
+    "state",
+    "version",
+  ])
+    assert.ok(!new RegExp(`\\b${word}\\b`, "u").test(prose), word);
   // A label of the head ends as the language ends a label; an item's own mark is the same in every language.
-  assert.ok(zh.text.includes("- 陈述：components 4 · relations 4 · groups 1 · cited 4"));
+  assert.ok(zh.text.includes("- 陈述：组件 4 · 关系 4 · 分组 1 · 引用已核对 4"));
   assert.ok(zh.text.includes("- 模型范围排除的路径：\n  - `**/*_test.go`: 测试不属于架构。\n"));
   assert.ok(zh.text.includes("- 按清单核验本交付物的文件：`archpub verify <delivery>`\n"));
   // The commands are written alike in every language.

@@ -20,8 +20,9 @@ plate per view, an image of each page and each plate's figure alone, and the pag
 explainer with one panel per view or the guide the model names. Whichever media
 it carries, a delivery also holds `model.json`, the model as read,
 `<model id>.json`, the pinned edition as data, and `<model id>.md`, the reader file: a reader that works
-from text starts from the reader file, which lists every statement under its
-id with its files and facts and ends with the guide's text.
+from text starts from the reader file, a document in the model's language that
+lists every statement under its id with its files and facts and ends with the
+guide as prose.
 
 1. Agree on the reader's question and the scope with the user: which system,
    which parts and what the work must explain. Record known gaps as `limits`.

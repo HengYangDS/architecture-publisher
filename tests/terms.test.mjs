@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
 import { editionWordsOf } from "../src/edition/words.mjs";
-import { LOCALES, readerWordsOf, wordsOf } from "../src/locale.mjs";
+import { LOCALES, wordsOf } from "../src/locale.mjs";
+import { readerWordsOf } from "../src/reader-words.mjs";
 
 // Ledger row 24: the product's terms in each language, with a check of wording. The reference page is the
 // vocabulary in English and Chinese: each row names a concept, its word in each of those languages and the keys of the

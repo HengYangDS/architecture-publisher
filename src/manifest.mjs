@@ -15,7 +15,7 @@ import {
  */
 
 export const DELIVERY_FORMAT = "architecture-publisher.delivery";
-export const DELIVERY_VERSION = 8;
+export const DELIVERY_VERSION = 9;
 /** The widths the edition's images are rendered at by default: the one whose image is named without its width. */
 export const PNG_WIDTHS = Object.freeze([DEFAULT_WIDTH]);
 

@@ -7,14 +7,13 @@ import { planViews } from "../src/plan/views.mjs";
 import { editionData, serializeData } from "../src/pinned/data.mjs";
 import { evidenceTable } from "../src/pinned/evidence.mjs";
 import { requireFaces, requireProjections, requireReaderIds } from "../src/pinned/invariants.mjs";
-import { parseReader, readerFile } from "../src/pinned/reader.mjs";
+import { readerFile, readerIds } from "../src/pinned/reader.mjs";
 import { Refusal } from "../src/refusal.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
 import { AIGW_MODEL, SELF_MODEL } from "./fixtures/models.mjs";
 import {
   CITATIONS,
   DELIVERY,
-  DRAFT,
   GUIDE,
   PUBLISHER,
   READ,
@@ -32,7 +31,10 @@ async function shop(locale = "en", options = {}) {
     read: verified ? READ : new Map(),
   });
   const data = editionData({ ...built.input, evidence, guide: GUIDE });
-  const text = readerFile(data, { sha256: sha256(serializeData(data)), draft: DRAFT }).toString();
+  const text = readerFile(data, {
+    sha256: sha256(serializeData(data)),
+    guide: "The shop takes an order.\n",
+  }).toString();
   return { ...built, evidence, data, text };
 }
 
@@ -58,7 +60,7 @@ test("the three invariants hold on what the writers write, in two languages, wit
         const { model, data, text } = await shop(locale, { verified, typeset });
         requireReaderIds(model, text);
         requireFaces(data);
-        requireProjections(data, text, [
+        requireProjections(data, [
           {
             projection: "page",
             components: ["sync", "bill"],
@@ -193,12 +195,12 @@ test("a relation drawn the wrong way is refused by name", async () => {
 });
 
 test("a plate that names a part, an end or a property the data lacks is refused with the plate", async () => {
-  const { data, text } = await shop();
+  const { data } = await shop();
   const part = withFace(data, 1, (face) => ({
     ...face,
     components: [...face.components, { id: "ghost" }],
   }));
-  const message = refusalOf("projection_fact_unknown", () => requireProjections(part, text));
+  const message = refusalOf("projection_fact_unknown", () => requireProjections(part));
   assert.match(message, /plate 1/iu);
   assert.match(message, /component `ghost`/u);
   const end = withFace(data, 2, (face) => ({
@@ -209,7 +211,7 @@ test("a plate that names a part, an end or a property the data lacks is refused 
       { id: "overview-9", from: "sync", to: "bill", relations: ["lost"] },
     ],
   }));
-  const ends = refusalOf("projection_fact_unknown", () => requireProjections(end, text));
+  const ends = refusalOf("projection_fact_unknown", () => requireProjections(end));
   assert.match(ends, /group `phantom`/u);
   assert.match(ends, /`nowhere`/u);
   assert.match(ends, /relation `lost`/u);
@@ -221,7 +223,7 @@ test("a plate that names a part, an end or a property the data lacks is refused 
     })),
   };
   assert.match(
-    refusalOf("projection_fact_unknown", () => requireProjections(scaled, text)),
+    refusalOf("projection_fact_unknown", () => requireProjections(scaled)),
     /lines-of-code/u,
   );
   const unit = {
@@ -232,56 +234,37 @@ test("a plate that names a part, an end or a property the data lacks is refused 
     })),
   };
   assert.match(
-    refusalOf("projection_fact_unknown", () => requireProjections(unit, text)),
+    refusalOf("projection_fact_unknown", () => requireProjections(unit)),
     /owned-bytes/u,
   );
 });
 
-test("a reader file that states another value than the data holds is refused by subject and property", async () => {
+test("the reader file states every fact of the data, each by its property, value and unit", async () => {
   const { data, text } = await shop();
-  const other = text.replace("`cited-files` 2 files", "`cited-files` 9 files");
-  assert.notEqual(other, text);
-  const message = refusalOf("projection_fact_unknown", () => requireProjections(data, other));
-  assert.match(message, /reader file/iu);
-  assert.match(message, /relation `sync-store`/u);
-  assert.match(message, /cited-files/u);
-  // A stated value, a list's length, another origin and a fact of the edition are each held to the data.
-  for (const [from, to, named] of [
-    ["`pin-release` `v1.2.0`", "`pin-release` `v9.9.9`", /pin-release/u],
-    ["`owned-files` 2 paths", "`owned-files` 7 paths", /component `sync`.*owned-files/su],
-    [
-      "- measured (pin): `bands-shown` 3 bands\n- component `sync`",
-      "- measured (model): `bands-shown` 3 bands\n- component `sync`",
-      /view `core`.*bands-shown/su,
-    ],
-    ["`largest-part` 4000 bytes", "`largest-part` 4000 files", /largest-part/u],
-  ]) {
-    const changed = text.replace(from, to);
-    assert.notEqual(changed, text, from);
-    assert.match(
-      refusalOf("projection_fact_unknown", () => requireProjections(data, changed)),
-      named,
+  const shown = (value, unit) =>
+    Array.isArray(value)
+      ? `${value.length} ${unit}`
+      : typeof value === "number"
+        ? `${value} ${unit}`
+        : String(value);
+  for (const { property, value, unit, of } of data.facts) {
+    if (value === null || of.kind === "file") continue;
+    assert.ok(
+      text.includes(`\`${property}\` \`${shown(value, unit)}\``),
+      `${of.kind} ${of.id ?? ""} ${property}`,
     );
   }
-  // An id the reader file names and the data's statements lack.
-  const named = text.replace("- relation `sync-bill`\n", "- component `phantom`\n");
-  assert.match(
-    refusalOf("projection_fact_unknown", () => requireProjections(data, named)),
-    /component `phantom`/u,
-  );
 });
 
 test("a generated page that draws a relation the data lacks is refused by name", async () => {
-  const { data, text } = await shop();
+  const { data } = await shop();
   const page = {
     projection: "page",
     components: ["sync"],
     groups: [],
     relations: ["sync-store", "ghost"],
   };
-  const message = refusalOf("projection_fact_unknown", () =>
-    requireProjections(data, text, [page]),
-  );
+  const message = refusalOf("projection_fact_unknown", () => requireProjections(data, [page]));
   assert.match(message, /page/u);
   assert.match(message, /relation `ghost`/u);
   assert.ok(!message.includes("`sync-store`"));
@@ -297,7 +280,7 @@ test("a key from a later release leaves every invariant as it was", async () => 
   };
   requireReaderIds(model, text);
   requireFaces(later);
-  requireProjections(later, text);
+  requireProjections(later);
 });
 
 test("the models of two real works, read without a checkout, pass every invariant", async () => {
@@ -333,11 +316,11 @@ test("the models of two real works, read without a checkout, pass every invarian
       media: ["page"],
     });
     const written = serializeData(data);
-    const text = readerFile(data, { sha256: sha256(written), draft: DRAFT }).toString();
+    const text = readerFile(data, { sha256: sha256(written), guide: null }).toString();
     requireReaderIds(model, text);
     requireFaces(data);
-    requireProjections(data, text);
-    const parsed = parseReader(text, model.locale);
+    requireProjections(data);
+    const parsed = readerIds(text, model.locale);
     assert.deepEqual(
       [...parsed.stated.components].sort(),
       model.components.map(({ id }) => id).sort(),
@@ -347,7 +330,6 @@ test("the models of two real works, read without a checkout, pass every invarian
       model.relations.map(({ id }) => id).sort(),
     );
     assert.deepEqual([...parsed.stated.groups].sort(), model.groups.map(({ id }) => id).sort());
-    assert.ok(parsed.facts.length >= model.components.length, file);
     assert.equal(written, serializeData(JSON.parse(written)));
   }
 });

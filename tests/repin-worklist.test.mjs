@@ -141,6 +141,11 @@ test("check reads a guide's citations for the worklist and prints it", async (t)
       '@source cite title="Cited lines" path="docs/cite.md" lines=10:12',
       '@source touch title="Changed lines" path="docs/touch.md" lines=10:12',
       "",
+      // Every guide is read as Archify reads it, and Archify reads a guide of one panel at least.
+      "## Which lines move? {#moves}",
+      "",
+      "The touched lines change.[](source:touch)",
+      "",
     ].join("\n"),
   );
   const result = await checkModel(model, { repo: root, against: "main", media: ["edition"] });

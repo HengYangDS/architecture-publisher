@@ -1,12 +1,13 @@
 import { refuse } from "../refusal.mjs";
 import { drawnRelations } from "./data.mjs";
-import { parseReader } from "./reader.mjs";
+import { readerIds } from "./reader.mjs";
 
 /**
  * The invariants of projection: what a delivery is about to hold is the model's and the data's, and nothing else.
  * Each is decided before anything is written, in a check and in a build alike, and refuses with every difference
  * it found. The reader file is held to the model by the text it will be delivered as, a plate's face to what the
- * plan put in its view, and every projection to the data's statements and facts. A guide's figures carry ids of
+ * plan put in its view, and the plates and the page to the data's statements; the reader file's facts are written
+ * from the data, so nothing reads them back. A guide's figures carry ids of
  * their author's, so they are matched to statements where they cite owned files, counted and listed, and never
  * refused.
  */
@@ -36,11 +37,11 @@ function refuseAny(code, summary, problems) {
  * items are exactly the model's, each type by itself and each id once, and a later view names no id the model
  * lacks.
  * @param {{ locale: string, components: ReadonlyArray<{ id: string }>, relations: ReadonlyArray<{ id: string }>,
- *   groups: ReadonlyArray<{ id: string }> }} model
+ *   groups: ReadonlyArray<{ id: string }>, guide?: string | null }} model
  * @param {string} text
  */
 export function requireReaderIds(model, text) {
-  const read = parseReader(text, model.locale);
+  const read = readerIds(text, model.locale, Boolean(model.guide));
   const problems = [];
   for (const [list, type] of TYPES) {
     const stated = read.stated[list];
@@ -108,52 +109,17 @@ export function requireFaces(data) {
 }
 
 /**
- * What a line of facts states of a fact, as one key: a list is stated by its length.
- * @param {{ property: string, of: { kind: string, id?: string }, value: any, unit: string, origin: string,
- *   from?: string }} fact
- */
-const factKey = ({ property, of, value, unit, origin, from }) =>
-  JSON.stringify([
-    property,
-    of.kind,
-    of.id ?? null,
-    Array.isArray(value) ? value.length : value,
-    unit,
-    origin,
-    from ?? null,
-  ]);
-
-/** The type word of what a fact is a fact of. */
-const SUBJECTS = Object.freeze({
-  part: "component",
-  group: "group",
-  relation: "relation",
-  view: "view",
-});
-
-/**
- * What a fact is a fact of, as a refusal names it.
- * @param {{ kind: string, id?: string }} of
- */
-const subjectName = ({ kind, id }) =>
-  kind === "edition" ? "the edition" : named(SUBJECTS[kind], id);
-
-/**
- * Hold every projection to the data: a plate's face, the reader file and the page the publisher generates name no
- * component, relation or group the data's statements lack; a plate draws no scale of a property the catalogue
- * lacks; and the reader file states no fact the data's facts lack.
+ * Hold the drawn projections to the data: a plate's face and the page the publisher generates name no component,
+ * relation or group the data's statements lack, and a plate draws no scale of a property the catalogue lacks.
  * @param {any} data the data of the delivery
- * @param {string} text the reader file's text, as it will be delivered
  * @param {ReadonlyArray<{ projection: string, components: readonly string[], groups: readonly string[],
  *   relations: readonly string[] }>} [pages] the ids each other projection draws, by the model's ids
  */
-export function requireProjections(data, text, pages = []) {
+export function requireProjections(data, pages = []) {
   const known = Object.fromEntries(
     TYPES.map(([list, type]) => [type, new Set(data.statements[list].map(({ id }) => id))]),
   );
   const problems = [];
-  /** A projection as a refusal names it, and where its problems stand. */
-  const READER = { name: "the reader file", path: "/reader" };
   const differ = (code, projection, message) =>
     problems.push({ code, path: projection.path, message: `${projection.name} ${message}` });
   const unknown = (projection, type, ids) => {
@@ -200,18 +166,6 @@ export function requireProjections(data, text, pages = []) {
     unknown(page, "group", groups);
     unknown(page, "relation", relations);
   }
-  const read = parseReader(text, data.work.locale);
-  for (const [list, type] of TYPES)
-    unknown(READER, type, [...read.stated[list], ...read.named[list]]);
-  const held = new Set(data.facts.map(factKey));
-  for (const fact of read.facts)
-    if (!held.has(factKey(fact)))
-      differ(
-        "fact_unknown",
-        READER,
-        `states of ${subjectName(fact.of)} the fact \`${fact.property}\` ${fact.value} ${fact.unit} ` +
-          `(${[fact.origin, fact.from].filter(Boolean).join(", ")}), which the data's facts lack`,
-      );
   refuseAny("projection_fact_unknown", "A projection holds what the data lacks", problems);
 }
 

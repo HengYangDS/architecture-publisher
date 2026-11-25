@@ -6,6 +6,7 @@ ignoreDependencies = ["opentype.js", "@likec4/language-services", "bundle-requir
 
 entry = [
   "src/importers/likec4-worker.mjs",
+  "src/map/guide-parse-worker.mjs",
   "tests/conformance/journeys/command/archive.test.mjs",
   "tools/release/archive.mjs",
   # Loaded with --import by the suite's launcher (tools/test/suite.mjs), which names it as a string.

@@ -21,30 +21,61 @@ const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 /** The draft arguments that name a local file, by directive. */
 const LOCAL = Object.freeze({ "@diagram": "source", "@chart": "data", "@image": "path" });
 
-/** A directive line's `key=value` arguments; a quoted value is a JSON string. */
+/**
+ * A directive line's `key=value` arguments, read as Archify's parser reads them: a value in single or double quotes
+ * holds spaces, and a backslash escapes only the quote that opened the value and itself.
+ * @param {string} line
+ */
 function argumentsOf(line) {
   /** @type {Record<string, string>} */
   const out = {};
-  for (const [, key, raw] of line.matchAll(/(\w+)=("(?:[^"\\]|\\.)*"|\S+)/gu))
-    out[key] = raw.startsWith('"') ? JSON.parse(raw) : raw;
+  for (const [, key, double, single, bare] of line.matchAll(
+    /([^\s=]+)=(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|(\S*))/gu,
+  ))
+    out[key] =
+      bare ??
+      (double !== undefined
+        ? double.replace(/\\(["\\])/gu, "$1")
+        : single.replace(/\\(['\\])/gu, "$1"));
   return out;
 }
 
-/** The draft's directive lines, leaving out fenced blocks. */
+/**
+ * The draft's directive lines, trimmed, leaving out fenced blocks, as Archify's parser reads them: a line counts
+ * with its leading spaces, and a fence closes on a line that is its opening marker alone.
+ */
 function directives(draft) {
   const lines = [];
   let fence = "";
   for (const line of draft.split(/\r?\n/u)) {
-    const marker = /^(`{3,}|~{3,})/u.exec(line)?.[1];
-    if (marker && !fence) fence = marker;
-    else if (marker && marker[0] === fence[0] && marker.length >= fence.length) fence = "";
-    else if (!fence && line.startsWith("@")) lines.push(line);
+    const trimmed = line.trim();
+    if (fence) {
+      if (trimmed === fence) fence = "";
+      continue;
+    }
+    const marker = /^(`{3,}|~{3,})/u.exec(trimmed)?.[1];
+    if (marker) fence = marker;
+    else if (trimmed.startsWith("@")) lines.push(trimmed);
   }
   return lines;
 }
 
 /** A directive's name: its first word. */
 const directiveOf = (line) => line.split(/\s/u, 1)[0];
+
+/**
+ * The title each block of a draft names by id, `@diagram`, `@sequence` and the like with an `id` and a `title`.
+ * @param {string} draft
+ * @returns {Map<string, string>}
+ */
+export function blockTitles(draft) {
+  const titles = new Map();
+  for (const line of directives(draft)) {
+    const { id, title } = argumentsOf(line);
+    if (id && title) titles.set(id, title);
+  }
+  return titles;
+}
 
 /**
  * The local files a draft names in its `@diagram source=`, `@chart data=` and `@image path=`

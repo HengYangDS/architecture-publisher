@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { buildDelivery, checkModel, digestTree } from "../src/build.mjs";
 import { pinnedEdition } from "../src/projection.mjs";
+import { parsedGuide } from "../src/map/guide-parse.mjs";
 import { acceptDelivery, compareDeliveries, publishDelivery } from "../src/delivery.mjs";
 import { editionFacts } from "../src/facts/edition.mjs";
 import { archifyIds } from "../src/map/archify.mjs";
@@ -21,11 +22,16 @@ const DIAGRAM = "parts.architecture.json";
 /** A guide beside a model: a draft that cites the checkout's read-me, and one diagram whose nodes cite files. */
 const DRAFT = Buffer.from(
   [
-    "@meta title=Page",
-    '@source readme title="Read me" path="README.md" lines=1:1',
-    `@diagram source=${DIAGRAM}`,
-    "",
     "# How does a request reach its store? {#guide}",
+    "",
+    "It passes the gate.[](source:readme)",
+    "",
+    "@meta locale=en",
+    '@source readme title="Read me" path="README.md" lines=1:1',
+    "",
+    "## Which parts take part? {#p-parts}",
+    "",
+    `@diagram architecture id=parts-map source=${DIAGRAM}`,
     "",
     "- component `ghost`: a part the model lacks",
     "",
@@ -94,7 +100,7 @@ test("a delivery holds the model, the data and the reader file, and its manifest
   const delivered = await fs.readFile(path.join(out, "model.json"));
   assert.ok(delivered.equals(await fs.readFile(model)));
   assert.equal(sha256(delivered), manifest.model.sha256);
-  assert.equal(manifest.version, 8);
+  assert.equal(manifest.version, 9);
   assert.deepEqual(
     [manifest.model.file, manifest.data.file, manifest.reader.file],
     ["model.json", "page.json", "page.md"],
@@ -103,7 +109,7 @@ test("a delivery holds the model, the data and the reader file, and its manifest
   assert.deepEqual(manifest.sources, { state: "verified", count: 1 });
   assert.equal("evidence" in manifest, false);
   const data = await readJson(path.join(out, "page.json"));
-  assert.deepEqual(data.delivery, { format: manifest.format, version: 8 });
+  assert.deepEqual(data.delivery, { format: manifest.format, version: 9 });
   assert.deepEqual(data.model, {
     file: "model.json",
     sha256: manifest.model.sha256,
@@ -197,9 +203,11 @@ test("a delivery holds the model, the data and the reader file, and its manifest
     bytes: reader.length,
     statements: components.length + relations.length + groups.length,
   });
-  // The reader file states the data's digest and ends as the guide's draft ends.
+  // The reader file states the data's digest and ends with the guide as prose, no line of its syntax left.
   assert.ok(reader.includes(sha256(await fs.readFile(path.join(out, "page.json")))));
-  assert.ok(reader.subarray(reader.length - DRAFT.length).equals(DRAFT));
+  const text = reader.toString("utf8");
+  assert.ok(text.includes("\n## The guide\n\n"));
+  assert.ok(!/^@|\[\]\(|\{#/mu.test(text.slice(text.indexOf("\n## The guide\n"))));
   // Two builds of one state give the same bytes, file for file.
   for (const file of ["model.json", "page.json", "page.md", "manifest.json"])
     assert.ok(
@@ -464,8 +472,11 @@ test("a pinned edition gathered before typesetting carries no page, and a face t
     () => pinnedEdition(held([{ ...first, report: { ...first.report, paths } }, ...rest]), [960]),
     (error) => error.code === "data_face_differs" && error.problems[0].path === "/plates/1",
   );
-  // An overview's page has images and no face; a file of the guide that holds no document is passed over.
+  // An overview's page has images and no face; a file of the guide that holds no document is passed over. The
+  // guide carries its draft's text and Archify's parse of it, as `guideOf` gives them.
   const guide = {
+    text: DRAFT.toString("utf8"),
+    document: await parsedGuide(DRAFT.toString("utf8")),
     entries: [
       { name: "guide.archify.md", bytes: DRAFT, sha256: sha256(DRAFT) },
       { name: "empty.json", bytes: Buffer.from("null"), sha256: sha256("null") },
@@ -497,7 +508,10 @@ test("a pinned edition gathered before typesetting carries no page, and a face t
     connections: [],
     unmatched: { nodes: [], connections: [] },
   });
-  assert.ok(reader.subarray(reader.length - DRAFT.length).equals(DRAFT));
+  // The reader file ends with the guide as prose, not its draft: its answer and a footnote, no line of its syntax.
+  const read = reader.toString("utf8");
+  assert.ok(read.includes("It passes the gate. [^1]"), read.slice(-600));
+  assert.ok(!read.includes("@meta") && !read.includes("{#guide}") && !read.includes("](source:"));
   // The page the publisher generates is held to the data by what its diagrams' documents draw.
   const drawing = (view, extra = {}) => {
     const nodes = archifyIds(view.components.map(({ id }) => id));

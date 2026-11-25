@@ -3,7 +3,9 @@ import path from "node:path";
 import { CATALOGUE } from "./facts/catalogue.mjs";
 import { HOUSE } from "./house.mjs";
 import { archifyIds } from "./map/archify.mjs";
-import { guideCitations, guideSummary, readGuide } from "./map/guide.mjs";
+import { blockTitles, guideCitations, guideSummary, readGuide } from "./map/guide.mjs";
+import { parsedGuide } from "./map/guide-parse.mjs";
+import { guideText } from "./map/guide-text.mjs";
 import { MODEL_FORMAT, MODEL_VERSION } from "./model/load.mjs";
 import { ACCEPTANCE, COLOPHON, MANIFEST, MODEL, SIGNATURE, filesOf } from "./names.mjs";
 import { dataCounts, editionData, serializeData } from "./pinned/data.mjs";
@@ -15,7 +17,7 @@ import {
   requireProjections,
   requireReaderIds,
 } from "./pinned/invariants.mjs";
-import { parseReader, readerFile } from "./pinned/reader.mjs";
+import { readerFile } from "./pinned/reader.mjs";
 import { refuse } from "./refusal.mjs";
 import { readAtPin } from "./sources/bind.mjs";
 import { DELIVERY_FORMAT, DELIVERY_VERSION, overviewImages, plateSummary } from "./manifest.mjs";
@@ -81,7 +83,8 @@ export async function guideOf(model, modelPath, binding, repo) {
   if (!model.guide) return null;
   const guide = await readGuide(path.resolve(path.dirname(modelPath), model.guide));
   const citations = guideCitations(guide.entries);
-  if (!repo) return { ...guide, citations, read: new Map() };
+  const document = await parsedGuide(guide.text);
+  if (!repo) return { ...guide, document, citations, read: new Map() };
   const { revision } = model.repository;
   const bound = new Set(binding.records.map((record) => record.path));
   const alone = citations.filter((citation) => !bound.has(citation.path));
@@ -101,7 +104,7 @@ export async function guideOf(model, modelPath, binding, repo) {
         message: `${file} is not a file at ${revision}`,
       })),
     );
-  return { ...guide, citations, read };
+  return { ...guide, document, citations, read };
 }
 
 /**
@@ -216,13 +219,20 @@ export function pinnedEdition(held, widths, platePages = null) {
   const json = Buffer.from(serializeData(data));
   const reader = readerFile(data, {
     sha256: createHash("sha256").update(json).digest("hex"),
-    draft: guide?.entries[0].bytes,
+    guide:
+      guide &&
+      guideText(guide.document, {
+        locale: model.locale,
+        titles: blockTitles(guide.text),
+        repository: model.repository,
+      }),
   });
   const text = reader.toString("utf8");
   requireReaderIds(model, text);
   requireFaces(data);
-  requireProjections(data, text, pageProjections(held.page, views));
-  const { components, relations, groups } = parseReader(text, model.locale).stated;
+  requireProjections(data, pageProjections(held.page, views));
+  const { components, relations, groups } =
+    /** @type {{ components: any[], relations: any[], groups: any[] }} */ (data.statements);
   const named = filesOf(model.id);
   return {
     data,

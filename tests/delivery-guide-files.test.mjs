@@ -35,11 +35,16 @@ async function guidedModel(t, repositoryOf, { draft, diagram }) {
   await fs.writeFile(
     path.join(directory, path.basename(GUIDE)),
     [
-      "@meta title=Page",
-      `@source cited title="Cited" path="${draft}" lines=1:1`,
-      `@diagram source=${DIAGRAM}`,
-      "",
       "# How does a request reach its store? {#guide}",
+      "",
+      "It passes the gate.[](source:cited)",
+      "",
+      "@meta locale=en",
+      `@source cited title="Cited" path="${draft}" lines=1:1`,
+      "",
+      "## Which parts take part? {#p-parts}",
+      "",
+      `@diagram architecture id=parts-map source=${DIAGRAM}`,
       "",
     ].join("\n"),
   );

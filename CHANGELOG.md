@@ -9,6 +9,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** the reader file is a document in the model's language: its items, lines of facts and head use
+  the language's words, and ids, paths, property names, values and units stay code as the data holds them. The
+  guide follows as prose, written from Archify's own parse of the draft, its citations as footnotes; the draft
+  byte for byte leaves the delivery, and a draft Archify refuses is refused (`guide_unparsed`). The delivery
+  format moves to 9.
 - **Breaking:** a guide's dataflow and sequence files leave their rows and heights to the publisher: a
   dataflow takes rows in the patterns Archify's own examples use, the first Archify passes, and a sequence's
   messages stand 48 apart from 160 down. A file that sets a row or a height, or states a sequence's segments or

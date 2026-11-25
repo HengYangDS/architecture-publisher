@@ -12,11 +12,11 @@ Every delivery holds three files at its top beside its media, whichever media it
 pinned edition as text: what the build read, measured and drew of one work at one pin, for a reader that works from
 text and not from the plates.
 
-| File              | What it is                                             | Format                                            |
-| ----------------- | ------------------------------------------------------ | ------------------------------------------------- |
-| `model.json`      | The model the build read.                              | The author's bytes, unchanged.                    |
-| `<model id>.json` | The data: the pinned edition, each thing written once. | JSON, UTF-8, two-space indent, one final newline. |
-| `<model id>.md`   | The reader file: the statements and facts as text.     | Markdown, UTF-8, in the model's language.         |
+| File              | What it is                                                | Format                                            |
+| ----------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| `model.json`      | The model the build read.                                 | The author's bytes, unchanged.                    |
+| `<model id>.json` | The data: the pinned edition, each thing written once.    | JSON, UTF-8, two-space indent, one final newline. |
+| `<model id>.md`   | The reader file: the statements, facts and guide to read. | Markdown, UTF-8, in the model's language.         |
 
 The manifest lists each among its artifacts with its size and SHA-256, so `archpub verify`, `accept`, `compare` and
 `publish` cover them like every other file, and the digest of `model.json` is the manifest's `model.sha256`. The
@@ -149,55 +149,56 @@ its absence; without a checkout no file has an owner and nothing is matched.
 
 ## The reader file
 
-`<model id>.md` is written from the data and the guide's draft, in the model's language, with these parts in order:
+`<model id>.md` is a Markdown document for a reader at a viewer and for an agent, written in the model's language
+from the data and from the guide as Archify reads it. The data is the one machine source: ids, paths, property names,
+values and units are written as code, as the data holds them, and every other word is in the model's language. Its
+parts, in order:
 
 1. The work's title, one sentence naming the work, its language and the publisher's version, and a head: the pin
    with its state and, when measured, its date and release; the model's file, version, size and SHA-256; the data's
-   file and SHA-256; the numbers of components, relations and groups with the counts `cited`, `unchecked` and
-   `uncited`; the other files of the delivery; and the facts of the edition.
-2. One paragraph that explains the keys.
+   file and SHA-256; the numbers of components, relations and groups with the numbers cited, unchecked and uncited;
+   the other files of the delivery; and the facts of the edition.
+2. One paragraph that explains the words of the lines, in the model's language.
 3. The model's scope and limits, then its question and summary.
 4. One section for each planned view, headed by the view's question, or by its title when an earlier section
    carries the same question: its summary, a line with the view's id and, when the edition is built, its plate and
    image, the facts of the view, and one item for each statement it selects.
 5. The statements no view selects.
 6. What the file does not cover, and the two commands that check the delivery again.
-7. When the model names a guide, one heading and then the guide's draft, byte for byte, to the end of the file.
+7. When the model names a guide, one heading and the guide as prose: its answer, then a section for each panel with
+   its paragraphs, terms, tables and steps; a figure is named by its title and its file, and its content stands in
+   the page and in that file. Citations are footnotes, several at one place in ascending order, after one sentence
+   naming the pin their lines are those of.
 
 Each line of the head is a list item: the publisher's word for it, a colon, and its fields parted by `·`, the
 other files of the delivery by commas. A view's line is
-`` - view `<id>` · plate <number> · `<image>` · `<figure PNG>` · `<figure SVG>` ``, and `` - view `<id>` `` when no
-edition is built.
+`` - <view> `<id>` · <plate> <number> · `<image>` · `<figure PNG>` · `<figure SVG>` ``, and `` - <view> `<id>` ``
+when no edition is built.
 
-A statement's item is ``- <type> `<id>`: <text> · <fields>``. The type is `component`, `group` or `relation`. The
-text is a component's or a group's label, with a component's kind, or a relation's `<from> —<label>→ <to>`. The
-fields are its status when stated, its origin and its `files` or `members`. Beneath it stand each detail the model
-states and its facts. A statement stands with its full item once, in the first view that selects it, and as
-`` - <type> `<id>` `` in each later view. A field without a value is not written.
+A statement's item is ``- <type> `<id>`<colon><text> · <fields>``. The type is the model's language's word for a
+component, a group or a relation. The text is a component's or a group's label, with a component's kind, or a
+relation's `<from> —<label>→ <to>`. The fields are its status when stated, its origin and its files or members.
+Beneath it stand each detail the model states and its facts. A statement stands with its full item once, in the
+first view that selects it, and as ``- <type> `<id>` `` in each later view. A field without a value is not written.
 
-A line of facts is ``- <origin>: `<property>` <value> <unit> · …``, the origin written `stated`, `measured (pin)`
-or `measured (model)`. Under an item it states facts of that statement; at the margin, facts of the edition in the
-head or of the view named above it. A list is stated by its length, and the facts of single files stand in the data
-alone.
+A line of facts is ``- <origin><colon>`<property>` `<value> <unit>` · …``, its origin in the model's language: a
+fact the author stated, one the publisher measured at the pin, or one it counted from the model. Under an item it
+states facts of that statement; at the margin, facts of the edition in the head or of the view named above it. A
+list is stated by its length, a value that is no number without its unit, and the facts of single files stand in
+the data alone.
 
-A statement counts as `cited` when it names files and the build read them at the pin, as `unchecked` when it names
-files and the build had no checkout, and as `uncited` when it names none. The counts are of components and
-relations, which alone can name files.
-
-The words the publisher sets are in the model's language. Ids, paths, the type words, `stated` and `measured`,
-property names, units and the keys of a field, such as `state`, `files` and `plate`, are written alike in every
-language. The head states the digest of the data and cannot state the manifest's, which seals the reader file.
+The head states the digest of the data and cannot state the manifest's, which seals the reader file.
 
 ## What is held before anything is written
 
 `archpub check` and `archpub build` gather the data and the reader file and hold them to the model and to each
 other. Each difference is a refusal that names what differs, and a refused build leaves no output.
 
-| Code                      | Refused when                                                                                                                                                                                                                        |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `reader_ids_differ`       | The ids of the items parsed from the reader file's text, as it will be delivered, are not exactly the model's components, relations and groups, each type by itself.                                                                |
-| `data_face_differs`       | A plate's face does not hold exactly the components, groups and relations its view selects, an overview's line counting as the relations it stands for, or a relation's text in a face is not the model's.                          |
-| `projection_fact_unknown` | A plate's face, the reader file or a diagram of the page the publisher generates names a statement the data lacks; a plate's scale or a fact names a property the catalogue lacks; or the reader file states a fact the data lacks. |
+| Code                      | Refused when                                                                                                                                                                                               |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `reader_ids_differ`       | The reader file's items, as it will be delivered, name not exactly the model's components, relations and groups, each type by itself and each once.                                                        |
+| `data_face_differs`       | A plate's face does not hold exactly the components, groups and relations its view selects, an overview's line counting as the relations it stands for, or a relation's text in a face is not the model's. |
+| `projection_fact_unknown` | A plate's face or a diagram of the page the publisher generates names a statement the data lacks, or a plate's scale names a property the catalogue lacks.                                                 |
 
 The diagrams of the page the publisher generates are read back to the model's ids and held to the data's statements.
 A guide is its author's document: its diagrams are matched and their unmatched members counted, as said above, and

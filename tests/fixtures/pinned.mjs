@@ -18,7 +18,7 @@ const COMMIT = Object.freeze({
   time: Date.UTC(2026, 10, 10) / 1000,
   release: "v1.2.0",
 });
-export const DELIVERY = Object.freeze({ format: "architecture-publisher.delivery", version: 8 });
+export const DELIVERY = Object.freeze({ format: "architecture-publisher.delivery", version: 9 });
 export const PUBLISHER = Object.freeze({ name: "architecture-publisher", version: "0.15.0" });
 
 export const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -177,7 +177,7 @@ function layerFacts(model, binding, views) {
 }
 
 /** The guide's draft, with a list item shaped like a statement the model lacks. */
-export const DRAFT = Buffer.from(
+const DRAFT = Buffer.from(
   [
     "@meta title=Shop",
     '@source readme-what title="What it is" path="README.md" lines=3:6',

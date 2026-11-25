@@ -33,7 +33,7 @@ test("a delivery holds the print edition, its images, its figures alone, the pag
   assert.deepEqual(built.views, ["containers-tiers", "containers-automatic"]);
   const manifest = await readJson(path.join(out, "manifest.json"));
   assert.equal(manifest.format, "architecture-publisher.delivery");
-  assert.equal(manifest.version, 8);
+  assert.equal(manifest.version, 9);
   // Without a checkout no part has a strip, which is no fallback to warn of; the palette is the default.
   const { palette, names, bands } = manifest.style;
   assert.deepEqual([palette, names, bands], ["indigo", INDIGO, null]);

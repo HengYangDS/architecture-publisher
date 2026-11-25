@@ -104,10 +104,11 @@ the build read, byte for byte; `<model id>.json`, the pinned edition as data:
 the work, the pin, the views, every component, relation and group with its
 origin, every measured fact, one evidence table of every file the model claims
 or cites and every range the guide cites, and for each plate what it drew and
-where; and `<model id>.md`, the reader file, which states the same statements
-and facts as text in the model's language and ends with the guide's text. The
-build refuses when the reader file's statements are not the model's, when a
-plate's face is not its view's statements, or when a projection holds what the
+where; and `<model id>.md`, the reader file, a document in the model's language
+that states the same statements and facts and ends with the guide as prose,
+for a reader at a Markdown viewer and an agent alike. The build refuses when
+the reader file does not name each statement of the model once, when a plate's
+face is not its view's statements, or when a drawn projection holds what the
 data lacks. The [data reference](reference/data.md) describes the three files.
 
 The print edition opens with a title page of the work's name, question and
@@ -305,6 +306,11 @@ repository waits for the one slot they hold. The reason that moved `edition-map`
 `one-source`; that moves the rest of `edition-map`, `page-figures`, `reader-file` and `derived-references` back by
 one.
 
+On 2026-11-25 the publisher's part of `page-figures` was finished: its five Changes lay out and pin every kind of a
+guide's diagram. Its last step, the published works' diagram files losing their positions and their repository,
+waits for a release of Archify that takes a guide's files without them. An outside wait holds only the work that
+needs it: `page-figures` moves after `reader-file`, which needs nothing from it.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -353,14 +359,14 @@ one.
       against plates, with what the edition was built from under it, and may take further pages for a large work.
       Every view is reached from the overview, a fact is stated once a page, a note in a narrow column breaks between
       the words of its script, and no justified line is spread wide because the token after it cannot break.
+- [ ] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
+      does for one that parses it: one title, no line of the guide's own syntax and no empty link, the names of
+      its fields in the model's language, and a check of the file as rendered.
 - [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
       relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
       file that places anything. The published works' diagram files lose the positions they hold. A diagram
       file states no repository and no pin either: the publisher fills them from the model, and the works'
       files lose that block.
-- [ ] `reader-file`: the reader file reads as well rendered in a Markdown viewer, for a reader at a screen, as it
-      does for one that parses it: one title, no line of the guide's own syntax and no empty link, the names of
-      its fields in the model's language, and a check of the file as rendered.
 - [ ] `derived-references`: the model's vocabulary and the reference documents each have one source. A model's
       fields, enumerations, patterns and limits are stated once, and the schema and the loader's checks both come
       from that statement; the refusal codes stand in one registry; and a table of a reference document that

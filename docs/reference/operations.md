@@ -408,7 +408,7 @@ guidance keeps a page to four native diagrams.
 
 Nothing else is written at the top of the delivery.
 
-The manifest records its format and version 8, the publisher's name and version, the model id, title, language,
+The manifest records its format and version 9, the publisher's name and version, the model id, title, language,
 digest, size and file, the declared repository, the build's quality and media, in `style` the edition's
 palette's id (`custom` for the model's own) with its Chinese and English names and its resolved ground, ink, dye
 steps and accent, and where it draws strips the age bands' spans in seconds, the pin's date and the length in px its
