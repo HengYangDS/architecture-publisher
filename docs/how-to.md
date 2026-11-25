@@ -23,8 +23,8 @@ Git:
 mise use -g github:HengYangDS/architecture-publisher
 ```
 
-Each release has an archive for Linux and Windows on ARM64 and x86-64 and for
-macOS on ARM64. By default mise does not offer a release in its first 24 hours,
+Each release has an archive for Linux on ARM64 and x86-64 and for macOS on
+ARM64. By default mise does not offer a release in its first 24 hours,
 so on the day of a release this line installs the one before it. Name the
 version to take it at once:
 

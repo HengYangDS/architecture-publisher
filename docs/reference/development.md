@@ -161,10 +161,10 @@ child.
 
 ## Continuous integration
 
-`.config/ci/pipeline.cue` owns one shared execution graph for Linux, macOS and
-Windows on ARM64, which GitHub also runs for Linux and Windows on x86-64, and
-`node tools/ci/projection.mjs --write` generates the GitLab and GitHub
-configuration from it. On a release tag, once the protected jobs pass, GitHub
+`.config/ci/pipeline.cue` owns one shared execution graph for Linux and macOS on
+ARM64, which GitHub also runs for Linux on x86-64, and `node
+tools/ci/projection.mjs --write` generates the GitLab and GitHub configuration
+from it. On a release tag, once the protected jobs pass, GitHub
 publishes the package to npm through its OIDC trust when the repository variable
 `NPM_PUBLISH` is `enabled`. Its owner first publishes the package and names
 `.github/workflows/verify.yml` as its trusted publisher on npm. GitLab and GitHub are equal optional
@@ -192,7 +192,5 @@ job's tool cache, which a job's clean spares, so a move of `playwright-core`
 costs one download a runner; the Linux image supplies Chromium's system
 libraries. The npm test environment sets
 `umask 022` within its own POSIX process. Repository text checks out as LF
-through `.gitattributes`; third-party supply keeps its bytes. Windows refreshes
-every tracked file with `git checkout-index --all --force` before tools run.
-CI keeps `MISE_DATA_DIR` and `MISE_CACHE_DIR` inside the job-owned tool cache.
+through `.gitattributes`; third-party supply keeps its bytes. CI keeps `MISE_DATA_DIR` and `MISE_CACHE_DIR` inside the job-owned tool cache.
 Actual hosted job results, not configuration, qualify each platform.

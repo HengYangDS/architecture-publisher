@@ -5,7 +5,7 @@ import "./archify-answers.mjs";
 
 // Historical POSIX package identity includes member modes. Scope the mask to
 // this test process and its owned children, never the Runner or user session.
-if (process.platform !== "win32") process.umask(0o022);
+process.umask(0o022);
 
 for (const name of Object.keys(process.env))
   if (name.toLowerCase().startsWith("npm_config_")) delete process.env[name];

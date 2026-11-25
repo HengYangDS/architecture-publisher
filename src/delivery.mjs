@@ -124,9 +124,8 @@ export async function compareDeliveries(first, second) {
 
 /**
  * Run ssh-keygen with the given standard input, closed after it, and a deadline. It acts for the reviewer with the
- * reviewer's own key, agent and OpenSSH setup, so it runs in the caller's whole environment: on Windows it fails
- * without variables beyond those a publisher's other children need. A run that ends before reading its input is
- * judged by its exit, not by the broken pipe the unread input leaves.
+ * reviewer's own key, agent and OpenSSH setup, so it runs in the caller's whole environment. A run that ends before
+ * reading its input is judged by its exit, not by the broken pipe the unread input leaves.
  * @param {string[]} args
  * @param {string | Buffer} input
  */
@@ -150,14 +149,13 @@ async function fingerprintOf(key) {
 }
 
 /**
- * The armoured SSH signature of the acceptance record's exact bytes, its lines ending in a line feed on every
- * platform: ssh-keygen for Windows ends them in carriage returns too, and the armour is the same signature either way.
+ * The armoured SSH signature of the acceptance record's exact bytes.
  */
 async function signRecord(key, bytes) {
   const signed = await sshKeygen(["-Y", "sign", "-f", key, "-n", NAMESPACE], bytes);
   if (!signed.ok)
     refuse("acceptance_sign_failed", `ssh-keygen cannot sign with ${key}: ${signed.stderr.trim()}`);
-  return signed.stdout.replace(/\r\n/gu, "\n");
+  return signed.stdout;
 }
 
 /** The time of acceptance in UTC to the second: SOURCE_DATE_EPOCH when the caller sets one, as a build reads it. */

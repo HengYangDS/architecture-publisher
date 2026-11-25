@@ -5,7 +5,7 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { assemble, launchers, lockedPlatforms } from "../tools/release/archive/assemble.mjs";
+import { assemble, launcher, lockedPlatforms } from "../tools/release/archive/assemble.mjs";
 import { declaration } from "../tools/release/archive/declaration.mjs";
 import { officialSource } from "../tools/release/archive/sources.mjs";
 import { gunzip, gzip, readTar, writeTar } from "../tools/release/archive/tar.mjs";
@@ -47,9 +47,9 @@ url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-arm64.tar.gz"
 [tools.node."platforms.macos-arm64"]
 checksum = "sha256:${"2".repeat(64)}"
 url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-darwin-arm64.tar.gz"
-[tools.node."platforms.windows-arm64"]
+[tools.node."platforms.linux-x64"]
 checksum = "sha256:${"3".repeat(64)}"
-url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-win-arm64.zip"
+url = "https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz"
 [[tools.typst]]
 version = "0.15.1"
 [tools.typst."platforms.linux-arm64"]
@@ -97,16 +97,13 @@ test("gzip writes no time and no system into its header", () => {
   assert.equal(new TextDecoder().decode(gunzip(packed)), "archive");
 });
 
-test("the lock pins the five platforms the CI verifies, and a platform needs both tools", async () => {
+test("the lock pins the three platforms the CI verifies, and a platform needs both tools", async () => {
   const lock = await fs.readFile(path.join(root, ".config/mise/mise.lock"), "utf8");
-  const verified = ["linux-arm64", "linux-x64", "macos-arm64", "windows-arm64", "windows-x64"];
+  const verified = ["linux-arm64", "linux-x64", "macos-arm64"];
   assert.deepEqual(Object.keys(lockedPlatforms(lock)), verified);
   assert.match(lockedPlatforms(lock)["linux-x64"].node.url, /node-v[\d.]+-linux-x64\.tar\.gz$/u);
-  assert.match(
-    lockedPlatforms(lock)["windows-x64"].typst.url,
-    /typst-x86_64-pc-windows-msvc\.zip$/u,
-  );
-  // A CI job installs every locked tool, so each tool with platform archives pins all five.
+  assert.match(lockedPlatforms(lock)["linux-x64"].typst.url, /typst-x86_64-unknown-linux-musl/u);
+  // A CI job installs every locked tool, so each tool with platform archives pins all three.
   const pinned = (name) =>
     parseToml(lock)
       .tools[name].flatMap((entry) => Object.keys(entry))
@@ -138,10 +135,10 @@ test("an archive holds the command, its runtime, Typst, the package and their li
       ["archpub/licenses/typst/NOTICE", 0o644],
     ],
   );
-  const launcher = new TextDecoder().decode(
+  const script = new TextDecoder().decode(
     entries.find((entry) => entry.path === "archpub/bin/archpub").data,
   );
-  assert.equal(launcher, launchers().posix);
+  assert.equal(script, launcher());
   assert.deepEqual(assemble(inputs("macos-arm64")).bytes, archive);
 });
 
@@ -189,38 +186,12 @@ test("an archive carries the package's bundled libraries and each one's licence"
   });
 });
 
-test("a Windows archive starts the command from a batch launcher with CRLF lines", () => {
-  const windows = `${LOCK}
-[tools.typst."platforms.windows-arm64"]
-checksum = "sha256:${"6".repeat(64)}"
-url = "https://github.com/typst/typst/releases/download/v0.15.1/typst-aarch64-pc-windows-msvc.zip"
-`;
-  const archive = assemble({ ...inputs("windows-arm64"), platforms: lockedPlatforms(windows) });
-  assert.equal(archive.name, "archpub-9.9.9-windows-arm64.tar.gz");
-  const entries = readTar(gunzip(archive.bytes));
-  const names = entries.map((entry) => entry.path);
-  assert.ok(names.includes("archpub/bin/archpub.cmd"));
-  assert.ok(names.includes("archpub/libexec/node.exe"));
-  assert.ok(names.includes("archpub/libexec/typst.exe"));
-  const launcher = new TextDecoder().decode(
-    entries.find((entry) => entry.path === "archpub/bin/archpub.cmd").data,
-  );
-  assert.equal(launcher, launchers().windows);
-  assert.ok(
-    launcher
-      .split("\n")
-      .slice(0, -1)
-      .every((line) => line.endsWith("\r")),
-  );
-});
-
 test("a platform the lock does not pin for both tools is refused", () => {
-  assert.throws(() => assemble(inputs("windows-arm64")), {
-    message: "archive_platform_unverified:windows-arm64",
-  });
-  assert.throws(() => assemble(inputs("linux-x64")), {
-    message: "archive_platform_unverified:linux-x64",
-  });
+  // Node.js alone is pinned for linux-x64 here, and nothing for macos-x64.
+  for (const platform of ["linux-x64", "macos-x64"])
+    assert.throws(() => assemble(inputs(platform)), {
+      message: `archive_platform_unverified:${platform}`,
+    });
 });
 
 test("the declaration names each archive's URL, SHA-256 and command directory", () => {

@@ -32,8 +32,6 @@ body:
         - Linux on ARM64
         - Linux on x86-64
         - macOS on ARM64
-        - Windows on ARM64
-        - Windows on x86-64
         - Other
     validations:
       required: true

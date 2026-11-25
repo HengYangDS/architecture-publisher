@@ -54,6 +54,7 @@ stages:
   interruptible: true
   timeout: 75m
 .verify-linux:
+  extends: .verify-native
   before_script:
     - curl --fail --silent --show-error --location --proto '=https'
       --proto-redir '=https' --connect-timeout 15 --max-time 900 --continue-at -
@@ -65,31 +66,15 @@ stages:
       build/runtime/tool-cache/mise/bootstrap/mise-v2026.11.9-linux-arm64
       build/runtime/tool-cache/mise/bootstrap/mise
     - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"
-  extends: .verify-native
   variables:
     FF_USE_INIT_WITH_DOCKER_EXECUTOR: "true"
     FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: "true"
 .verify-macos:
-  before_script: []
   extends: .verify-native
+  before_script: []
   variables: {}
   image: null
   resource_group: native-macos-verification
-.verify-windows:
-  before_script:
-    - git checkout-index --all --force
-    - $env:PATH = (Join-Path $env:ProgramFiles "mise/bin") +
-      [IO.Path]::PathSeparator + $env:PATH
-  extends: .verify-native
-  variables:
-    GIT_CONFIG_COUNT: "1"
-    GIT_CONFIG_KEY_0: core.longPaths
-    GIT_CONFIG_VALUE_0: "true"
-    MISE_WINDOWS_SHIM_MODE: file
-  image: null
-  resource_group: native-windows-verification
-  interruptible: true
-  timeout: 75m
 verify:linux:review:
   extends: .verify-linux
   tags:
@@ -106,26 +91,15 @@ verify:linux:protected:
 verify:macos:review:
   extends: .verify-macos
   tags:
-    - ci-macos-arm64-review
+    - macos-latest
+    - review
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH
 verify:macos:protected:
   extends: .verify-macos
   tags:
-    - ci-macos-arm64-shell
-  rules:
-    - if: $CI_COMMIT_REF_PROTECTED == "true"
-verify:windows:review:
-  extends: .verify-windows
-  tags:
-    - ci-windows-arm64-review
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_REF_PROTECTED != "true" && $CI_COMMIT_BRANCH
-verify:windows:protected:
-  extends: .verify-windows
-  tags:
-    - ci-windows-arm64-shell
+    - macos-latest
+    - protected
   rules:
     - if: $CI_COMMIT_REF_PROTECTED == "true"

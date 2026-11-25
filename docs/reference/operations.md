@@ -16,11 +16,11 @@ delivery it writes; the [refusals reference](refusals.md) lists every refusal.
 ## Installation
 
 Each release delivers the command as one archive per platform the CI verifies:
-`archpub-<version>-<platform>.tar.gz` for `linux-arm64`, `linux-x64`, `macos-arm64`,
-`windows-arm64` and `windows-x64`. An archive holds `archpub/bin/archpub` (`archpub.cmd` on
-Windows), the Node.js and Typst it runs in `archpub/libexec`, the package with
-the libraries it bundles in `archpub/lib/architecture-publisher` and the licenses
-of all of them in `archpub/licenses`.
+`archpub-<version>-<platform>.tar.gz` for `linux-arm64`, `linux-x64` and
+`macos-arm64`. An archive holds `archpub/bin/archpub`, the Node.js and Typst it
+runs in `archpub/libexec`, the package with the libraries it bundles in
+`archpub/lib/architecture-publisher` and the licenses of all of them in
+`archpub/licenses`.
 Unpacked anywhere, the command needs only Git on the path. The release's
 `architecture-publisher-<version>.mise.toml` names each archive with its SHA-256
 for `mise`, as an `http:archpub` tool:

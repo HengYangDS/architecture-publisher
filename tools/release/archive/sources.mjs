@@ -100,10 +100,7 @@ async function walk(directory) {
 }
 
 function extract(archive, into, tar) {
-  const result = spawnSync(tar, ["-xf", archive, "-C", into], {
-    encoding: "utf8",
-    windowsHide: true,
-  });
+  const result = spawnSync(tar, ["-xf", archive, "-C", into], { encoding: "utf8" });
   if (result.status !== 0)
     throw Error(`archive_extract_failed:${path.basename(archive)}:${result.stderr.trim()}`);
 }
@@ -117,7 +114,7 @@ async function pick(files, name, what) {
 /**
  * One platform's Node.js and Typst from their official archives at the lock's URLs,
  * verified by the lock's SHA-256 and extracted with the system's `tar`, which must
- * read tar.gz, tar.xz and zip archives, as macOS's does.
+ * read tar.gz and tar.xz archives, as macOS's does.
  * @param {{ node: { url: string, checksum: string }, typst: { url: string, checksum: string } }} locked
  * @param {{ cache: string, download?: boolean, tar?: string, schedule?: typeof SCHEDULE }} options
  */
@@ -135,9 +132,8 @@ export async function officialSource(
     extract(typstArchive, path.join(work, "typst"), tar);
     const nodeFiles = await walk(path.join(work, "node"));
     const typstFiles = await walk(path.join(work, "typst"));
-    const windows = locked.node.url.endsWith(".zip");
-    const node = await pick(nodeFiles, windows ? "node.exe" : "node", "node");
-    const typst = await pick(typstFiles, windows ? "typst.exe" : "typst", "typst");
+    const node = await pick(nodeFiles, "node", "node");
+    const typst = await pick(typstFiles, "typst", "typst");
     return await installedSource({ node, typst });
   } finally {
     await fs.rm(work, { recursive: true, force: true });

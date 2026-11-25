@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** a release no longer ships the Windows archives, `windows-arm64` and `windows-x64`; its mise
+  declaration names Linux on ARM64 and x86-64 and macOS on ARM64. CI runs no Windows job: GitLab verifies
+  Linux and macOS on ARM64, and GitHub those and Linux on x86-64; macOS runs on `macos-latest` on both.
 - **Breaking:** a guide's diagram files state what their diagrams show and leave where it goes to the
   publisher. A guide whose files state a position, a size, a cell, a column, a layout, a width or gap, the
   course of a line, a workflow's phases or groups, or a repository is refused by a check as by a build

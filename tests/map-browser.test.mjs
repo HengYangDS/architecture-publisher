@@ -12,16 +12,15 @@ import { AIGW_MODEL, BIG_BANK_MODEL, temporaryDirectory } from "./fixtures/model
 
 /**
  * How long the browser may take to start or to open the standalone page: past it
- * the test fails instead of holding its runner until the job's time limit, as
- * one hosted Windows run did. A test also waits this long for its browser to
- * close.
+ * the test fails instead of holding its runner until the job's time limit. A
+ * test also waits this long for its browser to close.
  */
 const BROWSER = 2 * 60 * 1000;
 
 /**
  * Closes the browser after the test, waiting at most `limit` ms. Closing is
- * cleanup, not what the tests check: a loaded Windows runner once took longer
- * than two minutes to close a browser whose pages had passed. Past the limit
+ * cleanup, not what the tests check: a loaded runner once took longer than two
+ * minutes to close a browser whose pages had passed. Past the limit
  * the test notes the delay and passes; `--test-force-exit` ends the test file,
  * and Playwright ends a browser still running when the test process exits. An
  * error from closing still fails the test.
@@ -101,8 +100,8 @@ test(
 );
 
 // Building two pages measures a few hundred candidate diagrams, each through
-// Archify's own command line in processes of its own; on a hosted Windows
-// runner that alone takes about five minutes.
+// Archify's own command line in processes of its own; on a loaded hosted
+// runner that alone took about five minutes.
 const PAGE_BUILDS = 15 * 60 * 1000;
 
 test(

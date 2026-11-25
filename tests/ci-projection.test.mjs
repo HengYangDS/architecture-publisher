@@ -33,7 +33,7 @@ test("every native CI job installs Chromium before importing the required browse
       `github/${name}`,
       job.steps.filter((step) => step.run).flatMap((step) => step.run.split("\n")),
     ]);
-  for (const platform of ["linux", "macos", "windows"])
+  for (const platform of ["linux", "macos"])
     for (const role of ["review", "protected"]) {
       const name = `verify:${platform}:${role}`;
       const job = Object.assign(
@@ -83,7 +83,7 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   assert.equal(pipeline[".verify-linux"].variables.PATH, undefined);
   // Chromium stands in the tool cache that a job's clean spares, on every platform: a job that kept it in the
   // image's own path fetched it anew whenever the lockfile's Playwright was not the image's.
-  for (const platform of ["linux", "macos", "windows"])
+  for (const platform of ["linux", "macos"])
     assert.equal(pipeline[`.verify-${platform}`].variables.PLAYWRIGHT_BROWSERS_PATH, undefined);
   assert.equal(
     pipeline.variables.PLAYWRIGHT_BROWSERS_PATH,
@@ -99,12 +99,23 @@ test("Linux bootstrap uses native download, checksum and installation before Mis
   });
 });
 
-test("the Windows job writes Mise shims as command files", async () => {
-  // The Windows runner refuses the copies of mise-shim.exe that Mise's default
-  // shim mode makes for every executable a tool provides, such as npm's
-  // arborist; the jobs run tools through `mise exec`, which needs no shim.
-  const pipeline = parse(await fs.readFile(path.join(root, ".gitlab-ci.yml"), "utf8"));
-  assert.equal(pipeline[".verify-windows"].variables.MISE_WINDOWS_SHIM_MODE, "file");
+test("macOS runs on one label on both Forges, with the trust role on GitLab", async () => {
+  // The owner's choice for every repository ETHOS governs (2026-11-25 13:54): `macos-latest` on both Forges.
+  const gitlab = parse(await fs.readFile(path.join(root, projections[0]), "utf8"));
+  const github = parse(await fs.readFile(path.join(root, projections[1]), "utf8"));
+  for (const role of ["review", "protected"]) {
+    assert.deepEqual(gitlab[`verify:macos:${role}`].tags, ["macos-latest", role]);
+    assert.equal(github.jobs[`verify-macos-${role}`]["runs-on"], "macos-latest");
+  }
+});
+
+test("no job of either Forge runs on Windows", async () => {
+  // The owner's rule for every repository ETHOS governs (2026-11-25): GitLab runs ARM macOS and ARM Linux, GitHub
+  // those and x86-64 Linux.
+  for (const relative of projections) {
+    const text = await fs.readFile(path.join(root, relative), "utf8");
+    assert.doesNotMatch(text, /windows|pwsh/iu, relative);
+  }
 });
 
 test("native Mise paths resolve before the locked tools are installed", async (t) => {
@@ -222,7 +233,7 @@ test("the selected peer invokes the shared quality and projection owners on all 
   const common = pipeline[".verify-native"];
   assert(common.script.includes("mise exec -- npm run check:ci"));
   assert.equal(common.script.at(-1), "mise exec -- npm run check");
-  for (const platform of ["linux", "macos", "windows"]) {
+  for (const platform of ["linux", "macos"]) {
     assert.equal(pipeline[`.verify-${platform}`].extends, ".verify-native");
     for (const trust of ["review", "protected"])
       assert.equal(pipeline[`verify:${platform}:${trust}`].extends, `.verify-${platform}`);
@@ -233,7 +244,7 @@ test("the selected peer invokes the shared quality and projection owners on all 
     "shared & {platformSetup: {workspace: peers.gitlab.workspace}, environment: {workspace: peers.gitlab.workspace}}",
   );
   const peer = exportCue("peers.gitlab");
-  assert.deepEqual(shared.platforms, ["linux", "macos", "windows"]);
+  assert.deepEqual(shared.platforms, ["linux", "macos"]);
   assert(shared.preparation.includes("mise exec -- npm run check:ci"));
   assert.equal(shared.acceptance.at(-1), "mise exec -- npm run check");
   for (const platform of shared.platforms)
@@ -304,15 +315,12 @@ test("the selected peer invokes the shared quality and projection owners on all 
   assert.deepEqual(privateAddressLines(JSON.stringify(github)), []);
 });
 
-test("GitHub alone also verifies Linux and Windows on x86-64 and publishes to npm only when enabled", async () => {
+test("GitHub alone also verifies Linux on x86-64 and publishes to npm only when enabled", async () => {
   const github = parse(await fs.readFile(path.join(root, projections[1]), "utf8"));
   const gitlab = parse(await fs.readFile(path.join(root, projections[0]), "utf8"));
   assert.ok(!Object.keys(gitlab).some((job) => job.includes("x64")));
   const steps = (job) => job.steps.map(({ run, uses }) => run ?? uses);
-  for (const [platform, arm, runner] of [
-    ["linux-x64", "linux", "ubuntu-24.04"],
-    ["windows-x64", "windows", "windows-2025"],
-  ])
+  for (const [platform, arm, runner] of [["linux-x64", "linux", "ubuntu-24.04"]])
     for (const trust of ["review", "protected"]) {
       const job = github.jobs[`verify-${platform}-${trust}`];
       const twin = github.jobs[`verify-${arm}-${trust}`];
@@ -322,14 +330,6 @@ test("GitHub alone also verifies Linux and Windows on x86-64 and publishes to np
       assert.deepEqual(job.env, twin.env);
       assert.deepEqual(steps(job), steps(twin));
     }
-  // Hosted x86-64 Windows keeps its system temporary directory on another drive than the workspace, so the
-  // mise-action step takes the runner's, which shares the workspace's drive.
-  for (const trust of ["review", "protected"]) {
-    const [, bootstrap] = github.jobs[`verify-windows-x64-${trust}`].steps;
-    assert.match(bootstrap.uses, /^jdx\/mise-action@/u);
-    assert.deepEqual(bootstrap.env, { TEMP: "${{ runner.temp }}", TMP: "${{ runner.temp }}" });
-    assert.equal(github.jobs[`verify-windows-${trust}`].steps[1].env, undefined);
-  }
   const publish = github.jobs["publish-npm"];
   assert.equal(publish.if, "${{ github.ref_type == 'tag' && vars.NPM_PUBLISH == 'enabled' }}");
   assert.deepEqual(publish.permissions, { contents: "read", "id-token": "write" });
@@ -397,7 +397,7 @@ test("GitLab runs no pipeline for a tag or a push of dev, and the protected jobs
         )
       : [];
     const expected = roles.flatMap((role) =>
-      ["linux", "macos", "windows"].map((platform) => `verify:${platform}:${role}`),
+      ["linux", "macos"].map((platform) => `verify:${platform}:${role}`),
     );
     assert.deepEqual(jobs.toSorted(), expected.toSorted(), name);
   }

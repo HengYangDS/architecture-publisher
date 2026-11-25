@@ -39,9 +39,9 @@ export function lockedPlatforms(lockText) {
   );
 }
 
-/** The launchers: a POSIX shell script, and a batch file for Windows with CRLF lines. */
-export function launchers() {
-  const posix = [
+/** The launcher: a POSIX shell script. */
+export function launcher() {
+  return [
     "#!/bin/sh",
     "# archpub: Architecture Publisher, run with the Node.js and Typst this archive holds.",
     "set -eu",
@@ -59,17 +59,6 @@ export function launchers() {
     'exec "$root/libexec/node" "$root/lib/architecture-publisher/src/cli/main.mjs" "$@"',
     "",
   ].join("\n");
-  const windows = [
-    "@echo off",
-    "rem archpub: Architecture Publisher, run with the Node.js and Typst this archive holds.",
-    "setlocal",
-    'set "ARCHPUB_ROOT=%~dp0.."',
-    'set "PATH=%ARCHPUB_ROOT%\\libexec;%PATH%"',
-    '"%ARCHPUB_ROOT%\\libexec\\node.exe" "%ARCHPUB_ROOT%\\lib\\architecture-publisher\\src\\cli\\main.mjs" %*',
-    "exit /b %ERRORLEVEL%",
-    "",
-  ].join("\r\n");
-  return { posix, windows };
 }
 
 /** A library the package bundles, by its manifest in the packed package: `package/node_modules/<name>/package.json`. */
@@ -123,20 +112,15 @@ const directoriesOf = (paths) => {
  */
 export function assemble({ platform, platforms, packageArchive, node, typst, mtime = 0 }) {
   if (!platforms[platform]) throw Error(`archive_platform_unverified:${platform}`);
-  const windows = platform.startsWith("windows-");
-  const exe = windows ? ".exe" : "";
   const packaged = readTar(gunzip(packageArchive)).filter((entry) => entry.data);
   const manifest = packaged.find((entry) => entry.path === "package/package.json");
   if (!manifest || packaged.some((entry) => !entry.path.startsWith("package/")))
     throw Error("archive_package_invalid");
   const { version } = JSON.parse(new TextDecoder().decode(manifest.data));
-  const { posix, windows: batch } = launchers();
   const files = [
-    windows
-      ? { path: `${TOP}/bin/archpub.cmd`, mode: 0o755, data: new TextEncoder().encode(batch) }
-      : { path: `${TOP}/bin/archpub`, mode: 0o755, data: new TextEncoder().encode(posix) },
-    { path: `${TOP}/libexec/node${exe}`, mode: 0o755, data: node.executable },
-    { path: `${TOP}/libexec/typst${exe}`, mode: 0o755, data: typst.executable },
+    { path: `${TOP}/bin/archpub`, mode: 0o755, data: new TextEncoder().encode(launcher()) },
+    { path: `${TOP}/libexec/node`, mode: 0o755, data: node.executable },
+    { path: `${TOP}/libexec/typst`, mode: 0o755, data: typst.executable },
     { path: `${TOP}/licenses/node/LICENSE`, mode: 0o644, data: node.license },
     { path: `${TOP}/licenses/typst/LICENSE`, mode: 0o644, data: typst.license },
     { path: `${TOP}/licenses/typst/NOTICE`, mode: 0o644, data: typst.notice },

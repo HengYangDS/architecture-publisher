@@ -23,7 +23,7 @@ const root = path.resolve(import.meta.dirname, "../..");
 const usage =
   "usage: node tools/release/archive.mjs assemble --package <tgz> --out <dir> [--platform <platform>|all] [--node <executable> --typst <executable> | --official]\n" +
   "       node tools/release/archive.mjs declare --dir <dir> --version <version> --base-url <url>";
-const current = `${{ darwin: "macos", linux: "linux", win32: "windows" }[process.platform]}-${process.arch}`;
+const current = `${{ darwin: "macos", linux: "linux" }[process.platform]}-${process.arch}`;
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 const { positionals, values } = parseArgs({

@@ -10,8 +10,7 @@ import { minimalModel, writeModel } from "../../../fixtures/models.mjs";
 import { parseNpmPackRecord, spawnNativeSync } from "../../../fixtures/npm-pack-report.mjs";
 
 const root = path.resolve(import.meta.dirname, "../../../..");
-const windows = process.platform === "win32";
-const platform = `${{ darwin: "macos", linux: "linux", win32: "windows" }[process.platform]}-${process.arch}`;
+const platform = `${{ darwin: "macos", linux: "linux" }[process.platform]}-${process.arch}`;
 
 /** An overview a model states: a claim, a lead, a course of two steps that name its parts, and a list of terms. */
 const OVERVIEW = {
@@ -37,31 +36,24 @@ const OVERVIEW = {
 /** The first file named `name` on `searchPath`, or null. */
 async function onPath(name, searchPath) {
   for (const directory of searchPath.split(path.delimiter).filter(Boolean)) {
-    for (const candidate of windows ? [`${name}.exe`, `${name}.cmd`] : [name]) {
-      const file = path.join(directory, candidate);
-      if (
-        await fs.stat(file).then(
-          (stat) => stat.isFile(),
-          () => false,
-        )
+    const file = path.join(directory, name);
+    if (
+      await fs.stat(file).then(
+        (stat) => stat.isFile(),
+        () => false,
       )
-        return file;
-    }
+    )
+      return file;
   }
   return null;
 }
 
 /**
- * A path on which no Node.js or Typst is found, whatever the machine has installed: on
- * Windows the system directories, and elsewhere links to the system's `dirname` and
- * `readlink`, the only programs the launcher runs. `/usr/bin` is not enough, as images
- * built for browsers install a Node.js there.
+ * A path on which no Node.js or Typst is found, whatever the machine has installed: links to
+ * the system's `dirname` and `readlink`, the only programs the launcher runs. `/usr/bin` is
+ * not enough, as images built for browsers install a Node.js there.
  */
 async function barePath(work) {
-  if (windows) {
-    const system = process.env.SystemRoot ?? "C:\\Windows";
-    return [path.join(system, "System32"), system].join(path.delimiter);
-  }
   const bin = path.join(work, "bare-path");
   await fs.mkdir(bin);
   for (const name of ["dirname", "readlink"]) {
@@ -73,15 +65,7 @@ async function barePath(work) {
 }
 
 function run(command, args, env) {
-  const result =
-    windows && command.endsWith(".cmd")
-      ? spawnSync(process.env.ComSpec ?? "cmd.exe", ["/d", "/c", command, ...args], {
-          env,
-          encoding: "utf8",
-          timeout: 600_000,
-          windowsHide: true,
-        })
-      : spawnSync(command, args, { env, encoding: "utf8", timeout: 600_000, windowsHide: true });
+  const result = spawnSync(command, args, { env, encoding: "utf8", timeout: 600_000 });
   assert.equal(result.error, undefined, `${command}: ${result.error}`);
   assert.equal(result.status, 0, `${command} ${args.join(" ")}: ${result.stdout}${result.stderr}`);
   return result.stdout;
@@ -140,18 +124,17 @@ test("this platform's archive runs with no Node.js or Typst on the path and buil
     if (!entry.data) await fs.mkdir(target, { recursive: true });
     else {
       await fs.writeFile(target, entry.data);
-      if (!windows) await fs.chmod(target, entry.mode);
+      await fs.chmod(target, entry.mode);
     }
   }
-  const command = path.join(unpacked, "archpub", "bin", windows ? "archpub.cmd" : "archpub");
+  const command = path.join(unpacked, "archpub", "bin", "archpub");
   // A model without a checkout dates its edition by SOURCE_DATE_EPOCH, so both builds are the same bytes.
   const epoch = "1793918078";
   const env = {
     PATH: await barePath(work),
     SOURCE_DATE_EPOCH: epoch,
-    ...(windows
-      ? { SystemRoot: process.env.SystemRoot, TEMP: process.env.TEMP, TMP: process.env.TMP }
-      : { HOME: work, TMPDIR: process.env.TMPDIR ?? "/tmp" }),
+    HOME: work,
+    TMPDIR: process.env.TMPDIR ?? "/tmp",
   };
   assert.equal(await onPath("node", env.PATH), null, "the bare path holds a Node.js");
   assert.equal(await onPath("typst", env.PATH), null, "the bare path holds a Typst");

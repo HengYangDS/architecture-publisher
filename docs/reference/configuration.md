@@ -107,9 +107,8 @@ entries. No source modification or duplicate host installation is required.
 
 Node selection comes from the native Mise tools declaration. The selected npm,
 Typst and CUE versions serve native execution, not an alternative quality gate.
-Windows CI retains only the locked tool-cache through GitLab's native fetch and
-clean settings. Forced index checkout refreshes tracked bytes before any tools;
-previous coverage and other job output are not retained.
+CI retains only the locked tool-cache through GitLab's native fetch and clean
+settings; previous coverage and other job output are not retained.
 Playwright owns Chromium installation; the npm test preload requires the exact
 selected executable in CI. GitHub's hosted runners use pinned official
 checkout and Mise actions; each quality command retains the executor's failure

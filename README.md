@@ -24,7 +24,7 @@ mise use -g github:HengYangDS/architecture-publisher
 ```
 
 [mise](https://mise.jdx.dev) installs the release archive for your machine:
-Linux and Windows on ARM64 or x86-64, or macOS on ARM64. It holds `archpub`
+Linux on ARM64 or x86-64, or macOS on ARM64. It holds `archpub`
 with its own Node.js and Typst, so it needs only Git. The
 [how-to guides](docs/how-to.md#install-the-command) install it with Homebrew,
 as an npm package or from the archive alone, and say how to take a release on

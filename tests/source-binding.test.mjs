@@ -291,9 +291,8 @@ test("a file whose object Git cannot read is refused, never recorded as read", a
 });
 
 test("a file whose name holds a line break is refused before any read, never recorded under another's bytes", async (t) => {
-  // The commit is written as objects, so that no index and no working tree has to hold such a name: Git for
-  // Windows refuses it an index entry. Read one name a line, its first line names `src/main.mjs`; its own bytes
-  // are the read-me's.
+  // The commit is written as objects, so that no index and no working tree has to hold such a name. Read one name
+  // a line, its first line names `src/main.mjs`; its own bytes are the read-me's.
   const { root, git, revision } = await repository(t);
   const broken = "src/main.mjs\nextra";
   const pinned = commitOfTree(root, revision, [
