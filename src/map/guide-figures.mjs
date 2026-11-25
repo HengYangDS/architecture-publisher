@@ -1,4 +1,5 @@
 import { chooseAmong } from "./choice.mjs";
+import { GRID_KINDS, gridLayout } from "./guide-grid.mjs";
 
 /** The fields of a part that place it. */
 const PLACING = new Set(["pos", "size", "row", "col"]);
@@ -40,8 +41,9 @@ function measurable(document, quality) {
 }
 
 /**
- * A guide's entries as Archify draws them. Each architecture file the draft names that places nothing is laid out
- * by the publisher as the generated page's diagrams are: Archify's own layout, with its connections' sides and with
+ * A guide's entries as Archify draws them. Each entity-relationship and class file that places nothing takes the
+ * publisher's grid (`gridLayout`). Each architecture file the draft names that places nothing is laid out by the
+ * publisher as the generated page's diagrams are: Archify's own layout, with its connections' sides and with
  * Archify's, the repair of the sides of the routes that misread and the pins of the labels, ranked by what a reader
  * misreads (`chooseAmong`). The file keeps its sources and repository; it takes the chosen layout and connections.
  * A file without connections takes Archify's layout with nothing to choose. Every other entry, and a file that is
@@ -53,41 +55,72 @@ function measurable(document, quality) {
 export async function drawnEntries(entries, quality) {
   const drawn = [];
   for (const { name, bytes } of entries) {
+    const kind = /\.(architecture|erd|class)\.json$/u.exec(name)?.[1];
     /** @type {any} */
     let document = null;
-    if (name.endsWith(".architecture.json"))
+    if (kind)
       try {
         document = JSON.parse(bytes.toString("utf8"));
       } catch {
         document = null;
       }
-    const lists =
-      document?.constructor === Object &&
-      Array.isArray(document.components) &&
-      Array.isArray(document.connections ?? []);
-    if (!lists || places({ ...document, connections: document.connections ?? [] })) {
-      drawn.push({ name, bytes });
-      continue;
-    }
-    if (!document.connections?.length) {
-      const laidOut = { ...document, layout: { mode: "auto" } };
-      drawn.push({ name, bytes: Buffer.from(`${JSON.stringify(laidOut, null, 2)}\n`) });
-      continue;
-    }
-    const chosen = await chooseAmong(
-      [{ document: { ...measurable(document, quality), layout: { mode: "auto" } } }],
-      { path: name, name: `The guide's diagram ${name}`, quality },
+    const laidOut =
+      document?.constructor !== Object
+        ? null
+        : kind === "architecture"
+          ? await architecture(document, name, quality)
+          : await grid(/** @type {"erd" | "class"} */ (kind), document, name, quality);
+    drawn.push(
+      laidOut
+        ? { name, bytes: Buffer.from(`${JSON.stringify(laidOut, null, 2)}\n`) }
+        : { name, bytes },
     );
-    const routes = new Map(chosen.document.connections.map((route) => [route.id, route]));
-    const laidOut = {
-      ...document,
-      layout: chosen.document.layout,
-      connections: (document.connections ?? []).map((connection) => ({
-        ...routes.get(connection.id),
-        ...(connection.sources ? { sources: connection.sources } : {}),
-      })),
-    };
-    drawn.push({ name, bytes: Buffer.from(`${JSON.stringify(laidOut, null, 2)}\n`) });
   }
   return drawn;
+}
+
+/**
+ * An architecture document laid out by the chooser, or null where it places anything or holds no lists.
+ * @param {any} document
+ * @param {string} name
+ * @param {string} quality
+ */
+async function architecture(document, name, quality) {
+  const lists = Array.isArray(document.components) && Array.isArray(document.connections ?? []);
+  if (!lists || places({ ...document, connections: document.connections ?? [] })) return null;
+  if (!document.connections?.length) return { ...document, layout: { mode: "auto" } };
+  const chosen = await chooseAmong(
+    [{ document: { ...measurable(document, quality), layout: { mode: "auto" } } }],
+    { path: name, name: `The guide's diagram ${name}`, quality },
+  );
+  const routes = new Map(chosen.document.connections.map((route) => [route.id, route]));
+  return {
+    ...document,
+    layout: chosen.document.layout,
+    connections: (document.connections ?? []).map((connection) => ({
+      ...routes.get(connection.id),
+      ...(connection.sources ? { sources: connection.sources } : {}),
+    })),
+  };
+}
+
+/** The fields of an entity or a type that place or size it (Archify's erd and class schemas). */
+const GRIDDING = new Set(["pos", "row", "col", "width"]);
+
+/**
+ * An entity-relationship or class document laid out by the publisher's grid, or null where it places anything
+ * (a layout of its own, an item with a cell, a position or a size) or holds no list of items.
+ * @param {"erd" | "class"} kind
+ * @param {any} document
+ * @param {string} name
+ * @param {string} quality
+ */
+async function grid(kind, document, name, quality) {
+  const items = document[GRID_KINDS[kind]];
+  const objects = (/** @type {unknown} */ list) =>
+    Array.isArray(list) && list.every((item) => item?.constructor === Object);
+  if (!objects(items) || !items.length || !objects(document.relationships ?? [])) return null;
+  if (document.layout !== undefined) return null;
+  if (items.some((item) => Object.keys(item).some((key) => GRIDDING.has(key)))) return null;
+  return gridLayout(kind, document, measurable(document, quality), name, quality);
 }

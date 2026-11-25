@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A guide's entity-relationship or class file may state its items and relationships without a row or a column:
+  the publisher lays it out on a grid, each domain filling a rectangle, choosing among two to four columns by
+  Archify's route measures. A domain no grid can hold is refused (`page_diagram_unplaceable`).
 - A guide's architecture file may state its parts and connections without a position: the publisher lays it out
   as it lays out the generated page's diagrams, choosing among Archify's own layouts by what a reader misreads.
   Over the 22 published architecture files, routes a reader misreads fall from 22 to 3 and misread labels from

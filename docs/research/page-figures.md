@@ -56,6 +56,15 @@ By the chooser's order the chosen diagram ranks before the author's placing in 2
 English parts: one route that runs along an edge, against four misread labels), and before Archify's own layout in 16
 and level in 6. The chooser measured 1,098 candidates in 176 s for the 22, four Archify processes at a time.
 
+## The entity-relationship and class files laid out by the publisher's grid
+
+The ten published entity-relationship and class files were laid out by a walk of their relationships at two to four
+columns, each domain (an entity's `tag`) filling one run of one row or full rows, each grid validated by Archify at
+showcase. As their authors placed them, all ten measure clean on Archify's route measures. With their cells, layout,
+sources and repository removed, every one lays out on the publisher's grid; a grid that ignores domains is refused
+in the manifest diagram of Architecture Publisher, both languages (`erd/domain-not-drawn`), and the grid that keeps
+them is not. The ten took 11 s at about one core.
+
 ## Limits
 
 - One run each, on one host; Archify 3.3.0 as the publisher bundles it.
