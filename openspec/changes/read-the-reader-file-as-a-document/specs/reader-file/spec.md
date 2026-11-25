@@ -27,10 +27,10 @@ statements no view selects; what is not covered; how to check again; and last, w
 ### Requirement: The head
 
 Under the title, one sentence SHALL name the work's id, its language and the publisher's version, and the head
-SHALL state the pin, with the repository's name and revision, the state of the binding in the model's language and,
-when measured, its date and release; the file, version, size and SHA-256 of the model; the file and SHA-256 of the
-data; the numbers of components, relations and groups with the three counts; the other files of the delivery; and
-the facts of the edition. It SHALL state no time of writing.
+SHALL state the pin, with the repository's name and revision, the state of the binding and, when measured, its
+date and release; the file, version, size and SHA-256 of the model; the file and SHA-256 of the data; the numbers
+of components, relations and groups with the three counts; the other files of the delivery; and the facts of the
+edition. It SHALL state no time of writing.
 
 #### Scenario: The data's digest
 
