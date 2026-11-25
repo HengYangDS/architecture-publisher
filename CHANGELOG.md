@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-11-26
+
 ### Changed
 
 - **Breaking:** each part of the edition's index is a short paragraph of its kind, details, relations and
@@ -1492,6 +1494,7 @@ feedback_links=false` turns off; no text of a page is lost, and the edition, its
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
+[0.20.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.20.0
 [0.19.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.19.0
 [0.18.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.18.0
 [0.17.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.17.0
