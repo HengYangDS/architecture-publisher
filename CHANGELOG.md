@@ -19,6 +19,15 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** each mark is stroked at one width the house states. An overview's station on a stretch of
+  parallel tracks is ringed at 1.7 pt, as every station is, where it was ringed at 1.4 pt; a plate's key draws
+  the sample of an outside part at a card's width, 0.8 pt where it was 0.7 pt, and that of a planned or a retired
+  status at a relation's weight, about 1.07 pt where it was 1 pt, its dashes and gaps longer by the same share.
+  The overview's page, the edition, the page images and the figure alone of such a plate change; no other drawn
+  width does. Every stroke width the figure, the class and the seal draw is a token of `src/house.json`, which
+  gains `strokes`, a weight for each mark of the pages that had a number of its own and the seal's strokes as
+  shares of its size; a test refuses a width that holds a number. The manifest's digests of the class's inputs,
+  `edition.house` and `overview.house`, change: they cover the edited class, drawing and tokens.
 - The model reference's table of palettes and the lines reference's table are written from `src/house.json`,
   which gains a palette's sentence on its colours and a line row's question and what the page does for it; the
   data reference's tables of the data's members and an evidence row's keys are the format's statement, which

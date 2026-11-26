@@ -109,13 +109,19 @@ tokens of `src/house.json`, as one read-only object, and imports no other unit;
 `tests/one-source.test.mjs` refuses a module that reads the file again or restates a face's name or
 a page's measure that it states. The tokens hold the measures the house class sets its pages by:
 the pitch and the leading of text, the baselines of a page's head, a view summary's size and pitch, a
-key mark's gap and middle, and the weights of a rule, a hair rule and a ring; the seal's cinnabar; and
+key mark's gap and middle, and the weight, in points, of each mark the pages stroke: a rule, a hair
+rule, a ring, the cover's rule, a fact's rule on the colophon's slip, and the overview's course,
+tracks, lines and smaller marks; the figure's strokes, in its pixels, of a card, a tier's ring and
+bracket and a kind's icon; the seal's cinnabar and its strokes, as shares of its size; and
 the dash of a planned and a retired row's sample in the key. The unit derives the body's box, where a
 plate's figure stands, from the page and the edition. The class reads the tokens once, the drawing and
 the colophon page take them from it, and `tests/one-source-tokens.test.mjs` refuses a value written
 again: a measure as a number, in the Typst always and in the JavaScript when no other measure has that
 number, the cinnabar's hexadecimal, and a dash's name in the Typst; it refuses too a key of the tokens
-that no file of `src/` reads. The unit `names` (`src/names.mjs`) imports no other unit and is the one
+that no file of `src/` reads. `tests/one-weight.test.mjs` refuses a stroke width that holds a
+number of its own in any file of `src/`, and a Typst mark left to Typst's own width, so that each
+mark's weight is read from the tokens. The unit `names`
+(`src/names.mjs`) imports no other unit and is the one
 module that names a delivery's files, forms a page's and a plate's names, a number in two digits and a
 revision cut to seven characters, and states the Typst version; `tests/one-source.test.mjs` refuses a
 module that writes one of them again. It reads the table `src/shared.json`, which the overview stages

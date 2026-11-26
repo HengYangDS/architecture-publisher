@@ -237,7 +237,7 @@ export const cardLift = ({ shadow }) =>
 function iconMarkup(icons, name, x, y, size, color) {
   return (
     `<g transform="translate(${fixed(x)},${fixed(y)}) scale(${size / 24})" fill="none" stroke="${color}" ` +
-    `stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icons.artwork(name)}</g>`
+    `stroke-width="${HOUSE.strokes.icon}" stroke-linecap="round" stroke-linejoin="round">${icons.artwork(name)}</g>`
   );
 }
 
@@ -269,7 +269,7 @@ export function drawPart(part, draw) {
       : "";
   draw.shapes.push(
     `<rect x="${fixed(x)}" y="${fixed(y)}" width="${width}" height="${height}" rx="${card.radius}" ` +
-      `fill="${muted ? C.external : C.card}" stroke="${muted ? C.externalStroke : C.cardStroke}" stroke-width="1.2" filter="url(#lift)"${dash}/>`,
+      `fill="${muted ? C.external : C.card}" stroke="${muted ? C.externalStroke : C.cardStroke}" stroke-width="${HOUSE.strokes.card}" filter="url(#lift)"${dash}/>`,
     `<rect x="${fixed(x)}" y="${fixed(y + card.pad)}" width="${card.bar}" ` +
       `height="${fixed(height - 2 * card.pad)}" rx="${card.bar / 2}" fill="${hue}"/>`,
   );

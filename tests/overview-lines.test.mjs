@@ -34,14 +34,19 @@ test("a line beside a text, one that stops short of it and a ring clear of it pa
         line(1.6, [60, 106], [98, 106]),
         line(1.15, [95, 80], [95, 140]),
       ],
-      [{ kind: "ring", x: 92, y: 106, r: 4 }],
+      [{ kind: "ring", x: 92, y: 106, r: 4, w: 1.7 }],
     ),
   );
 });
 
 test("a ring over a text is refused", () => {
   assert.throws(
-    () => checkLines([box(100, 100, 80, 12, "Log")], [], [{ kind: "ring", x: 104, y: 106, r: 4 }]),
+    () =>
+      checkLines(
+        [box(100, 100, 80, 12, "Log")],
+        [],
+        [{ kind: "ring", x: 104, y: 106, r: 4, w: 1.7 }],
+      ),
     (error) => /** @type {any} */ (error).code === "overview_text_over_line",
   );
 });

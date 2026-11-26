@@ -106,6 +106,7 @@ To change, from part 1:
 2. Capacity is to be stated as lines of the statement tier (A: 5, B: 6), a two-line statement counting as two. The
    ruling took this up on 2026-11-16.
 3. The measure's budget of styles counts font sizes; under tiers by letter height it should count tiers and faces.
+   The budget was dropped on 2026-11-27 ([tidiness](tidiness.md)), which answers this.
 4. The kit's Chinese words are the setter's; they go into one table for the holder to settle.
 5. The evidence key repeats one path four times. Left as it is: it is what the data says.
 
@@ -122,7 +123,8 @@ To change, from part 1:
 
 To change when the kit is consolidated: the count sentence counts every statement the review found wrong, cited or
 not, and says how many of them cite a file; in a pair the right row carries the solid mark and the statement style
-and the wrong row is the lighter; the budget rule counts tiers, so that no page needs a sidecar for it.
+and the wrong row is the lighter; the budget rule counts tiers, so that no page needs a sidecar for it (the budget
+was dropped on 2026-11-27, so no page needs one).
 
 ### Piece P: one view as two plates on a fixed base
 

@@ -47,9 +47,9 @@ status, and a planned line's dashes are too near the boundary's to be told from 
 fixed. A build that draws such a row carries the warning `line_row_untested`, which names the plates.
 
 Widths that are not a relation's line or the boundary are not in the table: a tier's ring, a card's outline and an
-icon's strokes.
+icon's strokes. They stand in `strokes` of `src/house.json`, in the figure's pixels.
 
 The key of a plate holds the sample of a row exactly when its figure draws the row; a plain relation's line has
-none. The sample of a planned or a retired row is a line of the dash its row names for the key, Typst's `dashed`
-and `dotted`, not the dashes the figure draws. The page has no expression of emphasis or of the number of cited
+none. The sample of a planned or a retired row is a line at a relation's weight, as the figure draws one, in the
+dash its row names for the key, Typst's `dashed` and `dotted`, not the dashes the figure draws. The page has no expression of emphasis or of the number of cited
 files; nothing refuses on that column.

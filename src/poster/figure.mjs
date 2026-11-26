@@ -1,3 +1,4 @@
+import { HOUSE } from "../house.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
 import { drawLines } from "./lines.mjs";
 import { cardLift, drawPart } from "./part.mjs";
@@ -140,7 +141,7 @@ function tierLabels(layout, input, draw) {
     const { lines, top } = label;
     const x = /** @type {number} */ (xs.get(label));
     shapes.push(
-      `<circle cx="${fixed(x + 18)}" cy="${fixed(top + styles.tier.line / 2)}" r="14" fill="none" stroke="${C.muted}" stroke-width="1.4"/>`,
+      `<circle cx="${fixed(x + 18)}" cy="${fixed(top + styles.tier.line / 2)}" r="14" fill="none" stroke="${C.muted}" stroke-width="${HOUSE.strokes.tier}"/>`,
     );
     const digits = String(index + 1);
     text(
@@ -158,7 +159,7 @@ function tierLabels(layout, input, draw) {
     if (!mark) return;
     const [from, to] = [mark.x + mark.width, mark.x];
     shapes.push(
-      `<path d="M${fixed(from)},${fixed(mark.y)} H${fixed(to)} V${fixed(mark.y + mark.height)} H${fixed(from)}" fill="none" stroke="${C.muted}" stroke-width="1.4"/>`,
+      `<path d="M${fixed(from)},${fixed(mark.y)} H${fixed(to)} V${fixed(mark.y + mark.height)} H${fixed(from)}" fill="none" stroke="${C.muted}" stroke-width="${HOUSE.strokes.tier}"/>`,
     );
     rects.push({ ...mark, ...stroke(C.muted, C.paper), tier: true });
   });

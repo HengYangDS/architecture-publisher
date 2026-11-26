@@ -60,9 +60,6 @@ export function checkBoxes(boxes) {
 /** How far a line or a ring may reach into a text's box before it counts as lying over it, in points. */
 const LINE_TOLERANCE = 0.5;
 
-/** The half width of a ring's stroke, in points: the drawing strokes its rings at the house's weight and less. */
-const RING_STROKE = HOUSE.weights.ring / 2;
-
 /**
  * Whether the segment from p to q, widened by `half` on each side, meets the rectangle: the rectangle is widened
  * instead, and the segment clipped against it (Liang and Barsky).
@@ -94,12 +91,12 @@ function meets(p, q, half, r) {
 const at = (point) => `${Math.round(point[0])},${Math.round(point[1])}`;
 
 /**
- * Refuse a drawn page that sets a line or a ring over its text. A line is a run of points with its width, as the
- * drawing records each one; a ring is a mark with its centre and radius. The test is made against each text's
- * glyph box, less the tolerance on every side, so a line that only grazes a glyph's extent passes.
+ * Refuse a drawn page that sets a line or a ring over its text. A line is a run of points with its width, and a
+ * ring a mark with its centre, its radius and its stroke's width, as the drawing records each one. The test is made
+ * against each text's glyph box, less the tolerance on every side, so a line that only grazes a glyph's extent passes.
  * @param {Array<{ x: number, y: number, w: number, h: number, text: string }>} boxes
  * @param {Array<{ points: number[][], w: number }>} lines
- * @param {Array<{ kind: string, x: number, y: number, r: number }>} marks
+ * @param {Array<{ kind: string, x: number, y: number, r: number, w: number }>} marks
  */
 export function checkLines(boxes, lines, marks) {
   /** @type {Array<import("../refusal.mjs").Problem>} */
@@ -124,7 +121,7 @@ export function checkLines(boxes, lines, marks) {
         Math.min(Math.max(mark.x, inner.x0), inner.x1),
         Math.min(Math.max(mark.y, inner.y0), inner.y1),
       ];
-      if (Math.hypot(nearest[0] - mark.x, nearest[1] - mark.y) < mark.r + RING_STROKE)
+      if (Math.hypot(nearest[0] - mark.x, nearest[1] - mark.y) < mark.r + mark.w / 2)
         problems.push({
           code: "overview_text_over_line",
           message: `${named(box)} ${where(box)} lies under a ${mark.kind} at ${at([mark.x, mark.y])} pt`,

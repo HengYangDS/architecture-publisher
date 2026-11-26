@@ -38,7 +38,7 @@
 )
 
 /// A line through the given points, recorded with its width for the publisher's check that no text lies under a line.
-#let _seg(..pts, w: 1.15pt, c: ink, dash: none) = {
+#let _seg(..pts, w: _line.line, c: ink, dash: none) = {
   seg(..pts, w: w, c: c, dash: dash)
   [#metadata((kind: "line", points: pts.pos().map(p => (p.at(0).pt(), p.at(1).pt())), w: w.pt())) #label(_shared.labels.line)]
 }
@@ -59,10 +59,10 @@
   [#metadata((kind: "line", points: ((x.pt(), y.pt()), (x.pt(), (y + s).pt())), w: (s * 1.2).pt())) #label(_shared.labels.line)]
 }
 
-/// A ring on a course, recorded as a mark of its kind for the publisher's checks.
+/// A ring on a course, recorded as a mark of its kind, with its width, for the publisher's checks.
 #let _ring(x, y, r: 5pt, w: _line.ring, c: green) = {
   ring(x, y, r: r, w: w, c: c)
-  [#metadata((kind: "ring", x: x.pt(), y: y.pt(), r: r.pt())) #label(_shared.labels.mark)]
+  [#metadata((kind: "ring", x: x.pt(), y: y.pt(), r: r.pt(), w: w.pt())) #label(_shared.labels.mark)]
 }
 
 /// The name a step or a station is shown by: its label, or the model's label for the part it is.
@@ -360,10 +360,10 @@
       let at = a
       for (low, high) in gaps.sorted(key: g => g.at(0)) {
         if high <= at or low >= b { continue }
-        if low > at { _seg((at, line-y), (low, line-y), w: 3pt, c: green) }
+        if low > at { _seg((at, line-y), (low, line-y), w: _line.course, c: green) }
         at = calc.max(at, high)
       }
-      if b > at { _seg((at, line-y), (b, line-y), w: 3pt, c: green) }
+      if b > at { _seg((at, line-y), (b, line-y), w: _line.course, c: green) }
     }
     let cursor = points.first().x
     for s in stretches.sorted(key: s => index(s.from)) {
@@ -374,7 +374,7 @@
       for k in range(s.count) {
         let offset = (k - (s.count - 1) / 2) * _track
         _seg((from, line-y), (from + 12pt, line-y + offset), (to - 12pt, line-y + offset), (to, line-y),
-          w: 1.6pt, c: green)
+          w: _line.track, c: green)
         if s.names.len() > 0 { tx(from + 18pt, line-y + offset - 5pt, s.names.at(k), size: "small", fill: mid) }
       }
       cursor = to
@@ -386,7 +386,7 @@
       let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
       for k in range(p.tracks) {
         let offset = (k - (p.tracks - 1) / 2) * _track
-        _ring(p.x, line-y + offset, r: r, w: if p.tracks > 1 { 1.4pt } else { _line.ring })
+        _ring(p.x, line-y + offset, r: r)
       }
     }
     // A fork the course goes on from: a bar down from the course before it, a path to each branch's ring, its name
@@ -395,13 +395,13 @@
       let p = f.p
       let split = p.x - 14pt
       let low = f.rows.last().y
-      _seg((split, line-y), (split, low), w: 1.6pt, c: green)
-      _seg((f.join, line-y), (f.join, low), w: 1.6pt, c: green)
+      _seg((split, line-y), (split, low), w: _line.track, c: green)
+      _seg((f.join, line-y), (f.join, low), w: _line.track, c: green)
       for row in f.rows {
-        _seg((split, row.y), (p.x - 4pt, row.y), w: 1.6pt, c: green)
+        _seg((split, row.y), (p.x - 4pt, row.y), w: _line.track, c: green)
         // The path goes on from after the branch's name to the bar that joins the course.
-        _seg((p.x + 8pt + row.name-w + 10pt, row.y), (f.join, row.y), w: 1.6pt, c: green)
-        _ring(p.x, row.y, r: 4pt, w: 1.5pt)
+        _seg((p.x + 8pt + row.name-w + 10pt, row.y), (f.join, row.y), w: _line.track, c: green)
+        _ring(p.x, row.y, r: 4pt, w: _line.smallRing)
         _named(g, row.b, p.x + 8pt, row.name-b, row.w)
         if row.b.at("note", default: none) != none { _set(p.x + 8pt, row.note-b, row.b.note, fill: soft, w: row.w) }
       }
@@ -413,10 +413,10 @@
       let p = f.p
       let bar = line-y + (p.tracks - 1) / 2 * _track
       let ring-y = f.rows.first().y - 4pt
-      _seg((p.x, bar), (f.rows.last().x, bar), w: 1.2pt, c: green)
+      _seg((p.x, bar), (f.rows.last().x, bar), w: _line.stem, c: green)
       for row in f.rows {
-        _seg((row.x, bar), (row.x, ring-y - 4pt), w: 1.2pt, c: green)
-        _ring(row.x, ring-y, r: 4pt, w: 1.5pt)
+        _seg((row.x, bar), (row.x, ring-y - 4pt), w: _line.stem, c: green)
+        _ring(row.x, ring-y, r: 4pt, w: _line.smallRing)
         _named(g, row.b, row.x + 8pt, row.y, row.w)
         if row.b.at("note", default: none) != none {
           _set(row.x + 8pt, row.note-b, row.b.note, fill: soft, w: row.w)
@@ -429,8 +429,8 @@
       // From under the ring of the point it leaves, the course's ends' rings being the larger.
       let n = points.position(p => p.item.at("id", default: none) == sp.s.at)
       let r = if n == 0 or n == points.len() - 1 { 7pt } else { 5pt }
-      _seg((sp.x, line-y + (sp.tracks - 1) / 2 * _track + r), (sp.x, ring-y - 4pt), w: 1.4pt, c: green)
-      _ring(sp.x, ring-y, r: 4pt, w: 1.5pt)
+      _seg((sp.x, line-y + (sp.tracks - 1) / 2 * _track + r), (sp.x, ring-y - 4pt), w: _line.spur, c: green)
+      _ring(sp.x, ring-y, r: 4pt, w: _line.smallRing)
       _named(g, sp.s, sp.x + 8pt, spur-b, sp.cell - 16pt)
       if sp.s.at("note", default: none) != none {
         let depth = _name-depth(g, sp.s, sp.cell - 16pt)
@@ -449,10 +449,10 @@
       let y = channel(l.channel)
       let source = where(l.line.from)
       let rise(p) = line-y - (p.tracks - 1) / 2 * _track - 9pt
-      _seg((source.x, rise(source)), (source.x, y), w: 1.15pt, c: mid)
-      _seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
+      _seg((source.x, rise(source)), (source.x, y), w: _line.line, c: mid)
+      _seg((l.low, y), (l.high, y), w: _line.line, c: mid)
       for t in l.line.to.map(where) {
-        _seg((t.x, y), (t.x, rise(t) - 4pt), w: 1.15pt, c: mid)
+        _seg((t.x, y), (t.x, rise(t) - 4pt), w: _line.line, c: mid)
         _down(t.x, rise(t), c: mid)
       }
       txc((l.low + l.high) / 2, y - 7pt, calc.max(l.high - l.low - 24pt, 120pt), l.line.label, size: "small",
@@ -478,11 +478,11 @@
         }
       }
       let source = where(l.line.from)
-      _seg((source.x, bottom-of(l.line.from)), (source.x, y), w: 1.15pt, c: mid)
-      _seg((l.low, y), (l.high, y), w: 1.15pt, c: mid)
+      _seg((source.x, bottom-of(l.line.from)), (source.x, y), w: _line.line, c: mid)
+      _seg((l.low, y), (l.high, y), w: _line.line, c: mid)
       for id in l.line.to {
         let t = where(id)
-        _seg((t.x, y), (t.x, bottom-of(id) + 4pt), w: 1.15pt, c: mid)
+        _seg((t.x, y), (t.x, bottom-of(id) + 4pt), w: _line.line, c: mid)
         _up(t.x, bottom-of(id), c: mid)
       }
       txc((l.low + l.high) / 2, y + 13pt, calc.max(l.high - l.low - 24pt, 120pt), l.line.label, size: "small",
@@ -543,7 +543,7 @@
   let body = {
     head.body
     if c.at("note", default: none) != none { _set(x, start + g.note, c.note, fill: soft, w: w) }
-    _seg((px(0), line-y), (px(stations.len() - 1), line-y), w: 2pt, c: green)
+    _seg((px(0), line-y), (px(stations.len() - 1), line-y), w: _line.furtherCourse, c: green)
     for (k, s) in stations.enumerate() {
       _ring(px(k), line-y, r: if k == 0 or k == stations.len() - 1 { 7pt } else { 5pt })
       _named(g, s, px(k) + 8pt, label-b, cell - 16pt)
@@ -555,9 +555,9 @@
       txc((a + b) / 2, line-y - 6pt, calc.max(b - a - 24pt, 60pt), passing.label, size: "small", fill: green)
     }
     if aside != none {
-      _seg((aside-x, line-y + 8pt), (aside-x, aside-y), (aside-x + 22pt, aside-y), w: 1.5pt, c: ochre,
+      _seg((aside-x, line-y + 8pt), (aside-x, aside-y), (aside-x + 22pt, aside-y), w: _line.aside, c: ochre,
         dash: (4pt, 3pt))
-      _ring(aside-x + 26pt, aside-y, r: 4pt, w: 1.5pt, c: ochre)
+      _ring(aside-x + 26pt, aside-y, r: 4pt, w: _line.smallRing, c: ochre)
       _set(aside-x + 40pt, aside-y + 4pt, aside.label, fill: ochre, w: x + w - aside-x - 40pt)
     }
     if c.at("text", default: none) != none { _set(x, text-b, c.text, w: w) }

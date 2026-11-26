@@ -21,7 +21,11 @@
 
 // The tokens' measures in points: the four type sizes of the house style; the pitch and the leading of text; the
 // baselines of a page's head; a view summary's size and pitch on its plate; and the weights of a rule (across the
-// page, over a list's half, between the contents' rows), a hair rule (between an index's lines) and a ring.
+// page, over a list's half, between the contents' rows), a hair rule (between an index's lines), a station's ring, on
+// the course or on a track, the rule over the cover's title, the rule under a fact of the colophon's slip, and of the
+// overview's marks: a line from one point of the course to others, the course, a track of a parallel stretch or a
+// fork's path, the smaller ring of a branch, a spur or an aside, the bar and the stems of a fork that ends the course,
+// a spur, a further course and an aside.
 #let _points(group) = group.pairs().map(((name, value)) => (name, value * 1pt)).to-dict()
 #let (sizes, _text, _baseline, _view-summary, _line) = ("sizes", "text", "baselines", "summary", "weights").map(group => _points(_house.at(group)))
 #let page-width = _house.page.width * 1pt
@@ -389,8 +393,8 @@
   }
 }
 
-/// A polyline through points, butt-capped and round-joined.
-#let seg(..pts, w: 1.15pt, c: ink, dash: none) = place(top + left, curve(
+/// A polyline through points, butt-capped and round-joined: by default at the weight of a line between points.
+#let seg(..pts, w: _line.line, c: ink, dash: none) = place(top + left, curve(
   stroke: (paint: c, thickness: w, dash: dash, cap: "butt", join: "round"),
   curve.move(pts.pos().first()),
   ..pts.pos().slice(1).map(p => curve.line(p)),
@@ -400,8 +404,6 @@
 #let ring(x, y, r: 5pt, w: _line.ring, c: green) = place(top + left, dx: x - r, dy: y - r, circle(radius: r, fill: paper, stroke: w + c))
 /// A station that holds state: a disc.
 #let disc(x, y, r: 5pt, c: green) = place(top + left, dx: x - r, dy: y - r, circle(radius: r, fill: c))
-/// A step that passes through: a tick across the line.
-#let tick(x, y, h: 13pt, w: 2.4pt, c: green) = place(top + left, dx: x - w / 2, dy: y - h / 2, rect(width: w, height: h, fill: c))
 /// An arrowhead pointing down at (x, y).
 #let down(x, y, c: ochre, s: 5pt) = place(top + left, polygon(fill: c, (x, y), (x - s * 0.6, y - s), (x + s * 0.6, y - s)))
 /// An arrowhead pointing up, its tip at (x, y).
@@ -521,7 +523,8 @@
 /// a status, dashed as its row of lines names for the key. Marks are artifacts: the label beside each says what it is.
 #let _sample(entry) = if "artwork" in entry {
   image(bytes("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='" + entry.color
-    + "' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + entry.artwork + "</svg>"),
+    + "' stroke-width='" + str(_house.strokes.icon) + "' stroke-linecap='round' stroke-linejoin='round'>"
+    + entry.artwork + "</svg>"),
     format: "svg", width: 13pt)
 } else if entry.shape == "boundary" {
   // The boundary as the plate draws it: the weight, the dash and the gap of its row in the table of lines.
@@ -529,7 +532,9 @@
   rect(width: 16pt, height: 10pt, radius: 3pt, stroke: (paint: rgb(_house.figure.boundary), thickness: row.stroke * _k,
     dash: row.dash.map(length => length * _k)))
 } else if entry.shape == "outside" {
-  rect(width: 16pt, height: 10pt, radius: 3pt, fill: rgb(_house.figure.outside), stroke: 0.7pt + rgb(_house.figure.outsideStroke))
+  // An outside part as the plate draws its card: its ground, and its outline at the weight of a card's stroke.
+  rect(width: 16pt, height: 10pt, radius: 3pt, fill: rgb(_house.figure.outside),
+    stroke: _house.strokes.card * _k + rgb(_house.figure.outsideStroke))
 } else if entry.shape == "band" {
   rect(width: 16pt, height: 8pt, fill: rgb(entry.color))
 } else if entry.shape == "length" {
@@ -547,8 +552,11 @@
     place(left + top, dx: 16pt, polygon(fill: rgb(entry.color), (0pt, 0pt), (arrow, arrow / 2), (0pt, arrow)))
   })
 } else {
+  // A planned or a retired relation's line as the plate draws a relation's line: at its row's weight, in the dash its
+  // status's row names for the key.
   line(length: 16pt, stroke: (paint: rgb(if entry.shape == "retired" { _house.figure.retired } else { _house.palette.mid }),
-    thickness: 1pt, dash: _house.lines.rows.values().find(row => row.key == entry.shape).keyDash))
+    thickness: _house.lines.rows.relation.stroke * _k,
+    dash: _house.lines.rows.values().find(row => row.key == entry.shape).keyDash))
 }
 
 /// A key entry's mark, centred on the middle of the text beside it, `mark.middle` em above the baseline: the middle of a
@@ -1048,7 +1056,7 @@
   tx(margin, _baseline.label, _caps(words.edition), size: "small", weight: "semibold", fill: soft)
   _band(margin, 96pt, 900pt, 640pt, {
     set text(top-edge: "baseline", bottom-edge: "baseline")
-    line(length: 72pt, stroke: 2.4pt + green)
+    line(length: 72pt, stroke: _line.cover + green)
     // The title's first baseline sits a cap height and a gap below the rule.
     v(_e.cover * 0.72pt + 40pt)
     let cover-text(body) = text(font: display, size: _e.cover * 1pt, par(leading: _e.cover * 1.08pt, body))

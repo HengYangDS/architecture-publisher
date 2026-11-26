@@ -14,8 +14,8 @@
 /// The mark's diameter on the page.
 #let mark-size = 460pt
 
-/// A clean ring whose outer edge lies at the radius.
-#let _ring(radius, width) = place(center + horizon, circle(radius: radius - width / 2, stroke: width + cinnabar))
+/// A clean ring whose outer edge lies at the radius, stroked `w` wide.
+#let _ring(radius, w: none) = place(center + horizon, circle(radius: radius - w / 2, stroke: w + cinnabar))
 
 #let _rim-text(size, body) = text(font: sans, size: size, weight: "semibold", tracking: 0.12em, fill: cinnabar, body)
 
@@ -83,11 +83,12 @@
   (size: floor, lines: choices.last(), ink: _ink(floor, choices.last()))
 }
 
-/// The mark: an outer ring and a thin inner ring, the rim's word and date, and the name across the band.
+/// The mark: an outer ring and a thin inner ring, the rim's word and date, and the name across the band. Its strokes
+/// are the seal's weights, each a share of the mark's size.
 #let mark(m, size: mark-size) = box(width: size, height: size, {
   let radius = size / 2
-  _ring(radius, size * 0.035)
-  _ring(radius * 0.86, size * 0.012)
+  _ring(radius, w: size * _house.seal.weights.rim)
+  _ring(radius * 0.86, w: size * _house.seal.weights.inner)
   _arc(m.word, radius * 0.73, -90deg, size * 0.085)
   _arc(m.date, radius * 0.73, 90deg, size * 0.075, top: false)
   // The band lies inside the inner ring: its rules reach 40 percent of the mark's width either side of the centre, at
@@ -96,7 +97,7 @@
   let band = size * 0.30
   let width = size * 0.80
   let room = band * 0.86
-  for dy in (-band / 2, band / 2) { place(center + horizon, dy: dy, line(length: width, stroke: size * 0.0075 + cinnabar)) }
+  for dy in (-band / 2, band / 2) { place(center + horizon, dy: dy, line(length: width, stroke: size * _house.seal.weights.band + cinnabar)) }
   context {
     let fit = _fit(m.name, width, room, size)
     let first = -fit.ink.height / 2 + fit.ink.rise
@@ -135,7 +136,7 @@
   inset: (x: 36pt, top: 14pt, bottom: 32pt), {
   set par(leading: 9pt, spacing: 0pt, justify: false)
   grid(columns: (190pt, 1fr), inset: (x: 0pt, y: 14pt), align: (left + horizon, left + horizon),
-    stroke: (x, y) => (bottom: 0.6pt + rgb(_house.figure.cardStroke)),
+    stroke: (x, y) => (bottom: _line.fact + rgb(_house.figure.cardStroke)),
     ..r.facts.map(f => (
       text(size: sizes.small, weight: "semibold", fill: soft, f.label),
       text(size: sizes.head, number-width: "tabular", f.value),

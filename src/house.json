@@ -30,7 +30,17 @@
   "weights": {
     "rule": 0.8,
     "hair": 0.4,
-    "ring": 1.7
+    "ring": 1.7,
+    "cover": 2.4,
+    "fact": 0.6,
+    "line": 1.15,
+    "course": 3,
+    "track": 1.6,
+    "smallRing": 1.5,
+    "stem": 1.2,
+    "spur": 1.4,
+    "furtherCourse": 2,
+    "aside": 1.5
   },
   "faces": {
     "sans": "Source Sans 3",
@@ -57,13 +67,23 @@
     "retired": "#8c968d",
     "shadow": "#2b2a24"
   },
+  "strokes": {
+    "card": 1.2,
+    "tier": 1.4,
+    "icon": 2
+  },
   "dye": {
     "new": "#b9c9bb",
     "mid": "#617465",
     "old": "#324f3e"
   },
   "seal": {
-    "cinnabar": "#a93d31"
+    "cinnabar": "#a93d31",
+    "weights": {
+      "rim": 0.035,
+      "inner": 0.012,
+      "band": 0.0075
+    }
   },
   "palettes": {
     "indigo": {

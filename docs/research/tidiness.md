@@ -220,6 +220,27 @@ Still to do, by the queue's holder: judge the census findings on the other pages
 the product's edition, and give the two missed labels a rule (cells of one row that stand in no column); build the
 primitives into the kit of the redesigned pages and make the measure a step of the book's build.
 
+The queue item `compositions` asked that the census's two findings that no gate held, more type sizes, text styles
+or stroke weights on a page than the budget and one mark drawn in two weights, become a gate or be dropped with a
+reason. The census records one `variation` on the product's edition and does not name its mark. A read of the
+sources at dev `cdde0170` found what can draw one: 34 stroke widths written as numbers, and three marks drawn in two
+weights. A station's ring was stroked at 1.4 pt on a stretch of parallel tracks and at 1.7 pt elsewhere, the finding
+the rule reports and the owner's remark above names; the key's sample of an outside part at 0.7 pt where the figure
+strokes a card at 0.8 pt; and the samples of a planned and a retired status at 1 pt where the figure draws a
+relation's line at about 1.07 pt. The Change `draw-each-mark-in-one-weight` (2026-11-27) strokes a station's ring at
+one weight and each key sample of a card or a line at its mark's width, gives every stroke a token of the house, the
+seal's as shares of its size, and refuses, by a test, a stroke width that holds a number of its own in the
+publisher's sources and a mark left to Typst's own width. That is the gate: a page draws no width the house does not
+state, and each token is named by its mark.
+
+The budget is dropped. Its numbers (6 sizes, 9 styles, 5 stroke widths) are constants of the measure's script that
+nobody judged, and each count measures how many kinds of thing a page sets, not whether it is tidy. With every width
+a token, a count of widths is a count of the marks a page draws; a kind's icon is stroked in proportion to its size,
+so a plate draws as many icon widths as icon sizes. The class sets type at the house's sizes and the figure at the
+steps of its scale, which follow a view's size, so a count of sizes or of styles is one of the scales a page sets;
+the second proof's two accepted `budget` findings were faces of one tier at two sizes, which it counted as two. What
+a size or a style is held to is that it is the house's, which the class's text primitives hold (below).
+
 ## Not established
 
 - Only the six labelled pages are judged. The findings on the other 31 pages of the book are measured by rules that
@@ -233,7 +254,15 @@ primitives into the kit of the redesigned pages and make the measure a step of t
   is joined to its bar, and `margin` compares shapes of one make only.
 - The exceptions' sidecar is tested on a synthetic page; no page of the book carries one. In the second proof two
   `budget` findings were accepted by sidecar because the budget counts font sizes where tiers by letter height make
-  faces of one tier differ in size; the review asks that the rule count tiers.
+  faces of one tier differ in size; the review asked that the rule count tiers, and dropping the budget answers it.
+- That a plate or page draws no type size or text style outside the house's scale: the figure's styles come from the
+  scale's steps by construction, but no test refuses a size written as a number in the pages' sources, as one now
+  refuses a stroke's width.
+- That each mark has one token: the test refuses a number in a width, not a second token for one mark. The tokens
+  are named by their marks, and a second name for one mark is found by reading them, as the review of the Change
+  found the station's ring. The test reads a width where the Typst gives it to a stroke or to a primitive by name,
+  and where an SVG string writes it; a width passed by position, or kept by the JavaScript under another name and
+  written into a `stroke-width`, is held by reading the source too.
 - Whether a near miss is annoying and not merely visible: the layout study reports vernier offsets of 2 to 5
   arcseconds as detectable, from a search summary only.
 

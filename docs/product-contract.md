@@ -324,6 +324,9 @@ left to the maintainer (「按你认为最优的方式推进吧」). `parts-inde
 On 2026-11-26 `page-figures` still waited for that release of Archify, and `derived-references`, which needs
 nothing from it, was ready: it moves before `page-figures`, by the same rule.
 
+On 2026-11-27 `page-figures` still waited for that release, and `compositions`, which needs nothing from it,
+was ready: it moves before `page-figures`, by the same rule.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -385,16 +388,16 @@ nothing from it, was ready: it moves before `page-figures`, by the same rule.
       restates the source (the commands and their options, the refusal codes, a delivery's files, the versions
       of supplies) is written from the source by a command, so that a document cannot say what the source does
       not.
-- [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
-      relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
-      file that places anything. The published works' diagram files lose the positions they hold. A diagram
-      file states no repository and no pin either: the publisher fills them from the model, and the works'
-      files lose that block.
 - [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
       tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
       and no longer only recorded. What a census of a built page still finds untidy and no gate holds, more
       styles or stroke weights on a page than the house allows and one mark drawn in two weights, becomes a gate
       or is dropped with its reason.
+- [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
+      relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
+      file that places anything. The published works' diagram files lose the positions they hold. A diagram
+      file states no repository and no pin either: the publisher fills them from the model, and the works'
+      files lose that block.
 - [ ] `portrait-edition`: the edition for one reader, as a booklet read on a screen: the overview recomposed for
       the tall page from the same statement, then one page a view, its figure laid out anew for that page and under
       it the reading and a table with a row for each part the figure draws, and the index. It carries the words a
