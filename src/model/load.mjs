@@ -8,32 +8,23 @@ import { normalize } from "./normalize.mjs";
 import { readOverview } from "./overview.mjs";
 import { checkCoverage, isGuidePath, isRelativePath } from "./paths.mjs";
 
-export const MODEL_FORMAT = "architecture-publisher.model";
-export const MODEL_VERSION = 3;
-const STATUSES = Object.freeze(["implemented", "planned", "retired"]);
-export const CATEGORIES = Object.freeze([
-  "person",
-  "external",
-  "frontend",
-  "backend",
-  "database",
-  "cloud",
-  "messagebus",
-  "security",
-]);
-const ICON = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+import {
+  BROWSE,
+  CATEGORIES,
+  DETAIL_NAME,
+  ICON,
+  ID,
+  LICENSE,
+  MODEL_FORMAT,
+  MODEL_VERSION,
+  NOT_GLOB,
+  REVISION,
+  STATUSES,
+  TEXT,
+  UNPORTABLE_ID,
+} from "./vocabulary.mjs";
 
-const ID = /^[a-z0-9][a-z0-9._-]{0,127}$/u;
-/**
- * Names Windows reserves for devices, alone or before an extension. A model's
- * id names its directory when a delivery is published, so it is a name every
- * file system can hold.
- */
-const DEVICE = /^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\.|$)/u;
-const REVISION = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
-const DETAIL_NAME = /^(?![0-9]+$)[^:\n]{1,64}$/u;
-/** An SPDX licence expression: identifiers joined by AND, OR or WITH, each optionally in parentheses. */
-const LICENSE = /^\(?[A-Za-z0-9.+-]+\)?(?: (?:AND|OR|WITH) \(?[A-Za-z0-9.+-]+\)?)*$/u;
+export { CATEGORIES, MODEL_FORMAT, MODEL_VERSION };
 const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
 
 const TOP = {
@@ -52,7 +43,11 @@ const TOP = {
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) =>
-  typeof value === "string" && value.length <= 2000 && /\S/u.test(value) && !/\0/u.test(value);
+  typeof value === "string" &&
+  value.length >= TEXT.least &&
+  value.length <= TEXT.most &&
+  TEXT.visible.test(value) &&
+  !TEXT.refused.test(value);
 
 /** Collects every problem in one pass so authors fix them together. */
 class Problems {
@@ -82,12 +77,16 @@ class Problems {
   text(value, path, optional = false) {
     if (value === undefined && optional) return;
     if (!isText(value))
-      this.add("model_text_invalid", path, "must be non-blank text of at most 2000 characters");
+      this.add(
+        "model_text_invalid",
+        path,
+        `must be non-blank text of at most ${TEXT.most} characters`,
+      );
   }
 
   id(value, path) {
     if (typeof value !== "string" || !ID.test(value))
-      this.add("model_id_invalid", path, "must match ^[a-z0-9][a-z0-9._-]{0,127}$");
+      this.add("model_id_invalid", path, `must match ${ID.source}`);
   }
 }
 
@@ -136,7 +135,7 @@ function checkFiles(problems, value, path, claimed) {
   const seen = new Set();
   value.forEach((entry, index) => {
     const where = `${path}/${index}`;
-    if (typeof entry === "string" && /[*?[]/u.test(entry))
+    if (typeof entry === "string" && entry !== "" && !NOT_GLOB.test(entry))
       return problems.add("model_file_glob", where, "must be a path, not a glob");
     const directory = typeof entry === "string" && entry.endsWith("/");
     if (!isRelativePath(directory ? entry.slice(0, -1) : entry))
@@ -177,7 +176,8 @@ function checkTop(problems, model) {
   if (model.version !== MODEL_VERSION)
     problems.add("model_version_unsupported", "/version", `supported version is ${MODEL_VERSION}`);
   problems.id(model.id, "/id");
-  if (typeof model.id === "string" && (DEVICE.test(model.id) || model.id.endsWith(".")))
+  // A model's id names its directory when a delivery is published, so it is a name every file system can hold.
+  if (typeof model.id === "string" && UNPORTABLE_ID.test(model.id))
     problems.add(
       "model_id_unportable",
       "/id",
@@ -214,9 +214,7 @@ function checkTop(problems, model) {
       problems.text(repository.url, "/repository/url", true);
       if (
         repository.browse !== undefined &&
-        (typeof repository.browse !== "string" ||
-          !repository.browse.includes("{revision}") ||
-          !repository.browse.includes("{path}"))
+        (typeof repository.browse !== "string" || !BROWSE.test(repository.browse))
       )
         problems.add(
           "model_browse_invalid",

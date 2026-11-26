@@ -45,6 +45,7 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/operations.md", "archpub skill [--json]", "archpub skill"],
       ["docs/reference/operations.md", "| `acceptance.sig`", "| `acceptance.asc`"],
       ["docs/reference/operations.md", "| Typst   | 0.15.1 ", "| Typst   | 0.15.2 "],
+      ["docs/reference/model.md", "| A text | 1 to 2000 ", "| A text | 1 to 3000 "],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");

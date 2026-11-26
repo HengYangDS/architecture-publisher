@@ -9,10 +9,11 @@
  * here says where anything stands, how large it is or in what type: those are the publisher's.
  */
 
+import { TRACKS } from "./vocabulary.mjs";
+
 const STATION = ["id", "label", "part", "note", "view"];
 const STEP = [...STATION, "text", "stations"];
 const SPUR = ["at", ...STATION];
-const TRACKS = Object.freeze({ least: 2, most: 4 });
 
 /**
  * @typedef {{ add: (code: import("../refusal.mjs").Code, path: string, message: string) => void,

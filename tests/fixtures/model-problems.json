@@ -1,0 +1,762 @@
+{
+  "not an object": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_object_required",
+        "path": "",
+        "message": "must be an object"
+      }
+    ]
+  },
+  "an array": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_object_required",
+        "path": "",
+        "message": "must be an object"
+      }
+    ]
+  },
+  "format": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_format_unsupported",
+        "path": "/format",
+        "message": "must be architecture-publisher.model"
+      }
+    ]
+  },
+  "version 2": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_version_unsupported",
+        "path": "/version",
+        "message": "version 2 models are converted by `archpub migrate <model> --out <file>`; the supported version is 3"
+      }
+    ]
+  },
+  "version 9": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_version_unsupported",
+        "path": "/version",
+        "message": "supported version is 3"
+      }
+    ]
+  },
+  "required fields missing": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/id",
+        "message": "is required"
+      },
+      {
+        "code": "model_field_required",
+        "path": "/title",
+        "message": "is required"
+      },
+      {
+        "code": "model_field_required",
+        "path": "/question",
+        "message": "is required"
+      },
+      {
+        "code": "model_field_required",
+        "path": "/components",
+        "message": "is required"
+      },
+      {
+        "code": "model_field_required",
+        "path": "/relations",
+        "message": "is required"
+      },
+      {
+        "code": "model_id_invalid",
+        "path": "/id",
+        "message": "must match ^[a-z0-9][a-z0-9._-]{0,127}$"
+      },
+      {
+        "code": "model_text_invalid",
+        "path": "/title",
+        "message": "must be non-blank text of at most 2000 characters"
+      },
+      {
+        "code": "model_text_invalid",
+        "path": "/question",
+        "message": "must be non-blank text of at most 2000 characters"
+      },
+      {
+        "code": "model_list_invalid",
+        "path": "/components",
+        "message": "must be a list of at least 1 items"
+      },
+      {
+        "code": "model_list_invalid",
+        "path": "/relations",
+        "message": "must be a list of at least 0 items"
+      }
+    ]
+  },
+  "unknown top field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/colour",
+        "message": "is not a model field"
+      }
+    ]
+  },
+  "id pattern": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_id_invalid",
+        "path": "/id",
+        "message": "must match ^[a-z0-9][a-z0-9._-]{0,127}$"
+      }
+    ]
+  },
+  "id a device": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_id_unportable",
+        "path": "/id",
+        "message": "must not be a reserved device name or end with a dot"
+      }
+    ]
+  },
+  "id ends with a dot": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_id_unportable",
+        "path": "/id",
+        "message": "must not be a reserved device name or end with a dot"
+      }
+    ]
+  },
+  "title blank": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_text_invalid",
+        "path": "/title",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "title too long": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_text_invalid",
+        "path": "/title",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "title with NUL": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_text_invalid",
+        "path": "/title",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "title not text": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_text_invalid",
+        "path": "/title",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "locale": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_locale_unsupported",
+        "path": "/locale",
+        "message": "must be one of en, zh-CN, zh-TW, es, ko"
+      }
+    ]
+  },
+  "editors empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_editors_invalid",
+        "path": "/editors",
+        "message": "must be a non-empty list"
+      }
+    ]
+  },
+  "editor without name": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/editors/0/name",
+        "message": "is required"
+      }
+    ]
+  },
+  "license": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_license_invalid",
+        "path": "/license",
+        "message": "must be an SPDX licence expression"
+      }
+    ]
+  },
+  "limits not a list": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_limits_invalid",
+        "path": "/limits",
+        "message": "list"
+      }
+    ]
+  },
+  "limit blank": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_text_invalid",
+        "path": "/limits/0",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "repository revision": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_revision_invalid",
+        "path": "/repository/revision",
+        "message": "must be a full commit id"
+      }
+    ]
+  },
+  "repository browse": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_browse_invalid",
+        "path": "/repository/browse",
+        "message": "must be a URL with the placeholders {revision} and {path}"
+      }
+    ]
+  },
+  "kind category": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_category_invalid",
+        "path": "/kinds/web/category",
+        "message": "person, external, frontend, backend, database, cloud, messagebus, security"
+      }
+    ]
+  },
+  "kind icon": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_icon_unknown",
+        "path": "/kinds/web/icon",
+        "message": "names no icon in the bundled Lucide artwork"
+      }
+    ]
+  },
+  "kind key": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_id_invalid",
+        "path": "/kinds/Bad Key",
+        "message": "must match ^[a-z0-9][a-z0-9._-]{0,127}$"
+      }
+    ]
+  },
+  "components empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/components",
+        "message": "must be a list of at least 1 items"
+      },
+      {
+        "code": "model_endpoint_unknown",
+        "path": "/relations/0/from",
+        "message": "names no declared component"
+      },
+      {
+        "code": "model_endpoint_unknown",
+        "path": "/relations/0/to",
+        "message": "names no declared component"
+      }
+    ]
+  },
+  "component without label": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/components/2/label",
+        "message": "is required"
+      },
+      {
+        "code": "model_text_invalid",
+        "path": "/components/2/label",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "component unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/components/2/colour",
+        "message": "is not a model field"
+      }
+    ]
+  },
+  "component id duplicate": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_id_duplicate",
+        "path": "/components/2/id",
+        "message": "repeats a"
+      }
+    ]
+  },
+  "component status": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_status_invalid",
+        "path": "/components/2/status",
+        "message": "must be one of implemented, planned, retired"
+      }
+    ]
+  },
+  "details not an object": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_details_invalid",
+        "path": "/components/2/details",
+        "message": "must be an object"
+      }
+    ]
+  },
+  "detail name digits": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_detail_name_invalid",
+        "path": "/components/2/details/123",
+        "message": "names a detail invalidly"
+      }
+    ]
+  },
+  "detail name colon": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_detail_name_invalid",
+        "path": "/components/2/details/a:b",
+        "message": "names a detail invalidly"
+      }
+    ]
+  },
+  "detail empty list": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_detail_invalid",
+        "path": "/components/2/details/uses",
+        "message": "must be text or a list of text"
+      }
+    ]
+  },
+  "files not a list": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_files_invalid",
+        "path": "/components/2/files",
+        "message": "must be a list of repository paths"
+      }
+    ]
+  },
+  "file glob": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_glob",
+        "path": "/components/2/files/0",
+        "message": "must be a path, not a glob"
+      }
+    ]
+  },
+  "file absolute": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_path_invalid",
+        "path": "/components/2/files/0",
+        "message": "must be a relative path in the repository"
+      }
+    ]
+  },
+  "file empty segment": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_path_invalid",
+        "path": "/components/2/files/0",
+        "message": "must be a relative path in the repository"
+      }
+    ]
+  },
+  "file empty segment after a line separator": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_path_invalid",
+        "path": "/components/2/files/0",
+        "message": "must be a relative path in the repository"
+      }
+    ]
+  },
+  "file parent": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_path_invalid",
+        "path": "/components/2/files/0",
+        "message": "must be a relative path in the repository"
+      }
+    ]
+  },
+  "file too long": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_path_invalid",
+        "path": "/components/2/files/0",
+        "message": "must be a relative path in the repository"
+      }
+    ]
+  },
+  "file duplicate": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_duplicate",
+        "path": "/components/2/files/1",
+        "message": "repeats src/a.mjs"
+      }
+    ]
+  },
+  "file claimed twice": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_file_claimed_twice",
+        "path": "/components/1/files/0",
+        "message": "is already claimed at /components/0/files/0"
+      }
+    ]
+  },
+  "relation endpoint": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_endpoint_unknown",
+        "path": "/relations/1/from",
+        "message": "names no declared component"
+      }
+    ]
+  },
+  "relation to itself": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_relation_self",
+        "path": "/relations/1",
+        "message": "connects a component to itself"
+      }
+    ]
+  },
+  "relation file directory": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_relation_file_directory",
+        "path": "/relations/1/files/0",
+        "message": "must name one file"
+      }
+    ]
+  },
+  "relation without label": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/relations/1/label",
+        "message": "is required"
+      },
+      {
+        "code": "model_text_invalid",
+        "path": "/relations/1/label",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "group id is a component's": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_group_id_conflict",
+        "path": "/groups/0/id",
+        "message": "is also a component id"
+      }
+    ]
+  },
+  "group members empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_references_invalid",
+        "path": "/groups/0/members",
+        "message": "must be a non-empty list of component ids"
+      }
+    ]
+  },
+  "group member unknown": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_reference_unknown",
+        "path": "/groups/0/members/0",
+        "message": "names no declared component"
+      }
+    ]
+  },
+  "groups overlap": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_group_overlap",
+        "path": "/groups/1/members/0",
+        "message": "is already in g"
+      }
+    ]
+  },
+  "view both shapes": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_view_shape_invalid",
+        "path": "/views/0",
+        "message": "must declare exactly one of tiers or members"
+      }
+    ]
+  },
+  "view tiers overlap": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_tier_overlap",
+        "path": "/views/0/tiers/1",
+        "message": "places a in a second tier"
+      }
+    ]
+  },
+  "view member unknown": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_reference_unknown",
+        "path": "/views/0/members/0",
+        "message": "names no declared component"
+      }
+    ]
+  },
+  "coverage include empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_coverage_invalid",
+        "path": "/coverage/include",
+        "message": "must be a non-empty list of paths"
+      }
+    ]
+  },
+  "coverage path": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_coverage_path_invalid",
+        "path": "/coverage/include/0",
+        "message": "must be a relative file path or a directory path ending in a slash, either of which may be a glob"
+      }
+    ]
+  },
+  "coverage path duplicate": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_coverage_path_duplicate",
+        "path": "/coverage/include/1",
+        "message": "repeats src/"
+      }
+    ]
+  },
+  "guide": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_guide_invalid",
+        "path": "/guide",
+        "message": "must be a relative path to a .archify.md draft within the model's directory"
+      }
+    ]
+  },
+  "edition field retired": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_retired",
+        "path": "/edition/marks",
+        "message": "is no longer a model field: every part is drawn as one card, with its strip where it owns files; remove it"
+      }
+    ]
+  },
+  "edition palette name": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_palette_unknown",
+        "path": "/edition/palette",
+        "message": "must be one of indigo, persimmon, soot, patina, or an object of ground, ink, dye and accent"
+      }
+    ]
+  },
+  "edition palette colour": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_color_invalid",
+        "path": "/edition/palette/ground",
+        "message": "must be a #rrggbb colour"
+      }
+    ]
+  },
+  "edition palette dyes": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_palette_rejected",
+        "path": "/edition/palette/dye",
+        "message": "must list three colours, from new to old"
+      }
+    ]
+  },
+  "group member twice": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_reference_duplicate",
+        "path": "/groups/0/members/1",
+        "message": "repeats component a"
+      },
+      {
+        "code": "model_group_overlap",
+        "path": "/groups/0/members/1",
+        "message": "is already in g"
+      }
+    ]
+  },
+  "overview a string": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_overview_composition_retired",
+        "path": "/overview",
+        "message": "a composition placed by coordinates is retired: state the overview as blocks in the model"
+      }
+    ]
+  },
+  "overview step unnamed": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_overview_invalid",
+        "path": "/overview/course/steps/0",
+        "message": "names neither a label nor the part it is"
+      }
+    ]
+  },
+  "overview line from a run": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_overview_invalid",
+        "path": "/overview/course/lines/0/from",
+        "message": "names a step that holds stations: name one of them"
+      }
+    ]
+  },
+  "overview tracks five": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_overview_invalid",
+        "path": "/overview/course/parallel/0/tracks",
+        "message": "runs a stretch on 2 to 4 tracks, counted or named"
+      }
+    ]
+  },
+  "overview without claim": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/overview/claim",
+        "message": "is required"
+      },
+      {
+        "code": "model_text_invalid",
+        "path": "/overview/claim",
+        "message": "must be non-blank text of at most 2000 characters"
+      },
+      {
+        "code": "model_object_required",
+        "path": "/overview/course",
+        "message": "must be an object"
+      }
+    ]
+  }
+}

@@ -165,7 +165,36 @@ const suppliesTable = () =>
     ],
   );
 
+// The rules a model's value is held to, as its schema states them (src/model/schema.json): the patterns and the
+// limits are the schema's own; the words that say what each rule refuses are the writer's.
+const schema = JSON.parse(await fs.readFile(path.join(root, "src/model/schema.json"), "utf8"));
+const code = (/** @type {string} */ value) => `\`${value}\``;
+const vocabularyTable = () =>
+  table(
+    ["Value", "Rule"],
+    [
+      [
+        "An id",
+        `matches ${code(schema.$defs.id.pattern)}; the model's own id also matches no ${code(schema.properties.id.allOf[1].not.pattern)}, so it names no Windows device and does not end in a dot`,
+      ],
+      [
+        "A text",
+        `${schema.$defs.text.minLength} to ${schema.$defs.text.maxLength} characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two`,
+      ],
+      [
+        "A path",
+        `${schema.$defs.path.minLength} to ${schema.$defs.path.maxLength} characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, \`.\` or \`..\` segment`,
+      ],
+    ],
+  );
+
 const BLOCKS = [
+  {
+    file: "docs/reference/model.md",
+    name: "vocabulary",
+    source: "src/model/schema.json",
+    text: vocabularyTable,
+  },
   {
     file: "docs/reference/operations.md",
     name: "supplies",

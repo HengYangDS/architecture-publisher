@@ -1,4 +1,5 @@
 import { HOUSE } from "../house.mjs";
+import { COLOR } from "./vocabulary.mjs";
 
 /**
  * The edition's palette: how a model names it, the rules a palette it gives itself
@@ -19,7 +20,6 @@ const RETIRED = Object.freeze({
   marks:
     "is no longer a model field: every part is drawn as one card, with its strip where it owns files; remove it",
 });
-const COLOR = /^#[0-9a-f]{6}$/iu;
 /** The seal's cinnabar: no colour of a palette may be mistaken for it. */
 const CINNABAR = HOUSE.seal.cinnabar;
 

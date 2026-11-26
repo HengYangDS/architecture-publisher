@@ -18,7 +18,17 @@
       "const": 3
     },
     "id": {
-      "$ref": "#/$defs/id"
+      "description": "The model's id names its delivery's directory, so it is no name Windows reserves for a device, alone or before an extension, and does not end in a dot.",
+      "allOf": [
+        {
+          "$ref": "#/$defs/id"
+        },
+        {
+          "not": {
+            "pattern": "^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\\.|$)|\\.$"
+          }
+        }
+      ]
     },
     "locale": {
       "description": "The language the model is written in; the publisher sets its own words in it. Defaults to en.",
@@ -516,13 +526,16 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 2000,
-      "pattern": "\\S"
+      "pattern": "\\S",
+      "not": {
+        "pattern": "\\u0000"
+      }
     },
     "path": {
       "type": "string",
       "minLength": 1,
       "maxLength": 1024,
-      "pattern": "^(?!/)(?!.*(^|/)\\.\\.?(/|$))[^\\\\\\u0000\\n\\r]+$"
+      "pattern": "^(?!/)(?![\\s\\S]*(^|/)\\.\\.?(/|$))(?![\\s\\S]*//)[^\\\\\\u0000\\n\\r]+$"
     },
     "claim": {
       "description": "A claimed path: a directory ending in a slash or one file, without a glob.",

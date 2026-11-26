@@ -1,0 +1,86 @@
+import fs from "node:fs";
+
+/**
+ * The model's vocabulary, as its schema states it: the format and version, the enumerations, and the patterns and
+ * limits that the loader holds a single value to. The schema `schema.json` is the one statement; the loader reads
+ * them from it, so the published schema refuses every value the loader refuses by a rule of that value alone (the
+ * queue item `derived-references`). The loader keeps its own checks and problem codes; this module gives them their
+ * values. A length is counted by the loader in UTF-16 units and by a JSON Schema validator in code points, so the
+ * loader is the stricter for a character outside the Basic Multilingual Plane.
+ */
+const SCHEMA = JSON.parse(fs.readFileSync(new URL("./schema.json", import.meta.url), "utf8"));
+
+/** The schema's value at a JSON pointer, refused at import unless it is of the kind the loader needs. */
+function at(/** @type {string} */ pointer, /** @type {(value: unknown) => boolean} */ kind) {
+  const value = pointer
+    .split("/")
+    .slice(1)
+    .reduce((/** @type {any} */ node, key) => node?.[key], SCHEMA);
+  if (!kind(value)) throw new Error(`the model's schema states no such value at ${pointer}`);
+  return value;
+}
+/** A pattern of the schema as the loader tests it: the same expression, in Unicode mode. */
+const pattern = (/** @type {string} */ pointer) =>
+  new RegExp(
+    at(pointer, (value) => typeof value === "string"),
+    "u",
+  );
+const limit = (/** @type {string} */ pointer) =>
+  /** @type {number} */ (at(pointer, Number.isInteger));
+const names = (/** @type {string} */ pointer) =>
+  Object.freeze(
+    /** @type {string[]} */ (
+      at(
+        pointer,
+        (value) => Array.isArray(value) && value.every((each) => typeof each === "string"),
+      )
+    ),
+  );
+
+/** The model's format and version, the two constants of its top level. */
+export const MODEL_FORMAT = /** @type {string} */ (
+  at("/properties/format/const", (value) => typeof value === "string")
+);
+export const MODEL_VERSION = limit("/properties/version/const");
+
+/** The categories a kind takes, in the schema's order. */
+export const CATEGORIES = names("/properties/kinds/additionalProperties/properties/category/enum");
+/** The statuses a component or a relation takes. */
+export const STATUSES = names("/$defs/status/enum");
+
+export const ID = pattern("/$defs/id/pattern");
+/** A model's id that a file system cannot hold as a directory: a device's name, or a final dot. */
+export const UNPORTABLE_ID = pattern("/properties/id/allOf/1/not/pattern");
+export const ICON = pattern("/properties/kinds/additionalProperties/properties/icon/pattern");
+export const REVISION = pattern("/properties/repository/properties/revision/pattern");
+/** A browse address: one that holds both placeholders, `{revision}` and `{path}`. */
+export const BROWSE = pattern("/properties/repository/properties/browse/pattern");
+export const LICENSE = pattern("/properties/license/pattern");
+export const DETAIL_NAME = pattern("/$defs/details/propertyNames/pattern");
+/** A colour of a palette the model gives itself, `#rrggbb`. */
+export const COLOR = pattern("/$defs/color/pattern");
+/** A guide's name: an Archify explainer draft. */
+export const GUIDE = pattern("/properties/guide/allOf/1/pattern");
+
+/** A text: its length, the pattern it matches (not blank) and the pattern it may not match (a NUL). */
+export const TEXT = Object.freeze({
+  least: limit("/$defs/text/minLength"),
+  most: limit("/$defs/text/maxLength"),
+  visible: pattern("/$defs/text/pattern"),
+  refused: pattern("/$defs/text/not/pattern"),
+});
+
+/** A relative path in the repository: its longest length and its pattern, which a directory's final slash meets. */
+export const PATH = Object.freeze({
+  most: limit("/$defs/path/maxLength"),
+  form: pattern("/$defs/path/pattern"),
+});
+/** A path that is no glob: it holds none of `*`, `?` or `[`. */
+export const NOT_GLOB = pattern("/$defs/claim/allOf/1/pattern");
+
+/** The tracks of a stretch of the overview's course: two to four, counted or named; the test holds the two equal. */
+const tracks = "/$defs/overviewCourse/properties/parallel/items/properties/tracks/oneOf/0";
+export const TRACKS = Object.freeze({
+  least: limit(`${tracks}/minimum`),
+  most: limit(`${tracks}/maximum`),
+});

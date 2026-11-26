@@ -3,24 +3,21 @@
  * and the scope its coverage declares.
  */
 
+import { GUIDE, PATH } from "./vocabulary.mjs";
+
 /**
- * A relative path inside a repository: no leading slash, backslash or control break, and
- * no empty, `.` or `..` segment.
+ * A relative path inside a repository, as the schema's path states it (no leading slash, backslash or control
+ * break, and no empty, `.` or `..` segment), naming a file: a directory's final slash is taken off by the caller.
  * @param {unknown} value
  */
-export function isRelativePath(value) {
-  return (
-    typeof value === "string" &&
-    value.length > 0 &&
-    value.length <= 1024 &&
-    !value.startsWith("/") &&
-    !/[\\\0\n\r]/u.test(value) &&
-    value.split("/").every((part) => part !== "" && part !== "." && part !== "..")
-  );
-}
+export const isRelativePath = (value) =>
+  typeof value === "string" &&
+  value.length <= PATH.most &&
+  PATH.form.test(value) &&
+  !value.endsWith("/");
 
 /** A guide composition: a relative path to an Archify explainer draft within the model's directory. */
-export const isGuidePath = (value) => isRelativePath(value) && /[^/]\.archify\.md$/u.test(value);
+export const isGuidePath = (value) => isRelativePath(value) && GUIDE.test(value);
 
 /**
  * A scope path: a relative file path, or a directory path ending in a slash; either may be a

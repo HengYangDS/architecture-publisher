@@ -19,6 +19,12 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The model's schema is the one statement of the rules a single value is held to: the publisher reads the
+  model's format and version, its categories and statuses, and its patterns and longest lengths from
+  `src/model/schema.json`, and the model reference's rules of ids, text and paths are written from it. The schema
+  now refuses what the publisher always refused by such a rule: a NUL in a text, an empty segment in a path,
+  and a model's id that names a Windows device or ends in a dot. No model is accepted or refused differently by
+  the publisher.
 - The package states the Typst release it needs in `package.json`'s `engines`, beside Node.js's floor, and the
   publisher reads it from there. The operations reference gains a table of what the publisher needs, written
   from those and the bundled Archify's manifest, and the other documents point to it instead of naming versions.

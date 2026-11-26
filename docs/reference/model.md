@@ -84,9 +84,18 @@ kinds, details and views.
 | `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
 | `edition`    | no       | The print edition's palette; see [Parts and palette](#parts-and-palette).                      |
 
-Ids match `^[a-z0-9][a-z0-9._-]{0,127}$`. Text is non-blank and at most 2000
-characters. A model file is at most 4 MiB. Unknown fields are refused, so a
-misspelt field never disappears silently.
+<!-- vocabulary: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
+
+| Value  | Rule                                                                                                                                                                                            |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| An id  | matches `^[a-z0-9][a-z0-9._-]{0,127}$`; the model's own id also matches no `^(?:con\|prn\|aux\|nul\|com[0-9]\|lpt[0-9])(?:\.\|$)\|\.$`, so it names no Windows device and does not end in a dot |
+| A text | 1 to 2000 characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two                                                     |
+| A path | 1 to 1024 characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, `.` or `..` segment                                                   |
+
+<!-- end of vocabulary -->
+
+A model file is at most 4 MiB. Unknown fields are refused, so a misspelt field
+never disappears silently.
 
 ## Language
 
