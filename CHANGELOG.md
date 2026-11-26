@@ -19,6 +19,12 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The model reference's table of palettes and the lines reference's table are written from `src/house.json`,
+  which gains a palette's sentence on its colours and a line row's question and what the page does for it; the
+  data reference's tables of the data's members and an evidence row's keys are the format's statement, which
+  the tests read. No page, image, figure or file a delivery lists changes. The manifest's digests of the
+  class's inputs, `edition.house` and `overview.house`, change: they cover the house tokens, and change again
+  whenever that text is reworded.
 - **Breaking:** a stretch of the overview's course whose track is named with a NUL character or with more than
   2,000 characters (a character outside the Basic Multilingual Plane counts as two) is refused
   (`model_overview_invalid`); the schema of 0.20.0 refused the longer name already, and the schema refuses a NUL

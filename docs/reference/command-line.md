@@ -13,10 +13,9 @@ command does is in the [operations reference](operations.md#commands).
 
 ## Help and usage errors
 
-`archpub --help` lists the commands under the role that runs them: the author's
-`check`, `build`, `scaffold guide`, `import likec4` and `migrate`, the
-reviewer's `compare`, `accept` and `verify`, the publisher's `publish`, and under
-`Every role` the `skill` and `help` that any of them runs. `archpub <command>
+`archpub --help` lists the commands under the role that runs them, as the
+[operations reference](operations.md#commands) prints them: the author's, the
+reviewer's, the publisher's, and `Every role` for those any of them runs. `archpub <command>
 --help` prints that command's usage, what it does and the options it takes,
 `--json` among them; an option the command cannot run without stands in the
 usage line, as in `Usage: archpub build --out <directory> [options]

@@ -379,7 +379,7 @@ nothing from it, was ready: it moves before `page-figures`, by the same rule.
       paragraph: its name, kind and plates, the details the model states, the parts it reaches and those that reach
       it, each a link to that part's paragraph, and the paths it claims, each a link to the source at the pin. A
       part's name on a plate links to its paragraph. No page a part.
-- [ ] `derived-references`: the model's vocabulary and the reference documents each have one source. A model's
+- [x] `derived-references`: the model's vocabulary and the reference documents each have one source. A model's
       fields, enumerations, patterns and limits are stated once, and the schema and the loader's checks both come
       from that statement; the refusal codes stand in one registry; and a table of a reference document that
       restates the source (the commands and their options, the refusal codes, a delivery's files, the versions

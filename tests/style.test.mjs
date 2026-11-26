@@ -45,7 +45,8 @@ test("a build without file facts has no strip to draw, which is no fallback and 
   assert.deepEqual(Object.keys(style), ["tokens", "facts"]);
   assert.equal(style.facts.scale, null);
   // Without strips there are no age bands to record; the palette is the default, with its names and roles.
-  const { name, ...indigo } = HOUSE.palettes.indigo;
+  const { name, colours, ...indigo } = HOUSE.palettes.indigo;
+  assert.ok(colours);
   assert.deepEqual(record, {
     palette: "indigo",
     names: name,

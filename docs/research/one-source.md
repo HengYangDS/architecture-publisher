@@ -119,7 +119,7 @@ path; six more patterns; twenty-three lists of required and allowed fields in `m
 The product's version in the package files; the palettes and the locales in code (the keys of `house.json` and the
 table `src/locales.json`, from 2026-11-26); a link to a file (`linkOf`, one caller) and the address without `.git`; an image's and a figure's
 name; the rows of the contents and of the index (`edition.contentsRows`, `edition.indexRows`); line strokes and
-dashes; the line reference, which a test holds to the table.
+dashes; the line reference, written from the table.
 
 ## What follows, and where it applies
 
@@ -205,11 +205,90 @@ The palettes' default went against both majority members, who put it in the hous
 schema, since only the model's unit reads it and it is a fact of the model's contract, not a token. Not taken: a
 default status, which would state what an absent status means in a contract that writes `null` for it.
 
+## The last hand tables (2026-11-26)
+
+A reader other than the maintainer read every table of the reference documents outside the written blocks
+(23:00 to 23:12): five restated the source, two were held to it by a test that parses the page, and one was the
+document's own. The maintainer put each table's source to a committee of three, each blind to the others: a reader
+of one source, a reader for the documents' readers and a reader for the fewest entities (23:15 to 23:22).
+
+| Table                                    | Decision                                                                  | Votes  |
+| ---------------------------------------- | ------------------------------------------------------------------------- | ------ |
+| The palettes, model reference            | written from the house's palettes and the schema's default                | 3 of 3 |
+| The lines, lines reference               | written from the house's table of lines                                   | 3 of 3 |
+| A delivery's three files, data reference | a pointer to the operations reference's written table                     | 3 of 3 |
+| The data's members and an evidence row   | the page is the format's statement; the tests read it                     | 2 of 3 |
+| The configuration's carriers             | a pointer to the npm scripts, and a sentence on the four they do not name | 2 of 3 |
+| The terms                                | the page is the vocabulary's statement, as before                         | 3 of 3 |
+
+The glossary (`docs/glossary.md`), a reference page outside `docs/reference/`, which the census did not read, was
+read against the source afterwards: its table defines each word and links the reference that states it, and in six
+of its definitions names a delivery file as `src/delivery.json` names it (the data, the manifest, the page, the
+print edition, the reader file, and the delivery's contents), and the balance gates as four, as the operations
+reference does. Each agrees with its source today. It is the vocabulary's definitions, not a table of the source:
+the names are words a reader looks up, each with the link to the table that states them; it stays by hand, as the
+terms reference does, and the six names are recorded below with the prose that names a set.
+
+The reasons that decided: the data reference promises that a later release removes no key written there, which a
+table written from the code could break while looking right, and the column of what each key holds has no source in
+the code; the dissent proposed a JSON schema of the data, a new published entity no consumer reads. A table filtered
+from a written table elsewhere would print the same facts twice.
+
+## How the item ended (2026-11-26)
+
+Twelve Changes held `derived-references`, from `register-every-refusal-code` to
+`write-the-last-reference-tables-from-their-sources`, each landed on 2026-11-26 or 2026-11-27, each
+after an independent review whose findings were answered in its code or design. The refusal codes stand in `src/refusal.json`; the commands in the program's own catalogue
+(`archpub --help --json`); a delivery's files in `src/delivery.json`; the versions the publisher needs in
+`package.json` and the bundled Archify's manifest; the model's fields, patterns, limits and top-level descriptions
+in `src/model/schema.json`, which the loader reads; the categories, the built-in palettes and the languages in the
+tables that key their data by them, from which the schema's enumerations are written; the table of lines in
+`src/house.json`. Every table of a reference document that restates one of them is written from it by
+`tools/docs/references.mjs`, and `npm run check:generated` refuses a committed table or schema that differs, on this
+host, in the proof and on both Forges' runners.
+
+Three things were decided to be their own source and stay by hand: the data reference's tables of the data's members
+and of an evidence row's keys, which state the delivery format and which the tests hold the data to; the terms
+reference, which states the product's vocabulary and which the tests hold the words to; and the model reference's
+advice on which address to state, which no code states. What is left, and why it is left:
+
+- A length is counted in UTF-16 units by the loader and in code points by a JSON Schema validator; the requirement
+  that states the vocabulary once names this exception.
+- Prose that names a whole set the source states is outside the item, which names tables. The census of 2026-11-26
+  counted 17 sentences; this Change rewrote two (the data reference's three files and the command line reference's
+  commands by role), and the glossary adds six names. No item of the queue holds them yet; they are listed below,
+  by place, for the item that takes them up.
+- The current model version `3` stands by hand in the model reference's smallest model, an example an author
+  copies; its row of `version` is written from the schema's `const`.
+- The delivery format has no machine-readable statement of its keys; no consumer reads one today.
+
+## Prose that names a set the source states (2026-11-27)
+
+Each place, with the source that states the set:
+
+- `docs/reference/data.md`, "The data": the four ids that would give two files one name (`src/delivery.json`).
+- `docs/reference/data.md`, "A plate's record and face" and the keys of a component, a relation, a group and a fact
+  (`src/pinned/data.mjs`).
+- `docs/reference/model.md`: the statuses a part may have, the strip's longest and drawn lengths, the three age
+  bands, and a palette's colours from ground to dye (`src/model/schema.json`, `src/poster/strip.mjs`,
+  `src/facts/ages.mjs`).
+- `docs/reference/lines.md`: the three widths the trials measured at (`tests/fixtures/line-tables.mjs`).
+- `docs/reference/operations.md`: the release's platforms and the archive's members
+  (`tools/release/archive/assemble.mjs`), the runtime dependencies (`package.json`), and the variables a child
+  process receives (`src/environment.mjs`).
+- `docs/reference/command-line.md` and `docs/reference/refusals.md`: the exit statuses and the JSON shapes
+  (`src/cli/run.mjs`).
+- `README.md` and `docs/how-to.md`: the release's platforms.
+- `docs/glossary.md`: the names of the data, the manifest, the page, the print edition, the reader file and the
+  delivery's contents (`src/delivery.json`), and the four balance gates.
+
 ## What is not established
 
 - The rows marked a reader's count: their places were not counted again by the maintainer.
 - Whether three measures of the Typst files (112, 120 and 48 points) restate tokens or only equal them; where two
   bounds of `overview/checks.mjs` (16 and 892) come from; whether the colophon is set in the edition's palette.
-- `data.md`, `command-line.md`, `how-to.md` and `tutorial.md` were not compared with the source, and no document's
-  house measures with `house.json`.
+- `how-to.md` and `tutorial.md` were not compared with the source, and no document's house measures with
+  `house.json`; `data.md` and `command-line.md` were read by the census of 2026-11-26 for their tables only.
+- Whether the terms reference lists every concept and every key: its test holds the keys it lists, not the ones
+  it leaves out.
 - What the repetitions have cost beyond the three incidents above.

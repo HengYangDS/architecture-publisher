@@ -115,47 +115,20 @@ test("a key holds the sample of a row exactly when its figure draws the row", as
   assert.throws(() => assertKeyed(keyless), /row emphasis: the figure draws it/u);
 });
 
-/** A row's value as the reference table writes it. */
-function written(row) {
-  const pattern = row.dash ? `dashes of ${row.dash[0]} px, gaps of ${row.dash[1]} px` : null;
-  if (channelOf(row) === "number") return "a number";
-  if (channelOf(row) === "pattern") return row.stroke ? `${pattern}; ${row.stroke} px` : pattern;
-  return row.factor
-    ? `continuous, ${row.factor} × the relation's weight; arrowhead ${row.arrow} × as large`
-    : `continuous, ${row.stroke} px`;
-}
-
-test("the reference table of the documents holds one line for each row, with what the table says of it and what it answers", async () => {
-  const page = await fs.readFile(new URL("../docs/reference/lines.md", import.meta.url), "utf8");
-  const lines = page
-    .split("\n")
-    .filter((line) => line.startsWith("| `"))
-    .map((line) =>
-      line
-        .split("|")
-        .slice(1, -1)
-        .map((cell) => cell.trim()),
-    );
-  // The page states what each row answers and what the page of a delivery does for it; the table states the rest.
-  assert.deepEqual(
-    lines.map(([id, means, drawn, , tested]) => [id, means, drawn, tested]),
-    Object.entries(TABLE.rows).map(([id, row]) => [
-      `\`${id}\``,
-      row.meaning,
-      written(row),
-      row.tested ? "yes" : "not yet tested by a work",
-    ]),
-  );
-  for (const [id, , , answers, , shown] of lines) {
-    assert.match(answers, /\?$/u, id);
-    assert.ok(shown.length > 0, id);
+test("each row of the table of lines says what it answers and what a delivery's page does for it", async () => {
+  for (const [id, row] of Object.entries(TABLE.rows)) {
+    assert.match(row.answers, /\?$/u, id);
+    assert.ok(row.page.length > 0, id);
   }
   // The page has no expression of emphasis or of the count.
   assert.deepEqual(
-    lines.filter((cells) => cells[5] === "no expression").map(([id]) => id),
-    ["`emphasis`", "`citations`"],
+    Object.entries(TABLE.rows)
+      .filter(([, row]) => row.page === "no expression")
+      .map(([id]) => id),
+    ["emphasis", "citations"],
   );
-  // The three widths the trials measured at stand in the page's first paragraph.
+  // The three widths the trials measured at stand in the reference page's first paragraph.
+  const page = await fs.readFile(new URL("../docs/reference/lines.md", import.meta.url), "utf8");
   for (const width of WIDTHS) assert.ok(page.includes(`${width} px wide`), `${width}`);
 });
 

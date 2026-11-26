@@ -107,10 +107,19 @@ const leaves = (/** @type {any} */ command, /** @type {string[]} */ words = []) 
     });
 const helpCommand = program.commands.find(({ name }) => name === "help");
 const programFlags = program.options.map(flag);
+/** The synopses under the role that runs them, as the help groups them: a group's line, then its commands. */
+const byRole = () =>
+  leaves(program).flatMap(([words, command], index, all) => {
+    const group = program.commands.find(({ name }) => name === words[0]).group;
+    const opens =
+      index === 0 ||
+      program.commands.find(({ name }) => name === all[index - 1][0][0]).group !== group;
+    return [...(opens ? [`# ${group}`] : []), synopsis(words, command)];
+  });
 const usageBlock = () =>
   [
     "```text",
-    ...leaves(program).map(([words, command]) => synopsis(words, command)),
+    ...byRole(),
     `archpub <command> --help | archpub ${helpCommand.name} ${helpCommand.usage.replace(/^\[options\] ?/u, "")}`.trimEnd(),
     `archpub ${programFlags.filter((each) => each !== "--json").join(" | ")}${programFlags.includes("--json") ? " [--json]" : ""}`,
     "```",
@@ -195,6 +204,13 @@ const SETS = [
     default: (/** @type {any} */ table) => table.default,
   },
 ];
+/** Each table of the source the writer reads, parsed once by its path. */
+const tables = new Map();
+const tableOf = async (/** @type {string} */ file) => {
+  if (!tables.has(file))
+    tables.set(file, JSON.parse(await fs.readFile(path.join(root, file), "utf8")));
+  return tables.get(file);
+};
 for (const set of SETS) {
   const node = set.at
     .split("/")
@@ -202,7 +218,7 @@ for (const set of SETS) {
     .reduce((/** @type {any} */ value, key) => value?.[key], schema);
   if (!Array.isArray(node?.enum))
     throw new Error(`references_set_missing: the schema states no enumeration at ${set.at}`);
-  const table = JSON.parse(await fs.readFile(path.join(root, set.from), "utf8"));
+  const table = await tableOf(set.from);
   node.enum = set.members(table);
   if (set.default) node.default = set.default(table);
 }
@@ -280,6 +296,52 @@ const categoriesTable = () =>
     }),
   );
 
+// The built-in palettes, in the house's order, with their names and what their colours are (src/house.json), and the
+// default the schema states.
+const house = await tableOf("src/house.json");
+/** A field of the house the writer prints, refused by name when the house lacks it. */
+const said = (/** @type {any} */ value, /** @type {string} */ where) => {
+  if (typeof value !== "string" || !value)
+    throw new Error(`references_text_missing: src/house.json states no ${where}`);
+  return value;
+};
+const palette = schema.properties.edition.properties.palette;
+const palettesTable = () =>
+  table(
+    ["`palette`", "Name", "Colours"],
+    Object.entries(house.palettes).map(([id, /** @type {any} */ each]) => [
+      code(id),
+      `${each.name["zh-CN"]} ${each.name.en}`,
+      id === palette.default
+        ? `${said(each.colours, `colours of the palette ${id}`).replace(/\.$/u, "")}; the default.`
+        : said(each.colours, `colours of the palette ${id}`),
+    ]),
+  );
+
+// The rows of the table of lines (src/house.json): what each means, how a plate draws it, the question it answers,
+// whether a work has tested it, and what a delivery's page does for it.
+const drawn = (/** @type {any} */ row) => {
+  if (row.dash) {
+    const pattern = `dashes of ${row.dash[0]} px, gaps of ${row.dash[1]} px`;
+    return row.stroke ? `${pattern}; ${row.stroke} px` : pattern;
+  }
+  if (row.factor)
+    return `continuous, ${row.factor} × the relation's weight; arrowhead ${row.arrow} × as large`;
+  return "stroke" in row ? `continuous, ${row.stroke} px` : "a number";
+};
+const linesTable = () =>
+  table(
+    ["Row", "Means", "Drawn on a plate", "Answers", "Tested by a work", "On the page"],
+    Object.entries(house.lines.rows).map(([id, /** @type {any} */ row]) => [
+      code(id),
+      said(row.meaning, `meaning of the line row ${id}`),
+      drawn(row),
+      said(row.answers, `question of the line row ${id}`),
+      row.tested ? "yes" : "not yet tested by a work",
+      said(row.page, `page of the line row ${id}`),
+    ]),
+  );
+
 // A refusal as the terminal shows it: the command line run on the reference's sample model (refused-model.json, whose
 // second component misspells its label), with no colour, as the writer runs it for the commands. Only the refusal the
 // sample is built for is written: an accepted sample, a refusal of something else (a bundled supply that differs from
@@ -337,6 +399,18 @@ const BLOCKS = [
     name: "categories",
     source: "src/model/schema.json and src/categories.json",
     text: categoriesTable,
+  },
+  {
+    file: "docs/reference/model.md",
+    name: "palettes",
+    source: "src/house.json and src/model/schema.json",
+    text: palettesTable,
+  },
+  {
+    file: "docs/reference/lines.md",
+    name: "lines",
+    source: "src/house.json",
+    text: linesTable,
   },
   {
     file: "docs/reference/command-line.md",

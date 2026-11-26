@@ -4,6 +4,7 @@ import { CATALOGUE } from "../src/facts/catalogue.mjs";
 import { Refusal } from "../src/refusal.mjs";
 import { dataCounts, editionData, serializeData } from "../src/pinned/data.mjs";
 import { evidenceTable } from "../src/pinned/evidence.mjs";
+import { statedKeys } from "./fixtures/data-format.mjs";
 import { CITATIONS, GUIDE, READ, REVISION, shopBuild } from "./fixtures/pinned.mjs";
 
 const FIGURES = Object.freeze({
@@ -32,21 +33,12 @@ const isSame = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 test("the data holds its members in one order, and only those the build holds", async () => {
   const { data, input } = await shopData();
-  assert.deepEqual(Object.keys(data), [
-    "delivery",
-    "publisher",
-    "work",
-    "model",
-    "pin",
-    "views",
-    "statements",
-    "catalogue",
-    "facts",
-    "evidence",
-    "guide",
-    "plates",
-    "media",
-  ]);
+  // The data reference states the members in their order; this build holds every one but the overview.
+  const stated = await statedKeys("Member");
+  assert.deepEqual(
+    Object.keys(data),
+    stated.filter((member) => member !== "overview"),
+  );
   assert.deepEqual(data.delivery, { format: "architecture-publisher.delivery", version: 9 });
   assert.deepEqual(data.publisher, { name: "architecture-publisher", version: "0.15.0" });
   assert.deepEqual(data.model, { file: "model.json", ...input.file });
@@ -59,7 +51,10 @@ test("the data holds its members in one order, and only those the build holds", 
     images: [{ width: 3840, file: "images/00-overview.png" }],
   };
   const other = editionData({ ...input, guide: null, overview });
-  assert.deepEqual(Object.keys(other).slice(9), ["evidence", "overview", "plates", "media"]);
+  assert.deepEqual(
+    Object.keys(other),
+    stated.filter((member) => member !== "guide"),
+  );
   assert.deepEqual(other.overview, { ...overview, face: false });
 });
 

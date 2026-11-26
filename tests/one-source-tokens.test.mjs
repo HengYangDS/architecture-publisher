@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { HOUSE, HOUSE_BODY } from "../src/house.mjs";
 import { SHARED } from "../src/names.mjs";
-import { code, escaped, modules } from "./fixtures/source.mjs";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { code, escaped, modules, root } from "./fixtures/source.mjs";
 
 /**
  * The queue item `one-source`, for the house tokens of `src/house.json`: a value the house class and the engine set
- * their pages by is read from the tokens, or derived from them, and not written again; and every token has a reader
- * in the shipped source. The searches of the names and labels the class shares stand in `tests/one-source.test.mjs`.
+ * their pages by is read from the tokens, or derived from them, and not written again; and every token has a reader:
+ * the shipped source, or the reference writer for the document text kept beside the values it describes. The searches of the names and labels the class shares stand in `tests/one-source.test.mjs`.
  */
 
 /** The tokens, and what follows from them: the body's box as `body`. */
@@ -88,7 +90,8 @@ const READS_TOKENS = new RegExp(
  * in `HOUSE.page.width` or `_e`, the class's name for the edition's table; `quoted`, where the source names a key in
  * quotes (`_house.at("text")`, `row("relation")`); `entries`, a table whose entries the source takes apart as it
  * iterates them. `*` stands for each entry of a table of data, whose keys are ids, and `whole` marks a table the
- * source reads by iterating it, whose keys are its data.
+ * source reads by iterating it, whose keys are its data. `documents` names the keys of an entry that only the
+ * reference writer reads (tools/docs/references.mjs): text a reference document prints beside the entry's values.
  */
 const REACHED = Object.freeze({
   "": { by: ["HOUSE", "house", "_house"], quoted: true },
@@ -105,21 +108,32 @@ const REACHED = Object.freeze({
   dye: { by: ["dye"] },
   seal: { by: ["(?:HOUSE|_house)\\.seal"] },
   palettes: { whole: true },
-  "palettes.*": { by: ["given"] },
+  "palettes.*": { by: ["given"], documents: { by: ["each"], keys: ["colours"] } },
   "palettes.*.name": { whole: true },
   lines: { by: ["(?:HOUSE|_house|table)\\.lines", "table"] },
   "lines.rows": { by: ["(?:HOUSE|_house)\\.lines\\.rows", "table\\.rows"], quoted: true },
   "lines.rows.*": {
     by: ["row(?:\\([^()]*\\))?", "rows\\.values\\(\\)\\.find\\([^()]*\\)"],
     entries: ["table\\.rows"],
+    documents: { by: ["row"], keys: ["answers", "page"] },
   },
   plate: { by: ["(?:HOUSE|house|_house)\\.plate"] },
   edition: { by: ["(?:HOUSE|house|_house)\\.edition", "_e"] },
 });
 
+/**
+ * The keys of the tokens that only the reference writer reads, document text beside the values it describes (a
+ * palette's `colours`, a line row's `answers` and `page`): each is read where the writer finds it by its handle, as
+ * the shipped source's keys are where the source finds them. The writer is a tool, outside the package.
+ */
+const WRITER = {
+  file: "tools/docs/references.mjs",
+  code: code(await fs.readFile(path.join(root, "tools/docs/references.mjs"), "utf8")),
+};
+
 /** The searches that find a key of a table read: by a handle, taken apart from it, or named in quotes. */
-function readings(table, key) {
-  const { by = [], quoted = false, entries = [] } = REACHED[table];
+function readings(table, key, reached = REACHED[table]) {
+  const { by = [], quoted = false, entries = [] } = reached;
   const handle = `(?<![\\w$-])(?:${by.join("|")})`;
   const name = escaped(key);
   return [
@@ -142,18 +156,23 @@ function readings(table, key) {
  * Each key of the tokens that no file of the source reads, by its path: a key of a table the source reaches is read
  * where a file finds it by one of its table's searches; the keys of a table read whole are its data.
  */
-function unread(tokens, found, path = [], table = "") {
+function unread(tokens, found, path = [], table = "", writer = [WRITER]) {
   const reached = REACHED[table];
   if (!reached) return [`${path.join(".")} has no way the source reaches it`];
   return Object.entries(tokens).flatMap(([key, value]) => {
     const inner = [...path, key];
+    const documents = reached.documents?.keys.includes(key) ? reached.documents : null;
     const read =
       reached.whole ||
-      found.some(({ code: text }) => readings(table, key).some((search) => search.test(text)));
+      (documents
+        ? writer.some(({ code: text }) =>
+            readings(table, key, documents).some((search) => search.test(text)),
+          )
+        : found.some(({ code: text }) => readings(table, key).some((search) => search.test(text))));
     const [entry, own] = [`${table}.*`, [table, key].filter(Boolean).join(".")];
     const deeper =
       value && typeof value === "object" && !Array.isArray(value)
-        ? unread(value, found, inner, REACHED[entry] ? entry : own)
+        ? unread(value, found, inner, REACHED[entry] ? entry : own, writer)
         : [];
     return [...(read ? [] : [inner.join(".")]), ...deeper];
   });
@@ -170,7 +189,7 @@ test("a value the class or the engine reads from the house tokens, or derives fr
   assert.deepEqual(measureRepetitions(await modules([".mjs", ".typ"])), []);
 });
 
-test("every key of the house tokens has a reader in the shipped source", async () => {
+test("every key of the house tokens has a reader: the shipped source, or the reference writer for document text", async () => {
   assert.deepEqual(unread(HOUSE, await modules([".mjs", ".typ"])), []);
 });
 
@@ -275,10 +294,15 @@ test("a key is read by its table's handle, taken apart from it, or named in quot
     "Object.entries(table.rows).flatMap(([id, { tested, meaning }]) => [view.question])",
     "HOUSE.lines.rows; const stray = HOUSE.stray;",
   ].map((text) => ({ code: code(text) }));
-  assert.deepEqual(unread(tokens, found), [
+  // A key only the reference writer reads is found in the writer, by its handle there, and nowhere else.
+  tokens.lines.rows.boundary.answers = "?";
+  tokens.lines.rows.boundary.page = "p";
+  const writer = [{ code: code("row.answers") }];
+  assert.deepEqual(unread(tokens, found, [], "", writer), [
     "plate.x",
     "lines.widths",
     "lines.rows.boundary.question",
+    "lines.rows.boundary.page",
     "stray has no way the source reaches it",
   ]);
 });

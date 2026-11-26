@@ -381,12 +381,16 @@ date, scale bar, count or hub.
 `palette` (配色) names a built-in palette or gives one of your own. Each built-in is
 named for the dye or pigment its colours come from:
 
+<!-- palettes: written from src/house.json and src/model/schema.json by tools/docs/references.mjs; do not edit -->
+
 | `palette`   | Name           | Colours                                                         |
 | ----------- | -------------- | --------------------------------------------------------------- |
 | `indigo`    | 靛蓝 Indigo    | Indigo blues on a warm white, with a brown accent; the default. |
 | `persimmon` | 柿漆 Persimmon | Persimmon-tannin browns, with a slate blue accent.              |
 | `soot`      | 松烟 Soot      | The greys of pine-soot ink, with a warm grey accent.            |
 | `patina`    | 铜绿 Patina    | The green that grows on bronze, with a brown accent.            |
+
+<!-- end of palettes -->
 
 A palette of your own names a ground, an ink, three dye steps from new to old
 and an optional accent:

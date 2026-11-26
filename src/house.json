@@ -68,6 +68,7 @@
   "palettes": {
     "indigo": {
       "name": { "zh-CN": "靛蓝", "en": "Indigo" },
+      "colours": "Indigo blues on a warm white, with a brown accent.",
       "ground": "#f6f5f1",
       "ink": "#25282c",
       "dye": ["#b7d8db", "#7099ae", "#334965"],
@@ -75,6 +76,7 @@
     },
     "persimmon": {
       "name": { "zh-CN": "柿漆", "en": "Persimmon" },
+      "colours": "Persimmon-tannin browns, with a slate blue accent.",
       "ground": "#f6f4ef",
       "ink": "#2b2622",
       "dye": ["#e0d2bd", "#af9279", "#6c4d3c"],
@@ -82,6 +84,7 @@
     },
     "soot": {
       "name": { "zh-CN": "松烟", "en": "Soot" },
+      "colours": "The greys of pine-soot ink, with a warm grey accent.",
       "ground": "#f5f5f3",
       "ink": "#232527",
       "dye": ["#d5d8da", "#8f9296", "#3a3d41"],
@@ -89,6 +92,7 @@
     },
     "patina": {
       "name": { "zh-CN": "铜绿", "en": "Patina" },
+      "colours": "The green that grows on bronze, with a brown accent.",
       "ground": "#f3f3ec",
       "ink": "#192724",
       "dye": ["#bcd2b7", "#699d81", "#1a655d"],
@@ -99,12 +103,16 @@
     "rows": {
       "relation": {
         "meaning": "a relation between two parts",
+        "answers": "Which part acts on which?",
+        "page": "a connection's line, as the page's renderer draws it",
         "stroke": 1.6,
         "tested": true,
         "key": null
       },
       "emphasis": {
         "meaning": "a relation into the view's hub",
+        "answers": "Which part do most relations lead to?",
+        "page": "no expression",
         "factor": 2,
         "arrow": 1.45,
         "tested": true,
@@ -112,6 +120,8 @@
       },
       "boundary": {
         "meaning": "the edge of the described repository",
+        "answers": "Is part X inside the described repository?",
+        "page": "a region around the parts inside, as the page's renderer draws it",
         "stroke": 1.4,
         "dash": [8, 5],
         "tested": true,
@@ -119,11 +129,15 @@
       },
       "citations": {
         "meaning": "the files a relation cites",
+        "answers": "How many files does the model cite for the relation?",
+        "page": "no expression",
         "tested": true,
         "key": "count"
       },
       "planned": {
         "meaning": "a planned part or relation",
+        "answers": "Is X built, planned or retired?",
+        "page": "a dashed line for a relation, the same as a retired one",
         "dash": [6, 4],
         "tested": false,
         "key": "planned",
@@ -131,6 +145,8 @@
       },
       "retired": {
         "meaning": "a retired part or relation",
+        "answers": "Is X built, planned or retired?",
+        "page": "a dashed line for a relation, the same as a planned one",
         "dash": [1.5, 3.5],
         "tested": false,
         "key": "retired",

@@ -8,15 +8,11 @@ relations:
 
 # Data and reader file reference
 
-Every delivery holds three files at its top beside its media, whichever media it carries. Together they are the
-pinned edition as text: what the build read, measured and drew of one work at one pin, for a reader that works from
-text and not from the plates.
-
-| File              | What it is                                                | Format                                            |
-| ----------------- | --------------------------------------------------------- | ------------------------------------------------- |
-| `model.json`      | The model the build read.                                 | The author's bytes, unchanged.                    |
-| `<model id>.json` | The data: the pinned edition, each thing written once.    | JSON, UTF-8, two-space indent, one final newline. |
-| `<model id>.md`   | The reader file: the statements, facts and guide to read. | Markdown, UTF-8, in the model's language.         |
+Every delivery holds the model, the data and the reader file at its top beside its media, whichever media it
+carries; the [delivery's table](operations.md#the-delivery) names them. Together they are the pinned edition as text:
+what the build read, measured and drew of one work at one pin, for a reader that works from text and not from the
+plates. The model is the author's bytes, unchanged; the data is JSON in UTF-8 with a two-space indent and one final
+newline; the reader file is Markdown in UTF-8, in the model's language.
 
 The manifest lists each among its artifacts with its size and SHA-256, so `archpub verify`, `accept`, `compare` and
 `publish` cover them like every other file, and the digest of `model.json` is the manifest's `model.sha256`. The
@@ -31,7 +27,9 @@ it with `delivery_name_taken` straight after reading the model, and name the fil
 
 ## The data
 
-The members of `<model id>.json`, in the order the file holds them:
+The members of `<model id>.json`, in the order the file holds them. This table and the evidence table's are the
+format's statement of its members and of an evidence row's keys, and the publisher's tests hold the data to them,
+in their order.
 
 | Member       | Holds                                                                                                                                                                    |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

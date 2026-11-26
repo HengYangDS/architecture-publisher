@@ -15,10 +15,10 @@ const GREYS = Object.freeze({
   dye: Object.freeze(["#d0d0d0", "#a0a0a0", "#606060"]),
 });
 
-/** A built-in palette's roles, without its names, as a model would give them. */
+/** A built-in palette's roles, without its names and the reference's sentence on it, as a model would give them. */
 const rolesOf = (id) => {
-  const { name, ...roles } = HOUSE.palettes[id];
-  assert.ok(name);
+  const { name, colours, ...roles } = HOUSE.palettes[id];
+  assert.ok(name && colours);
   return roles;
 };
 

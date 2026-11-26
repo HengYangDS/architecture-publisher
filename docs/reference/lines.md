@@ -10,10 +10,12 @@ relations:
 
 A plate's lines are drawn from one table inside the product, the `lines` section of `src/house.json`. The figure,
 the key and the tests read it; a model cannot name, add or change a row. The table holds what a row means, how it
-is drawn, whether a work has tested it and its sample in the key; the table below states also what each row
-answers and what a delivery's HTML page does for it, and a test holds the rest of it to the table. Values are in
+is drawn, what it answers, whether a work has tested it, what a delivery's HTML page does for it and its sample in
+the key; the table below is written from it. Values are in
 the plate's drawing space, in which one pixel is one pixel of an image 2400 px wide, 0.8 px of one 1920 px wide
 and 0.4 px of one 960 px wide: the three widths the trials measured at.
+
+<!-- lines: written from src/house.json by tools/docs/references.mjs; do not edit -->
 
 | Row         | Means                                | Drawn on a plate                                                 | Answers                                              | Tested by a work         | On the page                                                       |
 | ----------- | ------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------- | ------------------------ | ----------------------------------------------------------------- |
@@ -23,6 +25,8 @@ and 0.4 px of one 960 px wide: the three widths the trials measured at.
 | `citations` | the files a relation cites           | a number                                                         | How many files does the model cite for the relation? | yes                      | no expression                                                     |
 | `planned`   | a planned part or relation           | dashes of 6 px, gaps of 4 px                                     | Is X built, planned or retired?                      | not yet tested by a work | a dashed line for a relation, the same as a retired one           |
 | `retired`   | a retired part or relation           | dashes of 1.5 px, gaps of 3.5 px                                 | Is X built, planned or retired?                      | not yet tested by a work | a dashed line for a relation, the same as a planned one           |
+
+<!-- end of lines -->
 
 Weight carries emphasis and nothing else, at two levels. In an edition that draws strips, a relation into the view's
 hub that is not retired is drawn at the heavier weight in the oldest dye and ends inside its larger arrowhead; a

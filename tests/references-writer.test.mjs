@@ -50,6 +50,8 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/model.md", "type; the default.", "type."],
       ["docs/reference/command-line.md", "field; did you mean label?", "field."],
       ["src/model/schema.json", '"ko"]', '"ja"]'],
+      ["docs/reference/model.md", "with a brown accent; the default.", "with a brown accent."],
+      ["docs/reference/lines.md", "| not yet tested by a work |", "| no                       |"],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
@@ -61,6 +63,41 @@ test("the writer refuses a table changed by hand, naming its document, and write
       assert.equal((await writer("--write", dir)).code, 0, file);
       assert.equal(await fs.readFile(target, "utf8"), before, file);
     }
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("the writer refuses a document whose source changed, and writes it from the source", async () => {
+  const dir = await tree();
+  try {
+    const house = path.join(dir, "src/house.json");
+    const tokens = JSON.parse(await fs.readFile(house, "utf8"));
+    tokens.palettes.soot.colours = "The greys of soot.";
+    tokens.lines.rows.boundary.answers = "Is the part inside?";
+    await fs.writeFile(house, `${JSON.stringify(tokens, null, 2)}\n`);
+    const refused = await writer("--check", dir);
+    assert.equal(refused.code, 1);
+    assert.match(refused.stderr, /references_drift: docs\/reference\/model\.md: run/u);
+    assert.match(refused.stderr, /references_drift: docs\/reference\/lines\.md: run/u);
+    assert.equal((await writer("--write", dir)).code, 0);
+    assert.match(
+      await fs.readFile(path.join(dir, "docs/reference/model.md"), "utf8"),
+      /The greys of soot\./u,
+    );
+    assert.match(
+      await fs.readFile(path.join(dir, "docs/reference/lines.md"), "utf8"),
+      /Is the part inside\?/u,
+    );
+    // A text the writer prints but the house lacks stops it by name.
+    delete tokens.lines.rows.boundary.page;
+    await fs.writeFile(house, `${JSON.stringify(tokens, null, 2)}\n`);
+    const missing = await writer("--check", dir);
+    assert.equal(missing.code, 1);
+    assert.match(
+      missing.stderr,
+      /references_text_missing: src\/house\.json states no page of the line row boundary/u,
+    );
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }

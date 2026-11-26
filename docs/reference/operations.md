@@ -65,15 +65,19 @@ they read or decide.
 <!-- commands: written from archpub --help --json by tools/docs/references.mjs; do not edit -->
 
 ```text
+# Author
 archpub check <model.json> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--against <revision>] [--json]
 archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
 archpub scaffold guide <model.json> --out <directory> [--json]
 archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub migrate <model.json> --out <model.json> [--json]
+# Reviewer
 archpub compare <delivery> <delivery> [--json]
 archpub accept <delivery> --reviewer <name> [--seal-name <name>] [--note <text>] [--sign <key>] [--json]
 archpub verify <delivery> [--allowed-signers <file>] [--json]
+# Publisher
 archpub publish <delivery> --to <root> [--version <name>] [--json]
+# Every role
 archpub skill [--json]
 archpub <command> --help | archpub help [command]
 archpub --version | --help [--json]
