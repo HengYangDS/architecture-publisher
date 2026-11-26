@@ -11,16 +11,15 @@ channel has one meaning.
 ### Requirement: One table of line values
 
 The product SHALL hold the weights, patterns and marks of a plate's lines in one table inside the product, keyed by
-what each row means. A row SHALL state its meaning, its channel, its value in the plate's drawing space, the
-figure-reading question it answers, whether a work has tested it, and what the page does for it. The figure, the
-key, the documents' reference table and the tests SHALL take every such value from the table, and a model SHALL NOT
-name, add or change a row.
+what each row means. A row SHALL state its meaning, its value in the plate's drawing space, from which its channel
+follows, the figure-reading question it answers, whether a work has tested it, and what the page does for it. The
+figure and the key SHALL take every such value from the table, and a model SHALL NOT name, add or change a row.
 
 #### Scenario: A value changed in the table
 
 - **WHEN** the table gives the system boundary another gap
 - **THEN** a plate's boundary and the key's sample of it are drawn with that gap
-- **AND** the test of the documents' reference table fails until the document shows that gap
+- **AND** the check of generated inputs fails until the documents' reference table is written again
 
 #### Scenario: A model names a line value
 
@@ -37,13 +36,13 @@ name, add or change a row.
 The table SHALL hold these rows and no other: a relation, a continuous line of one weight; emphasis, twice that
 weight with an arrowhead 1.45 times as large, for a relation into the view's hub; the system boundary, dashed as the
 trial measured it; the number of files a relation cites; and the patterns of a planned and of a retired part or
-relation, each marked as not yet tested by a work. The documents' reference table SHALL show every row and print
-that mark.
+relation, each marked as not yet tested by a work. A command SHALL write the documents' reference table from the
+table, with every row and that mark.
 
 #### Scenario: The reference table
 
-- **WHEN** the reference table in the documents is compared with the table
-- **THEN** it holds one line for each row, with the row's meaning, value, question and what the page does for it
+- **WHEN** the documents' reference table of lines differs from what the command writes from the table
+- **THEN** the check of generated inputs fails and names the document
 
 #### Scenario: A row no work has tested
 

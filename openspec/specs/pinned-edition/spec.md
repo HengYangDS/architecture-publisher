@@ -25,21 +25,26 @@ the manifest's artifacts SHALL equal the digest the manifest records for the mod
 
 ### Requirement: The pinned edition as data
 
-Every delivery SHALL hold `<model id>.json` at its top, the pinned edition as data, with these members in this
-order: `delivery`, `publisher`, `work`, `model`, `pin`, `views`, `statements`, `catalogue`, `facts`, `evidence`,
-`guide` when the model names one, `overview` when the build sets one, `plates` and `media`. Its `delivery` SHALL
-state the format and version the manifest states, and its `model` the file, digest, size, format and version of the
-delivered model.
+Every delivery SHALL hold `<model id>.json` at its top, the pinned edition as data, with the members the data
+reference states, in its order: `guide` only when the model names one and `overview` only when the build sets one.
+The data reference's table of members SHALL be the format's statement of them, which the tests hold the data to. Its
+`delivery` SHALL state the format and version the manifest states, and its `model` the file, digest, size, format
+and version of the delivered model.
 
 #### Scenario: The members
 
 - **WHEN** a model with a guide and an overview is built with its checkout
-- **THEN** the data holds the fourteen members in that order
+- **THEN** the data holds every member the data reference states, in that order
 
 #### Scenario: A build of the page alone
 
 - **WHEN** a model is built with `--media page`
 - **THEN** the data holds every statement, fact and row of evidence, an empty list of plates and no overview
+
+#### Scenario: A member the data writes otherwise
+
+- **WHEN** the data writes its members in an order or a set the data reference does not state
+- **THEN** the test suite fails
 
 ### Requirement: The work and the pin in the data
 
@@ -140,11 +145,11 @@ pin the paths only the guide cites, and SHALL NOT count them among the files the
 
 ### Requirement: A row of evidence
 
-A row of the evidence table SHALL hold the path; its state, `verified` when the build read the path at the pin and
-`unverified` otherwise; when verified, its SHA-256, its size in bytes and the UTC date of its last change at the
-pin; the component that owns it, when one does; the ids of the relations that cite it; and each range the guide
-cites in it, with its first and last line, or none for a whole file, and the place of the citation. The table
-SHALL refuse nothing.
+A row of the evidence table SHALL hold the keys the data reference states for it, in its order: the path; its
+state, `verified` when the build read the path at the pin, else `unverified`; when verified, its SHA-256, size in
+bytes and the UTC date of its last change at the pin; its owning component, if any; the ids of the relations that
+cite it; and each range the guide cites in it, first and last line or none for a whole file, with the citation's
+place. The table SHALL refuse nothing.
 
 #### Scenario: A file owned and cited
 
