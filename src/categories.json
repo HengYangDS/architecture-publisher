@@ -1,5 +1,5 @@
 {
-  "$comment": "How each category of the model looks in every medium, in the schema's order: its default Lucide icon, Archify's type for it, whether its parts lie outside the described system, and whether it takes the palette's accent role; then the category of a part that names no kind, and a group's look. The model's schema states the categories and the default one; src/kinds.mjs reads this table, tools/docs/references.mjs writes the model reference's table of categories from it and the schema, and tests/category-looks.test.mjs holds its categories to the schema's and its kindless category to the schema's default.",
+  "$comment": "How each category of the model looks in every medium, in the order the schema takes from this table: its default Lucide icon, Archify's type for it, whether its parts lie outside the described system, and whether it takes the palette's accent role; then the category of a part that names no kind, and a group's look. src/kinds.mjs reads this table; tools/docs/references.mjs writes the model schema's categories and default category from it, and the model reference's table of categories.",
   "categories": {
     "person": {
       "icon": "user",

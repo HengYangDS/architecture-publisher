@@ -1,5 +1,5 @@
 import { HOUSE } from "../house.mjs";
-import { COLOR, fieldsOf, sizeOf, variantOf } from "./vocabulary.mjs";
+import { COLOR, DEFAULT_PALETTE, fieldsOf, sizeOf, variantOf } from "./vocabulary.mjs";
 
 /** The fields of the edition and of a palette the model gives itself, and its dyes' count, as the schema states them. */
 const CUSTOM = variantOf("/properties/edition/properties/palette", "dye");
@@ -26,7 +26,6 @@ const OLDEST = DYES - 1;
 
 /** The built-in palettes, in the house's order. */
 export const PALETTES = Object.freeze(Object.keys(HOUSE.palettes));
-const DEFAULT_PALETTE = "indigo";
 const NO_EDITION = Object.freeze({ palette: null });
 /**
  * The fields an edition once took and no longer takes, each with what its refusal says: `marks` chose between a
@@ -342,7 +341,7 @@ function derive(roles) {
 }
 
 /**
- * Resolve a valid palette to its roles and tokens: null is the default, indigo; a name is a
+ * Resolve a valid palette to its roles and tokens: null is the schema's default palette; a name is a
  * built-in palette, with its names in Chinese and English; roles are a custom palette, which has
  * none. Every palette derives its tokens from its roles in the same way.
  * @param {string | Roles | null} spec

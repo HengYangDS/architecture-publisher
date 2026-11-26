@@ -36,28 +36,23 @@ function refusalOf(edition) {
 }
 
 test("an edition chooses from the house's palettes, in its order", () => {
-  assert.deepEqual(PALETTES, ["indigo", "persimmon", "soot", "patina"]);
   assert.deepEqual(PALETTES, Object.keys(HOUSE.palettes));
   assert.ok(Object.isFrozen(PALETTES));
-  // Each built-in is named for the dye or pigment it comes from, in Chinese and in English.
-  assert.deepEqual(
-    PALETTES.map((id) => [HOUSE.palettes[id].name["zh-CN"], HOUSE.palettes[id].name.en]),
-    [
-      ["靛蓝", "Indigo"],
-      ["柿漆", "Persimmon"],
-      ["松烟", "Soot"],
-      ["铜绿", "Patina"],
-    ],
-  );
+  // Each built-in is named for the dye or pigment it comes from, in Chinese and in English, and its English name is
+  // its id.
+  for (const id of PALETTES) {
+    const { name } = HOUSE.palettes[id];
+    assert.match(name["zh-CN"], /^\p{Script=Han}{2}$/u, id);
+    assert.equal(name.en.toLowerCase(), id);
+  }
 });
 
-test("the published schema lists the same palettes", async () => {
+test("the published schema states a palette of the model's own as the house reads it", async () => {
   const schema = await readJson(new URL("../src/model/schema.json", import.meta.url));
   const { edition } = schema.properties;
   assert.equal(edition.additionalProperties, false);
   assert.deepEqual(Object.keys(edition.properties), ["palette"]);
-  const [named, custom] = edition.properties.palette.oneOf;
-  assert.deepEqual(named.enum, PALETTES);
+  const [, custom] = edition.properties.palette.oneOf;
   assert.deepEqual(custom.required, ["ground", "ink", "dye"]);
   assert.deepEqual(Object.keys(custom.properties), ["ground", "ink", "dye", "accent"]);
   assert.equal(custom.additionalProperties, false);

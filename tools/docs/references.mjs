@@ -1,7 +1,10 @@
 // references.mjs --check|--write [--root <repository>]: the tables of the reference documents that restate the source, written from it
-// (the queue item `derived-references`). Each table stands between two comment lines that name it and its
-// source; the rest of its document is the authors'. The document is formatted by the repository's Prettier, so a
-// written table is aligned as a table set by hand is.
+// (the queue item `derived-references`), and the model's schema with the enumerations a table of the source owns
+// filled in from that table. Each table stands between two comment lines that name it and its source; the rest of its
+// document is the authors'. The document and the schema are formatted by the repository's Prettier, so a written
+// table is aligned as a table set by hand is. The schema is written whole, as JSON then Prettier: its content outside
+// the enumerations stays the authors', its layout is the writer's (an inline object or an escaped character that the
+// format check accepts is written out again, and `check:generated` refuses it until `--write` is run).
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -169,6 +172,40 @@ const suppliesTable = () =>
 // The rules a model's value is held to, as its schema states them (src/model/schema.json): the patterns and the
 // limits are the schema's own; the words that say what each rule refuses are the writer's.
 const schema = JSON.parse(await fs.readFile(path.join(root, "src/model/schema.json"), "utf8"));
+// The schema's enumerations that a table of the source owns, each filled in from that table: its members in the
+// table's order, and its default where the table states one. The units that draw read these tables and not the model,
+// so a table, not the schema, is their one statement; the schema states the palettes' default itself, which only the
+// model reads.
+const SETS = [
+  {
+    at: "/properties/kinds/additionalProperties/properties/category",
+    from: "src/categories.json",
+    members: (/** @type {any} */ table) => Object.keys(table.categories),
+    default: (/** @type {any} */ table) => table.kindless,
+  },
+  {
+    at: "/properties/edition/properties/palette/oneOf/0",
+    from: "src/house.json",
+    members: (/** @type {any} */ table) => Object.keys(table.palettes),
+  },
+  {
+    at: "/properties/locale",
+    from: "src/locales.json",
+    members: (/** @type {any} */ table) => table.languages,
+    default: (/** @type {any} */ table) => table.default,
+  },
+];
+for (const set of SETS) {
+  const node = set.at
+    .split("/")
+    .slice(1)
+    .reduce((/** @type {any} */ value, key) => value?.[key], schema);
+  if (!Array.isArray(node?.enum))
+    throw new Error(`references_set_missing: the schema states no enumeration at ${set.at}`);
+  const table = JSON.parse(await fs.readFile(path.join(root, set.from), "utf8"));
+  node.enum = set.members(table);
+  if (set.default) node.default = set.default(table);
+}
 const code = (/** @type {string} */ value) => `\`${value}\``;
 const vocabularyTable = () =>
   table(
@@ -366,25 +403,34 @@ const begin = ({ name, source }) =>
 const end = ({ name }) => `<!-- end of ${name} -->`;
 
 let drift = 0;
-for (const file of [...new Set(BLOCKS.map((block) => block.file))]) {
+/** Write a file in the repository's Prettier form, or in a check refuse the file when it differs from that. */
+const settle = async (
+  /** @type {string} */ file,
+  /** @type {string} */ parser,
+  /** @type {string} */ text,
+) => {
   const target = path.join(root, file);
-  let text = await fs.readFile(target, "utf8");
+  const policy = await resolveConfig(target, {
+    config: path.join(root, ".config/checks/prettier/prettier.toml"),
+    editorconfig: false,
+  });
+  const written = await format(text, { ...policy, parser });
+  if (written === (await fs.readFile(target, "utf8"))) return;
+  if (mode === "--check") {
+    process.stderr.write(`references_drift: ${file}: run node tools/docs/references.mjs --write\n`);
+    drift += 1;
+  } else await fs.writeFile(target, written);
+};
+await settle("src/model/schema.json", "json", JSON.stringify(schema, null, 2));
+for (const file of [...new Set(BLOCKS.map((block) => block.file))]) {
+  let text = await fs.readFile(path.join(root, file), "utf8");
   for (const block of BLOCKS.filter((each) => each.file === file)) {
     const from = text.indexOf(begin(block));
     const to = text.indexOf(end(block), from);
     if (from < 0 || to < from) throw new Error(`references_block_missing: ${file} ${block.name}`);
     text = `${text.slice(0, from)}${begin(block)}\n\n${block.text()}\n\n${text.slice(to)}`;
   }
-  const policy = await resolveConfig(target, {
-    config: path.join(root, ".config/checks/prettier/prettier.toml"),
-    editorconfig: false,
-  });
-  const written = await format(text, { ...policy, parser: "markdown" });
-  if (written === (await fs.readFile(target, "utf8"))) continue;
-  if (mode === "--check") {
-    process.stderr.write(`references_drift: ${file}: run node tools/docs/references.mjs --write\n`);
-    drift += 1;
-  } else await fs.writeFile(target, written);
+  await settle(file, "markdown", text);
 }
 if (drift) throw new Error("references_drift");
 process.stdout.write(`reference tables ${mode === "--check" ? "verified" : "written"}\n`);

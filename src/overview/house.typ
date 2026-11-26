@@ -464,8 +464,9 @@
 /// Apply the page: `#show: overview`.
 #let overview(body) = if _in-edition { body } else {
   set page(width: page-width, height: page-height, margin: 0pt, fill: paper)
-  // The model's language, as the edition sets it: a text breaks and hyphenates alike drawn alone and in the edition.
-  let locale = _model.at("locale", default: "en")
+  // The model's language, as the publisher hands it to the page drawn alone and the edition's record states it: a
+  // text breaks and hyphenates alike drawn alone and in the edition.
+  let locale = _inputs.at("locale")
   set text(lang: locale.split("-").first(), region: if "-" in locale { locale.split("-").last() } else { none },
     font: sans, size: sizes.text, fill: ink, stretch: 100%)
   set par(leading: _text.leading, spacing: _text.leading)

@@ -492,7 +492,8 @@
       "additionalProperties": false,
       "properties": {
         "palette": {
-          "description": "A built-in palette, indigo (the default), persimmon, soot or patina, or the model's own, which must pass the publisher's contrast, chroma, lightness and hue rules.",
+          "description": "A built-in palette, or the model's own, which must pass the publisher's contrast, chroma, lightness and hue rules.",
+          "default": "indigo",
           "oneOf": [
             {
               "enum": ["indigo", "persimmon", "soot", "patina"]

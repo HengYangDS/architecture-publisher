@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateModel } from "../src/model/load.mjs";
+import { TEXT, validateModel } from "../src/model/load.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { everyBlock } from "./fixtures/overview-statements.mjs";
 
@@ -63,6 +63,18 @@ test("a fork holds two branches or more, and a stretch's tracks are a count or t
     ["model_list_invalid", "/overview/course/steps/2/stations/0/branches"],
     ["model_overview_invalid", "/overview/course/parallel/0/tracks"],
   ]);
+});
+
+test("a stretch's named tracks each keep to the rule of a text", () => {
+  for (const name of [" ", "a\u0000b", "x".repeat(TEXT.most + 1)]) {
+    const statement = everyBlock();
+    statement.course.parallel[0].tracks = ["left", name];
+    assert.deepEqual(
+      problemsOf(minimalModel({ overview: statement })),
+      [["model_overview_invalid", "/overview/course/parallel/0/tracks"]],
+      JSON.stringify(name).slice(0, 12),
+    );
+  }
 });
 
 test("a step or a station is named by a label or by the part it is, and ids are not repeated", () => {

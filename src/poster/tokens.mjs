@@ -122,8 +122,10 @@ export const POSTER = Object.freeze({
 });
 
 /**
- * The tokens a plate is drawn in when its edition names no palette: the house
- * palette, figure and dyes, the colours of the 0.12 plates.
+ * The tokens a plate is checked or drawn in without an edition's palette (a
+ * plate staged alone, the colophon, the scaffold's admission): the house's own
+ * palette, figure and dyes, the colours of the 0.12 plates. A model that names
+ * no palette is drawn in the schema's default palette, not in these.
  */
 const HOUSE_TOKENS = Object.freeze({
   palette: HOUSE.palette,

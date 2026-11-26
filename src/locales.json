@@ -1,0 +1,5 @@
+{
+  "$comment": "The languages a model may be written in, in the order the model reference lists them, and the language of a model that names none. src/locale.mjs reads this table and refuses at import a table of words not keyed by exactly these languages; tools/docs/references.mjs writes the model schema's languages and default from it.",
+  "languages": ["en", "zh-CN", "zh-TW", "es", "ko"],
+  "default": "en"
+}

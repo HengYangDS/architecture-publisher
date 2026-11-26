@@ -37,6 +37,7 @@ async function linesOf(stated, said, locale = "en") {
 const checked = (stated, locale = "en") =>
   checkOverview({
     modelBytes: Buffer.from(JSON.stringify(minimalModel({ overview: stated, locale }))),
+    locale,
     revision: null,
     date: "2026-11-10",
   });
@@ -47,6 +48,7 @@ async function inked(stated, said, locale = "en") {
   const model = { ...work.model, locale };
   const { boxes } = await checkOverview({
     modelBytes: Buffer.from(JSON.stringify(minimalModel({ overview: stated, locale }))),
+    locale,
     revision: null,
     date: "2026-11-10",
   });

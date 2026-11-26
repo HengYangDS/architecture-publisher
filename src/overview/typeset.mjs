@@ -220,7 +220,8 @@ function refuseDiagnostics(stderr, roots) {
  * by a bundled face. Hands back the texts, the boxes read back, the marks and lines it drew, and each line of a text
  * that is not spread to its measure though it is not the text's last: the text, the line, and how far it would
  * open at each place, in ems, or null where it has no place to open.
- * @param {{ modelBytes: Buffer, writtenFrom?: string | null, plates?: Record<string, string>,
+ * The model's language is the loader's, which names the default language where the model names none.
+ * @param {{ modelBytes: Buffer, locale: string, writtenFrom?: string | null, plates?: Record<string, string>,
  *   revision: string | null, date: string | null, typst?: string, tokens?: { palette: object, figure: object, dye: object } }} input
  */
 export async function checkOverview(input) {
@@ -254,6 +255,8 @@ export async function checkOverview(input) {
           `revision=${input.revision ?? ""}`,
           "--input",
           `date=${input.date ?? ""}`,
+          "--input",
+          `locale=${input.locale}`,
           "--format",
           "json",
         ],

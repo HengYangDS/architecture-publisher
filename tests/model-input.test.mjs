@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { CATEGORIES, loadModel, validateModel } from "../src/model/load.mjs";
+import { loadModel, validateModel } from "../src/model/load.mjs";
 import {
   AIGW_MODEL,
   minimalModel,
@@ -51,7 +51,6 @@ test("kinds keep declared order, then first appearance, with default categories"
     ["owns", ["x", "y"]],
     ["role", ["z"]],
   ]);
-  assert.equal(CATEGORIES.length, 8);
 });
 
 test("every problem is reported with its path in one refusal", () => {

@@ -6,9 +6,34 @@
  * posters and the page of one model read alike. Everything else a reader sees
  * is the model's own text.
  */
+import fs from "node:fs";
 
-/** A model that names no language is read in English. */
-export const DEFAULT_LOCALE = "en";
+/**
+ * The languages a model may be written in and the language of a model that names none: the table beside this module
+ * (src/locales.json), from which the model's schema is written.
+ * @type {{ languages: string[], default: string }}
+ */
+const LANGUAGES = JSON.parse(fs.readFileSync(new URL("./locales.json", import.meta.url), "utf8"));
+/** The languages a model may name, in the order the reference lists them. */
+export const LOCALES = Object.freeze(LANGUAGES.languages);
+/** The language of a model that names none. */
+export const DEFAULT_LOCALE = LANGUAGES.default;
+if (!LOCALES.includes(DEFAULT_LOCALE))
+  throw new Error(`src/locales.json names a default language it does not list: ${DEFAULT_LOCALE}`);
+
+/**
+ * Refuse, at import, a table keyed by language that does not hold exactly the languages a model may name, in their
+ * order: every language a model names has its words, and no table holds words for another.
+ * @param {string} name what the table holds
+ * @param {Readonly<Record<string, unknown>>} table
+ */
+export function keyedByLanguage(name, table) {
+  const keys = Object.keys(table);
+  if (keys.length !== LOCALES.length || keys.some((key, index) => key !== LOCALES[index]))
+    throw new Error(
+      `the ${name} are not keyed by the languages of src/locales.json: ${keys.join(", ")}`,
+    );
+}
 
 /**
  * @typedef {{
@@ -208,8 +233,7 @@ const WORDS = Object.freeze({
   }),
 });
 
-/** The languages a model may name, in the order the reference lists them. */
-export const LOCALES = Object.freeze(Object.keys(WORDS));
+keyedByLanguage("publisher's words", WORDS);
 
 /** The languages written without spaces between words, whose lines spread evenly between their characters. */
 const UNSPACED = new Set(["zh-CN", "zh-TW"]);

@@ -49,6 +49,7 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/model.md", "`planned`, `retired`", "`planned`"],
       ["docs/reference/model.md", "type; the default.", "type."],
       ["docs/reference/command-line.md", "field; did you mean label?", "field."],
+      ["src/model/schema.json", '"ko"]', '"ja"]'],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
@@ -83,6 +84,36 @@ test("the writer stops on a top-level field the schema neither describes nor fix
     const refused = await writer("--check", dir);
     assert.equal(refused.code, 1);
     assert.match(refused.stderr, /references_description_missing: the schema's field groups/u);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("the writer refuses a schema whose enumeration differs from the table that owns it, and writes it from the table", async () => {
+  const dir = await tree();
+  try {
+    const looks = path.join(dir, "src/categories.json");
+    const table = JSON.parse(await fs.readFile(looks, "utf8"));
+    table.kindless = "frontend";
+    await fs.writeFile(looks, `${JSON.stringify(table, null, 2)}\n`);
+    const refused = await writer("--check", dir);
+    assert.equal(refused.code, 1);
+    assert.match(refused.stderr, /references_drift: src\/model\/schema\.json: run/u);
+    assert.equal((await writer("--write", dir)).code, 0);
+    const schema = JSON.parse(await fs.readFile(path.join(dir, "src/model/schema.json"), "utf8"));
+    assert.equal(
+      schema.properties.kinds.additionalProperties.properties.category.default,
+      "frontend",
+    );
+    // The default language too: the table of languages names another, and the schema follows it.
+    const languages = path.join(dir, "src/locales.json");
+    const listed = JSON.parse(await fs.readFile(languages, "utf8"));
+    listed.default = listed.languages.at(-1);
+    await fs.writeFile(languages, `${JSON.stringify(listed, null, 2)}\n`);
+    assert.equal((await writer("--check", dir)).code, 1);
+    assert.equal((await writer("--write", dir)).code, 0);
+    const written = JSON.parse(await fs.readFile(path.join(dir, "src/model/schema.json"), "utf8"));
+    assert.equal(written.properties.locale.default, listed.default);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }

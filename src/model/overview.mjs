@@ -9,7 +9,7 @@
  * here says where anything stands, how large it is or in what type: those are the publisher's.
  */
 
-import { TRACKS, fieldsOf, leastOf, sizeOf, variantOf } from "./vocabulary.mjs";
+import { TEXT, TRACKS, fieldsOf, isText, leastOf, sizeOf, variantOf } from "./vocabulary.mjs";
 
 const COURSE = "/$defs/overviewCourse";
 const FURTHER = "/$defs/overviewFurtherCourse";
@@ -181,7 +181,7 @@ const tracksOf = (tracks) =>
   (Array.isArray(tracks) &&
     tracks.length >= TRACKS.least &&
     tracks.length <= TRACKS.most &&
-    tracks.every((name) => typeof name === "string" && name.trim() !== ""));
+    tracks.every(isText));
 
 function checkCourse(course, path, problems, componentIds) {
   if (!problems.fields(course, path, FIELDS.course)) return;
@@ -302,7 +302,7 @@ function checkParallel(parallel, path, problems, { ids, runs, order, forks }) {
       problems.add(
         "model_overview_invalid",
         `${where}/tracks`,
-        `runs a stretch on ${TRACKS.least} to ${TRACKS.most} tracks, counted or named`,
+        `runs a stretch on ${TRACKS.least} to ${TRACKS.most} tracks, counted or named, each name a text of at most ${TEXT.most} characters, not blank and without a NUL`,
       );
     const [from, to] = ends;
     if (from === undefined || to === undefined) return;

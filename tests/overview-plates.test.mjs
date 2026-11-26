@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { checkModel } from "../src/build.mjs";
+import { DEFAULT_LOCALE } from "../src/locale.mjs";
 import { validateModel } from "../src/model/load.mjs";
 import { checkOverview } from "../src/overview/typeset.mjs";
 import { minimalModel, pageModel, writeModel } from "./fixtures/models.mjs";
@@ -80,6 +81,7 @@ test("a step, a spur and a block name the view that enlarges them, and a view th
 test("the page sets a plate's number after the name of each step, station, branch and block that names its view", async () => {
   const { boxes } = await checkOverview({
     modelBytes: Buffer.from(JSON.stringify(minimalModel({ views: VIEWS, overview: statement() }))),
+    locale: DEFAULT_LOCALE,
     plates: { calls: "07", answers: "08" },
     revision: null,
     date: "2026-11-18",

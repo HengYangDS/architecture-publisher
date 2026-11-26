@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { DEFAULT_LOCALE } from "../src/locale.mjs";
 import { checkOverview } from "../src/overview/typeset.mjs";
 import { minimalModel } from "./fixtures/models.mjs";
 import { everyBlock } from "./fixtures/overview-statements.mjs";
@@ -13,6 +14,7 @@ function drawn(statement, writtenFrom = null) {
   const model = minimalModel({ overview: statement });
   return checkOverview({
     modelBytes: Buffer.from(JSON.stringify(model)),
+    locale: DEFAULT_LOCALE,
     writtenFrom,
     revision: "a".repeat(40),
     date: "2026-11-17",

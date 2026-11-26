@@ -116,8 +116,8 @@ path; six more patterns; twenty-three lists of required and allowed fields in `m
 
 ## What already has one source
 
-The product's version in the package files; the palettes and the locales in code (the keys of `house.json` and of
-`locale.mjs`); a link to a file (`linkOf`, one caller) and the address without `.git`; an image's and a figure's
+The product's version in the package files; the palettes and the locales in code (the keys of `house.json` and the
+table `src/locales.json`, from 2026-11-26); a link to a file (`linkOf`, one caller) and the address without `.git`; an image's and a figure's
 name; the rows of the contents and of the index (`edition.contentsRows`, `edition.indexRows`); line strokes and
 dashes; the line reference, which a test holds to the table.
 
@@ -176,6 +176,34 @@ program twice (the dissent chose it to keep the writer from running the product)
 for the check of generated inputs; a number written inside a sentence cannot be written from its owner. Taken with
 them: the schema gains what only the loader states, and a test of the problems' codes, paths and order on bad
 models stands before the loader changes.
+
+## The sets the code keys its data by (2026-11-26)
+
+Four enumerations of the schema were weighed: the categories (their looks, `src/categories.json`), the built-in
+palettes (their tokens, `src/house.json`), the languages (the words of each, in `src/locale.mjs` and two more modules)
+and the statuses. The first three are sets the code keys its data by; each was stated in the schema and again in the
+code, the categories and the languages with a default, and a test held the two equal. The statuses had one list, the
+schema's. The maintainer put the question of each set's one statement to a committee of three, each blind to the
+others: a reader of decoupling, a reader of the schema's users and a reader for the fewest entities (21:56 to 22:00).
+The maintainer decided under the owner's delegation.
+
+| Set        | Decision                                                                                                        | Votes                                |
+| ---------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Statuses   | no change: the schema is the one list, and code that branches on a status is behaviour                          | 3 of 3                               |
+| Categories | the table of looks states the set and the default; the schema's are written from it                             | 2 of 3                               |
+| Palettes   | the house's tokens state the set, written into the schema; the schema states the default, which the model reads | 2 of 3; the default the maintainer's |
+| Languages  | a table of languages states the set and the default; the schema's are written from it                           | 1 of 3, the maintainer's             |
+
+The reasons that decided: the units that draw may not read the model's unit, so a table they read cannot take its set
+from the schema without a dependency the boundary test cannot see; a table keyed by the members names them anyway, so
+it is the larger statement, and the schema is filled in from it as the reference tables are. For the languages, the
+dissent kept the tests (the words are code, which a tool may not import) or made the schema the source (which makes
+`src/locale.mjs`, which may import nothing, read the model's file); the first leaves the item's clause unmet, and a
+table of five languages beside the module is the smaller entity. The schema reader's objection, that a hand-written
+file gains written parts a hand edit of which is refused only by the check, holds of the written reference tables too.
+The palettes' default went against both majority members, who put it in the house: the maintainer kept it in the
+schema, since only the model's unit reads it and it is a fact of the model's contract, not a token. Not taken: a
+default status, which would state what an absent status means in a contract that writes `null` for it.
 
 ## What is not established
 

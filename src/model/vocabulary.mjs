@@ -51,6 +51,14 @@ export const DEFAULT_CATEGORY = /** @type {string} */ (
     CATEGORIES.includes(/** @type {string} */ (value)),
   )
 );
+/** The palette of an edition that names none: one of the house's palettes, which the schema's are written from. */
+export const DEFAULT_PALETTE = /** @type {string} */ (
+  at("/properties/edition/properties/palette/default", (value) =>
+    names("/properties/edition/properties/palette/oneOf/0/enum").includes(
+      /** @type {string} */ (value),
+    ),
+  )
+);
 /** The statuses a component or a relation takes. */
 export const STATUSES = names("/$defs/status/enum");
 
@@ -75,6 +83,13 @@ export const TEXT = Object.freeze({
   visible: pattern("/$defs/text/pattern"),
   refused: pattern("/$defs/text/not/pattern"),
 });
+/** Whether a value is a text: every text of the model, a track's name among them, keeps to this one rule. */
+export const isText = (/** @type {unknown} */ value) =>
+  typeof value === "string" &&
+  value.length >= TEXT.least &&
+  value.length <= TEXT.most &&
+  TEXT.visible.test(value) &&
+  !TEXT.refused.test(value);
 
 /** A relative path in the repository: its longest length and its pattern, which a directory's final slash meets. */
 export const PATH = Object.freeze({

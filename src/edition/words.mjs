@@ -7,7 +7,7 @@
  * note names the acceptance record and its signature by the names it is given.
  */
 
-import { DEFAULT_LOCALE } from "../locale.mjs";
+import { DEFAULT_LOCALE, keyedByLanguage } from "../locale.mjs";
 
 /**
  * @typedef {{
@@ -256,6 +256,7 @@ const WORDS = Object.freeze({
       `이 판과 함께 발행된 승인 기록(${signature ? `${record} 및 ${signature}` : record})에는 이 쪽과 매니페스트의 SHA-256이 담겨 있으며, archpub verify로 확인할 수 있습니다.`,
   }),
 });
+keyedByLanguage("print edition's words", WORDS);
 
 /**
  * The edition's words in a model's language; an unknown or absent language reads as English.

@@ -735,7 +735,7 @@
       {
         "code": "model_overview_invalid",
         "path": "/overview/course/parallel/0/tracks",
-        "message": "runs a stretch on 2 to 4 tracks, counted or named"
+        "message": "runs a stretch on 2 to 4 tracks, counted or named, each name a text of at most 2000 characters, not blank and without a NUL"
       }
     ]
   },

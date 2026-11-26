@@ -19,6 +19,15 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** a stretch of the overview's course whose track is named with a NUL character or with more than
+  2,000 characters (a character outside the Basic Multilingual Plane counts as two) is refused
+  (`model_overview_invalid`); the schema of 0.20.0 refused the longer name already, and the schema refuses a NUL
+  character from this release on.
+- The model's schema states the categories, the built-in palettes and the languages as the tables that own them
+  do, written from them, and the default palette once, as its `default`. A table of words that lacks a language
+  of `src/locales.json`, or holds another, stops the publisher at import. No page, image, figure or file a
+  delivery lists changes. The manifest's digests of the class's inputs, `edition.house` and `overview.house`,
+  change: they cover the overview's class, which takes the model's language from the publisher.
 - The model's schema describes every top-level field, which an author's editor shows, and the model reference's
   table of them is written from it; `locale` states `en` as its default.
 - `archpub check` reports a refused model before it loads the faces its texts are measured in, in 0.12 s where
@@ -26,7 +35,7 @@ remain pre-release contracts and may contain incompatible changes.
   of its own, `docs/reference/overview.md`.
 - The LikeC4 import keeps an id up to the model's longest, 128 characters with a suffix that keeps it unique,
   where it cut at 120. The model's schema states its default category, `backend`; how each category looks
-  stands in one table, held to the schema's categories.
+  stands in one table, from which the schema's categories are written.
 - The publisher reads the fields each object of a model takes and the fewest items of each list from
   `src/model/schema.json`, as it reads the model's patterns and limits. The schema now accepts a spur of the
   overview's course that names its view, as the publisher always did; a spur without `at` reports it before

@@ -84,10 +84,16 @@ reports, each once with its meaning; the type check holds every raise to it.
 ## Written reference tables
 
 A table of a reference document that restates the source stands between two
-comment lines that name its source. After changing that source, run
-`node tools/docs/references.mjs --write`. `npm run check:generated` refuses a
-document whose table differs from what the writer writes and names it: locally,
-in the proof and in a pipeline, since generation writes no committed file.
+comment lines that name its source. The model's schema states the categories,
+the palettes and the languages as the tables that own them do:
+`src/categories.json`, `src/house.json` and `src/locales.json`. After changing
+a source, run `node tools/docs/references.mjs --write`, which writes the tables
+and those enumerations of the schema; it writes the whole schema in one
+layout, so a hand edit's own layout is written out again. `npm run
+check:generated` refuses a document or a schema that differs from what the
+writer writes and names it:
+locally, in the proof and in a pipeline, since generation writes no committed
+file.
 
 ## Job-local native tools
 

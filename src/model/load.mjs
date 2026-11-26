@@ -24,6 +24,7 @@ import {
   TEXT,
   UNPORTABLE_ID,
   fieldsOf,
+  isText,
   leastOf,
   variantOf,
 } from "./vocabulary.mjs";
@@ -57,12 +58,6 @@ const LEAST = Object.freeze({
 });
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-const isText = (value) =>
-  typeof value === "string" &&
-  value.length >= TEXT.least &&
-  value.length <= TEXT.most &&
-  TEXT.visible.test(value) &&
-  !TEXT.refused.test(value);
 
 /** Collects every problem in one pass so authors fix them together. */
 class Problems {

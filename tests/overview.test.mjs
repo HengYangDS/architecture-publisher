@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { buildDelivery, checkModel } from "../src/build.mjs";
 import { checkBoxes } from "../src/overview/checks.mjs";
+import { DEFAULT_LOCALE } from "../src/locale.mjs";
 import { TYPST_VERSION } from "../src/names.mjs";
 import { checkOverview, typstProblems, typstVersion } from "../src/overview/typeset.mjs";
 import { minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
@@ -18,6 +19,7 @@ const stated = (t, extra = {}) => writeModel(t, minimalModel({ overview: everyBl
 function typeset(statement = everyBlock()) {
   return checkOverview({
     modelBytes: Buffer.from(JSON.stringify(minimalModel({ overview: statement }))),
+    locale: DEFAULT_LOCALE,
     revision: "a".repeat(40),
     date: "2026-11-02",
   });

@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { importLikeC4 } from "../src/importers/likec4.mjs";
 import { presentation } from "../src/kinds.mjs";
 import {
-  DEFAULT_LOCALE,
   LOCALES,
+  keyedByLanguage,
   detailPieces,
   detailText,
   measureWordsOf,
@@ -26,16 +28,39 @@ const fits = async () => ({ fits: true, width: 2400, height: 1350 });
 const readJson = async (url) => JSON.parse(await fs.readFile(url, "utf8"));
 const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
 
-test("every language a model may name is one Archify speaks, and the schema lists the same with its default", async () => {
+test("every language a model may name is one Archify speaks", async () => {
   const catalogs = await readJson(
     new URL("../renderers/archify/supply/locales/manifest.json", import.meta.url),
   );
   const spoken = new Set(catalogs.catalogs.map(({ locale }) => locale));
   for (const locale of LOCALES) assert.ok(spoken.has(locale), locale);
-  const schema = await readJson(new URL("../src/model/schema.json", import.meta.url));
-  assert.deepEqual(schema.properties.locale.enum, LOCALES);
-  assert.equal(schema.properties.locale.default, DEFAULT_LOCALE);
-  assert.equal(DEFAULT_LOCALE, LOCALES[0]);
+});
+
+test("a table keyed by language holds exactly the languages a model may name, in their order", () => {
+  const keyed = (/** @type {string[]} */ locales) =>
+    Object.fromEntries(locales.map((locale) => [locale, locale]));
+  assert.doesNotThrow(() => keyedByLanguage("test words", keyed([...LOCALES])));
+  for (const locales of [LOCALES.slice(0, -1), [...LOCALES, "xx"], [...LOCALES].reverse()])
+    assert.throws(() => keyedByLanguage("test words", keyed(locales)), {
+      message: `the test words are not keyed by the languages of src/locales.json: ${locales.join(", ")}`,
+    });
+});
+
+test("the publisher refuses at import a table of languages whose default it does not list", async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-locales-"));
+  try {
+    const listed = await readJson(new URL("../src/locales.json", import.meta.url));
+    await fs.copyFile(new URL("../src/locale.mjs", import.meta.url), path.join(dir, "locale.mjs"));
+    await fs.writeFile(
+      path.join(dir, "locales.json"),
+      JSON.stringify({ ...listed, default: "xx" }),
+    );
+    await assert.rejects(import(pathToFileURL(path.join(dir, "locale.mjs")).href), {
+      message: "src/locales.json names a default language it does not list: xx",
+    });
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
 });
 
 test("every language sets every word the publisher writes", () => {

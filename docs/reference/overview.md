@@ -57,7 +57,7 @@ how. A model that names a Typst file here is refused with
   and join it again. A
   course may carry a `text` of its own, `parallel` stretches, each `from` one
   station `to` a later one, across steps and around no fork, on `tracks`: two
-  to four, or their names, and `spurs`: stations beside the course, each
+  to four, or their names, each a text, and `spurs`: stations beside the course, each
   leaving the point named in `at`, such as an input or a store, and `passes`:
   a `label` on the stretch `after` a point, before the next.
 - On the page a station is a ring, the course's ends larger, a fork's branches

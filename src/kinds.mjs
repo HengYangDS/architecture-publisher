@@ -3,9 +3,9 @@ import { wordsOf } from "./locale.mjs";
 
 /**
  * How each category of the model looks in every medium, the category of a part that names no kind, and a group's
- * look: the table beside this module (src/categories.json), read once and read-only. The model's schema states the
- * categories and the default one; the units that draw do not read the model, so a test holds the table to the schema,
- * and the model reference's table of categories is written from both.
+ * look: the table beside this module (src/categories.json), read once and read-only. The units that draw do not read
+ * the model, so the model's schema states the categories and the default one as this table does: they are written
+ * from it, as is the model reference's table of categories.
  * @type {{ categories: Readonly<Record<string, { icon: string, archify: string, outside: boolean, accent: boolean }>>,
  *   kindless: string, group: { icon: string, category: string } }}
  */
@@ -15,8 +15,8 @@ const LOOKS = JSON.parse(
 );
 /** How each category looks: its default icon, Archify's type, whether it lies outside, whether it takes the accent. */
 export const CATEGORY_LOOKS = LOOKS.categories;
-/** The category of a part that names no kind: the model's default category, which the test holds to the schema's. */
-export const KINDLESS_CATEGORY = LOOKS.kindless;
+/** The category of a part that names no kind: the model's default category. */
+const KINDLESS_CATEGORY = LOOKS.kindless;
 /** How a group that stands for its members looks: its own icon, and the category whose look it takes. */
 const GROUP_LOOK = LOOKS.group;
 

@@ -339,6 +339,7 @@ async function preparing(modelPath, options, listener, deliver, begunPage) {
     printed && model.overview
       ? await checkOverview({
           modelBytes: loaded.content,
+          locale: model.locale,
           plates: plateNumbers,
           writtenFrom: facts.read ? editionWordsOf(model.locale).writtenFrom(facts.read) : null,
           revision: model.repository?.revision ?? null,

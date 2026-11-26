@@ -9,8 +9,11 @@ import { refuse } from "../refusal.mjs";
 import { layoutView } from "../layout/grid.mjs";
 import { viewRows, wrapRows } from "../layout/rows.mjs";
 import { CATEGORY_LOOKS, presentation } from "../kinds.mjs";
-import { DEFAULT_LOCALE, detailText, wordsOf } from "../locale.mjs";
+import { detailText, wordsOf } from "../locale.mjs";
 import { verifySupply } from "../supply.mjs";
+
+/** The language Archify's viewer speaks when a diagram names none (Archify's own default, not the publisher's). */
+const ARCHIFY_LOCALE = "en";
 
 const run = promisify(execFile);
 
@@ -296,8 +299,9 @@ function diagramDocument(model, view, layout, width, quality) {
       diagram_type: "architecture",
       meta: {
         title: viewCaption(model, view),
-        // Archify's viewer speaks English unless a diagram names its language.
-        ...(model.locale && model.locale !== DEFAULT_LOCALE ? { locale: model.locale } : {}),
+        // Archify's viewer speaks English unless a diagram names its language: a fact of Archify's, not the
+        // publisher's default language, which src/locales.json may set to another.
+        ...(model.locale && model.locale !== ARCHIFY_LOCALE ? { locale: model.locale } : {}),
         output: `${archifyIds([view.id]).get(view.id)}.html`,
         quality_profile: quality,
         viewBox: [width, Math.max(natural, Math.ceil(width / WIDE_RATIO))],

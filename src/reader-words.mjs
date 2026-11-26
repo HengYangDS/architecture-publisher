@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE } from "./locale.mjs";
+import { DEFAULT_LOCALE, keyedByLanguage } from "./locale.mjs";
 
 /**
  * The words the publisher sets in a reader file, in each language the product writes (`LOCALES`). Split from
@@ -486,6 +486,7 @@ const READER_WORDS = Object.freeze({
     }),
   }),
 });
+keyedByLanguage("reader file's words", READER_WORDS);
 
 /**
  * The reader file's words of one language.
