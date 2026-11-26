@@ -1,4 +1,5 @@
 import { HOUSE } from "../house.mjs";
+import { CATEGORY_LOOKS } from "../kinds.mjs";
 import { ROUTE } from "../layout/measure.mjs";
 
 /**
@@ -160,16 +161,16 @@ export function colorsOf({ palette, figure, dye }) {
     rule: palette.rule,
     accent: palette.green,
     shadow: figure.shadow,
-    hue: Object.freeze({
-      person: figure.outsideMark,
-      external: figure.outsideMark,
-      frontend: palette.green,
-      backend: palette.green,
-      database: palette.green,
-      cloud: palette.green,
-      messagebus: palette.green,
-      security: palette.ochre,
-    }),
+    // A category's hue: the mark of what lies outside, the palette's accent role (the house's ochre, not the token
+    // `accent` above), or the dye's oldest step.
+    hue: Object.freeze(
+      Object.fromEntries(
+        Object.entries(CATEGORY_LOOKS).map(([category, look]) => [
+          category,
+          look.outside ? figure.outsideMark : look.accent ? palette.ochre : palette.green,
+        ]),
+      ),
+    ),
     dye: Object.freeze([dye.new, dye.mid, dye.old]),
   });
 }

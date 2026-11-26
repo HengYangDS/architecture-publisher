@@ -81,6 +81,13 @@ test("a LikeC4 workspace becomes a valid model and reports what it cannot carry"
 });
 
 test("every element view is imported and identities stay unique", async (t) => {
+  // Ten names that differ only past the longest id the model's pattern accepts (128): each later one keeps its suffix
+  // within it, the tenth a suffix of three characters.
+  const long = "a".repeat(130);
+  const longs = Array.from(
+    { length: 10 },
+    (_, index) => `  ${long}e${index} = service 'Long ${index}'`,
+  );
   const views = Array.from(
     { length: 5 },
     (_, index) => `  view v${index} {\n    include *\n  }\n`,
@@ -88,7 +95,7 @@ test("every element view is imported and identities stay unique", async (t) => {
   const root = await workspace(t, {
     "a.c4": [
       "specification {\n  element queue\n  element service\n}",
-      "model {\n  bus = queue 'Bus'\n  Bus = service 'Other bus'\n  bus -> Bus 'feeds'\n}",
+      `model {\n  bus = queue 'Bus'\n  Bus = service 'Other bus'\n  bus -> Bus 'feeds'\n${longs.join("\n")}\n}`,
       `views {\n${views}}`,
     ].join("\n"),
     "ignored.txt": "not LikeC4",
@@ -102,7 +109,13 @@ test("every element view is imported and identities stay unique", async (t) => {
   assert.equal(model.question, "What carries messages?");
   assert.deepEqual(
     model.components.map(({ id }) => id),
-    ["bus", "bus-2"],
+    [
+      "bus",
+      "bus-2",
+      "a".repeat(128),
+      ...Array.from({ length: 8 }, (_, index) => `${"a".repeat(126)}-${index + 2}`),
+      `${"a".repeat(125)}-10`,
+    ],
   );
   assert.equal(model.kinds.queue.category, "messagebus");
   assert.equal(model.views.length, 5);

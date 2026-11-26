@@ -11,7 +11,7 @@ import {
   verifyAcceptance,
 } from "../delivery.mjs";
 import { importLikeC4 } from "../importers/likec4.mjs";
-import { migrateModel } from "../importers/model.mjs";
+import { MIGRATION, migrateModel } from "../importers/model.mjs";
 import { ACCEPTANCE, SIGNATURE } from "../names.mjs";
 import { Refusal } from "../refusal.mjs";
 import { reportFailure, reportProgress, reportRefusal, reportResult } from "./report.mjs";
@@ -203,7 +203,11 @@ function commands({ version: current, write, action, listener }) {
         };
       }),
     );
-  command(program, "migrate", "Write a version 1 or 2 model as version 3 into a new file")
+  command(
+    program,
+    "migrate",
+    `Write a version ${MIGRATION.from.join(" or ")} model as version ${MIGRATION.to} into a new file`,
+  )
     .argument("<model.json>", "the model to migrate")
     .requiredOption("--out <model.json>", "write the model into this new file")
     .action(

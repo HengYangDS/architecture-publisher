@@ -45,6 +45,12 @@ export const MODEL_VERSION = limit("/properties/version/const");
 
 /** The categories a kind takes, in the schema's order. */
 export const CATEGORIES = names("/properties/kinds/additionalProperties/properties/category/enum");
+/** The category of a kind that names none. */
+export const DEFAULT_CATEGORY = /** @type {string} */ (
+  at("/properties/kinds/additionalProperties/properties/category/default", (value) =>
+    CATEGORIES.includes(/** @type {string} */ (value)),
+  )
+);
 /** The statuses a component or a relation takes. */
 export const STATUSES = names("/$defs/status/enum");
 

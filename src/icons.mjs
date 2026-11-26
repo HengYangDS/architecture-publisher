@@ -2,21 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { verifySupply } from "./supply.mjs";
 
-/** Each category's default Lucide icon. */
-export const CATEGORY_ICONS = Object.freeze({
-  person: "user",
-  external: "box",
-  frontend: "app-window",
-  backend: "server",
-  database: "database",
-  cloud: "cloud",
-  messagebus: "waypoints",
-  security: "shield-check",
-});
-
-/** The icon of an overview node that stands for a group. */
-export const GROUP_ICON = "layers";
-
 let loaded;
 
 /** Load the bundled Lucide artwork once. Icons are drawn as inline strokes, never fetched. */

@@ -1,5 +1,6 @@
 import { DEFAULT_LOCALE } from "../locale.mjs";
 import { normalizeCoverage } from "./paths.mjs";
+import { DEFAULT_CATEGORY } from "./vocabulary.mjs";
 
 /**
  * The model's normalized form: what every later stage reads once the model is valid. Optional fields take their
@@ -29,7 +30,7 @@ export function normalize(value, parts) {
     .map((id) => ({
       id,
       label: parts.kinds.get(id)?.label ?? id,
-      category: parts.kinds.get(id)?.category ?? "backend",
+      category: parts.kinds.get(id)?.category ?? DEFAULT_CATEGORY,
       icon: parts.kinds.get(id)?.icon ?? null,
     }));
   const element = (entry) => ({

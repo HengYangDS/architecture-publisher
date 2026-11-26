@@ -19,6 +19,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The LikeC4 import keeps an id up to the model's longest, 128 characters with a suffix that keeps it unique,
+  where it cut at 120. The model's schema states its default category, `backend`; how each category looks
+  stands in one table, held to the schema's categories.
 - The publisher reads the fields each object of a model takes and the fewest items of each list from
   `src/model/schema.json`, as it reads the model's patterns and limits. The schema now accepts a spur of the
   overview's course that names its view, as the publisher always did; a spur without `at` reports it before

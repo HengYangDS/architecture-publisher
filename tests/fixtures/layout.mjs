@@ -1,6 +1,5 @@
+import { CATEGORY_LOOKS } from "../../src/kinds.mjs";
 import { POSTER } from "../../src/poster/tokens.mjs";
-
-const OUTSIDE = new Set(["person", "external"]);
 
 /**
  * Font-free metrics with the poster's spacing: fixed card height and labels
@@ -10,7 +9,9 @@ const OUTSIDE = new Set(["person", "external"]);
 export function simpleMetrics(model = null) {
   const outside = (component) => {
     const kind = model?.kinds.find(({ id }) => id === component.kind);
-    return OUTSIDE.has(kind?.category);
+    return Boolean(
+      CATEGORY_LOOKS[/** @type {keyof typeof CATEGORY_LOOKS} */ (kind?.category)]?.outside,
+    );
   };
   return {
     contentWidth: (labelled) => (labelled ? 1440 : 1656),

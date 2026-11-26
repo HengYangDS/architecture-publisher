@@ -1,10 +1,19 @@
-import { MODEL_FORMAT, MODEL_VERSION, readModel, validateModel } from "../model/load.mjs";
+import {
+  EARLIER_VERSIONS,
+  MODEL_FORMAT,
+  MODEL_VERSION,
+  readModel,
+  validateModel,
+} from "../model/load.mjs";
 import { refuse } from "../refusal.mjs";
 
-/** The model version whose components cite a source catalog. */
-const CATALOG_VERSION = 1;
-/** The model version that names its editors in a free-text attribution. */
-const ATTRIBUTION_VERSION = 2;
+/** The model version whose components cite a source catalog, and the one that names its editors in a free-text attribution. */
+const { catalog: CATALOG_VERSION, attribution: ATTRIBUTION_VERSION } = EARLIER_VERSIONS;
+/** The versions `migrate` reads and the one it writes, for the command line, which does not read the model. */
+export const MIGRATION = Object.freeze({
+  from: Object.freeze(Object.values(EARLIER_VERSIONS)),
+  to: MODEL_VERSION,
+});
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 

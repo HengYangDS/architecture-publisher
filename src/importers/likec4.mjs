@@ -3,7 +3,15 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { wordsOf } from "../locale.mjs";
-import { MODEL_FORMAT, MODEL_VERSION, validateModel } from "../model/load.mjs";
+import {
+  CATEGORIES,
+  DEFAULT_CATEGORY,
+  ID,
+  MODEL_FORMAT,
+  MODEL_VERSION,
+  TEXT,
+  validateModel,
+} from "../model/load.mjs";
 import { refuse } from "../refusal.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -81,34 +89,74 @@ async function parse(files) {
   return { reply, supplySha256: supply.sha256 };
 }
 
-/** Lowercase model ids, unique and stable for one import. */
+/**
+ * The longest id the model's id pattern accepts, found by trying it, since the pattern states it inside itself. The
+ * trial stops at the longest text, and a pattern that still accepts an id that long is refused at import. It assumes
+ * what the pattern says today: a character an id may hold may stand anywhere after the first, and each is one code
+ * point.
+ */
+const ID_MOST = (() => {
+  let most = 1;
+  while (most < TEXT.most && ID.test("a".repeat(most + 1))) most += 1;
+  if (most === TEXT.most) throw new Error("the model's id pattern states no longest id");
+  return most;
+})();
+if (!ID.test("a-"))
+  throw new Error("the model's id pattern refuses the hyphen the importer joins with");
+
+/**
+ * Lowercase model ids, unique and stable for one import, held to the model's id pattern: each run of characters an id
+ * may not hold becomes a hyphen, the id starts at the first character an id may begin with, and it is cut to the
+ * longest id, a suffix that keeps it unique included. Every id the import makes passes here: a component's from its
+ * element's full name, a group's, a relation's from its two ends, a view's.
+ */
 function idMaker() {
   const taken = new Set();
   return (raw) => {
-    const base =
-      String(raw)
-        .toLowerCase()
-        .replace(/[^a-z0-9._-]+/gu, "-")
-        .replace(/^[^a-z0-9]+/u, "")
-        .slice(0, 120) || "item";
-    let id = base;
-    for (let suffix = 2; taken.has(id); suffix += 1) id = `${base}-${suffix}`;
+    /** @type {string[]} */
+    const kept = [];
+    let gap = false;
+    for (const character of String(raw).toLowerCase()) {
+      if (!ID.test(`a${character}`)) gap = true;
+      else {
+        if (gap) kept.push("-");
+        kept.push(character);
+        gap = false;
+      }
+    }
+    if (gap) kept.push("-");
+    const start = kept.findIndex((character) => ID.test(character));
+    const base = start < 0 ? ["i", "t", "e", "m"] : kept.slice(start, start + ID_MOST);
+    let id = base.join("");
+    for (let suffix = 2; taken.has(id); suffix += 1) {
+      const tail = `-${suffix}`;
+      id = `${base.slice(0, ID_MOST - tail.length).join("")}${tail}`;
+    }
     taken.add(id);
     return id;
   };
 }
 
-/** A category from common LikeC4 kind names; anything else is a backend. */
+/** The category of a LikeC4 kind from the words of its name, the first that match; each is a category of the model. */
+const KIND_WORDS = /** @type {ReadonlyArray<readonly [RegExp, string]>} */ (
+  Object.freeze([
+    [/person|actor|user|customer/u, "person"],
+    [/external/u, "external"],
+    [/database|db|store|storage|cache/u, "database"],
+    [/queue|topic|bus|broker|stream/u, "messagebus"],
+    [/web|ui|app|mobile|frontend|browser|spa/u, "frontend"],
+    [/cloud|cdn|bucket/u, "cloud"],
+    [/auth|security|gateway|firewall/u, "security"],
+  ])
+);
+for (const [, category] of KIND_WORDS)
+  if (!CATEGORIES.includes(category))
+    throw new Error(`the LikeC4 importer names ${category}, which is no category of the model`);
+
+/** A category from common LikeC4 kind names; anything else takes the model's default. */
 function categoryOf(kind) {
   const name = String(kind).toLowerCase();
-  if (/person|actor|user|customer/u.test(name)) return "person";
-  if (/external/u.test(name)) return "external";
-  if (/database|db|store|storage|cache/u.test(name)) return "database";
-  if (/queue|topic|bus|broker|stream/u.test(name)) return "messagebus";
-  if (/web|ui|app|mobile|frontend|browser|spa/u.test(name)) return "frontend";
-  if (/cloud|cdn|bucket/u.test(name)) return "cloud";
-  if (/auth|security|gateway|firewall/u.test(name)) return "security";
-  return "backend";
+  return KIND_WORDS.find(([words]) => words.test(name))?.[1] ?? DEFAULT_CATEGORY;
 }
 
 const where = (location) => (location ? `${location.file}:${location.line}` : "workspace");

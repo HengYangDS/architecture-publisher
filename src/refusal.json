@@ -240,7 +240,7 @@
   },
   "migrate_version_unsupported": {
     "section": "refusal",
-    "meaning": "The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists."
+    "meaning": "The model is of no version `migrate` converts, cites a source its catalog lacks, or `--out` already exists."
   },
   "migrate_source_unknown": {
     "with": "migrate_version_unsupported"

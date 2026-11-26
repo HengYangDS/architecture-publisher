@@ -11,6 +11,7 @@ import { checkCoverage, isGuidePath, isRelativePath } from "./paths.mjs";
 import {
   BROWSE,
   CATEGORIES,
+  DEFAULT_CATEGORY,
   DETAIL_NAME,
   ICON,
   ID,
@@ -27,7 +28,9 @@ import {
   variantOf,
 } from "./vocabulary.mjs";
 
-export { CATEGORIES, MODEL_FORMAT, MODEL_VERSION };
+export { CATEGORIES, DEFAULT_CATEGORY, ID, MODEL_FORMAT, MODEL_VERSION, TEXT };
+/** The earlier versions of the model `archpub migrate` converts: 1 cites a source catalog; 2 names its editors in a free-text attribution. */
+export const EARLIER_VERSIONS = Object.freeze({ catalog: 1, attribution: 2 });
 const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
 
 /** The fields of the model's objects and the fewest items of its lists, as the schema states them. */
@@ -180,9 +183,9 @@ function checkFiles(problems, value, path, claimed) {
 }
 
 function checkTop(problems, model) {
-  // A version 1 model holds a source catalog this version has no field for, so it is refused
-  // with the command that converts it rather than with every field it no longer has.
-  if (isRecord(model) && (model.version === 1 || model.version === 2)) {
+  // A model of an earlier version holds fields this version has none for (a source catalog, a free-text
+  // attribution), so it is refused with the command that converts it rather than with every field it no longer has.
+  if (isRecord(model) && Object.values(EARLIER_VERSIONS).includes(model.version)) {
     problems.add(
       "model_version_unsupported",
       "/version",

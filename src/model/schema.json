@@ -115,7 +115,8 @@
               "cloud",
               "messagebus",
               "security"
-            ]
+            ],
+            "default": "backend"
           },
           "icon": {
             "type": "string",

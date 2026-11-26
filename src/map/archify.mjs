@@ -8,7 +8,7 @@ import { childEnvironment } from "../environment.mjs";
 import { refuse } from "../refusal.mjs";
 import { layoutView } from "../layout/grid.mjs";
 import { viewRows, wrapRows } from "../layout/rows.mjs";
-import { presentation } from "../kinds.mjs";
+import { CATEGORY_LOOKS, presentation } from "../kinds.mjs";
 import { DEFAULT_LOCALE, detailText, wordsOf } from "../locale.mjs";
 import { verifySupply } from "../supply.mjs";
 
@@ -91,16 +91,6 @@ const TEXT_PADDING = 8;
  */
 const CARD = Object.freeze({ minWidth: 120, maxWidth: 200 });
 const WIDEST_CARD = Math.min(...DIAGRAM_WIDTHS) - 2 * MARGIN;
-const TYPES = Object.freeze({
-  person: "external",
-  external: "external",
-  frontend: "frontend",
-  backend: "backend",
-  database: "database",
-  cloud: "cloud",
-  messagebus: "messagebus",
-  security: "security",
-});
 const FULLWIDTH = /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]/u;
 
 /** Archify's text units: one per character, two for full-width characters. */
@@ -235,7 +225,8 @@ function diagramDocument(model, view, layout, width, quality) {
   const components = view.components.map((component) => {
     const card = /** @type {any} */ (layout.cards.get(component.id));
     const style = presentation(model, component);
-    const type = TYPES[/** @type {keyof typeof TYPES} */ (style.category)];
+    const type =
+      CATEGORY_LOOKS[/** @type {keyof typeof CATEGORY_LOOKS} */ (style.category)].archify;
     kinds.set(type, [...new Set([...(kinds.get(type) ?? []), style.label])]);
     const text = sublabel(words, component, card.width);
     return {
