@@ -141,6 +141,20 @@ day, whose input check refuses a template the address implies. The publisher doe
 states it builds the same pages, and refusing a model another release accepted is a breaking release (the
 contract's Evolution), which a repetition with no effect on a page does not warrant.
 
+## The codes, counted again (2026-11-26)
+
+For the first Change of the queue item `derived-references` a reader other than the maintainer counted the codes
+at dev `39655548` (05:48 to 05:59), the maintainer scanned the source again (06:0x), and an independent reviewer
+of the Change found 8 problem codes of the projection's invariants that both had missed (06:5x). The source raises
+or reports 181 codes: 2 printed by a failed command, 103 as a refusal's code, 67 only as a problem's, 8 as a
+warning's and 1 used inside and never shown; 12 of them are formed from a medium's name and 10 raised by the Typst
+classes. The refusals reference named
+102, in 55 rows written by hand; four `layout_*` refusals and the problems' codes were in no table, and one row,
+`plan_not_admitted`'s, left out that a plan refuses with a view's own code when its layout or plate refused it.
+Four more `code` fields named the route defects that rank candidate layouts and never reach a reader. With the
+Change the codes stand in `src/refusal.json`; the type check holds the raises it can follow, a test holds every
+literal in a code's place to the registry both ways, and the reference's three tables are written from it.
+
 ## What is not established
 
 - The rows marked a reader's count: their places were not counted again by the maintainer.

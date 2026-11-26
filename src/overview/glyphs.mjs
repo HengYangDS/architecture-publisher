@@ -47,6 +47,7 @@ async function loadCoverage() {
 export async function requireOverviewGlyphs(boxes) {
   coverage ??= loadCoverage();
   const draws = await coverage;
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const problems = boxes.flatMap((box) => {
     const missing = [...new Set(Array.from(box.text))].filter((character) => !draws(character));
     return missing.length

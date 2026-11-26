@@ -83,10 +83,11 @@ function legendOf(model, view, boundary, drawn, rows) {
  * and each row of the table of lines that a plate draws and no work has tested.
  * @param {Array<{ page: number, lines: string[], touching: string[] }>} plates
  * @param {import("../strip.mjs").Style} style the style the plates are drawn in
- * @returns {Array<{ code: string, path?: string, message: string }>}
+ * @returns {Array<import("../../refusal.mjs").Problem>}
  */
 export function lineWarnings(plates, style) {
   const number = ({ page }) => two(page);
+  /** @type {Array<import("../../refusal.mjs").Problem>} */
   const touching = plates.flatMap((plate) =>
     plate.touching.map((id) => ({
       code: "citation_count_touches",
@@ -94,6 +95,7 @@ export function lineWarnings(plates, style) {
       message: `Plate ${number(plate)}: the number of files relation ${id} cites has no clear place and touches another mark.`,
     })),
   );
+  /** @type {Array<import("../../refusal.mjs").Problem>} */
   const untested = linesOf(style.lines)
     .untested()
     .flatMap(({ id, meaning }) => {

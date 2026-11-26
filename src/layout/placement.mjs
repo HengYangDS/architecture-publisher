@@ -184,6 +184,7 @@ export function placeRows(input) {
   }
   if (!best && cardWidth(input, minimum) >= narrowest(input)) {
     // The cards fit; only keeping outside components outside one boundary does not.
+    /** @type {Array<import("../refusal.mjs").Problem>} */
     const mixed = rows.flatMap((members, row) =>
       members.some(input.external) && members.some((id) => !input.external(id))
         ? [{ code: "layout_boundary_unplaced", path: `/rows/${row}`, message: members.join(", ") }]

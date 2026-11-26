@@ -23,9 +23,9 @@ const named = (type, id) => `${type} \`${id}\``;
 
 /**
  * Refuse when an invariant found a difference, naming each.
- * @param {string} code
+ * @param {import("../refusal.mjs").Code} code
  * @param {string} summary
- * @param {Array<{ code: string, path: string, message: string }>} problems
+ * @param {Array<import("../refusal.mjs").Problem>} problems
  */
 function refuseAny(code, summary, problems) {
   if (problems.length)
@@ -42,11 +42,13 @@ function refuseAny(code, summary, problems) {
  */
 export function requireReaderIds(model, text) {
   const read = readerIds(text, model.locale, Boolean(model.guide));
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const problems = [];
   for (const [list, type] of TYPES) {
     const stated = read.stated[list];
     const held = new Set(model[list].map(({ id }) => id));
-    const differ = (code, id, message) => problems.push({ code, path: `/${list}/${id}`, message });
+    const differ = (/** @type {import("../refusal.mjs").Code} */ code, id, message) =>
+      problems.push({ code, path: `/${list}/${id}`, message });
     for (const id of held)
       if (!stated.includes(id))
         differ("reader_lacks", id, `the reader file holds no item of the ${named(type, id)}`);
@@ -76,10 +78,11 @@ export function requireReaderIds(model, text) {
 export function requireFaces(data) {
   const views = new Map(data.views.map((view) => [view.id, view]));
   const texts = new Map(data.statements.relations.map(({ id, text }) => [id, text]));
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const problems = [];
   for (const { number, views: drawn, face } of data.plates) {
     const selected = drawn.map((id) => views.get(id)).filter(Boolean);
-    const differ = (code, message) =>
+    const differ = (/** @type {import("../refusal.mjs").Code} */ code, message) =>
       problems.push({ code, path: `/plates/${number}`, message: `plate ${number} ${message}` });
     const sides = /** @type {Array<[string, string[], string[]]>} */ ([
       [
@@ -119,8 +122,9 @@ export function requireProjections(data, pages = []) {
   const known = Object.fromEntries(
     TYPES.map(([list, type]) => [type, new Set(data.statements[list].map(({ id }) => id))]),
   );
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const problems = [];
-  const differ = (code, projection, message) =>
+  const differ = (/** @type {import("../refusal.mjs").Code} */ code, projection, message) =>
     problems.push({ code, path: projection.path, message: `${projection.name} ${message}` });
   const unknown = (projection, type, ids) => {
     for (const id of new Set(ids))

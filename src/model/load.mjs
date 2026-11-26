@@ -57,10 +57,11 @@ const isText = (value) =>
 /** Collects every problem in one pass so authors fix them together. */
 class Problems {
   constructor() {
-    /** @type {Array<{ code: string, path: string, message: string }>} */
+    /** @type {Array<import("../refusal.mjs").Problem & { path: string }>} */
     this.items = [];
   }
 
+  /** @param {import("../refusal.mjs").Code} code @param {string} path @param {string} message */
   add(code, path, message) {
     this.items.push({ code, path, message });
   }

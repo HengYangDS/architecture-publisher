@@ -41,9 +41,12 @@ const TABLE = fileURLToPath(SHARED_FILE);
 /** The bundled face that sets Han characters on the overview as on the posters. */
 export const CJK = "noto-sans-cjk-sc";
 
+/** @typedef {"overview" | "edition" | "colophon"} Medium */
+
 /**
  * Typst's version, or a refusal naming the version the overview needs.
  * @param {string} typst the executable, `typst` from the path unless a caller names another
+ * @param {Medium} medium
  */
 export async function typstVersion(typst = "typst", medium = "overview") {
   const needed = `Building the ${medium} needs Typst ${TYPST_VERSION}`;
@@ -178,6 +181,8 @@ function stagedPath(reported, roots) {
  * trace outside the staged class, or the first place when the class alone is named.
  * @param {string} stderr Typst's human-readable diagnostics
  * @param {readonly string[]} [roots] the staged root, to which every reported path is made relative
+ * @param {Medium} [medium]
+ * @returns {Array<import("../refusal.mjs").Problem>}
  */
 export function typstProblems(stderr, roots = [], medium = "overview") {
   const blocks = stderr
@@ -192,7 +197,10 @@ export function typstProblems(stderr, roots = [], medium = "overview") {
     const own = places.filter(({ file }) => !file.startsWith(`${STAGED}/`)).at(-1) ?? places[0];
     const code = /((?:overview|edition)_[a-z_]+): /u.exec(message)?.[1];
     return {
-      code: code ?? `${medium}_typst_${level === "warning" ? "warning" : "error"}`,
+      // A class's own refusal names its code; the registry test holds every one the Typst classes raise.
+      code: /** @type {import("../refusal.mjs").Code} */ (
+        code ?? `${medium}_typst_${level === "warning" ? "warning" : "error"}`
+      ),
       path: own ? `${own.file}:${own.line}` : undefined,
       message: code ? message.replace(/^.*?(?:overview|edition)_[a-z_]+: /u, "") : message,
     };

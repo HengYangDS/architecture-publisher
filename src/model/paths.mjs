@@ -32,7 +32,7 @@ const isScopePath = (value) =>
 /**
  * Check the coverage scope: included paths and excluded paths with their reasons, none
  * repeated. Problems are added to the model's one collection.
- * @param {{ add: Function, fields: Function, text: Function }} problems
+ * @param {Pick<import("./overview.mjs").Problems, "add" | "fields" | "text">} problems
  * @param {any} value
  */
 export function checkCoverage(problems, value) {

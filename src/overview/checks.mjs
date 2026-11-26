@@ -27,7 +27,7 @@ const where = (box) => `at ${Math.round(box.x)},${Math.round(box.y)} pt`;
  * @param {Array<{ x: number, y: number, w: number, h: number, size: number, text: string }>} boxes
  */
 export function checkBoxes(boxes) {
-  /** @type {Array<{ code: string, path?: string, message: string }>} */
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const problems = [];
   for (const box of boxes)
     if (
@@ -102,7 +102,7 @@ const at = (point) => `${Math.round(point[0])},${Math.round(point[1])}`;
  * @param {Array<{ kind: string, x: number, y: number, r: number }>} marks
  */
 export function checkLines(boxes, lines, marks) {
-  /** @type {Array<{ code: string, message: string }>} */
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const problems = [];
   for (const box of boxes) {
     const inner = {

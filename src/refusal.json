@@ -1,0 +1,707 @@
+{
+  "usage": {
+    "section": "command",
+    "meaning": "Unknown command or option, or a missing value. The message is commander's and names the nearest command or option for a mistyped one."
+  },
+  "internal_error": {
+    "section": "command",
+    "meaning": "Not a refusal: any other error ends the command with exit status 3, and `--json` prints this code with the error's message. It is a fault in the publisher, not in the input."
+  },
+  "model_invalid": {
+    "section": "refusal",
+    "meaning": "The model breaks the schema; each problem has its own `model_*` code, such as `model_field_retired` for `edition.marks`, which is to be removed."
+  },
+  "model_unreadable": {
+    "section": "refusal",
+    "meaning": "The file cannot be read, is not JSON or exceeds 4 MiB."
+  },
+  "model_json_invalid": {
+    "with": "model_unreadable"
+  },
+  "model_too_large": {
+    "with": "model_unreadable"
+  },
+  "build_media_invalid": {
+    "section": "refusal",
+    "meaning": "A build option is outside its values."
+  },
+  "build_png_invalid": {
+    "with": "build_media_invalid"
+  },
+  "build_quality_invalid": {
+    "with": "build_media_invalid"
+  },
+  "glyphs_missing": {
+    "section": "refusal",
+    "meaning": "Text uses characters the bundled fonts lack or a script they do not set."
+  },
+  "source_revision_missing": {
+    "section": "refusal",
+    "meaning": "`--repo` needs `repository.revision`, and the checkout must contain it."
+  },
+  "source_revision_unknown": {
+    "with": "source_revision_missing"
+  },
+  "files_unresolved": {
+    "section": "refusal",
+    "meaning": "A claim owns no file in the scope, or a relation's file is missing at the revision."
+  },
+  "source_git_unavailable": {
+    "section": "refusal",
+    "meaning": "Git cannot be run or cannot read the files."
+  },
+  "source_read_failed": {
+    "with": "source_git_unavailable"
+  },
+  "plan_requires_structure": {
+    "section": "refusal",
+    "meaning": "An automatic plan needs groups or views."
+  },
+  "currency_revision_unknown": {
+    "section": "refusal",
+    "meaning": "`--against` names no commit, the model pins no revision, or currency has no repository."
+  },
+  "coverage_revision_missing": {
+    "with": "currency_revision_unknown"
+  },
+  "coverage_repository_missing": {
+    "with": "currency_revision_unknown"
+  },
+  "plan_not_admitted": {
+    "section": "refusal",
+    "meaning": "No plate lays a view out and its layout raised no refusal of its own; each problem, `view_not_admitted`, gives the view's counts and the plate size. When a view's layout or plate was refused, the plan refuses with that code instead, a `layout_*` code or `plate_unfittable`, naming the first refused view."
+  },
+  "plate_unfittable": {
+    "section": "refusal",
+    "meaning": "A view cannot be laid out in the edition's body at any type step or row wrapping."
+  },
+  "layout_row_too_wide": {
+    "section": "refusal",
+    "meaning": "A tier holds more components than a row may (the problem names the row under `/rows/<i>`), or a row's cards do not fit the plate at the minimum card width. Declare more tiers or split the view. A plan reports it as its own code, naming the first refused view."
+  },
+  "layout_boundary_unplaced": {
+    "section": "refusal",
+    "meaning": "Outside components share rows with the system's own, and one boundary around the system needs more columns than the plate's width holds; each such row is a problem. Give the outside components their own tier or split the view."
+  },
+  "layout_channel_unroutable": {
+    "section": "refusal",
+    "meaning": "A relation between rows has no free corridor inside the figure, or the relations between two rows cannot be wired without overlaps (the problems name the channel and its relations). Reorder the tiers or split the view."
+  },
+  "layout_untidy": {
+    "section": "refusal",
+    "meaning": "The drawn view has defects the layout measures itself; each problem carries one of the `layout_*` defect codes of the table of problems and names the relations or the card. Reorder the tiers or split the view."
+  },
+  "edition_typst_missing": {
+    "section": "refusal",
+    "meaning": "The print edition needs Typst 0.15.1 on the path; checked before anything is written."
+  },
+  "edition_typst_version": {
+    "with": "edition_typst_missing"
+  },
+  "edition_text_wider": {
+    "section": "refusal",
+    "meaning": "Typst sets a plate's text wider than the engine measured it, a line of a summary above its figure wider than 32 ems, or a plate's title longer than its line."
+  },
+  "edition_title_too_long": {
+    "with": "edition_text_wider"
+  },
+  "edition_reading_too_long": {
+    "section": "refusal",
+    "meaning": "A view's summary alone, or its paths beside no summary, need more than the body's height beside its figure. A plate's key does not fit two lines of the body. The contents' left half is taller than the body. A part's paragraph in the index is taller than a page's body, or a part of one of its paths between two slashes is wider than the column. The facts under the index pass the page's margin."
+  },
+  "edition_key_too_long": {
+    "with": "edition_reading_too_long"
+  },
+  "edition_front_too_long": {
+    "with": "edition_reading_too_long"
+  },
+  "edition_index_too_long": {
+    "with": "edition_reading_too_long"
+  },
+  "edition_closing_too_long": {
+    "with": "edition_reading_too_long"
+  },
+  "edition_typst_warning": {
+    "section": "refusal",
+    "meaning": "Typst warned or failed while setting the edition."
+  },
+  "edition_typst_error": {
+    "with": "edition_typst_warning"
+  },
+  "source_history_unavailable": {
+    "section": "refusal",
+    "meaning": "The checkout is shallow, or a cited file has no change in its history, so its age cannot be read."
+  },
+  "page_label_too_long": {
+    "section": "refusal",
+    "meaning": "A label exceeds the widest diagram card, or no diagram has a usable shape."
+  },
+  "page_shape_refused": {
+    "with": "page_label_too_long"
+  },
+  "page_layout_refused": {
+    "section": "refusal",
+    "meaning": "A view's diagram cannot be wired, or none passes Archify's checks at the build's quality."
+  },
+  "page_diagram_refused": {
+    "with": "page_layout_refused"
+  },
+  "page_diagram_publisher_field": {
+    "section": "refusal",
+    "meaning": "A guide's diagram files state fields the publisher sets: a position, size, cell, column, row, layout, width or gap, a line's course, a message's height, a workflow's phase or group, a sequence's segments or activations, or a repository; each is named."
+  },
+  "page_diagram_unplaceable": {
+    "section": "refusal",
+    "meaning": "No grid of two to four columns holds a domain of a guide's entity-relationship file; a guide's workflow needs more than the six columns Archify draws; or a guide's dataflow has a stage of more than the five rows Archify draws."
+  },
+  "page_workflow_too_wide": {
+    "with": "page_diagram_unplaceable"
+  },
+  "page_dataflow_too_tall": {
+    "with": "page_diagram_unplaceable"
+  },
+  "overview_typst_missing": {
+    "section": "refusal",
+    "meaning": "Typst is not on the path or is not 0.15.1."
+  },
+  "overview_typst_version": {
+    "with": "overview_typst_missing"
+  },
+  "overview_style_refused": {
+    "section": "refusal",
+    "meaning": "The overview's drawing asks the house class for a size it does not have."
+  },
+  "overview_reference_unknown": {
+    "section": "refusal",
+    "meaning": "The statement names a component the model lacks."
+  },
+  "overview_text_outside": {
+    "section": "refusal",
+    "meaning": "Text leaves the page's area, lies over other text, or lies under a line or a ring."
+  },
+  "overview_text_overlap": {
+    "with": "overview_text_outside"
+  },
+  "overview_text_over_line": {
+    "with": "overview_text_outside"
+  },
+  "overview_too_tall": {
+    "section": "refusal",
+    "meaning": "The statement does not fit one page, or a declared view is named nowhere on it; a character no face draws; or a Typst warning or error."
+  },
+  "overview_view_unreached": {
+    "with": "overview_too_tall"
+  },
+  "overview_glyph_missing": {
+    "with": "overview_too_tall"
+  },
+  "overview_typst_warning": {
+    "with": "overview_too_tall"
+  },
+  "overview_typst_error": {
+    "with": "overview_too_tall"
+  },
+  "page_measures_missing": {
+    "section": "refusal",
+    "meaning": "Archify's answer lacks a route measure or layout part; the bundled Archify is unexpected."
+  },
+  "page_refused": {
+    "section": "refusal",
+    "meaning": "Archify did not validate or deliver the page."
+  },
+  "answers_unkept": {
+    "section": "refusal",
+    "meaning": "The path `ARCHPUB_ARCHIFY_ANSWERS` names cannot be made a directory; see [kept answers](command-line.md#answers-kept-between-builds)."
+  },
+  "guide_missing": {
+    "section": "refusal",
+    "meaning": "The guide is missing, whichever media are built; a file it names is a link, outside its directory or missing; with `--repo`, a file it cites is not at the pin."
+  },
+  "guide_file_invalid": {
+    "with": "guide_missing"
+  },
+  "guide_file_missing": {
+    "with": "guide_missing"
+  },
+  "guide_repository_mismatch": {
+    "section": "refusal",
+    "meaning": "The guide names another repository or revision, or its checkout cannot be cloned."
+  },
+  "guide_repository_unavailable": {
+    "with": "guide_repository_mismatch"
+  },
+  "guide_unparsed": {
+    "section": "refusal",
+    "meaning": "Archify's parser refuses the guide's draft, whichever media are built: the reader file holds the guide as Archify reads it."
+  },
+  "scaffold_output_exists": {
+    "section": "refusal",
+    "meaning": "`scaffold guide --out` already exists."
+  },
+  "migrate_version_unsupported": {
+    "section": "refusal",
+    "meaning": "The model is not version 1 or 2, cites a source its catalog lacks, or `--out` already exists."
+  },
+  "migrate_source_unknown": {
+    "with": "migrate_version_unsupported"
+  },
+  "migrate_output_exists": {
+    "with": "migrate_version_unsupported"
+  },
+  "attribution_not_migrated": {
+    "section": "refusal",
+    "meaning": "The model's attribution names no editors; declare `editors` beside it first."
+  },
+  "supply_invalid": {
+    "section": "refusal",
+    "meaning": "A bundled supply failed its digest."
+  },
+  "delivery_exists": {
+    "section": "refusal",
+    "meaning": "`--out` already exists."
+  },
+  "delivery_name_taken": {
+    "section": "refusal",
+    "meaning": "The model's id is `model`, `manifest`, `acceptance` or `colophon`, so two files of its delivery would share one name; give the model another id."
+  },
+  "reader_ids_differ": {
+    "section": "refusal",
+    "meaning": "The reader file, a plate's face or another projection differs from the model or the [data](data.md#what-is-held-before-anything-is-written); nothing is written."
+  },
+  "data_face_differs": {
+    "with": "reader_ids_differ"
+  },
+  "projection_fact_unknown": {
+    "with": "reader_ids_differ"
+  },
+  "delivery_manifest_missing": {
+    "section": "refusal",
+    "meaning": "The directory is not a delivery."
+  },
+  "delivery_manifest_invalid": {
+    "with": "delivery_manifest_missing"
+  },
+  "delivery_entry_invalid": {
+    "with": "delivery_manifest_missing"
+  },
+  "delivery_changed": {
+    "section": "refusal",
+    "meaning": "An artifact differs from the manifest."
+  },
+  "acceptance_reviewer_missing": {
+    "section": "refusal",
+    "meaning": "Name a reviewer; a delivery is accepted once, so a record, colophon page or signature already beside it is refused."
+  },
+  "acceptance_exists": {
+    "with": "acceptance_reviewer_missing"
+  },
+  "acceptance_name_unset": {
+    "section": "refusal",
+    "meaning": "The name on the mark is empty or has a character no house face draws, or does not fit two lines of the band at 7 percent; give a `--seal-name`."
+  },
+  "acceptance_name_too_long": {
+    "with": "acceptance_name_unset"
+  },
+  "acceptance_sign_failed": {
+    "section": "refusal",
+    "meaning": "ssh-keygen cannot read the key `--sign` names or sign the record with it."
+  },
+  "colophon_typst_missing": {
+    "section": "refusal",
+    "meaning": "The colophon page needs Typst 0.15.1 on the path."
+  },
+  "colophon_typst_version": {
+    "with": "colophon_typst_missing"
+  },
+  "colophon_typst_warning": {
+    "section": "refusal",
+    "meaning": "Typst warned or failed while setting the colophon page, such as for a note with a character no house face draws."
+  },
+  "colophon_typst_error": {
+    "with": "colophon_typst_warning"
+  },
+  "acceptance_missing": {
+    "section": "refusal",
+    "meaning": "`verify` finds no acceptance record, or one that is not JSON or not an in-toto Statement of the acceptance predicate."
+  },
+  "acceptance_invalid": {
+    "with": "acceptance_missing"
+  },
+  "acceptance_version_unsupported": {
+    "section": "refusal",
+    "meaning": "The record is from an earlier release or of another predicate version; remove it and accept the delivery again."
+  },
+  "acceptance_manifest_mismatch": {
+    "section": "refusal",
+    "meaning": "The record names another manifest, or `colophon.pdf` is missing or not the page the record names."
+  },
+  "acceptance_colophon_changed": {
+    "with": "acceptance_manifest_mismatch"
+  },
+  "acceptance_signature_invalid": {
+    "section": "refusal",
+    "meaning": "`acceptance.sig` is missing for a record that names a signer or present for one that names none, or does not verify the record for the reviewer by the named key."
+  },
+  "publish_unaccepted": {
+    "section": "refusal",
+    "meaning": "Accept first, use a valid version name, and never replace a published one."
+  },
+  "publish_version_invalid": {
+    "with": "publish_unaccepted"
+  },
+  "publish_conflict": {
+    "with": "publish_unaccepted"
+  },
+  "publish_copy_invalid": {
+    "section": "refusal",
+    "meaning": "The copy differs from the delivery and was removed."
+  },
+  "likec4_sources_missing": {
+    "section": "refusal",
+    "meaning": "The workspace cannot be imported."
+  },
+  "likec4_invalid": {
+    "with": "likec4_sources_missing"
+  },
+  "likec4_parse_failed": {
+    "with": "likec4_sources_missing"
+  },
+  "likec4_too_large": {
+    "with": "likec4_sources_missing"
+  },
+  "import_output_exists": {
+    "section": "refusal",
+    "meaning": "The output file exists."
+  },
+  "model_object_required": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A value that must be an object is not one: the model itself, `/kinds`, a component, relation, group, view, tier, kind or other record."
+  },
+  "model_field_required": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A field the record needs is absent; the path names it. A spur of the overview course without `at` is reported the same way."
+  },
+  "model_field_unknown": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "The record holds a field the model does not define; the message names the nearest field it does."
+  },
+  "model_version_unsupported": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/format` or `/version` is not the one this publisher reads; a model of an earlier version is told to run `archpub migrate <model> --out <file>`."
+  },
+  "model_format_unsupported": {
+    "with": "model_version_unsupported"
+  },
+  "model_id_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "An id does not match the model's pattern for ids. The model's, components', relations', groups', views', tiers', kinds' and the overview's ids are checked, and the keys of `/kinds`."
+  },
+  "model_id_unportable": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "The model's `/id` is a device name that Windows reserves (`con`, `nul`, `com1` and the like, alone or before an extension) or ends with a dot, so it cannot name a directory on every file system."
+  },
+  "model_id_duplicate": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "Two items of one list share an id: components, relations, groups, views, the tiers of a view, or the steps and stations of the overview course. The path names the second."
+  },
+  "model_text_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A text field is not a string, is blank, holds a NUL character or is longer than the model's limit for a text."
+  },
+  "model_locale_unsupported": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/locale` is not one of the locales the product sets."
+  },
+  "model_editors_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/editors` is not a non-empty list; each editor is checked as an object with `name` and optional `url`."
+  },
+  "model_license_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/license` is not an SPDX licence expression (identifiers joined by `AND`, `OR` or `WITH`)."
+  },
+  "model_limits_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/limits` is not a list; each item must be text, which `model_text_invalid` checks."
+  },
+  "model_browse_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`repository.browse` is not a string that holds both the placeholders `{revision}` and `{path}`."
+  },
+  "model_revision_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`repository.revision` is not a full commit id in lower-case hexadecimal."
+  },
+  "model_category_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A kind's `category` is not one of the model's categories, or its `icon` is not a lower-case name of an icon in the bundled Lucide artwork."
+  },
+  "model_icon_unknown": {
+    "with": "model_category_invalid"
+  },
+  "model_list_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A field that must be a list is not one, or holds fewer items than the model reference requires: `/components`, `/views` and the overview's lists."
+  },
+  "model_status_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A component's or relation's `status` is not one of the model's statuses."
+  },
+  "model_details_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`details` is not an object, a detail's name breaks the model's rule for detail names, or a detail is not text or a non-empty list of text."
+  },
+  "model_detail_name_invalid": {
+    "with": "model_details_invalid"
+  },
+  "model_detail_invalid": {
+    "with": "model_details_invalid"
+  },
+  "model_endpoint_unknown": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A relation's `from` or `to` names no declared component."
+  },
+  "model_relation_self": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A relation's `from` and `to` are the same component."
+  },
+  "model_files_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A component's or relation's `files` is not a list."
+  },
+  "model_file_glob": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A claimed or cited path holds `*`, `?` or `[`, so it is a glob (`model_file_glob`); or it is not a relative path inside the repository: absolute, with a backslash, with an empty, `.` or `..` segment, or longer than the model's limit for a path (`model_file_path_invalid`)."
+  },
+  "model_file_path_invalid": {
+    "with": "model_file_glob"
+  },
+  "model_relation_file_directory": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A relation's `files` names a directory (a path ending in a slash); a relation cites single files, a component alone may claim a directory."
+  },
+  "model_file_duplicate": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "The same path is listed twice in one `files`, or a path a component claims is already claimed by another component or earlier in the model; the message names where."
+  },
+  "model_file_claimed_twice": {
+    "with": "model_file_duplicate"
+  },
+  "model_group_id_conflict": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A group's id is also a component's id."
+  },
+  "model_references_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A list of ids that must be non-empty (a group's, a view's or a tier's `members`, or a view's `tiers`) is missing, empty or not a list."
+  },
+  "model_reference_unknown": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "An id in `members`, `tiers`, an overview `part`, `at`, line end or `view` names no declared component, group, view, step or station; or a list names the same id twice."
+  },
+  "model_reference_duplicate": {
+    "with": "model_reference_unknown"
+  },
+  "model_group_overlap": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A component belongs to two groups; the message names the first group."
+  },
+  "model_coverage_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/coverage/include` is not a non-empty list, or `/coverage/exclude` is not a list."
+  },
+  "model_coverage_path_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A coverage scope path is not a relative file path or a directory path ending in a slash (either may be a glob), or repeats another path of the scope."
+  },
+  "model_coverage_path_duplicate": {
+    "with": "model_coverage_path_invalid"
+  },
+  "model_view_shape_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A view declares both `tiers` and `members`, or neither; exactly one is needed."
+  },
+  "model_tier_overlap": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A component sits in a second tier of one view."
+  },
+  "model_overview_composition_retired": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "The model names an overview composition, which is retired, or states an overview the statement's form refuses."
+  },
+  "model_overview_invalid": {
+    "with": "model_overview_composition_retired"
+  },
+  "model_guide_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`/guide` is not a relative path to a `.archify.md` draft; the file must also lie within the model's directory, which a later check refuses."
+  },
+  "model_field_retired": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "The model holds a field the edition no longer takes: `edition.marks` is the only one, and is to be removed."
+  },
+  "model_palette_unknown": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "`edition.palette` is neither a built-in palette name nor an object; or a role of a custom palette (`ground`, `ink`, `dye/<i>`, `accent`) is not a `#rrggbb` colour."
+  },
+  "model_color_invalid": {
+    "with": "model_palette_unknown"
+  },
+  "model_palette_rejected": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A custom palette does not hold the `dye` colours the model reference requires, or a colour breaks one of the palette's measured rules; the message gives the measure and its bound."
+  },
+  "claim_unmatched": {
+    "section": "problem",
+    "carriedBy": ["files_unresolved"],
+    "meaning": "A component's claimed file or directory owns no file in the scope at the pinned commit, because another claim is more specific or the path is absent or outside the scope; the path is `/components/<i>/files/<j>`. `--against` also lists it under the currency worklist's `refused` entries."
+  },
+  "relation_file_missing": {
+    "section": "problem",
+    "carriedBy": ["files_unresolved"],
+    "meaning": "A file a relation cites at `/relations/<i>/files/<j>` is not a tracked file at the commit. `--against` also lists it under the currency worklist's `refused` entries, with the file's new name when it moved."
+  },
+  "glyph_missing": {
+    "section": "problem",
+    "carriedBy": ["glyphs_missing"],
+    "meaning": "Text at the path has characters the bundled fonts cannot draw (`glyph_missing`), or characters of a right-to-left or shaped script the posters do not set (`script_unsupported`); the message lists the characters."
+  },
+  "script_unsupported": {
+    "with": "glyph_missing"
+  },
+  "view_not_admitted": {
+    "section": "problem",
+    "carriedBy": ["plan_not_admitted"],
+    "meaning": "The view at `/views/<id>` composes but does not fit the edition's plate; the message gives its component and relation counts and the plate size, and says to split the view or reduce its components."
+  },
+  "layout_wire_diagonal": {
+    "section": "problem",
+    "carriedBy": ["layout_untidy"],
+    "meaning": "A wire segment is neither horizontal nor vertical; two relations share a vertical or horizontal run; a wire passes through a card; or a relation label overlaps another label, a card, another relation's wire or the system boundary. The same codes appear in the problems of `page_layout_refused` for a diagram."
+  },
+  "layout_wire_shared": {
+    "with": "layout_wire_diagonal"
+  },
+  "layout_wire_through_card": {
+    "with": "layout_wire_diagonal"
+  },
+  "layout_label_collision": {
+    "with": "layout_wire_diagonal"
+  },
+  "archify_failed": {
+    "section": "problem",
+    "carriedBy": ["page_diagram_refused", "guide_unparsed"],
+    "meaning": "Archify's own diagnostics, copied as problems under Archify's codes. `archify_failed` is the publisher's: the Archify process gave no JSON answer or did not finish within its limit. `archify` names a diagnostic of Archify's that carries no code."
+  },
+  "archify": {
+    "with": "archify_failed"
+  },
+  "likec4_error": {
+    "section": "problem",
+    "carriedBy": ["likec4_invalid"],
+    "meaning": "One error of the LikeC4 workspace, with the file and line as its path (`workspace` when it names none) and the parser's message."
+  },
+  "reader_lacks": {
+    "section": "problem",
+    "carriedBy": ["reader_ids_differ"],
+    "meaning": "A component, relation or group of the model has no item in the reader file (`reader_lacks`), the reader file names one the model lacks (`model_lacks`), or it holds one item twice (`reader_repeats`); the path is `/<list>/<id>`."
+  },
+  "model_lacks": {
+    "with": "reader_lacks"
+  },
+  "reader_repeats": {
+    "with": "reader_lacks"
+  },
+  "face_only": {
+    "section": "problem",
+    "carriedBy": ["data_face_differs"],
+    "meaning": "A plate draws a component, relation or group its view does not select (`face_only`), leaves out one its view selects (`view_only`), or sets a relation's text other than the model's (`relation_text`); the path is `/plates/<n>`."
+  },
+  "view_only": {
+    "with": "face_only"
+  },
+  "relation_text": {
+    "with": "face_only"
+  },
+  "statement_unknown": {
+    "section": "problem",
+    "carriedBy": ["projection_fact_unknown"],
+    "meaning": "A plate or the page names a component, relation or group the data's statements lack, or a plate draws a relation that ends at neither a component nor a group (`statement_unknown`); or a plate draws a scale of a property in a unit the data's catalogue does not list (`property_unknown`)."
+  },
+  "property_unknown": {
+    "with": "statement_unknown"
+  },
+  "citation_count_touches": {
+    "section": "warning",
+    "meaning": "In the build's `warnings`: the number of files a relation cites has no clear place on the plate and touches another mark; the path is `/plates/<nn>/relations/<id>`."
+  },
+  "line_row_untested": {
+    "section": "warning",
+    "meaning": "In the build's `warnings`: the listed plates draw a line pattern of the table of lines that no work has tested. It names no path."
+  },
+  "repo_unused": {
+    "section": "warning",
+    "meaning": "In the build's `warnings`: `--repo` is given, but the model claims and cites no file, so none is verified there. The build goes on."
+  },
+  "overview_line_loose": {
+    "section": "warning",
+    "meaning": "In the build's `warnings`, at `/overview`: a line of the overview's text is short of its measure, either with no place to open or because spreading it would open it more than the overview allows; the message quotes the line and its text."
+  },
+  "likec4_nested_parent": {
+    "section": "warning",
+    "meaning": "In the import result's `warnings`: a LikeC4 element contains other parents, and only its direct leaf children form a group."
+  },
+  "likec4_relation_unrepresented": {
+    "section": "warning",
+    "meaning": "In the import result's `warnings`: a LikeC4 relation does not connect two different leaf elements, so the import drops it."
+  },
+  "likec4_relation_bidirectional": {
+    "section": "warning",
+    "meaning": "In the import result's `warnings`: a bidirectional LikeC4 relation is imported in its declared direction only."
+  },
+  "likec4_view_unsupported": {
+    "section": "warning",
+    "meaning": "In the import result's `warnings`: a LikeC4 view that is not an element view is skipped; the message names its type."
+  },
+  "archify_stopped": {
+    "section": "internal",
+    "meaning": "Not shown: what a stopped Archify run throws inside a build once the work that asked for it no longer needs it; the build discards it."
+  }
+}

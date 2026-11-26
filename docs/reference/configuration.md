@@ -78,6 +78,12 @@ resolving dependencies. The private root workspace has no version. Use
 `node tools/release/version.mjs --write` after a version change; the existing
 generated-input gate runs its non-mutating `--check` mode before qualification.
 
+`src/refusal.json` is the sole source of the codes the publisher raises or
+reports, each once with its meaning; the type check holds every raise to it.
+`node tools/docs/references.mjs --write` writes the tables of
+`docs/reference/refusals.md` from it, and the generated-input gate runs its
+`--check` mode.
+
 ## Job-local native tools
 
 `.config/ci/pipeline.cue` owns one shared execution graph and native-platform selection.

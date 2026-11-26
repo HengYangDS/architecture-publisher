@@ -22,11 +22,11 @@
     "README.md"
   ],
   "scripts": {
-    "generate": "node tools/supply/likec4.mjs --write",
+    "generate": "node tools/supply/likec4.mjs --write && node tools/docs/references.mjs --write",
     "test": "node tools/test/suite.mjs",
     "check": "npm run check:static && npm run test:coverage && npm run check:package",
     "check:static": "npm run check:generated && npm run check:format && npm run check:lint && npm run check:types && npm run check:imports && npm run check:dead-code && npm run check:docs && npm run check:spec",
-    "check:generated": "node tools/release/version.mjs --check && npm run check:ci && node tools/supply/likec4.mjs --check && node tools/supply/icons.mjs --check",
+    "check:generated": "node tools/release/version.mjs --check && npm run check:ci && node tools/supply/likec4.mjs --check && node tools/supply/icons.mjs --check && node tools/docs/references.mjs --check",
     "check:format": "prettier --config .config/checks/prettier/prettier.toml --ignore-path .gitignore --ignore-path .config/checks/prettier/prettierignore --check . && taplo format --config .config/checks/taplo/taplo.toml --check",
     "check:lint": "eslint --config .config/checks/eslint/eslint.config.mjs . --max-warnings 0",
     "check:types": "tsc --project .config/checks/typescript/tsconfig.json --noEmit",

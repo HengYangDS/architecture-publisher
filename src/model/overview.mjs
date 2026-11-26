@@ -15,7 +15,7 @@ const SPUR = ["at", ...STATION];
 const TRACKS = Object.freeze({ least: 2, most: 4 });
 
 /**
- * @typedef {{ add: (code: string, path: string, message: string) => void,
+ * @typedef {{ add: (code: import("../refusal.mjs").Code, path: string, message: string) => void,
  *   fields: (value: unknown, path: string, required: string[], optional: string[]) => boolean,
  *   text: (value: unknown, path: string, optional?: boolean) => void,
  *   id: (value: unknown, path: string) => void }} Problems

@@ -55,7 +55,12 @@ const fullName = (command) =>
 /** The command the help lists for a group that holds one, as `guide` for `scaffold`; any other command is itself. */
 const listed = (command) => command.commands.find((held) => held.name() !== "help") ?? command;
 
-/** Write a new file, refusing with `code` when one is already there. */
+/**
+ * Write a new file, refusing with `code` when one is already there.
+ * @param {string} file
+ * @param {string} text
+ * @param {import("../refusal.mjs").Code} code
+ */
 async function writeNew(file, text, code) {
   await fs.writeFile(file, text, { flag: "wx" }).catch((error) => {
     if (error.code !== "EEXIST") throw error;

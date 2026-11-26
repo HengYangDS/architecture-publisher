@@ -215,9 +215,10 @@ const staggered = ([a1, a2, b1, b2]) =>
  *   arrow?: number }} geometry `arrow` is the length of one arrowhead
  * @param {ReturnType<typeof segmentsOf>} segments
  * @param {number} [limit] the most defects to find: the measure stops there
- * @returns {Array<{ code: string, relations: string, at: number[], apart?: number[] }>}
- *   `at` is a point of the layout where the defect lies, and `apart` how far a
- *   label stands from the other wire across and down
+ * @returns {Array<{ kind: string, relations: string, at: number[], apart?: number[] }>}
+ *   `kind` names the defect, a measure that ranks candidate layouts and no
+ *   refusal's code; `at` is a point of the layout where the defect lies, and
+ *   `apart` how far a label stands from the other wire across and down
  */
 function routeDefects(geometry, segments, limit = Infinity) {
   const found = [];
@@ -270,11 +271,11 @@ function routeDefects(geometry, segments, limit = Infinity) {
     for (let j = i + 1; j < segments.length; j += 1) {
       const b = segments[j];
       if (a.owner === b.owner || a.vertical !== b.vertical) continue;
-      const code = between(a, b);
+      const kind = between(a, b);
       if (
-        code &&
+        kind &&
         add({
-          code,
+          kind,
           relations: `${a.owner} ${b.owner}`,
           at: [
             (Math.max(a.x1, b.x1) + Math.min(a.x2, b.x2)) / 2,
@@ -302,7 +303,7 @@ function routeDefects(geometry, segments, limit = Infinity) {
           across > 0 &&
           across < ROUTE.join &&
           !connects(id) &&
-          add({ code: "route_turn_by_card", relations: `${owner(relations)} ${id}`, at: [x, y] })
+          add({ kind: "route_turn_by_card", relations: `${owner(relations)} ${id}`, at: [x, y] })
         )
           return found;
       }
@@ -315,7 +316,7 @@ function routeDefects(geometry, segments, limit = Infinity) {
       if (
         Math.hypot(p.x - q.x, p.y - q.y) < ROUTE.heads * (geometry.arrow ?? 0) &&
         add({
-          code: "route_arrows_close",
+          kind: "route_arrows_close",
           relations: `${owner(p.relations)} ${owner(q.relations)}`,
           at: [(p.x + q.x) / 2, (p.y + q.y) / 2],
         })
@@ -341,7 +342,7 @@ function routeDefects(geometry, segments, limit = Infinity) {
         })
       ) {
         const enough = add({
-          code: "route_label_near_wire",
+          kind: "route_label_near_wire",
           relations: `${name} ${box.owner}`,
           at: [label.x + label.width / 2, label.y + label.height / 2],
           apart: [
@@ -385,7 +386,7 @@ function routeDefects(geometry, segments, limit = Infinity) {
     if (
       turn &&
       add({
-        code: "route_label_over_turn",
+        kind: "route_label_over_turn",
         relations: `${name} ${owner(turn.relations)}`,
         at: [label.x + label.width / 2, label.y + label.height / 2],
       })

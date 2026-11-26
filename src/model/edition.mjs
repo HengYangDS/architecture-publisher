@@ -148,7 +148,7 @@ const RULES = Object.freeze({
 
 /**
  * Add a refusal at `path` unless `value` meets `rule`.
- * @param {{ add: Function }} problems
+ * @param {Pick<import("./overview.mjs").Problems, "add">} problems
  * @param {string} path
  * @param {number} value
  * @param {ReturnType<typeof least>} rule
@@ -277,7 +277,7 @@ function readPalette(value, problems) {
  * build. Problems are added to the model's one collection, at JSON pointers under `/edition`; a
  * field the edition no longer takes is refused by its name, with what replaced it.
  * @param {unknown} value
- * @param {{ add: Function, fields: Function }} problems
+ * @param {Pick<import("./overview.mjs").Problems, "add" | "fields">} problems
  * @returns {Readonly<{ palette: string | Readonly<Roles> | null }>}
  */
 export function readEdition(value, problems) {

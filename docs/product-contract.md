@@ -321,6 +321,9 @@ ruled out a page a part (「可以尝试 3a，独立的部件页不是个好主�
 left to the maintainer (「按你认为最优的方式推进吧」). `parts-index` joined the list after `reader-file`, which moves
 `page-figures` and every item after it back by one.
 
+On 2026-11-26 `page-figures` still waited for that release of Archify, and `derived-references`, which needs
+nothing from it, was ready: it moves before `page-figures`, by the same rule.
+
 - [x] `carrier`: this queue and its test, the roles named without a kind of holder, and a README that claims no
       more than the check proves.
 - [x] `command-line`: commands, help and status output built on established libraries, for readers at a terminal
@@ -376,17 +379,17 @@ left to the maintainer (「按你认为最优的方式推进吧」). `parts-inde
       paragraph: its name, kind and plates, the details the model states, the parts it reaches and those that reach
       it, each a link to that part's paragraph, and the paths it claims, each a link to the source at the pin. A
       part's name on a plate links to its paragraph. No page a part.
-- [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
-      relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
-      file that places anything. The published works' diagram files lose the positions they hold. A diagram
-      file states no repository and no pin either: the publisher fills them from the model, and the works'
-      files lose that block.
 - [ ] `derived-references`: the model's vocabulary and the reference documents each have one source. A model's
       fields, enumerations, patterns and limits are stated once, and the schema and the loader's checks both come
       from that statement; the refusal codes stand in one registry; and a table of a reference document that
       restates the source (the commands and their options, the refusal codes, a delivery's files, the versions
       of supplies) is written from the source by a command, so that a document cannot say what the source does
       not.
+- [ ] `page-figures`: the page's diagrams are laid out by the publisher. A diagram file of a guide states parts and
+      relations and no position, size, row or column; the publisher lays out each kind of diagram and refuses a
+      file that places anything. The published works' diagram files lose the positions they hold. A diagram
+      file states no repository and no pin either: the publisher fills them from the model, and the works'
+      files lose that block.
 - [ ] `compositions`: more than one composition of a view, chosen by the view's shape or named by its author:
       tiers, a matrix, a spine and a radial one. A plate's blank space and balance are improved by that choice
       and no longer only recorded. What a census of a built page still finds untidy and no gate holds, more

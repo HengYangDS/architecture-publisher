@@ -7,6 +7,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- `src/refusal.json` holds every code the publisher raises or reports, each once with its meaning; the type check
+  refuses a raise of a code it does not hold, and `tools/docs/references.mjs` writes the refusals reference from
+  it. The reference gains a table of the problems' codes, with the refusals that carry them, and one of
+  warnings, and names the four `layout_*` refusals it lacked.
+
 ### Changed
 
 - CI runs Mise 2026.11.14, which `jdx/mise-action` v5.3.0 installs in the GitHub jobs; the GitLab Linux job checks the 2026.11.14 binary against the checksum Mise publishes for it.

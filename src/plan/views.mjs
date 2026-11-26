@@ -220,7 +220,11 @@ async function admitAll(views, admit) {
   );
 }
 
-/** @param {View} view @param {Measurement} measured */
+/**
+ * @param {View} view
+ * @param {Measurement} measured
+ * @returns {Array<import("../refusal.mjs").Problem>}
+ */
 function viewProblems(view, measured) {
   if (measured.refusal) {
     // A problem already placed under its view keeps its path.

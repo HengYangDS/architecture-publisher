@@ -339,31 +339,25 @@ function createTypefaces(chains, kerning) {
  * @param {Array<{ path: string, text: string }>} texts
  */
 export function requireGlyphs(typefaces, texts) {
-  const problems = texts.flatMap(({ path: where, text }) => {
+  /** @type {Array<import("../refusal.mjs").Problem>} */
+  const problems = [];
+  for (const { path: where, text } of texts) {
     const absent = typefaces.missing(text);
     const shaped = absent.filter((character) => SHAPED.test(character));
     const undrawn = absent.filter((character) => !SHAPED.test(character));
-    return [
-      ...(shaped.length
-        ? [
-            {
-              code: "script_unsupported",
-              path: where,
-              message: `is written in a right-to-left or shaped script the posters cannot set: ${shaped.join(" ")}`,
-            },
-          ]
-        : []),
-      ...(undrawn.length
-        ? [
-            {
-              code: "glyph_missing",
-              path: where,
-              message: `has characters the bundled fonts cannot draw: ${undrawn.join(" ")}`,
-            },
-          ]
-        : []),
-    ];
-  });
+    if (shaped.length)
+      problems.push({
+        code: "script_unsupported",
+        path: where,
+        message: `is written in a right-to-left or shaped script the posters cannot set: ${shaped.join(" ")}`,
+      });
+    if (undrawn.length)
+      problems.push({
+        code: "glyph_missing",
+        path: where,
+        message: `has characters the bundled fonts cannot draw: ${undrawn.join(" ")}`,
+      });
+  }
   if (problems.length)
     refuse("glyphs_missing", "Some text cannot be drawn with the bundled fonts.", problems);
 }

@@ -162,6 +162,7 @@ function diagramOf({ name, bytes }) {
  * @param {ReadonlyArray<{ name: string, bytes: Buffer }>} entries the draft, then the files it names
  */
 export function refuseStatedPlaces(entries) {
+  /** @type {Array<import("../refusal.mjs").Problem>} */
   const stated = entries.flatMap((entry) => {
     const diagram = diagramOf(entry);
     return diagram

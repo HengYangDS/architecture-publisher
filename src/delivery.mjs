@@ -244,7 +244,7 @@ const subjectDigest = (statement, name) =>
  * delivery's manifest and colophon page, and whose signature is beside it exactly when it names a signer.
  * @param {string} directory
  * @param {string} manifestSha256
- * @param {string} unaccepted the code of a refusal for a delivery without a record
+ * @param {import("./refusal.mjs").Code} unaccepted the code of a refusal for a delivery without a record
  */
 async function readAcceptance(directory, manifestSha256, unaccepted) {
   let bytes;

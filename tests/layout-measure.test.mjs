@@ -104,7 +104,7 @@ test("route defects are counted, not refused", () => {
   );
   assert.deepEqual(measured.defects, []);
   assert.deepEqual(
-    measured.routes.map(({ code, relations }) => `${code} ${relations}`),
+    measured.routes.map(({ kind, relations }) => `${kind} ${relations}`),
     [
       "route_wires_close near-a near-b",
       "route_wire_continued end-a end-b",
@@ -138,7 +138,7 @@ test("runs in line across another wire and wires that hook past each other are r
   );
   assert.deepEqual(measured.defects, []);
   assert.deepEqual(
-    measured.routes.map(({ code, relations }) => `${code} ${relations}`),
+    measured.routes.map(({ kind, relations }) => `${kind} ${relations}`),
     ["route_wire_jumps left right", "route_wires_interlock hook-a hook-b"],
   );
 });
@@ -162,7 +162,7 @@ test("a label on its own run just over another relation's turn is a route defect
   );
   assert.deepEqual(measured.defects, []);
   assert.deepEqual(
-    measured.routes.map(({ code, relations }) => `${code} ${relations}`),
+    measured.routes.map(({ kind, relations }) => `${kind} ${relations}`),
     ["route_label_over_turn jog turn"],
   );
 });

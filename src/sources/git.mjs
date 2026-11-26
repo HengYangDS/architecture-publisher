@@ -69,7 +69,7 @@ export function releaseOf(repo, commit) {
  * The commit a revision names in a repository, or a refusal with the given code.
  * @param {string} repo
  * @param {string} revision
- * @param {string} code
+ * @param {import("../refusal.mjs").Code} code
  */
 export function commitOf(repo, revision, code) {
   const result = readGit(repo, ["rev-parse", "--verify", "--quiet", `${revision}^{commit}`]);
