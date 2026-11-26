@@ -53,10 +53,11 @@ brew install HengYangDS/tap/archpub
 
 Without either, download `archpub-<version>-<platform>.tar.gz` from the
 [releases](https://github.com/HengYangDS/architecture-publisher/releases),
-unpack it anywhere and put its `archpub/bin` on your path. Where Node.js 22.13
-or later is already present, `npm install --global --ignore-scripts architecture-publisher`
-installs the same command as an npm package; it needs Typst 0.15.1 on the path
-to build the print edition.
+unpack it anywhere and put its `archpub/bin` on your path. Where Node.js is
+already present, `npm install --global --ignore-scripts architecture-publisher`
+installs the same command as an npm package; it needs Typst on the path to build
+the print edition. The versions of both are in the operations reference's
+[table of what it needs](reference/operations.md#what-it-needs).
 
 `archpub --version` prints the installed version, `archpub --help` lists the
 commands under the role that runs them, and `archpub <command> --help` explains

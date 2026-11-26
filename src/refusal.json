@@ -93,7 +93,7 @@
   },
   "edition_typst_missing": {
     "section": "refusal",
-    "meaning": "The print edition needs Typst 0.15.1 on the path; checked before anything is written."
+    "meaning": "The print edition needs Typst {typst} on the path; checked before anything is written."
   },
   "edition_typst_version": {
     "with": "edition_typst_missing"
@@ -162,7 +162,7 @@
   },
   "overview_typst_missing": {
     "section": "refusal",
-    "meaning": "Typst is not on the path or is not 0.15.1."
+    "meaning": "Typst is not on the path or is not {typst}."
   },
   "overview_typst_version": {
     "with": "overview_typst_missing"
@@ -308,7 +308,7 @@
   },
   "colophon_typst_missing": {
     "section": "refusal",
-    "meaning": "The colophon page needs Typst 0.15.1 on the path."
+    "meaning": "The colophon page needs Typst {typst} on the path."
   },
   "colophon_typst_version": {
     "with": "colophon_typst_missing"

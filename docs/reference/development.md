@@ -27,11 +27,13 @@ bytes are verified by the supply checks and behavior tests.
 
 Development and CI use the exact Node.js and independently selected npm versions
 owned by `.config/mise/config.toml` and its lockfile, not Node's bundled npm,
-and the official Typst 0.15.1 that typesets the print edition.
+and the official Typst that typesets the print edition, the release the
+package's `engines.typst` names.
 Native `devEngines` admission rejects another development Node or npm before
 installation or scripts. Every CI job uses the same locked selection in its own
-ignored tool cache. The installed package itself needs only Node.js 22.13 or
-later.
+ignored tool cache. The installed package itself needs only Node.js, at the
+version the operations reference's [table of what it needs](operations.md#what-it-needs)
+gives.
 
 The package has four runtime dependencies: commander and `@clack/prompts`, which
 the command line is built on, and `fast-wrap-ansi` and `fast-string-width`,

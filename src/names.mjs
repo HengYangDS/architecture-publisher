@@ -8,8 +8,14 @@ import fs from "node:fs";
  * other unit.
  */
 
-/** The Typst release the edition, the overview and the colophon page are set with; any other is refused. */
-export const TYPST_VERSION = "0.15.1";
+/**
+ * The Typst release the edition, the overview and the colophon page are set with; any other is refused. The package
+ * states what it needs of its host in `engines` (Node.js and Typst), from which the operations reference's table of
+ * what the publisher needs is written.
+ */
+export const TYPST_VERSION = JSON.parse(
+  fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+).engines.typst;
 
 /**
  * The table of the names the publisher shares with the house class: the directory the class is staged in and the

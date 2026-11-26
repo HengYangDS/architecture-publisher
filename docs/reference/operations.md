@@ -35,18 +35,30 @@ macos-arm64 = { url = "<release>/archpub-<version>-macos-arm64.tar.gz", checksum
 
 The release's `architecture-publisher-<version>.tgz` is the same command as an
 npm package; install it with `npm install --global --ignore-scripts` where
-Node.js 22.13 or later is present, with Typst 0.15.1 on the path for the print
-edition. The package bundles its four runtime npm dependencies, commander and
+Node.js is present, with Typst on the path for the print edition, each at the
+version [the table below](#what-it-needs) gives. The package bundles its four runtime npm dependencies, commander and
 clack, which its command line is built on, and fast-wrap-ansi and
 fast-string-width, which fit a report to the terminal, with the three small
 packages they depend on, so installing it fetches nothing else. The fonts, the house
 faces, the measuring library, icons, Archify and the LikeC4 parser are bundled
 with their digests, so a build downloads nothing. Git is needed only to resolve
-and verify the model's files with `--repo`, and Typst 0.15.1 on the path only
-to build the print edition. Git and Archify run with only the caller's `PATH`,
+and verify the model's files with `--repo`, and Typst on the path only to build
+the print edition. Git and Archify run with only the caller's `PATH`,
 `PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`, so
 no other variable, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what
 they read or decide.
+
+### What it needs
+
+<!-- supplies: written from package.json and the bundled supplies by tools/docs/references.mjs; do not edit -->
+
+| Supply  | Version        | For                                                              | Stated in                              |
+| ------- | -------------- | ---------------------------------------------------------------- | -------------------------------------- |
+| Node.js | 22.13 or later | the npm package; a release archive brings its own                | `package.json`, `engines.node`         |
+| Typst   | 0.15.1         | the print edition, on the path; a release archive brings its own | `package.json`, `engines.typst`        |
+| Archify | 3.3.0          | the page; bundled, unmodified                                    | `renderers/archify/supply/supply.json` |
+
+<!-- end of supplies -->
 
 ## Commands
 
@@ -221,7 +233,8 @@ manifest, which plan plates without typesetting them, record such a reading as
 set. Blank inside a figure, which the view's structure leaves, stays: `check`
 reports it, and reshaping the view is its author's choice.
 
-The print edition is typeset by Typst 0.15.1 with the house class into
+The print edition is typeset by Typst, at the version [the table](#what-it-needs)
+gives, with the house class into
 `<model id>.pdf`, pages of 1600 × 900 points:
 
 - a title page of the work's name, question and summary over a byline of its
@@ -265,7 +278,7 @@ manifest records. Typst also renders the overview's page and each plate's page
 as PNG at each `--png` width, at width × 72 / 1600 pixels per inch.
 
 The page is one Archify explainer, delivered by the vendored, unmodified
-Archify 3.3.0. Its heading is the model's question, its conclusion the summary,
+Archify of [the table](#what-it-needs). Its heading is the model's question, its conclusion the summary,
 listed beside it the titles of up to four panels, each a link to its panel, and
 its scope the model's scope, limits and editors. Each view is a panel
 titled with the view's question, or its title when it asks the model's own
@@ -393,8 +406,8 @@ guide: `guide.archify.md` and one architecture document per view, without the
 layout and repository the publisher sets when the guide is built. Its prose is
 the model's, which the strict writing checks may hold to shorter sentences;
 Archify reports each one at its line. Archify 3.2.0 cut a validation receipt
-over 64 KiB on macOS, as an 11-view page's was (not measured with 3.3.0); Archify's own
-guidance keeps a page to four native diagrams.
+over 64 KiB on macOS, as an 11-view page's was (not measured with the release
+now bundled); Archify's own guidance keeps a page to four native diagrams.
 
 ## The delivery
 

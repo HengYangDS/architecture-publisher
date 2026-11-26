@@ -19,6 +19,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The package states the Typst release it needs in `package.json`'s `engines`, beside Node.js's floor, and the
+  publisher reads it from there. The operations reference gains a table of what the publisher needs, written
+  from those and the bundled Archify's manifest, and the other documents point to it instead of naming versions.
 - A delivery's files stand in one table, `src/delivery.json`, with their names, when each is written and what
   it holds; `src/names.mjs` takes every name from it, and `tools/docs/references.mjs` writes the operations
   reference's table of a delivery's files from it, now with a column for when each is written.

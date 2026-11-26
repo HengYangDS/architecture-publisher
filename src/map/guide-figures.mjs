@@ -24,9 +24,9 @@ const ROUTE = Object.freeze([
 
 /**
  * The fields a guide's file leaves to the publisher, by kind (the queue item `page-figures`): the coordinates and
- * sizes of the document and of each item of each list it holds, and the course of each line, as Archify 3.3.0's
- * schemas name them, with the repository the publisher fills from the model. A tree's direction, a line's weight
- * and every word stay the author's. A workflow's phases and groups span columns the publisher sets, and a sequence's
+ * sizes of the document and of each item of each list it holds, and the course of each line, as the bundled
+ * Archify's schemas name them, with the repository the publisher fills from the model. A tree's direction, a line's
+ * weight and every word stay the author's. A workflow's phases and groups span columns the publisher sets, and a sequence's
  * segments and activations span heights it sets, so a guide's file states none of them.
  */
 const PUBLISHERS = Object.freeze({

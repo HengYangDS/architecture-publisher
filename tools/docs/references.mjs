@@ -21,6 +21,20 @@ const root = rest.length
   ? path.resolve(rest[1])
   : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
+// What the publisher needs of its host and bundles, each version read from its own owner: the package's `engines`
+// for Node.js and Typst, and the bundled Archify's supply manifest.
+const manifest = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
+const archify = JSON.parse(
+  await fs.readFile(path.join(root, "renderers/archify/supply/supply.json"), "utf8"),
+);
+const nodeFloor = /^>=(\d+\.\d+(?:\.\d+)?)$/u.exec(manifest.engines?.node ?? "")?.[1];
+if (!nodeFloor || !manifest.engines?.typst || !archify.version)
+  throw new Error(
+    "references_source_unreadable: package.json engines (node as >=x.y, typst) or the Archify supply's version",
+  );
+/** A registered meaning as the reference prints it: `{typst}` is the Typst release the package needs. */
+const meant = (/** @type {string} */ text) => text.replaceAll("{typst}", manifest.engines.typst);
+
 /** @param {readonly string[]} codes */
 const named = (codes) => codes.map((code) => `\`${code}\``).join(", ");
 /** @param {readonly string[]} head @param {ReadonlyArray<readonly string[]>} rows */
@@ -126,7 +140,38 @@ const deliveryTable = () =>
     ]),
   );
 
+const suppliesTable = () =>
+  table(
+    ["Supply", "Version", "For", "Stated in"],
+    [
+      [
+        "Node.js",
+        `${nodeFloor} or later`,
+        "the npm package; a release archive brings its own",
+        "`package.json`, `engines.node`",
+      ],
+      [
+        "Typst",
+        manifest.engines.typst,
+        "the print edition, on the path; a release archive brings its own",
+        "`package.json`, `engines.typst`",
+      ],
+      [
+        "Archify",
+        archify.version,
+        "the page; bundled, unmodified",
+        "`renderers/archify/supply/supply.json`",
+      ],
+    ],
+  );
+
 const BLOCKS = [
+  {
+    file: "docs/reference/operations.md",
+    name: "supplies",
+    source: "package.json and the bundled supplies",
+    text: suppliesTable,
+  },
   {
     file: "docs/reference/operations.md",
     name: "delivery",
@@ -146,7 +191,7 @@ const BLOCKS = [
     text: () =>
       table(
         ["Code", "Meaning"],
-        rowsOf("command", "refusal").map((row) => [named(row.codes), row.meaning]),
+        rowsOf("command", "refusal").map((row) => [named(row.codes), meant(row.meaning)]),
       ),
   },
   {
@@ -156,7 +201,11 @@ const BLOCKS = [
     text: () =>
       table(
         ["Code", "Carried by", "Meaning"],
-        rowsOf("problem").map((row) => [named(row.codes), named(row.carriedBy ?? []), row.meaning]),
+        rowsOf("problem").map((row) => [
+          named(row.codes),
+          named(row.carriedBy ?? []),
+          meant(row.meaning),
+        ]),
       ),
   },
   {
@@ -166,7 +215,7 @@ const BLOCKS = [
     text: () =>
       table(
         ["Code", "Meaning"],
-        rowsOf("warning").map((row) => [named(row.codes), row.meaning]),
+        rowsOf("warning").map((row) => [named(row.codes), meant(row.meaning)]),
       ),
   },
 ];

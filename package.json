@@ -83,7 +83,8 @@
     }
   },
   "engines": {
-    "node": ">=22.13"
+    "node": ">=22.13",
+    "typst": "0.15.1"
   },
   "dependencies": {
     "@clack/prompts": "1.9.0",

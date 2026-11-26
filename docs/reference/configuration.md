@@ -104,8 +104,8 @@ the job's ignored `build/runtime/tool-cache/`, separate from host installations.
 The generated `mise/locks/` files belong to Mise's npm lock closure; they are not
 another package manifest or product interface.
 
-Taplo is selected through Mise's official GitHub backend at its unchanged
-`0.10.0` release tag. Each platform uses the official release asset and an
+Taplo is selected through Mise's official GitHub backend at the unchanged
+release tag `.config/mise/config.toml` names. Each platform uses the official release asset and an
 explicit SHA-256 checksum. The release API does not supply digests; native Mise
 verifies the authored checksum during installation rather than reporting absent
 lock metadata as provenance. Platform-specific options produce separate lock

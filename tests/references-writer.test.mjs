@@ -14,10 +14,17 @@ const run = promisify(execFile);
 const root = path.resolve(import.meta.dirname, "..");
 const WRITER = path.join(root, "tools/docs/references.mjs");
 
-/** A tree of what the writer reads: the documents it writes, the source, the package and the formatter's policy. */
+/** A tree of what the writer reads: the documents it writes, the source, the package, the bundled Archify's
+ * manifest and the formatter's policy. */
 async function tree() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-references-"));
-  for (const part of ["docs/reference", "src", ".config/checks/prettier", "package.json"])
+  for (const part of [
+    "docs/reference",
+    "src",
+    "renderers/archify/supply/supply.json",
+    ".config/checks/prettier",
+    "package.json",
+  ])
     await fs.cp(path.join(root, part), path.join(dir, part), { recursive: true });
   await fs.symlink(path.join(root, "node_modules"), path.join(dir, "node_modules"));
   return dir;
@@ -37,6 +44,7 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/refusals.md", "| `usage`", "| `usage`, `usage_typo`"],
       ["docs/reference/operations.md", "archpub skill [--json]", "archpub skill"],
       ["docs/reference/operations.md", "| `acceptance.sig`", "| `acceptance.asc`"],
+      ["docs/reference/operations.md", "| Typst   | 0.15.1 ", "| Typst   | 0.15.2 "],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
