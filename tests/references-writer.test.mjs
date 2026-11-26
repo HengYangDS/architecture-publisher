@@ -36,6 +36,7 @@ test("the writer refuses a table changed by hand, naming its document, and write
     for (const [file, from, to] of [
       ["docs/reference/refusals.md", "| `usage`", "| `usage`, `usage_typo`"],
       ["docs/reference/operations.md", "archpub skill [--json]", "archpub skill"],
+      ["docs/reference/operations.md", "| `acceptance.sig`", "| `acceptance.asc`"],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");

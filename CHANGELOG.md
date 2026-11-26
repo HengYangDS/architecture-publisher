@@ -19,6 +19,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A delivery's files stand in one table, `src/delivery.json`, with their names, when each is written and what
+  it holds; `src/names.mjs` takes every name from it, and `tools/docs/references.mjs` writes the operations
+  reference's table of a delivery's files from it, now with a column for when each is written.
 - CI runs Mise 2026.11.14, which `jdx/mise-action` v5.3.0 installs in the GitHub jobs; the GitLab Linux job checks the 2026.11.14 binary against the checksum Mise publishes for it.
 
 ## [0.20.0] - 2026-11-26

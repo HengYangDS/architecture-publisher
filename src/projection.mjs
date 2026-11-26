@@ -13,7 +13,7 @@ import {
 import { parsedGuide } from "./map/guide-parse.mjs";
 import { guideText } from "./map/guide-text.mjs";
 import { MODEL_FORMAT, MODEL_VERSION } from "./model/load.mjs";
-import { ACCEPTANCE, COLOPHON, MANIFEST, MODEL, SIGNATURE, filesOf } from "./names.mjs";
+import { DELIVERY, DELIVERY_ROWS, MODEL, filesOf } from "./names.mjs";
 import { dataCounts, editionData, serializeData } from "./pinned/data.mjs";
 import { evidenceTable } from "./pinned/evidence.mjs";
 import { plateEntry, plateScales } from "./pinned/face.mjs";
@@ -34,28 +34,21 @@ import { DELIVERY_FORMAT, DELIVERY_VERSION, overviewImages, plateSummary } from 
  * counts; a build gathers it again when the edition is typeset, with each plate's page, and writes it.
  */
 
-/**
- * The files a delivery names whatever its model, each with what it holds.
- * @type {ReadonlyMap<string, string>}
- */
-const FIXED = new Map([
-  [MODEL, "the model the build read"],
-  [MANIFEST, "the manifest"],
-  [ACCEPTANCE, "the record an acceptance writes"],
-  [SIGNATURE, "the signature an acceptance writes"],
-  [COLOPHON, "the colophon page an acceptance writes"],
-]);
+/** What a refusal calls each file of a delivery whose name is fixed or the model's id, by role: the table's. */
+const CALLED = new Map(
+  DELIVERY_ROWS.filter((row) => row.called).map((row) => [row.role, row.called]),
+);
 
 /**
- * What each file a delivery names by its model's id holds.
- * @type {Readonly<Record<string, string>>}
+ * The files a delivery names whatever its model, each with what a refusal calls it.
+ * @type {ReadonlyMap<string, string>}
  */
-const OWN = Object.freeze({
-  edition: "its print edition",
-  page: "its page",
-  data: "its data",
-  reader: "its reader file",
-});
+const FIXED = new Map(
+  DELIVERY_ROWS.filter((row) => row.called && !DELIVERY[row.role].includes("{")).map((row) => [
+    DELIVERY[row.role],
+    row.called,
+  ]),
+);
 
 /**
  * Refuse a model whose id would name two files of its delivery alike: a file named by the id, such as its data
@@ -66,7 +59,7 @@ export function requireDeliveryNames(id) {
   const taken = Object.entries(filesOf(id)).find(([, file]) => FIXED.has(file));
   if (!taken) return;
   const [kind, file] = taken;
-  const message = `\`${file}\` would be both ${OWN[kind]} and ${FIXED.get(file)}`;
+  const message = `\`${file}\` would be both ${CALLED.get(kind)} and ${FIXED.get(file)}`;
   refuse(
     "delivery_name_taken",
     `A delivery of the model \`${id}\` would hold two files of one name: ${message}. Give the model another id.`,

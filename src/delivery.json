@@ -1,0 +1,93 @@
+{
+  "$comment": "The files at the top of a delivery, each once, in the operations reference's order: its role, its name or the pattern a build forms it from, when it is written, what it holds, and for a file whose name is fixed or the model's id, what a refusal calls it. src/names.mjs reads the names and the default width, src/projection.mjs the calls, and tools/docs/references.mjs writes the reference's table from the rows. {shared} is the name src/shared.json gives, which the house class reads too. In a pattern, {id} is the model's id, {NN} a plate's number in two digits, {view} its views, {name} a page's name and {width} a width in pixels; {default} in a row's text is the default width.",
+  "defaultWidth": 3840,
+  "files": [
+    {
+      "role": "edition",
+      "name": "{id}.pdf",
+      "when": "unless excluded",
+      "holds": "The print edition.",
+      "called": "its print edition"
+    },
+    {
+      "role": "page",
+      "name": "{id}.html",
+      "when": "unless excluded",
+      "holds": "The standalone interactive page.",
+      "called": "its page"
+    },
+    {
+      "role": "overviewImage",
+      "name": "images/00-overview.png",
+      "when": "with the edition, when the model states an overview",
+      "holds": "The overview's page at {default} px wide."
+    },
+    {
+      "role": "plateImage",
+      "name": "images/{NN}-{view}.png",
+      "when": "with the edition, for each plate",
+      "holds": "Plate `NN`'s page at {default} px wide, numbered from 01 in reading order."
+    },
+    {
+      "role": "otherImage",
+      "name": "images/{name}-{width}.png",
+      "when": "with the edition, at each other width `--png` names",
+      "holds": "The overview's or a plate's page at that width."
+    },
+    {
+      "role": "figure",
+      "name": "figures/{NN}-{view}.png, .svg",
+      "when": "with the edition, for each plate",
+      "holds": "Plate `NN`'s figure and key alone: a PNG on a transparent ground, and an SVG of shapes and outlined glyphs."
+    },
+    {
+      "role": "model",
+      "name": "{shared}",
+      "when": "in every delivery",
+      "holds": "The model the build read, byte for byte.",
+      "called": "the model the build read"
+    },
+    {
+      "role": "data",
+      "name": "{id}.json",
+      "when": "in every delivery",
+      "holds": "The pinned edition as [data](data.md).",
+      "called": "its data"
+    },
+    {
+      "role": "reader",
+      "name": "{id}.md",
+      "when": "in every delivery",
+      "holds": "The [reader file](data.md#the-reader-file).",
+      "called": "its reader file"
+    },
+    {
+      "role": "manifest",
+      "name": "manifest.json",
+      "when": "in every delivery",
+      "holds": "The build record, which names every file above with its digest.",
+      "called": "the manifest"
+    },
+    {
+      "role": "acceptance",
+      "name": "acceptance.json",
+      "when": "once `archpub accept` has run",
+      "holds": "The acceptance record.",
+      "called": "the record an acceptance writes"
+    },
+    {
+      "role": "signature",
+      "name": "acceptance.sig",
+      "when": "when the reviewer signs",
+      "holds": "The record's SSH signature.",
+      "called": "the signature an acceptance writes"
+    },
+    {
+      "role": "colophon",
+      "name": "colophon.pdf",
+      "when": "once `archpub accept` has run",
+      "holds": "The colophon page.",
+      "called": "the colophon page an acceptance writes"
+    }
+  ]
+}

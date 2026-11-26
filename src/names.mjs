@@ -19,13 +19,33 @@ export const TYPST_VERSION = "0.15.1";
  */
 export const SHARED_FILE = new URL("./shared.json", import.meta.url);
 
+/** A table beside this module, read once and read-only. */
+const table = (/** @type {URL} */ file) =>
+  JSON.parse(fs.readFileSync(file, "utf8"), (_key, value) =>
+    value && typeof value === "object" ? Object.freeze(value) : value,
+  );
+
 /** The names of the table, read once and read-only. */
-export const SHARED = JSON.parse(fs.readFileSync(SHARED_FILE, "utf8"), (_key, value) =>
-  value && typeof value === "object" ? Object.freeze(value) : value,
+export const SHARED = table(SHARED_FILE);
+
+/**
+ * The files at the top of a delivery, each with its name or pattern, when it is written and what it holds: the
+ * table beside this module, from which the names below are taken and the operations reference's table is written;
+ * `DELIVERY` maps each file's role to its name or pattern, `DELIVERY_ROWS` holds the rows.
+ */
+const DELIVERY_FILES = table(new URL("./delivery.json", import.meta.url));
+// The delivered model's name is the shared table's, which the house class reads to attach it; the row says so.
+export const DELIVERY = Object.freeze(
+  Object.fromEntries(
+    DELIVERY_FILES.files.map((row) => [
+      row.role,
+      row.name === "{shared}" ? SHARED.delivered.model : row.name,
+    ]),
+  ),
 );
 
 /** The manifest, which names every other file a build delivers, with its digest. */
-export const MANIFEST = "manifest.json";
+export const MANIFEST = DELIVERY.manifest;
 
 /**
  * The model as the build read it, which a delivery carries beside its data and the edition attaches by the same
@@ -35,31 +55,33 @@ export const MANIFEST = "manifest.json";
 export const MODEL = SHARED.delivered.model;
 
 /** The acceptance record, which an acceptance writes beside a build. */
-export const ACCEPTANCE = "acceptance.json";
+export const ACCEPTANCE = DELIVERY.acceptance;
 
 /** The record's detached signature, beside it when the reviewer signs. */
-export const SIGNATURE = "acceptance.sig";
+export const SIGNATURE = DELIVERY.signature;
 
 /** The colophon page, which an acceptance sets beside a build. */
-export const COLOPHON = "colophon.pdf";
+export const COLOPHON = DELIVERY.colophon;
 
 /** The directory of the edition's page images. */
-export const IMAGES = "images";
+export const IMAGES = DELIVERY.plateImage.split("/")[0];
 
 /** The directory of each plate's figure set alone. */
-export const FIGURES = "figures";
+export const FIGURES = DELIVERY.figure.split("/")[0];
 
 /**
  * The files a delivery names by its model's id: the print edition, the page, the data and the reader file.
  * @param {string} id the model's id
  */
 export const filesOf = (id) =>
-  Object.freeze({
-    edition: `${id}.pdf`,
-    page: `${id}.html`,
-    data: `${id}.json`,
-    reader: `${id}.md`,
-  });
+  Object.freeze(
+    Object.fromEntries(
+      ["edition", "page", "data", "reader"].map((role) => [
+        role,
+        DELIVERY[role].replace("{id}", id),
+      ]),
+    ),
+  );
 
 /**
  * A number as the edition sets it, in two digits at least.
@@ -83,7 +105,10 @@ export const pageName = (plate) => `${two(plate.page)}-${plate.views.join("+")}`
  * The width in pixels a page's image is rendered at unless the caller names its widths. The image at this width is
  * named without its width.
  */
-export const DEFAULT_WIDTH = 3840;
+export const DEFAULT_WIDTH = DELIVERY_FILES.defaultWidth;
+
+/** The table's rows: each file's role, name or pattern, when it is written, what it holds and what a refusal calls it. */
+export const DELIVERY_ROWS = DELIVERY_FILES.files;
 
 /**
  * The image file of one page of an edition at one width.

@@ -398,21 +398,25 @@ guidance keeps a page to four native diagrams.
 
 ## The delivery
 
-| File                            | Content                                                                                                     |
-| ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `<model id>.pdf`                | The print edition, unless excluded.                                                                         |
-| `<model id>.html`               | The standalone interactive page, unless excluded.                                                           |
-| `images/00-overview.png`        | The overview's page at 3840 px wide, when the model states an overview.                                     |
-| `images/NN-<view>.png`          | Plate `NN`'s page at 3840 px wide, numbered from 01 in reading order.                                       |
-| `images/<name>-<width>.png`     | The overview's or a plate's page at each other width `--png` names.                                         |
-| `figures/NN-<view>.png`, `.svg` | Plate `NN`'s figure and key alone: a PNG on a transparent ground, and an SVG of shapes and outlined glyphs. |
-| `model.json`                    | The model the build read, byte for byte; in every delivery.                                                 |
-| `<model id>.json`               | The pinned edition as [data](data.md); in every delivery.                                                   |
-| `<model id>.md`                 | The [reader file](data.md#the-reader-file); in every delivery.                                              |
-| `manifest.json`                 | The build record, which names every file above with its digest.                                             |
-| `acceptance.json`               | The acceptance record `archpub accept` writes; absent until then.                                           |
-| `acceptance.sig`                | The record's SSH signature, when the reviewer signs it.                                                     |
-| `colophon.pdf`                  | The colophon page `archpub accept` sets; absent until then.                                                 |
+<!-- delivery: written from src/delivery.json by tools/docs/references.mjs; do not edit -->
+
+| File                            | Written                                             | Content                                                                                                     |
+| ------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `<model id>.pdf`                | unless excluded                                     | The print edition.                                                                                          |
+| `<model id>.html`               | unless excluded                                     | The standalone interactive page.                                                                            |
+| `images/00-overview.png`        | with the edition, when the model states an overview | The overview's page at 3840 px wide.                                                                        |
+| `images/NN-<view>.png`          | with the edition, for each plate                    | Plate `NN`'s page at 3840 px wide, numbered from 01 in reading order.                                       |
+| `images/<name>-<width>.png`     | with the edition, at each other width `--png` names | The overview's or a plate's page at that width.                                                             |
+| `figures/NN-<view>.png`, `.svg` | with the edition, for each plate                    | Plate `NN`'s figure and key alone: a PNG on a transparent ground, and an SVG of shapes and outlined glyphs. |
+| `model.json`                    | in every delivery                                   | The model the build read, byte for byte.                                                                    |
+| `<model id>.json`               | in every delivery                                   | The pinned edition as [data](data.md).                                                                      |
+| `<model id>.md`                 | in every delivery                                   | The [reader file](data.md#the-reader-file).                                                                 |
+| `manifest.json`                 | in every delivery                                   | The build record, which names every file above with its digest.                                             |
+| `acceptance.json`               | once `archpub accept` has run                       | The acceptance record.                                                                                      |
+| `acceptance.sig`                | when the reviewer signs                             | The record's SSH signature.                                                                                 |
+| `colophon.pdf`                  | once `archpub accept` has run                       | The colophon page.                                                                                          |
+
+<!-- end of delivery -->
 
 Nothing else is written at the top of the delivery.
 
