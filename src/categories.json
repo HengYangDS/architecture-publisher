@@ -1,0 +1,58 @@
+{
+  "$comment": "How each category of the model looks in every medium, in the schema's order: its default Lucide icon, Archify's type for it, whether its parts lie outside the described system, and whether it takes the palette's accent role; then the category of a part that names no kind, and a group's look. The model's schema states the categories and the default one; src/kinds.mjs reads this table, tools/docs/references.mjs writes the model reference's table of categories from it and the schema, and tests/category-looks.test.mjs holds its categories to the schema's and its kindless category to the schema's default.",
+  "categories": {
+    "person": {
+      "icon": "user",
+      "archify": "external",
+      "outside": true,
+      "accent": false
+    },
+    "external": {
+      "icon": "box",
+      "archify": "external",
+      "outside": true,
+      "accent": false
+    },
+    "frontend": {
+      "icon": "app-window",
+      "archify": "frontend",
+      "outside": false,
+      "accent": false
+    },
+    "backend": {
+      "icon": "server",
+      "archify": "backend",
+      "outside": false,
+      "accent": false
+    },
+    "database": {
+      "icon": "database",
+      "archify": "database",
+      "outside": false,
+      "accent": false
+    },
+    "cloud": {
+      "icon": "cloud",
+      "archify": "cloud",
+      "outside": false,
+      "accent": false
+    },
+    "messagebus": {
+      "icon": "waypoints",
+      "archify": "messagebus",
+      "outside": false,
+      "accent": false
+    },
+    "security": {
+      "icon": "shield-check",
+      "archify": "security",
+      "outside": false,
+      "accent": true
+    }
+  },
+  "kindless": "backend",
+  "group": {
+    "icon": "layers",
+    "category": "backend"
+  }
+}

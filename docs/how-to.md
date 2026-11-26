@@ -101,7 +101,7 @@ lead, a course of steps with their stations, and the blocks that follow, lists,
 tables, groups of lists, further courses and headed texts, in the order you want
 them read. State no position: the publisher lays the page out and refuses one
 too tall for its blocks, naming the first that does not fit. The
-[model reference](reference/model.md#overview) lists every field, and
+[overview reference](reference/overview.md) lists every field, and
 `archpub check` draws the page and checks it.
 
 ## Re-pin a work to a later commit

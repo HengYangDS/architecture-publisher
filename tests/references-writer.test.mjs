@@ -14,19 +14,14 @@ const run = promisify(execFile);
 const root = path.resolve(import.meta.dirname, "..");
 const WRITER = path.join(root, "tools/docs/references.mjs");
 
-/** A tree of what the writer reads: the documents it writes, the source, the package, the bundled Archify's
- * manifest and the formatter's policy. */
+/** A tree of what the writer reads: the documents it writes, the source, the package and the formatter's policy,
+ * with the bundled renderers the command it runs for a sample reads, linked as they are never changed here. */
 async function tree() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-references-"));
-  for (const part of [
-    "docs/reference",
-    "src",
-    "renderers/archify/supply/supply.json",
-    ".config/checks/prettier",
-    "package.json",
-  ])
+  for (const part of ["docs/reference", "src", ".config/checks/prettier", "package.json"])
     await fs.cp(path.join(root, part), path.join(dir, part), { recursive: true });
-  await fs.symlink(path.join(root, "node_modules"), path.join(dir, "node_modules"));
+  for (const linked of ["node_modules", "renderers"])
+    await fs.symlink(path.join(root, linked), path.join(dir, linked));
   return dir;
 }
 
@@ -45,7 +40,10 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/operations.md", "archpub skill [--json]", "archpub skill"],
       ["docs/reference/operations.md", "| `acceptance.sig`", "| `acceptance.asc`"],
       ["docs/reference/operations.md", "| Typst   | 0.15.1 ", "| Typst   | 0.15.2 "],
-      ["docs/reference/model.md", "| A text | 1 to 2000 ", "| A text | 1 to 3000 "],
+      ["docs/reference/model.md", "| A text   | 1 to 2000 ", "| A text   | 1 to 3000 "],
+      ["docs/reference/model.md", "`planned`, `retired`", "`planned`"],
+      ["docs/reference/model.md", "type; the default.", "type."],
+      ["docs/reference/command-line.md", "field; did you mean label?", "field."],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");

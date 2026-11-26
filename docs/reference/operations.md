@@ -110,13 +110,9 @@ archpub --version | --help [--json]
   overwrite an existing file.
 - `scaffold guide` writes the page the publisher generates for a model as a
   starting [guide](#the-guide) into a new directory.
-- `migrate` writes a version 1 or 2 model as version 3 into a new file. Each
-  component of a version 1 model claims the files its sources named and each
-  relation cites its sources' files; the command names each file that several
-  components cited, which stays with the first of them. A model with an
-  `attribution` is refused with `attribution_not_migrated` until its author
-  declares `editors` beside it, and the attribution is then dropped. The
-  command refuses to overwrite an existing file.
+- `migrate` writes a model of an earlier version as the current one into a new
+  file, as the [model reference](model.md#from-earlier-versions) describes, and
+  refuses to overwrite an existing file.
 - `accept` records a named reviewer's acceptance of an unchanged delivery and
   sets its [colophon page](#acceptance-and-publication). `--seal-name` names the
   mark instead of the reviewer, and `--sign` signs the acceptance record with an
@@ -355,7 +351,7 @@ in the full viewer.
 ## The overview
 
 The publisher draws the overview from the model's
-[statement](model.md#overview): the course across the first band, each step as
+[statement](overview.md): the course across the first band, each step as
 wide as what it holds, and the blocks in the order stated, in halves and thirds
 chosen by measured height. A point or a block that names its view is followed by
 its plate's number, a link in the edition. A text of more than one line is

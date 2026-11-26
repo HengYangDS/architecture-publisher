@@ -60,37 +60,42 @@ kinds, details and views.
 
 ## Top-level fields
 
-| Field        | Required | Meaning                                                                                        |
-| ------------ | -------- | ---------------------------------------------------------------------------------------------- |
-| `format`     | yes      | Always `architecture-publisher.model`.                                                         |
-| `version`    | yes      | Always `3`; `archpub migrate` converts a version 1 or 2 model.                                 |
-| `id`         | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused.   |
-| `locale`     | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.            |
-| `title`      | yes      | The edition's title, and the title of any view without its own.                                |
-| `question`   | yes      | The question the model answers: on the edition's title page and heading the page.              |
-| `summary`    | no       | A short answer under the question on the title page; the page's conclusion.                    |
-| `scope`      | no       | What the model covers and leaves out; beside the edition's contents and the page's scope.      |
-| `limits`     | no       | Known limits of the description, each one text; printed with the scope.                        |
-| `editors`    | no       | The editors of the model, each a `name` and an optional `url`: the edition's authors.          |
-| `license`    | no       | The licence of the model and its editions, as an SPDX expression such as `MIT`.                |
-| `repository` | no       | The described repository: `name`, optional `url` and `browse`, and the full commit `revision`. |
-| `kinds`      | no       | Kind catalog keyed by kind id.                                                                 |
-| `components` | yes      | At least one component.                                                                        |
-| `relations`  | yes      | Relations between components; may be empty.                                                    |
-| `groups`     | no       | Named sets of components.                                                                      |
-| `views`      | no       | Any number of views; without them the publisher plans the views itself.                        |
-| `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.         |
-| `overview`   | no       | The overview: what one page after the contents says, stated with no position.                  |
-| `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.          |
-| `edition`    | no       | The print edition's palette; see [Parts and palette](#parts-and-palette).                      |
+| Field        | Required | Meaning                                                                                         |
+| ------------ | -------- | ----------------------------------------------------------------------------------------------- |
+| `format`     | yes      | Always `architecture-publisher.model`.                                                          |
+| `version`    | yes      | Always `3`; `archpub migrate` converts a model of an [earlier version](#from-earlier-versions). |
+| `id`         | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused.    |
+| `locale`     | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.             |
+| `title`      | yes      | The edition's title, and the title of any view without its own.                                 |
+| `question`   | yes      | The question the model answers: on the edition's title page and heading the page.               |
+| `summary`    | no       | A short answer under the question on the title page; the page's conclusion.                     |
+| `scope`      | no       | What the model covers and leaves out; beside the edition's contents and the page's scope.       |
+| `limits`     | no       | Known limits of the description, each one text; printed with the scope.                         |
+| `editors`    | no       | The editors of the model, each a `name` and an optional `url`: the edition's authors.           |
+| `license`    | no       | The licence of the model and its editions, as an SPDX expression such as `MIT`.                 |
+| `repository` | no       | The described repository: `name`, optional `url` and `browse`, and the full commit `revision`.  |
+| `kinds`      | no       | Kind catalog keyed by kind id.                                                                  |
+| `components` | yes      | At least one component.                                                                         |
+| `relations`  | yes      | Relations between components; may be empty.                                                     |
+| `groups`     | no       | Named sets of components.                                                                       |
+| `views`      | no       | Any number of views; without them the publisher plans the views itself.                         |
+| `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.          |
+| `overview`   | no       | The overview: what one page after the contents says; see the [overview reference](overview.md). |
+| `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.           |
+| `edition`    | no       | The print edition's palette; see [Parts and palette](#parts-and-palette).                       |
+
+### Values
+
+Each value of these kinds, wherever it stands in the model, keeps to its rule.
 
 <!-- vocabulary: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
 
-| Value  | Rule                                                                                                                                                                                            |
-| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| An id  | matches `^[a-z0-9][a-z0-9._-]{0,127}$`; the model's own id also matches no `^(?:con\|prn\|aux\|nul\|com[0-9]\|lpt[0-9])(?:\.\|$)\|\.$`, so it names no Windows device and does not end in a dot |
-| A text | 1 to 2000 characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two                                                     |
-| A path | 1 to 1024 characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, `.` or `..` segment                                                   |
+| Value    | Rule                                                                                                                                                                                            |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| An id    | matches `^[a-z0-9][a-z0-9._-]{0,127}$`; the model's own id also matches no `^(?:con\|prn\|aux\|nul\|com[0-9]\|lpt[0-9])(?:\.\|$)\|\.$`, so it names no Windows device and does not end in a dot |
+| A text   | 1 to 2000 characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two                                                     |
+| A status | one of `implemented`, `planned`, `retired`                                                                                                                                                      |
+| A path   | 1 to 1024 characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, `.` or `..` segment                                                   |
 
 <!-- end of vocabulary -->
 
@@ -126,33 +131,37 @@ may not connect a component to itself.
   on the page, its diagram card shows the first detail it holds whole, or none,
   and its step lists every detail. A relation's details are printed under its
   label. The delivery's data lists every detail.
-- `status` is `implemented`, `planned` or `retired`. On plates, planned
-  components and relations are drawn dashed and retired ones dotted and muted;
-  on the page, planned and retired relations are dashed.
+- `status` is one of the statuses the [table of values](#values) names. On plates, planned components and relations are drawn dashed and
+  retired ones dotted and muted; on the page, planned and retired relations are
+  dashed.
 - A component's `files` are the repository paths it owns, and a relation's
   `files` are the files that evidence it; see
   [Files and the repository](#files-and-the-repository).
 
 ## Kinds
 
-Each kind has an optional `label`, `category` and `icon`. A kind the catalog
-does not declare is a `backend` kind labelled with its id, and a component
-without a kind is a `backend` component.
+Each kind has an optional `label`, `category` and `icon`. A component without a
+kind, or with a kind the catalog does not declare, takes the default category;
+an undeclared kind is labelled with its id.
 
-| Category     | Drawn as                                              |
-| ------------ | ----------------------------------------------------- |
-| `person`     | Outside the system boundary; Archify's external type. |
-| `external`   | Outside the system boundary.                          |
-| `frontend`   | Archify's frontend type.                              |
-| `backend`    | Archify's backend type; the default.                  |
-| `database`   | Archify's database type.                              |
-| `cloud`      | Archify's cloud type.                                 |
-| `messagebus` | Archify's message bus type.                           |
-| `security`   | Archify's security type.                              |
+<!-- categories: written from src/model/schema.json and src/categories.json by tools/docs/references.mjs; do not edit -->
+
+| Category     | Default icon   | Drawn as                                                       |
+| ------------ | -------------- | -------------------------------------------------------------- |
+| `person`     | `user`         | Outside the system boundary; Archify's `external` type.        |
+| `external`   | `box`          | Outside the system boundary; Archify's `external` type.        |
+| `frontend`   | `app-window`   | Archify's `frontend` type.                                     |
+| `backend`    | `server`       | Archify's `backend` type; the default.                         |
+| `database`   | `database`     | Archify's `database` type.                                     |
+| `cloud`      | `cloud`        | Archify's `cloud` type.                                        |
+| `messagebus` | `waypoints`    | Archify's `messagebus` type.                                   |
+| `security`   | `shield-check` | Archify's `security` type; on plates, in the palette's accent. |
+
+<!-- end of categories -->
 
 `icon` names any icon in the bundled Lucide artwork, such as `server` or
-`database`; each category has a default. An unknown icon is refused. The
-artwork's version stands in `.config/release/icons/policy.toml`.
+`database`; each category has the default the table names. An unknown icon is
+refused. The artwork's version stands in `.config/release/icons/policy.toml`.
 
 ## Files and the repository
 
@@ -229,8 +238,8 @@ checks none of this: what the model states is what the edition prints.
 ### From earlier versions
 
 A version 1 model listed its files in a `sources` catalog that components and
-relations cited by id. `archpub migrate <model> --out <file>` writes it as
-version 3: each component claims the files it cited, in their order, and each
+relations cited by id. `archpub migrate <model> --out <file>` writes it as the
+current version: each component claims the files it cited, in their order, and each
 relation cites its sources' files. A file that several components cited stays
 with the first of them, and the command names it. Folding files into directory
 claims is then the author's choice, since a directory also takes the files no
@@ -238,7 +247,7 @@ source named.
 
 A version 2 model named its authors in a free-text `attribution`, which the
 command never parses into names: declare `editors` beside it, and the command
-writes version 3 without the attribution, or refuses with
+writes the current version without the attribution, or refuses with
 `attribution_not_migrated`, quoting the text, and writes nothing.
 
 ## Coverage
@@ -409,92 +418,9 @@ The overview is drawn in the same palette: the class's `paper` is the ground,
 
 ## Overview
 
-`overview` states the work's overview: one 16:9 page after the contents that
-tells the whole work at a glance. The model states what the page says, as blocks
-with no position, size or type; the publisher lays them out by measure, as it
-sets the title and contents pages, and the
-[operations reference](operations.md#the-overview) says how. A model that names
-a Typst file here is refused with `model_overview_composition_retired`.
-
-```json
-"overview": {
-  "claim": "Every order passes one service",
-  "lead": "The web shop hands each order to the order service, which keeps it.",
-  "course": {
-    "steps": [
-      { "id": "order", "label": "Order", "note": "a customer pays" },
-      {
-        "label": "Keep",
-        "note": "two parts in turn",
-        "stations": [
-          { "id": "take", "part": "orders", "note": "checks the order" },
-          { "part": "db", "note": "keeps it" }
-        ]
-      },
-      {
-        "label": "Tell",
-        "stations": [{ "branches": [{ "label": "Mail" }, { "label": "Push" }] }]
-      }
-    ],
-    "lines": [{ "from": "take", "to": ["order"], "label": "a refused order is paid again" }]
-  },
-  "blocks": [
-    { "title": "What the service holds", "items": [["state", "none between two orders"]] },
-    { "title": "Not covered", "text": "Payment and shipping are works of their own." }
-  ]
-}
-```
-
-- `claim` is the masthead's claim, which the contents repeat in the overview's
-  entry, and `lead` its sentence; the masthead's count of the files the build
-  read and the page's foot are the publisher's.
-- `course` runs across the first band: `steps` in order, each named by a `label`
-  or by the `part` it is, with an optional `note` under its heading and `text`
-  under its stretch. A step may hold `stations`, each a label or a part with a
-  note. Among its stations a fork, `{ "branches": [...] }`, holds two or more
-  stations with no order among them: side by side under the course where the
-  course ends at it, and otherwise on a path each, which split from the course
-  and join it again. A
-  course may carry a `text` of its own, `parallel` stretches, each `from` one
-  station `to` a later one, across steps and around no fork, on `tracks`: two
-  to four, or their names, and `spurs`: stations beside the course, each
-  leaving the point named in `at`, such as an input or a store, and `passes`:
-  a `label` on the stretch `after` a point, before the next.
-- On the page a station is a ring, the course's ends larger, a fork's branches
-  and spurs smaller; no other mark is drawn.
-- `view`, on a step, a station, a branch, a spur or a block, names the view that
-  enlarges it: the page sets that view's plate number after the name, in the
-  edition a link to the plate's page. The overview is the edition's map, and an
-  edition refuses with `overview_view_unreached` a view that nothing on it names.
-- A note or a text on more than one line is justified. In a measure of twenty
-  ems or more it is justified to its column: English as the edition's prose
-  is, Chinese line by line. There a line of Chinese that cannot be spread
-  within three tenths of an em at each place stays as set, and a check warns
-  with `overview_line_loose`, naming the line and its text. In a narrower
-  column a text is a block of its own width. An English text is a caption on
-  lines of nearly one length, broken by preference at a comma, and justified
-  to that width where its words allow. A Chinese text keeps its lines and is
-  justified to its own longest line: a shorter line is spread to it within a
-  tenth of an em at each place and stays as set otherwise, no line before the
-  last is left to one character where the same lines hold the text
-  otherwise, and no check asks for the text to be reworded.
-- A fork that ends a course is drawn as the course's line run on thinner, each
-  branch hanging from it on a stem; it reads as a choice, not as stations in
-  turn.
-- `lines` go from one point of the course to others, each with a `label`: a
-  point is a station, a branch, a spur or a step without stations, named by
-  its `id`; a line with an end at a spur runs under the course. A
-  line that names a step holding stations is refused with
-  `model_overview_invalid`.
-- `blocks` follow in the order the page reads them: a further course (`title`,
-  `stations`, an optional `note`, a `pass` with a label after one station, an
-  `aside` that leaves a station with its sentence, and a `text`); a list
-  (`title`, `items` of a term and its text); a table (`title`, `columns`,
-  `rows`); a group of lists (`title`, `lists`); and a headed text (`title`,
-  `text`). A list, a table or a group may carry a `text` under it.
-- A step or a station that is a part of the model names it with `part`, and the
-  page prints the model's label; a part the model lacks is refused at its path
-  with `model_reference_unknown`.
+`overview` states the work's overview, one page after the contents that tells
+the whole work at a glance; the [overview reference](overview.md) states its
+blocks and their fields.
 
 ## Guide
 

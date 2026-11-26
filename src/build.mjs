@@ -232,6 +232,17 @@ async function stopped(prepared) {
 }
 
 /**
+ * A model read with the icons it may name, and then the faces its texts are measured in. The faces take most of a
+ * check's time and a refused model needs none, so they are loaded only once the model is admitted.
+ * @param {string} modelPath
+ */
+async function admitted(modelPath) {
+  const icons = await loadIcons();
+  const loaded = await loadModel(modelPath, { icon: icons.has });
+  return { icons, loaded, typefaces: await loadTypefaces() };
+}
+
+/**
  * The work of `prepare`, which starts the page in `begunPage`.
  * @param {string} modelPath
  * @param {ReturnType<typeof buildOptions>} options
@@ -241,8 +252,7 @@ async function stopped(prepared) {
  */
 async function preparing(modelPath, options, listener, deliver, begunPage) {
   listener("reading the model");
-  const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
-  const loaded = await loadModel(modelPath, { icon: icons.has });
+  const { icons, loaded, typefaces } = await admitted(modelPath);
   const { model } = loaded;
   // A delivery names its files by the model's id: an id that takes the name of another file ends the work here.
   requireDeliveryNames(model.id);
@@ -602,8 +612,11 @@ export async function scaffoldGuide(modelPath, out) {
       "scaffold_output_exists",
       `The output ${target} already exists; choose a new directory.`,
     );
-  const [icons, typefaces] = await Promise.all([loadIcons(), loadTypefaces()]);
-  const { model } = await loadModel(modelPath, { icon: icons.has });
+  const {
+    icons,
+    loaded: { model },
+    typefaces,
+  } = await admitted(modelPath);
   const views = await planViews(model, async (view) => admitsView(model, view, typefaces, icons));
   const page = await explainerPage(model, views);
   const parent = path.dirname(target);

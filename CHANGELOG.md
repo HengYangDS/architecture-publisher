@@ -19,6 +19,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- `archpub check` reports a refused model before it loads the faces its texts are measured in, in 0.12 s where
+  it took 0.79 s. The model reference names each category's default icon, and its overview section is a page
+  of its own, `docs/reference/overview.md`.
 - The LikeC4 import keeps an id up to the model's longest, 128 characters with a suffix that keeps it unique,
   where it cut at 120. The model's schema states its default category, `backend`; how each category looks
   stands in one table, held to the schema's categories.

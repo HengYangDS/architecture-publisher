@@ -101,7 +101,10 @@ many met each fate, then each citation that is not the same under its fate. Ever
 repeats it where the terminal has colour and carries nothing else, and
 `NO_COLOR` or a pipe turns it off. A refusal or a failure names the command's
 first argument as it was typed, then its code and message, and then lists each
-problem on a line with its path:
+problem on a line with its path, as for [this model](refused-model.json), whose
+second component misspells `label`:
+
+<!-- refusal: written from archpub check on docs/reference/refused-model.json by tools/docs/references.mjs; do not edit -->
 
 ```text
 ┌  archpub check · model.json
@@ -116,6 +119,8 @@ problem on a line with its path:
 │
 └  Exit status 1: refused
 ```
+
+<!-- end of refusal -->
 
 ## Comparison of two deliveries
 

@@ -225,8 +225,7 @@ function diagramDocument(model, view, layout, width, quality) {
   const components = view.components.map((component) => {
     const card = /** @type {any} */ (layout.cards.get(component.id));
     const style = presentation(model, component);
-    const type =
-      CATEGORY_LOOKS[/** @type {keyof typeof CATEGORY_LOOKS} */ (style.category)].archify;
+    const type = CATEGORY_LOOKS[style.category].archify;
     kinds.set(type, [...new Set([...(kinds.get(type) ?? []), style.label])]);
     const text = sublabel(words, component, card.width);
     return {

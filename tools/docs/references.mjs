@@ -2,8 +2,9 @@
 // (the queue item `derived-references`). Each table stands between two comment lines that name it and its
 // source; the rest of its document is the authors'. The document is formatted by the repository's Prettier, so a
 // written table is aligned as a table set by hand is.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { format, resolveConfig } from "prettier";
@@ -181,6 +182,7 @@ const vocabularyTable = () =>
         "A text",
         `${schema.$defs.text.minLength} to ${schema.$defs.text.maxLength} characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two`,
       ],
+      ["A status", `one of ${schema.$defs.status.enum.map(code).join(", ")}`],
       [
         "A path",
         `${schema.$defs.path.minLength} to ${schema.$defs.path.maxLength} characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, \`.\` or \`..\` segment`,
@@ -188,12 +190,82 @@ const vocabularyTable = () =>
     ],
   );
 
+// The categories of a kind, as the schema states them with its default, and how each looks, as the table of looks
+// states it (src/categories.json).
+const looks = JSON.parse(await fs.readFile(path.join(root, "src/categories.json"), "utf8"));
+const category = schema.properties.kinds.additionalProperties.properties.category;
+const categoriesTable = () =>
+  table(
+    ["Category", "Default icon", "Drawn as"],
+    category.enum.map((/** @type {string} */ name) => {
+      const look = looks.categories[name];
+      const drawn = [
+        ...(look.outside ? ["outside the system boundary"] : []),
+        `Archify's ${code(look.archify)} type`,
+        ...(look.accent ? ["on plates, in the palette's accent"] : []),
+        ...(name === category.default ? ["the default"] : []),
+      ].join("; ");
+      return [code(name), code(look.icon), `${drawn[0].toUpperCase()}${drawn.slice(1)}.`];
+    }),
+  );
+
+// A refusal as the terminal shows it: the command line run on the reference's sample model (refused-model.json, whose
+// second component misspells its label), with no colour, as the writer runs it for the commands. Only the refusal the
+// sample is built for is written: an accepted sample, a refusal of something else (a bundled supply that differs from
+// its manifest) and a failure each stop the writer, naming what the command printed.
+const refusalSample = async () => {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-references-sample-"));
+  try {
+    await fs.copyFile(
+      path.join(root, "docs/reference/refused-model.json"),
+      path.join(scratch, "model.json"),
+    );
+    const run = spawnSync(
+      process.execPath,
+      [path.join(root, "src/cli/main.mjs"), "check", "model.json"],
+      {
+        cwd: scratch,
+        encoding: "utf8",
+        timeout: 60_000,
+        env: { PATH: process.env.PATH ?? "", NO_COLOR: "1" },
+      },
+    );
+    const printed = `${run.stdout ?? ""}${run.stderr ?? ""}`.trim();
+    if (run.status === 0)
+      throw new Error("references_sample_accepted: the sample model was not refused");
+    if (run.status !== 1)
+      throw new Error(
+        `references_sample_unreadable: archpub check ended with ${run.status ?? run.signal ?? run.error}: ${printed}`,
+      );
+    if (!run.stdout.includes("model_invalid"))
+      throw new Error(
+        `references_sample_unexpected: archpub check refused something else: ${printed}`,
+      );
+    return ["```text", run.stdout.trimEnd(), "```"].join("\n");
+  } finally {
+    await fs.rm(scratch, { recursive: true, force: true });
+  }
+};
+const refusalBlock = await refusalSample();
+
 const BLOCKS = [
   {
     file: "docs/reference/model.md",
     name: "vocabulary",
     source: "src/model/schema.json",
     text: vocabularyTable,
+  },
+  {
+    file: "docs/reference/model.md",
+    name: "categories",
+    source: "src/model/schema.json and src/categories.json",
+    text: categoriesTable,
+  },
+  {
+    file: "docs/reference/command-line.md",
+    name: "refusal",
+    source: "archpub check on docs/reference/refused-model.json",
+    text: () => refusalBlock,
   },
   {
     file: "docs/reference/operations.md",

@@ -57,7 +57,7 @@ guide as prose.
    `coverage` for the part of the repository the model describes, leaving out
    with a reason what is not its architecture, such as `**/*_test.go` beside Go
    code, and claim the largest uncovered directories the report lists until
-   what is left is outside the question's scope. A version 1 or 2 model
+   what is left is outside the question's scope. A model of an earlier version
    converts with `archpub migrate model.json --out <file>`.
 6. Optionally state an `overview`, one page after the contents that tells the
    whole work at a glance: a claim and a lead, a course of steps with their
@@ -65,7 +65,7 @@ guide as prose.
    they are read, with no position. Name in `view`, on a step, a station or a
    block, the view that enlarges it: the page sets that plate's number there as
    a link; an edition with a stated overview refuses a view nothing on it names. The
-   publisher lays the page out; the model reference lists every field.
+   publisher lays the page out; the overview reference lists every field.
 7. Write the guide, the page that explains the system to its reader. Run
    `archpub scaffold guide model.json --out guide` for a starting draft and name
    `guide/guide.archify.md` in the model's `guide`. Then rewrite it: lead with

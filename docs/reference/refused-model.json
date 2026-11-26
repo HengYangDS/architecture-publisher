@@ -1,0 +1,12 @@
+{
+  "format": "architecture-publisher.model",
+  "version": 3,
+  "id": "shop",
+  "title": "Shop",
+  "question": "How does an order reach the store?",
+  "components": [
+    { "id": "web", "label": "Web shop" },
+    { "id": "orders", "labl": "Orders" }
+  ],
+  "relations": []
+}
