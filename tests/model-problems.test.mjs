@@ -6,7 +6,8 @@ import EXPECTED from "./fixtures/model-problems.json" with { type: "json" };
 
 // The model's problems are a contract an author and an agent act on: each bad model is refused with the codes,
 // paths, messages and order it had before the loader read its vocabulary from the schema (the queue item
-// `derived-references`). A change to a problem shows here, model by model.
+// `derived-references`), but for a spur without `at`, which now reports `at` first, as every object reports a
+// missing field. A change to a problem shows here, model by model.
 
 /** The refusal of one model, as the record holds it. */
 function refusalOf(model) {

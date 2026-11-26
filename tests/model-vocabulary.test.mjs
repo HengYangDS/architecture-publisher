@@ -83,3 +83,35 @@ test("no model module but the vocabulary writes a pattern or a longest length of
   }
   assert.deepEqual(repeats, []);
 });
+
+test("the model's checks read every object's fields and every list's fewest items the schema states", async () => {
+  // A positive contract: each object of the schema with fields, and each list with a fewest number of items, is read
+  // by `fieldsOf`, `leastOf` or `sizeOf` when the loader is imported. A list written by hand leaves its object unread
+  // here; fields written by hand are refused by the type check, since they lack the mark `fieldsOf` gives.
+  await import("../src/model/load.mjs");
+  const { fields, lengths } = VOCABULARY.readPointers();
+  /** The pointers of the schema's nodes that hold a key, wherever they stand. */
+  const holding = (/** @type {string} */ key, /** @type {unknown} */ node = SCHEMA, at = "") =>
+    node === null || typeof node !== "object"
+      ? []
+      : [
+          ...(key in node && !Array.isArray(node) ? [at] : []),
+          ...Object.entries(node).flatMap(([name, value]) => holding(key, value, `${at}/${name}`)),
+        ];
+  const objects = holding("properties").filter((at) => !at.endsWith("/properties"));
+  assert.deepEqual([...new Set(fields)].sort(), objects.sort());
+  // The named tracks' fewest is held equal to the counted tracks' by the test of a stretch's tracks.
+  const named = "/$defs/overviewCourse/properties/parallel/items/properties/tracks/oneOf/1";
+  assert.deepEqual([...new Set([...lengths, named])].sort(), holding("minItems").sort());
+});
+
+test("each definition of the schema is one the model refers to", () => {
+  // A pointer names a definition directly; a definition no `$ref` reaches would be read while the model is checked
+  // against another.
+  const refs = JSON.stringify(SCHEMA).match(/"\$ref":"#\/\$defs\/[^"]+"/gu) ?? [];
+  const reached = new Set(refs.map((ref) => ref.slice('"$ref":"#/$defs/'.length, -1)));
+  assert.deepEqual(
+    Object.keys(SCHEMA.$defs).filter((name) => !reached.has(name)),
+    [],
+  );
+});

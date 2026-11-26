@@ -19,6 +19,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The publisher reads the fields each object of a model takes and the fewest items of each list from
+  `src/model/schema.json`, as it reads the model's patterns and limits. The schema now accepts a spur of the
+  overview's course that names its view, as the publisher always did; a spur without `at` reports it before
+  its other problems, as every object reports a missing field.
 - The model's schema is the one statement of the rules a single value is held to: the publisher reads the
   model's format and version, its categories and statuses, and its patterns and longest lengths from
   `src/model/schema.json`, and the model reference's rules of ids, text and paths are written from it. The schema

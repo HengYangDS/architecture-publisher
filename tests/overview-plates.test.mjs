@@ -45,6 +45,12 @@ const statement = (view = "calls") => ({
   ],
 });
 
+/** The statement with a spur at its first step that names `view` too. */
+const withSpur = (/** @type {ReturnType<typeof statement>} */ stated, view = "calls") => ({
+  ...stated,
+  course: { ...stated.course, spurs: [{ at: "one", id: "aside", label: "Aside", view }] },
+});
+
 /** The problems a model is refused with, as code and path. */
 function problemsOf(model) {
   try {
@@ -55,16 +61,18 @@ function problemsOf(model) {
   return [];
 }
 
-test("a step and a block name the view that enlarges them, and a view the model lacks is refused", () => {
-  const stated = statement();
+test("a step, a spur and a block name the view that enlarges them, and a view the model lacks is refused", () => {
+  const stated = withSpur(statement());
   assert.deepEqual(
     validateModel(minimalModel({ views: VIEWS, overview: stated })).overview,
     stated,
   );
-  assert.deepEqual(problemsOf(minimalModel({ views: VIEWS, overview: statement("absent") })), [
+  const absent = withSpur(statement("absent"), "absent");
+  assert.deepEqual(problemsOf(minimalModel({ views: VIEWS, overview: absent })), [
     ["model_reference_unknown", "/overview/course/steps/0/view"],
     ["model_reference_unknown", "/overview/course/steps/2/stations/0/view"],
     ["model_reference_unknown", "/overview/course/steps/2/stations/1/branches/0/view"],
+    ["model_reference_unknown", "/overview/course/spurs/0/view"],
     ["model_reference_unknown", "/overview/blocks/0/view"],
   ]);
 });

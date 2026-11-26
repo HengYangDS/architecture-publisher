@@ -1,8 +1,9 @@
 ## Context
 
-See [proposal.md](proposal.md). The vocabulary Change of 2026-11-26 read the model's patterns and longest lengths
-from its schema and left this Change the 26 call sites that check 30 objects' fields, and the lists' fewest items
-(its design's non-goals). The committee of 2026-11-26 chose, three of three, that the loader read the schema and keep its
+See [proposal.md](proposal.md). The research page `docs/research/one-source.md` found the model's lists of fields
+written twice, in the schema and in the loader. The vocabulary Change of 2026-11-26 read the model's patterns and
+longest lengths from its schema and left this Change the 26 call sites that check 30 objects' fields, and the lists'
+fewest items (its design's non-goals). The committee of 2026-11-26 chose, three of three, that the loader read the schema and keep its
 own checks and problem codes.
 
 ## Goals / Non-Goals

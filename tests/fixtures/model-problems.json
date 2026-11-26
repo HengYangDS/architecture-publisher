@@ -758,5 +758,530 @@
         "message": "must be an object"
       }
     ]
+  },
+  "top field near $schema": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/$schem",
+        "message": "is not a model field; did you mean $schema?"
+      }
+    ]
+  },
+  "editor unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/editors/0/ulr",
+        "message": "is not a model field; did you mean url?"
+      }
+    ]
+  },
+  "repository unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/repository/brwose",
+        "message": "is not a model field; did you mean browse?"
+      }
+    ]
+  },
+  "kind unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/kinds/web/lable",
+        "message": "is not a model field; did you mean label?"
+      }
+    ]
+  },
+  "relation unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/relations/1/stauts",
+        "message": "is not a model field; did you mean status?"
+      }
+    ]
+  },
+  "group unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/groups/0/lable",
+        "message": "is not a model field; did you mean label?"
+      }
+    ]
+  },
+  "views empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/views",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "view unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/views/0/titel",
+        "message": "is not a model field; did you mean title?"
+      }
+    ]
+  },
+  "view members empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_references_invalid",
+        "path": "/views/0/members",
+        "message": "must be a non-empty list of component ids"
+      }
+    ]
+  },
+  "view tiers empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_references_invalid",
+        "path": "/views/0/tiers",
+        "message": "must be a non-empty list of tiers"
+      }
+    ]
+  },
+  "tier unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/views/0/tiers/0/lable",
+        "message": "is not a model field; did you mean label?"
+      }
+    ]
+  },
+  "tier without members": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/views/0/tiers/0/members",
+        "message": "is required"
+      },
+      {
+        "code": "model_references_invalid",
+        "path": "/views/0/tiers/0/members",
+        "message": "must be a non-empty list of component ids"
+      }
+    ]
+  },
+  "coverage unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/coverage/exlude",
+        "message": "is not a model field; did you mean exclude?"
+      }
+    ]
+  },
+  "coverage exclusion without reason": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/coverage/exclude/0/reason",
+        "message": "is required"
+      }
+    ]
+  },
+  "edition unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/edition/palete",
+        "message": "is not a model field; did you mean palette?"
+      }
+    ]
+  },
+  "edition palette unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/edition/palette/accnet",
+        "message": "is not a model field; did you mean accent?"
+      }
+    ]
+  },
+  "overview unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blokcs",
+        "message": "is not a model field; did you mean blocks?"
+      }
+    ]
+  },
+  "overview blocks empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview course unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/lnies",
+        "message": "is not a model field; did you mean lines?"
+      }
+    ]
+  },
+  "overview steps one": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/steps",
+        "message": "must be a list of at least 2 items"
+      }
+    ]
+  },
+  "overview step unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/steps/0/txet",
+        "message": "is not a model field; did you mean text?"
+      }
+    ]
+  },
+  "overview step stations empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/steps/0/stations",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview station unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/steps/0/stations/0/nott",
+        "message": "is not a model field; did you mean note?"
+      }
+    ]
+  },
+  "overview fork unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/steps/0/stations/0/brnaches",
+        "message": "is not a model field; did you mean branches?"
+      }
+    ]
+  },
+  "overview fork of one branch": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/steps/0/stations/0/branches",
+        "message": "must be a list of at least 2 items"
+      }
+    ]
+  },
+  "overview spurs empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/spurs",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview spur unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/spurs/0/viwe",
+        "message": "is not a model field; did you mean view?"
+      }
+    ]
+  },
+  "overview spur without at": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/overview/course/spurs/0/at",
+        "message": "is required"
+      },
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/spurs/0/lable",
+        "message": "is not a model field; did you mean label?"
+      }
+    ]
+  },
+  "overview lines empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/lines",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview line unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/lines/0/lable",
+        "message": "is not a model field; did you mean label?"
+      }
+    ]
+  },
+  "overview line to empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/lines/0/to",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview passes empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/passes",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview pass unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/passes/0/aftr",
+        "message": "is not a model field; did you mean after?"
+      }
+    ]
+  },
+  "overview parallel empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/course/parallel",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview stretch unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/course/parallel/0/trakcs",
+        "message": "is not a model field; did you mean tracks?"
+      }
+    ]
+  },
+  "overview further course unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/ntoe",
+        "message": "is not a model field; did you mean note?"
+      }
+    ]
+  },
+  "overview further course of one station": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks/0/stations",
+        "message": "must be a list of at least 2 items"
+      }
+    ]
+  },
+  "overview further pass without label": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_required",
+        "path": "/overview/blocks/0/pass/label",
+        "message": "is required"
+      },
+      {
+        "code": "model_text_invalid",
+        "path": "/overview/blocks/0/pass/label",
+        "message": "must be non-blank text of at most 2000 characters"
+      }
+    ]
+  },
+  "overview further aside unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/aside/form",
+        "message": "is not a model field; did you mean from?"
+      }
+    ]
+  },
+  "overview items block unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/txet",
+        "message": "is not a model field; did you mean text?"
+      }
+    ]
+  },
+  "overview items pair of three": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_overview_invalid",
+        "path": "/overview/blocks/0/items/0",
+        "message": "must be a term and its text"
+      }
+    ]
+  },
+  "overview items empty": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks/0/items",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview table unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/rwos",
+        "message": "is not a model field; did you mean rows?"
+      }
+    ]
+  },
+  "overview table without columns": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks/0/columns",
+        "message": "must be a list of at least 1 items"
+      },
+      {
+        "code": "model_overview_invalid",
+        "path": "/overview/blocks/0/rows/0",
+        "message": "must hold 0 cells"
+      }
+    ]
+  },
+  "overview table without rows": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks/0/rows",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview lists block unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/lsits",
+        "message": "is not a model field; did you mean lists?"
+      }
+    ]
+  },
+  "overview lists of one": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks/0/lists",
+        "message": "must be a list of at least 2 items"
+      }
+    ]
+  },
+  "overview list unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/lists/0/itmes",
+        "message": "is not a model field; did you mean items?"
+      },
+      {
+        "code": "model_list_invalid",
+        "path": "/overview/blocks/0/lists/1/items",
+        "message": "must be a list of at least 1 items"
+      }
+    ]
+  },
+  "overview list pair of three": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_overview_invalid",
+        "path": "/overview/blocks/0/lists/0/items/0",
+        "message": "must be a term and its text"
+      }
+    ]
+  },
+  "overview text block unknown field": {
+    "code": "model_invalid",
+    "problems": [
+      {
+        "code": "model_field_unknown",
+        "path": "/overview/blocks/0/veiw",
+        "message": "is not a model field; did you mean view?"
+      }
+    ]
   }
 }

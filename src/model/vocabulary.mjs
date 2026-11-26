@@ -78,6 +78,73 @@ export const PATH = Object.freeze({
 /** A path that is no glob: it holds none of `*`, `?` or `[`. */
 export const NOT_GLOB = pattern("/$defs/claim/allOf/1/pattern");
 
+/** The pointers of the objects and the lists whose fields and fewest items the model's checks have read. */
+const read = Object.freeze({ fields: new Set(), lengths: new Set() });
+/** What the model's checks have read so far, for the test that holds it to every object and list of the schema. */
+export const readPointers = () =>
+  Object.freeze({ fields: [...read.fields], lengths: [...read.lengths] });
+
+/** The mark of an object's fields read from the schema: fields written by hand lack it, and the type check refuses them. */
+const READ = Symbol("read from the model's schema");
+/**
+ * @typedef {{ readonly required: readonly string[], readonly optional: readonly string[], readonly read: typeof READ }} Fields
+ */
+
+/**
+ * The fields an object of the model takes, as the schema's object at a pointer states them: its required fields in
+ * the order the schema requires them, then the others in the order of its properties. The loader reports a missing
+ * field in the first order, and offers the nearest name in the second when a field is misspelt.
+ * @param {string} pointer
+ * @returns {Fields}
+ */
+export function fieldsOf(pointer) {
+  const object = at(
+    pointer,
+    (value) => value !== null && typeof value === "object" && "properties" in value,
+  );
+  /** @type {readonly string[]} */
+  const required = "required" in object ? names(`${pointer}/required`) : Object.freeze([]);
+  read.fields.add(pointer);
+  return Object.freeze({
+    required,
+    optional: Object.freeze(
+      Object.keys(object.properties).filter((key) => !required.includes(key)),
+    ),
+    read: READ,
+  });
+}
+
+/**
+ * The pointer of the one member of a schema's `oneOf` that requires a field: a block of the overview, a tier and a
+ * palette are told apart by the fields they hold, so a member is named by one of them, not by its place.
+ * @param {string} pointer
+ * @param {string} field
+ */
+export function variantOf(pointer, field) {
+  const members = at(`${pointer}/oneOf`, Array.isArray);
+  const found = members.flatMap((member, index) =>
+    member?.required?.includes(field) ? [`${pointer}/oneOf/${index}`] : [],
+  );
+  if (found.length !== 1)
+    throw new Error(`the model's schema states no one member requiring ${field} at ${pointer}`);
+  return found[0];
+}
+
+/** The fewest items of a list of the model, as the schema states them at the list's pointer. */
+export function leastOf(/** @type {string} */ pointer) {
+  const least = limit(`${pointer}/minItems`);
+  read.lengths.add(pointer);
+  return least;
+}
+
+/** The items of a list of one length, as the schema states it twice (its fewest and its most), refused unless equal. */
+export function sizeOf(/** @type {string} */ pointer) {
+  const size = leastOf(pointer);
+  if (limit(`${pointer}/maxItems`) !== size)
+    throw new Error(`the model's schema states no one length at ${pointer}`);
+  return size;
+}
+
 /** The tracks of a stretch of the overview's course: two to four, counted or named; the test holds the two equal. */
 const tracks = "/$defs/overviewCourse/properties/parallel/items/properties/tracks/oneOf/0";
 export const TRACKS = Object.freeze({

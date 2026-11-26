@@ -381,7 +381,7 @@
   "model_field_required": {
     "section": "problem",
     "carriedBy": ["model_invalid"],
-    "meaning": "A field the record needs is absent; the path names it. A spur of the overview course without `at` is reported the same way."
+    "meaning": "A field the record needs is absent; the path names it."
   },
   "model_field_unknown": {
     "section": "problem",

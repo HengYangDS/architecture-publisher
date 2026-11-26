@@ -4,12 +4,32 @@ import { minimalModel } from "./models.mjs";
  * Models each wrong in one way or a few, from the minimal valid model: the cases the loader's problems are held to
  * (tests/model-problems.test.mjs). Each is named for what it breaks; the problems' codes, paths, messages and order
  * stand in model-problems.json beside it, written once from the loader as it was before it read its vocabulary from
- * the schema.
+ * the schema, but for a spur without `at`, which reads its fields from the schema and reports `at` first.
  */
 const long = "x".repeat(2001);
 const component = (extra) => ({ id: "c", label: "Gamma", ...extra });
 const withComponent = (extra) =>
   minimalModel({ components: [...minimalModel().components, component(extra)] });
+const course = (extra) => ({
+  steps: [
+    { id: "s", part: "a" },
+    { id: "t", part: "b" },
+  ],
+  ...extra,
+});
+const withOverview = (extra = {}, courseExtra = {}) =>
+  minimalModel({ overview: { claim: "x", lead: "y", course: course(courseExtra), ...extra } });
+const further = (extra) => ({
+  title: "F",
+  stations: [
+    { id: "p", part: "a" },
+    { id: "q", part: "b" },
+  ],
+  ...extra,
+});
+const withBlock = (block) => withOverview({ blocks: [block] });
+const pairs = [["term", "text"]];
+const withView = (view) => minimalModel({ views: [{ id: "v", ...view }] });
 const withRelation = (extra) =>
   minimalModel({
     relations: [
@@ -150,4 +170,165 @@ export const BAD_MODELS = Object.freeze({
     },
   }),
   "overview without claim": minimalModel({ overview: { lead: "x", course: [] } }),
+  "top field near $schema": minimalModel({ $schem: "x" }),
+  "editor unknown field": minimalModel({ editors: [{ name: "N", ulr: "x" }] }),
+  "repository unknown field": minimalModel({
+    repository: { name: "shop", revision: "a".repeat(40), brwose: "x" },
+  }),
+  "kind unknown field": minimalModel({ kinds: { web: { lable: "x" } } }),
+  "relation unknown field": withRelation({ stauts: "x" }),
+  "group unknown field": minimalModel({
+    groups: [{ id: "g", label: "G", members: ["a"], lable: "x" }],
+  }),
+  "views empty": minimalModel({ views: [] }),
+  "view unknown field": withView({ members: ["a"], titel: "x" }),
+  "view members empty": withView({ members: [] }),
+  "view tiers empty": withView({ tiers: [] }),
+  "tier unknown field": withView({ tiers: [{ id: "t", label: "T", members: ["a"], lable: "x" }] }),
+  "tier without members": withView({ tiers: [{ id: "t", label: "T" }] }),
+  "coverage unknown field": minimalModel({ coverage: { include: ["src/"], exlude: [] } }),
+  "coverage exclusion without reason": minimalModel({ coverage: { exclude: [{ path: "src/" }] } }),
+  "edition unknown field": minimalModel({ edition: { palete: "soot" } }),
+  "edition palette unknown field": minimalModel({
+    edition: {
+      palette: {
+        ground: "#f6f5f1",
+        ink: "#25282c",
+        dye: ["#b7d8db", "#7099ae", "#334965"],
+        accnet: "#ff0000",
+      },
+    },
+  }),
+  "overview unknown field": withOverview({ blokcs: [] }),
+  "overview blocks empty": withOverview({ blocks: [] }),
+  "overview course unknown field": withOverview({}, { lnies: [] }),
+  "overview steps one": minimalModel({
+    overview: { claim: "x", lead: "y", course: { steps: [{ id: "s", part: "a" }] } },
+  }),
+  "overview step unknown field": minimalModel({
+    overview: {
+      claim: "x",
+      lead: "y",
+      course: {
+        steps: [
+          { id: "s", part: "a", txet: "x" },
+          { id: "t", part: "b" },
+        ],
+      },
+    },
+  }),
+  "overview step stations empty": minimalModel({
+    overview: {
+      claim: "x",
+      lead: "y",
+      course: {
+        steps: [
+          { id: "s", label: "S", stations: [] },
+          { id: "t", part: "b" },
+        ],
+      },
+    },
+  }),
+  "overview station unknown field": minimalModel({
+    overview: {
+      claim: "x",
+      lead: "y",
+      course: {
+        steps: [
+          { id: "s", label: "S", stations: [{ id: "u", part: "a", nott: "x" }] },
+          { id: "t", part: "b" },
+        ],
+      },
+    },
+  }),
+  "overview fork unknown field": minimalModel({
+    overview: {
+      claim: "x",
+      lead: "y",
+      course: {
+        steps: [
+          {
+            id: "s",
+            label: "S",
+            stations: [{ branches: [{ part: "a" }, { part: "b" }], brnaches: [] }],
+          },
+          { id: "t", part: "b" },
+        ],
+      },
+    },
+  }),
+  "overview fork of one branch": minimalModel({
+    overview: {
+      claim: "x",
+      lead: "y",
+      course: {
+        steps: [
+          { id: "s", label: "S", stations: [{ branches: [{ part: "a" }] }] },
+          { id: "t", part: "b" },
+        ],
+      },
+    },
+  }),
+  "overview spurs empty": withOverview({}, { spurs: [] }),
+  "overview spur unknown field": withOverview({}, { spurs: [{ at: "s", part: "a", viwe: "v" }] }),
+  "overview spur without at": withOverview({}, { spurs: [{ part: "a", lable: "x" }] }),
+  "overview lines empty": withOverview({}, { lines: [] }),
+  "overview line unknown field": withOverview(
+    {},
+    { lines: [{ from: "s", to: ["t"], label: "goes", lable: "x" }] },
+  ),
+  "overview line to empty": withOverview({}, { lines: [{ from: "s", to: [], label: "goes" }] }),
+  "overview passes empty": withOverview({}, { passes: [] }),
+  "overview pass unknown field": withOverview(
+    {},
+    { passes: [{ after: "s", label: "x", aftr: "s" }] },
+  ),
+  "overview parallel empty": withOverview({}, { parallel: [] }),
+  "overview stretch unknown field": withOverview(
+    {},
+    { parallel: [{ from: "s", to: "t", tracks: 2, trakcs: 2 }] },
+  ),
+  "overview further course unknown field": withBlock(further({ ntoe: "x" })),
+  "overview further course of one station": withBlock(
+    further({ stations: [{ id: "p", part: "a" }] }),
+  ),
+  "overview further pass without label": withBlock(further({ pass: { after: "p" } })),
+  "overview further aside unknown field": withBlock(
+    further({ aside: { from: "p", label: "x", form: "p" } }),
+  ),
+  "overview items block unknown field": withBlock({ title: "I", items: pairs, txet: "x" }),
+  "overview items pair of three": withBlock({ title: "I", items: [["a", "b", "c"]] }),
+  "overview items empty": withBlock({ title: "I", items: [] }),
+  "overview table unknown field": withBlock({
+    title: "T",
+    columns: ["c"],
+    rows: [["x"]],
+    rwos: [],
+  }),
+  "overview table without columns": withBlock({ title: "T", columns: [], rows: [["x"]] }),
+  "overview table without rows": withBlock({ title: "T", columns: ["c"], rows: [] }),
+  "overview lists block unknown field": withBlock({
+    title: "L",
+    lists: [
+      { title: "A", items: pairs },
+      { title: "B", items: pairs },
+    ],
+    lsits: [],
+  }),
+  "overview lists of one": withBlock({ title: "L", lists: [{ title: "A", items: pairs }] }),
+  "overview list unknown field": withBlock({
+    title: "L",
+    lists: [
+      { title: "A", items: pairs, itmes: [] },
+      { title: "B", items: [] },
+    ],
+  }),
+  "overview list pair of three": withBlock({
+    title: "L",
+    lists: [
+      { title: "A", items: [["a", "b", "c"]] },
+      { title: "B", items: pairs },
+    ],
+  }),
+  "overview text block unknown field": withBlock({ title: "X", text: "y", veiw: "v" }),
 });

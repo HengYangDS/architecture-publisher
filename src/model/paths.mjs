@@ -3,7 +3,15 @@
  * and the scope its coverage declares.
  */
 
-import { GUIDE, PATH } from "./vocabulary.mjs";
+import { GUIDE, PATH, fieldsOf, leastOf } from "./vocabulary.mjs";
+
+/** The fields of the coverage and of an exclusion, and the fewest included paths, as the schema states them. */
+const COVERAGE = "/properties/coverage";
+const FIELDS = Object.freeze({
+  coverage: fieldsOf(COVERAGE),
+  exclusion: fieldsOf(`${COVERAGE}/properties/exclude/items`),
+});
+const LEAST_INCLUDED = leastOf(`${COVERAGE}/properties/include`);
 
 /**
  * A relative path inside a repository, as the schema's path states it (no leading slash, backslash or control
@@ -34,7 +42,7 @@ const isScopePath = (value) =>
  */
 export function checkCoverage(problems, value) {
   if (value === undefined) return;
-  if (!problems.fields(value, "/coverage", [], ["include", "exclude"])) return;
+  if (!problems.fields(value, "/coverage", FIELDS.coverage)) return;
   const seen = new Set();
   const scopePath = (entry, where) => {
     if (!isScopePath(entry))
@@ -48,7 +56,7 @@ export function checkCoverage(problems, value) {
     seen.add(entry);
   };
   if (value.include !== undefined) {
-    if (!Array.isArray(value.include) || !value.include.length)
+    if (!Array.isArray(value.include) || value.include.length < LEAST_INCLUDED)
       problems.add(
         "model_coverage_invalid",
         "/coverage/include",
@@ -61,7 +69,7 @@ export function checkCoverage(problems, value) {
     return problems.add("model_coverage_invalid", "/coverage/exclude", "must be a list");
   value.exclude.forEach((entry, index) => {
     const where = `/coverage/exclude/${index}`;
-    if (!problems.fields(entry, where, ["path", "reason"], [])) return;
+    if (!problems.fields(entry, where, FIELDS.exclusion)) return;
     scopePath(entry.path, `${where}/path`);
     // A missing reason is already reported as a required field.
     problems.text(entry.reason, `${where}/reason`, true);

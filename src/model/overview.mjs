@@ -9,15 +9,76 @@
  * here says where anything stands, how large it is or in what type: those are the publisher's.
  */
 
-import { TRACKS } from "./vocabulary.mjs";
+import { TRACKS, fieldsOf, leastOf, sizeOf, variantOf } from "./vocabulary.mjs";
 
-const STATION = ["id", "label", "part", "note", "view"];
-const STEP = [...STATION, "text", "stations"];
-const SPUR = ["at", ...STATION];
+const COURSE = "/$defs/overviewCourse";
+const FURTHER = "/$defs/overviewFurtherCourse";
+const BLOCKS = "/properties/overview/properties/blocks";
+const ITEMS_BLOCK = variantOf(`${BLOCKS}/items`, "items");
+const TABLE_BLOCK = variantOf(`${BLOCKS}/items`, "columns");
+const LISTS_BLOCK = variantOf(`${BLOCKS}/items`, "lists");
+const LIST = `${LISTS_BLOCK}/properties/lists/items`;
+
+/** The fields of the overview's objects, as the schema states them. */
+const FIELDS = Object.freeze({
+  overview: fieldsOf("/properties/overview"),
+  station: fieldsOf("/$defs/overviewStation"),
+  step: fieldsOf("/$defs/overviewStep"),
+  spur: fieldsOf(`${COURSE}/properties/spurs/items`),
+  fork: fieldsOf("/$defs/overviewFork"),
+  course: fieldsOf(COURSE),
+  line: fieldsOf(`${COURSE}/properties/lines/items`),
+  pass: fieldsOf(`${COURSE}/properties/passes/items`),
+  stretch: fieldsOf(`${COURSE}/properties/parallel/items`),
+  further: fieldsOf(FURTHER),
+  furtherPass: fieldsOf(`${FURTHER}/properties/pass`),
+  furtherAside: fieldsOf(`${FURTHER}/properties/aside`),
+  items: fieldsOf(ITEMS_BLOCK),
+  table: fieldsOf(TABLE_BLOCK),
+  lists: fieldsOf(LISTS_BLOCK),
+  list: fieldsOf(LIST),
+  text: fieldsOf(variantOf(`${BLOCKS}/items`, "text")),
+});
+
+/** The fewest items of the overview's lists, as the schema states them. */
+const LEAST = Object.freeze({
+  blocks: leastOf(BLOCKS),
+  branches: leastOf("/$defs/overviewFork/properties/branches"),
+  steps: leastOf(`${COURSE}/properties/steps`),
+  stations: leastOf("/$defs/overviewStep/properties/stations"),
+  spurs: leastOf(`${COURSE}/properties/spurs`),
+  lines: leastOf(`${COURSE}/properties/lines`),
+  to: leastOf(`${COURSE}/properties/lines/items/properties/to`),
+  passes: leastOf(`${COURSE}/properties/passes`),
+  parallel: leastOf(`${COURSE}/properties/parallel`),
+  furtherStations: leastOf(`${FURTHER}/properties/stations`),
+  columns: leastOf(`${TABLE_BLOCK}/properties/columns`),
+  rows: leastOf(`${TABLE_BLOCK}/properties/rows`),
+  lists: leastOf(`${LISTS_BLOCK}/properties/lists`),
+});
+
+/** The two parts of a pair of a headed list or of a list in a group, each a text; the schema's length is held to them. */
+const PAIR = Object.freeze(["term", "text"]);
+/** The term and text pairs of a headed list and of a list in a group: the fewest and a pair's length. */
+const PAIRS = Object.freeze({
+  items: {
+    least: leastOf(`${ITEMS_BLOCK}/properties/items`),
+    pair: sizeOf(`${ITEMS_BLOCK}/properties/items/items`),
+  },
+  list: {
+    least: leastOf(`${LIST}/properties/items`),
+    pair: sizeOf(`${LIST}/properties/items/items`),
+  },
+});
+for (const [list, { pair }] of Object.entries(PAIRS))
+  if (pair !== PAIR.length)
+    throw new Error(
+      `the model's schema states a pair of the ${list} list otherwise than as ${PAIR.join(" and ")}`,
+    );
 
 /**
  * @typedef {{ add: (code: import("../refusal.mjs").Code, path: string, message: string) => void,
- *   fields: (value: unknown, path: string, required: string[], optional: string[]) => boolean,
+ *   fields: (value: unknown, path: string, fields: import("./vocabulary.mjs").Fields) => boolean,
  *   text: (value: unknown, path: string, optional?: boolean) => void,
  *   id: (value: unknown, path: string) => void }} Problems
  */
@@ -40,13 +101,13 @@ export function readOverview(value, problems, componentIds, viewIds) {
     );
     return null;
   }
-  if (!problems.fields(value, "/overview", ["claim", "lead", "course"], ["blocks"])) return null;
+  if (!problems.fields(value, "/overview", FIELDS.overview)) return null;
   const overview = /** @type {Record<string, any>} */ (value);
   problems.text(overview.claim, "/overview/claim");
   problems.text(overview.lead, "/overview/lead");
   checkCourse(overview.course, "/overview/course", problems, componentIds);
   if (overview.blocks !== undefined)
-    eachOf(overview.blocks, "/overview/blocks", problems, 1, (block, path) => {
+    eachOf(overview.blocks, "/overview/blocks", problems, LEAST.blocks, (block, path) => {
       if (block && typeof block === "object" && "stations" in block)
         checkFurtherCourse(block, path, problems, componentIds);
       else checkFact(block, path, problems);
@@ -85,7 +146,7 @@ function eachOf(value, path, problems, least, check) {
  * course's.
  */
 function checkPoint(point, path, fields, problems, componentIds, ids) {
-  if (!problems.fields(point, path, [], fields)) return false;
+  if (!problems.fields(point, path, fields)) return false;
   const entry = /** @type {Record<string, any>} */ (point);
   if (entry.label === undefined && entry.part === undefined)
     problems.add("model_overview_invalid", path, "names neither a label nor the part it is");
@@ -107,11 +168,11 @@ function checkPoint(point, path, fields, problems, componentIds, ids) {
  */
 function checkStation(station, at, problems, componentIds, ids) {
   if (station && typeof station === "object" && "branches" in station) {
-    if (!problems.fields(station, at, ["branches"], [])) return;
-    eachOf(station.branches, `${at}/branches`, problems, 2, (branch, where) =>
-      checkPoint(branch, where, STATION, problems, componentIds, ids),
+    if (!problems.fields(station, at, FIELDS.fork)) return;
+    eachOf(station.branches, `${at}/branches`, problems, LEAST.branches, (branch, where) =>
+      checkPoint(branch, where, FIELDS.station, problems, componentIds, ids),
     );
-  } else checkPoint(station, at, STATION, problems, componentIds, ids);
+  } else checkPoint(station, at, FIELDS.station, problems, componentIds, ids);
 }
 
 /** Whether a stretch's tracks are a count of two to four, or two to four names. */
@@ -123,8 +184,7 @@ const tracksOf = (tracks) =>
     tracks.every((name) => typeof name === "string" && name.trim() !== ""));
 
 function checkCourse(course, path, problems, componentIds) {
-  if (!problems.fields(course, path, ["steps"], ["lines", "text", "parallel", "spurs", "passes"]))
-    return;
+  if (!problems.fields(course, path, FIELDS.course)) return;
   const { steps, lines, parallel, spurs, passes } = /** @type {Record<string, any>} */ (course);
   problems.text(/** @type {any} */ (course).text, `${path}/text`, true);
   /** @type {Set<string>} */
@@ -138,14 +198,14 @@ function checkCourse(course, path, problems, componentIds) {
   /** @type {Set<number>} */
   const forks = new Set();
   let place = 0;
-  eachOf(steps, `${path}/steps`, problems, 2, (step, where) => {
-    if (!checkPoint(step, where, STEP, problems, componentIds, ids)) return;
+  eachOf(steps, `${path}/steps`, problems, LEAST.steps, (step, where) => {
+    if (!checkPoint(step, where, FIELDS.step, problems, componentIds, ids)) return;
     if (step.stations !== undefined && step.id !== undefined) runs.add(step.id);
     if (step.stations === undefined && step.id !== undefined) order.set(step.id, place);
     if (step.stations === undefined) place += 1;
     problems.text(step.text, `${where}/text`, true);
     if (step.stations !== undefined)
-      eachOf(step.stations, `${where}/stations`, problems, 1, (station, at) => {
+      eachOf(step.stations, `${where}/stations`, problems, LEAST.stations, (station, at) => {
         checkStation(station, at, problems, componentIds, ids);
         if (station && typeof station === "object" && Array.isArray(station.branches))
           forks.add(place);
@@ -157,10 +217,10 @@ function checkCourse(course, path, problems, componentIds) {
   // A spur leaves a point of the course (a station or a step without stations) for a station of its own beside the
   // course: an input that joins it or a store it reads. A line may start or end at a spur.
   if (spurs !== undefined)
-    eachOf(spurs, `${path}/spurs`, problems, 1, (spur, where) => {
-      if (!checkPoint(spur, where, SPUR, problems, componentIds, ids)) return;
-      if (spur.at === undefined) problems.add("model_field_required", `${where}/at`, "is required");
-      else if (runs.has(spur.at))
+    eachOf(spurs, `${path}/spurs`, problems, LEAST.spurs, (spur, where) => {
+      if (!checkPoint(spur, where, FIELDS.spur, problems, componentIds, ids)) return;
+      if (spur.at === undefined) return;
+      if (runs.has(spur.at))
         problems.add(
           "model_overview_invalid",
           `${where}/at`,
@@ -176,8 +236,8 @@ function checkCourse(course, path, problems, componentIds) {
         problems.add("model_reference_unknown", `${where}/at`, "names no step or station");
     });
   if (lines !== undefined)
-    eachOf(lines, `${path}/lines`, problems, 1, (line, where) => {
-      if (!problems.fields(line, where, ["from", "to", "label"], [])) return;
+    eachOf(lines, `${path}/lines`, problems, LEAST.lines, (line, where) => {
+      if (!problems.fields(line, where, FIELDS.line)) return;
       problems.text(line.label, `${where}/label`);
       const end = (id, at) => {
         if (runs.has(id))
@@ -190,14 +250,14 @@ function checkCourse(course, path, problems, componentIds) {
           problems.add("model_reference_unknown", at, "names no step or station");
       };
       end(line.from, `${where}/from`);
-      eachOf(line.to, `${where}/to`, problems, 1, (target, at) => end(target, at));
+      eachOf(line.to, `${where}/to`, problems, LEAST.to, (target, at) => end(target, at));
     });
   if (parallel !== undefined)
     checkParallel(parallel, `${path}/parallel`, problems, { ids, runs, order, forks });
   // A label on the stretch of the course after a point, before the next.
   if (passes !== undefined)
-    eachOf(passes, `${path}/passes`, problems, 1, (pass, where) => {
-      if (!problems.fields(pass, where, ["after", "label"], [])) return;
+    eachOf(passes, `${path}/passes`, problems, LEAST.passes, (pass, where) => {
+      if (!problems.fields(pass, where, FIELDS.pass)) return;
       problems.text(pass.label, `${where}/label`);
       const at = order.get(pass.after);
       if (at !== undefined && at < place - 1) return;
@@ -218,8 +278,8 @@ function checkCourse(course, path, problems, componentIds) {
 function checkParallel(parallel, path, problems, { ids, runs, order, forks }) {
   /** @type {number[][]} */
   const taken = [];
-  eachOf(parallel, path, problems, 1, (stretch, where) => {
-    if (!problems.fields(stretch, where, ["from", "to", "tracks"], [])) return;
+  eachOf(parallel, path, problems, LEAST.parallel, (stretch, where) => {
+    if (!problems.fields(stretch, where, FIELDS.stretch)) return;
     const ends = /** @type {const} */ (["from", "to"]).map((key) => {
       const id = stretch[key];
       if (runs.has(id))
@@ -264,38 +324,33 @@ function checkParallel(parallel, path, problems, { ids, runs, order, forks }) {
 }
 
 function checkFurtherCourse(course, path, problems, componentIds) {
-  if (
-    !problems.fields(course, path, ["title", "stations"], ["note", "pass", "aside", "text", "view"])
-  )
-    return;
+  if (!problems.fields(course, path, FIELDS.further)) return;
   problems.text(course.title, `${path}/title`);
   problems.text(course.note, `${path}/note`, true);
   problems.text(course.text, `${path}/text`, true);
   /** @type {Set<string>} */
   const ids = new Set();
-  eachOf(course.stations, `${path}/stations`, problems, 2, (station, at) =>
-    checkPoint(station, at, STATION, problems, componentIds, ids),
+  eachOf(course.stations, `${path}/stations`, problems, LEAST.furtherStations, (station, at) =>
+    checkPoint(station, at, FIELDS.station, problems, componentIds, ids),
   );
-  for (const [key, end] of /** @type {const} */ ([
-    ["pass", "after"],
-    ["aside", "from"],
+  for (const [key, end, fields] of /** @type {const} */ ([
+    ["pass", "after", FIELDS.furtherPass],
+    ["aside", "from", FIELDS.furtherAside],
   ])) {
     const value = course[key];
-    if (value === undefined || !problems.fields(value, `${path}/${key}`, [end, "label"], []))
-      continue;
+    if (value === undefined || !problems.fields(value, `${path}/${key}`, fields)) continue;
     problems.text(value.label, `${path}/${key}/label`);
     if (!ids.has(value[end]))
       problems.add("model_reference_unknown", `${path}/${key}/${end}`, "names no station");
   }
 }
 
-/** Check the term and text pairs of a list. */
-function checkItems(items, path, problems) {
-  eachOf(items, path, problems, 1, (pair, at) => {
-    if (!Array.isArray(pair) || pair.length !== 2)
+/** Check the term and text pairs of a list, of at least `least` pairs of `pair` items. */
+function checkItems(items, path, problems, { least, pair: size }) {
+  eachOf(items, path, problems, least, (pair, at) => {
+    if (!Array.isArray(pair) || pair.length !== size)
       return problems.add("model_overview_invalid", at, "must be a term and its text");
-    problems.text(pair[0], `${at}/0`);
-    problems.text(pair[1], `${at}/1`);
+    pair.forEach((part, index) => problems.text(part, `${at}/${index}`));
   });
 }
 
@@ -303,34 +358,34 @@ function checkItems(items, path, problems) {
 function checkFact(fact, path, problems) {
   const entry = /** @type {Record<string, any>} */ (fact);
   if (entry && typeof entry === "object" && "items" in entry) {
-    if (!problems.fields(entry, path, ["title", "items"], ["text", "view"])) return;
+    if (!problems.fields(entry, path, FIELDS.items)) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`, true);
-    checkItems(entry.items, `${path}/items`, problems);
+    checkItems(entry.items, `${path}/items`, problems, PAIRS.items);
   } else if (entry && typeof entry === "object" && "columns" in entry) {
-    if (!problems.fields(entry, path, ["title", "columns", "rows"], ["text", "view"])) return;
+    if (!problems.fields(entry, path, FIELDS.table)) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`, true);
-    eachOf(entry.columns, `${path}/columns`, problems, 1, (column, at) =>
+    eachOf(entry.columns, `${path}/columns`, problems, LEAST.columns, (column, at) =>
       problems.text(column, at),
     );
     const width = Array.isArray(entry.columns) ? entry.columns.length : 0;
-    eachOf(entry.rows, `${path}/rows`, problems, 1, (row, at) => {
+    eachOf(entry.rows, `${path}/rows`, problems, LEAST.rows, (row, at) => {
       if (!Array.isArray(row) || row.length !== width)
         return problems.add("model_overview_invalid", at, `must hold ${width} cells`);
       row.forEach((cell, index) => problems.text(cell, `${at}/${index}`));
     });
   } else if (entry && typeof entry === "object" && "lists" in entry) {
-    if (!problems.fields(entry, path, ["title", "lists"], ["text", "view"])) return;
+    if (!problems.fields(entry, path, FIELDS.lists)) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`, true);
-    eachOf(entry.lists, `${path}/lists`, problems, 2, (list, at) => {
-      if (!problems.fields(list, at, ["title", "items"], [])) return;
+    eachOf(entry.lists, `${path}/lists`, problems, LEAST.lists, (list, at) => {
+      if (!problems.fields(list, at, FIELDS.list)) return;
       problems.text(list.title, `${at}/title`);
-      checkItems(list.items, `${at}/items`, problems);
+      checkItems(list.items, `${at}/items`, problems, PAIRS.list);
     });
   } else if (entry && typeof entry === "object" && "text" in entry) {
-    if (!problems.fields(entry, path, ["title", "text"], ["view"])) return;
+    if (!problems.fields(entry, path, FIELDS.text)) return;
     problems.text(entry.title, `${path}/title`);
     problems.text(entry.text, `${path}/text`);
   } else

@@ -1,5 +1,21 @@
 import { HOUSE } from "../house.mjs";
-import { COLOR } from "./vocabulary.mjs";
+import { COLOR, fieldsOf, sizeOf, variantOf } from "./vocabulary.mjs";
+
+/** The fields of the edition and of a palette the model gives itself, and its dyes' count, as the schema states them. */
+const CUSTOM = variantOf("/properties/edition/properties/palette", "dye");
+const FIELDS = Object.freeze({
+  edition: fieldsOf("/properties/edition"),
+  custom: fieldsOf(CUSTOM),
+});
+/** A palette's dye steps, from new to old: the house draws with each by name, so the schema's count is held to them. */
+const DYE_STEPS = Object.freeze(/** @type {const} */ (["new", "mid", "old"]));
+const DYES = sizeOf(`${CUSTOM}/properties/dye`);
+if (DYES !== DYE_STEPS.length)
+  throw new Error(
+    `the model's schema states a palette's dye otherwise than as ${DYE_STEPS.join(", ")}`,
+  );
+/** The oldest step, the one the rules hold to a contrast and a palette's accent defaults to. */
+const OLDEST = DYES - 1;
 
 /**
  * The edition's palette: how a model names it, the rules a palette it gives itself
@@ -205,7 +221,7 @@ function judgePalette(palette, problems) {
     judge(problems, at(`dye/${index}`), before.lightness - step.lightness, rule, ` below ${name}`);
     judge(problems, at(`dye/${index}`), step.chroma, RULES.dyeChroma, "");
   });
-  judge(problems, at("dye/2"), contrast(dye[2], ground), RULES.oldContrast, against);
+  judge(problems, at(`dye/${OLDEST}`), contrast(dye[OLDEST], ground), RULES.oldContrast, against);
   const steps = ` among the steps above chroma ${HUED}`;
   judge(problems, at("dye"), hueSpread(dye), RULES.hueSpread, steps);
   const colors = [
@@ -230,8 +246,8 @@ function judgePalette(palette, problems) {
  */
 function readCustom(value, problems) {
   const where = "/edition/palette";
-  problems.fields(value, where, ["ground", "ink", "dye"], ["accent"]);
-  const dye = Array.isArray(value.dye) && value.dye.length === 3 ? value.dye : null;
+  problems.fields(value, where, FIELDS.custom);
+  const dye = Array.isArray(value.dye) && value.dye.length === DYES ? value.dye : null;
   if (value.dye !== undefined && !dye)
     problems.add(
       "model_palette_rejected",
@@ -289,7 +305,7 @@ export function readEdition(value, problems) {
       if (field in given) problems.add("model_field_retired", `/edition/${field}`, message);
     taken = Object.fromEntries(Object.entries(given).filter(([field]) => !(field in RETIRED)));
   }
-  if (!problems.fields(taken, "/edition", [], ["palette"])) return NO_EDITION;
+  if (!problems.fields(taken, "/edition", FIELDS.edition)) return NO_EDITION;
   const edition = /** @type {{ palette?: unknown }} */ (taken);
   return Object.freeze({ palette: readPalette(edition.palette, problems) });
 }
@@ -301,7 +317,7 @@ function derive(roles) {
     palette: Object.freeze({
       paper: roles.ground,
       ink: roles.ink,
-      green: roles.dye[2],
+      green: roles.dye[OLDEST],
       mid: toward(TOWARD_GROUND.mid),
       soft: toward(TOWARD_GROUND.soft),
       rule: toward(TOWARD_GROUND.rule),
@@ -317,7 +333,11 @@ function derive(roles) {
       retired: toward(TOWARD_GROUND.retired),
       shadow: roles.ink,
     }),
-    dye: Object.freeze({ new: roles.dye[0], mid: roles.dye[1], old: roles.dye[2] }),
+    dye: Object.freeze(
+      /** @type {Record<typeof DYE_STEPS[number], string>} */ (
+        Object.fromEntries(DYE_STEPS.map((step, index) => [step, roles.dye[index]]))
+      ),
+    ),
   });
 }
 
@@ -336,7 +356,7 @@ export function resolvePalette(spec) {
     ground: lower(given.ground),
     ink: lower(given.ink),
     dye: Object.freeze(given.dye.map(lower)),
-    accent: lower(given.accent ?? given.dye[2]),
+    accent: lower(given.accent ?? given.dye[OLDEST]),
   });
   return Object.freeze({ name, names, roles, tokens: derive(roles) });
 }

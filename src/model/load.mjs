@@ -22,24 +22,36 @@ import {
   STATUSES,
   TEXT,
   UNPORTABLE_ID,
+  fieldsOf,
+  leastOf,
+  variantOf,
 } from "./vocabulary.mjs";
 
 export { CATEGORIES, MODEL_FORMAT, MODEL_VERSION };
 const MAXIMUM_MODEL_BYTES = 4 * 1024 * 1024;
 
-const TOP = {
-  required: ["format", "version", "id", "title", "question", "components", "relations"],
-  optional: [
-    "locale",
-    "summary",
-    "editors",
-    "license",
-    "scope",
-    "limits",
-    "repository",
-    "kinds",
-  ].concat(["groups", "views", "coverage", "overview", "guide", "edition", "$schema"]),
-};
+/** The fields of the model's objects and the fewest items of its lists, as the schema states them. */
+const TOP = fieldsOf("");
+const EDITOR = fieldsOf("/properties/editors/items");
+const REPOSITORY = fieldsOf("/properties/repository");
+const KIND = fieldsOf("/properties/kinds/additionalProperties");
+const COMPONENT = fieldsOf("/properties/components/items");
+const RELATION = fieldsOf("/properties/relations/items");
+const GROUP = fieldsOf("/properties/groups/items");
+const VIEW = fieldsOf("/properties/views/items");
+const TIERS = "/properties/views/items/properties/tiers";
+const INLINE_TIER = variantOf(`${TIERS}/items`, "members");
+const TIER = fieldsOf(INLINE_TIER);
+const LEAST = Object.freeze({
+  editors: leastOf("/properties/editors"),
+  components: leastOf("/properties/components"),
+  views: leastOf("/properties/views"),
+  tiers: leastOf(TIERS),
+  groupMembers: leastOf("/properties/groups/items/properties/members"),
+  viewMembers: leastOf("/properties/views/items/properties/members"),
+  tierMembers: leastOf(`${INLINE_TIER}/properties/members`),
+  detailItems: leastOf("/$defs/details/additionalProperties/oneOf/1"),
+});
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const isText = (value) =>
@@ -61,7 +73,13 @@ class Problems {
     this.items.push({ code, path, message });
   }
 
-  fields(value, path, required, optional) {
+  /**
+   * Whether a value is an object, each required field present and no field unknown; problems for what is not.
+   * @param {any} value
+   * @param {string} path
+   * @param {import("./vocabulary.mjs").Fields} fields
+   */
+  fields(value, path, { required, optional }) {
     if (!isRecord(value)) {
       this.add("model_object_required", path, "must be an object");
       return false;
@@ -96,15 +114,17 @@ function checkDetails(problems, value, path) {
   for (const [name, detail] of Object.entries(value)) {
     if (!DETAIL_NAME.test(name))
       problems.add("model_detail_name_invalid", `${path}/${name}`, "names a detail invalidly");
+    // The fewest items hold a list; a single text is one detail whatever the list's fewest.
     const items = Array.isArray(detail) ? detail : [detail];
-    if (!items.length || !items.every(isText))
+    const few = Array.isArray(detail) && detail.length < LEAST.detailItems;
+    if (few || !items.every(isText))
       problems.add("model_detail_invalid", `${path}/${name}`, "must be text or a list of text");
   }
 }
 
-function checkReferences(problems, value, path, known, label, { optional = true } = {}) {
-  if (value === undefined && optional) return [];
-  if (!Array.isArray(value) || (!optional && !value.length)) {
+/** A list of ids of declared parts, at least `least` long, each known, none twice. */
+function checkReferences(problems, value, path, known, label, { least }) {
+  if (!Array.isArray(value) || value.length < least) {
     problems.add("model_references_invalid", path, `must be a non-empty list of ${label} ids`);
     return [];
   }
@@ -170,7 +190,7 @@ function checkTop(problems, model) {
     );
     return false;
   }
-  if (!problems.fields(model, "", TOP.required, TOP.optional)) return false;
+  if (!problems.fields(model, "", TOP)) return false;
   if (model.format !== MODEL_FORMAT)
     problems.add("model_format_unsupported", "/format", `must be ${MODEL_FORMAT}`);
   if (model.version !== MODEL_VERSION)
@@ -188,12 +208,12 @@ function checkTop(problems, model) {
   for (const key of ["title", "question"]) problems.text(model[key], `/${key}`);
   for (const key of ["summary", "scope"]) problems.text(model[key], `/${key}`, true);
   if (model.editors !== undefined) {
-    if (!Array.isArray(model.editors) || !model.editors.length)
+    if (!Array.isArray(model.editors) || model.editors.length < LEAST.editors)
       problems.add("model_editors_invalid", "/editors", "must be a non-empty list");
     else
       model.editors.forEach((editor, index) => {
         const where = `/editors/${index}`;
-        if (!problems.fields(editor, where, ["name"], ["url"])) return;
+        if (!problems.fields(editor, where, EDITOR)) return;
         if ("name" in editor) problems.text(editor.name, `${where}/name`);
         problems.text(editor.url, `${where}/url`, true);
       });
@@ -209,7 +229,7 @@ function checkTop(problems, model) {
   }
   if (model.repository !== undefined) {
     const repository = model.repository;
-    if (problems.fields(repository, "/repository", ["name", "revision"], ["url", "browse"])) {
+    if (problems.fields(repository, "/repository", REPOSITORY)) {
       problems.text(repository.name, "/repository/name");
       problems.text(repository.url, "/repository/url", true);
       if (
@@ -272,7 +292,7 @@ export function validateModel(model, options = {}) {
   if (!checkTop(problems, model)) refuse("model_invalid", "The model is invalid.", problems.items);
   const value = /** @type {Record<string, any>} */ (model);
   const kinds = checkCatalog(problems, value.kinds, "/kinds", (entry, path) => {
-    if (!problems.fields(entry, path, [], ["label", "category", "icon"])) return;
+    if (!problems.fields(entry, path, KIND)) return;
     problems.text(entry.label, `${path}/label`, true);
     if (entry.category !== undefined && !CATEGORIES.includes(entry.category))
       problems.add("model_category_invalid", `${path}/category`, CATEGORIES.join(", "));
@@ -290,8 +310,8 @@ export function validateModel(model, options = {}) {
   });
   // Every claimed path, with where it is first claimed, so a second claim names the first.
   const claimed = new Map();
-  const element = (required, optional, claims) => (entry, path) => {
-    if (!problems.fields(entry, path, required, optional)) return false;
+  const element = (fields, claims) => (entry, path) => {
+    if (!problems.fields(entry, path, fields)) return false;
     problems.id(entry.id, `${path}/id`);
     problems.text(entry.label, `${path}/label`);
     checkDetails(problems, entry.details, `${path}/details`);
@@ -304,17 +324,15 @@ export function validateModel(model, options = {}) {
     value.components,
     "/components",
     (entry, path) => {
-      if (!element(["id", "label"], ["kind", "details", "status", "files"], true)(entry, path))
-        return false;
+      if (!element(COMPONENT, true)(entry, path)) return false;
       if (entry.kind !== undefined) problems.id(entry.kind, `${path}/kind`);
       return true;
     },
-    { minimum: 1 },
+    { minimum: LEAST.components },
   );
   const componentIds = new Set(components.map(({ id }) => id));
   const relations = checkList(problems, value.relations, "/relations", (entry, path) => {
-    if (!element(["id", "from", "to", "label"], ["details", "status", "files"], false)(entry, path))
-      return false;
+    if (!element(RELATION, false)(entry, path)) return false;
     for (const end of ["from", "to"])
       if (!componentIds.has(entry[end]))
         problems.add("model_endpoint_unknown", `${path}/${end}`, "names no declared component");
@@ -324,7 +342,7 @@ export function validateModel(model, options = {}) {
   });
   const membership = new Map();
   const groups = checkList(problems, value.groups ?? [], "/groups", (entry, path) => {
-    if (!problems.fields(entry, path, ["id", "label", "members"], [])) return false;
+    if (!problems.fields(entry, path, GROUP)) return false;
     problems.id(entry.id, `${path}/id`);
     problems.text(entry.label, `${path}/label`);
     if (componentIds.has(entry.id))
@@ -335,7 +353,7 @@ export function validateModel(model, options = {}) {
       `${path}/members`,
       componentIds,
       "component",
-      { optional: false },
+      { least: LEAST.groupMembers },
     );
     members.forEach((member, index) => {
       if (membership.has(member))
@@ -381,10 +399,7 @@ function checkViews(problems, value, componentIds, groupIds) {
     value,
     "/views",
     (entry, path) => {
-      if (
-        !problems.fields(entry, path, ["id"], ["title", "question", "summary", "tiers", "members"])
-      )
-        return false;
+      if (!problems.fields(entry, path, VIEW)) return false;
       problems.id(entry.id, `${path}/id`);
       for (const key of ["title", "question", "summary"])
         problems.text(entry[key], `${path}/${key}`, true);
@@ -398,17 +413,17 @@ function checkViews(problems, value, componentIds, groupIds) {
         checkTiers(problems, entry.tiers, `${path}/tiers`, componentIds, groupIds);
       if ("members" in entry)
         checkReferences(problems, entry.members, `${path}/members`, componentIds, "component", {
-          optional: false,
+          least: LEAST.viewMembers,
         });
       return true;
     },
-    { minimum: 1 },
+    { minimum: LEAST.views },
   );
 }
 
 /** A tier is a declared group id or an inline `{ id, label, members }` band local to its view. */
 function checkTiers(problems, tiers, path, componentIds, groupIds) {
-  if (!Array.isArray(tiers) || !tiers.length)
+  if (!Array.isArray(tiers) || tiers.length < LEAST.tiers)
     return problems.add("model_references_invalid", path, "must be a non-empty list of tiers");
   const ids = new Set();
   tiers.forEach((tier, index) => {
@@ -416,11 +431,11 @@ function checkTiers(problems, tiers, path, componentIds, groupIds) {
     if (typeof tier === "string") {
       if (!groupIds.has(tier))
         problems.add("model_reference_unknown", where, "names no declared group");
-    } else if (problems.fields(tier, where, ["id", "label", "members"], [])) {
+    } else if (problems.fields(tier, where, TIER)) {
       problems.id(tier.id, `${where}/id`);
       problems.text(tier.label, `${where}/label`);
       checkReferences(problems, tier.members, `${where}/members`, componentIds, "component", {
-        optional: false,
+        least: LEAST.tierMembers,
       });
     }
     const id = typeof tier === "string" ? tier : tier?.id;
