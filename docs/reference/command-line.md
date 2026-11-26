@@ -21,7 +21,13 @@ reviewer's `compare`, `accept` and `verify`, the publisher's `publish`, and unde
 `--json` among them; an option the command cannot run without stands in the
 usage line, as in `Usage: archpub build --out <directory> [options]
 <model.json>`, and ends in `(required)`. `check` words the options it shares
-with `build` as what it checks, since it writes nothing. A usage error says what is wrong and where the usage
+with `build` as what it checks, since it writes nothing. With `--json`, a help
+is `{ "ok": true, "usage", "commands" }`: `usage` is the help's text, and
+`commands` is the whole program as data, whichever command's help was asked
+for, each command with its `name`, `usage`,
+`group`, `description`, `arguments`, `options` and the `commands` it holds, so
+that an agent reads the commands without parsing the text; the operations
+reference's list of commands is written from it. A usage error says what is wrong and where the usage
 is, and for a mistyped command or option names the nearest one:
 
 ```text

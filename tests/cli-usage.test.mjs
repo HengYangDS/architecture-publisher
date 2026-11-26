@@ -222,7 +222,9 @@ test("help groups the commands by the role that runs them, and version answers w
   const help = await runCli(["--help"]);
   assert.equal(help.exitCode, 0);
   for (const flag of ["-h", "help"]) assert.deepEqual(await runCli([flag]), help);
-  assert.deepEqual((await json(["--help"])).body, { ok: true, usage: help.output });
+  const { commands, ...body } = (await json(["--help"])).body;
+  assert.deepEqual(body, { ok: true, usage: help.output });
+  assert.equal(commands.name, "archpub");
   assert.match(help.output, /^Usage: archpub \[options\] \[command\]\n/u);
   const { Options: options, ...roles } = listedCommands(help.output);
   // A heading names a role, never a kind of holder; what every role runs stands under one heading.
@@ -274,7 +276,9 @@ test("each command explains itself with --help", async () => {
     assert.equal(exitCode, 0, args.join(" "));
     assert.equal(output.split("\n")[0], usage);
     assert.ok(!output.includes("archpub publish") || args[0] === "publish", args.join(" "));
-    assert.deepEqual((await json([...args, "--help"])).body, { ok: true, usage: output });
+    const { commands, ...body } = (await json([...args, "--help"])).body;
+    assert.deepEqual(body, { ok: true, usage: output });
+    assert.equal(commands.name, "archpub");
     // `archpub help <command>` is the same help; it takes one word, so a command inside a group has `--help` alone.
     if (args.length === 1)
       assert.deepEqual(await runCli(["help", ...args]), { exitCode: 0, output }, args.join(" "));
@@ -301,4 +305,42 @@ test("each command explains itself with --help", async () => {
   assert.deepEqual(await runCli(["build", "model.json", "--help"]), { exitCode: 0, output: build });
   // A group of commands lists the ones it holds.
   assert.match((await runCli(["import", "--help"])).output, /^Usage: archpub import /u);
+});
+
+test("the help's JSON catalogues every command, its arguments and its options as its own help lists them", async () => {
+  const { commands: program } = (await json(["--help"])).body;
+  /** Every command of the catalogue that runs, by its words. */
+  const runs = (command, words = []) =>
+    command.commands
+      .filter(({ name }) => name !== "help")
+      .flatMap((held) =>
+        held.commands.some(({ name }) => name !== "help")
+          ? runs(held, [...words, held.name])
+          : [[[...words, held.name], held]],
+      );
+  const listed = runs(program);
+  const { Options: options, ...roles } = listedCommands((await runCli(["--help"])).output);
+  assert.deepEqual(
+    listed.map(([words]) => words.join(" ")),
+    Object.values(roles)
+      .flat()
+      .filter((name) => name !== "help"),
+  );
+  assert.deepEqual(
+    program.options.map(({ flags }) => flags),
+    options,
+  );
+  const flat = (/** @type {string} */ text) => text.replace(/\s+/gu, " ");
+  for (const [words, command] of listed) {
+    const { output } = await runCli([...words, "--help"]);
+    const usage = output.split("\n")[0];
+    assert.ok(flat(output).includes(flat(command.description)), words.join(" "));
+    for (const { flags, required } of command.options) {
+      assert.ok(output.includes(flags), `${words.join(" ")} ${flags}`);
+      // An option the command cannot run without stands in its usage line.
+      assert.equal(usage.includes(flags), required, `${words.join(" ")} ${flags}`);
+    }
+    for (const { name, required } of command.arguments)
+      assert.ok(usage.includes(required ? `<${name}>` : `[${name}]`), `${words.join(" ")} ${name}`);
+  }
 });

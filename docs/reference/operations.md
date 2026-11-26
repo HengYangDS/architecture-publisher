@@ -50,11 +50,13 @@ they read or decide.
 
 ## Commands
 
+<!-- commands: written from archpub --help --json by tools/docs/references.mjs; do not edit -->
+
 ```text
-archpub check <model.json> [--repo <checkout>] [--against <revision>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
+archpub check <model.json> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--against <revision>] [--json]
 archpub build <model.json> --out <directory> [--repo <checkout>] [--media <list>] [--png <widths>] [--quality <profile>] [--json]
-archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub scaffold guide <model.json> --out <directory> [--json]
+archpub import likec4 <workspace> --out <model.json> --id <id> [--title <text>] [--question <text>] [--locale <tag>] [--json]
 archpub migrate <model.json> --out <model.json> [--json]
 archpub compare <delivery> <delivery> [--json]
 archpub accept <delivery> --reviewer <name> [--seal-name <name>] [--note <text>] [--sign <key>] [--json]
@@ -62,8 +64,10 @@ archpub verify <delivery> [--allowed-signers <file>] [--json]
 archpub publish <delivery> --to <root> [--version <name>] [--json]
 archpub skill [--json]
 archpub <command> --help | archpub help [command]
-archpub --help | --version [--json]
+archpub --version | --help [--json]
 ```
+
+<!-- end of commands -->
 
 - `check` validates the model, resolves and verifies its
   [files](model.md#files-and-the-repository) when `--repo` names a checkout,

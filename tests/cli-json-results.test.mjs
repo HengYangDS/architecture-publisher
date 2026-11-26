@@ -40,8 +40,8 @@ test("every command keeps the fields of its JSON body and its exit status", asyn
   ];
   const accepted = ["ok", "directory", "manifest", "reviewer", "acceptedAt"];
   for (const [args, status, fields] of [
-    [["--help"], 0, ["ok", "usage"]],
-    [["build", "--help"], 0, ["ok", "usage"]],
+    [["--help"], 0, ["ok", "usage", "commands"]],
+    [["build", "--help"], 0, ["ok", "usage", "commands"]],
     [["--version"], 0, ["ok", "version"]],
     [[], 2, ["ok", "code", "message"]],
     [["draw"], 2, ["ok", "code", "message"]],

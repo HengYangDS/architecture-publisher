@@ -9,6 +9,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- `archpub --help --json` prints `commands` beside `usage`: the program as data, each command with its name, usage,
+  group, description, arguments, options and the commands it holds. The operations reference's list of commands
+  is written from it by `tools/docs/references.mjs`.
 - `src/refusal.json` holds every code the publisher raises or reports, each once with its meaning; the type check
   refuses a raise of a code it does not hold, and `tools/docs/references.mjs` writes the refusals reference from
   it. The reference gains a table of the problems' codes, with the refusals that carry them, and one of

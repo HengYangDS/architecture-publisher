@@ -1,16 +1,25 @@
-// references.mjs --check|--write: the tables of the reference documents that restate the source, written from it
+// references.mjs --check|--write [--root <repository>]: the tables of the reference documents that restate the source, written from it
 // (the queue item `derived-references`). Each table stands between two comment lines that name it and its
 // source; the rest of its document is the authors'. The document is formatted by the repository's Prettier, so a
 // written table is aligned as a table set by hand is.
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { format, resolveConfig } from "prettier";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const mode = process.argv[2];
-if (process.argv.length !== 3 || !["--check", "--write"].includes(mode))
-  throw new Error("references_mode_required: run with --check or --write");
+// `--root` names another tree of the repository, as a test's copy; the repository's own is the default.
+const [mode, ...rest] = process.argv.slice(2);
+if (
+  !["--check", "--write"].includes(mode) ||
+  !(rest.length === 0 || (rest.length === 2 && rest[0] === "--root"))
+)
+  throw new Error(
+    "references_mode_required: run with --check or --write, and --root <repository> or none",
+  );
+const root = rest.length
+  ? path.resolve(rest[1])
+  : path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 /** @param {readonly string[]} codes */
 const named = (codes) => codes.map((code) => `\`${code}\``).join(", ");
@@ -36,7 +45,66 @@ for (const [code, entry] of Object.entries(registry)) {
 /** @param {string[]} sections */
 const rowsOf = (...sections) => REFUSALS.filter((row) => sections.includes(row.section));
 
+// The commands and their options, as the command line catalogues them (`archpub --help --json`). The tools import
+// no module of the product's; the writer runs the command line, in its own process with no environment but the
+// path, and reads what it prints, as an agent does.
+const { commands: program } = (() => {
+  try {
+    return JSON.parse(
+      execFileSync(process.execPath, [path.join(root, "src/cli/main.mjs"), "--help", "--json"], {
+        cwd: root,
+        encoding: "utf8",
+        timeout: 60_000,
+        env: { PATH: process.env.PATH ?? "" },
+      }),
+    );
+  } catch (error) {
+    throw new Error(
+      `references_catalogue_unreadable: archpub --help --json failed: ${error.message}`,
+      {
+        cause: error,
+      },
+    );
+  }
+})();
+/** The long flag of an option and its value, as `--repo <checkout>`; `-V, --version` is `--version`. */
+const flag = (/** @type {{ flags: string }} */ option) => option.flags.split(", ").at(-1);
+/** A command's synopsis: its words, its arguments, then its options, an optional one in brackets. */
+const synopsis = (/** @type {string[]} */ words, /** @type {any} */ command) =>
+  [
+    "archpub",
+    ...words,
+    ...command.arguments.map(({ name, required }) => (required ? `<${name}>` : `[${name}]`)),
+    ...command.options
+      .filter(({ flags }) => !flags.endsWith("--help"))
+      .map((option) => (option.required ? flag(option) : `[${flag(option)}]`)),
+  ].join(" ");
+/** Every command that runs, in the help's order, by its words: `import likec4` stands for its group's one command. */
+const leaves = (/** @type {any} */ command, /** @type {string[]} */ words = []) =>
+  command.commands
+    .filter(({ name }) => name !== "help")
+    .flatMap((held) => {
+      const inner = held.commands.filter(({ name }) => name !== "help");
+      return inner.length ? leaves(held, [...words, held.name]) : [[[...words, held.name], held]];
+    });
+const helpCommand = program.commands.find(({ name }) => name === "help");
+const programFlags = program.options.map(flag);
+const usageBlock = () =>
+  [
+    "```text",
+    ...leaves(program).map(([words, command]) => synopsis(words, command)),
+    `archpub <command> --help | archpub ${helpCommand.name} ${helpCommand.usage.replace(/^\[options\] ?/u, "")}`.trimEnd(),
+    `archpub ${programFlags.filter((each) => each !== "--json").join(" | ")}${programFlags.includes("--json") ? " [--json]" : ""}`,
+    "```",
+  ].join("\n");
+
 const BLOCKS = [
+  {
+    file: "docs/reference/operations.md",
+    name: "commands",
+    source: "archpub --help --json",
+    text: usageBlock,
+  },
   {
     file: "docs/reference/refusals.md",
     name: "refusals",

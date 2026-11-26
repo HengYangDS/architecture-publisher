@@ -318,6 +318,40 @@ function commands({ version: current, write, action, listener }) {
 }
 
 /**
+ * A command as data, with the commands it holds: its name, the group the help lists it under, what it does, its
+ * arguments and its options, as its help shows them. `--help --json` prints the program's beside the help's text,
+ * so that an agent reads the commands without parsing that text; the reference's list of commands is written from
+ * it (`tools/docs/references.mjs`).
+ * @param {Command} command
+ * @returns {Catalogue}
+ * @typedef {{ name: string, usage: string, group?: string, description: string,
+ *   arguments: Array<{ name: string, required: boolean, description: string }>,
+ *   options: Array<{ flags: string, required: boolean, description: string }>,
+ *   commands: Catalogue[] }} Catalogue
+ */
+function catalogue(command) {
+  const help = command.createHelp();
+  const group = command.helpGroup();
+  return {
+    name: command.name(),
+    usage: command.usage(),
+    ...(group ? { group: group.replace(/:$/u, "") } : {}),
+    description: command.description(),
+    arguments: help.visibleArguments(command).map((argument) => ({
+      name: argument.name(),
+      required: argument.required,
+      description: argument.description,
+    })),
+    options: help.visibleOptions(command).map((option) => ({
+      flags: option.flags,
+      required: Boolean(option.mandatory),
+      description: option.description,
+    })),
+    commands: help.visibleCommands(command).map(catalogue),
+  };
+}
+
+/**
  * Run one command. Exit status 0 means success, 1 a refused input, 2 a usage
  * error and 3 an internal error, any other failure, such as a file the command
  * cannot read or write. `--json` may stand anywhere and selects one JSON object
@@ -384,7 +418,7 @@ export async function runCli(args) {
       const body =
         error.code === "commander.version"
           ? { version: error.message }
-          : { usage: stripVTControlCharacters(written) };
+          : { usage: stripVTControlCharacters(written), commands: catalogue(program) };
       return {
         exitCode: 0,
         output: json ? `${JSON.stringify({ ok: true, ...body })}\n` : written,

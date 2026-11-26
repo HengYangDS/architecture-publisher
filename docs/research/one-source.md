@@ -155,6 +155,28 @@ Four more `code` fields named the route defects that rank candidate layouts and 
 Change the codes stand in `src/refusal.json`; the type check holds the raises it can follow, a test holds every
 literal in a code's place to the registry both ways, and the reference's three tables are written from it.
 
+## How the rest of the references are written (2026-11-26)
+
+Four questions stood open after the registry of codes, and the maintainer put them to a committee of three, each
+blind to the others: an architect of one source, a reader of the product for people and agents, and a reader of
+risk and supply. Each read the census of 2026-11-26 and the registry's design and answered alone (10:45 to 10:48); the
+maintainer decided under the owner's delegation.
+
+| Question                       | Decision                                                                                                                 | Votes  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------ |
+| The model's vocabulary         | the loader reads its enumerations, patterns, limits and field lists from `schema.json`; its problem codes and paths stay | 3 of 3 |
+| The commands and their options | `archpub --help --json` catalogues the program, and the reference's block is written from it                             | 2 of 3 |
+| A delivery's files             | a registry of a delivery's files as data, read by the source that names them and by the writer                           | 3 of 3 |
+| Versions of supplies           | one table in one document, filled from each version's own owner, which the prose points to                               | 3 of 3 |
+
+The reasons that decided: a JSON Schema validator's errors would need a second table of the model's problem codes,
+which tests hold in their order, and a runtime library in the model's module is refused by the module boundaries;
+parsing a help's text breaks on a commander release, and a data file the program is built from would state the
+program twice (the dissent chose it to keep the writer from running the product); a build of a fixture is too heavy
+for the check of generated inputs; a number written inside a sentence cannot be written from its owner. Taken with
+them: the schema gains what only the loader states, and a test of the problems' codes, paths and order on bad
+models stands before the loader changes.
+
 ## What is not established
 
 - The rows marked a reader's count: their places were not counted again by the maintainer.
