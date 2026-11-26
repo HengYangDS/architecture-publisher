@@ -80,9 +80,14 @@ generated-input gate runs its non-mutating `--check` mode before qualification.
 
 `src/refusal.json` is the sole source of the codes the publisher raises or
 reports, each once with its meaning; the type check holds every raise to it.
-`node tools/docs/references.mjs --write` writes the tables of
-`docs/reference/refusals.md` from it, and the generated-input gate runs its
-`--check` mode.
+
+## Written reference tables
+
+A table of a reference document that restates the source stands between two
+comment lines that name its source. After changing that source, run
+`node tools/docs/references.mjs --write`. `npm run check:generated` refuses a
+document whose table differs from what the writer writes and names it: locally,
+in the proof and in a pipeline, since generation writes no committed file.
 
 ## Job-local native tools
 

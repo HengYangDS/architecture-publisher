@@ -73,10 +73,14 @@ from the lock; rerun `npm audit` before a release and reassess any change.
 
 Development bootstrap is `mise run bootstrap`. It installs the locked npm
 inputs with lifecycle scripts disabled, then runs `npm run generate`, which
-reproduces the LikeC4 parser offline from locked inputs and writes the reference
-tables from the source. The parser's output has an exact ignore rule and remains
-included by the package's native `files` selection.
-Generation is explicit: there is no `pretest` or `posttest` hook.
+builds the LikeC4 parser, `supplies/likec4/parser.mjs`, offline from locked
+inputs and verifies the supply's committed manifest and notices against it. An
+exact ignore rule keeps the parser out of the repository, and the package's
+native `files` selection still includes it. Generation writes no committed file
+and is explicit: there is no `pretest` or `posttest` hook. After an update of
+the LikeC4 packages, `node tools/supply/likec4.mjs --write` writes the whole
+supply; the reference tables have their own
+[writer](configuration.md#written-reference-tables).
 
 ## Formatting and lint
 

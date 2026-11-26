@@ -107,13 +107,27 @@ async function verifyDirectory(directory, expected) {
       throw Error(`likec4_supply_file_drift:${name}`);
 }
 
+/**
+ * The files each mode writes before the supply's directory is verified whole: `--write` every file, for an update of
+ * the LikeC4 packages; `--parser` only the parser, which the repository ignores, so that generation writes no
+ * committed file and a manifest or notices that differ from the locked packages are refused, not rewritten; `--check`
+ * none.
+ * @type {Record<string, (files: Map<string, Buffer>) => string[]>}
+ */
+const WRITES = {
+  "--write": (files) => [...files.keys()],
+  "--parser": () => ["parser.mjs"],
+  "--check": () => [],
+};
+
 async function main() {
   const mode = process.argv[2];
-  if (!["--write", "--check"].includes(mode) || process.argv.length !== 3)
-    throw Error("usage: likec4.mjs --write|--check");
+  if (!Object.hasOwn(WRITES, mode) || process.argv.length !== 3)
+    throw Error("usage: likec4.mjs --write|--parser|--check");
   const files = await supplyFiles();
   const destination = path.join(root, "supplies/likec4");
-  if (mode === "--write") {
+  const written = WRITES[mode](files);
+  if (written.length) {
     await fs.mkdir(destination, { recursive: true });
     await noSymlinkAncestors(destination);
     const present = await fs.readdir(destination, { withFileTypes: true });
@@ -121,7 +135,8 @@ async function main() {
       present.some((entry) => !entry.isFile() || entry.isSymbolicLink() || !files.has(entry.name))
     )
       throw Error("likec4_supply_unknown_content");
-    for (const [name, bytes] of files) await fs.writeFile(path.join(destination, name), bytes);
+    for (const name of written)
+      await fs.writeFile(path.join(destination, name), /** @type {Buffer} */ (files.get(name)));
   }
   await verifyDirectory(destination, files);
   process.stdout.write(`LikeC4 supply ${mode === "--write" ? "written" : "verified"}\n`);
