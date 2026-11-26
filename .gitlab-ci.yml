@@ -59,11 +59,11 @@ stages:
     - curl --fail --silent --show-error --location --proto '=https'
       --proto-redir '=https' --connect-timeout 15 --max-time 900 --continue-at -
       --create-dirs --output
-      build/runtime/tool-cache/mise/bootstrap/mise-v2026.11.9-linux-arm64
-      https://github.com/jdx/mise/releases/download/v2026.11.9/mise-v2026.11.9-linux-arm64
+      build/runtime/tool-cache/mise/bootstrap/mise-v2026.11.14-linux-arm64
+      https://github.com/jdx/mise/releases/download/v2026.11.14/mise-v2026.11.14-linux-arm64
     - sha256sum --strict --check .config/ci/linux/mise.sha256
     - install --mode=0755
-      build/runtime/tool-cache/mise/bootstrap/mise-v2026.11.9-linux-arm64
+      build/runtime/tool-cache/mise/bootstrap/mise-v2026.11.14-linux-arm64
       build/runtime/tool-cache/mise/bootstrap/mise
     - export PATH="$CI_PROJECT_DIR/build/runtime/tool-cache/mise/bootstrap:$PATH"
   variables:

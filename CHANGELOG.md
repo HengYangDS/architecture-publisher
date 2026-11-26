@@ -11,6 +11,7 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- CI runs Mise 2026.11.14, which `jdx/mise-action` v5.3.0 installs in the GitHub jobs; the GitLab Linux job checks the 2026.11.14 binary against the checksum Mise publishes for it.
 - **Breaking:** each part of the edition's index is a short paragraph of its kind, details, relations and
   files, the other parts' names and the files as links; a card's title on a plate links to its part's
   paragraph, no longer to its first file. The index takes more pages.
