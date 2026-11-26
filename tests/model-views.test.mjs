@@ -43,7 +43,7 @@ test("the published schema allows the views the loader admits", async () => {
   );
   assert.equal(schema.properties.views.maxItems, undefined);
   assert.deepEqual(Object.keys(schema.properties.coverage.properties), ["include", "exclude"]);
-  assert.deepEqual(schema.properties.version, { const: 3 });
+  assert.equal(schema.properties.version.const, 3);
   assert.equal(schema.properties.sources, undefined);
   for (const element of ["components", "relations"]) {
     const { properties } = schema.properties[element].items;

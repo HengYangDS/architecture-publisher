@@ -184,10 +184,44 @@ const vocabularyTable = () =>
       ],
       ["A status", `one of ${schema.$defs.status.enum.map(code).join(", ")}`],
       [
+        "A detail's name",
+        `matches ${code(schema.$defs.details.propertyNames.pattern)}: no colon or line feed, and not digits alone`,
+      ],
+      [
         "A path",
         `${schema.$defs.path.minLength} to ${schema.$defs.path.maxLength} characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, \`.\` or \`..\` segment`,
       ],
     ],
+  );
+
+// The top-level fields of a model, as its schema states them: each field in the schema's order, whether it is
+// required, and its meaning, which is the schema's description (the help an editor shows) with what the schema states
+// of its value: a constant, the values it takes with the default, or the fewest items of a list.
+const topFieldsTable = () =>
+  table(
+    ["Field", "Required", "Meaning"],
+    Object.entries(schema.properties).map(([name, /** @type {any} */ field]) => {
+      const required = schema.required.includes(name);
+      const list = field.type === "array";
+      const values = [
+        ...(field.enum ? [`One of ${field.enum.map(code).join(", ")}`] : []),
+        ...(field.default === undefined ? [] : [`${code(String(field.default))} by default`]),
+      ];
+      const meaning = [
+        ...(field.const === undefined ? [] : [`Always ${code(String(field.const))}.`]),
+        ...(field.description ? [field.description] : []),
+        ...(values.length ? [`${values.join("; ")}.`] : []),
+        ...(list && field.minItems
+          ? [`At least ${field.minItems === 1 ? "one" : field.minItems}.`]
+          : []),
+        ...(list && !field.minItems && required ? ["May be empty."] : []),
+      ].join(" ");
+      if (!field.description && field.const === undefined)
+        throw new Error(
+          `references_description_missing: the schema's field ${name} says nothing of itself`,
+        );
+      return [code(name), required ? "yes" : "no", meaning];
+    }),
   );
 
 // The categories of a kind, as the schema states them with its default, and how each looks, as the table of looks
@@ -249,6 +283,12 @@ const refusalSample = async () => {
 const refusalBlock = await refusalSample();
 
 const BLOCKS = [
+  {
+    file: "docs/reference/model.md",
+    name: "fields",
+    source: "src/model/schema.json",
+    text: topFieldsTable,
+  },
   {
     file: "docs/reference/model.md",
     name: "vocabulary",

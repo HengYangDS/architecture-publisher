@@ -26,7 +26,7 @@ const fits = async () => ({ fits: true, width: 2400, height: 1350 });
 const readJson = async (url) => JSON.parse(await fs.readFile(url, "utf8"));
 const SHOP = fileURLToPath(new URL("../examples/likec4-shop/", import.meta.url));
 
-test("every language a model may name is one Archify speaks, and the schema lists the same", async () => {
+test("every language a model may name is one Archify speaks, and the schema lists the same with its default", async () => {
   const catalogs = await readJson(
     new URL("../renderers/archify/supply/locales/manifest.json", import.meta.url),
   );
@@ -34,6 +34,7 @@ test("every language a model may name is one Archify speaks, and the schema list
   for (const locale of LOCALES) assert.ok(spoken.has(locale), locale);
   const schema = await readJson(new URL("../src/model/schema.json", import.meta.url));
   assert.deepEqual(schema.properties.locale.enum, LOCALES);
+  assert.equal(schema.properties.locale.default, DEFAULT_LOCALE);
   assert.equal(DEFAULT_LOCALE, LOCALES[0]);
 });
 

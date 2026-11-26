@@ -195,13 +195,9 @@ The head states the digest of the data and cannot state the manifest's, which se
 ## What is held before anything is written
 
 `archpub check` and `archpub build` gather the data and the reader file and hold them to the model and to each
-other. Each difference is a refusal that names what differs, and a refused build leaves no output.
-
-| Code                      | Refused when                                                                                                                                                                                               |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `reader_ids_differ`       | The reader file's items, as it will be delivered, name not exactly the model's components, relations and groups, each type by itself and each once.                                                        |
-| `data_face_differs`       | A plate's face does not hold exactly the components, groups and relations its view selects, an overview's line counting as the relations it stands for, or a relation's text in a face is not the model's. |
-| `projection_fact_unknown` | A plate's face or a diagram of the page the publisher generates names a statement the data lacks, or a plate's scale names a property the catalogue lacks.                                                 |
+other. Each difference is a refusal that names what differs: in the reader file's items (`reader_ids_differ`), in a
+plate's face (`data_face_differs`), or in a statement or property a projection names (`projection_fact_unknown`); the
+[refusals reference](refusals.md) gives each code's meaning. A refused build leaves no output.
 
 The diagrams of the page the publisher generates are read back to the model's ids and held to the data's statements.
 A guide is its author's document: its diagrams are matched and their unmatched members counted, as said above, and

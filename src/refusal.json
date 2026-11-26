@@ -266,13 +266,15 @@
   },
   "reader_ids_differ": {
     "section": "refusal",
-    "meaning": "The reader file, a plate's face or another projection differs from the model or the [data](data.md#what-is-held-before-anything-is-written); nothing is written."
+    "meaning": "The reader file's items, as it will be delivered, name not exactly the model's components, relations and groups, each type by itself and each once; nothing is written."
   },
   "data_face_differs": {
-    "with": "reader_ids_differ"
+    "section": "refusal",
+    "meaning": "A plate's face does not hold exactly the components, groups and relations its view selects, an overview's line counting as the relations it stands for, or a relation's text in a face is not the model's; nothing is written."
   },
   "projection_fact_unknown": {
-    "with": "reader_ids_differ"
+    "section": "refusal",
+    "meaning": "A plate's face or a diagram of the page the publisher generates names a statement the [data](data.md) lacks, or a plate's scale names a property the catalogue lacks, or the data is handed a fact of a property the catalogue lacks; nothing is written."
   },
   "delivery_manifest_missing": {
     "section": "refusal",

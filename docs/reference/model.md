@@ -60,29 +60,34 @@ kinds, details and views.
 
 ## Top-level fields
 
-| Field        | Required | Meaning                                                                                         |
-| ------------ | -------- | ----------------------------------------------------------------------------------------------- |
-| `format`     | yes      | Always `architecture-publisher.model`.                                                          |
-| `version`    | yes      | Always `3`; `archpub migrate` converts a model of an [earlier version](#from-earlier-versions). |
-| `id`         | yes      | Model id; names the published directory, so a Windows device name or a final `.` is refused.    |
-| `locale`     | no       | The language the model is written in: `en` (default), `zh-CN`, `zh-TW`, `es`, `ko`.             |
-| `title`      | yes      | The edition's title, and the title of any view without its own.                                 |
-| `question`   | yes      | The question the model answers: on the edition's title page and heading the page.               |
-| `summary`    | no       | A short answer under the question on the title page; the page's conclusion.                     |
-| `scope`      | no       | What the model covers and leaves out; beside the edition's contents and the page's scope.       |
-| `limits`     | no       | Known limits of the description, each one text; printed with the scope.                         |
-| `editors`    | no       | The editors of the model, each a `name` and an optional `url`: the edition's authors.           |
-| `license`    | no       | The licence of the model and its editions, as an SPDX expression such as `MIT`.                 |
-| `repository` | no       | The described repository: `name`, optional `url` and `browse`, and the full commit `revision`.  |
-| `kinds`      | no       | Kind catalog keyed by kind id.                                                                  |
-| `components` | yes      | At least one component.                                                                         |
-| `relations`  | yes      | Relations between components; may be empty.                                                     |
-| `groups`     | no       | Named sets of components.                                                                       |
-| `views`      | no       | Any number of views; without them the publisher plans the views itself.                         |
-| `coverage`   | no       | The repository paths the model describes and those it leaves out, for `archpub check`.          |
-| `overview`   | no       | The overview: what one page after the contents says; see the [overview reference](overview.md). |
-| `guide`      | no       | The guide: an Archify explainer draft beside the model, delivered as the work's page.           |
-| `edition`    | no       | The print edition's palette; see [Parts and palette](#parts-and-palette).                       |
+<!-- fields: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
+
+| Field        | Required | Meaning                                                                                                                                    |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `format`     | yes      | Always `architecture-publisher.model`. The kind of file: an Architecture Publisher model.                                                  |
+| `version`    | yes      | Always `3`. `archpub migrate` converts a model of an earlier version.                                                                      |
+| `id`         | yes      | The model's id; it names the delivery's files and the directory `archpub publish` copies them to.                                          |
+| `locale`     | no       | The language the model is written in; the publisher sets its own words in it. One of `en`, `zh-CN`, `zh-TW`, `es`, `ko`; `en` by default.  |
+| `title`      | yes      | The edition's title, and the title of any view without its own.                                                                            |
+| `question`   | yes      | The question the model answers, and that of any view without its own: on the edition's title page and at the head of the page.             |
+| `summary`    | no       | A short answer under the question on the title page, and the page's conclusion.                                                            |
+| `editors`    | no       | Who edited the model: the edition's authors. At least one.                                                                                 |
+| `license`    | no       | The licence of the model and its editions, as an SPDX licence expression such as `MIT`.                                                    |
+| `scope`      | no       | What the model covers and leaves out, beside the edition's contents and in the page's scope.                                               |
+| `limits`     | no       | Known limits of the description, printed with the scope.                                                                                   |
+| `repository` | no       | The repository the model describes, pinned at one commit.                                                                                  |
+| `kinds`      | no       | The catalog of kinds, keyed by a kind's id.                                                                                                |
+| `components` | yes      | The parts the model describes, those of the categories `person` and `external` among them. At least one.                                   |
+| `relations`  | yes      | The relations between components. May be empty.                                                                                            |
+| `groups`     | no       | Named sets of components.                                                                                                                  |
+| `views`      | no       | The views, each one plate of the edition and one panel of the page. At least one.                                                          |
+| `coverage`   | no       | The repository paths the model describes and those it leaves out.                                                                          |
+| `overview`   | no       | The overview: what one page after the contents says, as blocks without positions, which the publisher lays out.                            |
+| `guide`      | no       | The guide: an Archify explainer draft, named by its path from the model, which the page delivers in place of the one the publisher writes. |
+| `edition`    | no       | The print edition's palette.                                                                                                               |
+| `$schema`    | no       | The schema an editor checks the model against; the publisher ignores it.                                                                   |
+
+<!-- end of fields -->
 
 ### Values
 
@@ -90,12 +95,13 @@ Each value of these kinds, wherever it stands in the model, keeps to its rule.
 
 <!-- vocabulary: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
 
-| Value    | Rule                                                                                                                                                                                            |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| An id    | matches `^[a-z0-9][a-z0-9._-]{0,127}$`; the model's own id also matches no `^(?:con\|prn\|aux\|nul\|com[0-9]\|lpt[0-9])(?:\.\|$)\|\.$`, so it names no Windows device and does not end in a dot |
-| A text   | 1 to 2000 characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two                                                     |
-| A status | one of `implemented`, `planned`, `retired`                                                                                                                                                      |
-| A path   | 1 to 1024 characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, `.` or `..` segment                                                   |
+| Value           | Rule                                                                                                                                                                                            |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| An id           | matches `^[a-z0-9][a-z0-9._-]{0,127}$`; the model's own id also matches no `^(?:con\|prn\|aux\|nul\|com[0-9]\|lpt[0-9])(?:\.\|$)\|\.$`, so it names no Windows device and does not end in a dot |
+| A text          | 1 to 2000 characters, not blank, with no NUL character; a character outside the Basic Multilingual Plane, such as most emoji, counts as two                                                     |
+| A status        | one of `implemented`, `planned`, `retired`                                                                                                                                                      |
+| A detail's name | matches `^(?![0-9]+$)[^:\n]{1,64}$`: no colon or line feed, and not digits alone                                                                                                                |
+| A path          | 1 to 1024 characters, counted as in a text, relative, with no backslash, line feed, carriage return or NUL, and no empty, `.` or `..` segment                                                   |
 
 <!-- end of vocabulary -->
 
@@ -104,8 +110,8 @@ never disappears silently.
 
 ## Language
 
-`locale` names the language the model's own text is written in. The publisher
-sets the few words it writes itself in that language: the edition's contents,
+The publisher sets the few words it writes itself in the model's language: the
+edition's contents,
 reading note, index and foot, the key's boundary and status entries, the
 details it derives for an overview, and how it joins details, lists and
 sentences. The
@@ -125,15 +131,14 @@ a `label` and the same optional `details`, `status` and `files`. A relation
 may not connect a component to itself.
 
 - `details` maps a short name to text or a list of texts, such as
-  `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. Names are at most
-  64 characters, contain no colon and are not plain numbers. A plate sets a
-  component's details on its card where it has [the room](#parts-and-palette);
-  on the page, its diagram card shows the first detail it holds whole, or none,
-  and its step lists every detail. A relation's details are printed under its
-  label. The delivery's data lists every detail.
-- `status` is one of the statuses the [table of values](#values) names. On plates, planned components and relations are drawn dashed and
-  retired ones dotted and muted; on the page, planned and retired relations are
-  dashed.
+  `{ "technology": "Go", "owns": ["accounts", "tokens"] }`. A name keeps to its
+  [rule](#values). A plate sets a component's details on its card where it has
+  [the room](#parts-and-palette); on the page, its diagram card shows the first
+  detail it holds whole, or none, and its step lists every detail. A relation's
+  details are printed under its label. The delivery's data lists every detail.
+- `status` is one of the statuses the [table of values](#values) names. On
+  plates, planned components and relations are drawn dashed and retired ones
+  dotted and muted; on the page, planned and retired relations are dashed.
 - A component's `files` are the repository paths it owns, and a relation's
   `files` are the files that evidence it; see
   [Files and the repository](#files-and-the-repository).
@@ -418,16 +423,14 @@ The overview is drawn in the same palette: the class's `paper` is the ground,
 
 ## Overview
 
-`overview` states the work's overview, one page after the contents that tells
-the whole work at a glance; the [overview reference](overview.md) states its
-blocks and their fields.
+The [overview reference](overview.md) states the overview's blocks and their
+fields.
 
 ## Guide
 
-`guide` names the work's guide: an Archify
+A guide is an Archify
 [explainer draft](https://github.com/tt-a1i/archify/blob/v3.2.0/archify/references/explainer-authoring.md), a Markdown file ending
-in `.archify.md`, relative to the model and within its directory. The page
-delivers the guide in place of the page the publisher generates. A guide is
+in `.archify.md` that lies within the model's directory. A guide is
 written for its work: a conclusion and its reasons, then one panel per question
 in the form that fits it, such as an architecture diagram, a sequence, steps
 that walk a diagram, a table, a chart, a callout, a checklist or an excerpt of
@@ -506,8 +509,7 @@ relation points down or stays within one row, rows skipped by relations are
 avoided first, then relations within one row, then extra rows. See
 [the layout](operations.md#layout-and-media) for how rows become a plate.
 
-A model may declare any number of views; each is one plate of the edition and
-one panel of the page. Without `views`, the publisher draws one view of every
+A model may declare any number of views. Without `views`, the publisher draws one view of every
 component when it fits one plate, and otherwise the group overview described
 above, with one view for every group. `archpub check` lists the components and
 relations that no planned view draws.

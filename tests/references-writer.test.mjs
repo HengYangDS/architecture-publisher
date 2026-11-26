@@ -40,7 +40,12 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/operations.md", "archpub skill [--json]", "archpub skill"],
       ["docs/reference/operations.md", "| `acceptance.sig`", "| `acceptance.asc`"],
       ["docs/reference/operations.md", "| Typst   | 0.15.1 ", "| Typst   | 0.15.2 "],
-      ["docs/reference/model.md", "| A text   | 1 to 2000 ", "| A text   | 1 to 3000 "],
+      [
+        "docs/reference/model.md",
+        "1 to 2000 characters, not blank",
+        "1 to 3000 characters, not blank",
+      ],
+      ["docs/reference/model.md", "between components. May be empty.", "between components."],
       ["docs/reference/model.md", "`planned`, `retired`", "`planned`"],
       ["docs/reference/model.md", "type; the default.", "type."],
       ["docs/reference/command-line.md", "field; did you mean label?", "field."],
@@ -66,4 +71,19 @@ test("the writer takes a mode and an optional root, and nothing else", async () 
   );
   assert.equal(refused.code, 1);
   assert.match(String(refused.stderr), /references_mode_required/u);
+});
+
+test("the writer stops on a top-level field the schema neither describes nor fixes, naming it", async () => {
+  const dir = await tree();
+  try {
+    const target = path.join(dir, "src/model/schema.json");
+    const schema = JSON.parse(await fs.readFile(target, "utf8"));
+    delete schema.properties.groups.description;
+    await fs.writeFile(target, JSON.stringify(schema, null, 2));
+    const refused = await writer("--check", dir);
+    assert.equal(refused.code, 1);
+    assert.match(refused.stderr, /references_description_missing: the schema's field groups/u);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
 });

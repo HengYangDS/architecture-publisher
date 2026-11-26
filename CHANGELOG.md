@@ -19,6 +19,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The model's schema describes every top-level field, which an author's editor shows, and the model reference's
+  table of them is written from it; `locale` states `en` as its default.
 - `archpub check` reports a refused model before it loads the faces its texts are measured in, in 0.12 s where
   it took 0.79 s. The model reference names each category's default icon, and its overview section is a page
   of its own, `docs/reference/overview.md`.

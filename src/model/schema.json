@@ -8,13 +8,15 @@
   "required": ["format", "version", "id", "title", "question", "components", "relations"],
   "properties": {
     "format": {
+      "description": "The kind of file: an Architecture Publisher model.",
       "const": "architecture-publisher.model"
     },
     "version": {
+      "description": "`archpub migrate` converts a model of an earlier version.",
       "const": 3
     },
     "id": {
-      "description": "The model's id names its delivery's directory, so it is no name Windows reserves for a device, alone or before an extension, and does not end in a dot.",
+      "description": "The model's id; it names the delivery's files and the directory `archpub publish` copies them to.",
       "allOf": [
         {
           "$ref": "#/$defs/id"
@@ -27,20 +29,24 @@
       ]
     },
     "locale": {
-      "description": "The language the model is written in; the publisher sets its own words in it. Defaults to en.",
-      "enum": ["en", "zh-CN", "zh-TW", "es", "ko"]
+      "description": "The language the model is written in; the publisher sets its own words in it.",
+      "enum": ["en", "zh-CN", "zh-TW", "es", "ko"],
+      "default": "en"
     },
     "title": {
+      "description": "The edition's title, and the title of any view without its own.",
       "$ref": "#/$defs/text"
     },
     "question": {
+      "description": "The question the model answers, and that of any view without its own: on the edition's title page and at the head of the page.",
       "$ref": "#/$defs/text"
     },
     "summary": {
+      "description": "A short answer under the question on the title page, and the page's conclusion.",
       "$ref": "#/$defs/text"
     },
     "editors": {
-      "description": "The editors of this model, each by name and optionally a URL.",
+      "description": "Who edited the model: the edition's authors.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -58,20 +64,23 @@
       }
     },
     "license": {
-      "description": "The licence of this model and its editions, as an SPDX licence expression.",
+      "description": "The licence of the model and its editions, as an SPDX licence expression such as `MIT`.",
       "type": "string",
       "pattern": "^\\(?[A-Za-z0-9.+-]+\\)?(?: (?:AND|OR|WITH) \\(?[A-Za-z0-9.+-]+\\)?)*$"
     },
     "scope": {
+      "description": "What the model covers and leaves out, beside the edition's contents and in the page's scope.",
       "$ref": "#/$defs/text"
     },
     "limits": {
+      "description": "Known limits of the description, printed with the scope.",
       "type": "array",
       "items": {
         "$ref": "#/$defs/text"
       }
     },
     "repository": {
+      "description": "The repository the model describes, pinned at one commit.",
       "type": "object",
       "additionalProperties": false,
       "required": ["name", "revision"],
@@ -94,6 +103,7 @@
       }
     },
     "kinds": {
+      "description": "The catalog of kinds, keyed by a kind's id.",
       "type": "object",
       "propertyNames": {
         "$ref": "#/$defs/id"
@@ -126,6 +136,7 @@
       }
     },
     "components": {
+      "description": "The parts the model describes, those of the categories `person` and `external` among them.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -160,6 +171,7 @@
       }
     },
     "relations": {
+      "description": "The relations between components.",
       "type": "array",
       "items": {
         "type": "object",
@@ -196,6 +208,7 @@
       }
     },
     "groups": {
+      "description": "Named sets of components.",
       "type": "array",
       "items": {
         "type": "object",
@@ -216,6 +229,7 @@
       }
     },
     "views": {
+      "description": "The views, each one plate of the edition and one panel of the page.",
       "type": "array",
       "minItems": 1,
       "items": {
@@ -279,8 +293,8 @@
       }
     },
     "coverage": {
+      "description": "The repository paths the model describes and those it leaves out.",
       "type": "object",
-      "description": "The repository paths the model describes and those it leaves out, each with a reason; a path holding *, ? or [ is a glob, and any other path ending in a slash names a directory.",
       "additionalProperties": false,
       "properties": {
         "include": {
@@ -310,7 +324,7 @@
       }
     },
     "overview": {
-      "description": "The overview a model states: blocks without positions, which the publisher lays out on one page.",
+      "description": "The overview: what one page after the contents says, as blocks without positions, which the publisher lays out.",
       "type": "object",
       "additionalProperties": false,
       "required": ["claim", "lead", "course"],
@@ -462,7 +476,7 @@
       }
     },
     "guide": {
-      "description": "The guide composition: an Archify explainer draft relative to the model, within its directory, delivered as the page.",
+      "description": "The guide: an Archify explainer draft, named by its path from the model, which the page delivers in place of the one the publisher writes.",
       "allOf": [
         {
           "$ref": "#/$defs/path"
@@ -473,7 +487,7 @@
       ]
     },
     "edition": {
-      "description": "In which palette the print edition is drawn; the build chooses indigo when the model leaves it out.",
+      "description": "The print edition's palette.",
       "type": "object",
       "additionalProperties": false,
       "properties": {
