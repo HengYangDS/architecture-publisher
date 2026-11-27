@@ -11,6 +11,7 @@ import { editionFacts } from "../src/facts/edition.mjs";
 import { archifyIds } from "../src/map/archify.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
 import { json } from "./fixtures/command-line.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { groupedWork } from "./fixtures/pinned-face.mjs";
 import { README, repository } from "./fixtures/repository.mjs";
@@ -109,6 +110,7 @@ test("a delivery holds the model, the data and the reader file, and its manifest
   assert.deepEqual(manifest.sources, { state: "verified", count: 1 });
   assert.equal("evidence" in manifest, false);
   const data = await readJson(path.join(out, "page.json"));
+  assert.deepEqual(formatProblems(data), []);
   assert.deepEqual(data.delivery, { format: manifest.format, version: 9 });
   assert.deepEqual(data.model, {
     file: "model.json",
@@ -307,6 +309,7 @@ test("a model named `models` checks and builds, and its delivery holds the model
   );
   assert.ok(read.equals(await fs.readFile(model)));
   const held = JSON.parse(data.toString("utf8"));
+  assert.deepEqual(formatProblems(held), []);
   assert.deepEqual([held.work.id, held.model.file], ["models", "model.json"]);
   assert.ok(reader.includes(sha256(data)));
   assert.equal(new Set([read, data, reader].map(sha256)).size, 3);
@@ -319,11 +322,9 @@ test("a delivery of the page alone holds the three files, and without a checkout
   const build = async (name, model) => {
     const out = path.join(root, name);
     await buildDelivery(await writeModel(t, model), out, options);
-    return {
-      out,
-      manifest: await readJson(path.join(out, "manifest.json")),
-      data: await readJson(path.join(out, "page.json")),
-    };
+    const data = await readJson(path.join(out, "page.json"));
+    assert.deepEqual(formatProblems(data), [], name);
+    return { out, manifest: await readJson(path.join(out, "manifest.json")), data };
   };
   const english = citingModel({ repository: repositoryOf });
   const { out, manifest, data } = await build("en", english);

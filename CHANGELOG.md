@@ -15,6 +15,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The data file's format stands once, in a JSON Schema the package ships, `src/pinned/data.schema.json`: every member
+  and the keys of every object the data writes, in their order, each with a description. The data takes each object's
+  keys and order from it, the data reference's tables are written from it, and the tests hold every data file they
+  build to it. It replaces the data reference's tables as the format's statement. Every data file is as before.
 - The release's platforms, the archive's members, the runtime dependencies and the variables a child process receives
   each stand once: the platforms in the mise lock, the dependencies in the package, the members in
   `tools/release/archive/members.json`, which the assembly and the declaration read, and the variables in

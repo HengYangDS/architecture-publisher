@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { CATALOGUE } from "../src/facts/catalogue.mjs";
+import FORMAT from "../src/pinned/data.schema.json" with { type: "json" };
 import { Refusal } from "../src/refusal.mjs";
 import { dataCounts, editionData, serializeData } from "../src/pinned/data.mjs";
 import { evidenceTable } from "../src/pinned/evidence.mjs";
-import { statedKeys } from "./fixtures/data-format.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import { CITATIONS, GUIDE, READ, REVISION, shopBuild } from "./fixtures/pinned.mjs";
 
 const FIGURES = Object.freeze({
@@ -33,16 +34,16 @@ const isSame = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 test("the data holds its members in one order, and only those the build holds", async () => {
   const { data, input } = await shopData();
-  // The data reference states the members in their order; this build holds every one but the overview.
-  const stated = await statedKeys("Member");
+  // The data's schema states the members in their order; this build holds every one but the overview.
+  const stated = Object.keys(FORMAT.properties);
   assert.deepEqual(
     Object.keys(data),
     stated.filter((member) => member !== "overview"),
   );
+  assert.deepEqual(formatProblems(data), []);
   assert.deepEqual(data.delivery, { format: "architecture-publisher.delivery", version: 9 });
   assert.deepEqual(data.publisher, { name: "architecture-publisher", version: "0.15.0" });
   assert.deepEqual(data.model, { file: "model.json", ...input.file });
-  assert.deepEqual(Object.keys(data.model), ["file", "sha256", "bytes", "format", "version"]);
   assert.deepEqual(data.media, ["edition", "page"]);
   // A model without a guide has no such member; the overview, drawn from the model's statement, stands before the
   // plates under its statement's digest, without a face.
@@ -171,9 +172,15 @@ test("each planned view names the ids it selects, an overview's line counting as
     "relations",
   ]);
   assert.deepEqual(view.tiers, tiers);
-  // A view without a question of its own has none written.
-  const unasked = editionData({ ...input, views: [{ ...input.views[1], question: null }] });
-  assert.ok(!("question" in unasked.views[0]));
+  // The plan gives every view a question, the model's where the view states none; the format requires it, so a view
+  // handed over without one is not written.
+  assert.throws(() => editionData({ ...input, views: [{ ...input.views[1], question: null }] }), {
+    message: "The data's format requires the key question at /views/0, and it has no value.",
+  });
+  // An object with a key the format does not list is not written either.
+  assert.throws(() => editionData({ ...input, delivery: { ...input.delivery, channel: "x" } }), {
+    message: "The data's format lists no key channel at /delivery.",
+  });
 });
 
 test("every statement of the model stands once, as stated, a relation with its text", async () => {
@@ -323,16 +330,7 @@ test("the plates stand by number with their keys in one order, and a check's pla
   }));
   const again = editionData({ ...input, plates: shuffled }).plates;
   assert.equal(JSON.stringify(again), JSON.stringify(input.plates));
-  assert.deepEqual(Object.keys(again[0]), [
-    "number",
-    "views",
-    "page",
-    "images",
-    "figures",
-    "frame",
-    "scales",
-    "face",
-  ]);
+  assert.deepEqual(Object.keys(again[0]), Object.keys(FORMAT.$defs.plate.properties));
   assert.deepEqual(again[0].figures, [
     { format: "png", file: "figures/01-overview.png" },
     { format: "svg", file: "figures/01-overview.svg" },

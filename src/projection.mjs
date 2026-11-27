@@ -13,7 +13,7 @@ import {
 import { parsedGuide } from "./map/guide-parse.mjs";
 import { guideText } from "./map/guide-text.mjs";
 import { MODEL_FORMAT, MODEL_VERSION } from "./model/load.mjs";
-import { DELIVERY, DELIVERY_ROWS, MODEL, filesOf } from "./names.mjs";
+import { DELIVERY_ROWS, MODEL, TAKEN, filesOf } from "./names.mjs";
 import { dataCounts, editionData, serializeData } from "./pinned/data.mjs";
 import { evidenceTable } from "./pinned/evidence.mjs";
 import { plateEntry, plateScales } from "./pinned/face.mjs";
@@ -40,26 +40,14 @@ const CALLED = new Map(
 );
 
 /**
- * The files a delivery names whatever its model, each with what a refusal calls it.
- * @type {ReadonlyMap<string, string>}
- */
-const FIXED = new Map(
-  DELIVERY_ROWS.filter((row) => row.called && !DELIVERY[row.role].includes("{")).map((row) => [
-    DELIVERY[row.role],
-    row.called,
-  ]),
-);
-
-/**
  * Refuse a model whose id would name two files of its delivery alike: a file named by the id, such as its data
  * `<model id>.json` or its print edition `<model id>.pdf`, that takes the name of a file the delivery names itself.
  * @param {string} id the model's id
  */
 export function requireDeliveryNames(id) {
-  const taken = Object.entries(filesOf(id)).find(([, file]) => FIXED.has(file));
+  const taken = TAKEN.find((each) => each.id === id);
   if (!taken) return;
-  const [kind, file] = taken;
-  const message = `\`${file}\` would be both ${CALLED.get(kind)} and ${FIXED.get(file)}`;
+  const message = `\`${taken.file}\` would be both ${CALLED.get(taken.role)} and ${CALLED.get(taken.takes)}`;
   refuse(
     "delivery_name_taken",
     `A delivery of the model \`${id}\` would hold two files of one name: ${message}. Give the model another id.`,
@@ -107,8 +95,9 @@ export async function guideOf(model, modelPath, binding, repo) {
 }
 
 /**
- * The guide's record in the data: its draft, the files it names, whether a page verified its sources, and its
- * figures matched to the model. A build that delivers no page prepared none, and then no page verified them.
+ * The guide's record: its summary, of which the data takes its draft, the files it names and whether a page
+ * verified its sources, and its figures matched to the model. A build that delivers no page prepared none, and then
+ * no page verified them.
  */
 function guideRecord(guide, page, evidence, model, pinned) {
   const documents = guide.entries
@@ -122,10 +111,7 @@ function guideRecord(guide, page, evidence, model, pinned) {
       : /** @type {any} */ ({ path: model.guide, entries: guide.entries, repo: null }),
   );
   return {
-    path: summary.path,
-    sha256: summary.sha256,
-    files: summary.files,
-    sources: summary.sources,
+    ...summary,
     figures: guideFigures({ documents, evidence, relations: model.relations, pinned }),
   };
 }

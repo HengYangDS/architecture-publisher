@@ -21,69 +21,139 @@ hold: it is a record, and no input to build from. No file holds the time of its 
 an account, and keys and lists stand in one fixed order, so two builds of one state on one platform write the same
 bytes of all three.
 
-The data is `<model id>.json` and the print edition `<model id>.pdf`, so a model whose id is `model`, `manifest`,
-`acceptance` or `colophon` would give two files of its delivery one name. `archpub check` and `archpub build` refuse
-it with `delivery_name_taken` straight after reading the model, and name the file that would be two things.
+<!-- taken: written from src/delivery.json by tools/docs/references.mjs; do not edit -->
+
+A model whose id is `model`, `manifest`, `acceptance` or `colophon` would give two files of its delivery one name: `model.json` would be both its data and the model the build read, `manifest.json` would be both its data and the manifest, `acceptance.json` would be both its data and the record an acceptance writes and `colophon.pdf` would be both its print edition and the colophon page an acceptance writes.
+
+<!-- end of taken -->
+
+`archpub check` and `archpub build` refuse such a model with `delivery_name_taken` straight after reading it, and
+name the file that would be two things.
 
 ## The data
 
-The members of `<model id>.json`, in the order the file holds them. This table and the evidence table's are the
-format's statement of its members and of an evidence row's keys, and the publisher's tests hold the data to them,
-in their order.
+The data's schema, [`src/pinned/data.schema.json`](../../src/pinned/data.schema.json), is the format's statement:
+each member and each key of an entry, in its order, with its type and what it holds. The publisher writes the data in
+the shape it states; the package carries it, so that an agent can hold a delivery's data to it; and the tables of this
+reference are written from it.
 
-| Member       | Holds                                                                                                                                                                    |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `delivery`   | The delivery's `format` and `version`, as the manifest states them.                                                                                                      |
-| `publisher`  | Its `name` and `version`.                                                                                                                                                |
-| `work`       | The model's `id`, `locale`, `title`, `question`, `summary`, `scope`, `limits`, `editors`, `license` and `coverage`.                                                      |
-| `model`      | The delivered model's `file`, `sha256`, `bytes`, `format` and `version`.                                                                                                 |
-| `pin`        | The `repository` the model declares; `state`, the binding's `verified`, `unverified` or `none`; `date` and `release` when a checkout was read.                           |
-| `views`      | Each planned view, in the plan's order: `id`, `title`, `question`, `summary`, `origin`, `tiers`, the ids of its `components`, `groups` and `relations`, and its `plate`. |
-| `statements` | `components`, `relations` and `groups`, in the model's order.                                                                                                            |
-| `catalogue`  | Each property of a fact once: `property`, `of` (the kinds of its subject), `unit`, `origin`, `from`, and for the age bands their `spans` in seconds.                     |
-| `facts`      | Every fact the build holds, in the order the layer of facts hands them over.                                                                                             |
-| `evidence`   | [The evidence table](#the-evidence-table), in path order.                                                                                                                |
-| `guide`      | [The guide's record](#the-guides-record), when the model names a guide.                                                                                                  |
-| `overview`   | When the model states an overview and the edition is built: its `statement`'s SHA-256, its `images` and `face: false`, since its marks are tied to no statement.         |
-| `plates`     | [Each plate's record](#a-plates-record-and-face), by number; an empty list when no edition is built.                                                                     |
-| `media`      | The media the build delivers.                                                                                                                                            |
+<!-- members: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
 
-A component holds its `id`, `label`, `kind`, its `status` when the model states one, its `details`, each name with
-its values, the `files` it claims and its `origin`. A relation holds its `id`, `from`, `to`, `label`, its `text`,
-written `<from> —<label>→ <to>` with the two ids and the model's label, its `status` when stated, its `details`, the
-`files` it cites and its `origin`. A group holds its `id`, `label`, `members` and `origin`. The origin of every
-statement is `stated`: its author wrote it. A view's `plate` is the number of the plate that draws it and is absent
-when no edition is built; a statement that no view selects stands in `statements` and in no view's lists.
+The pinned edition as data, `<model id>.json` at the top of a delivery: what the build read, measured and drew of one work at one pin. Each object holds its keys in the order the schema lists them, so two builds of one state write the same bytes. A key the build held no value for is absent; none is written as zero, null or a default. The schema states the data of the release that ships it. A later release of the same delivery version may add a member, a key of an entry or a value of a list; it removes no key and changes the meaning of none, so a reader of its data ignores a key it does not know.
 
-A fact is `{ property, of, value, unit, origin, from }`. Its subject `of` is `{ "kind": "edition" }`, a part, group,
-relation or view as `{ "kind", "id" }`, or a file as `{ "kind": "file", "id", "part" }` with its path and the part
-that owns it. Its `origin` is `measured`, with `from` naming the `pin` or the `model` it was measured from, or
-`stated`, without `from`. The facts of a relation include those of an overview's line that stands for several
-relations, under the line's own id, which a plate's face carries too. Without a checkout the data holds what the
-model alone gives: each relation's cited files, each view's hub, each part's claims as their author wrote them, a
-directory as a directory, as its `owned-files` with the origin `stated`, and the number of declared paths as
-`files-read`. It then holds no bytes, share, age band, date or release, and `pin` has no `date`.
+| Member       | Holds                                                                                                                                                                                                                                                                   |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `delivery`   | The delivery's format and its version, as the manifest states them: `format` and `version`.                                                                                                                                                                             |
+| `publisher`  | The publisher that built the delivery, by its name and its version: `name` and `version`.                                                                                                                                                                               |
+| `work`       | The work as its model states it, a field the model does not state absent: `id`, `locale`, `title`, `question`, `summary`, `scope`, `limits`, `editors` (`name` and `url`), `license` and `coverage` (`include` and `exclude` (`path` and `reason`)).                    |
+| `model`      | The model the delivery carries beside the data, as the build read it: `file`, `sha256`, `bytes`, `format` and `version`.                                                                                                                                                |
+| `pin`        | The repository the model declares, the state of its binding, and the pin's date and release when a checkout was read: `repository` (`name`, `url`, `browse` and `revision`), `state` (`verified`, `unverified` or `none`), `date` and `release`.                        |
+| `views`      | Each planned view in the plan's order, with what the plan put in it, by id, and the number of the plate that draws it: `id`, `title`, `question`, `summary`, `origin`, `tiers` (`id`, `label` and `members`), `components`, `groups`, `relations` and `plate`.          |
+| `statements` | Every statement of the model, each type in the model's order: `components`, `relations` and `groups`.                                                                                                                                                                   |
+| `catalogue`  | Each property of a fact once, as the layer of facts lists it, with the kinds of its subject, its unit, what it is measured from and, for the age bands, their spans in seconds: `property`, `of`, `unit`, `origin` (`measured`), `from` (`pin` or `model`) and `spans`. |
+| `facts`      | Every fact the build holds, in the order the layer of facts hands them over.                                                                                                                                                                                            |
+| `evidence`   | Every path the work rests on, once, in path order.                                                                                                                                                                                                                      |
+| `guide`      | The guide's record, when the model names a guide.                                                                                                                                                                                                                       |
+| `overview`   | When the model states an overview and the edition is built, the overview's page, drawn from the model's statement in Typst rather than by the publisher's drawing: `statement`, `images` (`width` and `file`) and `face` (`false`).                                     |
+| `plates`     | Each plate's record, by number; an empty list when no edition is built.                                                                                                                                                                                                 |
+| `media`      | The media the build delivers.                                                                                                                                                                                                                                           |
 
-A key the data does not hold means that the build did not hold the value; none is written as zero, null or a
-default. The data and the reader file belong to the delivery's format and carry no version of their own. A later
-release of the same delivery version may add a member, a key of an entry or a value of a list; it removes no key
-written here and changes the meaning of none. A reader ignores a key it does not know.
+<!-- end of members -->
+
+The data and the reader file belong to the delivery's format and carry no version of their own.
+
+## The statements
+
+<!-- component: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
+
+A component of `statements`, as its author stated it.
+
+| Key       | Holds                                                    |
+| --------- | -------------------------------------------------------- |
+| `id`      | The component's id.                                      |
+| `label`   | Its label.                                               |
+| `kind`    | Its kind, when the model gives it one.                   |
+| `status`  | Its status, when the model states one.                   |
+| `details` | Its details, each name the model states with its values. |
+| `files`   | The files it claims.                                     |
+| `origin`  | Who made the statement, always its author: `stated`.     |
+
+<!-- end of component -->
+
+<!-- relation: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
+
+A relation of `statements`, as its author stated it.
+
+| Key       | Holds                                                                                               |
+| --------- | --------------------------------------------------------------------------------------------------- |
+| `id`      | The relation's id.                                                                                  |
+| `from`    | The id of the component it leaves.                                                                  |
+| `to`      | The id of the component it reaches.                                                                 |
+| `label`   | Its label.                                                                                          |
+| `text`    | The relation as a reader reads it, `<from> —<label>→ <to>`, with the two ids and the model's label. |
+| `status`  | Its status, when the model states one.                                                              |
+| `details` | Its details, each name the model states with its values.                                            |
+| `files`   | The files it cites.                                                                                 |
+| `origin`  | Who made the statement, always its author: `stated`.                                                |
+
+<!-- end of relation -->
+
+<!-- group: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
+
+A group of `statements`, as its author stated it.
+
+| Key       | Holds                                                |
+| --------- | ---------------------------------------------------- |
+| `id`      | The group's id.                                      |
+| `label`   | Its label.                                           |
+| `members` | The ids of its members.                              |
+| `origin`  | Who made the statement, always its author: `stated`. |
+
+<!-- end of group -->
+
+A statement that no view selects stands in `statements` and in no view's lists.
+
+## The facts
+
+<!-- fact: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
+
+A fact of `facts`: one value of one property the catalogue lists, of one subject.
+
+| Key        | Holds                                                                                                                                                 |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `property` | The property, one the data's `catalogue` lists.                                                                                                       |
+| `of`       | Its subject, the edition, a part, a group, a relation or a view by its id, or a file by its path with the part that owns it: `kind`, `id` and `part`. |
+| `value`    | Its value, in its unit: a number, a text, a list, or null where the build found none, as a release at a pin no release is tagged at.                  |
+| `unit`     | Its unit, the one the catalogue gives the property.                                                                                                   |
+| `origin`   | Whether the publisher measured the value or the model's author stated it: `measured` or `stated`.                                                     |
+| `from`     | For a measured value, what it was measured from, the checkout at the pin or the model alone: `pin` or `model`.                                        |
+
+<!-- end of fact -->
+
+The facts of a relation include those of an overview's line that stands for several relations, under the line's own
+id, which a plate's face carries too. Without a checkout the data holds what the model alone gives: each relation's
+cited files, each view's hub, each part's claims as their author wrote them, a directory as a directory, as its
+`owned-files` with the origin `stated`, and the number of declared paths as `files-read`. It then holds no bytes,
+share, age band, date or release, and `pin` has no `date`.
 
 ## The evidence table
 
-`evidence` holds every path the work rests on once, in path order: each file the model claims or cites, as the
-binding recorded it, and each path only the guide cites.
+<!-- evidence: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
 
-| Key         | Holds                                                                                                                                                                                  |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `path`      | The path in the repository.                                                                                                                                                            |
-| `state`     | `verified` when the build read the path at the pin, `unverified` otherwise.                                                                                                            |
-| `sha256`    | The file's digest at the pin; only on a verified row.                                                                                                                                  |
-| `bytes`     | Its size at the pin; only on a verified row.                                                                                                                                           |
-| `changed`   | The UTC date of its last change at the pin; only on a verified row.                                                                                                                    |
-| `owner`     | The component whose claim holds it, when one does.                                                                                                                                     |
-| `relations` | The ids of the relations that cite it.                                                                                                                                                 |
-| `ranges`    | Each citation of the guide in it, in the guide's order: `lines` as first and last line, absent for a whole file, and `where` it is cited, as `@source <id>` or a diagram node's place. |
+A row of `evidence`: one path the work rests on, a file the model claims or cites, as the binding recorded it, or a path only the guide cites.
+
+| Key         | Holds                                                                                                                                                                                                            |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `path`      | The path in the repository.                                                                                                                                                                                      |
+| `state`     | Whether the build read the path at the pin: `verified` or `unverified`.                                                                                                                                          |
+| `sha256`    | The file's digest at the pin; only on a verified row.                                                                                                                                                            |
+| `bytes`     | Its size at the pin; only on a verified row.                                                                                                                                                                     |
+| `changed`   | The UTC date of its last change at the pin; only on a verified row.                                                                                                                                              |
+| `owner`     | The component whose claim holds it, when one does.                                                                                                                                                               |
+| `relations` | The ids of the relations that cite it.                                                                                                                                                                           |
+| `ranges`    | Each citation of the guide in it, in the guide's order, with the first and last line it cites, absent for a whole file, and where it is cited, as `@source <id>` or a diagram node's place: `lines` and `where`. |
+
+<!-- end of evidence -->
 
 With `--repo`, the paths only the guide cites are read at the pin through Git, which is only read, so that their
 rows carry a digest, a size and a date too. They join no record of the binding: the number of files read, which the
@@ -103,26 +173,53 @@ The model and the guide gain no field for the table: it is gathered from what th
 
 ## A plate's record and face
 
-Each entry of `plates` holds the plate's `number`, its `views`, its `images` with their `width` and `file`, its
-`figures`, the two files of its figure set alone, with their `format` (`png`, `svg`) and `file`, and:
+<!-- plate: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
 
-- `page`: the plate's page in the PDF, counted from 1. Only a build that typesets the edition knows it; a check
-  reports the record without it.
-- `frame`: where the figure stands on its page, as `x`, `y`, `width` and `height` in points from the page's top left
-  corner, and `pixelsPerPoint`, the scale of the figure's drawing space. An element at `x`, `y` of the drawing space
-  stands at `frame.x + x / pixelsPerPoint` and `frame.y + y / pixelsPerPoint` points on the page, and a point is
-  `width / 1600` px in an image of that width.
-- `scales`: where the edition draws strips, the property `owned-bytes` with its `unit`, the `value` in bytes of the
-  edition's largest part and the `length` in px it is drawn at; an empty list where it draws none.
-- `face`: what the plate drew, by id.
+A plate of `plates`, as the drawing reports it.
 
-A face holds `components`, `groups` and `relations`. A component or a group is its `id` and its `box`, as `x`, `y`,
-`width` and `height` in the drawing space. A relation is its `id`, the ids of its two ends as `from` and `to`, its
-`segments` and its `label`, the box of its label or `null` when the figure sets none, and either its `text`, as the
-data's statement writes it, or, for an overview's line that stands for several relations of the model, the ids of
-those as `relations`. `segments` is a list of stretches, each a list of points, in the order they are drawn: every
-stretch the relation is stroked on, so two relations that share a trunk both list it. The numbers are the ones the
-plate's SVG is written from. A face repeats no value of a fact: it names the element, and `facts` holds its values.
+| Key       | Holds                                                                                                                                                                                                                                                    |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `number`  | The plate's number, counted from 1 in reading order.                                                                                                                                                                                                     |
+| `views`   | The ids of the views it draws.                                                                                                                                                                                                                           |
+| `page`    | Its page in the PDF, counted from 1. Only a build that typesets the edition knows it; a check reports the record without it.                                                                                                                             |
+| `images`  | Its page's images at each width: `width` and `file`.                                                                                                                                                                                                     |
+| `figures` | The two files of its figure set alone, each with its format, the file's extension: `format` and `file`.                                                                                                                                                  |
+| `frame`   | Where the figure stands on its page, in points from the page's top left corner, and the scale of its drawing space in pixels per point: `x`, `y`, `width`, `height` and `pixelsPerPoint`.                                                                |
+| `scales`  | The scales its strips are drawn on, an empty list where the edition draws none, each as the property drawn with its unit, the value of the edition's largest part and the length in px that value is drawn at: `property`, `unit`, `value` and `length`. |
+| `face`    | What the plate drew, by id.                                                                                                                                                                                                                              |
+
+<!-- end of plate -->
+
+An element at `x`, `y` of the drawing space stands at `frame.x + x / pixelsPerPoint` and
+`frame.y + y / pixelsPerPoint` points on the page, and a point is `width / 1600` px in an image of that width.
+
+<!-- face: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
+
+What a plate drew, by id, in the numbers of its drawing space, which its SVG is written from. A face repeats no value of a fact: it names the element, and `facts` holds its values.
+
+| Key          | Holds                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------- |
+| `components` | Each component drawn, with the box it is set in: `id` and `box` (`x`, `y`, `width` and `height`). |
+| `groups`     | Each group drawn, with the box it is set in: `id` and `box` (`x`, `y`, `width` and `height`).     |
+| `relations`  | Each relation drawn, in the order first stroked.                                                  |
+
+<!-- end of face -->
+
+<!-- face-relation: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
+
+A relation a plate drew: a relation of the model, or an overview's line that stands for several of them.
+
+| Key         | Holds                                                                                                                                           |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`        | The relation's id, or the line's.                                                                                                               |
+| `from`      | The id of the end it leaves.                                                                                                                    |
+| `to`        | The id of the end it reaches.                                                                                                                   |
+| `text`      | For a relation of the model, its text, as the data's statement writes it.                                                                       |
+| `relations` | For an overview's line, the ids of the relations of the model it stands for, in place of a text.                                                |
+| `segments`  | Every stretch the relation is stroked on, in the order drawn, each a list of points `[x, y]`, so two relations that share a trunk both list it. |
+| `label`     | The box of its label, or null when the figure sets none: `x`, `y`, `width` and `height`.                                                        |
+
+<!-- end of face-relation -->
 
 On a plate drawn as a matrix a relation is stroked on no line: its `segments`
 hold one stretch, the closed outline of its cell, and its `label` is the box of
@@ -133,22 +230,27 @@ The face is what the drawing reports as it draws, and no copy of the view. The o
 
 ## The guide's record
 
-`guide` holds the draft's `path` and `sha256`, the `files` the draft names, each with its `name` and `sha256`,
-`sources` and `figures`. A model that names a guide has it read for every medium, since its draft ends the reader
-file and its citations are evidence: a guide that is absent refuses the build or the check with `guide_missing`,
-with `--media edition` too.
+<!-- guide: written from src/pinned/data.schema.json by tools/docs/references.mjs; do not edit -->
 
-`sources` is `verified` when the page was built from the guide with a checkout, for a model that names its
-repository's URL and revision, so that Archify verified the guide's sources at that revision, and `declared`
-otherwise; when no page is built, as with `--media edition`, it is `declared`.
+The guide a model names, as `guide` records it: its draft, the files it names, whether its sources were verified, and its diagrams matched to the model.
 
-`figures` matches the guide's diagrams to the model. The nodes of a guide's diagrams carry their author's ids, so a
-node is matched to the components that own the files it cites, by the verified rows of the evidence table, and a
-connection whose two ends are matched to the relations of the model between their components, whichever way they
-run. It holds `state`, `verified` when the files were read at the pin and `unverified` otherwise; `nodes`, each with
-its `file`, `id` and `components`; `connections`, each with its `file`, its `id` when it has one, `from`, `to` and
-`relations`; and `unmatched`, the `nodes` and `connections` with no match. A match refuses nothing, and neither does
-its absence; without a checkout no file has an owner and nothing is matched.
+| Key       | Holds                                                                                                                                                                                                                                                                               |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `path`    | The draft's path, as the model names it.                                                                                                                                                                                                                                            |
+| `sha256`  | The draft's SHA-256.                                                                                                                                                                                                                                                                |
+| `files`   | The files the draft names, each with its SHA-256: `name` and `sha256`.                                                                                                                                                                                                              |
+| `sources` | Whether Archify verified the guide's sources at the model's revision, as it does when the page is built from the guide with a checkout for a model that names its repository's URL and revision, or they stand as declared, as when no page is built: `verified` or `declared`.     |
+| `figures` | The guide's diagrams matched to the model: `state` (`verified` or `unverified`), `nodes` (`file`, `id` and `components`), `connections` (`file`, `id`, `from`, `to` and `relations`) and `unmatched` (`nodes` (`file` and `id`) and `connections` (`file`, `id`, `from` and `to`)). |
+
+<!-- end of guide -->
+
+A model that names a guide has it read for every medium, since its draft ends the reader file and its citations are
+evidence: a guide that is absent refuses the build or the check with `guide_missing`, with `--media edition` too.
+
+The nodes of a guide's diagrams carry their author's ids, so a node is matched to the components that own the files
+it cites, by the verified rows of the evidence table, and a connection whose two ends are matched to the relations of
+the model between their components, whichever way they run. A match refuses nothing, and neither does its absence;
+without a checkout no file has an owner and nothing is matched.
 
 ## The reader file
 

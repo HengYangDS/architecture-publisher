@@ -1,3 +1,5 @@
+import { nodeAt, shaped } from "./format.mjs";
+
 /**
  * The evidence table: every path a work rests on, written once. Its rows are the binding's records of the files
  * the model claims and cites, and the paths only the guide cites, which the build reads at the pin beside them. A
@@ -17,29 +19,25 @@
  */
 
 /**
- * One row, its keys in the table's order. A digest, a size and a date stand only on a path read at the pin, and an
- * owner only where a component's claim holds the path.
+ * One row, in the shape the data's format states. A digest, a size and a date stand only on a path read at the pin,
+ * and an owner only where a component's claim holds the path.
  * @param {string} path
  * @param {{ sha256?: string | null, bytes?: number | null, changed?: string | null } | undefined} reading
  * @param {{ owner: string | null, relations: readonly string[] }} declared
- * @param {Range[]} ranges
+ * @param {ReadonlyArray<Pick<Citation, "lines" | "where">>} ranges
  * @returns {EvidenceRow}
  */
 function rowOf(path, reading, { owner, relations }, ranges) {
-  return {
+  return shaped(nodeAt("#/$defs/evidenceRow"), {
     path,
-    ...(reading
-      ? {
-          state: /** @type {const} */ ("verified"),
-          sha256: /** @type {string} */ (reading.sha256),
-          bytes: /** @type {number} */ (reading.bytes),
-          changed: /** @type {string} */ (reading.changed),
-        }
-      : { state: /** @type {const} */ ("unverified") }),
-    ...(owner === null ? {} : { owner }),
-    relations: [...relations],
+    state: reading ? "verified" : "unverified",
+    sha256: reading?.sha256,
+    bytes: reading?.bytes,
+    changed: reading?.changed,
+    owner,
+    relations,
     ranges,
-  };
+  });
 }
 
 /** A path that no component owns and no relation cites: one only the guide cites. */
@@ -54,13 +52,10 @@ const UNCLAIMED = Object.freeze({ owner: null, relations: Object.freeze([]) });
  * @returns {EvidenceRow[]}
  */
 export function evidenceTable({ records, citations = [], read = new Map() }) {
-  /** @type {Map<string, Range[]>} */
+  /** @type {Map<string, Array<Pick<Citation, "lines" | "where">>>} */
   const ranges = new Map();
   for (const { path, lines, where } of citations)
-    ranges.set(path, [
-      ...(ranges.get(path) ?? []),
-      lines ? { lines: [lines[0], lines[1]], where } : { where },
-    ]);
+    ranges.set(path, [...(ranges.get(path) ?? []), { lines, where }]);
   const bound = new Map(records.map((record) => [record.path, record]));
   return [...new Set([...bound.keys(), ...ranges.keys()])].sort().map((path) => {
     const record = bound.get(path);

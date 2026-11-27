@@ -1,4 +1,5 @@
 import { bodyOf } from "../house.mjs";
+import { nodeAt, shaped } from "./format.mjs";
 
 /**
  * A plate's entry in the pinned data: its number and views, its page in the PDF, its images and the files of its
@@ -92,10 +93,10 @@ export function plateFrame(plate, house) {
 }
 
 /**
- * A plate's entry in the data. Its number, its views, its images and its face are always held; a run that renders
- * no image of the plate lists none. What else only a typeset edition gives is written when the build holds it and
- * has no key otherwise: the plate's page in the PDF, the files of its figure set alone, the frame of its figure on
- * that page, for which the house's tokens are given, and its scales.
+ * A plate's entry in the data, in the shape the data's format states. Its number, its views, its images and its
+ * face are always held; a run that renders no image of the plate lists none. What else only a typeset edition gives
+ * is written when the build holds it and has no key otherwise: the plate's page in the PDF, the files of its figure
+ * set alone, the frame of its figure on that page, for which the house's tokens are given, and its scales.
  * @param {{ page: number, views: string[], width: number, height: number, reading: string, report: Report }} plate
  *   a composed plate; its `page` is its number in the edition
  * @param {{ page?: number, images?: Array<{ width: number, file: string }>,
@@ -103,14 +104,14 @@ export function plateFrame(plate, house) {
  *   house?: Parameters<typeof plateFrame>[1], scales?: ReturnType<typeof plateScales> }} [known]
  */
 export function plateEntry(plate, known = {}) {
-  return {
+  return shaped(nodeAt("#/$defs/plate"), {
     number: plate.page,
     views: plate.views,
-    ...(known.page === undefined ? {} : { page: known.page }),
+    page: known.page,
     images: known.images ?? [],
-    ...(known.figures ? { figures: known.figures } : {}),
-    ...(known.house ? { frame: plateFrame(plate, known.house) } : {}),
-    ...(known.scales ? { scales: known.scales } : {}),
+    figures: known.figures,
+    frame: known.house && plateFrame(plate, known.house),
+    scales: known.scales,
     face: plateFace(plate.report),
-  };
+  });
 }

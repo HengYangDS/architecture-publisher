@@ -8,6 +8,7 @@ import { checkBoxes } from "../src/overview/checks.mjs";
 import { DEFAULT_LOCALE } from "../src/locale.mjs";
 import { TYPST_VERSION } from "../src/names.mjs";
 import { checkOverview, typstProblems, typstVersion } from "../src/overview/typeset.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import { minimalModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { everyBlock } from "./fixtures/overview-statements.mjs";
 import { repository } from "./fixtures/repository.mjs";
@@ -169,6 +170,10 @@ test("a build draws the overview a model states in the edition, the same bytes t
   assert.equal(manifest.overview.typst, TYPST_VERSION);
   assert.match(manifest.overview.house, /^[0-9a-f]{64}$/u);
   assert.match(manifest.supplies.house, /^[0-9a-f]{64}$/u);
+  // The data names the overview's page, tied to no statement, and keeps to its format.
+  const data = JSON.parse(await fs.readFile(path.join(out, manifest.data.file), "utf8"));
+  assert.deepEqual(formatProblems(data), []);
+  assert.equal(data.overview.face, false);
   const checked = await checkModel(file, { media: ["edition"] });
   assert.equal(checked.overview.typst, TYPST_VERSION);
   assert.equal(checked.overview.date, null);

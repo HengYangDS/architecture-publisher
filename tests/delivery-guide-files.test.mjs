@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { buildDelivery, checkModel } from "../src/build.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import { pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { repository } from "./fixtures/repository.mjs";
 
@@ -101,6 +102,7 @@ test("a guide's citation of a file absent at the pin is refused with a checkout,
   await buildDelivery(model, out, { media: ["edition"], png: [240] });
   const manifest = JSON.parse(await fs.readFile(path.join(out, "manifest.json"), "utf8"));
   const data = JSON.parse(await fs.readFile(path.join(out, "page.json"), "utf8"));
+  assert.deepEqual(formatProblems(data), []);
   assert.deepEqual(manifest.sources, { state: "unverified", count: 2 });
   assert.equal(manifest.data.statements.unchecked, 2);
   assert.deepEqual(

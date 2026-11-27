@@ -1,0 +1,779 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "The delivery format's one statement of its data: the publisher writes the data in the shape it states (src/pinned/format.mjs), each object's keys in the order its properties are listed here; tools/docs/references.mjs writes the data reference's tables from the descriptions; and the tests hold every data file they build to it.",
+  "title": "Architecture Publisher data",
+  "description": "The pinned edition as data, `<model id>.json` at the top of a delivery: what the build read, measured and drew of one work at one pin. Each object holds its keys in the order the schema lists them, so two builds of one state write the same bytes. A key the build held no value for is absent; none is written as zero, null or a default. The schema states the data of the release that ships it. A later release of the same delivery version may add a member, a key of an entry or a value of a list; it removes no key and changes the meaning of none, so a reader of its data ignores a key it does not know.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "delivery",
+    "publisher",
+    "work",
+    "model",
+    "pin",
+    "views",
+    "statements",
+    "catalogue",
+    "facts",
+    "evidence",
+    "plates",
+    "media"
+  ],
+  "properties": {
+    "delivery": {
+      "description": "The delivery's format and its version, as the manifest states them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "version"],
+      "properties": {
+        "format": { "description": "The name of the delivery's format.", "type": "string" },
+        "version": { "description": "The version of the delivery's format.", "type": "integer" }
+      }
+    },
+    "publisher": {
+      "description": "The publisher that built the delivery, by its name and its version.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "description": "The publisher's package name.", "type": "string" },
+        "version": { "description": "The publisher's version.", "type": "string" }
+      }
+    },
+    "work": {
+      "description": "The work as its model states it, a field the model does not state absent.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "locale", "title", "question", "limits", "editors"],
+      "properties": {
+        "id": {
+          "description": "The model's id, which names the delivery's files.",
+          "type": "string"
+        },
+        "locale": { "description": "The language the model is written in.", "type": "string" },
+        "title": { "description": "The edition's title.", "type": "string" },
+        "question": { "description": "The question the model answers.", "type": "string" },
+        "summary": { "description": "The short answer to it.", "type": "string" },
+        "scope": { "description": "What the model covers and leaves out.", "type": "string" },
+        "limits": {
+          "description": "The known limits of the description.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "editors": {
+          "description": "Who edited the model.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "description": "The editor's name.", "type": "string" },
+              "url": { "description": "The editor's address.", "type": "string" }
+            }
+          }
+        },
+        "license": {
+          "description": "The licence of the model and its editions, as an SPDX expression.",
+          "type": "string"
+        },
+        "coverage": {
+          "description": "The repository paths the model describes and those it leaves out.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exclude"],
+          "properties": {
+            "include": {
+              "description": "The paths it describes, when it names them.",
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "exclude": {
+              "description": "The paths it leaves out, each with the reason.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "reason"],
+                "properties": {
+                  "path": { "description": "A path or a glob.", "type": "string" },
+                  "reason": { "description": "Why it is left out.", "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "model": {
+      "description": "The model the delivery carries beside the data, as the build read it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "sha256", "bytes", "format", "version"],
+      "properties": {
+        "file": { "description": "Its name in the delivery.", "type": "string" },
+        "sha256": {
+          "description": "Its SHA-256, the manifest's `model.sha256`.",
+          "type": "string"
+        },
+        "bytes": { "description": "Its size.", "type": "integer" },
+        "format": { "description": "The model's format.", "type": "string" },
+        "version": { "description": "The version of the model's format.", "type": "integer" }
+      }
+    },
+    "pin": {
+      "description": "The repository the model declares, the state of its binding, and the pin's date and release when a checkout was read.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "repository": {
+          "description": "The repository the model declares, as its model states it, with the address of a file it implies.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "revision"],
+          "properties": {
+            "name": { "description": "The repository's name.", "type": "string" },
+            "url": { "description": "Its address.", "type": "string" },
+            "browse": {
+              "description": "The address of one file at one revision, as the model states it or its address implies.",
+              "type": "string"
+            },
+            "revision": { "description": "The commit the model is pinned at.", "type": "string" }
+          }
+        },
+        "state": {
+          "description": "The state of its binding, whether the files the model names were read at the pin, named without a checkout, or left unbound for want of a repository.",
+          "type": "string",
+          "enum": ["verified", "unverified", "none"]
+        },
+        "date": { "description": "The date of the pin's commit.", "type": "string" },
+        "release": { "description": "The release tagged at the pin.", "type": "string" }
+      }
+    },
+    "views": {
+      "description": "Each planned view in the plan's order, with what the plan put in it, by id, and the number of the plate that draws it.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "question", "origin", "components", "groups", "relations"],
+        "properties": {
+          "id": { "description": "The view's id.", "type": "string" },
+          "title": { "description": "Its title.", "type": "string" },
+          "question": { "description": "The question it answers.", "type": "string" },
+          "summary": { "description": "Its summary, when it has one.", "type": "string" },
+          "origin": { "description": "How the plan came to it.", "type": "string" },
+          "tiers": {
+            "description": "Its ordered tiers, when the model states them.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "label", "members"],
+              "properties": {
+                "id": { "description": "The tier's id.", "type": "string" },
+                "label": { "description": "Its label.", "type": "string" },
+                "members": {
+                  "description": "The ids of its members.",
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          },
+          "components": {
+            "description": "The ids of the components it selects.",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "groups": {
+            "description": "The ids of the groups it selects.",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "relations": {
+            "description": "The ids of the relations it draws, an overview's line counting as the relations it stands for.",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "plate": {
+            "description": "The number of the plate that draws it; absent when no edition is built.",
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "statements": {
+      "description": "Every statement of the model, each type in the model's order.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components", "relations", "groups"],
+      "properties": {
+        "components": {
+          "description": "The model's components.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/component" }
+        },
+        "relations": {
+          "description": "The model's relations.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/relation" }
+        },
+        "groups": {
+          "description": "The model's groups.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/group" }
+        }
+      }
+    },
+    "catalogue": {
+      "description": "Each property of a fact once, as the layer of facts lists it, with the kinds of its subject, its unit, what it is measured from and, for the age bands, their spans in seconds.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["property", "of", "unit", "origin", "from"],
+        "properties": {
+          "property": { "description": "The property's name.", "type": "string" },
+          "of": {
+            "description": "The kinds of subject it is a property of.",
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "unit": { "description": "The unit of its values.", "type": "string" },
+          "origin": {
+            "description": "Who gives its values, always the publisher.",
+            "type": "string",
+            "const": "measured"
+          },
+          "from": {
+            "description": "What its values are measured from.",
+            "$ref": "#/$defs/measuredFrom"
+          },
+          "spans": {
+            "description": "The spans that define its bands, in seconds.",
+            "type": "array",
+            "items": { "type": "integer" }
+          }
+        }
+      }
+    },
+    "facts": {
+      "description": "Every fact the build holds, in the order the layer of facts hands them over.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/fact" }
+    },
+    "evidence": {
+      "description": "Every path the work rests on, once, in path order.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidenceRow" }
+    },
+    "guide": {
+      "description": "The guide's record, when the model names a guide.",
+      "$ref": "#/$defs/guide"
+    },
+    "overview": {
+      "description": "When the model states an overview and the edition is built, the overview's page, drawn from the model's statement in Typst rather than by the publisher's drawing.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement", "images", "face"],
+      "properties": {
+        "statement": {
+          "description": "The SHA-256 of the model's statement of the overview.",
+          "type": "string"
+        },
+        "images": {
+          "description": "The page's images at each width.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/image" }
+        },
+        "face": {
+          "description": "Whether the page's marks are tied to statements, which they are not.",
+          "type": "boolean",
+          "const": false
+        }
+      }
+    },
+    "plates": {
+      "description": "Each plate's record, by number; an empty list when no edition is built.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/plate" }
+    },
+    "media": {
+      "description": "The media the build delivers.",
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "component": {
+      "description": "A component of `statements`, as its author stated it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "details", "files", "origin"],
+      "properties": {
+        "id": { "description": "The component's id.", "type": "string" },
+        "label": { "description": "Its label.", "type": "string" },
+        "kind": { "description": "Its kind, when the model gives it one.", "type": "string" },
+        "status": { "description": "Its status, when the model states one.", "type": "string" },
+        "details": { "$ref": "#/$defs/details" },
+        "files": {
+          "description": "The files it claims.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "origin": { "$ref": "#/$defs/stated" }
+      }
+    },
+    "relation": {
+      "description": "A relation of `statements`, as its author stated it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "label", "text", "details", "files", "origin"],
+      "properties": {
+        "id": { "description": "The relation's id.", "type": "string" },
+        "from": { "description": "The id of the component it leaves.", "type": "string" },
+        "to": { "description": "The id of the component it reaches.", "type": "string" },
+        "label": { "description": "Its label.", "type": "string" },
+        "text": {
+          "description": "The relation as a reader reads it, `<from> —<label>→ <to>`, with the two ids and the model's label.",
+          "type": "string"
+        },
+        "status": { "description": "Its status, when the model states one.", "type": "string" },
+        "details": { "$ref": "#/$defs/details" },
+        "files": {
+          "description": "The files it cites.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "origin": { "$ref": "#/$defs/stated" }
+      }
+    },
+    "group": {
+      "description": "A group of `statements`, as its author stated it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "members", "origin"],
+      "properties": {
+        "id": { "description": "The group's id.", "type": "string" },
+        "label": { "description": "Its label.", "type": "string" },
+        "members": {
+          "description": "The ids of its members.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "origin": { "$ref": "#/$defs/stated" }
+      }
+    },
+    "details": {
+      "description": "Its details, each name the model states with its values.",
+      "type": "object",
+      "additionalProperties": { "type": "array", "items": { "type": "string" } }
+    },
+    "stated": {
+      "description": "Who made the statement, always its author.",
+      "type": "string",
+      "const": "stated"
+    },
+    "fact": {
+      "description": "A fact of `facts`: one value of one property the catalogue lists, of one subject.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["property", "of", "value", "unit", "origin"],
+      "properties": {
+        "property": {
+          "description": "The property, one the data's `catalogue` lists.",
+          "type": "string"
+        },
+        "of": {
+          "description": "Its subject, the edition, a part, a group, a relation or a view by its id, or a file by its path with the part that owns it.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "description": "The kind of subject, one the catalogue lists for the property.",
+              "type": "string"
+            },
+            "id": {
+              "description": "The id of a part, a group, a relation or a view, or the path of a file.",
+              "type": "string"
+            },
+            "part": {
+              "description": "For a file, the part or group that owns it.",
+              "type": "string"
+            }
+          }
+        },
+        "value": {
+          "description": "Its value, in its unit: a number, a text, a list, or null where the build found none, as a release at a pin no release is tagged at."
+        },
+        "unit": {
+          "description": "Its unit, the one the catalogue gives the property.",
+          "type": "string"
+        },
+        "origin": {
+          "description": "Whether the publisher measured the value or the model's author stated it.",
+          "type": "string",
+          "enum": ["measured", "stated"]
+        },
+        "from": {
+          "description": "For a measured value, what it was measured from, the checkout at the pin or the model alone.",
+          "$ref": "#/$defs/measuredFrom"
+        }
+      }
+    },
+    "measuredFrom": {
+      "description": "What a value is measured from, the checkout at the pin or the model alone.",
+      "type": "string",
+      "enum": ["pin", "model"]
+    },
+    "evidenceRow": {
+      "description": "A row of `evidence`: one path the work rests on, a file the model claims or cites, as the binding recorded it, or a path only the guide cites.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "state", "relations", "ranges"],
+      "properties": {
+        "path": { "description": "The path in the repository.", "type": "string" },
+        "state": {
+          "description": "Whether the build read the path at the pin.",
+          "type": "string",
+          "enum": ["verified", "unverified"]
+        },
+        "sha256": {
+          "description": "The file's digest at the pin; only on a verified row.",
+          "type": "string"
+        },
+        "bytes": {
+          "description": "Its size at the pin; only on a verified row.",
+          "type": "integer"
+        },
+        "changed": {
+          "description": "The UTC date of its last change at the pin; only on a verified row.",
+          "type": "string"
+        },
+        "owner": {
+          "description": "The component whose claim holds it, when one does.",
+          "type": "string"
+        },
+        "relations": {
+          "description": "The ids of the relations that cite it.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "ranges": {
+          "description": "Each citation of the guide in it, in the guide's order, with the first and last line it cites, absent for a whole file, and where it is cited, as `@source <id>` or a diagram node's place.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["where"],
+            "properties": {
+              "lines": {
+                "description": "The first and the last line cited.",
+                "type": "array",
+                "items": { "type": "integer" },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "where": { "description": "Where the guide cites it.", "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "guide": {
+      "description": "The guide a model names, as `guide` records it: its draft, the files it names, whether its sources were verified, and its diagrams matched to the model.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "files", "sources"],
+      "properties": {
+        "path": { "description": "The draft's path, as the model names it.", "type": "string" },
+        "sha256": { "description": "The draft's SHA-256.", "type": "string" },
+        "files": {
+          "description": "The files the draft names, each with its SHA-256.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "sha256"],
+            "properties": {
+              "name": { "description": "The file's name beside the draft.", "type": "string" },
+              "sha256": { "description": "Its SHA-256.", "type": "string" }
+            }
+          }
+        },
+        "sources": {
+          "description": "Whether Archify verified the guide's sources at the model's revision, as it does when the page is built from the guide with a checkout for a model that names its repository's URL and revision, or they stand as declared, as when no page is built.",
+          "type": "string",
+          "enum": ["verified", "declared"]
+        },
+        "figures": {
+          "description": "The guide's diagrams matched to the model.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "nodes", "connections", "unmatched"],
+          "properties": {
+            "state": {
+              "description": "Whether the files the nodes cite were read at the pin.",
+              "type": "string",
+              "enum": ["verified", "unverified"]
+            },
+            "nodes": {
+              "description": "Each node matched, with the components it is matched to.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["file", "id", "components"],
+                "properties": {
+                  "file": { "description": "The diagram's file.", "type": "string" },
+                  "id": { "description": "The node's id in it.", "type": "string" },
+                  "components": {
+                    "description": "The ids of the components it is matched to.",
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            },
+            "connections": {
+              "description": "Each connection matched, with the relations it is matched to.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["file", "from", "to", "relations"],
+                "properties": {
+                  "file": { "description": "The diagram's file.", "type": "string" },
+                  "id": {
+                    "description": "The connection's id, when it has one.",
+                    "type": "string"
+                  },
+                  "from": { "description": "The id of the node it leaves.", "type": "string" },
+                  "to": { "description": "The id of the node it reaches.", "type": "string" },
+                  "relations": {
+                    "description": "The ids of the relations it is matched to.",
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            },
+            "unmatched": {
+              "description": "The nodes and the connections with no match.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["nodes", "connections"],
+              "properties": {
+                "nodes": {
+                  "description": "Each node with no match.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["file", "id"],
+                    "properties": {
+                      "file": { "description": "The diagram's file.", "type": "string" },
+                      "id": { "description": "The node's id in it.", "type": "string" }
+                    }
+                  }
+                },
+                "connections": {
+                  "description": "Each connection with no match.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["file", "from", "to"],
+                    "properties": {
+                      "file": { "description": "The diagram's file.", "type": "string" },
+                      "id": {
+                        "description": "The connection's id, when it has one.",
+                        "type": "string"
+                      },
+                      "from": { "description": "The id of the node it leaves.", "type": "string" },
+                      "to": { "description": "The id of the node it reaches.", "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "description": "An image of a page at one width.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "file"],
+      "properties": {
+        "width": { "description": "Its width in pixels.", "type": "integer" },
+        "file": { "description": "Its file in the delivery.", "type": "string" }
+      }
+    },
+    "plate": {
+      "description": "A plate of `plates`, as the drawing reports it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number", "views", "images", "face"],
+      "properties": {
+        "number": {
+          "description": "The plate's number, counted from 1 in reading order.",
+          "type": "integer"
+        },
+        "views": {
+          "description": "The ids of the views it draws.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "page": {
+          "description": "Its page in the PDF, counted from 1. Only a build that typesets the edition knows it; a check reports the record without it.",
+          "type": "integer"
+        },
+        "images": {
+          "description": "Its page's images at each width.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/image" }
+        },
+        "figures": {
+          "description": "The two files of its figure set alone, each with its format, the file's extension.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["format", "file"],
+            "properties": {
+              "format": { "description": "The file's format, its extension.", "type": "string" },
+              "file": { "description": "The file in the delivery.", "type": "string" }
+            }
+          }
+        },
+        "frame": {
+          "description": "Where the figure stands on its page, in points from the page's top left corner, and the scale of its drawing space in pixels per point.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y", "width", "height", "pixelsPerPoint"],
+          "properties": {
+            "x": { "description": "The figure's left edge, in points.", "type": "number" },
+            "y": { "description": "Its top edge, in points.", "type": "number" },
+            "width": { "description": "Its width, in points.", "type": "number" },
+            "height": { "description": "Its height, in points.", "type": "number" },
+            "pixelsPerPoint": {
+              "description": "The pixels of the drawing space in one point.",
+              "type": "number"
+            }
+          }
+        },
+        "scales": {
+          "description": "The scales its strips are drawn on, an empty list where the edition draws none, each as the property drawn with its unit, the value of the edition's largest part and the length in px that value is drawn at.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["property", "unit", "value", "length"],
+            "properties": {
+              "property": {
+                "description": "The property the strips are drawn for.",
+                "type": "string"
+              },
+              "unit": { "description": "Its unit.", "type": "string" },
+              "value": {
+                "description": "The value of the edition's largest part.",
+                "type": "number"
+              },
+              "length": {
+                "description": "The length that value is drawn at, in the drawing space.",
+                "type": "number"
+              }
+            }
+          }
+        },
+        "face": { "description": "What the plate drew, by id.", "$ref": "#/$defs/face" }
+      }
+    },
+    "face": {
+      "description": "What a plate drew, by id, in the numbers of its drawing space, which its SVG is written from. A face repeats no value of a fact: it names the element, and `facts` holds its values.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components", "groups", "relations"],
+      "properties": {
+        "components": {
+          "description": "Each component drawn, with the box it is set in.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/drawn" }
+        },
+        "groups": {
+          "description": "Each group drawn, with the box it is set in.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/drawn" }
+        },
+        "relations": {
+          "description": "Each relation drawn, in the order first stroked.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/faceRelation" }
+        }
+      }
+    },
+    "drawn": {
+      "description": "A component or a group as a plate drew it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "box"],
+      "properties": {
+        "id": { "description": "Its id.", "type": "string" },
+        "box": { "$ref": "#/$defs/box" }
+      }
+    },
+    "box": {
+      "description": "A box in the drawing space.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "description": "Its left edge.", "type": "number" },
+        "y": { "description": "Its top edge.", "type": "number" },
+        "width": { "description": "Its width.", "type": "number" },
+        "height": { "description": "Its height.", "type": "number" }
+      }
+    },
+    "faceRelation": {
+      "description": "A relation a plate drew: a relation of the model, or an overview's line that stands for several of them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "segments", "label"],
+      "properties": {
+        "id": { "description": "The relation's id, or the line's.", "type": "string" },
+        "from": { "description": "The id of the end it leaves.", "type": "string" },
+        "to": { "description": "The id of the end it reaches.", "type": "string" },
+        "text": {
+          "description": "For a relation of the model, its text, as the data's statement writes it.",
+          "type": "string"
+        },
+        "relations": {
+          "description": "For an overview's line, the ids of the relations of the model it stands for, in place of a text.",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "segments": {
+          "description": "Every stretch the relation is stroked on, in the order drawn, each a list of points `[x, y]`, so two relations that share a trunk both list it.",
+          "type": "array",
+          "items": { "type": "array", "items": { "$ref": "#/$defs/point" } }
+        },
+        "label": {
+          "description": "The box of its label, or null when the figure sets none.",
+          "anyOf": [{ "$ref": "#/$defs/box" }, { "type": "null" }]
+        }
+      }
+    },
+    "point": {
+      "description": "A point of the drawing space, `[x, y]`.",
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

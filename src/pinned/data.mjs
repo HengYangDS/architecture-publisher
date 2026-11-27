@@ -1,38 +1,20 @@
 import { MODEL } from "../names.mjs";
 import { refuse } from "../refusal.mjs";
+import { FORMAT, fieldsOf, nodeAt, shaped } from "./format.mjs";
 
 /**
- * The pinned edition as data: what a build holds of one work, written once, in the order the build holds it. The
- * work's fields and the statements stand in the model's order, the views in the plan's, the catalogue and the
- * facts in the layer's, the evidence by path and the plates by number, every key in one fixed place, so two builds
- * of one state write the same bytes. A value the build does not hold is absent, and never a zero, a null or a
- * default in its place. Everything is handed over as values: this unit reads no file and measures no fact.
+ * The pinned edition as data: what a build holds of one work, written once. The data's format (`data.schema.json`)
+ * states its members, every object's keys and their order, and the data is written in that shape (`shaped`); this
+ * unit states what each key holds. The work's fields and the statements stand in the model's order, the views in
+ * the plan's, the catalogue and the facts in the layer's, the evidence by path and the plates by number, so two
+ * builds of one state write the same bytes. A value the build does not hold is absent, and never a zero, a null or a
+ * default in its place. Everything is handed over as values, and this unit measures no fact; the one file it depends
+ * on, the format's schema, `format.mjs` reads once when it is loaded.
  *
- * @typedef {import("./evidence.mjs").EvidenceRow} EvidenceRow
- * @typedef {{ kind: string, id?: string, part?: string }} Subject
- * @typedef {{ property: string, of: Subject, value: any, unit: string, origin: string, from?: string | null }} Fact
- * @typedef {{ id: string, box: object }} FaceElement
- * @typedef {{ id: string, from: string, to: string, text?: string, relations?: string[], segments: unknown,
- *   label: object | null }} FaceRelation
- * @typedef {{ components: FaceElement[], groups: FaceElement[], relations: FaceRelation[] }} Face
- * @typedef {{ number: number, views: string[], page?: number, images: Array<{ width: number, file: string }>,
- *   figures?: Array<{ format: string, file: string }>, frame?: object,
- *   scales?: Array<{ property: string, unit: string, value: number, length: number }>, face: Face }} Plate
- *   One plate as the drawing reports it: its face is what was drawn, with the numbers of its drawing space.
+ * @typedef {import("../facts/catalogue.mjs").Fact} Fact
+ * @typedef {{ number: number, views: readonly string[] }} Plate
+ *   A plate's entry as `plateEntry` writes it, of which this unit reads its number and its views.
  */
-
-/**
- * An entry with the keys the build holds a value for: a key whose value is null or undefined is absent.
- * @template {Record<string, unknown>} T
- * @param {T} entry
- * @returns {Partial<T>}
- */
-const held = (entry) =>
-  /** @type {Partial<T>} */ (
-    Object.fromEntries(
-      Object.entries(entry).filter(([, value]) => value !== null && value !== undefined),
-    )
-  );
 
 /** A relation as a reader reads it: its two ends by id around the model's label. */
 const relationText = ({ from, to, label }) => `${from} —${label}→ ${to}`;
@@ -46,88 +28,43 @@ const relationText = ({ from, to, label }) => `${from} —${label}→ ${to}`;
 export const drawnRelations = (face) =>
   face.relations.flatMap((relation) => relation.relations ?? [relation.id]);
 
-/** The work as its model states it. */
-function workOf(model) {
-  return held({
-    id: model.id,
-    locale: model.locale,
-    title: model.title,
-    question: model.question,
-    summary: model.summary,
-    scope: model.scope,
-    limits: [...model.limits],
-    editors: model.editors.map(held),
-    license: model.license,
-    coverage:
-      model.coverage &&
-      held({
-        include: model.coverage.include,
-        exclude: model.coverage.exclude.map(({ path, reason }) => ({ path, reason })),
-      }),
-  });
-}
-
 /** The pin: the repository the model declares, the binding's state and, when measured, the date and the release. */
 function pinOf(model, state, facts) {
   const ofEdition = (name) =>
     facts.find(({ property, of }) => property === name && of.kind === "edition")?.value;
-  return held({
-    repository: model.repository && held({ ...model.repository }),
+  return {
+    repository: model.repository,
     state,
     date: ofEdition("pin-date"),
     release: ofEdition("pin-release"),
-  });
+  };
 }
 
-/** One planned view: what the plan put in it, by id, and the number of the plate that draws it. */
+/** One planned view: its fields as the plan holds them, what it puts in it by id, and the plate that draws it. */
 function viewOf(view, plates) {
-  return held({
-    id: view.id,
-    title: view.title,
-    question: view.question,
-    summary: view.summary,
-    origin: view.origin,
-    tiers: view.tiers?.map(({ id, label, members }) => ({ id, label, members: [...members] })),
+  return {
+    ...fieldsOf(nodeAt("/properties/views/items"), view),
     components: view.components.filter(({ group }) => !group).map(({ id }) => id),
     groups: view.components.filter(({ group }) => group).map(({ id }) => id),
     relations: [...new Set(drawnRelations(view))],
     plate: plates.find(({ views }) => views.includes(view.id))?.number,
-  });
+  };
 }
 
 /** Every component, relation and group of the model, each as its author stated it. */
 function statementsOf(model) {
-  const evidence = ({ status, details, files }) => ({
-    status,
-    details: Object.fromEntries(details.map(([name, values]) => [name, [...values]])),
-    files: [...files],
+  const stated = (statement) => ({
+    ...statement,
+    details: Object.fromEntries(statement.details),
     origin: "stated",
   });
   return {
-    components: model.components.map((component) =>
-      held({
-        id: component.id,
-        label: component.label,
-        kind: component.kind,
-        ...evidence(component),
-      }),
-    ),
-    relations: model.relations.map((relation) =>
-      held({
-        id: relation.id,
-        from: relation.from,
-        to: relation.to,
-        label: relation.label,
-        text: relationText(relation),
-        ...evidence(relation),
-      }),
-    ),
-    groups: model.groups.map(({ id, label, members }) => ({
-      id,
-      label,
-      members: [...members],
-      origin: "stated",
+    components: model.components.map(stated),
+    relations: model.relations.map((relation) => ({
+      ...stated(relation),
+      text: relationText(relation),
     })),
+    groups: model.groups.map((group) => ({ ...group, origin: "stated" })),
   };
 }
 
@@ -141,104 +78,49 @@ function factsOf(facts, catalogue) {
   const listed = new Set(catalogue.map(({ property }) => property));
   /** @type {Map<string, object>} */
   const written = new Map();
-  for (const { property, of, value, unit, origin, from } of facts) {
-    if (!listed.has(property))
+  for (const fact of facts) {
+    if (!listed.has(fact.property))
       refuse(
         "projection_fact_unknown",
-        `The data was handed a fact of the property ${property}, which the catalogue of measured facts does not list.`,
+        `The data was handed a fact of the property ${fact.property}, which the catalogue of measured facts does not list.`,
       );
-    const subject = held({ kind: of.kind, id: of.id, part: of.part });
-    const fact = { property, of: subject, value, unit, origin, ...(from ? { from } : {}) };
-    written.set(JSON.stringify(fact), fact);
+    const held = shaped(nodeAt("#/$defs/fact"), fact);
+    written.set(JSON.stringify(held), held);
   }
   return [...written.values()];
 }
 
 /**
- * One plate's record with its keys in one order; its page, the files of its figure set alone, its frame and its
- * scales stand when an edition was typeset.
- */
-function plateOf(plate) {
-  const element = ({ id, box }) => ({ id, box });
-  return held({
-    number: plate.number,
-    views: [...plate.views],
-    page: plate.page,
-    images: plate.images.map(({ width, file }) => ({ width, file })),
-    figures: plate.figures?.map(({ format, file }) => ({ format, file })),
-    frame: plate.frame,
-    scales: plate.scales,
-    face: {
-      components: plate.face.components.map(element),
-      groups: plate.face.groups.map(element),
-      relations: plate.face.relations.map(({ id, from, to, text, relations, segments, label }) => ({
-        id,
-        from,
-        to,
-        ...(relations ? { relations: [...relations] } : { text }),
-        segments,
-        label,
-      })),
-    },
-  });
-}
-
-/**
- * The data of one delivery, its members in their order.
+ * The data of one delivery, in the shape its format states.
  * @param {{
- *   delivery: { format: string, version: number }, publisher: { name: string, version: string },
- *   model: any, file: { sha256: string, bytes: number, format: string, version: number },
- *   state: "verified" | "unverified" | "none", views: readonly any[], plates?: readonly Plate[],
- *   facts: readonly Fact[], catalogue: ReadonlyArray<{ property: string, of: readonly string[], unit: string,
- *     origin: string, from: string, spans?: readonly number[] }>,
- *   evidence: readonly EvidenceRow[],
- *   guide?: { path: string, sha256: string, files: ReadonlyArray<{ name: string, sha256: string }>,
- *     sources: string, figures?: object } | null,
- *   overview?: { statement: string, images: ReadonlyArray<{ width: number, file: string }> } | null,
- *   media: readonly string[],
- * }} build the validated model; its file's digest, size, format and version; the binding's state; the planned
- *   views; the plates as the drawing reports them; the layer's facts and catalogue; the evidence table; the guide's
- *   record with its matched figures; the overview's statement's digest and images; and the media delivered
+ *   delivery: object, publisher: object, model: any, file: object, state: "verified" | "unverified" | "none",
+ *   views: readonly any[], plates?: readonly Plate[], facts: readonly Fact[],
+ *   catalogue: ReadonlyArray<{ property: string }>, evidence: readonly object[],
+ *   guide?: Record<string, unknown> | null, overview?: object | null, media: readonly string[],
+ * }} build the delivery's format and version; the publisher's name and version; the validated model; its file's
+ *   digest, size, format and version; the binding's state; the planned views; the plates as `plateEntry` writes
+ *   them; the layer's facts and catalogue; the evidence table; the guide's summary with its matched figures; the
+ *   overview's statement's digest and images; and the media delivered
  */
 export function editionData(build) {
-  const { model, facts, catalogue, guide = null, overview = null } = build;
+  const { model, facts, catalogue } = build;
   const plates = [...(build.plates ?? [])].sort((a, b) => a.number - b.number);
-  return held({
-    delivery: { format: build.delivery.format, version: build.delivery.version },
-    publisher: { name: build.publisher.name, version: build.publisher.version },
-    work: workOf(model),
-    model: {
-      file: MODEL,
-      sha256: build.file.sha256,
-      bytes: build.file.bytes,
-      format: build.file.format,
-      version: build.file.version,
-    },
+  return shaped(FORMAT, {
+    delivery: build.delivery,
+    publisher: build.publisher,
+    work: fieldsOf(nodeAt("/properties/work"), model),
+    model: { file: MODEL, ...build.file },
     pin: pinOf(model, build.state, facts),
     views: build.views.map((view) => viewOf(view, plates)),
     statements: statementsOf(model),
-    catalogue: catalogue.map(({ property, of, unit, origin, from, spans }) =>
-      held({ property, of: [...of], unit, origin, from, spans: spans && [...spans] }),
-    ),
+    catalogue: catalogue.map((entry) => fieldsOf(nodeAt("/properties/catalogue/items"), entry)),
     facts: factsOf(facts, catalogue),
-    evidence: [...build.evidence],
-    guide:
-      guide &&
-      held({
-        path: guide.path,
-        sha256: guide.sha256,
-        files: guide.files.map(({ name, sha256 }) => ({ name, sha256 })),
-        sources: guide.sources,
-        figures: guide.figures,
-      }),
+    evidence: build.evidence,
+    guide: build.guide && fieldsOf(nodeAt("#/$defs/guide"), build.guide),
     // The overview's page is drawn from the model's statement in Typst, not by the engine, so it has images and no face.
-    overview: overview && {
-      statement: overview.statement,
-      images: overview.images.map(({ width, file }) => ({ width, file })),
-      face: false,
-    },
-    plates: plates.map(plateOf),
-    media: [...build.media],
+    overview: build.overview && { ...build.overview, face: false },
+    plates,
+    media: build.media,
   });
 }
 

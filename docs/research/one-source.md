@@ -248,9 +248,10 @@ tables that key their data by them, from which the schema's enumerations are wri
 host, in the proof and on both Forges' runners.
 
 Three things were decided to be their own source and stay by hand: the data reference's tables of the data's members
-and of an evidence row's keys, which state the delivery format and which the tests hold the data to; the terms
-reference, which states the product's vocabulary and which the tests hold the words to; and the model reference's
-advice on which address to state, which no code states. What is left, and why it is left:
+and of an evidence row's keys, which then stated the delivery format, until the schema took their place (see "The
+data's format as a schema (2026-11-28)" below); the terms reference, which states the product's vocabulary and which
+the tests hold the words to; and the model reference's advice on which address to state, which no code states. What
+is left, and why it is left:
 
 - A length is counted in UTF-16 units by the loader and in code points by a JSON Schema validator; the requirement
   that states the vocabulary once names this exception.
@@ -260,7 +261,7 @@ advice on which address to state, which no code states. What is left, and why it
   by place, for the item that takes them up.
 - The current model version `3` stands by hand in the model reference's smallest model, an example an author
   copies; its row of `version` is written from the schema's `const`.
-- The delivery format has no machine-readable statement of its keys; no consumer reads one today.
+- The delivery format had no machine-readable statement of its keys; it has one since 2026-11-28 (below).
 
 ## Prose that names a set the source states (2026-11-27)
 
@@ -281,6 +282,17 @@ Each place, with the source that states the set:
 - `README.md` and `docs/how-to.md`: the release's platforms.
 - `docs/glossary.md`: the names of the data, the manifest, the page, the print edition, the reader file and the
   delivery's contents (`src/delivery.json`), and the four balance gates.
+
+## The data's format as a schema (2026-11-28)
+
+On 2026-11-28 the owner chose a machine-readable statement of the data's format. `src/pinned/data.schema.json` is now
+its one statement: the publisher writes each object of the data in the shape it states, its keys and their order
+(`src/pinned/format.mjs`); the data reference's tables are written from its descriptions; and the tests hold every
+data file they build to it. This replaces the decision of 2026-11-26 that the data reference's tables were the
+format's own statement. Two places of the list above are written from their sources since: the four ids that would
+give two files one name, from `src/delivery.json`, and the keys of a plate's record and face and of a component, a
+relation, a group and a fact, from the schema. What is left is the skill's list of the four ids, which
+`archpub skill` prints as the skill states it.
 
 ## What is not established
 

@@ -1,11 +1,12 @@
 // The blocks references.mjs writes from the command line's sources: how a command ends (src/cli/outcomes.json), the
-// codes it raises or reports (src/refusal.json), its commands as it catalogues them (`archpub --help --json`) and a
-// refusal as the terminal shows it.
+// codes it raises or reports (src/refusal.json, a meaning's placeholders filled from their own sources), its commands
+// as it catalogues them (`archpub --help --json`) and a refusal as the terminal shows it.
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { code, listed, readJson, table } from "./text.mjs";
+import { deliveryFiles } from "./delivery.mjs";
+import { code, either, listed, readJson, table } from "./text.mjs";
 
 /** @param {readonly string[]} codes */
 const named = (codes) => codes.map(code).join(", ");
@@ -16,8 +17,13 @@ const named = (codes) => codes.map(code).join(", ");
  */
 export async function commandLineBlocks(root) {
   const { engines } = await readJson(root, "package.json");
-  /** A registered meaning as the reference prints it: `{typst}` is the Typst release the package needs. */
-  const meant = (/** @type {string} */ text) => text.replaceAll("{typst}", engines?.typst);
+  const { taken } = await deliveryFiles(root);
+  /**
+   * A registered meaning as the reference prints it: `{typst}` is the Typst release the package needs, and `{taken}`
+   * the ids a model may not take, as a delivery's files decide them.
+   */
+  const meant = (/** @type {string} */ text) =>
+    text.replaceAll("{typst}", engines?.typst).replaceAll("{taken}", either(taken.ids.map(code)));
 
   // The registry holds each code once; a code `with` another shares that code's row, in the registry's order.
   const registry = await readJson(root, "src/refusal.json");

@@ -6,13 +6,15 @@
 // Prettier: its content outside the enumerations stays the authors', its layout is the writer's (an inline object or
 // an escaped character that the format check accepts is written out again, and `check:generated` refuses it until
 // `--write` is run). Each family of sources states its blocks in a module of its own under references/: the model's
-// (model.mjs), the command line's (command-line.mjs), and what the command needs, bundles, releases and delivers
-// (operations.mjs); this module reads the tree, finds each block between its comment lines and writes or checks it.
+// (model.mjs), the command line's (command-line.mjs), what the command needs, bundles, releases and delivers
+// (operations.mjs), and the data's format (data.mjs), the last three reading a delivery's files through delivery.mjs;
+// this module reads the tree, finds each block between its comment lines and writes or checks it.
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { format, resolveConfig } from "prettier";
 import { commandLineBlocks } from "./references/command-line.mjs";
+import { dataBlocks } from "./references/data.mjs";
 import { modelBlocks } from "./references/model.mjs";
 import { operationsBlocks } from "./references/operations.mjs";
 
@@ -31,7 +33,12 @@ const root = rest.length
 
 const operations = await operationsBlocks(root);
 const model = await modelBlocks(root);
-const BLOCKS = [...model.blocks, ...(await commandLineBlocks(root)), ...operations];
+const BLOCKS = [
+  ...model.blocks,
+  ...(await commandLineBlocks(root)),
+  ...operations,
+  ...(await dataBlocks(root)),
+];
 
 const begin = ({ name, source }) =>
   `<!-- ${name}: written from ${source} by tools/docs/references.mjs; do not edit -->`;

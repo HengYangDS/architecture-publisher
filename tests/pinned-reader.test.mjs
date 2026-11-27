@@ -166,10 +166,10 @@ test("a view with a summary states it, and one with a hub states the hub as meas
     "- counted from the model: `hub` `store`",
     "- measured at the pin: `bands-shown` `3 bands`",
   ]);
-  // A view that asks no question is headed by its title, whichever view comes first.
-  const unasked = { ...core, question: null };
-  const titled = await shopReader("en", {}, { views: [unasked, input.views[0]] });
-  assert.deepEqual(headings(titled.text).slice(3, 5), ["## Core", `## ${input.model.question}`]);
+  // Every view asks a question, as the data's format requires; the view that asks it second is headed by its title,
+  // whichever view comes first.
+  const titled = await shopReader("en", {}, { views: [core, input.views[0]] });
+  assert.deepEqual(headings(titled.text).slice(3, 5), [`## ${input.model.question}`, "## Shop"]);
 });
 
 test("the guide's part follows one heading as prose, and no line of it is taken for a statement", async () => {

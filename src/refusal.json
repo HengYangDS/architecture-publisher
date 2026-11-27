@@ -262,7 +262,7 @@
   },
   "delivery_name_taken": {
     "section": "refusal",
-    "meaning": "The model's id is `model`, `manifest`, `acceptance` or `colophon`, so two files of its delivery would share one name; give the model another id."
+    "meaning": "The model's id is {taken}, so two files of its delivery would share one name; give the model another id."
   },
   "reader_ids_differ": {
     "section": "refusal",

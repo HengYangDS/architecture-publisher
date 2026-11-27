@@ -78,6 +78,9 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ],
       ["docs/reference/operations.md", "`commander` 15.1.0", "`commander` 15.0.0"],
       ["docs/reference/operations.md", "`TMP` and `SystemRoot`.", "`TMP`."],
+      ["docs/reference/data.md", "`acceptance` or `colophon`", "`acceptance`"],
+      ["docs/reference/data.md", "pin: `verified` or `unverified`.", "pin."],
+      ["docs/reference/data.md", "| `media`      |", "| `formats`    |"],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
@@ -207,6 +210,69 @@ test("the writer writes the release's platforms, an archive's members, the bundl
     const unnamed = await writer("--check", dir);
     assert.equal(unnamed.code, 1);
     assert.match(unnamed.stderr, /references_platform_unnamed: freebsd-arm64/u);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("the writer writes the data reference from the data's schema, and the ids a model may not take from a delivery's files", async () => {
+  const dir = await tree();
+  /** Rewrite a JSON file of the tree. @param {string} file @param {(value: any) => void} change */
+  const editJson = async (file, change) => {
+    const target = path.join(dir, file);
+    const value = JSON.parse(await fs.readFile(target, "utf8"));
+    change(value);
+    await fs.writeFile(target, `${JSON.stringify(value, null, 2)}\n`);
+  };
+  const read = (/** @type {string} */ file) => fs.readFile(path.join(dir, file), "utf8");
+  try {
+    // A key's description changes, an entry gains a key, and a delivery names a file of its own that a model's
+    // data would take the name of.
+    await editJson("src/pinned/data.schema.json", (schema) => {
+      schema.$defs.evidenceRow.properties.owner.description = "The component that owns it.";
+      schema.$defs.group.properties.kind = { description: "Its kind.", type: "string" };
+    });
+    await editJson("src/delivery.json", (table) => {
+      table.files.push({
+        role: "index",
+        name: "index.json",
+        when: "always",
+        holds: "An index.",
+        called: "the index",
+      });
+    });
+    const refused = await writer("--check", dir);
+    assert.equal(refused.code, 1);
+    for (const document of ["data", "refusals", "operations"])
+      assert.match(
+        refused.stderr,
+        new RegExp(`references_drift: docs/reference/${document}\\.md: run`, "u"),
+      );
+    assert.equal((await writer("--write", dir)).code, 0);
+    const data = await read("docs/reference/data.md");
+    assert.match(data, /\n\| `owner` +\| The component that owns it\. +\|\n/u);
+    assert.match(
+      data,
+      /\n\| `origin` +\| Who made the statement[^\n]+\n\| `kind` +\| Its kind\. +\|\n/u,
+    );
+    assert.match(
+      data,
+      /\nA model whose id is `model`, `manifest`, `acceptance`, `colophon` or `index` would give two files of its delivery one name: .* and `index\.json` would be both its data and the index\.\n/u,
+    );
+    assert.match(
+      await read("docs/reference/refusals.md"),
+      /\| The model's id is `model`, `manifest`, `acceptance`, `colophon` or `index`, so two files /u,
+    );
+    // A key the schema says nothing of stops the writer, naming it.
+    await editJson("src/pinned/data.schema.json", (schema) => {
+      delete schema.$defs.plate.properties.page.description;
+    });
+    const silent = await writer("--check", dir);
+    assert.equal(silent.code, 1);
+    assert.match(
+      silent.stderr,
+      /references_description_missing: src\/pinned\/data\.schema\.json says nothing of #\/\$defs\/plate\/properties\/page/u,
+    );
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }

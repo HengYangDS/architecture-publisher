@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import FORMAT from "../src/pinned/data.schema.json" with { type: "json" };
 import { evidenceTable } from "../src/pinned/evidence.mjs";
-import { statedKeys } from "./fixtures/data-format.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import { CITATIONS, READ, bindingOf, sha256, shopModel } from "./fixtures/pinned.mjs";
 
 const rowOf = (table, path) => table.find((row) => row.path === path);
 
-test("a file a part owns, a relation cites and the guide cites stands once, with all three", async () => {
+test("a file a part owns, a relation cites and the guide cites stands once, with all three", () => {
   const { records } = bindingOf(shopModel());
   const table = evidenceTable({ records, citations: CITATIONS, read: READ });
   assert.deepEqual(
@@ -28,8 +29,9 @@ test("a file a part owns, a relation cites and the guide cites stands once, with
       { where: "parts.architecture.json/components/1/sources/0" },
     ],
   });
-  // The keys stand in one order, the data reference's, so two builds write the same bytes.
-  assert.deepEqual(Object.keys(row), await statedKeys("Key"));
+  // The keys stand in one order, the data's schema's, so two builds write the same bytes.
+  assert.deepEqual(Object.keys(row), Object.keys(FORMAT.$defs.evidenceRow.properties));
+  assert.deepEqual(formatProblems(table, "/properties/evidence"), []);
   assert.deepEqual(Object.keys(row.ranges[0]), ["lines", "where"]);
   // A file no citation of the guide names holds an empty list of ranges.
   assert.deepEqual(rowOf(table, "src/sync/b.go").ranges, []);

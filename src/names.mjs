@@ -75,19 +75,42 @@ export const IMAGES = DELIVERY.plateImage.split("/")[0];
 /** The directory of each plate's figure set alone. */
 export const FIGURES = DELIVERY.figure.split("/")[0];
 
+/** The roles of the files a delivery names by its model's id: the rows of the table whose pattern holds the id. */
+const BY_ID = DELIVERY_FILES.files
+  .filter((row) => row.name.includes("{id}"))
+  .map((row) => row.role);
+
 /**
- * The files a delivery names by its model's id: the print edition, the page, the data and the reader file.
+ * The files a delivery names by its model's id, by role, in the table's order.
  * @param {string} id the model's id
  */
 export const filesOf = (id) =>
   Object.freeze(
-    Object.fromEntries(
-      ["edition", "page", "data", "reader"].map((role) => [
-        role,
-        DELIVERY[role].replace("{id}", id),
-      ]),
-    ),
+    Object.fromEntries(BY_ID.map((role) => [role, DELIVERY[role].replace("{id}", id)])),
   );
+
+/**
+ * The ids a model may not take: an id that names a file of its delivery as the delivery names a file whatever its
+ * model, one a refusal can call, so that two of its files would share one name. Each with that name, the role of the
+ * file the id names and the role of the file whose name it takes, in the table's order of the second.
+ * @type {ReadonlyArray<{ id: string, file: string, role: string, takes: string }>}
+ */
+export const TAKEN = Object.freeze(
+  DELIVERY_FILES.files
+    .filter((fixed) => fixed.called && !DELIVERY[fixed.role].includes("{"))
+    .flatMap((fixed) =>
+      BY_ID.flatMap((role) => {
+        const [before, after] = DELIVERY[role].split("{id}");
+        const file = DELIVERY[fixed.role];
+        const fits =
+          file.length > before.length + after.length &&
+          file.startsWith(before) &&
+          file.endsWith(after);
+        const id = file.slice(before.length, file.length - after.length);
+        return fits ? [Object.freeze({ id, file, role, takes: fixed.role })] : [];
+      }),
+    ),
+);
 
 /**
  * A number as the edition sets it, in two digits at least.

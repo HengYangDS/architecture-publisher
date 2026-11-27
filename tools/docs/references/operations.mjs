@@ -5,6 +5,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { lockedPlatforms } from "../../release/archive/assemble.mjs";
+import { deliveryFiles } from "./delivery.mjs";
 import { code, listed, readJson, stated, table } from "./text.mjs";
 
 // mise names a platform by its system and its processor; a reader knows each by the words below, and a platform of
@@ -111,31 +112,15 @@ export async function operationsBlocks(root) {
   const variables = passed.map((name) => stated(VARIABLES, name, "name of a passed variable"));
   const variablesList = () => `${listed(variables.map(code))}.`;
 
-  // A delivery's files, as the table beside the names states them (src/delivery.json), with the default width it
-  // states and the delivered model's name the shared table gives (src/shared.json).
-  const delivery = await readJson(root, "src/delivery.json");
-  const shared = await readJson(root, "src/shared.json");
-  const defaultWidth = String(delivery.defaultWidth);
-  /** A file's name as the reference prints it: `{id}` as `<model id>`, a part of a pattern in angle brackets. */
-  const shown = (/** @type {string} */ name) =>
-    name
-      .split(", ")
-      .map(
-        (part) =>
-          `\`${part
-            .replace("{shared}", shared.delivered.model)
-            .replace("{id}", "<model id>")
-            .replace("{NN}", "NN")
-            .replace(/\{(\w+)\}/gu, "<$1>")}\``,
-      )
-      .join(", ");
+  // A delivery's files, as the table beside the names states them with the default width of an image.
+  const delivery = await deliveryFiles(root);
   const deliveryTable = () =>
     table(
       ["File", "Written", "Content"],
-      delivery.files.map((/** @type {any} */ row) => [
-        shown(row.name),
+      delivery.rows.map((/** @type {any} */ row) => [
+        delivery.shown(row),
         row.when,
-        row.holds.replace("{default}", defaultWidth),
+        row.holds.replace("{default}", String(delivery.defaultWidth)),
       ]),
     );
 

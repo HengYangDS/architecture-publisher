@@ -10,6 +10,7 @@ import { validateModel } from "../src/model/load.mjs";
 import { bindSources } from "../src/sources/bind.mjs";
 import { commitDate, commitOf, commitTime, releaseOf } from "../src/sources/git.mjs";
 import { editionStyle } from "../src/style.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import { minimalModel, pageModel, temporaryDirectory, writeModel } from "./fixtures/models.mjs";
 import { repository } from "./fixtures/repository.mjs";
 import { icons, platesIn } from "./fixtures/strips.mjs";
@@ -25,9 +26,10 @@ async function manifestOf(t, model, checkout) {
   const options = { repo: checkout, media: ["edition"], png: [240] };
   await buildDelivery(await writeModel(t, model), out, options);
   const manifest = await readJson(path.join(out, "manifest.json"));
-  // The record of each file read at the pin stands in the data the manifest names.
-  const { evidence } = await readJson(path.join(out, manifest.data.file));
-  return { ...manifest, evidence };
+  // The record of each file read at the pin stands in the data the manifest names, which holds to its format.
+  const data = await readJson(path.join(out, manifest.data.file));
+  assert.deepEqual(formatProblems(data), []);
+  return { ...manifest, evidence: data.evidence };
 }
 
 test("a revision the checkout lacks is refused before the edition's style is resolved", async (t) => {

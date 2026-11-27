@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { buildDelivery, checkModel, digestTree } from "../src/build.mjs";
 import { acceptDelivery, publishDelivery } from "../src/delivery.mjs";
+import { formatProblems } from "./fixtures/data-format.mjs";
 import {
   BIG_BANK_MODEL,
   minimalModel,
@@ -224,6 +225,7 @@ test("files verified against the checkout are recorded and cited on the page at 
   // manifest keeps the binding's state and the number of files it recorded.
   assert.deepEqual(manifest.sources, { state: "verified", count: 1 });
   const data = await readJson(path.join(out, "page.json"));
+  assert.deepEqual(formatProblems(data), []);
   assert.deepEqual(
     data.evidence.map(({ path: file, owner, relations: citing, state }) => [
       file,

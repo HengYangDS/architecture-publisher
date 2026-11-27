@@ -82,6 +82,10 @@ command line reads. `src/environment.json` is the sole source of the variables
 a child process receives from the publisher's caller, and
 `tools/release/archive/members.json` of a release archive's members. The
 release's platforms are those `mise.lock` pins both Node.js and Typst for.
+`src/pinned/data.schema.json` is the sole statement of a delivery's data: its
+members and the keys of each entry, in their order, with their types and
+descriptions. The publisher writes the data in the shape it states, and the
+tests hold every data file they build to it.
 
 ## Written reference tables
 
