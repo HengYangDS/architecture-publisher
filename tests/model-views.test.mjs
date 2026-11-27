@@ -101,5 +101,41 @@ test("declared views resolve their tiers", () => {
     summary: null,
     tiers: null,
     members: ["a", "b"],
+    composition: null,
   });
+});
+
+test("a view may name its plate's composition, one the schema states, and the loader refuses another", async () => {
+  const schema = JSON.parse(
+    await fs.readFile(new URL("../src/model/schema.json", import.meta.url), "utf8"),
+  );
+  assert.deepEqual(schema.properties.views.items.properties.composition.enum, ["tiers", "matrix"]);
+  const model = validateModel(
+    minimalModel({
+      groups: [{ id: "g", label: "G", members: ["a", "b"] }],
+      views: [
+        { id: "v", members: ["a", "b"], composition: "matrix" },
+        { id: "w", tiers: ["g"], composition: "tiers" },
+        { id: "x", members: ["a"] },
+      ],
+    }),
+  );
+  assert.deepEqual(
+    model.views.map(({ composition }) => composition),
+    ["matrix", "tiers", null],
+  );
+  assert.deepEqual(
+    problemsOf(
+      minimalModel({
+        views: [
+          { id: "v", members: ["a"], composition: "radial" },
+          { id: "w", members: ["a"], composition: null },
+        ],
+      }),
+    ),
+    [
+      "model_composition_invalid /views/0/composition",
+      "model_composition_invalid /views/1/composition",
+    ],
+  );
 });

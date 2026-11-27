@@ -41,7 +41,7 @@ function strokedFor({ relations, points }, standsOn) {
 }
 
 /** A relation as a path's report names it: its ends, its label and, for an overview's line, the relations it stands for. */
-const named = ({ id, from, to, label, relations }) => ({
+export const named = ({ id, from, to, label, relations }) => ({
   id,
   from,
   to,
@@ -227,6 +227,29 @@ const statusOf = (relations) =>
       ? "planned"
       : null;
 
+/**
+ * What a mark that stands for some relations carries by the table of lines, whether it is a line or a matrix's
+ * cell: its relations' status, retired before planned; whether it carries emphasis, as a mark into the view's hub
+ * does unless it is retired; its colour, faint for a retired mark and the oldest dye for an emphasised one; its
+ * weight; its pattern, or none; and the rows of the table it draws.
+ * @param {ReadonlyArray<{ to: string, status?: string | null }>} relations
+ * @param {string | null} hub the view's hub, or none where the edition draws no strips
+ * @param {ReturnType<typeof import("./tokens.mjs").linesOf>} lines
+ * @param {{ faint: string, line: string, dye: readonly string[] }} colors
+ */
+export function lineLook(relations, hub, lines, colors) {
+  const status = statusOf(relations);
+  const heavy = hub !== null && status !== "retired" && relations.every(({ to }) => to === hub);
+  return {
+    status,
+    heavy,
+    color: status === "retired" ? colors.faint : heavy ? colors.dye[2] : colors.line,
+    weight: lines.stroke(heavy),
+    dash: status ? lines.status(status) : null,
+    rows: [heavy ? "emphasis" : "relation", ...(status ? [status] : [])],
+  };
+}
+
 /** A point moved toward another by a distance. */
 const toward = ([x, y], [tx, ty], by) => {
   const length = Math.hypot(tx - x, ty - y);
@@ -260,23 +283,20 @@ export function drawLines(layout, scene) {
   const { at, down, text, shapes, rects } = scene;
   const seen = scene.facts ? scene.facts.view(view) : null;
   const hub = seen ? seen.hub : null;
-  const emphasised = (relations) =>
-    hub !== null && statusOf(relations) !== "retired" && relations.every(({ to }) => to === hub);
-  const colorOf = (relations) =>
-    statusOf(relations) === "retired" ? C.faint : emphasised(relations) ? C.dye[2] : C.line;
+  const look = (relations) => lineLook(relations, hub, lines, C);
   const arrows = layout.arrows.map((arrow) => {
-    const heavy = emphasised(arrow.relations);
+    const { heavy, color } = look(arrow.relations);
     const size = metrics.wire.arrow * lines.arrow(heavy);
     const tip = { ...arrow, x: at(arrow.x), y: down(arrow.y) };
-    return { heavy, size, tip, corners: headOf(tip, size), color: colorOf(arrow.relations) };
+    return { heavy, size, tip, corners: headOf(tip, size), color };
   });
   const paths = layout.paths.map(({ relations, points }) => {
-    const heavy = emphasised(relations);
+    const { heavy, weight } = look(relations);
     return {
       relations,
       heavy,
       moved: points.map(([x, y]) => [at(x), down(y)]),
-      weight: lines.stroke(heavy),
+      weight,
     };
   });
   /** @type {Set<string>} */
@@ -306,12 +326,10 @@ export function drawLines(layout, scene) {
   const standsOn = partAt(layout);
   const stroked = [];
   for (const [index, { relations, heavy, moved, weight }] of paths.entries()) {
-    const status = statusOf(relations);
-    const dash = status ? ` stroke-dasharray="${lines.status(status)}"` : "";
-    const color = colorOf(relations);
+    const { color, dash: pattern, rows: marked } = look(relations);
+    const dash = pattern ? ` stroke-dasharray="${pattern}"` : "";
     const ink = { kind: "stroke", weight: DARKNESS.stroke * darkness(color, C.paper) };
-    rows.add(heavy ? "emphasis" : "relation");
-    if (status) rows.add(status);
+    for (const row of marked) rows.add(row);
     // A heavy line stops half a head short of each tip it carries, inside the head.
     const headAt = (point) =>
       arrows.find(

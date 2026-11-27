@@ -74,6 +74,7 @@ export function normalize(value, parts) {
         summary: view.summary ?? null,
         tiers: view.tiers,
         members: view.members ? [...view.members] : null,
+        composition: view.composition ?? null,
       })) ?? null,
     coverage: normalizeCoverage(value.coverage),
     overview: value.overview ?? null,

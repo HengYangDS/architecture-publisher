@@ -11,6 +11,7 @@ import { checkCoverage, isGuidePath, isRelativePath } from "./paths.mjs";
 import {
   BROWSE,
   CATEGORIES,
+  COMPOSITIONS,
   DEFAULT_CATEGORY,
   DETAIL_NAME,
   ICON,
@@ -413,6 +414,12 @@ function checkViews(problems, value, componentIds, groupIds) {
         checkReferences(problems, entry.members, `${path}/members`, componentIds, "component", {
           least: LEAST.viewMembers,
         });
+      if (entry.composition !== undefined && !COMPOSITIONS.includes(entry.composition))
+        problems.add(
+          "model_composition_invalid",
+          `${path}/composition`,
+          `must be one of ${COMPOSITIONS.join(", ")}`,
+        );
       return true;
     },
     { minimum: LEAST.views },

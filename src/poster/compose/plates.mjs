@@ -10,6 +10,7 @@ import { stripKey } from "../strip.mjs";
 import { platesOf } from "../plate.mjs";
 import { HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
 import { gateFailures } from "./gates.mjs";
+import { matrices, matrixKey, matrixSample } from "./matrix.mjs";
 
 /**
  * What every composition of an edition's plates shares: the model, its
@@ -50,20 +51,26 @@ export function gutterFor(typefaces, labels) {
  * where the edition draws strips. Then the boundary, where the figure draws it, by the shape the table of lines
  * names for its row; the ground of a part outside it, where the view shows a part on that ground; and the statuses
  * present, each by its row's shape. The key lists no kind, since every card sets its kind's icon before the kind's
- * label.
+ * label. A plate drawn as a matrix draws no line: its key names its cells' marks in place of the lines' samples, and
+ * draws the boundary and the statuses as the matrix draws them.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {string} boundary
  * @param {import("../strip.mjs").Style} drawn the style the plate is drawn in
  * @param {readonly string[]} rows the rows of the table of lines the figure draws
+ * @param {{ side: number }} [matrix] the measures of the cells of a figure drawn as a matrix
  */
-function legendOf(model, view, boundary, drawn, rows) {
+function legendOf(model, view, boundary, drawn, rows, matrix) {
   const words = wordsOf(model.locale);
   const lines = linesOf(drawn.lines);
   const keyed = (row) => (rows.includes(row) ? lines.key(row) : null);
-  const key = stripKey(model, view, drawn, rows);
+  const key = matrix
+    ? matrixKey(model, view, drawn, rows, matrix)
+    : stripKey(model, view, drawn, rows);
+  /** A row's sample: the shape its row of lines names, or the mark a matrix draws for it. */
+  const sample = (row, shape) => (matrix ? matrixSample(drawn, matrix, row) : { shape });
   const frame = keyed("boundary");
-  if (frame) key.push({ shape: frame, label: words.inside(boundary) });
+  if (frame) key.push({ ...sample("boundary", frame), label: words.inside(boundary) });
   // Two sorts of part stand on the outside ground, and the key says of each what is true of it: a part outside
   // the repository stands outside the boundary's frame; a neighbour that a group's view shows as context lies
   // inside the repository and outside the group.
@@ -73,7 +80,7 @@ function legendOf(model, view, boundary, drawn, rows) {
     key.push({ shape: "outside", label: words.context });
   for (const status of /** @type {const} */ (["planned", "retired"])) {
     const shape = keyed(status);
-    if (shape) key.push({ shape, label: words[status] });
+    if (shape) key.push({ ...sample(status, shape), label: words[status] });
   }
   return key;
 }
@@ -129,6 +136,55 @@ const STANDFIRST = Object.freeze({
 
 /** The shares of the body's width a figure may take, widest first. */
 const SHARES = Object.freeze([1, 0.8, 0.65]);
+
+/**
+ * The matrix's rule: a view that names no composition, declares no tiers and has at least `parts` parts is drawn as
+ * a matrix when its figure in tiers at the full width has at least `routes` route defects, the layout's measure of
+ * wiring a reader misreads (`src/layout/measure.mjs`), and a matrix fits the box its plate in tiers keeps. `parts`
+ * is the owner's approved plan's of 2026-11-11. `routes` was calibrated on 2026-11-27 on readers' picks: six blind
+ * readers, agents and not people, three to a pair, chose between the two drawings of each of the 51 views, in eleven
+ * editions of the six published works, that have that many parts and declare no tiers. The rule agrees with the
+ * majority on 43 of the 50 pairs that have one, and on 41 when each edition in turn is judged by the number the
+ * others pick. Crossings and bends a relation agree on fewer, and are not part of it. The balance gates never choose
+ * a matrix.
+ */
+const MATRIX_RULE = Object.freeze({ parts: 8, routes: 2 });
+
+/**
+ * The composition a view is drawn in where one of that kind fits: the one its author names, or by the matrix's rule
+ * a matrix and the grid of tiers otherwise.
+ * @param {{ composition?: "tiers" | "matrix" | null, tiers: unknown[] | null, components: unknown[] }} view
+ * @param {number} routes the route defects of its figure in tiers at the full width
+ * @returns {"tiers" | "matrix"}
+ */
+export function compositionOf(view, routes) {
+  if (view.composition) return view.composition;
+  return !view.tiers && view.components.length >= MATRIX_RULE.parts && routes >= MATRIX_RULE.routes
+    ? "matrix"
+    : "tiers";
+}
+
+/**
+ * What a build says of the compositions authors name: each view whose plate could not be drawn in the composition
+ * it names, and is drawn in tiers.
+ * @param {Array<{ views: string[], unfitted?: string }>} plates
+ * @returns {Array<import("../../refusal.mjs").Problem>}
+ */
+export function compositionWarnings(plates) {
+  /** @type {Array<import("../../refusal.mjs").Problem>} */
+  const unfitted = plates.flatMap(({ views: [id], unfitted: named }) =>
+    named
+      ? [
+          {
+            code: "plate_composition_unfitted",
+            path: `/views/${id}/composition`,
+            message: `View ${id} names the composition ${named}, which does not fit the box its plate keeps; the plate is drawn in tiers.`,
+          },
+        ]
+      : [],
+  );
+  return unfitted;
+}
 
 const compare = (a, b) => {
   for (let index = 0; index < a.length; index += 1)
@@ -357,10 +413,37 @@ function withDetails(scene, view, compact) {
 }
 
 /**
+ * A view drawn as a matrix: in the box the grid of tiers keeps beside or under its reading, so the reading and its
+ * content are the plate's whatever its figure, at the largest type step a matrix fits at there; or null when none
+ * fits, and the plate keeps its grid.
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} tiers the grid the plate is drawn in otherwise
+ */
+function matrixOf(scene, view, tiers) {
+  const { width, height } = tiers;
+  const one = [...matrices(scene, view, { x: 0, y: 0, width, height })].at(-1);
+  if (!one) return null;
+  const paper = scene.style.tokens.palette.paper;
+  const balance = balanceOfPlate(one, scene.typefaces, width, height, paper);
+  return {
+    one,
+    matrix: true,
+    centring: null,
+    tierLabels: null,
+    balance,
+    width,
+    height,
+  };
+}
+
+/**
  * Compose every view of a model as one plate each, its figure at the width the plate width rule gives it: the
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
  * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
- * Each plate carries its figure's report of what it drew, as the drawing handed it back.
+ * Each plate carries its figure's report of what it drew, as the drawing handed it back. A plate is drawn as a
+ * matrix where its view names one or the matrix's rule takes one, in the box its tiers would have, and records that
+ * kind; a matrix its view names that does not fit there leaves the plate in tiers, and the plate says so.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
@@ -374,9 +457,14 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
     const full = bestWithin(scene, view, BODY.width);
     if (!full) unfittable(view);
     const { chosen: compact, share, reading, standfirst } = widthOf(scene, view, full);
-    const chosen = withDetails(scene, view, compact);
-    const { one, centring, tierLabels, balance, width, height } = chosen;
-    const legend = legendOf(model, view, boundaryName, style, one.figure.lines);
+    const tiers = withDetails(scene, view, compact);
+    const { routes } = full.one.layout.measures;
+    const kind = compositionOf(view, routes);
+    const chosen = (kind === "matrix" ? matrixOf(scene, view, tiers) : null) ?? tiers;
+    const { one, matrix, centring, tierLabels, balance, width, height } = chosen;
+    // A composition the view names and its plate is not drawn in.
+    const unfitted = view.composition === (matrix ? "matrix" : "tiers") ? null : view.composition;
+    const legend = legendOf(model, view, boundaryName, style, one.figure.lines, one.figure.matrix);
     return {
       page: index + 1,
       views: [view.id],
@@ -413,7 +501,10 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
       lines: one.figure.lines,
       touching: one.figure.touching,
       report: one.figure.report,
+      ...(unfitted ? { unfitted } : {}),
       composition: {
+        // A matrix records the route defects of the figure in tiers at the full width, which the rule weighs.
+        ...(matrix ? { kind: "matrix", tiers: { routes } } : {}),
         step: one.step,
         wrap: one.limit,
         flat: one.flat,

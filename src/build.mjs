@@ -23,7 +23,12 @@ import { editionWordsOf } from "./edition/words.mjs";
 import { typesetEdition } from "./edition/typeset.mjs";
 import { checkOverview, typstVersion } from "./overview/typeset.mjs";
 import { planViews, undrawnStatements } from "./plan/views.mjs";
-import { admitsView, composePlates, lineWarnings } from "./poster/compose/plates.mjs";
+import {
+  admitsView,
+  composePlates,
+  compositionWarnings,
+  lineWarnings,
+} from "./poster/compose/plates.mjs";
 import { longestOf, measuredOf, withStripLength } from "./poster/strip.mjs";
 import { loadTypefaces, requireGlyphs } from "./poster/text.mjs";
 import { refuse } from "./refusal.mjs";
@@ -330,7 +335,7 @@ async function preparing(modelPath, options, listener, deliver, begunPage) {
       plates: composePlates(model, planned, typefaces, icons, drawn),
     };
   });
-  warnings.push(...lineWarnings(plates, style));
+  warnings.push(...lineWarnings(plates, style), ...compositionWarnings(plates));
   // The overview is the edition's map: where a step or a block names a view, the page sets that view's plate number.
   const plateNumbers = Object.fromEntries(
     plates.flatMap((plate) => plate.views.map((view) => [view, two(plate.page)])),

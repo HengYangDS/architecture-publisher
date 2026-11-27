@@ -288,6 +288,10 @@
           "members": {
             "$ref": "#/$defs/references",
             "minItems": 1
+          },
+          "composition": {
+            "description": "The composition the view's plate is drawn in: `tiers`, rows of cards joined by lines, or `matrix`, a row and a column for each part and a cell for the relations from one part to another. Without it, a plate is drawn as a matrix where the view's shape calls for one. A matrix that does not fit the plate is drawn in tiers, with a warning.",
+            "enum": ["tiers", "matrix"]
           }
         }
       }

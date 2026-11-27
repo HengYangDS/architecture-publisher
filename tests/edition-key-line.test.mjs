@@ -30,6 +30,24 @@ const CARDS = [
   { icon: "terminal", color: "#324f3e", label: "HHHH" },
   { shape: "boundary", label: "HHHH" },
 ];
+/**
+ * A matrix plate's marks, as its key lists them: a cell holding a count, a cell into the hub, the boundary's bracket,
+ * and a planned and a retired relation's cells. Their grounds are tinted with the ink, so that a cell reads as ink.
+ */
+const CELL = {
+  shape: "cell",
+  side: 28,
+  tint: HOUSE.palette.ink,
+  clear: 0.84,
+  rule: HOUSE.palette.ink,
+};
+const MATRIX = [
+  { ...CELL, color: HOUSE.palette.ink, count: 3, size: 14, label: "HHHH" },
+  { ...CELL, label: "HHHH" },
+  { shape: "bracket", label: "HHHH" },
+  { ...CELL, color: HOUSE.palette.ink, status: "planned", label: "HHHH" },
+  { ...CELL, color: HOUSE.palette.ink, status: "retired", label: "HHHH" },
+];
 
 /**
  * A one-plate edition whose key holds the given marks, in a language, typeset at 2400 px: its record and what the
@@ -158,10 +176,14 @@ function loneKeyOf(image, extent) {
   return runsOf(image, [top, height], (x, y) => pixels[(y * width + x) * 4 + 3] > 96);
 }
 
-test("every mark of a key is centred on the capitals beside it, whatever its height", async () => {
-  // Each entry is a mark and the label HHHH, whose ink runs from the baseline to the cap height.
-  const runs = keyOf(await pageOf(STRIPS));
-  assert.equal(runs.length, 2 * STRIPS.length, `the key set ${runs.length} runs of ink`);
+/**
+ * The marks of a key set on a page, each a run of ink before its label, after checking that each is centred on the
+ * capitals of its label, HHHH, whose ink runs from the baseline to the cap height, and every label on one baseline.
+ * @param {any[]} legend
+ */
+async function centredMarks(legend) {
+  const runs = keyOf(await pageOf(legend));
+  assert.equal(runs.length, 2 * legend.length, `the key set ${runs.length} runs of ink`);
   const labels = runs.filter((_, index) => index % 2 === 1);
   const marks = runs.filter((_, index) => index % 2 === 0);
   const [{ centre: axis, bottom: baseline }] = labels;
@@ -169,8 +191,21 @@ test("every mark of a key is centred on the capitals beside it, whatever its hei
   for (const [index, mark] of marks.entries())
     assert.ok(
       Math.abs(mark.centre - axis) <= 1,
-      `the ${STRIPS[index].shape} mark is centred on row ${mark.centre}, its label on ${axis}`,
+      `the ${legend[index].shape} mark is centred on row ${mark.centre}, its label on ${axis}`,
     );
+  return marks;
+}
+
+test("a matrix plate's marks, its cells and its bracket, are set and centred on the capitals beside them", async () => {
+  const marks = await centredMarks(MATRIX);
+  // A cell is as tall as the plate draws it: a plate's pixel is the picture's at 2400 px.
+  for (const [index, mark] of marks.entries())
+    if (MATRIX[index].shape === "cell")
+      assert.ok(Math.abs(mark.bottom - mark.top + 1 - CELL.side) <= 2, `mark ${index + 1}`);
+});
+
+test("every mark of a key is centred on the capitals beside it, whatever its height", async () => {
+  const marks = await centredMarks(STRIPS);
   // The hub's mark is a line that ends in an arrowhead as tall as the plate draws one: a plate's pixel is the
   // picture's at 2400 px.
   const hub = marks[3];

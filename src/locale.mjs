@@ -45,8 +45,11 @@ export function keyedByLanguage(name, table) {
  *   question: (title: string) => string,
  *   colon: string, comma: string, semicolon: string, stop: string, between: string,
  *   files: (count: number, size: string) => string, ownsNoFiles: string,
+ *   matrix: Readonly<{ corner: string }>,
  *   measures: Readonly<MeasureWords>,
  * }} Words
+ *   `matrix` holds what a plate drawn as a matrix says of itself: the mark in its empty corner that tells its rows,
+ *   the parts its relations leave, from its columns, the parts they reach.
  * @typedef {{
  *   "file-age-band": Readonly<{ newest: (days: number) => string, middle: (from: number, to: number) => string,
  *     oldest: (days: number) => string }>,
@@ -85,6 +88,7 @@ const WORDS = Object.freeze({
     between: " ",
     files: (count, size) => `${count} ${count === 1 ? "file" : "files"}, ${size}`,
     ownsNoFiles: "owns no files",
+    matrix: Object.freeze({ corner: "from ↓ to →" }),
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `≤ ${days} d`,
@@ -119,6 +123,7 @@ const WORDS = Object.freeze({
     between: "",
     files: (count, size) => `${count} 个文件，${size}`,
     ownsNoFiles: "没有所属文件",
+    matrix: Object.freeze({ corner: "从 ↓ 到 →" }),
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `≤ ${days} 天`,
@@ -152,6 +157,7 @@ const WORDS = Object.freeze({
     between: "",
     files: (count, size) => `${count} 個檔案，${size}`,
     ownsNoFiles: "沒有所屬檔案",
+    matrix: Object.freeze({ corner: "從 ↓ 到 →" }),
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `≤ ${days} 天`,
@@ -185,6 +191,7 @@ const WORDS = Object.freeze({
     between: " ",
     files: (count, size) => `${count} ${count === 1 ? "archivo" : "archivos"}, ${size}`,
     ownsNoFiles: "no posee archivos",
+    matrix: Object.freeze({ corner: "de ↓ a →" }),
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `≤ ${days} d`,
@@ -219,6 +226,7 @@ const WORDS = Object.freeze({
     between: " ",
     files: (count, size) => `파일 ${count}개, ${size}`,
     ownsNoFiles: "소유한 파일 없음",
+    matrix: Object.freeze({ corner: "↓에서 →로" }),
     measures: Object.freeze({
       "file-age-band": Object.freeze({
         newest: (days) => `≤ ${days}일`,

@@ -112,7 +112,7 @@ the pitch and the leading of text, the baselines of a page's head, a view summar
 key mark's gap and middle, and the weight, in points, of each mark the pages stroke: a rule, a hair
 rule, a ring, the cover's rule, a fact's rule on the colophon's slip, and the overview's course,
 tracks, lines and smaller marks; the figure's strokes, in its pixels, of a card, a tier's ring and
-bracket and a kind's icon; the seal's cinnabar and its strokes, as shares of its size; and
+bracket, a kind's icon and a matrix's cell rules and diagonal; the seal's cinnabar and its strokes, as shares of its size; and
 the dash of a planned and a retired row's sample in the key. The unit derives the body's box, where a
 plate's figure stands, from the page and the edition. The class reads the tokens once, the drawing and
 the colophon page take them from it, and `tests/one-source-tokens.test.mjs` refuses a value written

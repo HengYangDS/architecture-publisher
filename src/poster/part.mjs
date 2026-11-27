@@ -22,7 +22,7 @@ import { POSTER, fixed, measureWidth } from "./tokens.mjs";
  * A caption's icon as the edition's key sets a mark beside its label: the house's gap before the label, in plate
  * px, and centred on the middle of the label's text, the house's middle in ems above its baseline.
  */
-const MARK = Object.freeze({
+export const MARK = Object.freeze({
   gap: HOUSE.mark.gap * HOUSE.plate.pixelsPerPoint,
   middle: HOUSE.mark.middle,
 });
@@ -234,11 +234,42 @@ export function partBoxes({
 export const cardLift = ({ shadow }) =>
   `<defs><filter id="lift" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="1" stdDeviation="1.8" flood-color="${shadow}" flood-opacity="0.08"/></filter></defs>`;
 
-function iconMarkup(icons, name, x, y, size, color) {
+/** A kind's icon drawn in a square of `size` px whose top left stands at `x`, `y`, stroked in `color`. */
+export function iconMarkup(icons, name, x, y, size, color) {
   return (
     `<g transform="translate(${fixed(x)},${fixed(y)}) scale(${size / 24})" fill="none" stroke="${color}" ` +
     `stroke-width="${HOUSE.strokes.icon}" stroke-linecap="round" stroke-linejoin="round">${icons.artwork(name)}</g>`
   );
+}
+
+/**
+ * Draw a part's card over its box: its outline on its ground, the outside ground for a part outside the repository
+ * or a group's context, in its status's dashes when it is planned or retired, and the bar of its category, `inset`
+ * px from the card's top and from its bottom. The card counts as mass across its whole surface, as a reader sees
+ * it. It hands back the part's look and its category's hue.
+ * @param {{ x: number, y: number, width: number, height: number, model: any, component: any, card: any,
+ *   colors: ReturnType<typeof import("./tokens.mjs").colorsOf>,
+ *   lines: ReturnType<typeof import("./tokens.mjs").linesOf> }} part
+ * @param {number} inset
+ * @param {{ shapes: string[], rects: any[] }} draw
+ */
+export function drawCard(part, inset, draw) {
+  const { x, y, width, height, component, card, colors: C } = part;
+  const look = presentation(part.model, component);
+  const muted = look.outside || component.context;
+  const hue = C.hue[/** @type {keyof typeof C.hue} */ (look.category)];
+  const dash =
+    component.status && component.status !== "implemented"
+      ? ` stroke-dasharray="${part.lines.status(component.status)}"`
+      : "";
+  draw.shapes.push(
+    `<rect x="${fixed(x)}" y="${fixed(y)}" width="${width}" height="${height}" rx="${card.radius}" ` +
+      `fill="${muted ? C.external : C.card}" stroke="${muted ? C.externalStroke : C.cardStroke}" stroke-width="${HOUSE.strokes.card}" filter="url(#lift)"${dash}/>`,
+    `<rect x="${fixed(x)}" y="${fixed(y + inset)}" width="${card.bar}" ` +
+      `height="${fixed(height - 2 * inset)}" rx="${card.bar / 2}" fill="${hue}"/>`,
+  );
+  draw.rects.push({ x, y, width, height, kind: "mass", weight: DARKNESS.card });
+  return { look, hue };
 }
 
 /**
@@ -260,20 +291,7 @@ function iconMarkup(icons, name, x, y, size, color) {
  */
 export function drawPart(part, draw) {
   const { x, y, width, height, component, text, styles, card, colors: C } = part;
-  const look = presentation(part.model, component);
-  const muted = look.outside || component.context;
-  const hue = C.hue[/** @type {keyof typeof C.hue} */ (look.category)];
-  const dash =
-    component.status && component.status !== "implemented"
-      ? ` stroke-dasharray="${part.lines.status(component.status)}"`
-      : "";
-  draw.shapes.push(
-    `<rect x="${fixed(x)}" y="${fixed(y)}" width="${width}" height="${height}" rx="${card.radius}" ` +
-      `fill="${muted ? C.external : C.card}" stroke="${muted ? C.externalStroke : C.cardStroke}" stroke-width="${HOUSE.strokes.card}" filter="url(#lift)"${dash}/>`,
-    `<rect x="${fixed(x)}" y="${fixed(y + card.pad)}" width="${card.bar}" ` +
-      `height="${fixed(height - 2 * card.pad)}" rx="${card.bar / 2}" fill="${hue}"/>`,
-  );
-  draw.rects.push({ x, y, width, height, kind: "mass", weight: DARKNESS.card });
+  const { look, hue } = drawCard(part, card.pad, draw);
   const left = x + card.pad;
   let top = y + card.pad;
   const ink = component.status === "retired" ? C.muted : C.ink;

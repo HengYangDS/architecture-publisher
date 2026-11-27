@@ -2,8 +2,9 @@ import { Refusal, refuse } from "../refusal.mjs";
 import { wordsOf } from "../locale.mjs";
 
 /**
- * A view is the unit both media render: its components, its relations and
- * optional ordered tiers. Context components are neighbors shown for orientation.
+ * A view is the unit both media render: its components, its relations,
+ * optional ordered tiers and the composition its author names for its plate, if
+ * any. Context components are neighbors shown for orientation.
  * @typedef {{ id: string, label: string, kind: string | null, details: Array<[string, string[]]>,
  *   status: string | null, files: string[], context?: boolean, group?: boolean }} ViewComponent
  * @typedef {{ id: string, from: string, to: string, label: string,
@@ -12,6 +13,7 @@ import { wordsOf } from "../locale.mjs";
  * @typedef {{ id: string, title: string, question: string, summary: string | null,
  *   origin: "declared" | "complete" | "overview" | "group",
  *   tiers: Array<{ id: string, label: string, members: string[] }> | null,
+ *   composition?: "tiers" | "matrix" | null,
  *   components: ViewComponent[], relations: ViewRelation[] }} View
  */
 
@@ -34,6 +36,7 @@ function viewOf(model, base, memberIds, tiers, contextIds = []) {
     summary: base.summary ?? null,
     origin: base.origin,
     tiers,
+    composition: base.composition ?? null,
     components,
     relations,
   };

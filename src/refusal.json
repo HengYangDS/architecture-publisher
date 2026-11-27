@@ -559,6 +559,11 @@
     "carriedBy": ["model_invalid"],
     "meaning": "A component sits in a second tier of one view."
   },
+  "model_composition_invalid": {
+    "section": "problem",
+    "carriedBy": ["model_invalid"],
+    "meaning": "A view's `composition` is not one of the compositions a plate is drawn in."
+  },
   "model_overview_composition_retired": {
     "section": "problem",
     "carriedBy": ["model_invalid"],
@@ -677,6 +682,10 @@
   "line_row_untested": {
     "section": "warning",
     "meaning": "In the build's `warnings`: the listed plates draw a line pattern of the table of lines that no work has tested. It names no path."
+  },
+  "plate_composition_unfitted": {
+    "section": "warning",
+    "meaning": "In the build's `warnings`: a view names a composition that does not fit the box its plate keeps, so the plate is drawn in tiers; the path is `/views/<id>/composition`."
   },
   "repo_unused": {
     "section": "warning",

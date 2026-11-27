@@ -70,7 +70,9 @@
   "strokes": {
     "card": 1.2,
     "tier": 1.4,
-    "icon": 2
+    "icon": 2,
+    "cellRule": 0.6,
+    "diagonal": 0.6
   },
   "dye": {
     "new": "#b9c9bb",

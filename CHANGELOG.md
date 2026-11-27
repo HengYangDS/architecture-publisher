@@ -7,6 +7,24 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+### Added
+
+- A view may name its `composition`, `tiers` or `matrix`. Another value is the problem
+  `model_composition_invalid`; a named matrix that does not fit its plate is drawn in tiers, with the warning
+  `plate_composition_unfitted`.
+
+### Changed
+
+- **Breaking:** a view of at least eight parts that declares no tiers is drawn as a matrix when its figure in
+  tiers at the full width has at least two route defects and a matrix fits: a row and a column for each part, in
+  the order its relations flow, and a cell holding the label of the relations from one part to another, in the
+  box its tiers plate keeps, so its reading and summary are unchanged. The edition, plates, page images, figures
+  alone, the data file's faces and the manifest records of such views change; a matrix plate's composition
+  records `kind: "matrix"` and the tiers figure's route defects, and its faces hold each cell's outline.
+  `src/house.json` gains `strokes.cellRule` and `strokes.diagonal` and `src/overview/house.typ` a matrix key's
+  samples, so the manifest's digests `edition.house` and `overview.house` change. Every other plate is drawn
+  as before.
+
 ## [0.21.0] - 2026-11-27
 
 ### Added

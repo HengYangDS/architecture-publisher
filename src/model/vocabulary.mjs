@@ -61,6 +61,8 @@ export const DEFAULT_PALETTE = /** @type {string} */ (
 );
 /** The statuses a component or a relation takes. */
 export const STATUSES = names("/$defs/status/enum");
+/** The compositions a view may name for its plate. */
+export const COMPOSITIONS = names("/properties/views/items/properties/composition/enum");
 
 export const ID = pattern("/$defs/id/pattern");
 /** A model's id that a file system cannot hold as a directory: a device's name, or a final dot. */

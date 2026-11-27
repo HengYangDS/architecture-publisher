@@ -124,6 +124,11 @@ those as `relations`. `segments` is a list of stretches, each a list of points, 
 stretch the relation is stroked on, so two relations that share a trunk both list it. The numbers are the ones the
 plate's SVG is written from. A face repeats no value of a fact: it names the element, and `facts` holds its values.
 
+On a plate drawn as a matrix a relation is stroked on no line: its `segments`
+hold one stretch, the closed outline of its cell, and its `label` is the box of
+the label as the matrix sets it, the head's box when a row or a column says the
+label once for all its cells.
+
 The face is what the drawing reports as it draws, and no copy of the view. The overview's page has no face.
 
 ## The guide's record

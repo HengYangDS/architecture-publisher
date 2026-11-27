@@ -203,6 +203,22 @@ every detail when that costs it no room, no type step and no wiring, which its
 composition records. A plate is drawn as the SVG of its shapes and a list of
 text runs, which the edition sets as text.
 
+A view drawn as a matrix ([when](model.md#views)) keeps the box its figure in
+tiers takes beside its reading, so the plate's width, reading and summary are
+those of tiers. Each part has a row and a column, in the order its relations
+flow, sources first and the parts of a cycle together; a cell holds the label
+of the relations from one part to another, tinted in their line's colour, and
+the number of files they cite where the edition counts them. A label that every
+mark of a row or a column shares is said once at its head, the boundary is a
+bracket over the inside rows and columns, and the empty corner reads
+"from ↓ to →" in the edition's language. The matrix takes the largest type step
+at which it fits; it draws no line, so it has no crossing, route or bend, and
+its balance counts its heads, its filled cells at their tint and its words, not
+its rules, diagonal or brackets. Its composition records `kind: "matrix"` and,
+as `tiers.routes`, the route defects of the full-width tiers figure that chose it.
+Its key draws the boundary as a bracket and a planned or retired status as a
+cell edged in its dash, as the matrix draws them.
+
 A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with
 no more crossings and route defects than at the full width. A view with a

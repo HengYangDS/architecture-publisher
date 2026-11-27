@@ -551,6 +551,30 @@
     place(left + horizon, line(length: 16pt + weight, stroke: (paint: rgb(entry.color), thickness: weight)))
     place(left + top, dx: 16pt, polygon(fill: rgb(entry.color), (0pt, 0pt), (arrow, arrow / 2), (0pt, arrow)))
   })
+} else if entry.shape == "cell" {
+  // A cell of a matrix as the plate draws it, at the plate's own scale: a square tinted as the line it stands for,
+  // ruled round as the plate rules its cells, holding the count of files its relations cite where it has one; a
+  // planned or retired relation's cell edged inside its rules at a relation's weight, in its status's pattern.
+  let (side, edge) = (entry.side * _k, _house.lines.rows.relation.stroke * _k)
+  box(width: side, height: side,
+    fill: rgb(entry.tint).transparentize(entry.clear * 100%),
+    stroke: _house.strokes.cellRule * _k + rgb(entry.rule), {
+      if "status" in entry {
+        place(center + horizon, box(width: side - edge, height: side - edge, stroke: (paint: rgb(entry.color),
+          thickness: edge, dash: _house.lines.rows.at(entry.status).dash.map(length => length * _k))))
+      }
+      if "count" in entry {
+        align(center + horizon, text(font: sans, size: entry.size * _k, weight: "regular", fill: rgb(entry.color),
+          top-edge: "cap-height", bottom-edge: "baseline", str(entry.count)))
+      }
+    })
+} else if entry.shape == "bracket" {
+  // The boundary as a matrix draws it over the columns of the parts inside: a bracket whose ends turn down to them,
+  // in the weight, the dash and the gap of its row in the table of lines.
+  let row = _house.lines.rows.boundary
+  box(width: 16pt, height: 8pt, curve(stroke: (paint: rgb(_house.figure.boundary), thickness: row.stroke * _k,
+    dash: row.dash.map(length => length * _k)), curve.move((0pt, 8pt)), curve.line((0pt, 0pt)),
+    curve.line((16pt, 0pt)), curve.line((16pt, 8pt))))
 } else {
   // A planned or a retired relation's line as the plate draws a relation's line: at its row's weight, in the dash its
   // status's row names for the key.

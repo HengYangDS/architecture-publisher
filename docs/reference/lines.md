@@ -46,8 +46,8 @@ The rows marked "not yet tested by a work" keep the patterns they had: none of t
 status, and a planned line's dashes are too near the boundary's to be told from them by the measure the trials
 fixed. A build that draws such a row carries the warning `line_row_untested`, which names the plates.
 
-Widths that are not a relation's line or the boundary are not in the table: a tier's ring, a card's outline and an
-icon's strokes. They stand in `strokes` of `src/house.json`, in the figure's pixels.
+Widths that are not a relation's line or the boundary are not in the table: a tier's ring, a card's outline, an
+icon's strokes, and a matrix's cell rules and diagonal. They stand in `strokes` of `src/house.json`, in the figure's pixels.
 
 The key of a plate holds the sample of a row exactly when its figure draws the row; a plain relation's line has
 none. The sample of a planned or a retired row is a line at a relation's weight, as the figure draws one, in the
