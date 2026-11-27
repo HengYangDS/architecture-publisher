@@ -110,7 +110,8 @@ const READS_TOKENS = new RegExp(
  * quotes (`_house.at("text")`, `row("relation")`); `entries`, a table whose entries the source takes apart as it
  * iterates them. `*` stands for each entry of a table of data, whose keys are ids, and `whole` marks a table the
  * source reads by iterating it, whose keys are its data. `documents` names the keys of an entry that only the
- * reference writer reads (tools/docs/references.mjs): text a reference document prints beside the entry's values.
+ * reference writer reads (its model's blocks, tools/docs/references/model.mjs): text a reference document prints
+ * beside the entry's values.
  */
 const REACHED = Object.freeze({
   "": { by: ["HOUSE", "house", "_house"], quoted: true },
@@ -145,11 +146,12 @@ const REACHED = Object.freeze({
 /**
  * The keys of the tokens that only the reference writer reads, document text beside the values it describes (a
  * palette's `colours`, a line row's `answers` and `page`): each is read where the writer finds it by its handle, as
- * the shipped source's keys are where the source finds them. The writer is a tool, outside the package.
+ * the shipped source's keys are where the source finds them. The writer is a tool, outside the package; the module of
+ * its blocks that reads the house is the one searched.
  */
 const WRITER = {
-  file: "tools/docs/references.mjs",
-  code: code(await fs.readFile(path.join(root, "tools/docs/references.mjs"), "utf8")),
+  file: "tools/docs/references/model.mjs",
+  code: code(await fs.readFile(path.join(root, "tools/docs/references/model.mjs"), "utf8")),
 };
 
 /** The searches that find a key of a table read: by a handle, taken apart from it, or named in quotes. */

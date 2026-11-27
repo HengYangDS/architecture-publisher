@@ -1,0 +1,22 @@
+{
+  "$comment": "The members of a release archive of the command, each once, below the archive's top directory, in the operations reference's order: its role, its place and what it holds. assemble.mjs builds an archive at these places, its launcher climbing from its own directory to the top to find the runtime and the package; declaration.mjs names the launcher's directory as the one mise puts on the path; and tools/docs/references.mjs writes the reference's sentence on an archive from the rows, each member as what it holds in its place.",
+  "top": "archpub",
+  "members": {
+    "launcher": {
+      "path": "bin/archpub",
+      "holds": "the command"
+    },
+    "runtime": {
+      "path": "libexec",
+      "holds": "the Node.js and Typst it runs"
+    },
+    "package": {
+      "path": "lib/architecture-publisher",
+      "holds": "the package with the libraries it bundles"
+    },
+    "licenses": {
+      "path": "licenses",
+      "holds": "the licences of all of them"
+    }
+  }
+}

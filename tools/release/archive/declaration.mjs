@@ -1,6 +1,9 @@
+import { COMMAND_DIRECTORY } from "./assemble.mjs";
+
 /**
  * The mise declaration of a release's archives, in the form ETHOS publishes for
- * its own: one `http:archpub` tool whose platforms name each archive.
+ * its own: one `http:archpub` tool whose platforms name each archive and the
+ * directory of the command it holds.
  * @param {{ version: string, base: string, archives: { platform: string, name: string, sha256: string }[] }} release
  */
 export function declaration({ version, base, archives }) {
@@ -8,7 +11,7 @@ export function declaration({ version, base, archives }) {
     .toSorted((a, b) => (a.platform < b.platform ? -1 : 1))
     .map(
       ({ platform, name, sha256 }) =>
-        `${platform} = { url = "${base}/${name}", checksum = "sha256:${sha256}", bin_path = "archpub/bin" }`,
+        `${platform} = { url = "${base}/${name}", checksum = "sha256:${sha256}", bin_path = "${COMMAND_DIRECTORY}" }`,
     );
   return [
     '[tools."http:archpub"]',

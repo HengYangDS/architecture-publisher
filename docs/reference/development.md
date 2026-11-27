@@ -35,17 +35,18 @@ ignored tool cache. The installed package itself needs only Node.js, at the
 version the operations reference's [table of what it needs](operations.md#what-it-needs)
 gives.
 
-The package has four runtime dependencies: commander and `@clack/prompts`, which
-the command line is built on, and `fast-wrap-ansi` and `fast-string-width`,
-which wrap and measure a report's text and are clack's own dependencies at the
-versions the lock already held. `package.json` lists the four under
-`dependencies` and `bundleDependencies`, so `npm pack` puts them, with the three
-packages they depend on, into the package; the lock marks each as `inBundle`
-with its integrity. `tests/module-boundaries.test.mjs` admits the first two in
-modules under `src/cli/`, the other two in `src/cli/report.mjs` alone, and
-refuses all four in every other unit, `tests/installed-cli.test.mjs`
-holds the packed package to the lock's bundled entries, each with its licence,
-and the release archive copies each bundled licence into `archpub/licenses/`.
+The package's runtime dependencies, which the operations reference
+[lists](operations.md#installation) from `package.json`, are of two kinds: the
+libraries the command line is built on, and those that wrap and measure a
+report's text, which one of the first already depends on, at the versions the
+lock already held. `package.json` lists them under both `dependencies` and
+`bundleDependencies`, which a test holds to the same names, so `npm pack` puts
+them, with the packages they depend on, into the package; the lock marks each as
+`inBundle` with its integrity. `tests/module-boundaries.test.mjs` admits the
+first kind in modules under `src/cli/`, the second in `src/cli/report.mjs`
+alone, and both in no other unit, `tests/installed-cli.test.mjs` holds the
+packed package to the lock's bundled entries, each with its licence, and the
+release archive copies each bundled licence into its directory of licences.
 
 `npm run check:package` invokes npm's selected absolute CLI entrypoint to pack
 with lifecycle scripts disabled, then checks the resulting archive through

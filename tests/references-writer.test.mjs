@@ -14,11 +14,21 @@ const run = promisify(execFile);
 const root = path.resolve(import.meta.dirname, "..");
 const WRITER = path.join(root, "tools/docs/references.mjs");
 
-/** A tree of what the writer reads: the documents it writes, the source, the package and the formatter's policy,
- * with the bundled renderers the command it runs for a sample reads, linked as they are never changed here. */
+/** A tree of what the writer reads: the documents it writes, the source, the package, the mise lock, the release
+ * archive's table and the formatter's policy, with the bundled renderers the command it runs for a sample reads,
+ * linked as they are never changed here. */
 async function tree() {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-references-"));
-  for (const part of ["docs/reference", "src", ".config/checks/prettier", "package.json"])
+  for (const part of [
+    "README.md",
+    "docs/how-to.md",
+    "docs/reference",
+    "src",
+    ".config/checks/prettier",
+    ".config/mise/mise.lock",
+    "tools/release/archive/members.json",
+    "package.json",
+  ])
     await fs.cp(path.join(root, part), path.join(dir, part), { recursive: true });
   for (const linked of ["node_modules", "renderers"])
     await fs.symlink(path.join(root, linked), path.join(dir, linked));
@@ -58,6 +68,16 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["src/model/schema.json", '"ko"]', '"ja"]'],
       ["docs/reference/model.md", "with a brown accent; the default.", "with a brown accent."],
       ["docs/reference/lines.md", "| not yet tested by a work |", "| no                       |"],
+      ["README.md", "Linux on ARM64 and x86-64", "Linux on ARM64"],
+      ["docs/how-to.md", "and for macOS on ARM64.", "and for macOS."],
+      ["docs/reference/operations.md", "(Linux on x86-64)", "(Linux on x64)"],
+      [
+        "docs/reference/operations.md",
+        "the package with the libraries it bundles in",
+        "the package in",
+      ],
+      ["docs/reference/operations.md", "`commander` 15.1.0", "`commander` 15.0.0"],
+      ["docs/reference/operations.md", "`TMP` and `SystemRoot`.", "`TMP`."],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
@@ -134,6 +154,105 @@ test("the writer takes the exit statuses from the table of outcomes, as the comm
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }
+});
+
+test("the writer writes the release's platforms, an archive's members, the bundled dependencies and a child's variables from their sources", async () => {
+  const dir = await tree();
+  /** Rewrite a file of the tree. @param {string} file @param {(text: string) => string} change */
+  const edit = async (file, change) => {
+    const target = path.join(dir, file);
+    await fs.writeFile(target, change(await fs.readFile(target, "utf8")));
+  };
+  /** Rewrite a JSON file of the tree. @param {string} file @param {(value: any) => void} change */
+  const editJson = (file, change) =>
+    edit(file, (text) => {
+      const value = JSON.parse(text);
+      change(value);
+      return `${JSON.stringify(value, null, 2)}\n`;
+    });
+  try {
+    // The lock pins Typst for linux-x64 no more, so the release has no archive for it: a platform needs both tools.
+    await edit(".config/mise/mise.lock", (text) =>
+      text.replace('[tools.typst."platforms.linux-x64"]', '[tools.typst."platforms.windows-x64"]'),
+    );
+    await editJson("tools/release/archive/members.json", (table) => {
+      table.members.runtime.path = "runtime";
+    });
+    await editJson("package.json", (manifest) => {
+      manifest.dependencies.yaml = "2.9.1";
+    });
+    await editJson("src/environment.json", (table) => {
+      table.passed.push("LANG");
+    });
+    const refused = await writer("--check", dir);
+    assert.equal(refused.code, 1);
+    for (const file of ["README.md", "docs/how-to.md", "docs/reference/operations.md"])
+      assert.match(refused.stderr, new RegExp(`references_drift: ${file}: run`, "u"));
+    assert.equal((await writer("--write", dir)).code, 0);
+    const read = (/** @type {string} */ file) => fs.readFile(path.join(dir, file), "utf8");
+    for (const file of ["README.md", "docs/how-to.md"])
+      assert.match(
+        await read(file),
+        /\nEach release has an archive for Linux on ARM64 and for macOS on ARM64\.\n/u,
+      );
+    const operations = await read("docs/reference/operations.md");
+    assert.doesNotMatch(operations, /linux-x64`/u);
+    assert.match(operations, / the Node\.js and Typst it runs in `archpub\/runtime`, /u);
+    assert.match(operations, /\n`@clack\/prompts` 1\.9\.0, .* and `yaml` 2\.9\.1\.\n/u);
+    assert.match(operations, /, `SystemRoot` and `LANG`\.\n/u);
+    // A platform whose system the writer has no word for stops it, naming the platform.
+    await edit(".config/mise/mise.lock", (text) =>
+      text.replaceAll('"platforms.linux-arm64"]', '"platforms.freebsd-arm64"]'),
+    );
+    const unnamed = await writer("--check", dir);
+    assert.equal(unnamed.code, 1);
+    assert.match(unnamed.stderr, /references_platform_unnamed: freebsd-arm64/u);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("the writer stops on a table that lacks a field it prints, naming the field", async () => {
+  for (const [file, change, refusal] of [
+    [
+      "tools/release/archive/members.json",
+      (/** @type {any} */ table) => delete table.members.runtime.holds,
+      /references_text_missing: tools\/release\/archive\/members\.json states no holds of the member runtime/u,
+    ],
+    [
+      "tools/release/archive/members.json",
+      (/** @type {any} */ table) => delete table.members.package.path,
+      /references_text_missing: tools\/release\/archive\/members\.json states no path of the member package/u,
+    ],
+    [
+      "src/environment.json",
+      (/** @type {any} */ table) => delete table.passed,
+      /references_text_missing: src\/environment\.json states no passed variables/u,
+    ],
+  ]) {
+    const dir = await tree();
+    try {
+      const target = path.join(dir, file);
+      const table = JSON.parse(await fs.readFile(target, "utf8"));
+      change(table);
+      await fs.writeFile(target, JSON.stringify(table));
+      const refused = await writer("--check", dir);
+      assert.equal(refused.code, 1, file);
+      assert.match(refused.stderr, refusal);
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  }
+});
+
+// The operations reference lists the runtime dependencies from package.json's `dependencies` and says the package
+// bundles them, which holds while `bundleDependencies` names the same packages.
+test("the package bundles each of its runtime dependencies and no other", async () => {
+  const manifest = JSON.parse(await fs.readFile(path.join(root, "package.json"), "utf8"));
+  assert.deepEqual(
+    [...manifest.bundleDependencies].sort(),
+    Object.keys(manifest.dependencies).sort(),
+  );
 });
 
 test("the writer takes a mode and an optional root, and nothing else", async () => {

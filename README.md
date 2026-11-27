@@ -23,10 +23,16 @@ every byte to its inputs. A named reviewer accepts the delivery before it is pub
 mise use -g github:HengYangDS/architecture-publisher
 ```
 
-[mise](https://mise.jdx.dev) installs the release archive for your machine:
-Linux on ARM64 or x86-64, or macOS on ARM64. It holds `archpub`
-with its own Node.js and Typst, so it needs only Git. The
-[how-to guides](docs/how-to.md#install-the-command) install it with Homebrew,
+[mise](https://mise.jdx.dev) installs the release archive for your machine,
+which holds `archpub` with its own Node.js and Typst, so it needs only Git.
+
+<!-- platforms: written from .config/mise/mise.lock by tools/docs/references.mjs; do not edit -->
+
+Each release has an archive for Linux on ARM64 and x86-64 and for macOS on ARM64.
+
+<!-- end of platforms -->
+
+The [how-to guides](docs/how-to.md#install-the-command) install it with Homebrew,
 as an npm package or from the archive alone, and say how to take a release on
 the day it is published.
 

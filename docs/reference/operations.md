@@ -15,15 +15,18 @@ delivery it writes; the [refusals reference](refusals.md) lists every refusal.
 
 ## Installation
 
-Each release delivers the command as one archive per platform the CI verifies:
-`archpub-<version>-<platform>.tar.gz` for `linux-arm64`, `linux-x64` and
-`macos-arm64`. An archive holds `archpub/bin/archpub`, the Node.js and Typst it
-runs in `archpub/libexec`, the package with the libraries it bundles in
-`archpub/lib/architecture-publisher` and the licenses of all of them in
-`archpub/licenses`.
-Unpacked anywhere, the command needs only Git on the path. The release's
-`architecture-publisher-<version>.mise.toml` names each archive with its SHA-256
-for `mise`, as an `http:archpub` tool:
+Each release delivers the command as one archive, `archpub-<version>-<platform>.tar.gz`, for each platform the CI verifies:
+
+<!-- archives: written from .config/mise/mise.lock and tools/release/archive/members.json by tools/docs/references.mjs; do not edit -->
+
+`linux-arm64` (Linux on ARM64), `linux-x64` (Linux on x86-64) and `macos-arm64` (macOS on ARM64).
+
+An archive holds the command in `archpub/bin/archpub`, the Node.js and Typst it runs in `archpub/libexec`, the package with the libraries it bundles in `archpub/lib/architecture-publisher` and the licences of all of them in `archpub/licenses`.
+
+<!-- end of archives -->
+
+Unpacked anywhere, the command needs only Git on the path. The release's `architecture-publisher-<version>.mise.toml`
+names each archive with its SHA-256 for `mise`, as an `http:archpub` tool whose `bin_path` is the command's directory:
 
 ```toml
 [tools."http:archpub"]
@@ -33,20 +36,29 @@ version = "<version>"
 macos-arm64 = { url = "<release>/archpub-<version>-macos-arm64.tar.gz", checksum = "sha256:<digest>", bin_path = "archpub/bin" }
 ```
 
-The release's `architecture-publisher-<version>.tgz` is the same command as an
-npm package; install it with `npm install --global --ignore-scripts` where
-Node.js is present, with Typst on the path for the print edition, each at the
-version [the table below](#what-it-needs) gives. The package bundles its four runtime npm dependencies, commander and
-clack, which its command line is built on, and fast-wrap-ansi and
-fast-string-width, which fit a report to the terminal, with the three small
-packages they depend on, so installing it fetches nothing else. The fonts, the house
-faces, the measuring library, icons, Archify and the LikeC4 parser are bundled
-with their digests, so a build downloads nothing. Git is needed only to resolve
-and verify the model's files with `--repo`, and Typst on the path only to build
-the print edition. Git and Archify run with only the caller's `PATH`,
-`PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`, so
-no other variable, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what
-they read or decide.
+The release's `architecture-publisher-<version>.tgz` is the same command as an npm package; install it with
+`npm install --global --ignore-scripts` where Node.js is present, with Typst on the path for the print edition, each at
+the version [the table below](#what-it-needs) gives. It bundles its runtime npm dependencies, the libraries its command
+line and its reports are built on, with the packages they depend on, so installing it fetches nothing else:
+
+<!-- dependencies: written from package.json by tools/docs/references.mjs; do not edit -->
+
+`@clack/prompts` 1.9.0, `commander` 15.1.0, `fast-string-width` 3.0.2 and `fast-wrap-ansi` 0.2.2.
+
+<!-- end of dependencies -->
+
+The fonts, the house faces, the measuring library, icons, Archify and the LikeC4 parser are bundled with their
+digests, so a build downloads nothing. Git is needed only to resolve and verify the model's files with `--repo`, and
+Typst on the path only to build the print edition. `ssh-keygen`, which `accept --sign` and `verify --allowed-signers`
+run, and the LikeC4 parser, which `import likec4` runs, receive the caller's whole environment; Git, Typst, Archify
+and the guide's parser receive only the caller's variables that a program needs to find its tools, its home and its
+temporary directory, so no other, such as `GIT_DIR` or an `ARCHIFY_*` setting, changes what they read or decide:
+
+<!-- variables: written from src/environment.json by tools/docs/references.mjs; do not edit -->
+
+`PATH`, `PATHEXT`, `HOME`, `USERPROFILE`, `TMPDIR`, `TEMP`, `TMP` and `SystemRoot`.
+
+<!-- end of variables -->
 
 ### What it needs
 

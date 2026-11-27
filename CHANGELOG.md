@@ -15,6 +15,11 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The release's platforms, the archive's members, the runtime dependencies and the variables a child process receives
+  each stand once: the platforms in the mise lock, the dependencies in the package, the members in
+  `tools/release/archive/members.json`, which the assembly and the declaration read, and the variables in
+  `src/environment.json`, which `src/environment.mjs` reads. The operations reference, the README and the how-to are
+  written from them. Every output, a release archive's included, is as before.
 - **Breaking:** a view whose shape is a hub's is drawn as a radial figure, its centre in the middle of the box its
   tiers plate keeps and its other parts on an ellipse that fills the box. The rule reads the model alone, before the
   matrix's, so a view is drawn alike in every language: a view of at least four parts whose author declared no tiers

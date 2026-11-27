@@ -23,8 +23,13 @@ Git:
 mise use -g github:HengYangDS/architecture-publisher
 ```
 
-Each release has an archive for Linux on ARM64 and x86-64 and for macOS on
-ARM64. By default mise does not offer a release in its first 24 hours,
+<!-- platforms: written from .config/mise/mise.lock by tools/docs/references.mjs; do not edit -->
+
+Each release has an archive for Linux on ARM64 and x86-64 and for macOS on ARM64.
+
+<!-- end of platforms -->
+
+By default mise does not offer a release in its first 24 hours,
 so on the day of a release this line installs the one before it. Name the
 version to take it at once:
 
@@ -44,8 +49,8 @@ To pin a version by its checksums in a project instead, copy the release's
 configuration, as the [operations reference](reference/operations.md#installation)
 shows.
 
-With [Homebrew](https://brew.sh) on macOS on ARM64 or on Linux, a formula
-installs the same archive:
+Where a release has an archive for the machine, [Homebrew](https://brew.sh)
+installs it with a formula:
 
 ```sh
 brew install HengYangDS/tap/archpub
@@ -53,7 +58,8 @@ brew install HengYangDS/tap/archpub
 
 Without either, download `archpub-<version>-<platform>.tar.gz` from the
 [releases](https://github.com/HengYangDS/architecture-publisher/releases),
-unpack it anywhere and put its `archpub/bin` on your path. Where Node.js is
+unpack it anywhere and put the directory of its `archpub` command on your path,
+as the [operations reference](reference/operations.md#installation) shows. Where Node.js is
 already present, `npm install --global --ignore-scripts architecture-publisher`
 installs the same command as an npm package; it needs Typst on the path to build
 the print edition. The versions of both are in the operations reference's

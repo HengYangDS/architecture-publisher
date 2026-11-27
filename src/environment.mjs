@@ -1,20 +1,15 @@
+import fs from "node:fs";
+
 /**
- * The variables a child process of the publisher, Git or the vendored Archify,
- * receives from its caller: those a program needs to find its tools, its home
- * and its temporary directory. Any other variable could change what a child
- * reads or decides, such as `GIT_DIR`, which names another repository than
- * `-C`, or `ARCHIFY_EXPLAINER_PREPARED`, which hands Archify another page.
+ * The variables a child process of the publisher receives from its caller, as the table beside this module
+ * (src/environment.json) states them, with why no other variable is passed.
+ * @type {readonly string[]}
  */
-const PASSED = Object.freeze([
-  "PATH",
-  "PATHEXT",
-  "HOME",
-  "USERPROFILE",
-  "TMPDIR",
-  "TEMP",
-  "TMP",
-  "SystemRoot",
-]);
+const PASSED = JSON.parse(
+  fs.readFileSync(new URL("./environment.json", import.meta.url), "utf8"),
+).passed;
+if (!Array.isArray(PASSED) || PASSED.some((name) => typeof name !== "string" || !name))
+  throw new Error("src/environment.json states no list passed of variable names");
 
 /**
  * A child's environment: the caller's passed variables and the child's own.

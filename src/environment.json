@@ -1,0 +1,4 @@
+{
+  "$comment": "The variables of its caller's environment that the publisher passes to a child process it starts with src/environment.mjs (Git, Typst, the vendored Archify and its own workers): those a program needs to find its tools, its home and its temporary directory, on any system. Any other variable could change what a child reads or decides, such as GIT_DIR, which names another repository than -C, or ARCHIFY_EXPLAINER_PREPARED, which hands Archify another page. tools/docs/references.mjs writes the operations reference's list from them.",
+  "passed": ["PATH", "PATHEXT", "HOME", "USERPROFILE", "TMPDIR", "TEMP", "TMP", "SystemRoot"]
+}

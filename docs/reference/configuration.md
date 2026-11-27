@@ -78,15 +78,19 @@ generated-input gate runs its non-mutating `--check` mode before qualification.
 reports, each once with its meaning; the type check holds every raise to it.
 `src/cli/outcomes.json` is the sole source of how a command ends: each
 outcome's exit status and the keys of the JSON object it prints, which the
-command line reads.
+command line reads. `src/environment.json` is the sole source of the variables
+a child process receives from the publisher's caller, and
+`tools/release/archive/members.json` of a release archive's members. The
+release's platforms are those `mise.lock` pins both Node.js and Typst for.
 
 ## Written reference tables
 
-A table of a reference document that restates the source stands between two
-comment lines that name its source. The model's schema states the categories,
-the palettes and the languages as the tables that own them do:
+A table or list of a document that restates the source stands between two
+comment lines that name its source; besides the references, the README and the
+how-to guides carry the release's platforms the same way. The model's schema
+states the categories, the palettes and the languages as the tables that own them do:
 `src/categories.json`, `src/house.json` and `src/locales.json`. After changing
-a source, run `node tools/docs/references.mjs --write`, which writes the tables
+a source, run `node tools/docs/references.mjs --write`, which writes them
 and those enumerations of the schema; it writes the whole schema in one
 layout, so a hand edit's own layout is written out again. `npm run
 check:generated` refuses a document or a schema that differs from what the
