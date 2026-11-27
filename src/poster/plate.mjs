@@ -238,21 +238,23 @@ function attempt(input) {
   const nearText = (rects) =>
     rects.some((rect) => rect.tier && rect.kind === "mass" && rect.x < floor);
   let figure = draw(0);
-  const offset = balancingShift(figure.rects, { x: left, width: right - left });
+  const offset = balancingShift(figure.rects, { x: left, width: right - left }, coverOf(figure));
   if (offset) {
     const moved = draw(offset);
     if (labelsClear(moved.rects) && !nearText(moved.rects)) figure = moved;
     else {
+      const placed = (rect) => !rect.tier;
       const within = balancingShift(
-        figure.rects.filter((rect) => !rect.tier),
+        figure.rects.filter(placed),
         input.field,
+        coverOf(figure).filter(placed),
       );
       if (within) figure = draw(within);
     }
   }
   // Nothing is drawn outside the plate: its field and, for a labelled figure,
   // the column its tier labels sit in.
-  const outside = figure.rects.find(
+  const outside = coverOf(figure).find(
     (rect) =>
       rect.x < left - 2 ||
       rect.y < input.field.y - 2 ||
@@ -265,30 +267,47 @@ function attempt(input) {
 }
 
 /**
- * How far to move a drawn figure across its span so that its ink centroid lies
- * within the centring tolerance of the span's centre line, without any of it
- * leaving the span. A figure already within the tolerance keeps its outline
- * centred.
+ * What a drawn figure covers on its plate: its rects and, for a boundary, its
+ * frame out to the outer edge of its stroke. The frame is kept out of the rects,
+ * so the balance measures do not weigh it as ink; but the figure moves only as
+ * far as all it covers stays on the plate, and none of it may lie outside.
+ * @param {{ rects: Array<{ x: number, y: number, width: number, height: number }>,
+ *   stroked?: { x: number, y: number, width: number, height: number } | null }} figure
+ */
+const coverOf = (figure) => (figure.stroked ? [...figure.rects, figure.stroked] : figure.rects);
+
+/**
+ * How far to move a drawn figure across its span so that the centroid of its
+ * ink, its `rects`, lies within the centring tolerance of the span's centre
+ * line, without anything it covers leaving the span. A figure already within
+ * the tolerance keeps its outline centred. The move is a whole number of
+ * pixels, rounded inward where all it covers would otherwise reach past the
+ * span; a figure that no whole move keeps within the span is centred on it.
  * @param {Array<{ x: number, y: number, width: number, height: number }>} rects
  * @param {{ x: number, width: number }} field
+ * @param {Array<{ x: number, y: number, width: number, height: number }>} cover
  */
-function balancingShift(rects, field) {
+function balancingShift(rects, field, cover) {
+  const counted = (rect) => rect.x + rect.width > field.x;
   let mass = 0;
   let moment = 0;
-  let left = Infinity;
-  let right = -Infinity;
-  for (const rect of rects) {
-    if (rect.x + rect.width <= field.x) continue;
+  for (const rect of rects.filter(counted)) {
     const area = rect.width * rect.height;
     mass += area;
     moment += area * (rect.x + rect.width / 2);
+  }
+  if (!mass) return 0;
+  let left = Infinity;
+  let right = -Infinity;
+  for (const rect of cover.filter(counted)) {
     left = Math.min(left, rect.x);
     right = Math.max(right, rect.x + rect.width);
   }
-  if (!mass) return 0;
   const off = field.x + field.width / 2 - moment / mass;
   const wanted = Math.sign(off) * Math.max(0, Math.abs(off) - POSTER.centreTolerance * field.width);
-  return Math.round(Math.max(field.x - left, Math.min(field.x + field.width - right, wanted)));
+  const [least, most] = [field.x - left, field.x + field.width - right];
+  if (Math.ceil(least) > Math.floor(most)) return Math.round((least + most) / 2);
+  return Math.max(Math.ceil(least), Math.min(Math.floor(most), Math.round(wanted)));
 }
 
 /**

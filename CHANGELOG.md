@@ -35,6 +35,16 @@ remain pre-release contracts and may contain incompatible changes.
   samples, so the manifest's digests `edition.house` and `overview.house` change. Every other plate is drawn
   as before.
 
+### Fixed
+
+- A figure moved across its plate to centre its ink keeps its boundary inside the plate, out to the outer edge of the
+  boundary's stroke: the move and the check that nothing is drawn outside the plate count the boundary's frame, which
+  still weighs nothing in the balance measures, and the move, a whole number of pixels, is rounded inward. The English
+  Architecture Publisher edition's `models` plate drew its boundary 20.5 px past its edge. In the census of the
+  published editions, built from the same works with dev's code and with this, 2 of 76 plates change, `models` and the
+  English Film Kit edition's `narration` plate, whose cards reached 0.5 px past its edge; no card and no boundary's
+  stroke lies past any plate, and the census's counts are as on dev.
+
 ## [0.21.0] - 2026-11-27
 
 ### Added

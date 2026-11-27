@@ -203,6 +203,10 @@ the decision set, so it stays.
   taken; crossings (61) and route defects (21) are as on dev, and the same 11 views are matrices. 63 of the 76 plates
   are recorded as on dev. The light runs above read the works before their re-pin of the same day, so their counts
   differ from the census's; the census is the measure of record.
+- The same census found one plate drawn past its edge, on dev's code as on this: the English Architecture Publisher
+  edition's `models` plate, 1805 px wide, whose system boundary reaches 1825.5. The move that centres the figure's
+  ink was bounded by its cards and labels, not by the boundary's frame. The Change that keeps the boundary inside
+  its plate answers it.
 
 ## What is not established
 

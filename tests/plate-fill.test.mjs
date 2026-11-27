@@ -258,13 +258,15 @@ test("a plate takes its justified figure where it clears a gate, every row in it
 /**
  * The digest of each fixture plate that draws no band, took none back and keeps its chosen figure, as dev 92c19b2b
  * drew it before the fill: its SVG, runs, composition and measures. A change that means to move no such plate
- * leaves them as they are.
+ * leaves them as they are. aigw's overview and authority are as the Change that keeps the boundary inside its plate
+ * draws them: the move that centres their ink was rounded past the left edge of their span, by less than half a
+ * pixel, and is now rounded inward, 1 px to the right.
  */
 const BEFORE = Object.freeze({
   "bank containers-tiers": "3b7e1bc36b2308cf0eaec253f3f91f40646e3b69a2798ca5ef7b4a5945461b88",
   "bank containers-automatic": "8f62655bc6c8d3f128b70452764d0ca473865d5d6eee59bf548068bb715e6e0b",
-  "aigw overview": "bce767e61b1222b129417dd8a89cdd9c4230bd23347c41e0e5ceb1eab2a09dc2",
-  "aigw authority": "67fa50ca773895722c4c4d2b41a0ddf2b73320d001711f79866155c6d8f568cf",
+  "aigw overview": "eeb3133d71a216afe3b4527a3e077d2f25b3bc7a62ea2364bf4a25d511fe6e75",
+  "aigw authority": "d4d2e6d9eea8abaf73270b7c36b5031a5409889b206d933f7161d65ee18df69a",
   "aigw adapters": "b64d9ac551f39a75a8f766bf56607ffa167fdb13ffbfac35a6a968f0d5d87acd",
   "ethos overview": "b07e1eca93fb0b2166e378093d21a8e221ec4728c6df7f599d35bc6fc81ef48e",
   "ethos proof": "fc68d8a4faf395179cfb7a1c047fdc04724c19104f7c8dff198faf43a9fe114b",

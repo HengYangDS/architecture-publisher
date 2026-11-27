@@ -232,6 +232,8 @@ export function drawFigure(layout, input) {
   const boundary = layout.boundary;
   /** @type {{ x: number, y: number, width: number, height: number } | null} */
   let frame = null;
+  /** @type {{ x: number, y: number, width: number, height: number } | null} */
+  let stroked = null;
   /** What a relation's count may not touch: the boundary's edges and name, the parts and the relations' labels. */
   const marks = [];
   if (boundary) {
@@ -255,6 +257,15 @@ export function drawFigure(layout, input) {
       }),
     );
     const edge = lines.boundary();
+    // The edge's stroke is centred on the frame's outline, so what the plate must hold of the frame reaches out to
+    // the stroke's outer edge.
+    const half = edge.stroke / 2;
+    stroked = {
+      x: frame.x - half,
+      y: frame.y - half,
+      width: frame.width + 2 * half,
+      height: frame.height + 2 * half,
+    };
     // The name starts on the text edge of a card at the boundary's left edge, so it and the names of the cards
     // under it share one left edge at every type step; its tab reaches 12 px before it.
     let tabX = at(boundary.x + metrics.spacing.boundaryPad + metrics.card.pad - 12);
@@ -349,6 +360,7 @@ export function drawFigure(layout, input) {
     runs,
     rects,
     frame,
+    stroked,
     lines: [...rows],
     touching,
     report: { parts, paths, labels },
