@@ -136,12 +136,13 @@ and its progress.
 
 Each view becomes rows of cards on one column lattice. On a plate each card is
 as wide as its text and strip within its lattice slot, the cards of one column
-share the widest of those widths, and every card of a row has one height; the
-page's diagram cards share one width. Declared tiers are the rows, in order; a
-tier wider than a row wraps into consecutive rows. Otherwise rows follow the
-relations: every relation points down or stays within one row, and the publisher
-chooses the rows that skip the fewest rows with their relations, then have the
-fewest relations within a row, then the fewest rows. The placement of cards
+share the widest of those widths, and every card of a row has one height, until
+the plate's fill, below, moves them; the page's diagram cards share one width.
+Declared tiers are the rows, in order; a tier wider than a row wraps into
+consecutive rows. Otherwise rows follow the relations: every relation points
+down or stays within one row, and the publisher chooses the rows that skip the
+fewest rows with their relations, then have the fewest relations within a row,
+then the fewest rows. The placement of cards
 within their rows is exact: it minimizes a weighted count of crossings, bends
 and unused columns over the whole lattice. Relations run through the channels
 between rows as buses, corridors, lanes beyond the outermost cards and straight
@@ -203,6 +204,21 @@ every detail when that costs it no room, no type step and no wiring, which its
 composition records. A plate is drawn as the SVG of its shapes and a list of
 text runs, which the edition sets as text.
 
+A plate in tiers fills the blank its rows leave, from the model
+([why and how](../research/tiers-fill.md)). A lone card of the figure's first or
+last row whose category may span the figure (the [categories](model.md#kinds)
+table says which), and to which at least half the cards of the row beside it
+relate, is drawn as a band across the figure in the card's tokens, its text at
+its column's width at its left; each relation from that row enters it straight
+at its other end's column. Beside a chosen figure that misses a balance gate,
+the publisher draws the same figure with each row of two or more cards spread
+between its insets, and takes it only when it passes a gate the chosen figure
+misses, misses none that figure passes, and wires no worse. A band is kept only
+where its figure and its plate wire no worse than drawn plain, and neither fill
+may bring an outside card inside the system's boundary. The composition records
+`bands`, the bands drawn plain as `unbanded`, and `justified: true`, each only
+where it applies.
+
 A view drawn as a matrix ([when](model.md#views)) keeps the box its figure in
 tiers takes beside its reading, so the plate's width, reading and summary are
 those of tiers. Each part has a row and a column, in the order its relations
@@ -215,7 +231,8 @@ bracket over the inside rows and columns, and the empty corner reads
 at which it fits; it draws no line, so it has no crossing, route or bend, and
 its balance counts its heads, its filled cells at their tint and its words, not
 its rules, diagonal or brackets. Its composition records `kind: "matrix"` and,
-as `tiers.routes`, the route defects of the full-width tiers figure that chose it.
+as `tiers.routes`, the route defects of the full-width tiers figure that chose
+it, with its bands where it keeps them.
 Its key draws the boundary as a bracket and a planned or retired status as a
 cell edged in its dash, as the matrix draws them.
 

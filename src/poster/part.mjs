@@ -283,9 +283,9 @@ export function drawCard(part, inset, draw) {
  *   text: ReturnType<ReturnType<typeof partBoxes>["text"]>, styles: any, card: any, icons: any,
  *   colors: ReturnType<typeof import("./tokens.mjs").colorsOf>,
  *   lines: ReturnType<typeof import("./tokens.mjs").linesOf>,
- *   row?: { name: number, strip: number, caption: number, details: number } }} part
+ *   row?: { name: number, strip: number, caption: number, details: number }, content?: number }} part
  *   `card` is the card metrics at the figure's step; `row` the regions of the part's row, at whose tops its own
- *   regions stand
+ *   regions stand; `content` the width its text is set in, where the card is drawn as a band wider than that
  * @param {{ text: Function, shapes: string[], rects: any[], typefaces: any }} draw
  *   `typefaces` measures a count and gives a line's baseline
  */
@@ -325,7 +325,7 @@ export function drawPart(part, draw) {
     draw.text(
       "cards",
       count,
-      x + width - card.pad - set,
+      x + (part.content ?? width) - card.pad - set,
       top,
       styles.detail,
       C.muted,

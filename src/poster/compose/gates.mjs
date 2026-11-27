@@ -1,3 +1,5 @@
+import { wiresNoMore } from "../../layout/fill.mjs";
+
 /**
  * The balance gates a plate is measured against; the gates it misses are
  * recorded, not refused. They were calibrated on pages a reader judged: the
@@ -41,4 +43,20 @@ export function gateFailures(balance) {
   if (Math.abs(balance.centroid[1]) > GATES.centroid[1])
     fails.push({ measure: "centroidY", value: balance.centroid[1], limit: GATES.centroid[1] });
   return fails;
+}
+
+/**
+ * Whether a plate takes a figure drawn beside its chosen one, as the tiers figure's justified rows are
+ * (docs/research/tiers-fill.md): the other figure passes a gate the chosen figure misses, misses no gate the chosen
+ * figure passes, and has no more crossings and no more route defects.
+ * @param {{ misses: readonly string[], crossings: number, routes: number }} chosen the gates the chosen figure
+ *   misses, by measure, and its wiring
+ * @param {{ misses: readonly string[], crossings: number, routes: number }} other
+ */
+export function takesJustified(chosen, other) {
+  return (
+    wiresNoMore(other, chosen) &&
+    other.misses.every((measure) => chosen.misses.includes(measure)) &&
+    other.misses.length < chosen.misses.length
+  );
 }

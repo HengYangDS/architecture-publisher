@@ -54,7 +54,7 @@ builds a first work from an empty directory.
   that show it. A claim that owns no file or a cited file that is gone is
   refused, and `check --repo <checkout> --against <commit>` lists what moving
   the pin would change.
-- **A plate never draws an overlap.** Cards sit on one lattice and every wire is
+- **A plate never draws an overlap.** Cards sit in rows and every wire is
   horizontal or vertical; a wire through a card, a shared segment or a touching label
   rejects the layout, and a view no layout can draw is refused, never shrunk.
 - **The same inputs give the same bytes.** The manifest records the digest of

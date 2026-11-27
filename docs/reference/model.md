@@ -151,16 +151,16 @@ an undeclared kind is labelled with its id.
 
 <!-- categories: written from src/model/schema.json and src/categories.json by tools/docs/references.mjs; do not edit -->
 
-| Category     | Default icon   | Drawn as                                                       |
-| ------------ | -------------- | -------------------------------------------------------------- |
-| `person`     | `user`         | Outside the system boundary; Archify's `external` type.        |
-| `external`   | `box`          | Outside the system boundary; Archify's `external` type.        |
-| `frontend`   | `app-window`   | Archify's `frontend` type.                                     |
-| `backend`    | `server`       | Archify's `backend` type; the default.                         |
-| `database`   | `database`     | Archify's `database` type.                                     |
-| `cloud`      | `cloud`        | Archify's `cloud` type.                                        |
-| `messagebus` | `waypoints`    | Archify's `messagebus` type.                                   |
-| `security`   | `shield-check` | Archify's `security` type; on plates, in the palette's accent. |
+| Category     | Default icon   | Drawn as                                                                                                                                                                |
+| ------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `person`     | `user`         | Outside the system boundary; Archify's `external` type.                                                                                                                 |
+| `external`   | `box`          | Outside the system boundary; Archify's `external` type; on plates, a lone card at the top or foot of a figure may be drawn as a [band](operations.md#layout-and-media). |
+| `frontend`   | `app-window`   | Archify's `frontend` type.                                                                                                                                              |
+| `backend`    | `server`       | Archify's `backend` type; the default.                                                                                                                                  |
+| `database`   | `database`     | Archify's `database` type; on plates, a lone card at the top or foot of a figure may be drawn as a [band](operations.md#layout-and-media).                              |
+| `cloud`      | `cloud`        | Archify's `cloud` type; on plates, a lone card at the top or foot of a figure may be drawn as a [band](operations.md#layout-and-media).                                 |
+| `messagebus` | `waypoints`    | Archify's `messagebus` type; on plates, a lone card at the top or foot of a figure may be drawn as a [band](operations.md#layout-and-media).                            |
+| `security`   | `shield-check` | Archify's `security` type; on plates, in the palette's accent.                                                                                                          |
 
 <!-- end of categories -->
 
@@ -509,9 +509,11 @@ relations from one to another, holding their label. It names the composition of
 the view's plate; the page's diagram of the view is not changed by it. Without
 it, a view of at least eight parts (components, groups' cards and the neighbours
 it shows) that declares no tiers is drawn as a matrix when its figure in tiers
-would tangle, with at least two route defects at the full width, and a matrix
-fits; every other view is drawn in tiers. A matrix that a view names and that
-does not fit is drawn in tiers, and the build reports `plate_composition_unfitted`.
+would tangle, with at least two route defects at the full width as the plate
+would draw it, its [bands](operations.md#layout-and-media) where it keeps them,
+and a matrix fits; every other view is drawn in tiers. A matrix that a view
+names and that does not fit is drawn in tiers, and the build reports
+`plate_composition_unfitted`.
 
 The page names a view's diagram by its title, or by its question when it has
 no title of its own; its plate is headed by its title, or the model's, and

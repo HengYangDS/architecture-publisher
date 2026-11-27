@@ -1,22 +1,24 @@
 import { HOUSE, HOUSE_BODY } from "../../house.mjs";
 import { presentation } from "../../kinds.mjs";
 import { wordsOf } from "../../locale.mjs";
+import { wiresNoMore } from "../../layout/fill.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { two } from "../../names.mjs";
 import { refuse } from "../../refusal.mjs";
 import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
 import { setWidth } from "../spread.mjs";
 import { stripKey } from "../strip.mjs";
-import { platesOf } from "../plate.mjs";
+import { bandable, platesOf } from "../plate.mjs";
 import { HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
-import { gateFailures } from "./gates.mjs";
+import { gateFailures, takesJustified } from "./gates.mjs";
 import { matrices, matrixKey, matrixSample } from "./matrix.mjs";
 
 /**
  * What every composition of an edition's plates shares: the model, its
- * typefaces and icons, and the style its parts are drawn in.
+ * typefaces and icons, and the style its parts are drawn in; `plain` where its
+ * figures are drawn without the tiers figure's band, for its guard.
  * @typedef {{ model: any, typefaces: any, icons: any,
- *   style: import("../strip.mjs").Style }} Scene
+ *   style: import("../strip.mjs").Style, plain?: boolean }} Scene
  */
 
 /**
@@ -224,28 +226,50 @@ function balanceOfPlate(one, typefaces, width, height, paper) {
  * @param {{ details?: boolean, steps?: number[] }} [cards] compact cards at every step unless said otherwise
  */
 function* compositions(scene, view, width = BODY.width, height = BODY.height, cards = {}) {
-  const { model, typefaces, icons, style } = scene;
-  const boundaryName = model.repository?.name ?? model.title;
-  const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
-    label ? [label] : [],
-  );
-  const column = gutterFor(typefaces, labels);
-  const plate = {
-    view,
-    field: { x: column, y: 0, width: width - column, height },
-    labelColumn: column ? { x: 0, y: 0, width: column, height, floor: 0 } : null,
-  };
-  const outside = view.components.some((component) => presentation(model, component).outside);
+  const plate = plateIn(scene, view, width, height);
+  const column = plate.labelColumn?.width ?? 0;
+  const outside = view.components.some((component) => presentation(scene.model, component).outside);
   /** @type {Array<"all" | "inside" | null>} */
   const centrings = outside ? ["all", "inside", null] : ["all", null];
   for (const tierLabels of column ? ["column", "edges"] : ["column"])
     for (const centring of centrings) {
-      const [one] = platesOf(
-        { model, typefaces, icons, boundaryName, centring, tierLabels, style, ...cards },
-        plate,
-      );
+      const [one] = platesOf(inputOf(scene, centring, tierLabels, cards), plate);
       if (one) yield { one, centring, tierLabels };
     }
+}
+
+/**
+ * What a plate is laid out from in a scene: its model, faces, icons and style, the boundary's name, the centring
+ * and tier labels it tries, and what more it is asked; drawn plain where the scene is.
+ * @param {Scene} scene
+ * @param {"all" | "inside" | null} centring
+ * @param {string} tierLabels
+ * @param {object} more
+ */
+function inputOf(scene, centring, tierLabels, more) {
+  const { model, typefaces, icons, style, plain } = scene;
+  const boundaryName = model.repository?.name ?? model.title;
+  return { model, typefaces, icons, boundaryName, centring, tierLabels, style, plain, ...more };
+}
+
+/**
+ * The field a view's figure is laid out in, within a width and height of the body: the body less the column its
+ * tier labels take.
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {number} width
+ * @param {number} height
+ */
+function plateIn(scene, view, width, height) {
+  const labels = viewRows(view, ROW_LIMIT, () => false).flatMap(({ label }) =>
+    label ? [label] : [],
+  );
+  const column = gutterFor(scene.typefaces, labels);
+  return {
+    view,
+    field: { x: column, y: 0, width: width - column, height },
+    labelColumn: column ? { x: 0, y: 0, width: column, height, floor: 0 } : null,
+  };
 }
 
 /** @param {import("../../plan/views.mjs").View} view */
@@ -273,7 +297,13 @@ function unfittable(view) {
  * @param {import("../strip.mjs").Style} [style] the house tokens and no measured facts unless given
  */
 export function admitsView(model, view, typefaces, icons, style = HOUSE_STYLE) {
-  if (compositions({ model, typefaces, icons, style }, view).next().done) unfittable(view);
+  const scene = { model, typefaces, icons, style };
+  // A view its figure drawn plain admits is admitted, whatever its band does.
+  if (
+    compositions(scene, view).next().done &&
+    compositions({ ...scene, plain: true }, view).next().done
+  )
+    unfittable(view);
   return { fits: true, width: BODY.width, height: BODY.height };
 }
 
@@ -438,12 +468,93 @@ function matrixOf(scene, view, tiers) {
 }
 
 /**
+ * A view's plate in tiers in one scene: its best figure at the full width, the width and reading the plate takes,
+ * and its figure there with its cards' details where they fit; or null when no composition lays it out.
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ */
+function planOf(scene, view) {
+  const full = bestWithin(scene, view, BODY.width);
+  if (!full) return null;
+  const { chosen, share, reading, standfirst } = widthOf(scene, view, full);
+  return { full, share, reading, standfirst, tiers: withDetails(scene, view, chosen) };
+}
+
+/**
+ * A view's plate in tiers with the tiers figure's band, guarded per plate on the rule each of its figures is guarded
+ * on (`wiresNoMore`, src/layout/fill.mjs): the plate drawn with its bands, unless its figure wires worse than the
+ * plate drawn plain, which is then drawn; and the cards a guard drew plain. A view is planned once where no band
+ * may draw a card of it, or where its plate drew none, at the full width or as it ships, so its guard has no band to
+ * take back; a view no composition lays out is refused.
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ */
+function guardedPlan(scene, view) {
+  const filled = planOf(scene, view);
+  const drewBands =
+    !filled || Boolean(filled.full.one.layout.bands || filled.tiers.one.layout.bands);
+  const plain =
+    drewBands && bandable(scene.model, view) ? planOf({ ...scene, plain: true }, view) : filled;
+  const measures = (/** @type {any} */ planned) => planned.tiers.one.layout.measures;
+  const plan =
+    filled && (!plain || wiresNoMore(measures(filled), measures(plain))) ? filled : plain;
+  if (!plan) return unfittable(view);
+  const layout = filled?.tiers.one.layout;
+  const unbanded =
+    plan === filled
+      ? (layout?.unbanded ?? [])
+      : [...(layout?.bands ?? []), ...(layout?.unbanded ?? [])];
+  return { plan, unbanded };
+}
+
+/**
+ * The plate's chosen figure in tiers, or the same figure justified where the plate takes it on its terms
+ * (`takesJustified`): the same rows, order of cards, wrapping, step, centring, tier labels, cards and bands, in the
+ * same box, with each row of two or more cards spread across the width. A figure that misses no gate keeps its rows.
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} chosen
+ */
+function justifiedBeside(scene, view, chosen) {
+  const { one, width, height, centring, tierLabels, balance } = chosen;
+  const faults = (/** @type {any} */ figure, /** @type {any} */ measured) => ({
+    misses: gateFailures(measured).map(({ measure }) => measure),
+    crossings: figure.layout.measures.crossings,
+    routes: figure.layout.measures.routes,
+  });
+  const before = faults(one, balance);
+  if (!before.misses.length) return chosen;
+  const rowsOf = (/** @type {any} */ figure) =>
+    JSON.stringify(figure.layout.rows.map(({ members }) => members));
+  const more = {
+    justify: true,
+    plain: !one.layout.bands,
+    details: one.details,
+    steps: [one.step],
+    wrapping: { limit: one.limit, flat: one.flat },
+  };
+  const paper = scene.style.tokens.palette.paper;
+  for (const twin of platesOf(
+    inputOf(scene, centring, tierLabels, more),
+    plateIn(scene, view, width, height),
+  )) {
+    if (rowsOf(twin) !== rowsOf(one)) continue;
+    const measured = balanceOfPlate(twin, scene.typefaces, width, height, paper);
+    if (takesJustified(before, faults(twin, measured)))
+      return { ...chosen, one: twin, balance: measured, justified: true };
+  }
+  return chosen;
+}
+
+/**
  * Compose every view of a model as one plate each, its figure at the width the plate width rule gives it: the
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
  * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
  * Each plate carries its figure's report of what it drew, as the drawing handed it back. A plate is drawn as a
  * matrix where its view names one or the matrix's rule takes one, in the box its tiers would have, and records that
- * kind; a matrix its view names that does not fit there leaves the plate in tiers, and the plate says so.
+ * kind; a matrix its view names that does not fit there leaves the plate in tiers, and the plate says so. A plate in
+ * tiers draws the tiers figure's fill (src/layout/fill.mjs) and records it: the cards it drew as bands, the bands a
+ * guard drew plain, and the justified figure where it took that.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
@@ -454,13 +565,14 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
   const boundaryName = model.repository?.name ?? model.title;
   const scene = { model, typefaces, icons, style };
   return views.map((view, index) => {
-    const full = bestWithin(scene, view, BODY.width);
-    if (!full) unfittable(view);
-    const { chosen: compact, share, reading, standfirst } = widthOf(scene, view, full);
-    const tiers = withDetails(scene, view, compact);
+    const { plan, unbanded } = guardedPlan(scene, view);
+    const { full, share, reading, standfirst } = plan;
+    // The matrix's rule reads the figure in tiers that would be drawn, its band where it keeps one.
     const { routes } = full.one.layout.measures;
     const kind = compositionOf(view, routes);
-    const chosen = (kind === "matrix" ? matrixOf(scene, view, tiers) : null) ?? tiers;
+    const chosen =
+      (kind === "matrix" ? matrixOf(scene, view, plan.tiers) : null) ??
+      justifiedBeside(scene, view, plan.tiers);
     const { one, matrix, centring, tierLabels, balance, width, height } = chosen;
     // A composition the view names and its plate is not drawn in.
     const unfitted = view.composition === (matrix ? "matrix" : "tiers") ? null : view.composition;
@@ -511,6 +623,10 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         centring,
         tierLabels,
         details: one.details,
+        // The tiers figure's fill: the cards drawn as bands, the bands a guard drew plain, the justified figure.
+        ...(!matrix && one.layout.bands ? { bands: one.layout.bands } : {}),
+        ...(!matrix && unbanded.length ? { unbanded } : {}),
+        ...(chosen.justified ? { justified: true } : {}),
       },
       measures: {
         crossings: one.layout.measures.crossings,

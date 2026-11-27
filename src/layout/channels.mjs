@@ -1,4 +1,5 @@
 import { refuse } from "../refusal.mjs";
+import { gapsBetween } from "./fill.mjs";
 /**
  * Wires between rows. Each channel between row g and row g + 1 holds, from top
  * to bottom: a stub, an upper band of horizontal tracks, label rows, a lower
@@ -63,7 +64,8 @@ export function straightArrows(input) {
  * @param {{ order: string[][], classes: any, box: Map<string, { x: number, cx: number, width: number }>, cardWidth: number,
  *   rowHeights: number[], contentWidth: number, columns: number, pitch: number, gridLeft: number, slots: number,
  *   frame: [number, number] | null, spacing: any, label: (relation: any, maxWidth?: number) => LabelBox,
- *   straights: Straight[], lanes?: boolean }} input `lanes` when the medium draws its own wires
+ *   straights: Straight[], lanes?: boolean, justified?: boolean }} input `lanes` when the medium draws its own
+ *   wires, `justified` when the tiers figure's fill spread its rows off the lattice (src/layout/fill.mjs)
  */
 export function buildWires(input) {
   const { order, classes, box, straights } = input;
@@ -205,6 +207,8 @@ function corridor(input, first, last, x1, x2, taken, wired) {
       candidates.push(gridLeft + column * pitch - gap / 2 + offset);
   for (let position = 0; position < slots; position += 1)
     candidates.push(gridLeft + (position / 2) * pitch + cardWidth / 2);
+  // Rows justified off the lattice leave their gaps where the lattice's are not.
+  if (input.justified) candidates.push(...gapsBetween(order.slice(first + 1, last), box));
   // A lane beyond the outermost cards and the boundary, twice as far from them
   // as two parallel wires: where every gap a corridor could pass is crossed, it
   // runs around the figure instead. At one separation from the boundary it read

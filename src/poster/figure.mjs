@@ -312,7 +312,7 @@ export function drawFigure(layout, input) {
     const key = Math.round(card.y * 100);
     rowsByTop.set(key, [
       ...(rowsByTop.get(key) ?? []),
-      { component: components.get(id), width: card.width },
+      { component: components.get(id), width: card.content ?? card.width },
     ]);
   }
   const regionsOf = new Map(
@@ -327,10 +327,11 @@ export function drawFigure(layout, input) {
         x: at(card.x),
         y: down(card.y),
         width: card.width,
+        content: card.content,
         height: card.height,
         model,
         component,
-        text: input.cardText(component, card.width),
+        text: input.cardText(component, card.content ?? card.width),
         styles,
         card: metrics.card,
         icons,

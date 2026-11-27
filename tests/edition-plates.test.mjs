@@ -166,8 +166,8 @@ test("a view with a summary gives up a fifth of the body, or keeps it and sets i
   const layout = plates.find(({ views: [id] }) => id === "layout");
   assert.deepEqual([layout?.share, layout?.width, layout?.reading], [0.8, 1805, "set"]);
   assert.equal(layout?.standfirst, undefined);
-  // The media view is set at the largest step at 65 percent as at 80, with the one route defect it has at the full
-  // width and no crossing, so it gives up more of the body at no cost to its type.
+  // The media view is set at the largest step at 65 percent as at 80, wiring no worse than at the full width, so
+  // it gives up more of the body at no cost to its type.
   const media = plates.find(({ views: [id] }) => id === "media");
   assert.deepEqual([media?.share, media?.width, media?.reading], [0.65, 1466, "set"]);
   // The ETHOS proof plane with its longer names has one crossing and no route defect at the full width, a route

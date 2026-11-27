@@ -1,53 +1,61 @@
 {
-  "$comment": "How each category of the model looks in every medium, in the order the schema takes from this table: its default Lucide icon, Archify's type for it, whether its parts lie outside the described system, and whether it takes the palette's accent role; then the category of a part that names no kind, and a group's look. src/kinds.mjs reads this table; tools/docs/references.mjs writes the model schema's categories and default category from it, and the model reference's table of categories.",
+  "$comment": "How each category of the model looks in every medium, in the order the schema takes from this table: its default Lucide icon, Archify's type for it, whether its parts lie outside the described system, whether it takes the palette's accent role, and whether its parts are things outside the code that parts use, whose lone card at a plate's first or last row may be drawn as a band across the figure (docs/research/tiers-fill.md: decided on 2026-11-27 by the owner's delegate, on a committee of three); then the category of a part that names no kind, and a group's look. src/kinds.mjs reads this table; tools/docs/references.mjs writes the model schema's categories and default category from it, and the model reference's table of categories.",
   "categories": {
     "person": {
       "icon": "user",
       "archify": "external",
       "outside": true,
-      "accent": false
+      "accent": false,
+      "spans": false
     },
     "external": {
       "icon": "box",
       "archify": "external",
       "outside": true,
-      "accent": false
+      "accent": false,
+      "spans": true
     },
     "frontend": {
       "icon": "app-window",
       "archify": "frontend",
       "outside": false,
-      "accent": false
+      "accent": false,
+      "spans": false
     },
     "backend": {
       "icon": "server",
       "archify": "backend",
       "outside": false,
-      "accent": false
+      "accent": false,
+      "spans": false
     },
     "database": {
       "icon": "database",
       "archify": "database",
       "outside": false,
-      "accent": false
+      "accent": false,
+      "spans": true
     },
     "cloud": {
       "icon": "cloud",
       "archify": "cloud",
       "outside": false,
-      "accent": false
+      "accent": false,
+      "spans": true
     },
     "messagebus": {
       "icon": "waypoints",
       "archify": "messagebus",
       "outside": false,
-      "accent": false
+      "accent": false,
+      "spans": true
     },
     "security": {
       "icon": "shield-check",
       "archify": "security",
       "outside": false,
-      "accent": true
+      "accent": true,
+      "spans": false
     }
   },
   "kindless": "backend",

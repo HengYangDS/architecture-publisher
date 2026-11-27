@@ -7,6 +7,7 @@ import {
   straightArrows,
   straighten,
 } from "./channels.mjs";
+import { bandsOf, fillRows, keepOutsideOut, keptBands, unbusBands } from "./fill.mjs";
 import { measureLayout } from "./measure.mjs";
 import { placeRows, splitCrossedBuses } from "./placement.mjs";
 import { ROW_LIMIT, viewRows } from "./rows.mjs";
@@ -26,6 +27,8 @@ import { ROW_LIMIT, viewRows } from "./rows.mjs";
  *   external: (component: any) => boolean,
  *   centring?: "all" | "inside" | null,
  *   lanes?: boolean,
+ *   spans?: (component: any) => boolean,
+ *   justify?: boolean,
  *   clearTurns?: boolean,
  *   arrow?: number,
  *   spacing: { column: number, columnSpread?: number, inset: number, stub: number, track: number, bandGap: number,
@@ -88,7 +91,9 @@ export function placementOf(view, rows, metrics) {
  * @param {import("../plan/views.mjs").View} view
  * @param {Metrics} metrics `lanes` lets a medium that draws its own wires give
  *   up lattice width for a lane beyond the cards on each side, where a long
- *   relation runs when every corridor between them crosses a wire
+ *   relation runs when every corridor between them crosses a wire; `spans`, where
+ *   the medium draws the tiers figure's band, says whether a part's kind may span
+ *   the figure; `justify` spreads each row across the width (src/layout/fill.mjs)
  * @param {{ boundaryName?: string | null, rows?: import("./rows.mjs").Row[],
  *   placement?: ReturnType<typeof placementOf> }} [options]
  */
@@ -97,7 +102,7 @@ export function layoutView(view, metrics, options = {}) {
   const external = (id) => metrics.external(components.get(id));
   const rows = options.rows ?? viewRows(view, ROW_LIMIT, external);
   const placement = options.placement ?? placementOf(view, rows, metrics);
-  const drawn = drawLayout(view, metrics, rows, placement, options.boundaryName);
+  const drawn = guarded(view, metrics, rows, placement, options.boundaryName);
   if (!metrics.lanes || !drawn.measures.crossings || !placement.relations.long.length) return drawn;
   const { spacing } = metrics;
   // A lane keeps twice two wires' separation from the outermost card or
@@ -105,13 +110,7 @@ export function layoutView(view, metrics, options = {}) {
   const lane = spacing.clear + 2 * spacing.separation + spacing.boundaryPad;
   const laned = { ...metrics, spacing: { ...spacing, inset: Math.max(spacing.inset, lane) } };
   try {
-    const around = drawLayout(
-      view,
-      laned,
-      rows,
-      placementOf(view, rows, laned),
-      options.boundaryName,
-    );
+    const around = guarded(view, laned, rows, placementOf(view, rows, laned), options.boundaryName);
     return around.measures.crossings < drawn.measures.crossings ? around : drawn;
   } catch (error) {
     if (error instanceof Refusal) return drawn;
@@ -120,14 +119,36 @@ export function layoutView(view, metrics, options = {}) {
 }
 
 /**
- * One layout of the view's rows on one placement.
+ * One layout of the view's rows on one placement, with the bands the tiers figure's fill keeps (src/layout/fill.mjs).
  * @param {import("../plan/views.mjs").View} view
  * @param {Metrics} metrics
  * @param {import("./rows.mjs").Row[]} rows
  * @param {ReturnType<typeof placementOf>} placement
  * @param {string | null | undefined} boundaryName
  */
-function drawLayout(view, metrics, rows, placement, boundaryName) {
+function guarded(view, metrics, rows, placement, boundaryName) {
+  const { spans } = metrics;
+  const components = new Map(view.components.map((component) => [component.id, component]));
+  const bands = spans
+    ? bandsOf(placement.order, view.relations, (id) => spans(components.get(id)))
+    : [];
+  return keptBands(
+    (kept) => drawLayout(view, metrics, rows, placement, boundaryName, kept),
+    bands,
+    Boolean(metrics.justify),
+  );
+}
+
+/**
+ * One layout of the view's rows on one placement, with the cards the band's rule takes drawn as bands.
+ * @param {import("../plan/views.mjs").View} view
+ * @param {Metrics} metrics
+ * @param {import("./rows.mjs").Row[]} rows
+ * @param {ReturnType<typeof placementOf>} placement
+ * @param {string | null | undefined} boundaryName
+ * @param {string[]} bands
+ */
+function drawLayout(view, metrics, rows, placement, boundaryName, bands) {
   const { spacing } = metrics;
   const components = new Map(view.components.map((component) => [component.id, component]));
   const external = (id) => metrics.external(components.get(id));
@@ -177,6 +198,20 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
       ];
     }),
   );
+  // The fill moves the cards off the lattice before anything is wired to them.
+  const justified = Boolean(metrics.justify);
+  const banded =
+    bands.length || justified
+      ? fillRows({
+          order,
+          box,
+          external,
+          bands,
+          justify: justified,
+          contentWidth,
+          inset: spacing.inset,
+        })
+      : [];
   const internal = rows.map((_, index) => order[index].some((id) => !external(id)));
   const first = internal.indexOf(true);
   const last = internal.lastIndexOf(true);
@@ -197,6 +232,9 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
         ) + spacing.boundaryPad,
       ])
     : null;
+  // A fill keeps every outside card outside the boundary, or the figure is not drawn.
+  if (frame && (banded.length || justified))
+    keepOutsideOut(order, [first, last], box, external, frame);
   // A straight arrow stays in its row, so it neither crosses a bus nor takes a channel.
   const straights = straightArrows({
     order,
@@ -206,11 +244,14 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
     spacing,
     label: metrics.label,
   });
-  const classes = splitCrossedBuses(
-    placement.relations,
-    (id) => /** @type {any} */ (box.get(id)).cx,
-    rows.length,
-    new Set(straights.map(({ relation }) => relation)),
+  const classes = unbusBands(
+    splitCrossedBuses(
+      placement.relations,
+      (id) => /** @type {any} */ (box.get(id)).cx,
+      rows.length,
+      new Set(straights.map(({ relation }) => relation)),
+    ),
+    banded,
   );
   const wiring = buildWires({
     order,
@@ -228,6 +269,7 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
     label: metrics.label,
     straights,
     lanes: metrics.lanes,
+    justified,
   });
   // A one-row view's U wires run in a trailing channel below the row, inside the boundary.
   const trailing = wiring.channels.length === rows.length;
@@ -274,9 +316,14 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
     spacing.rowPad +
     (bounded && last === rows.length - 1 ? spacing.boundaryBottom : 0);
   const cards = new Map(
-    [...box].map(([id, { x, width }]) => {
+    [...box].map(([id, card]) => {
+      const { x, width, content } = /** @type {{ x: number, width: number, content?: number }} */ (
+        card
+      );
       const row = /** @type {number} */ (classes.rowOf.get(id));
-      return [id, { x, y: rowTop[row], width, height: rowHeights[row] }];
+      // A card drawn as a band carries the narrower width its text is set in.
+      const set = content === undefined ? {} : { content };
+      return [id, { x, y: rowTop[row], width, height: rowHeights[row], ...set }];
     }),
   );
 
@@ -382,6 +429,8 @@ function drawLayout(view, metrics, rows, placement, boundaryName) {
     arrow: metrics.arrow ?? spacing.arrowStub,
     channels,
     boundary,
+    // The cards drawn as bands, for the plate's record; a figure without any carries none.
+    ...(banded.length ? { bands: banded } : {}),
   };
   // Paths are relative to the view; the plan names the view the refusal belongs to.
   const measures = measureLayout(geometry);

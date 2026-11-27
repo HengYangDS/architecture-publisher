@@ -1,3 +1,4 @@
+import { bandsOf } from "../layout/fill.mjs";
 import { layoutView, placementOf } from "../layout/grid.mjs";
 import { ROW_LIMIT, viewRows, wrapRows } from "../layout/rows.mjs";
 import { presentation } from "../kinds.mjs";
@@ -46,6 +47,26 @@ function wrappingsOf(model, view) {
   }
   wrappings.set(view, out);
   return out;
+}
+
+/**
+ * Whether the tiers figure's band may draw a card of a view: a lone card of the first or last row of one of its
+ * wrappings that the band's rule takes (src/layout/fill.mjs). A view with none is drawn alike with the fill and
+ * without it.
+ * @param {any} model
+ * @param {import("../plan/views.mjs").View} view
+ */
+export function bandable(model, view) {
+  const components = new Map(view.components.map((component) => [component.id, component]));
+  const spans = (id) => presentation(model, /** @type {any} */ (components.get(id))).spans;
+  return wrappingsOf(model, view).some(
+    ({ rows }) =>
+      bandsOf(
+        rows.map(({ members }) => members),
+        view.relations,
+        spans,
+      ).length > 0,
+  );
 }
 
 /**
@@ -145,6 +166,10 @@ function candidateMetrics(input) {
     external: (component) => presentation(model, component).outside,
     // The poster draws its own wires, so a long relation may run around the cards.
     lanes: true,
+    // The tiers figure's fill (src/layout/fill.mjs): a lone end card whose kind may span is a band, unless the
+    // figure is drawn plain; its rows are justified where the plate asks for them.
+    ...(input.plain ? {} : { spans: (component) => presentation(model, component).spans }),
+    justify: input.justify === true,
     arrow: wire.arrow,
     spacing,
   };
@@ -295,13 +320,21 @@ function labelsClear(rects) {
  */
 function brokenText(input, layout) {
   for (const component of input.view.components) {
-    const broken = input.metrics.broken(
-      component,
-      layout.cards.get(component.id)?.width ?? layout.card.width,
-    );
+    const broken = input.metrics.broken(component, textWidth(layout, component.id));
     if (broken) return broken;
   }
   return null;
+}
+
+/**
+ * The width a laid-out card's text is set in: its own, or, for a card the fill draws as a band, its column's.
+ * @param {any} layout
+ * @param {string} id
+ * @returns {number}
+ */
+function textWidth(layout, id) {
+  const card = layout.cards.get(id);
+  return card?.content ?? card?.width ?? layout.card.width;
 }
 
 /**
@@ -313,10 +346,7 @@ function brokenText(input, layout) {
 function captionsMixed(input, layout) {
   const lines = new Set();
   for (const component of input.view.components) {
-    const text = input.metrics.cardText(
-      component,
-      layout.cards.get(component.id)?.width ?? layout.card.width,
-    );
+    const text = input.metrics.cardText(component, textWidth(layout, component.id));
     if (text.caption.count !== null) lines.add(text.captionLines);
   }
   return lines.size > 1;
@@ -327,9 +357,11 @@ const TOO_WIDE = new Set(["too_wide", "layout_row_too_wide"]);
 
 /**
  * Every composition of one plate, best first: of its parts' compact cards, or with `details` of cards that set
- * what their parts state; at every type step, or at the `steps` given alone. A plate's captions have one form: a
- * composition is laid out with each count beside its kind, and where a card has not the room for that line, or
- * the cards so sized are too wide for the field, it is laid out again with every count under its kind.
+ * what their parts state; at every type step, or at the `steps` given alone; of every wrapping, or of the one the
+ * `wrapping` names by its limit and shape. A plate's captions have one form: a composition is laid out with each
+ * count beside its kind, and where a card has not the room for that line, or the cards so sized are too wide for
+ * the field, it is laid out again with every count under its kind. Its figure takes the tiers figure's band unless
+ * it is drawn `plain`, and with `justify` its rows are justified (src/layout/fill.mjs).
  */
 export function platesOf(input, plate) {
   const found = [];
@@ -339,7 +371,8 @@ export function platesOf(input, plate) {
     const styles = figureStyles(step);
     const metrics = figureMetrics(styles);
     for (const [order, { rows, limit, flat }] of wrappingsOf(input.model, plate.view).entries()) {
-      const { centring } = input;
+      const { centring, wrapping } = input;
+      if (wrapping && (wrapping.limit !== limit || wrapping.flat !== flat)) continue;
       // Each wrapping is drawn once with channels that take more label rows to
       // turn no wire beside another card than its own, and once without, for a
       // body that cannot hold the taller channels.
@@ -353,7 +386,7 @@ export function platesOf(input, plate) {
             icons: input.icons,
             styles,
             rows,
-            key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}|${details}|${caption}`,
+            key: `${index}|${order}|${plate.field.width}|${centring}|${clearTurns}|${details}|${caption}|${input.plain === true}|${input.justify === true}`,
             field: plate.field,
             labelColumn: plate.labelColumn,
             tierLabels: input.tierLabels,
@@ -371,6 +404,8 @@ export function platesOf(input, plate) {
                 style: input.style,
                 details,
                 caption,
+                plain: input.plain,
+                justify: input.justify,
               }),
               centring,
               clearTurns,

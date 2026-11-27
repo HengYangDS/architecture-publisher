@@ -290,6 +290,12 @@ const categoriesTable = () =>
         ...(look.outside ? ["outside the system boundary"] : []),
         `Archify's ${code(look.archify)} type`,
         ...(look.accent ? ["on plates, in the palette's accent"] : []),
+        // The tiers figure's band (src/layout/fill.mjs); its rule is the operations reference's to state.
+        ...(look.spans
+          ? [
+              "on plates, a lone card at the top or foot of a figure may be drawn as a [band](operations.md#layout-and-media)",
+            ]
+          : []),
         ...(name === category.default ? ["the default"] : []),
       ].join("; ");
       return [code(name), code(look.icon), `${drawn[0].toUpperCase()}${drawn.slice(1)}.`];

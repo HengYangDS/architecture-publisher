@@ -15,6 +15,16 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** a tiers figure is filled where a measured rule says so. A lone card of its first or last row whose
+  kind is a thing outside the code that parts use (the categories `external`, `database`, `cloud` and `messagebus`),
+  and to which at least half the cards of its neighbouring row relate, is drawn as a band across the whole figure,
+  each wire entering it straight; beside a plate's chosen figure that misses a balance gate, the same figure with
+  each row spread across the width is drawn, and taken only when it clears a gate, misses none the chosen figure
+  passes and crosses no more. A filled figure is kept only when its crossings and route defects are no more than
+  plain, and never when its boundary would enclose an outside card. A plate's composition records its `bands`, a
+  band the guard took back (`unbanded`) and `justified`; the matrix's rule reads the figure as filled. In the census
+  of the published editions, built from the same works, 4 of the 54 plates that missed the blank-rectangle gate pass
+  it and none comes to miss a gate.
 - **Breaking:** a view of at least eight parts that declares no tiers is drawn as a matrix when its figure in
   tiers at the full width has at least two route defects and a matrix fits: a row and a column for each part, in
   the order its relations flow, and a cell holding the label of the relations from one part to another, in the

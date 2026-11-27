@@ -157,10 +157,14 @@ reader file with their digests and counts, and no longer repeats them.
   no bundled face draws, is refused rather than drawn wrong.
 - On plates each card is as wide as its text and its strip, the cards of one
   lattice column share one width and the cards of a row one height, and all sit
-  on shared row lines; the page's diagram cards share one width. Wires are
-  horizontal and vertical only; no segment is shared by two relations, no wire
-  crosses a card and no label touches a card, a label, another wire or the
-  system boundary. A layout that cannot meet this is never drawn, and a view no
+  on shared row lines; the page's diagram cards share one width. A plate fills
+  the blank its rows leave: a lone card of its first or last row, of a thing
+  outside the code that at least half the row beside it relates to, is drawn as
+  a band across the figure, and its rows are spread across the width where that
+  passes a balance gate it misses; neither is kept where it wires worse or would
+  bring an outside part inside the system boundary. Wires are horizontal and
+  vertical only; no segment is shared by two relations, no wire crosses a card
+  and no label touches a card, a label, another wire or the system boundary. A layout that cannot meet this is never drawn, and a view no
   layout draws is refused. Crossings the relations force are allowed and
   counted, as are route defects, and each plate prefers the fewest of both.
 - Archify delivers the page at the build's quality profile, showcase unless the
