@@ -15,6 +15,16 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- **Breaking:** a view whose shape is a hub's is drawn as a radial figure, its centre in the middle of the box its
+  tiers plate keeps and its other parts on an ellipse that fills the box. The rule reads the model alone, before the
+  matrix's, so a view is drawn alike in every language: a view of at least four parts whose author declared no tiers
+  and named no composition, whose part with the most distinct neighbours relates to at least three quarters of the
+  others, with no other part related to more than half of them and at least twice as many of its relations going out
+  as coming in. A plate whose radial figure cannot be drawn or would set smaller type is drawn as the matrix's rule or
+  tiers would draw it, and its composition records `refused` with the reason; a view may name `radial`. A label keeps
+  one clearance from other lines in every composition, and the route measure reads slanting lines. In the census of
+  the published editions, built from the same works, six plates are drawn radial and the other 70 as before; on the
+  six the blank-rectangle gate's misses fall from 5 to 0 and three miss the holes gate.
 - A command's four outcomes, each with its exit status, whether it succeeded and the keys of its JSON result, stand
   once in `src/cli/outcomes.json`: the program reads its exit statuses, the last line of its help, its reports'
   closing lines and its JSON results from it, and the command line and refusals references' outcomes are written from

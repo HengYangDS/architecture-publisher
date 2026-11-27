@@ -1,3 +1,4 @@
+import { slanted } from "../layout/measure.mjs";
 import { DARKNESS, darkness } from "./balance.mjs";
 import { fixed } from "./tokens.mjs";
 
@@ -176,6 +177,18 @@ export function drawCount(run, marks, draw) {
   return Boolean(clear);
 }
 
+/**
+ * The way from one point to another as a unit step on each axis: the sign of each difference for a stretch that runs
+ * across or down, as an orthogonal wire's corners are drawn, and its share of the stretch's length for one that runs
+ * at a slant, so a corner of a 45° or any other bend is rounded along its own stretches.
+ */
+const unit = ([x1, y1], [x2, y2]) => {
+  const [dx, dy] = [x2 - x1, y2 - y1];
+  if (!dx || !dy) return [Math.sign(dx), Math.sign(dy)];
+  const length = Math.hypot(dx, dy);
+  return [dx / length, dy / length];
+};
+
 /** A path through `points` with rounded corners. */
 function rounded(points, radius) {
   let d = `M${fixed(points[0][0])},${fixed(points[0][1])}`;
@@ -184,17 +197,47 @@ function rounded(points, radius) {
     const [cx, cy] = points[i];
     const [nx, ny] = points[i + 1];
     const r = Math.min(radius, Math.hypot(cx - px, cy - py) / 2, Math.hypot(nx - cx, ny - cy) / 2);
+    const [ix, iy] = unit(points[i - 1], points[i]);
+    const [ox, oy] = unit(points[i], points[i + 1]);
     d +=
-      ` L${fixed(cx - Math.sign(cx - px) * r)},${fixed(cy - Math.sign(cy - py) * r)}` +
-      ` Q${fixed(cx)},${fixed(cy)} ${fixed(cx + Math.sign(nx - cx) * r)},${fixed(cy + Math.sign(ny - cy) * r)}`;
+      ` L${fixed(cx - ix * r)},${fixed(cy - iy * r)}` +
+      ` Q${fixed(cx)},${fixed(cy)} ${fixed(cx + ox * r)},${fixed(cy + oy * r)}`;
   }
   const last = points.at(-1);
   return `${d} L${fixed(last[0])},${fixed(last[1])}`;
 }
 
+/**
+ * The boxes a stretch at a slant covers, for the balance measure and for the marks a count keeps clear of: boxes along
+ * it a few px apart, each reaching `half` past the line on every side, so a diagonal is ink along its own path and not
+ * over the whole rectangle it spans, as a stretch across or down is one box from end to end.
+ * @param {number[]} from
+ * @param {number[]} to
+ * @param {number} half
+ */
+function stretchBoxes([x1, y1], [x2, y2], half) {
+  const steps = Math.max(1, Math.ceil(Math.hypot(x2 - x1, y2 - y1) / 6));
+  const boxes = [];
+  for (let at = 0; at <= steps; at += 1) {
+    const [x, y] = [x1 + ((x2 - x1) * at) / steps, y1 + ((y2 - y1) * at) / steps];
+    boxes.push({ x: x - half, y: y - half, width: 2 * half, height: 2 * half });
+  }
+  return boxes;
+}
+
 /** The three corners of an arrowhead of one size, its tip first. */
 function headOf({ x, y, direction }, size) {
   const a = size;
+  // An arrowhead on a line at a slant points along its line: `direction` is then the unit step of its last stretch.
+  if (Array.isArray(direction)) {
+    const [ux, uy] = direction;
+    const [bx, by] = [x - ux * a, y - uy * a];
+    return [
+      [x, y],
+      [bx + uy * (a / 2), by - ux * (a / 2)],
+      [bx - uy * (a / 2), by + ux * (a / 2)],
+    ];
+  }
   const shapes = {
     down: [
       [x, y],
@@ -307,6 +350,10 @@ export function drawLines(layout, scene) {
     for (let index = 1; index < moved.length; index += 1) {
       const [x1, y1] = moved[index - 1];
       const [x2, y2] = moved[index];
+      if (slanted(moved[index - 1], moved[index])) {
+        marks.push(...stretchBoxes(moved[index - 1], moved[index], weight / 2));
+        continue;
+      }
       marks.push({
         x: Math.min(x1, x2) - weight / 2,
         y: Math.min(y1, y2) - weight / 2,
@@ -358,6 +405,11 @@ export function drawLines(layout, scene) {
     for (let place = 1; place < moved.length; place += 1) {
       const [x1, y1] = moved[place - 1];
       const [x2, y2] = moved[place];
+      if (slanted(moved[place - 1], moved[place])) {
+        for (const box of stretchBoxes(moved[place - 1], moved[place], weight))
+          rects.push({ ...box, ...ink });
+        continue;
+      }
       rects.push({
         x: Math.min(x1, x2) - weight,
         y: Math.min(y1, y2) - weight,

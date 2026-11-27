@@ -290,8 +290,8 @@
             "minItems": 1
           },
           "composition": {
-            "description": "The composition the view's plate is drawn in: `tiers`, rows of cards joined by lines, or `matrix`, a row and a column for each part and a cell for the relations from one part to another. Without it, a plate is drawn as a matrix where the view's shape calls for one. A matrix that does not fit the plate is drawn in tiers, with a warning.",
-            "enum": ["tiers", "matrix"]
+            "description": "The composition the view's plate is drawn in: `tiers`, rows of cards joined by lines; `matrix`, a row and a column for each part and a cell for the relations from one part to another; or `radial`, the part related to the most others at the centre and the others round it. Without it, a view that declares no tiers is drawn round that part where it relates to most of the others and drives them, or as a matrix where its figure in tiers would tangle. A matrix or a radial figure that cannot be drawn in the plate is drawn in tiers, with a warning.",
+            "enum": ["tiers", "matrix", "radial"]
           }
         }
       }

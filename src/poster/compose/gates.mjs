@@ -1,4 +1,6 @@
 import { wiresNoMore } from "../../layout/fill.mjs";
+import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
+import { setWidth } from "../spread.mjs";
 
 /**
  * The balance gates a plate is measured against; the gates it misses are
@@ -24,6 +26,28 @@ const GATES = Object.freeze({
    */
   centroid: Object.freeze([0.12, 0.12]),
 });
+
+/**
+ * How a plate's ink stands over the body: its figure's rectangles and its text,
+ * each line box weighted by how dark it prints on the style's paper.
+ * @param {{ figure: { rects: any[], runs: any[] } }} one a composition of the plate
+ * @param {any} typefaces
+ * @param {number} width
+ * @param {number} height
+ * @param {string} paper
+ */
+export function balanceOfPlate(one, typefaces, width, height, paper) {
+  const text = (run) => ({
+    x: run.x,
+    y: run.top,
+    width: Math.min(setWidth(run, typefaces), width - run.x),
+    height: run.style.line,
+    kind: /** @type {const} */ ("mass"),
+    weight: DARKNESS.text * darkness(run.color, paper),
+  });
+  const body = { x: 0, y: 0, width, height };
+  return balanceOf([...one.figure.rects, ...one.figure.runs.map(text)], body, body);
+}
 
 /**
  * Which gates a measured page fails, each with its measured value and limit.

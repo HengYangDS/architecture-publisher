@@ -503,17 +503,26 @@ title page's.
 - `members`: component ids whose rows follow their relations, holding at most
   six cards per row.
 
-A view may name its `composition`: `tiers`, rows of cards joined by lines, or
+A view may name its `composition`: `tiers`, rows of cards joined by lines;
 `matrix`, a row and a column for each part it draws and a cell for the
-relations from one to another, holding their label. It names the composition of
-the view's plate; the page's diagram of the view is not changed by it. Without
-it, a view of at least eight parts (components, groups' cards and the neighbours
-it shows) that declares no tiers is drawn as a matrix when its figure in tiers
-would tangle, with at least two route defects at the full width as the plate
-would draw it, its [bands](operations.md#layout-and-media) where it keeps them,
-and a matrix fits; every other view is drawn in tiers. A matrix that a view
-names and that does not fit is drawn in tiers, and the build reports
-`plate_composition_unfitted`.
+relations from one to another, holding their label; or `radial`, the part
+related to the most others at the centre and the others round it. It names the
+composition of the view's plate; the page's diagram of the view is not changed
+by it. Without it, a view that declares no tiers is drawn radial when, among the
+parts it draws (components, groups' cards and the neighbours it shows), the
+part with the most distinct neighbours has at least three parts round it and
+relates to at least three quarters of them, no other part relates to more than
+half of them, and at least twice as many of that part's relations go out from it
+as come into it. The rule chooses once per view, from its model; a plate may
+still give up its radial figure in one language, where it cannot be drawn or
+would set smaller type, and its record says why. A view of at least eight parts
+that declares no tiers, and that the radial rule does not take or whose plate
+gives up its radial figure, is drawn as a matrix when its figure in tiers would
+tangle, with at least two route defects at the full width as the plate would
+draw it, its [bands](operations.md#layout-and-media) where it keeps them, and a
+matrix fits; every other view is drawn in tiers. A matrix or a radial figure that a view
+names and that cannot be drawn in its plate is drawn in tiers, and the build
+reports `plate_composition_unfitted`.
 
 The page names a view's diagram by its title, or by its question when it has
 no title of its own; its plate is headed by its title, or the model's, and

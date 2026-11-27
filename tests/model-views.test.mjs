@@ -109,7 +109,11 @@ test("a view may name its plate's composition, one the schema states, and the lo
   const schema = JSON.parse(
     await fs.readFile(new URL("../src/model/schema.json", import.meta.url), "utf8"),
   );
-  assert.deepEqual(schema.properties.views.items.properties.composition.enum, ["tiers", "matrix"]);
+  assert.deepEqual(schema.properties.views.items.properties.composition.enum, [
+    "tiers",
+    "matrix",
+    "radial",
+  ]);
   const model = validateModel(
     minimalModel({
       groups: [{ id: "g", label: "G", members: ["a", "b"] }],
@@ -117,18 +121,19 @@ test("a view may name its plate's composition, one the schema states, and the lo
         { id: "v", members: ["a", "b"], composition: "matrix" },
         { id: "w", tiers: ["g"], composition: "tiers" },
         { id: "x", members: ["a"] },
+        { id: "y", members: ["a", "b"], composition: "radial" },
       ],
     }),
   );
   assert.deepEqual(
     model.views.map(({ composition }) => composition),
-    ["matrix", "tiers", null],
+    ["matrix", "tiers", null, "radial"],
   );
   assert.deepEqual(
     problemsOf(
       minimalModel({
         views: [
-          { id: "v", members: ["a"], composition: "radial" },
+          { id: "v", members: ["a"], composition: "spine" },
           { id: "w", members: ["a"], composition: null },
         ],
       }),

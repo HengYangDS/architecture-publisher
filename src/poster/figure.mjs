@@ -249,10 +249,12 @@ export function drawFigure(layout, input) {
     const crossings = layout.paths.flatMap(({ points }) =>
       points.slice(1).flatMap((point, i) => {
         const prior = points[i];
-        return Math.abs(point[0] - prior[0]) < 0.5 &&
-          Math.min(point[1], prior[1]) <= boundary.y &&
-          Math.max(point[1], prior[1]) >= boundary.y
-          ? [point[0]]
+        const spans =
+          Math.min(point[1], prior[1]) <= boundary.y && Math.max(point[1], prior[1]) >= boundary.y;
+        if (Math.abs(point[0] - prior[0]) < 0.5) return spans ? [point[0]] : [];
+        // A line at a slant crosses the edge where it reaches the edge's height.
+        return spans && Math.abs(point[1] - prior[1]) >= 0.5
+          ? [prior[0] + ((point[0] - prior[0]) * (boundary.y - prior[1])) / (point[1] - prior[1])]
           : [];
       }),
     );

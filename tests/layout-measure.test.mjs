@@ -167,6 +167,47 @@ test("a label on its own run just over another relation's turn is a route defect
   );
 });
 
+test("lines at a slant are refused on the grid and measured along their own lines where a figure draws them", () => {
+  const slanting = geometry({
+    cards: new Map([["card", { x: 300, y: 0, width: 100, height: 60 }]]),
+    paths: [
+      // Two lines that cross at a slant, and two that run on one slanted line.
+      path("x1", [0, 0], [100, 100]),
+      path("x2", [0, 100], [100, 0]),
+      path("s1", [200, 300], [300, 200]),
+      path("s2", [250, 250], [350, 150]),
+      // A line at a slant through the card.
+      path("through", [280, -20], [420, 80]),
+      // A line whose label is on it, and another label inside its bounding box but clear of it.
+      path("long", [600, 0], [800, 200]),
+      // Two lines 7 apart across their length, which read as one.
+      path("c1", [0, 400], [200, 600]),
+      path("c2", [10, 400], [210, 600]),
+    ],
+    labels: [label("on", 690, 80), label("off", 740, 20)],
+  });
+  const grid = measureLayout(slanting);
+  assert.deepEqual(
+    codes(grid).slice(0, 8),
+    ["x1", "x2", "s1", "s2", "through", "long", "c1", "c2"].map(
+      (id) => `layout_wire_diagonal ${id}`,
+    ),
+  );
+  const drawn = measureLayout(slanting, { slanting: true });
+  assert.equal(drawn.crossings, 1);
+  assert.equal(drawn.bends, 0);
+  assert.deepEqual(codes(drawn), [
+    "layout_wire_shared s1 s2",
+    "layout_wire_through_card through",
+    "layout_label_collision on long",
+  ]);
+  assert.deepEqual(codes(grid).slice(8), codes(drawn));
+  assert.deepEqual(
+    drawn.routes.map(({ kind, relations }) => `${kind} ${relations}`),
+    ["route_wires_close c1 c2", "route_label_near_wire on long"],
+  );
+});
+
 test("measuring reads each point of a wire a fixed number of times, however many wires there are", () => {
   // The measures ask every pair of segments how the two lie to one another, and a channel's search measures every
   // assignment it completes. Where a segment reaches is worked out once, where the segment is made, so the reads

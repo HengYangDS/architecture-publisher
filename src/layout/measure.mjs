@@ -1,9 +1,65 @@
 /**
  * Neatness measurements of one laid-out view. Every value is computed from the
  * geometry itself, so a defect cannot hide behind the algorithm that made it.
+ * A wire runs across and down on the grid and at any slant in a radial figure;
+ * each is measured along its own line by the same spacings, so the two
+ * compositions are measured alike.
  */
 
 const owner = (relations) => relations.map(({ id }) => id).join(",");
+
+/** Whether a stretch runs at a slant, neither across nor down: only a figure drawn off the grid draws one. */
+export const slanted = (p, q) => Math.abs(q[0] - p[0]) >= 0.5 && Math.abs(q[1] - p[1]) >= 0.5;
+
+/**
+ * The share along a stretch p→q at which it meets the stretch r→s, and the share along r→s, or null where they are
+ * parallel.
+ */
+function meet(p, q, r, s) {
+  const [dx, dy, ex, ey] = [q[0] - p[0], q[1] - p[1], s[0] - r[0], s[1] - r[1]];
+  const den = dx * ey - dy * ex;
+  if (Math.abs(den) < 1e-9) return null;
+  const t = ((r[0] - p[0]) * ey - (r[1] - p[1]) * ex) / den;
+  const u = ((r[0] - p[0]) * dy - (r[1] - p[1]) * dx) / den;
+  return [t, u];
+}
+
+/** Whether two stretches at any slant cross away from their ends: more than half a px inside each. */
+function stretchesCross(p, q, r, s) {
+  const at = meet(p, q, r, s);
+  if (!at) return false;
+  const [t, u] = at;
+  const [a, b] = [Math.hypot(q[0] - p[0], q[1] - p[1]), Math.hypot(s[0] - r[0], s[1] - r[1])];
+  return t * a > 0.5 && (1 - t) * a > 0.5 && u * b > 0.5 && (1 - u) * b > 0.5;
+}
+
+/**
+ * How long a stretch at any slant runs inside a box, by clipping it to the box (Liang-Barsky).
+ * @param {number[]} p
+ * @param {number[]} q
+ * @param {{ x: number, y: number, width: number, height: number }} box
+ */
+export function insideLength(p, q, box) {
+  const [dx, dy] = [q[0] - p[0], q[1] - p[1]];
+  let [low, high] = [0, 1];
+  const edges = [
+    [-dx, p[0] - box.x],
+    [dx, box.x + box.width - p[0]],
+    [-dy, p[1] - box.y],
+    [dy, box.y + box.height - p[1]],
+  ];
+  for (const [step, room] of edges) {
+    if (Math.abs(step) < 1e-12) {
+      if (room < 0) return 0;
+      continue;
+    }
+    const share = room / step;
+    if (step < 0) low = Math.max(low, share);
+    else high = Math.min(high, share);
+    if (low > high) return 0;
+  }
+  return (high - low) * Math.hypot(dx, dy);
+}
 
 /**
  * A layout's wires as segments. What a segment is of itself is worked out here, once: whose it is, where it
@@ -28,6 +84,7 @@ function segmentsOf(paths) {
         y2: Math.max(ay, by),
         vertical: Math.abs(ax - bx) < 0.5,
         horizontal: Math.abs(ay - by) < 0.5,
+        slanted: slanted(a, b),
       });
     }
   }
@@ -40,30 +97,63 @@ const overlaps = (a, b, tolerance = 0.5) =>
   a.y < b.y + b.height - tolerance &&
   b.y < a.y + a.height - tolerance;
 
+/** A box shrunk by `by` px on every side. */
+const inset = (box, by) => ({
+  x: box.x + by,
+  y: box.y + by,
+  width: box.width - 2 * by,
+  height: box.height - 2 * by,
+});
+
+/** Whether two segments of which one runs at a slant lie on one line over more than half a px: one wire to a reader. */
+function inLine(a, b) {
+  const length = Math.hypot(a.b[0] - a.a[0], a.b[1] - a.a[1]);
+  if (length < 0.5) return false;
+  const [ux, uy] = [(a.b[0] - a.a[0]) / length, (a.b[1] - a.a[1]) / length];
+  const off = (point) => Math.abs((point[1] - a.a[1]) * ux - (point[0] - a.a[0]) * uy);
+  if (off(b.a) > 0.5 || off(b.b) > 0.5) return false;
+  const along = (point) => (point[0] - a.a[0]) * ux + (point[1] - a.a[1]) * uy;
+  const [low, high] = [along(b.a), along(b.b)].sort((x, y) => x - y);
+  return Math.min(length, high) - Math.max(0, low) > 0.5;
+}
+
 /**
+ * A layout's crossings, bends, defects and route defects. A wire at a slant is a defect of the grid's layout, whose
+ * wires run across and down; a composition that draws its wires at any slant says so with `slanting`, and its wires
+ * are held to the same defects along their own lines.
  * @param {{ cards: Map<string, { x: number, y: number, width: number, height: number }>,
  *   paths: Array<{ relations: Array<{ id: string }>, points: number[][] }>,
  *   labels: Array<{ relations: Array<{ id: string }>, x: number, y: number, width: number, height: number }>,
  *   arrows?: Array<{ relations: Array<{ id: string }>, x: number, y: number }>,
  *   arrow?: number,
  *   boundary: { x: number, y: number, width: number, height: number } | null }} geometry
+ * @param {{ slanting?: boolean }} [options]
  */
-export function measureLayout(geometry) {
+export function measureLayout(geometry, { slanting = false } = {}) {
   const segments = segmentsOf(geometry.paths);
   const defects = [];
   let crossings = 0;
-  for (const segment of segments)
-    if (!segment.vertical && !segment.horizontal)
-      defects.push({
-        code: "layout_wire_diagonal",
-        relations: segment.owner,
-        message: "a wire segment is neither horizontal nor vertical",
-      });
+  if (!slanting)
+    for (const segment of segments)
+      if (segment.slanted)
+        defects.push({
+          code: "layout_wire_diagonal",
+          relations: segment.owner,
+          message: "a wire segment is neither horizontal nor vertical",
+        });
   for (let i = 0; i < segments.length; i += 1)
     for (let j = i + 1; j < segments.length; j += 1) {
       const [a, b] = [segments[i], segments[j]];
       if (a.owner === b.owner) continue;
-      if (a.vertical !== b.vertical) {
+      if (a.slanted || b.slanted) {
+        if (stretchesCross(a.a, a.b, b.a, b.b)) crossings += 1;
+        else if (inLine(a, b))
+          defects.push({
+            code: "layout_wire_shared",
+            relations: `${a.owner} ${b.owner}`,
+            message: "two relations share a slanted segment",
+          });
+      } else if (a.vertical !== b.vertical) {
         const [v, h] = a.vertical ? [a, b] : [b, a];
         if (v.x1 > h.x1 + 0.5 && v.x1 < h.x2 - 0.5 && h.y1 > v.y1 + 0.5 && h.y1 < v.y2 - 0.5)
           crossings += 1;
@@ -92,10 +182,12 @@ export function measureLayout(geometry) {
   for (const box of segments) {
     for (const card of cards)
       if (
-        box.x1 > card.x + 1 &&
-        box.x2 < card.x + card.width - 1 &&
-        box.y1 < card.y + card.height - 1 &&
-        box.y2 > card.y + 1
+        box.slanted
+          ? insideLength(box.a, box.b, inset(card, 1)) > 1
+          : box.x1 > card.x + 1 &&
+            box.x2 < card.x + card.width - 1 &&
+            box.y1 < card.y + card.height - 1 &&
+            box.y2 > card.y + 1
       )
         defects.push({
           code: "layout_wire_through_card",
@@ -126,12 +218,14 @@ export function measureLayout(geometry) {
     for (const box of segments) {
       if (box.owner === name) continue;
       if (
-        overlaps(label, {
-          x: box.x1 - 0.5,
-          y: box.y1 - 0.5,
-          width: box.x2 - box.x1 + 1,
-          height: box.y2 - box.y1 + 1,
-        })
+        box.slanted
+          ? insideLength(box.a, box.b, inset(label, 0.5)) > 0
+          : overlaps(label, {
+              x: box.x1 - 0.5,
+              y: box.y1 - 0.5,
+              width: box.x2 - box.x1 + 1,
+              height: box.y2 - box.y1 + 1,
+            })
       )
         defects.push({
           code: "layout_label_collision",
@@ -194,6 +288,12 @@ export const ROUTE = Object.freeze({
   label: 16,
   heads: 2,
 });
+
+/**
+ * Two wires of which one runs at a slant run the same way when the sine of the angle between them is at most this:
+ * about 3°, within which the gap between two wires that run alongside changes by less than 5 px in 96.
+ */
+const SAME_WAY = 0.05;
 
 /**
  * Two overlapping spans that each start inside the other: wires that hook
@@ -266,12 +366,52 @@ function routeDefects(geometry, segments, limit = Infinity) {
       return "route_wires_interlock";
     return null;
   };
+  // Two wires of which one runs at a slant: the same reading as `between`, along and across the first wire's line,
+  // when they run the same way; a third relation's wire across the gap between two in line bridges them.
+  const slantedBetween = (a, b) => {
+    const length = Math.hypot(a.b[0] - a.a[0], a.b[1] - a.a[1]);
+    if (length < 0.5) return null;
+    const [ux, uy] = [(a.b[0] - a.a[0]) / length, (a.b[1] - a.a[1]) / length];
+    const [vx, vy] = [b.b[0] - b.a[0], b.b[1] - b.a[1]];
+    const other = Math.hypot(vx, vy);
+    if (other < 0.5 || Math.abs(ux * vy - uy * vx) / other > SAME_WAY) return null;
+    const across = (point) => (point[1] - a.a[1]) * ux - (point[0] - a.a[0]) * uy;
+    const at = (point) => (point[0] - a.a[0]) * ux + (point[1] - a.a[1]) * uy;
+    const [near, far] = [across(b.a), across(b.b)];
+    // Two that cross each other's line cross, and are counted as crossing where they do.
+    if (near * far < 0 && Math.abs(near) >= 0.5 && Math.abs(far) >= 0.5) return null;
+    const apart = Math.min(Math.abs(near), Math.abs(far));
+    const [b1, b2] = [at(b.a), at(b.b)].sort((x, y) => x - y);
+    const along = Math.min(length, b2) - Math.max(0, b1);
+    if (apart >= 0.5 && apart < ROUTE.parallel && along > 0.5) return "route_wires_close";
+    if (apart < 0.5 && along <= 0.5 && along > -ROUTE.join) return "route_wire_continued";
+    if (apart < 0.5 && along > -ROUTE.jump) {
+      const ends = [a.a, a.b].flatMap((p) => [b.a, b.b].map((q) => [p, q]));
+      const [p, q] = ends.sort(
+        ([p1, q1], [p2, q2]) =>
+          Math.hypot(p1[0] - q1[0], p1[1] - q1[1]) - Math.hypot(p2[0] - q2[0], p2[1] - q2[1]),
+      )[0];
+      if (
+        !fan(a, b) &&
+        segments.some(
+          (c) => c.owner !== a.owner && c.owner !== b.owner && stretchesCross(p, q, c.a, c.b),
+        )
+      )
+        return "route_wire_jumps";
+    }
+    if (apart >= 0.5 && apart < ROUTE.alongside && along > ROUTE.run)
+      return "route_wires_alongside";
+    if (apart >= 0.5 && apart < ROUTE.alongside && along > 0.5 && staggered([0, length, b1, b2]))
+      return "route_wires_interlock";
+    return null;
+  };
   for (let i = 0; i < segments.length; i += 1) {
     const a = segments[i];
     for (let j = i + 1; j < segments.length; j += 1) {
       const b = segments[j];
-      if (a.owner === b.owner || a.vertical !== b.vertical) continue;
-      const kind = between(a, b);
+      if (a.owner === b.owner) continue;
+      if (!a.slanted && !b.slanted && a.vertical !== b.vertical) continue;
+      const kind = a.slanted || b.slanted ? slantedBetween(a, b) : between(a, b);
       if (
         kind &&
         add({
@@ -334,12 +474,14 @@ function routeDefects(geometry, segments, limit = Infinity) {
     for (const box of segments) {
       if (box.owner === name) continue;
       if (
-        overlaps(near, {
-          x: box.x1 - 0.5,
-          y: box.y1 - 0.5,
-          width: box.x2 - box.x1 + 1,
-          height: box.y2 - box.y1 + 1,
-        })
+        box.slanted
+          ? insideLength(box.a, box.b, near) > 0
+          : overlaps(near, {
+              x: box.x1 - 0.5,
+              y: box.y1 - 0.5,
+              width: box.x2 - box.x1 + 1,
+              height: box.y2 - box.y1 + 1,
+            })
       ) {
         const enough = add({
           kind: "route_label_near_wire",
@@ -364,10 +506,12 @@ function routeDefects(geometry, segments, limit = Infinity) {
     const jog = segments.some(
       (segment) =>
         segment.owner === name &&
-        segment.horizontal &&
-        inside(segment.a[1]) &&
-        segment.x1 < label.x + label.width &&
-        segment.x2 > label.x,
+        ((segment.horizontal &&
+          inside(segment.a[1]) &&
+          segment.x1 < label.x + label.width &&
+          segment.x2 > label.x) ||
+          // A label set on its own wire at a slant, as a radial figure sets it.
+          (segment.slanted && insideLength(segment.a, segment.b, label) > 0.5)),
     );
     if (!jog) continue;
     const turn = geometry.paths.find(

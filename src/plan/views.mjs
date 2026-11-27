@@ -13,7 +13,7 @@ import { wordsOf } from "../locale.mjs";
  * @typedef {{ id: string, title: string, question: string, summary: string | null,
  *   origin: "declared" | "complete" | "overview" | "group",
  *   tiers: Array<{ id: string, label: string, members: string[] }> | null,
- *   composition?: "tiers" | "matrix" | null,
+ *   composition?: "tiers" | "matrix" | "radial" | null,
  *   components: ViewComponent[], relations: ViewRelation[] }} View
  */
 

@@ -17,10 +17,11 @@ import { icons, typefaces } from "./fixtures/strips.mjs";
 // Which composition a view's plate is drawn in: the one its author names, or by the matrix's rule a matrix where its
 // figure in tiers would tangle and a matrix fits the box its plate in tiers keeps; and what the plate keeps of it.
 
-/** A view's shape as the rule reads it: its tiers and its parts. */
+/** A view's shape as the rules read it: its tiers, its parts, and no relations, so no part is a hub. */
 const shape = (tiers, parts) => ({
   tiers,
   components: Array.from({ length: parts }, (_, index) => ({ id: `p${index}` })),
+  relations: [],
 });
 
 test("the rule draws a view of no tiers and eight parts or more as a matrix when its tiers have two route defects", () => {

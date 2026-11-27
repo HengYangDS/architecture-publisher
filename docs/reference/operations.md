@@ -150,7 +150,7 @@ arrows. A relation that skips rows takes the free column gap, empty cell or lane
 that crosses the fewest wires, then runs shortest, and on plates then leaves the
 most paper beside the cards it passes.
 
-The layout never draws an overlap. A diagonal segment, a segment shared by
+The layout never draws an overlap. In tiers a diagonal segment, a segment shared by
 different relations, a wire through a card or a label touching a card, another
 label, another wire or the system boundary rejects that layout, and a view is
 refused only when no row wrapping, width or type step lays it out. Each channel
@@ -219,22 +219,24 @@ may bring an outside card inside the system's boundary. The composition records
 `bands`, the bands drawn plain as `unbanded`, and `justified: true`, each only
 where it applies.
 
-A view drawn as a matrix ([when](model.md#views)) keeps the box its figure in
-tiers takes beside its reading, so the plate's width, reading and summary are
-those of tiers. Each part has a row and a column, in the order its relations
-flow, sources first and the parts of a cycle together; a cell holds the label
-of the relations from one part to another, tinted in their line's colour, and
-the number of files they cite where the edition counts them. A label that every
-mark of a row or a column shares is said once at its head, the boundary is a
-bracket over the inside rows and columns, and the empty corner reads
-"from ↓ to →" in the edition's language. The matrix takes the largest type step
-at which it fits; it draws no line, so it has no crossing, route or bend, and
-its balance counts its heads, its filled cells at their tint and its words, not
-its rules, diagonal or brackets. Its composition records `kind: "matrix"` and,
-as `tiers.routes`, the route defects of the full-width tiers figure that chose
-it, with its bands where it keeps them.
-Its key draws the boundary as a bracket and a planned or retired status as a
-cell edged in its dash, as the matrix draws them.
+A view drawn as a matrix or as a radial figure ([when](model.md#views)) keeps the box its figure in tiers takes
+beside its reading, so the plate's width, reading and summary are those of tiers. In a matrix each part has a row and
+a column, in the order its relations flow, sources first and the parts of a cycle together; a cell holds the label of
+the relations from one part to another, tinted in their line's colour, and the number of files they cite where the
+edition counts them. A label that every mark of a row or a column shares is said once at its head, the boundary is a
+bracket over the inside rows and columns, and the empty corner reads "from ↓ to →" in the edition's language. The
+matrix takes the largest type step at which it fits; it draws no line, so it has no crossing, route or bend, and its
+balance counts its heads, its filled cells at their tint and its words, not its rules, diagonal or brackets. Its
+composition records `kind: "matrix"` and, as `tiers.routes`, the route defects of the full-width tiers figure that
+chose it, with its bands where it keeps them. Its key draws the boundary as a bracket and a planned or retired status
+as a cell edged in its dash, as the matrix draws them.
+
+A radial figure ([why](../research/radial.md)) sets the part related to the most others in the middle and the others
+round it, a part outside the repository beyond the boundary; a centre outside it is not drawn. Its lines run straight
+at any slant, each label on its own line and as far from other lines as the route measure's label clearance. It takes
+the largest step it is drawn at, recording `kind: "radial"`, its `centre` and, as `tiers.step`, its tiers figure's
+step. Where the rule's radial figure cannot be drawn or would set smaller type, the plate falls to the matrix's rule
+and records `refused` with `kind: "radial"` and `why`: `parts`, `cards`, `boundary`, `lines`, `labels` or `type`.
 
 A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with

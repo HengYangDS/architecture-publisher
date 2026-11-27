@@ -5,13 +5,13 @@ import { wiresNoMore } from "../../layout/fill.mjs";
 import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { two } from "../../names.mjs";
 import { refuse } from "../../refusal.mjs";
-import { DARKNESS, balanceOf, darkness } from "../balance.mjs";
 import { setWidth } from "../spread.mjs";
 import { stripKey } from "../strip.mjs";
 import { bandable, platesOf } from "../plate.mjs";
 import { HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
-import { gateFailures, takesJustified } from "./gates.mjs";
+import { balanceOfPlate, gateFailures, takesJustified } from "./gates.mjs";
 import { matrices, matrixKey, matrixSample } from "./matrix.mjs";
+import { ringOf, rings } from "./radial.mjs";
 
 /**
  * What every composition of an edition's plates shares: the model, its
@@ -153,17 +153,56 @@ const SHARES = Object.freeze([1, 0.8, 0.65]);
 const MATRIX_RULE = Object.freeze({ parts: 8, routes: 2 });
 
 /**
- * The composition a view is drawn in where one of that kind fits: the one its author names, or by the matrix's rule
- * a matrix and the grid of tiers otherwise.
- * @param {{ composition?: "tiers" | "matrix" | null, tiers: unknown[] | null, components: unknown[] }} view
+ * The radial rule: a view whose author names no composition and declares no tiers is drawn round its centre (`ringOf`),
+ * the part related to the most others, when at least `ring` parts stand round it, it relates to at least `centre` of
+ * them, no other part relates to more than `second` of them, and at least `drives` times as many of its relations go
+ * out from it as come into it. Read from the view's parts and relations alone, the choice is the view's and the same
+ * in every language. The owner's delegate set `centre`, `second` and `drives` on 2026-11-27, after three seats and then
+ * a fourth reader, agents and not people, judged the radial figures of the views in tiers of five works
+ * (docs/research/radial.md): at 60% the test took centres every reader rejected; a second part related to more than
+ * half of the others is a second hub, whose chords cross the figure; and a centre that the others write to more than
+ * it drives them is a product, not a centre. `ring` keeps a fan of two in tiers: two parts round a centre would stand
+ * on either side of it, one line across the plate with its corners blank.
+ */
+const RADIAL_RULE = Object.freeze({ ring: 3, centre: 0.75, second: 0.5, drives: 2 });
+
+/**
+ * Whether the radial rule draws a view round its centre, from the view's ring (`ringOf`).
+ * @param {ReturnType<typeof ringOf>} shape
+ */
+function drawnRound(shape) {
+  if (!shape) return false;
+  return (
+    shape.ring.length >= RADIAL_RULE.ring &&
+    shape.share >= RADIAL_RULE.centre &&
+    shape.second <= RADIAL_RULE.second &&
+    shape.out >= RADIAL_RULE.drives * shape.into
+  );
+}
+
+/**
+ * The composition the matrix's rule gives a view that declares no tiers: a matrix, or the grid of tiers.
+ * @param {import("../../plan/views.mjs").View} view
  * @param {number} routes the route defects of its figure in tiers at the full width
  * @returns {"tiers" | "matrix"}
  */
-export function compositionOf(view, routes) {
+const byMatrixRule = (view, routes) =>
+  view.components.length >= MATRIX_RULE.parts && routes >= MATRIX_RULE.routes ? "matrix" : "tiers";
+
+/**
+ * The composition a view is drawn in where one of that kind can be drawn: the one its author names; for a view that
+ * declares no tiers, by the radial rule a radial figure, or else by the matrix's rule a matrix; and the grid of tiers
+ * otherwise. The radial rule comes first, as it reads the view alone: the matrix's reads the figure in tiers, which
+ * differs between languages.
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {number} routes the route defects of its figure in tiers at the full width
+ * @param {ReturnType<typeof ringOf>} [shape] the view's ring, where the caller has it
+ * @returns {"tiers" | "matrix" | "radial"}
+ */
+export function compositionOf(view, routes, shape = ringOf(view)) {
   if (view.composition) return view.composition;
-  return !view.tiers && view.components.length >= MATRIX_RULE.parts && routes >= MATRIX_RULE.routes
-    ? "matrix"
-    : "tiers";
+  if (view.tiers) return "tiers";
+  return drawnRound(shape) ? "radial" : byMatrixRule(view, routes);
 }
 
 /**
@@ -193,26 +232,6 @@ const compare = (a, b) => {
     if (a[index] !== b[index]) return a[index] - b[index];
   return 0;
 };
-
-/**
- * How a plate's ink stands over the body: its figure's rectangles and its text,
- * each line box weighted by how dark it prints on the style's paper.
- * @param {any} one a composition of the plate
- * @param {any} typefaces
- * @param {string} paper
- */
-function balanceOfPlate(one, typefaces, width, height, paper) {
-  const text = (run) => ({
-    x: run.x,
-    y: run.top,
-    width: Math.min(setWidth(run, typefaces), width - run.x),
-    height: run.style.line,
-    kind: /** @type {const} */ ("mass"),
-    weight: DARKNESS.text * darkness(run.color, paper),
-  });
-  const body = { x: 0, y: 0, width, height };
-  return balanceOf([...one.figure.rects, ...one.figure.runs.map(text)], body, body);
-}
 
 /**
  * Each composition of one view the body admits. A plate tries its view at every
@@ -468,6 +487,37 @@ function matrixOf(scene, view, tiers) {
 }
 
 /**
+ * A view drawn as a radial figure round its centre (`rings`), in the box the grid of tiers keeps, as a matrix is: the
+ * best ring that box holds, its wiring measured as the grid's is; or, where none is drawn, why: `parts` for a view
+ * of fewer than three parts, which has no ring, or the furthest fault its layouts came to (`FAULTS`).
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} tiers the grid the plate is drawn in otherwise
+ * @param {ReturnType<typeof ringOf>} shape the view's ring
+ * @returns {any}
+ */
+function radialOf(scene, view, tiers, shape) {
+  if (!shape) return { fault: "parts" };
+  const { width, height } = tiers;
+  const {
+    figures: [best],
+    fault,
+  } = rings(scene, view, { width, height }, shape);
+  if (!best) return { fault };
+  const { crossings, routes, routeDefects, bends } = best.measured;
+  const one = {
+    step: best.cards.index,
+    limit: null,
+    flat: false,
+    details: best.cards.details,
+    layout: { measures: { crossings, routes, routeDefects, bends } },
+    figure: best.drawn.figure,
+  };
+  const { balance } = best.drawn;
+  return { one, radial: shape.centre, centring: null, tierLabels: null, balance, width, height };
+}
+
+/**
  * A view's plate in tiers in one scene: its best figure at the full width, the width and reading the plate takes,
  * and its figure there with its cards' details where they fit; or null when no composition lays it out.
  * @param {Scene} scene
@@ -551,10 +601,13 @@ function justifiedBeside(scene, view, chosen) {
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
  * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
  * Each plate carries its figure's report of what it drew, as the drawing handed it back. A plate is drawn as a
- * matrix where its view names one or the matrix's rule takes one, in the box its tiers would have, and records that
- * kind; a matrix its view names that does not fit there leaves the plate in tiers, and the plate says so. A plate in
- * tiers draws the tiers figure's fill (src/layout/fill.mjs) and records it: the cards it drew as bands, the bands a
- * guard drew plain, and the justified figure where it took that.
+ * matrix or a radial figure where its view names one or a rule takes one, in the box its tiers would have, and
+ * records that kind; a matrix or a radial figure its view names that cannot be drawn there leaves the plate in
+ * tiers, and the plate says so. A radial figure the rule takes is drawn at a type step no smaller than its figure in
+ * tiers; where it is not drawn, the plate is drawn as the matrix's rule gives it and records why, so a view drawn
+ * round its centre in one language and not in another says which and why. A plate in tiers draws the tiers figure's
+ * fill (src/layout/fill.mjs) and records it: the cards it drew as bands, the bands a guard drew plain, and the
+ * justified figure where it took that.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View[]} views
  * @param {any} typefaces
@@ -569,13 +622,27 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
     const { full, share, reading, standfirst } = plan;
     // The matrix's rule reads the figure in tiers that would be drawn, its band where it keeps one.
     const { routes } = full.one.layout.measures;
-    const kind = compositionOf(view, routes);
+    const shape = ringOf(view);
+    const kind = compositionOf(view, routes, shape);
+    // A radial figure its author names is drawn wherever one can be; one the rule takes, where it sets its type no
+    // smaller than the figure in tiers would.
+    const radial = kind === "radial" ? radialOf(scene, view, plan.tiers, shape) : null;
+    const refused =
+      radial &&
+      (radial.fault ??
+        (!view.composition && radial.one.step < plan.tiers.one.step ? "type" : null));
+    // A radial figure the rule takes and the plate does not draw leaves the view to the matrix's rule; one its author
+    // names, to tiers, as a named matrix that does not fit.
+    const fallback = radial && !view.composition ? byMatrixRule(view, routes) : kind;
     const chosen =
-      (kind === "matrix" ? matrixOf(scene, view, plan.tiers) : null) ??
-      justifiedBeside(scene, view, plan.tiers);
-    const { one, matrix, centring, tierLabels, balance, width, height } = chosen;
+      radial && !refused
+        ? radial
+        : ((fallback === "matrix" ? matrixOf(scene, view, plan.tiers) : null) ??
+          justifiedBeside(scene, view, plan.tiers));
+    const { one, matrix, radial: centre, centring, tierLabels, balance, width, height } = chosen;
     // A composition the view names and its plate is not drawn in.
-    const unfitted = view.composition === (matrix ? "matrix" : "tiers") ? null : view.composition;
+    const drawn = matrix ? "matrix" : centre ? "radial" : "tiers";
+    const unfitted = view.composition === drawn ? null : view.composition;
     const legend = legendOf(model, view, boundaryName, style, one.figure.lines, one.figure.matrix);
     return {
       page: index + 1,
@@ -617,6 +684,8 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
       composition: {
         // A matrix records the route defects of the figure in tiers at the full width, which the rule weighs.
         ...(matrix ? { kind: "matrix", tiers: { routes } } : {}),
+        // A radial figure records its centre and the type step of the figure in tiers it is weighed against.
+        ...(centre ? { kind: "radial", centre, tiers: { step: plan.tiers.one.step } } : {}),
         step: one.step,
         wrap: one.limit,
         flat: one.flat,
@@ -625,8 +694,10 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         details: one.details,
         // The tiers figure's fill: the cards drawn as bands, the bands a guard drew plain, the justified figure.
         ...(!matrix && one.layout.bands ? { bands: one.layout.bands } : {}),
-        ...(!matrix && unbanded.length ? { unbanded } : {}),
+        ...(!matrix && !centre && unbanded.length ? { unbanded } : {}),
         ...(chosen.justified ? { justified: true } : {}),
+        // A radial figure its author or the rule asked for and the plate does not draw, and why.
+        ...(refused ? { refused: { kind: "radial", why: refused } } : {}),
       },
       measures: {
         crossings: one.layout.measures.crossings,
