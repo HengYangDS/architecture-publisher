@@ -5,7 +5,7 @@
   },
   "internal_error": {
     "section": "command",
-    "meaning": "Not a refusal: any other error ends the command with exit status 3, and `--json` prints this code with the error's message. It is a fault in the publisher, not in the input."
+    "meaning": "Not a refusal: any other error ends the command, and `--json` prints this code with the error's message. It is a fault in the publisher, not in the input."
   },
   "model_invalid": {
     "section": "refusal",

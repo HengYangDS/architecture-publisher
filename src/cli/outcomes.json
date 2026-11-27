@@ -1,0 +1,28 @@
+{
+  "done": {
+    "status": 0,
+    "ok": true,
+    "meaning": "Success: the command did what it was asked."
+  },
+  "refused": {
+    "status": 1,
+    "ok": false,
+    "section": "refusal",
+    "keys": ["code", "message", "problems"],
+    "meaning": "A refused input: the caller can correct every listed problem and retry."
+  },
+  "usage": {
+    "status": 2,
+    "ok": false,
+    "code": "usage",
+    "keys": ["code", "message"],
+    "meaning": "A usage error: the command line does not match the command's usage."
+  },
+  "internal": {
+    "status": 3,
+    "ok": false,
+    "code": "internal_error",
+    "keys": ["code", "message"],
+    "meaning": "An internal error: any other failure, such as a file the command cannot read or write."
+  }
+}

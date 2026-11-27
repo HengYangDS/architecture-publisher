@@ -15,6 +15,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- A command's four outcomes, each with its exit status, whether it succeeded and the keys of its JSON result, stand
+  once in `src/cli/outcomes.json`: the program reads its exit statuses, the last line of its help, its reports'
+  closing lines and its JSON results from it, and the command line and refusals references' outcomes are written from
+  it. Every command's output is as before.
 - **Breaking:** a tiers figure is filled where a measured rule says so. A lone card of its first or last row whose
   kind is a thing outside the code that parts use (the categories `external`, `database`, `cloud` and `messagebus`),
   and to which at least half the cards of its neighbouring row relate, is drawn as a band across the whole figure,

@@ -37,14 +37,26 @@ error: unknown command 'chek'
 
 ## Exit statuses and JSON results
 
-Exit status 0 means success, 1 a refused input, 2 a usage error and 3 an
-internal error, any other failure, such as a file the command cannot read or
-write. With `--json`, the command prints one JSON object: `{ "ok": true, ... }`
-with the result, `{ "ok": false, "code", "message", "problems" }` for a refusal,
-where each problem has a `code`, a JSON `path` into the model and a `message`,
-`{ "ok": false, "code": "usage", "message" }` for a usage error, or `{ "ok":
-false, "code": "internal_error", "message" }`. `--json` may stand anywhere on
-the command line, and no command asks a question: each runs without a terminal.
+How a command ends, its outcome, sets its exit status, which the last line
+of `archpub --help` lists, and with `--json` the one JSON object it prints,
+its keys in the order shown:
+
+<!-- outcomes: written from src/cli/outcomes.json by tools/docs/references.mjs; do not edit -->
+
+| Exit status | Outcome  | Means                                                                                  | With `--json`                                          |
+| ----------- | -------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| 0           | done     | Success: the command did what it was asked.                                            | `{ "ok": true, ... }`                                  |
+| 1           | refused  | A refused input: the caller can correct every listed problem and retry.                | `{ "ok": false, "code", "message", "problems" }`       |
+| 2           | usage    | A usage error: the command line does not match the command's usage.                    | `{ "ok": false, "code": "usage", "message" }`          |
+| 3           | internal | An internal error: any other failure, such as a file the command cannot read or write. | `{ "ok": false, "code": "internal_error", "message" }` |
+
+<!-- end of outcomes -->
+
+`...` stands for the fields of the command's result. A refusal's `code` is a
+code of the [refusals reference](refusals.md)'s first table, and each of its
+`problems` has a `code`, a JSON `path` into the model and a `message`.
+`--json` may stand anywhere on the command line, and no command asks a
+question: each runs without a terminal.
 
 ## Reports
 
@@ -133,7 +145,7 @@ colophon page are not compared: `accept` writes them after the build, with the
 reviewer and the time, so a delivery compares the same before and after it is
 accepted.
 
-The exit status is 0 whether or not the deliveries differ: a difference is a
+A comparison succeeds whether or not the deliveries differ: a difference is a
 finding, not a refusal, and a program reads `identical`. With `--json` the
 result of two deliveries that differ in one plate's image is
 

@@ -76,6 +76,9 @@ generated-input gate runs its non-mutating `--check` mode before qualification.
 
 `src/refusal.json` is the sole source of the codes the publisher raises or
 reports, each once with its meaning; the type check holds every raise to it.
+`src/cli/outcomes.json` is the sole source of how a command ends: each
+outcome's exit status and the keys of the JSON object it prints, which the
+command line reads.
 
 ## Written reference tables
 

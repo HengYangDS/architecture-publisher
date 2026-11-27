@@ -7,6 +7,7 @@ import { wrapAnsi } from "fast-wrap-ansi";
 import { filesOf, shortRevision, two } from "../names.mjs";
 import { comparisonReport } from "./comparison.mjs";
 import { attention, count, dataGroup, near, noted, passed, refused, series } from "./facts.mjs";
+import { OUTCOMES } from "./outcome.mjs";
 
 /**
  * The report contract of the command line: what a command found or did, for a reader at a terminal. A report has
@@ -546,7 +547,7 @@ export function reportRefusal(command, refusal, stream = process.stdout, subject
         ),
       },
     ],
-    closing: "Exit status 1: refused",
+    closing: `Exit status ${OUTCOMES.refused.status}: refused`,
     failed: true,
   })(stream);
 }
@@ -562,7 +563,7 @@ export function reportFailure(command, message, stream = process.stdout, subject
   return draw({
     title: titled(command, subject),
     groups: [{ heading: "Internal error", facts: [refused("Error", nearby(message))] }],
-    closing: "Exit status 3: internal error",
+    closing: `Exit status ${OUTCOMES.internal.status}: internal error`,
     failed: true,
   })(stream);
 }

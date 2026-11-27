@@ -14,6 +14,7 @@ import { importLikeC4 } from "../importers/likec4.mjs";
 import { MIGRATION, migrateModel } from "../importers/model.mjs";
 import { ACCEPTANCE, SIGNATURE } from "../names.mjs";
 import { Refusal } from "../refusal.mjs";
+import { OUTCOMES, resultOf } from "./outcome.mjs";
 import { reportFailure, reportProgress, reportRefusal, reportResult } from "./report.mjs";
 
 /** The publisher's version, as its package declares it. */
@@ -103,7 +104,12 @@ function commands({ version: current, write, action, listener }) {
       },
       subcommandDescription: (command) => listed(command).description(),
     })
-    .addHelpText("afterAll", "\nExit status: 0 done, 1 refused, 2 usage, 3 internal.");
+    .addHelpText(
+      "afterAll",
+      `\nExit status: ${Object.entries(OUTCOMES)
+        .map(([outcome, { status }]) => `${status} ${outcome}`)
+        .join(", ")}.`,
+    );
 
   /** A command under `parent` whose usage errors say where its usage is. */
   const command = (parent, name, summary) => {
@@ -356,12 +362,12 @@ function catalogue(command) {
 }
 
 /**
- * Run one command. Exit status 0 means success, 1 a refused input, 2 a usage
- * error and 3 an internal error, any other failure, such as a file the command
- * cannot read or write. `--json` may stand anywhere and selects one JSON object
- * as the output; without it the output is a report for a reader at a terminal.
- * A check or a build whose standard error is a terminal draws its steps there,
- * unless `--json` is given; the output is the same either way.
+ * Run one command. How it ends, its outcome, sets the exit status, as the table
+ * of outcomes states it (`outcome.mjs`). `--json` may stand anywhere and
+ * selects one JSON object as the output, of the keys the outcome names; without
+ * it the output is a report for a reader at a terminal. A check or a build
+ * whose standard error is a terminal draws its steps there, unless `--json` is
+ * given; the output is the same either way.
  * @param {string[]} args
  * @returns {Promise<{ exitCode: number, output: string }>}
  */
@@ -403,57 +409,49 @@ export async function runCli(args) {
         ran.result = await run(...given);
       },
   });
+  /**
+   * What the command prints as it ends: its outcome's exit status, and with `--json` the outcome's JSON object of
+   * what it ended with, otherwise its report, drawn only then.
+   * @param {import("./outcome.mjs").Outcome} outcome
+   * @param {object} ended what the command ended with: its result, its refusal or the message of its failure
+   * @param {() => string} report
+   */
+  const end = (outcome, ended, report) => ({
+    exitCode: OUTCOMES[outcome].status,
+    output: json ? `${JSON.stringify(resultOf(outcome, ended))}\n` : report(),
+  });
   try {
     await program.parseAsync(
       args.filter((arg) => arg !== "--json"),
       { from: "user" },
     );
     progress?.done();
-    return {
-      exitCode: 0,
-      output: json
-        ? `${JSON.stringify({ ok: true, ...ran.result })}\n`
-        : reportResult(ran.command, ran.result, ran.subject, process.stdout, ran.typed),
-    };
+    return end("done", ran.result, () =>
+      reportResult(ran.command, ran.result, ran.subject, process.stdout, ran.typed),
+    );
   } catch (error) {
     progress?.stopped();
+    // Commander ends with its own exit code 0 when it has written the help or the version.
     if (error instanceof CommanderError && error.exitCode === 0) {
-      // Commander has written the help or the version.
       const body =
         error.code === "commander.version"
           ? { version: error.message }
           : { usage: stripVTControlCharacters(written), commands: catalogue(program) };
-      return {
-        exitCode: 0,
-        output: json ? `${JSON.stringify({ ok: true, ...body })}\n` : written,
-      };
+      return end("done", body, () => written);
     }
     if (error instanceof CommanderError) {
       // Asked for no command, commander writes the help and names no error.
       const unnamed = error.code === "commander.help";
       const message = unnamed ? "a command is required" : error.message.replace(/^error: /u, "");
-      return {
-        exitCode: 2,
-        output: json
-          ? `${JSON.stringify({ ok: false, code: "usage", message })}\n`
-          : `${unnamed ? `error: ${message}\n\n` : ""}${written}`,
-      };
+      return end("usage", { message }, () => `${unnamed ? `error: ${message}\n\n` : ""}${written}`);
     }
-    if (error instanceof Refusal) {
-      const { code, message, problems } = error;
-      return {
-        exitCode: 1,
-        output: json
-          ? `${JSON.stringify({ ok: false, code, message, problems })}\n`
-          : reportRefusal(ran.command, error, process.stdout, ran.subject),
-      };
-    }
+    if (error instanceof Refusal)
+      return end("refused", error, () =>
+        reportRefusal(ran.command, error, process.stdout, ran.subject),
+      );
     const message = error instanceof Error ? error.message : String(error);
-    return {
-      exitCode: 3,
-      output: json
-        ? `${JSON.stringify({ ok: false, code: "internal_error", message })}\n`
-        : reportFailure(ran.command, message, process.stdout, ran.subject),
-    };
+    return end("internal", { message }, () =>
+      reportFailure(ran.command, message, process.stdout, ran.subject),
+    );
   }
 }

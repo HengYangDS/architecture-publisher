@@ -63,6 +63,37 @@ for (const [code, entry] of Object.entries(registry)) {
 /** @param {string[]} sections */
 const rowsOf = (...sections) => REFUSALS.filter((row) => sections.includes(row.section));
 
+// How a command ends, as the command line's table of outcomes states it (src/cli/outcomes.json), in the order of the
+// exit statuses: each outcome's status, its name as the help gives it, what it means and the JSON object `--json`
+// prints, `ok` first, a code the outcome fixes with its value, and `...` for the result of an outcome that names no
+// keys of its own.
+const outcomes = JSON.parse(await fs.readFile(path.join(root, "src/cli/outcomes.json"), "utf8"));
+/** @param {any} row */
+const objectOf = (row) => {
+  const keys = row.keys?.map((/** @type {string} */ key) =>
+    key === "code" && row.code ? `"code": "${row.code}"` : `"${key}"`,
+  );
+  return `\`{ ${[`"ok": ${row.ok}`, ...(keys ?? ["..."])].join(", ")} }\``;
+};
+const outcomesTable = () =>
+  table(
+    ["Exit status", "Outcome", "Means", "With `--json`"],
+    Object.entries(outcomes).map(([name, row]) => [
+      String(row.status),
+      name,
+      row.meaning,
+      objectOf(row),
+    ]),
+  );
+// The refusals reference's sentence on the failed outcomes: each one's status, with the code it prints, or every code
+// of the registry's section its code comes from.
+const failedStatuses = () => {
+  const each = Object.values(outcomes)
+    .filter((row) => !row.ok)
+    .map((row) => `${row.status} for ${row.code ? `\`${row.code}\`` : `every ${row.section}`}`);
+  return `A failed command names one code of the first table and exits with the status of its outcome: ${new Intl.ListFormat("en-GB").format(each)}.`;
+};
+
 // The commands and their options, as the command line catalogues them (`archpub --help --json`). The tools import
 // no module of the product's; the writer runs the command line, in its own process with no environment but the
 // path, and reads what it prints, as an agent does.
@@ -370,9 +401,9 @@ const refusalSample = async () => {
       },
     );
     const printed = `${run.stdout ?? ""}${run.stderr ?? ""}`.trim();
-    if (run.status === 0)
+    if (run.status === outcomes.done.status)
       throw new Error("references_sample_accepted: the sample model was not refused");
-    if (run.status !== 1)
+    if (run.status !== outcomes.refused.status)
       throw new Error(
         `references_sample_unreadable: archpub check ended with ${run.status ?? run.signal ?? run.error}: ${printed}`,
       );
@@ -420,6 +451,12 @@ const BLOCKS = [
   },
   {
     file: "docs/reference/command-line.md",
+    name: "outcomes",
+    source: "src/cli/outcomes.json",
+    text: outcomesTable,
+  },
+  {
+    file: "docs/reference/command-line.md",
     name: "refusal",
     source: "archpub check on docs/reference/refused-model.json",
     text: () => refusalBlock,
@@ -441,6 +478,12 @@ const BLOCKS = [
     name: "commands",
     source: "archpub --help --json",
     text: usageBlock,
+  },
+  {
+    file: "docs/reference/refusals.md",
+    name: "statuses",
+    source: "src/cli/outcomes.json",
+    text: failedStatuses,
   },
   {
     file: "docs/reference/refusals.md",

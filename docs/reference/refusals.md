@@ -8,18 +8,24 @@ relations:
 
 # Refusals reference
 
-A failed command names one code of the first table: `usage` exits with status 2, `internal_error` with 3 and every
-refusal with 1, as the [command line](command-line.md) says. A refusal's problems carry the codes of the
-second table, each under its path: a refused view's under `/views/<id>`, and a page refusal's under the paths the
-grid or Archify reported, with Archify's own codes among them. A build or an import that succeeds may report the
-warnings of the third table. The three tables are written from `src/refusal.json` by `tools/docs/references.mjs`.
+<!-- statuses: written from src/cli/outcomes.json by tools/docs/references.mjs; do not edit -->
+
+A failed command names one code of the first table and exits with the status of its outcome: 1 for every refusal, 2 for `usage` and 3 for `internal_error`.
+
+<!-- end of statuses -->
+
+The [command line reference](command-line.md#exit-statuses-and-json-results) shows what each outcome prints. A
+refusal's problems carry the codes of the second table, each under its path: a refused view's under `/views/<id>`,
+and a page refusal's under the paths the grid or Archify reported, with Archify's own codes among them. A build or an
+import that succeeds may report the warnings of the third table. The three tables are written from `src/refusal.json`
+by `tools/docs/references.mjs`.
 
 <!-- refusals: written from src/refusal.json by tools/docs/references.mjs; do not edit -->
 
 | Code                                                                                                                               | Meaning                                                                                                                                                                                                                                                                                                                                                                                                    |
 | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `usage`                                                                                                                            | Unknown command or option, or a missing value. The message is commander's and names the nearest command or option for a mistyped one.                                                                                                                                                                                                                                                                      |
-| `internal_error`                                                                                                                   | Not a refusal: any other error ends the command with exit status 3, and `--json` prints this code with the error's message. It is a fault in the publisher, not in the input.                                                                                                                                                                                                                              |
+| `internal_error`                                                                                                                   | Not a refusal: any other error ends the command, and `--json` prints this code with the error's message. It is a fault in the publisher, not in the input.                                                                                                                                                                                                                                                 |
 | `model_invalid`                                                                                                                    | The model breaks the schema; each problem has its own `model_*` code, such as `model_field_retired` for `edition.marks`, which is to be removed.                                                                                                                                                                                                                                                           |
 | `model_unreadable`, `model_json_invalid`, `model_too_large`                                                                        | The file cannot be read, is not JSON or exceeds 4 MiB.                                                                                                                                                                                                                                                                                                                                                     |
 | `build_media_invalid`, `build_png_invalid`, `build_quality_invalid`                                                                | A build option is outside its values.                                                                                                                                                                                                                                                                                                                                                                      |

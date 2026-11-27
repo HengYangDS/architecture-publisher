@@ -3,13 +3,14 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import OUTCOMES from "../src/cli/outcomes.json" with { type: "json" };
 import REGISTRY from "../src/refusal.json" with { type: "json" };
 
 // The queue item `derived-references`: every code the publisher raises or reports stands once in the registry.
 // The type check holds the raises through `refuse`, `Refusal` and a typed problem. This test reads every literal
-// that stands where a code is raised or reported, in the JavaScript and in the Typst classes, and holds that set
-// and the registry's keys equal, so neither a raise the types do not see nor a registered code no longer raised
-// passes.
+// that stands where a code is raised or reported, in the JavaScript, in the Typst classes and in the command line's
+// table of outcomes, and holds that set and the registry's keys equal, so neither a raise the types do not see nor a
+// registered code no longer raised passes.
 
 const SOURCE = fileURLToPath(new URL("../src/", import.meta.url));
 const CODE = String.raw`([a-z][a-z0-9_]*)`;
@@ -82,6 +83,10 @@ test("the codes the source raises or reports are exactly the registry's", async 
   ].flatMap((match) => match.slice(1).filter(Boolean));
   assert.ok(media.length && kinds.length, "the Typst helpers' template");
   for (const [, medium] of media) for (const kind of kinds) found.add(`${medium}_typst_${kind}`);
+  // The command line's table of outcomes reports the code of each outcome that fixes one. Those codes count as raised
+  // because the program prints them from the table, which tests/cli-outcomes.test.mjs proves by running a command of
+  // each outcome and reading the code it prints.
+  for (const { code } of Object.values(OUTCOMES)) if (code) found.add(code);
   const registered = Object.keys(REGISTRY);
   assert.deepEqual(
     [...found].filter((code) => !Object.hasOwn(REGISTRY, code)).sort(),

@@ -49,6 +49,12 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/model.md", "`planned`, `retired`", "`planned`"],
       ["docs/reference/model.md", "type; the default.", "type."],
       ["docs/reference/command-line.md", "field; did you mean label?", "field."],
+      [
+        "docs/reference/command-line.md",
+        '`{ "ok": false, "code": "usage", "message" }`',
+        '`{ "ok": false, "code": "usage" }`',
+      ],
+      ["docs/reference/refusals.md", "2 for `usage`", "2 for `usage_error`"],
       ["src/model/schema.json", '"ko"]', '"ja"]'],
       ["docs/reference/model.md", "with a brown accent; the default.", "with a brown accent."],
       ["docs/reference/lines.md", "| not yet tested by a work |", "| no                       |"],
@@ -98,6 +104,33 @@ test("the writer refuses a document whose source changed, and writes it from the
       missing.stderr,
       /references_text_missing: src\/house\.json states no page of the line row boundary/u,
     );
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("the writer takes the exit statuses from the table of outcomes, as the command it runs for a sample does", async () => {
+  const dir = await tree();
+  try {
+    const file = path.join(dir, "src/cli/outcomes.json");
+    const outcomes = JSON.parse(await fs.readFile(file, "utf8"));
+    outcomes.refused.status = 5;
+    await fs.writeFile(file, `${JSON.stringify(outcomes, null, 2)}\n`);
+    // The sample is still a refusal: it ends with the status the table now gives one.
+    const refused = await writer("--check", dir);
+    assert.equal(refused.code, 1);
+    for (const document of ["command-line", "refusals"])
+      assert.match(
+        refused.stderr,
+        new RegExp(`references_drift: docs/reference/${document}\\.md: run`, "u"),
+      );
+    assert.equal((await writer("--write", dir)).code, 0);
+    const read = (/** @type {string} */ document) =>
+      fs.readFile(path.join(dir, `docs/reference/${document}.md`), "utf8");
+    const commandLine = await read("command-line");
+    assert.match(commandLine, /\n\| 5 +\| refused +\|/u);
+    assert.match(commandLine, /\n└ {2}Exit status 5: refused\n/u);
+    assert.match(await read("refusals"), /status of its outcome: 5 for every refusal, /u);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }
