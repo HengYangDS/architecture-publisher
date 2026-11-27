@@ -38,10 +38,11 @@ centre of gravity lies within 0.12 of the centre each way. The owner, 2026-10-28
 
 > 「你真的要注意布局上不能有大量空白，整个构图如果重心不对，留白过多，是不符合要求的」
 
-Gloss, a translation and not the owner's words: "Take real care that a layout has no large blank areas; a composition
-whose centre of gravity is off, or that leaves too much white, does not meet the requirement." On 2026-11-02 he called
-one form forced on every repository overuse (「台阶套所有仓库是滥用」): a composition is chosen by a view's shape, and
-every picture is drawn by the product.
+Gloss, a translation and not the owner's words: "Take real care that a layout has no large blank areas; a
+composition whose centre of gravity is off, or that leaves too much white, does not meet the requirement." On
+2026-11-02 the owner asked of the staircase form, 「不同仓库都用阶梯这种形式么？这不是滥用么」 (gloss: "Do the different repositories all take
+the staircase form? Is that not overuse?"): a composition is chosen by a view's shape, and every picture is drawn by
+the product.
 
 The census of the matrix Change's code (2026-11-27, one ticket of the host) built eleven of the twelve published
 editions; the English edition of one work was refused by its front page's limit, as on dev. Of their plates, 65 are
