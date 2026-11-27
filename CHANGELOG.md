@@ -15,6 +15,13 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The model reference's sentences of the strip's lengths, the age bands and the colours of a palette of a model's own,
+  and the lines reference's sentence of the widths the line trials measured at, are written from the modules and the
+  schema that state them, and the bug report's form offers the release's platforms from the mise lock. The glossary
+  names no file of a delivery and no count of the balance gates, and the model reference's smallest model and the
+  tutorial's model are held valid by a test; the table of top-level fields no longer states the model's format and
+  version. The agent Skill points to `--help` for the exit statuses and no longer lists the ids that would give two
+  files of a delivery one name. Every delivered byte is as before.
 - The data file's format stands once, in a JSON Schema the package ships, `src/pinned/data.schema.json`: every member
   and the keys of every object the data writes, in their order, each with a description. The data takes each object's
   keys and order from it, the data reference's tables are written from it, and the tests hold every data file they

@@ -7,14 +7,17 @@
 // an escaped character that the format check accepts is written out again, and `check:generated` refuses it until
 // `--write` is run). Each family of sources states its blocks in a module of its own under references/: the model's
 // (model.mjs), the command line's (command-line.mjs), what the command needs, bundles, releases and delivers
-// (operations.mjs), and the data's format (data.mjs), the last three reading a delivery's files through delivery.mjs;
-// this module reads the tree, finds each block between its comment lines and writes or checks it.
+// (operations.mjs), the data's format (data.mjs), the last three reading a delivery's files through delivery.mjs, and
+// the measures the code states as constants of its own modules (measures.mjs); this module reads the tree, finds each
+// block between its comment lines and writes or checks it. A Markdown document marks a block with HTML comments and
+// sets it apart as a paragraph; a YAML file marks it with comment lines, its entries at the first marker's indent.
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { format, resolveConfig } from "prettier";
 import { commandLineBlocks } from "./references/command-line.mjs";
 import { dataBlocks } from "./references/data.mjs";
+import { measuresBlocks } from "./references/measures.mjs";
 import { modelBlocks } from "./references/model.mjs";
 import { operationsBlocks } from "./references/operations.mjs";
 
@@ -35,14 +38,31 @@ const operations = await operationsBlocks(root);
 const model = await modelBlocks(root);
 const BLOCKS = [
   ...model.blocks,
+  ...(await measuresBlocks(root)),
   ...(await commandLineBlocks(root)),
   ...operations,
   ...(await dataBlocks(root)),
 ];
 
-const begin = ({ name, source }) =>
-  `<!-- ${name}: written from ${source} by tools/docs/references.mjs; do not edit -->`;
-const end = ({ name }) => `<!-- end of ${name} -->`;
+/** Each kind of document a block stands in, by its extension: how a comment line is written, what sets a block apart
+ * from its comment lines, and the parser that formats the document. */
+const FORMS = Object.freeze({
+  ".md": {
+    comment: (/** @type {string} */ said) => `<!-- ${said} -->`,
+    apart: "\n\n",
+    parser: "markdown",
+  },
+  ".yml": { comment: (/** @type {string} */ said) => `# ${said}`, apart: "\n", parser: "yaml" },
+});
+/** The form of a document, refused by name when no form is stated for its kind. */
+const formOf = (/** @type {string} */ file) => {
+  const form = FORMS[/** @type {keyof typeof FORMS} */ (path.extname(file))];
+  if (!form) throw new Error(`references_form_unknown: ${file}`);
+  return form;
+};
+const begin = ({ name, source }, { comment }) =>
+  comment(`${name}: written from ${source} by tools/docs/references.mjs; do not edit`);
+const end = ({ name }, { comment }) => comment(`end of ${name}`);
 
 let drift = 0;
 /** Write a file in the repository's Prettier form, or in a check refuse the file when it differs from that. */
@@ -65,14 +85,22 @@ const settle = async (
 };
 await settle("src/model/schema.json", "json", JSON.stringify(model.schema, null, 2));
 for (const file of [...new Set(BLOCKS.map((block) => block.file))]) {
+  const form = formOf(file);
   let text = await fs.readFile(path.join(root, file), "utf8");
   for (const block of BLOCKS.filter((each) => each.file === file)) {
-    const from = text.indexOf(begin(block));
-    const to = text.indexOf(end(block), from);
+    const from = text.indexOf(begin(block, form));
+    const to = text.indexOf(end(block, form), from);
     if (from < 0 || to < from) throw new Error(`references_block_missing: ${file} ${block.name}`);
-    text = `${text.slice(0, from)}${begin(block)}\n\n${block.text()}\n\n${text.slice(to)}`;
+    // The block's lines and its closing comment stand at its opening comment's indent.
+    const indent = text.slice(text.lastIndexOf("\n", from) + 1, from);
+    const lines = block
+      .text()
+      .split("\n")
+      .map((line) => (line ? `${indent}${line}` : line))
+      .join("\n");
+    text = `${text.slice(0, from)}${begin(block, form)}${form.apart}${lines}${form.apart}${indent}${text.slice(to)}`;
   }
-  await settle(file, "markdown", text);
+  await settle(file, form.parser, text);
 }
 if (drift) throw new Error("references_drift");
 process.stdout.write(`reference tables ${mode === "--check" ? "verified" : "written"}\n`);

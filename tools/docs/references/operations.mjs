@@ -1,7 +1,8 @@
 // The blocks references.mjs writes from what the command needs, bundles, releases and delivers: its supplies and
 // runtime dependencies (package.json and the bundled Archify's supply), the platforms a release has an archive for
-// (the mise lock) and an archive's members (tools/release/archive/members.json), the variables a child process
-// receives (src/environment.json) and a delivery's files (src/delivery.json).
+// (the mise lock), which the bug report's form offers too, and an archive's members
+// (tools/release/archive/members.json), the variables a child process receives (src/environment.json) and a
+// delivery's files (src/delivery.json).
 import fs from "node:fs/promises";
 import path from "node:path";
 import { lockedPlatforms } from "../../release/archive/assemble.mjs";
@@ -136,6 +137,12 @@ export async function operationsBlocks(root) {
       name: "platforms",
       source: ".config/mise/mise.lock",
       text: platformsSentence,
+    },
+    {
+      file: ".github/ISSUE_TEMPLATE/bug-report.yml",
+      name: "platforms",
+      source: ".config/mise/mise.lock",
+      text: () => machines.map(({ system, processor }) => `- ${system} on ${processor}`).join("\n"),
     },
     {
       file: "docs/reference/operations.md",

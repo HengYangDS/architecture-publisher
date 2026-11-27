@@ -1,7 +1,9 @@
-// The blocks references.mjs writes from the model's sources: the rules, the top-level fields and the categories of a
-// model as its schema states them (src/model/schema.json), the palettes and the lines as the house states them
-// (src/house.json), and the schema itself, with the enumerations a table of the source owns filled in from it.
-import { code, readJson, stated, table } from "./text.mjs";
+// The blocks references.mjs writes from the model's sources: the rules, the top-level fields, the categories of a model
+// and the colours of a palette of its own as its schema states them (src/model/schema.json), the palettes and the
+// lines as the house states them (src/house.json), and the schema itself, with the enumerations a table of the source
+// owns filled in from it.
+import { ageSpans } from "./measures.mjs";
+import { code, counted, listed, readJson, stated, table } from "./text.mjs";
 
 /**
  * The model's blocks and its schema as the writer writes it, read from the tree at `root`.
@@ -77,7 +79,8 @@ export async function modelBlocks(root) {
 
   // The top-level fields of a model, as its schema states them: each field in the schema's order, whether it is
   // required, and its meaning, which is the schema's description (the help an editor shows) with what the schema
-  // states of its value: a constant, the values it takes with the default, or the fewest items of a list.
+  // states of its value: the values it takes with the default, or the fewest items of a list. A constant is left to
+  // the smallest model above the table, which a test holds to the schema.
   const topFieldsTable = () =>
     table(
       ["Field", "Required", "Meaning"],
@@ -89,7 +92,6 @@ export async function modelBlocks(root) {
           ...(field.default === undefined ? [] : [`${code(String(field.default))} by default`]),
         ];
         const meaning = [
-          ...(field.const === undefined ? [] : [`Always ${code(String(field.const))}.`]),
           ...(field.description ? [field.description] : []),
           ...(values.length ? [`${values.join("; ")}.`] : []),
           ...(list && field.minItems
@@ -97,7 +99,7 @@ export async function modelBlocks(root) {
             : []),
           ...(list && !field.minItems && required ? ["May be empty."] : []),
         ].join(" ");
-        if (!field.description && field.const === undefined)
+        if (!field.description)
           throw new Error(
             `references_description_missing: the schema's field ${name} says nothing of itself`,
           );
@@ -149,6 +151,29 @@ export async function modelBlocks(root) {
       ]),
     );
 
+  // The colours a palette of the model's own names, as the schema states its fields, in its order: each with its
+  // article, an optional one as such, and the dye as its count of steps, one per age band, which a plate dyes each
+  // band's files in; the sentence says so, so a count the age bands do not give stops the writer.
+  const bands = (await ageSpans(root)).length + 1;
+  const own = palette.oneOf?.find((/** @type {any} */ variant) => variant.properties);
+  if (!own)
+    throw new Error("references_set_missing: the schema states no palette of a model's own");
+  const colour = (/** @type {[string, any]} */ [name, field]) => {
+    if (field.type === "array") {
+      if (!Number.isInteger(field.maxItems) || field.minItems !== field.maxItems)
+        throw new Error(`references_set_missing: the schema fixes no count of a palette's ${name}`);
+      if (field.maxItems !== bands)
+        throw new Error(
+          `references_dye_unmatched: the schema fixes ${field.maxItems} steps of a palette's ${name} and BANDS gives ${bands} age bands`,
+        );
+      return `${counted(field.maxItems)} ${name} steps, one per age band, from new to old`;
+    }
+    if (!own.required?.includes(name)) return `an optional ${name}`;
+    return `${/^[aeiou]/u.test(name) ? "an" : "a"} ${name}`;
+  };
+  const colours = Object.entries(own.properties).map(colour);
+  const coloursSentence = () => `A palette of your own names ${listed(colours)}:`;
+
   // The rows of the table of lines (src/house.json): what each means, how a plate draws it, the question it answers,
   // whether a work has tested it, and what a delivery's page does for it.
   const drawn = (/** @type {any} */ row) => {
@@ -199,6 +224,12 @@ export async function modelBlocks(root) {
         name: "palettes",
         source: "src/house.json and src/model/schema.json",
         text: palettesTable,
+      },
+      {
+        file: "docs/reference/model.md",
+        name: "colours",
+        source: "src/model/schema.json",
+        text: coloursSentence,
       },
       {
         file: "docs/reference/lines.md",

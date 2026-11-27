@@ -1,45 +1,19 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
+import { validateModel } from "../src/model/load.mjs";
+import { WRITER, tree, writer } from "./fixtures/references-writer.mjs";
 
 // The queue item `derived-references`: a table of a reference document that restates the source is written from it
 // by a command, and the check of generated inputs refuses a table that differs. This runs the writer on a copy of
-// what it reads, with one table of each kind changed by hand.
+// what it reads, with one table of each kind changed by hand; the measures the code states as constants have their own
+// file (references-measures.test.mjs).
 
 const run = promisify(execFile);
 const root = path.resolve(import.meta.dirname, "..");
-const WRITER = path.join(root, "tools/docs/references.mjs");
-
-/** A tree of what the writer reads: the documents it writes, the source, the package, the mise lock, the release
- * archive's table and the formatter's policy, with the bundled renderers the command it runs for a sample reads,
- * linked as they are never changed here. */
-async function tree() {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "archpub-references-"));
-  for (const part of [
-    "README.md",
-    "docs/how-to.md",
-    "docs/reference",
-    "src",
-    ".config/checks/prettier",
-    ".config/mise/mise.lock",
-    "tools/release/archive/members.json",
-    "package.json",
-  ])
-    await fs.cp(path.join(root, part), path.join(dir, part), { recursive: true });
-  for (const linked of ["node_modules", "renderers"])
-    await fs.symlink(path.join(root, linked), path.join(dir, linked));
-  return dir;
-}
-
-const writer = (/** @type {string} */ mode, /** @type {string} */ dir) =>
-  run(process.execPath, [WRITER, mode, "--root", dir], { encoding: "utf8" }).then(
-    () => ({ code: 0, stderr: "" }),
-    (error) => ({ code: error.code, stderr: String(error.stderr) }),
-  );
 
 test("the writer refuses a table changed by hand, naming its document, and writes it back", async () => {
   const dir = await tree();
@@ -81,6 +55,10 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/data.md", "`acceptance` or `colophon`", "`acceptance`"],
       ["docs/reference/data.md", "pin: `verified` or `unverified`.", "pin."],
       ["docs/reference/data.md", "| `media`      |", "| `formats`    |"],
+      ["docs/reference/model.md", "draws them all at 208 px.", "draws them all at 240 px."],
+      ["docs/reference/model.md", "and within 90 days, and", "and within three months, and"],
+      ["docs/reference/model.md", "steps, one per age band, from", "steps from"],
+      ["docs/reference/lines.md", "0.4 px of one 960 px wide", "0.5 px of one 960 px wide"],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
@@ -189,7 +167,12 @@ test("the writer writes the release's platforms, an archive's members, the bundl
     });
     const refused = await writer("--check", dir);
     assert.equal(refused.code, 1);
-    for (const file of ["README.md", "docs/how-to.md", "docs/reference/operations.md"])
+    for (const file of [
+      "README.md",
+      "docs/how-to.md",
+      "docs/reference/operations.md",
+      ".github/ISSUE_TEMPLATE/bug-report.yml",
+    ])
       assert.match(refused.stderr, new RegExp(`references_drift: ${file}: run`, "u"));
     assert.equal((await writer("--write", dir)).code, 0);
     const read = (/** @type {string} */ file) => fs.readFile(path.join(dir, file), "utf8");
@@ -198,6 +181,10 @@ test("the writer writes the release's platforms, an archive's members, the bundl
         await read(file),
         /\nEach release has an archive for Linux on ARM64 and for macOS on ARM64\.\n/u,
       );
+    assert.match(
+      await read(".github/ISSUE_TEMPLATE/bug-report.yml"),
+      /edit\n {8}- Linux on ARM64\n {8}- macOS on ARM64\n {8}# end of platforms\n {8}- Other\n/u,
+    );
     const operations = await read("docs/reference/operations.md");
     assert.doesNotMatch(operations, /linux-x64`/u);
     assert.match(operations, / the Node\.js and Typst it runs in `archpub\/runtime`, /u);
@@ -278,6 +265,22 @@ test("the writer writes the data reference from the data's schema, and the ids a
   }
 });
 
+// The model's format and version stand in the examples an author copies, which no table of the references restates:
+// each example is held to the schema by the loader that reads it.
+test("the model reference's smallest model and the tutorial's model are models the loader accepts", async () => {
+  for (const [file, commit] of [
+    ["docs/reference/model.md", null],
+    // The tutorial asks its reader to write the commit of its first step in place of `<commit>`.
+    ["docs/tutorial.md", "0".repeat(40)],
+  ]) {
+    const page = await fs.readFile(path.join(root, file), "utf8");
+    const [, example] = /\n```json\n(\{\n {2}"format"[\s\S]*?\n\})\n```\n/u.exec(page) ?? [];
+    assert.ok(example, `${file} holds a whole model`);
+    const model = JSON.parse(commit ? example.replace("<commit>", commit) : example);
+    assert.doesNotThrow(() => validateModel(model), file);
+  }
+});
+
 test("the writer stops on a table that lacks a field it prints, naming the field", async () => {
   for (const [file, change, refusal] of [
     [
@@ -294,6 +297,17 @@ test("the writer stops on a table that lacks a field it prints, naming the field
       "src/environment.json",
       (/** @type {any} */ table) => delete table.passed,
       /references_text_missing: src\/environment\.json states no passed variables/u,
+    ],
+    [
+      "src/model/schema.json",
+      (/** @type {any} */ schema) =>
+        delete schema.properties.edition.properties.palette.oneOf[1].properties.dye.maxItems,
+      /references_set_missing: the schema fixes no count of a palette's dye/u,
+    ],
+    [
+      "src/model/schema.json",
+      (/** @type {any} */ schema) => schema.properties.edition.properties.palette.oneOf.pop(),
+      /references_set_missing: the schema states no palette of a model's own/u,
     ],
   ]) {
     const dir = await tree();
@@ -329,7 +343,7 @@ test("the writer takes a mode and an optional root, and nothing else", async () 
   assert.match(String(refused.stderr), /references_mode_required/u);
 });
 
-test("the writer stops on a top-level field the schema neither describes nor fixes, naming it", async () => {
+test("the writer stops on a top-level field the schema does not describe, naming it", async () => {
   const dir = await tree();
   try {
     const target = path.join(dir, "src/model/schema.json");

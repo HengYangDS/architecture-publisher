@@ -29,9 +29,11 @@ body:
     attributes:
       label: Platform
       options:
+        # platforms: written from .config/mise/mise.lock by tools/docs/references.mjs; do not edit
         - Linux on ARM64
         - Linux on x86-64
         - macOS on ARM64
+        # end of platforms
         - Other
     validations:
       required: true

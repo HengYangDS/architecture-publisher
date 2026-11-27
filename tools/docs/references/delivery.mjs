@@ -2,9 +2,7 @@
 // the shared table gives (src/shared.json), as the blocks of references.mjs print them: the operations reference's
 // table of the files, and the ids a model may not take, which the tree's own src/names.mjs computes and the data and
 // the refusals references name.
-import path from "node:path";
-import { pathToFileURL } from "node:url";
-import { readJson } from "./text.mjs";
+import { exported, readJson } from "./text.mjs";
 
 /**
  * A delivery's files, read from the tree at `root`.
@@ -27,8 +25,9 @@ export async function deliveryFiles(root) {
             .replace(/\{(\w+)\}/gu, "<$1>")}\``,
       )
       .join(", ");
-  // The ids a model may not take, as the tree's publisher computes them and refuses them (src/names.mjs).
-  const { TAKEN } = await import(pathToFileURL(path.join(root, "src/names.mjs")).href);
+  // The ids a model may not take, as the tree's publisher computes them and refuses them: the computation is the
+  // publisher's, and a table would state its result a second time.
+  const TAKEN = await exported(root, "src/names.mjs", "TAKEN");
   /** What a refusal calls the file of one role: the table's. */
   const called = (/** @type {string} */ role) =>
     delivery.files.find((/** @type {any} */ row) => row.role === role).called;

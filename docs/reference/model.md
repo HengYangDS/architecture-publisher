@@ -64,8 +64,8 @@ kinds, details and views.
 
 | Field        | Required | Meaning                                                                                                                                    |
 | ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `format`     | yes      | Always `architecture-publisher.model`. The kind of file: an Architecture Publisher model.                                                  |
-| `version`    | yes      | Always `3`. `archpub migrate` converts a model of an earlier version.                                                                      |
+| `format`     | yes      | The kind of file: an Architecture Publisher model.                                                                                         |
+| `version`    | yes      | `archpub migrate` converts a model of an earlier version.                                                                                  |
 | `id`         | yes      | The model's id; it names the delivery's files and the directory `archpub publish` copies them to.                                          |
 | `locale`     | no       | The language the model is written in; the publisher sets its own words in it. One of `en`, `zh-CN`, `zh-TW`, `es`, `ko`; `en` by default.  |
 | `title`      | yes      | The edition's title, and the title of any view without its own.                                                                            |
@@ -348,17 +348,25 @@ every detail of every part.
 A strip is as long as the files its part owns are large, whatever their type,
 on one scale for the whole edition, so a part of 200 KB is ten times as long
 as a part of 20 KB on every plate; a part with any bytes is at least 2 px
-long, and every strip has the same thickness. The largest part is 320 px long;
-a strip is never shortened to fit its column, so an edition one of whose views
-cannot hold its strips draws them all at 208 px. Each file the part owns is one
-segment, in path order, as wide as its share of the part's bytes and in the dye
-of its age band, and a file too narrow to draw apart joins a neighbour of its
-band.
+long, and every strip has the same thickness.
 
-Every edition sorts its files into the same three age bands, counted back from
-the pin's commit: changed within a week, over a week and within three months,
-and earlier; the key names the middle band by both bounds. A file's age is the
-time from its last change at or before the pin to the pin.
+<!-- strip-lengths: written from src/poster/strip.mjs by tools/docs/references.mjs; do not edit -->
+
+The largest part is 320 px long; a strip is never shortened to fit its column, so an edition one of whose views cannot hold its strips draws them all at 208 px.
+
+<!-- end of strip-lengths -->
+
+Each file the part owns is one segment, in path order, as wide as its share of
+the part's bytes and in the dye of its age band, and a file too narrow to draw
+apart joins a neighbour of its band.
+
+<!-- age-bands: written from src/facts/ages.mjs by tools/docs/references.mjs; do not edit -->
+
+Every edition sorts its files into the same three age bands, counted back from the pin's commit: changed within a week, over a week and within 90 days, and earlier; the key names the middle band by both bounds.
+
+<!-- end of age-bands -->
+
+A file's age is the time from its last change at or before the pin to the pin.
 The bands are the same for every edition, so two editions can be compared; the
 newest takes the palette's palest dye and the oldest its darkest.
 
@@ -392,8 +400,11 @@ named for the dye or pigment its colours come from:
 
 <!-- end of palettes -->
 
-A palette of your own names a ground, an ink, three dye steps from new to old
-and an optional accent:
+<!-- colours: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
+
+A palette of your own names a ground, an ink, three dye steps, one per age band, from new to old and an optional accent:
+
+<!-- end of colours -->
 
 ```json
 "palette": { "ground": "#f6f1f1", "ink": "#312124", "dye": ["#e2c5cf", "#b38294", "#76475c"], "accent": "#306751" }

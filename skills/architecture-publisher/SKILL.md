@@ -11,7 +11,7 @@ only draws and verifies what the model states. `archpub skill` prints this
 Skill as it ships with the installed version, and `archpub <command> --help`
 explains each command. Give every command `--json` and read its one JSON
 object: `ok`, the result's fields or a refusal's `code`, `message` and
-`problems`, and the exit status, 0 done, 1 refused, 2 usage, 3 internal.
+`problems`, and the exit status, which `--help` lists.
 Without `--json` the same result is a report for a reader at a terminal, one
 marked line per fact; do not parse it.
 
@@ -91,7 +91,7 @@ guide as prose.
    before showing them to the user. `--media edition` or `--media page` builds
    one medium while you work on it; the guide the model names is read for
    either, so a guide that is not there yet is refused with `guide_missing`. A
-   model whose id is `model`, `manifest`, `acceptance` or `colophon` is refused
+   model whose id would give two files of its delivery one name is refused
    with `delivery_name_taken`: give it another id.
 10. The reviewer accepts, and the author of a work does not review it. Unless you
     hold the reviewer's role for this work, stop here and hand the delivery over.

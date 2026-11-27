@@ -291,8 +291,31 @@ its one statement: the publisher writes each object of the data in the shape it 
 data file they build to it. This replaces the decision of 2026-11-26 that the data reference's tables were the
 format's own statement. Two places of the list above are written from their sources since: the four ids that would
 give two files one name, from `src/delivery.json`, and the keys of a plate's record and face and of a component, a
-relation, a group and a fact, from the schema. What is left is the skill's list of the four ids, which
-`archpub skill` prints as the skill states it.
+relation, a group and a fact, from the schema. What was left, the skill's list of the four ids, no longer stands: see
+"The model's, the lines', the glossary's and the skill's sets (2026-11-28)" below.
+
+## The model's, the lines', the glossary's and the skill's sets (2026-11-28)
+
+The places of the model reference and the line values in the list above are written from their sources since
+2026-11-28, each sentence on its own lines between comment lines and worded as before where the values allow: the
+strip's lengths, the age bands and the widths the line trials measured at, imported as they stand from the modules
+that state them (`src/poster/strip.mjs`, `src/facts/ages.mjs`, `tests/fixtures/line-tables.mjs`), since no table
+holds them; and the fields of a palette of the model's own, with its count of dye steps, from the schema, which the
+loader reads. The age bands' second bound reads 90 days, not three months: the source states days, and a month has no
+fixed number of them. The statuses were already written, in the model reference's table of values. The model's
+format and version stand in the examples an author copies, the model reference's smallest model and the tutorial's
+model, and a test holds each example to the loader; the table of top-level fields no longer restates them. The
+glossary names no file: each term keeps its meaning and its link, and the operations reference's table, written from
+`src/delivery.json`, lists a delivery's files; its balance gate no longer counts the gates. The skill, which the
+package ships and `archpub skill` prints as written, no longer restates two sets: it says the exit statuses are those
+`--help` lists, which the help writes from the table of outcomes, and refuses a model whose id would give two files of
+its delivery one name without listing the ids. The bug report's form offers the release's platforms, written from the
+mise lock between two comment lines as the README's are. Left for the compositions item of the queue: the operations
+reference's gates and their limits, which `GATES` (`src/poster/compose/gates.mjs`) states and does not export, and
+the most cards a row of a view holds, which the skill and the model reference state and the layout states in a drawing
+root. Left for a Change of their own: the skill's names of the built-in palettes and its count of the categories. An
+agent that has only the package reads them nowhere else, so they need a block that `archpub skill` would print with its
+comment lines, or a skill written whole from its sources.
 
 ## What is not established
 

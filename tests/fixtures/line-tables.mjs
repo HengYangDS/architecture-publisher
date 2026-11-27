@@ -7,7 +7,8 @@ export const TABLE = HOUSE.lines;
 
 /**
  * The image widths the trials measured the table's values at, widest first: the drawing space's own, in which one
- * pixel is one pixel of the image, and two narrower. No plate is drawn by them; the reference page names them.
+ * pixel is one pixel of the image, then narrower ones. No plate is drawn by them; the line values reference names
+ * them, written from here by tools/docs/references.mjs.
  */
 export const WIDTHS = Object.freeze([2400, 1920, 960]);
 

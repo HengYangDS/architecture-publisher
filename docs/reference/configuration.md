@@ -89,11 +89,17 @@ tests hold every data file they build to it.
 
 ## Written reference tables
 
-A table or list of a document that restates the source stands between two
-comment lines that name its source; besides the references, the README and the
-how-to guides carry the release's platforms the same way. The model's schema
+A table, list or sentence of a document that restates the source stands on its
+own lines between two comment lines that name its source; besides the
+references, the README, the how-to guides and the bug report's form carry the
+release's platforms the same way. The model's schema
 states the categories, the palettes and the languages as the tables that own them do:
-`src/categories.json`, `src/house.json` and `src/locales.json`. After changing
+`src/categories.json`, `src/house.json` and `src/locales.json`. The writer
+reads declared files, and imports a module of the tree only for what that module
+states and no table holds: the ids a model may not take (`src/names.mjs`), the
+lengths a strip is drawn at (`src/poster/strip.mjs`), the age bands
+(`src/facts/ages.mjs`) and the widths the line trials measured at
+(`tests/fixtures/line-tables.mjs`). After changing
 a source, run `node tools/docs/references.mjs --write`, which writes them
 and those enumerations of the schema; it writes the whole schema in one
 layout, so a hand edit's own layout is written out again. `npm run

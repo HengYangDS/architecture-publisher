@@ -5,7 +5,6 @@ import { validateModel } from "../src/model/load.mjs";
 import {
   BROKEN,
   TABLE,
-  WIDTHS,
   assertOneMeaning,
   channelOf,
   heavier,
@@ -115,7 +114,7 @@ test("a key holds the sample of a row exactly when its figure draws the row", as
   assert.throws(() => assertKeyed(keyless), /row emphasis: the figure draws it/u);
 });
 
-test("each row of the table of lines says what it answers and what a delivery's page does for it", async () => {
+test("each row of the table of lines says what it answers and what a delivery's page does for it", () => {
   for (const [id, row] of Object.entries(TABLE.rows)) {
     assert.match(row.answers, /\?$/u, id);
     assert.ok(row.page.length > 0, id);
@@ -127,9 +126,6 @@ test("each row of the table of lines says what it answers and what a delivery's 
       .map(([id]) => id),
     ["emphasis", "citations"],
   );
-  // The three widths the trials measured at stand in the reference page's first paragraph.
-  const page = await fs.readFile(new URL("../docs/reference/lines.md", import.meta.url), "utf8");
-  for (const width of WIDTHS) assert.ok(page.includes(`${width} px wide`), `${width}`);
 });
 
 test("a model cannot name a line value: its edition holds no weight and no pattern", async () => {
