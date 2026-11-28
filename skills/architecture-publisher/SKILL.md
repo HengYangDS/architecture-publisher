@@ -37,8 +37,8 @@ guide as prose.
    verb labels such as `reads` or `publishes`, and each component one leading
    detail: a card of the generated page shows the first detail it holds, and a
    plate's card sets its details where the plate has the room. Map kinds to
-   the eight categories; every card of a plate names its component's kind by
-   the kind's label.
+   the categories listed at the end; every card of a plate names its
+   component's kind by the kind's label.
 4. Plan the views: usually an overview with `tiers` that name groups in reading
    order, then views of the mechanisms the question needs. Give each view a
    short `title`, such as `Overview` or `Proof plane`, its own `question` and a
@@ -76,8 +76,8 @@ guide as prose.
    with `archpub check model.json --repo <checkout>` until Archify's strict
    writing checks and its repository checks pass.
 8. Choose the edition's palette only if the user asks: an `edition` object
-   with a `palette` (配色), 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot`, 铜绿
-   `patina` or the user's own colours, which the check holds to printable
+   with a `palette` (配色), a built-in palette listed at the end by its id or
+   the user's own colours, which the check holds to printable
    contrast, chroma, lightness and hue and refuses with
    `model_palette_rejected` at the colour that fails. A model chooses no way
    of drawing its parts: each is one card of its name, the strip of the files
@@ -126,3 +126,17 @@ the user to accept.
 Report what the model covers and leaves out, the checks that passed and what
 remains unverified. A successful build is not acceptance, and tests do not
 replace the user's review.
+
+## Categories and palettes
+
+<!-- categories: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
+
+The categories are `person`, `external`, `frontend`, `backend`, `database`, `cloud`, `messagebus` and `security`.
+
+<!-- end of categories -->
+
+<!-- palettes: written from src/house.json by tools/docs/references.mjs; do not edit -->
+
+The built-in palettes are 靛蓝 `indigo`, 柿漆 `persimmon`, 松烟 `soot` and 铜绿 `patina`.
+
+<!-- end of palettes -->

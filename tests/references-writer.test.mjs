@@ -59,6 +59,8 @@ test("the writer refuses a table changed by hand, naming its document, and write
       ["docs/reference/model.md", "and within 90 days, and", "and within three months, and"],
       ["docs/reference/model.md", "steps, one per age band, from", "steps from"],
       ["docs/reference/lines.md", "0.4 px of one 960 px wide", "0.5 px of one 960 px wide"],
+      ["skills/architecture-publisher/SKILL.md", "`messagebus` and `security`", "`messagebus`"],
+      ["skills/architecture-publisher/SKILL.md", "松烟 `soot` and 铜绿 `patina`", "松烟 `soot`"],
     ]) {
       const target = path.join(dir, file);
       const before = await fs.readFile(target, "utf8");
@@ -81,13 +83,22 @@ test("the writer refuses a document whose source changed, and writes it from the
     const house = path.join(dir, "src/house.json");
     const tokens = JSON.parse(await fs.readFile(house, "utf8"));
     tokens.palettes.soot.colours = "The greys of soot.";
+    tokens.palettes.soot.name["zh-CN"] = "墨灰";
     tokens.lines.rows.boundary.answers = "Is the part inside?";
     await fs.writeFile(house, `${JSON.stringify(tokens, null, 2)}\n`);
     const refused = await writer("--check", dir);
     assert.equal(refused.code, 1);
     assert.match(refused.stderr, /references_drift: docs\/reference\/model\.md: run/u);
     assert.match(refused.stderr, /references_drift: docs\/reference\/lines\.md: run/u);
+    assert.match(
+      refused.stderr,
+      /references_drift: skills\/architecture-publisher\/SKILL\.md: run/u,
+    );
     assert.equal((await writer("--write", dir)).code, 0);
+    assert.match(
+      await fs.readFile(path.join(dir, "skills/architecture-publisher/SKILL.md"), "utf8"),
+      /墨灰 `soot`/u,
+    );
     assert.match(
       await fs.readFile(path.join(dir, "docs/reference/model.md"), "utf8"),
       /The greys of soot\./u,

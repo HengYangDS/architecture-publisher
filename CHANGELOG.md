@@ -15,6 +15,9 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The agent Skill lists the categories a kind maps to, written from the model's schema, and the built-in palettes by
+  their Chinese names and ids, written from the house's tokens, where it counted the categories and named the palettes
+  by hand. `archpub skill` prints the two lists with the Skill. Every delivered byte is as before.
 - The model reference's sentences of the strip's lengths, the age bands and the colours of a palette of a model's own,
   and the lines reference's sentence of the widths the line trials measured at, are written from the modules and the
   schema that state them, and the bug report's form offers the release's platforms from the mise lock. The glossary

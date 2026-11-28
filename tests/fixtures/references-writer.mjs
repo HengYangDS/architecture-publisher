@@ -11,7 +11,7 @@ const root = path.resolve(import.meta.dirname, "../..");
 /** The writer. */
 export const WRITER = path.join(root, "tools/docs/references.mjs");
 
-/** A tree of what the writer reads: the documents it writes, the source, the trials' fixture, the package, the mise
+/** A tree of what the writer reads: the documents it writes, the agent Skill, the source, the trials' fixture, the package, the mise
  * lock, the release archive's table and the formatter's policy, with the bundled renderers the command it runs for a
  * sample reads, linked as they are never changed here. */
 export async function tree() {
@@ -27,6 +27,7 @@ export async function tree() {
     ".config/mise/mise.lock",
     "tools/release/archive/members.json",
     "package.json",
+    "skills/architecture-publisher/SKILL.md",
   ])
     await fs.cp(path.join(root, part), path.join(dir, part), { recursive: true });
   for (const linked of ["node_modules", "renderers"])

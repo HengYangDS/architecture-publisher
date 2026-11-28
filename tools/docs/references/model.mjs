@@ -1,4 +1,4 @@
-// The blocks references.mjs writes from the model's sources: the rules, the top-level fields, the categories of a model
+// The blocks references.mjs writes from the model's sources, in the references and the agent Skill: the rules, the top-level fields, the categories of a model
 // and the colours of a palette of its own as its schema states them (src/model/schema.json), the palettes and the
 // lines as the house states them (src/house.json), and the schema itself, with the enumerations a table of the source
 // owns filled in from it.
@@ -174,6 +174,17 @@ export async function modelBlocks(root) {
   const colours = Object.entries(own.properties).map(colour);
   const coloursSentence = () => `A palette of your own names ${listed(colours)}:`;
 
+  // The agent Skill's two sets, which an agent with only the package reads nowhere else: the categories a kind maps to,
+  // as the schema states them, and the built-in palettes by their Chinese names and ids, in the house's order.
+  const skillCategories = () => `The categories are ${listed(category.enum.map(code))}.`;
+  const skillPalettes = () =>
+    `The built-in palettes are ${listed(
+      Object.entries(house.palettes).map(
+        ([id, /** @type {any} */ each]) =>
+          `${said(each.name?.["zh-CN"], `Chinese name of the palette ${id}`)} ${code(id)}`,
+      ),
+    )}.`;
+
   // The rows of the table of lines (src/house.json): what each means, how a plate draws it, the question it answers,
   // whether a work has tested it, and what a delivery's page does for it.
   const drawn = (/** @type {any} */ row) => {
@@ -230,6 +241,18 @@ export async function modelBlocks(root) {
         name: "colours",
         source: "src/model/schema.json",
         text: coloursSentence,
+      },
+      {
+        file: "skills/architecture-publisher/SKILL.md",
+        name: "categories",
+        source: "src/model/schema.json",
+        text: skillCategories,
+      },
+      {
+        file: "skills/architecture-publisher/SKILL.md",
+        name: "palettes",
+        source: "src/house.json",
+        text: skillPalettes,
       },
       {
         file: "docs/reference/lines.md",

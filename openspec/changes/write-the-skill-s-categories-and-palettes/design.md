@@ -18,13 +18,14 @@ root and which goes with the compositions item of the queue.
    generator's blocks, each between two comment lines. Considered: pointing to the model's schema, which an agent can
    read but which holds no Chinese name of a palette; the whole Skill written from a template, which keeps a second
    copy of its text in the repository. Chosen because: two lists written from their sources keep the Skill whole and
-   state each set once; the comment lines reach an agent's reading, as the README's reach a reader of its source.
-   Applies to: `skills/architecture-publisher/SKILL.md` and `tools/docs/references/model.mjs`.
+   state each set once; the comment lines reach an agent's reading, as the README's reach a reader of its source. The
+   lists stand in a section at the Skill's end, which its steps point to: a block's comment lines need blank lines
+   around them, which the tight list of steps does not take under the repository's Markdown spacing. Applies to:
+   `skills/architecture-publisher/SKILL.md` and `tools/docs/references/model.mjs`.
 2. **The Skill as documentation.** Rests on: the Skill is documentation the package ships, as the README is, and
    `archpub skill` prints it as written. Chosen because: the command's behaviour is unchanged; its output changes with
    the Skill's text, as with any edit of the Skill. Applies to: this Change's queue line, `maintenance`.
 
 ## Risks / Trade-offs
 
-- A list item of the Skill now holds paragraphs, so the Skill's numbered list renders loose; its raw text, which an
-  agent reads, is unaffected.
+- An agent reads the two lists at the Skill's end, a step away from the steps that use them.

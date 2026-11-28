@@ -313,9 +313,16 @@ its delivery one name without listing the ids. The bug report's form offers the 
 mise lock between two comment lines as the README's are. Left for the compositions item of the queue: the operations
 reference's gates and their limits, which `GATES` (`src/poster/compose/gates.mjs`) states and does not export, and
 the most cards a row of a view holds, which the skill and the model reference state and the layout states in a drawing
-root. Left for a Change of their own: the skill's names of the built-in palettes and its count of the categories. An
-agent that has only the package reads them nowhere else, so they need a block that `archpub skill` would print with its
-comment lines, or a skill written whole from its sources.
+root.
+
+## The skill's categories and palettes (2026-11-28)
+
+The skill named the built-in palettes by hand and counted the categories. An agent that has only the package reads
+neither set anywhere else, so pointing elsewhere, as the skill does for the exit statuses, would leave it without them.
+Since 2026-11-28 the writer writes both into the skill as blocks between comment lines, the categories from the
+model's schema and the palettes, by their Chinese names and ids, from the house's tokens; `archpub skill` prints the
+skill as written, its comment lines with it, as a reader of the README's source sees them. The skill now lists the
+categories it only counted before.
 
 ## What is not established
 
