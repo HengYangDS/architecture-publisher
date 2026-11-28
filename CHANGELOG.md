@@ -7,6 +7,8 @@ remain pre-release contracts and may contain incompatible changes.
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-11-28
+
 ### Added
 
 - A view whose shape is a pipeline is drawn as a spine: its path's stations in rows that alternate direction across
@@ -1642,6 +1644,7 @@ feedback_links=false` turns off; no text of a page is lost, and the edition, its
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [in-toto Statement v1]: https://github.com/in-toto/attestation/blob/main/spec/v1/statement.md
+[0.22.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.22.0
 [0.21.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.21.0
 [0.20.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.20.0
 [0.19.0]: https://github.com/HengYangDS/architecture-publisher/releases/tag/v0.19.0
