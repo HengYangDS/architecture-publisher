@@ -52,7 +52,7 @@ on 2 → 1, every gate on 2 → 0, crossings 3 → 17, bends 158 → 65, type la
 the median largest blank rose from .140 to .191.
 
 The first committee agreed that a spine is true only for a pipeline that the view's question orders (each seat found
-one: proxy `request-path`, ethos `intent`, aigw `program`); that the longest-path test admits views that are not
+one: proxy `request-path`, ETHOS `intent`, aigw `program`); that the longest-path test admits views that are not
 sequences (aigw `authority` and `readiness`, rejected by all three); and that one line across the figure leaves its
 corners blank by construction (10 of 13 miss the blank band) and often shrinks the type (8 of 13). The decision took
 the radial figure into a Change ([Drawing a view round its centre](radial.md)) and left the spine for a second round:
@@ -72,7 +72,7 @@ whose rows all read left to right, joined by a line back across the figure.
 | The return     | 8            | 0 → 2                         | .135 → .148                        | 5 → 14    | 10 → 0        | 5 / 3 / 0                    |
 
 The second committee agreed that the test admitted views that are not sequences: architecture-publisher `models`, a
-fan; filmkit `film`, parts feeding two sinks; aigw `program`, a tree. It read ethos `intent` and proxy
+fan; filmkit `film`, parts feeding two sinks; aigw `program`, a tree. It read ETHOS `intent` and proxy
 `request-path` as real sequences, the serpentine's blank as a defect (10 of 12 plates miss the gate of .12, in the
 corners where the line turns), and its diagonals between rows as its main cost. It asked for a test stated in the
 relations: five stations, the path holding most of the parts, most relations joining neighbouring stations, no part
@@ -156,7 +156,7 @@ Each of the census's 76 plates was composed from its edition's model with dev's 
 plates a light run, and the digests of the whole plate records compared. 74 are byte for byte as on dev: the 59 in
 tiers but two, the 11 matrices and the 6 radial figures. The rule admits one view, architecture-publisher `page`, in
 both languages. Of the other 40 views, the first clause each misses is the five stations for 20, the parts' share for
-5, the relations' share for 13, and the three parts sent to for 2, ethos `intent` and proxy `request-path`; none
+5, the relations' share for 13, and the three parts sent to for 2, ETHOS `intent` and proxy `request-path`; none
 misses the fifth clause first, and every plate's record is the same with it as without. The spine
 of `page` sets type at step 3 against its tiers figure's 4 in both languages, so both its plates keep tiers, and their
 records differ from dev's only by `refused: { kind: "spine", why: "type" }`.
