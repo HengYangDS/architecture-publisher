@@ -189,17 +189,14 @@ Each row wrapping is also laid out with channels that take more label rows so
 that no wire turns in a band beside another card than its own; a plate takes
 that taller figure when the body holds it and it has no more route defects.
 
-Each view is one plate: a figure laid out for the edition's body, 2256 × 1071 px
-at two thirds of a point each, with no text below 14 px. Cards are as large as
-what they hold and never stretch; a sparse view is instead set at a larger type
-step, up to 32 px labels and 24 px details. A plate tries every type step and
-row wrapping, with its rows centred over all its cards, over the cards inside
-the boundary, and uncentred, and with its numbered tier labels in one column
-before the figure or each before the edge its tier starts at. It takes the
-fewest crossings, then the fewest route defects, then the largest step, then the
-widest wrapping, then the least of the body left blank, and the manifest records
-its composition. A tier wrapped into several rows has its label level with its
-first row, beside a bracket that spans them all.
+Each view is one plate: a figure laid out for the edition's body, 2256 × 1071 px at two thirds of a point each, with
+no text below 14 px. Cards are as large as what they hold and never stretch; a sparse view is instead set at a larger
+type step, up to 32 px labels and 24 px details. A plate tries every type step and row wrapping, with its rows centred
+over all its cards, over the cards inside the boundary, and uncentred, and with its numbered tier labels in one column
+before the figure or each before the edge its tier starts at. It takes the fewest crossings, then the fewest route
+defects, then the largest step, then the widest wrapping, then the least of the body left blank, and the manifest
+records its composition. A tier wrapped into several rows has its label level with its first row, beside a bracket
+that spans them all.
 
 <!-- balance-gates: written from src/poster/compose/gates.mjs and src/poster/balance.mjs by tools/docs/references.mjs; do not edit -->
 
@@ -207,34 +204,26 @@ Each plate is measured against four balance gates over the body: its largest bla
 
 <!-- end of balance-gates -->
 
-The gates a plate misses are recorded with their values and limits, not refused;
-a view no composition lays out is refused with `plate_unfittable`. Figure text
-is measured in Source Sans 3, its semibold for heavy text, and Noto Sans CJK SC
-for the characters the first lacks; lines break at spaces but not at no-break
-spaces, and between Han and Kana characters, keeping closing punctuation on the
-line before. A plate draws each part as [one card](model.md#parts-and-palette)
-in the edition's palette; a card is a box as wide as its widest region, so
-placement and every gate run on boxes. It is composed for cards without details,
-and its cards set every detail when that costs it no room, no type step and no
-wiring, which its composition records. A plate is drawn as the SVG of its shapes
-and a list of text runs, which the edition sets as text.
+The gates a plate misses are recorded with their values and limits, not refused; a view no composition lays out is
+refused with `plate_unfittable`. Figure text is measured in Source Sans 3, its semibold for heavy text, and Noto Sans
+CJK SC for the characters the first lacks; lines break at spaces but not at no-break spaces, and between Han and Kana
+characters, keeping closing punctuation on the line before. A plate draws each part as [one
+card](model.md#parts-and-palette) in the edition's palette; a card is a box as wide as its widest region, so placement
+and every gate run on boxes. It is composed for cards without details, and its cards set every detail when that costs
+it no room, no type step and no wiring, which its composition records. A plate is drawn as the SVG of its shapes and a
+list of text runs, which the edition sets as text.
 
-A plate in tiers fills the blank its rows leave, from the model
-([why and how](../research/tiers-fill.md)). A lone card of the figure's first or
-last row whose category may span the figure (the [categories](model.md#kinds)
-table says which), and to which at least half the cards of the row beside it
-relate, is drawn as a band across the figure in the card's tokens, its text at
-its column's width at its left; each relation from that row enters it straight
-at its other end's column. Beside a chosen figure that misses a balance gate,
-the publisher draws the same figure with each row of two or more cards spread
-between its insets, and takes it only when it passes a gate the chosen figure
-misses, misses none that figure passes, and wires no worse. A band is kept only
-where its figure and its plate wire no worse than drawn plain, and neither fill
-may bring an outside card inside the system's boundary. The composition records
-`bands`, the bands drawn plain as `unbanded`, and `justified: true`, each only
-where it applies.
+A plate in tiers fills the blank its rows leave, from the model ([why and how](../research/tiers-fill.md)). A lone
+card of the figure's first or last row whose category may span the figure (the [categories](model.md#kinds) table says
+which), and to which at least half the cards of the row beside it relate, is drawn as a band across the figure in the
+card's tokens, its text at its column's width at its left; each relation from that row enters it straight at its other
+end's column. Beside a chosen figure that misses a balance gate, the publisher draws the same figure with each row of
+two or more cards spread between its insets, and takes it only when it passes a gate the chosen figure misses, misses
+none that figure passes, and wires no worse. A band is kept only where its figure and its plate wire no worse than
+drawn plain, and neither fill may bring an outside card inside the system's boundary. The composition records `bands`,
+the bands drawn plain as `unbanded`, and `justified: true`, each only where it applies.
 
-A view drawn as a matrix or as a radial figure ([when](model.md#views)) keeps the box its figure in tiers takes
+A view drawn as a matrix, a radial figure or a spine ([when](model.md#views)) keeps the box its figure in tiers takes
 beside its reading, so the plate's width, reading and summary are those of tiers. In a matrix each part has a row and
 a column, in the order its relations flow, sources first and the parts of a cycle together; a cell holds the label of
 the relations from one part to another, tinted in their line's colour, and the number of files they cite where the
@@ -252,6 +241,19 @@ at any slant, each label on its own line and as far from other lines as the rout
 the largest step it is drawn at, recording `kind: "radial"`, its `centre` and, as `tiers.step`, its tiers figure's
 step. Where the rule's radial figure cannot be drawn or would set smaller type, the plate falls to the matrix's rule
 and records `refused` with `kind: "radial"` and `why`: `parts`, `cards`, `boundary`, `lines`, `labels` or `type`.
+
+A spine ([why](../research/spine.md)) folds the view's main path into two or three rows read left to right and back, the
+line turning down at the frame's side under an arrowhead; every other part stands above or below the station it relates
+to most, a part outside beyond the boundary or in a row of its own, and one related to no station above or below the
+rows. Lines run across and down: a branch's with one bend at most, a relation between stations not next to each other
+down, with one bend or as a Z, or, for one at most, over or under its row. No card comes nearer the frame than the
+grid's row padding. Each relation from a station to the next takes the table's heavy weight, dye and arrowhead, as one
+into the hub does, and the key names that line the main path; every other line is plain. Of the steps from its tiers
+figure's up where the rule takes it, and of all where its view names it, it takes the figure with the fewest crossings,
+then route defects, then gates missed, then the largest step, recording `kind: "spine"`, its `stations`, the cards in
+each of its `rows` and, as `tiers.step`, its tiers figure's step. Where none is drawn, or the rule's would set smaller
+type, the plate records `refused` with `kind: "spine"` and a `why` from the radial figure's list, `parts` meaning a
+main path too short to fold; a spine the rule took falls to the matrix's rule.
 
 A plate's page is its figure and its view's reading. The figure takes the
 narrowest of 100, 80 and 65 percent of the body's width at which it wires with

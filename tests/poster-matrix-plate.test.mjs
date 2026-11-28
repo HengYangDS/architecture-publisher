@@ -8,6 +8,7 @@ import {
   composePlates,
   compositionOf,
   compositionWarnings,
+  shapesOf,
 } from "../src/poster/compose/plates.mjs";
 import { HOUSE_STYLE, colorsOf } from "../src/poster/tokens.mjs";
 import { DENSE, denseModel } from "./fixtures/matrix.mjs";
@@ -17,25 +18,29 @@ import { icons, typefaces } from "./fixtures/strips.mjs";
 // Which composition a view's plate is drawn in: the one its author names, or by the matrix's rule a matrix where its
 // figure in tiers would tangle and a matrix fits the box its plate in tiers keeps; and what the plate keeps of it.
 
-/** A view's shape as the rules read it: its tiers, its parts, and no relations, so no part is a hub. */
+/** A view's shape as the rules read it: its tiers, its parts, and no relations, so no part is a hub or a station. */
 const shape = (tiers, parts) => ({
   tiers,
   components: Array.from({ length: parts }, (_, index) => ({ id: `p${index}` })),
   relations: [],
 });
 
+/** The composition the rules give a view of no relations, its figure in tiers having `routes` route defects. */
+const ruled = (view, routes) =>
+  compositionOf(view, routes, shapesOf(validateModel(minimalModel()), view));
+
 test("the rule draws a view of no tiers and eight parts or more as a matrix when its tiers have two route defects", () => {
-  assert.equal(compositionOf(shape(null, 8), 2), "matrix");
+  assert.equal(ruled(shape(null, 8), 2), "matrix");
   // One route defect is too few; seven parts are too few; declared tiers keep the grid.
-  assert.equal(compositionOf(shape(null, 8), 1), "tiers");
-  assert.equal(compositionOf(shape(null, 7), 5), "tiers");
-  assert.equal(compositionOf(shape([{ id: "t", label: "T", members: [] }], 9), 5), "tiers");
+  assert.equal(ruled(shape(null, 8), 1), "tiers");
+  assert.equal(ruled(shape(null, 7), 5), "tiers");
+  assert.equal(ruled(shape([{ id: "t", label: "T", members: [] }], 9), 5), "tiers");
 });
 
 test("a view's author names its composition over the rule", () => {
-  assert.equal(compositionOf({ ...shape(null, 9), composition: "tiers" }, 5), "tiers");
-  assert.equal(compositionOf({ ...shape([], 3), composition: "matrix" }, 0), "matrix");
-  assert.equal(compositionOf({ ...shape(null, 9), composition: null }, 2), "matrix");
+  assert.equal(ruled({ ...shape(null, 9), composition: "tiers" }, 5), "tiers");
+  assert.equal(ruled({ ...shape([], 3), composition: "matrix" }, 0), "matrix");
+  assert.equal(ruled({ ...shape(null, 9), composition: null }, 2), "matrix");
 });
 
 /** A model's plates, each view composed in the house's style. */

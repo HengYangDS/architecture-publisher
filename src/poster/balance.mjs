@@ -16,7 +16,7 @@
  */
 
 /** The side of a measuring cell in px. */
-const CELL = 8;
+export const CELL = 8;
 /**
  * The side of the smallest square a reader sees as a hole in the page: wider
  * than any gutter, channel or gap the grid sets on purpose, and narrower than

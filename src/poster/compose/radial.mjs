@@ -2,13 +2,19 @@ import { insideLength } from "../../layout/measure.mjs";
 import { POSTER } from "../tokens.mjs";
 import {
   FAULTS,
+  borderToward,
   cardsAt,
   compareRanks,
   drawFree,
   drawnRelations,
   headingOf,
+  labelClearance,
   measureFree,
+  middleOf,
+  near,
+  pairsOf,
   rankFree,
+  tiesOf,
 } from "./free.mjs";
 
 /**
@@ -48,13 +54,8 @@ export function ringOf(view) {
   const ids = view.components.map(({ id }) => id);
   if (ids.length < 3) return null;
   const relations = drawnRelations(view);
-  /** @type {Map<string, Map<string, number>>} */
-  const near = new Map(ids.map((id) => [id, new Map()]));
-  const of = (/** @type {string} */ id) => /** @type {Map<string, number>} */ (near.get(id));
-  for (const { from, to } of relations) {
-    of(from).set(to, (of(from).get(to) ?? 0) + 1);
-    of(to).set(from, (of(to).get(from) ?? 0) + 1);
-  }
+  const ties = tiesOf(ids, relations);
+  const of = (/** @type {string} */ id) => /** @type {Map<string, number>} */ (ties.get(id));
   const score = (/** @type {string} */ id) => [
     of(id).size,
     [...of(id).values()].reduce((sum, count) => sum + count, 0),
@@ -163,41 +164,11 @@ function bestOrders(ring, chords, spoked) {
   return kept.map(({ order }) => order);
 }
 
-/** Whether two boxes overlap by more than half a px on both axes, grown first by `by` px. */
-const near = (a, b, by = 0) =>
-  a.x - by < b.x + b.width - 0.5 &&
-  b.x < a.x + a.width + by - 0.5 &&
-  a.y - by < b.y + b.height - 0.5 &&
-  b.y < a.y + a.height + by - 0.5;
-
-/** The centre of a box. */
-const middleOf = (box) => [box.x + box.width / 2, box.y + box.height / 2];
-
-/**
- * Where the line from a box's centre toward a point leaves the box, shifted across the line by `offset` px for two
- * relations between one pair of parts.
- * @param {{ x: number, y: number, width: number, height: number }} box
- * @param {number[]} toward
- * @param {number} [offset]
- */
-function borderToward(box, toward, offset = 0) {
-  const [cx, cy] = middleOf(box);
-  const [dx, dy] = [toward[0] - cx, toward[1] - cy];
-  const length = Math.hypot(dx, dy) || 1;
-  const [px, py] = [(-dy / length) * offset, (dx / length) * offset];
-  const scale = Math.min(
-    dx ? (box.width / 2 - Math.sign(dx) * px) / Math.abs(dx) : Infinity,
-    dy ? (box.height / 2 - Math.sign(dy) * py) / Math.abs(dy) : Infinity,
-  );
-  return [cx + px + dx * scale, cy + py + dy * scale];
-}
-
 /**
  * The ring laid out at one type step in one order and one turn, in a field at the origin: the centre in the middle, the
  * ring's cards round it, the spokes, the chords, their arrows, labels and the boundary; or the fault that stops it
  * (`FAULTS`). The frame keeps the grid's row padding from the field's edges, which holds its name's tab above it; a
- * label keeps `labelClear` from every other relation's line and from the frame, the distance below which the route
- * measure reads it as that line's label, and `labelGap` from the cards and the labels set before it.
+ * label stands where `labelClearance` admits it.
  * @param {NonNullable<ReturnType<typeof cardsAt>>} cards
  * @param {NonNullable<ReturnType<typeof ringOf>>} plan
  * @param {string[]} order the ring's parts, clockwise from the place at `start`
@@ -268,12 +239,6 @@ function layoutRadial(cards, plan, order, start, relations, field, name) {
   }
 
   // The lines: each relation with the centre a spoke, each other a chord; two relations of one pair side by side.
-  /** @type {Map<string, any[]>} */
-  const pairs = new Map();
-  for (const relation of relations) {
-    const key = [relation.from, relation.to].sort().join("\u0000");
-    pairs.set(key, [...(pairs.get(key) ?? []), relation]);
-  }
   const clear = (/** @type {number[][]} */ points, /** @type {string[]} */ joined) =>
     points
       .slice(1)
@@ -284,7 +249,7 @@ function layoutRadial(cards, plan, order, start, relations, field, name) {
       );
   /** @type {Array<{ relation: any, points: number[][], spoke: boolean }>} */
   const lines = [];
-  for (const group of pairs.values())
+  for (const group of pairsOf(relations).values())
     group.forEach((relation, index) => {
       const offset = (index - (group.length - 1) / 2) * spacing.separation;
       const [from, to] = [
@@ -340,63 +305,11 @@ function layoutRadial(cards, plan, order, start, relations, field, name) {
   // steep spoke it stands across the fan of spokes, and on a body wider than it is tall a steep spoke is also the
   // shorter: its label has the least room. A spoke's label goes toward its ring end, where the spokes stand furthest
   // apart.
-  const frame = boundary
-    ? [
-        [
-          [boundary.x, boundary.y],
-          [boundary.x + boundary.width, boundary.y],
-        ],
-        [
-          [boundary.x, boundary.y + boundary.height],
-          [boundary.x + boundary.width, boundary.y + boundary.height],
-        ],
-        [
-          [boundary.x, boundary.y],
-          [boundary.x, boundary.y + boundary.height],
-        ],
-        [
-          [boundary.x + boundary.width, boundary.y],
-          [boundary.x + boundary.width, boundary.y + boundary.height],
-        ],
-      ]
-    : [];
-  const stretches = lines.flatMap(({ relation, points }) =>
-    points.slice(1).map((point, index) => ({ id: relation.id, p: points[index], q: point })),
-  );
   /** @type {any[]} */
   const labels = [];
   /** @type {string[]} */
   const unplaced = [];
-  // A label leaves its line showing at both ends, an arrowhead's stub at least, so the line reads past it.
-  const ends = (box, points) =>
-    [points[0], points[points.length - 1]].every(
-      ([x, y]) =>
-        x < box.x - spacing.arrowStub ||
-        x > box.x + box.width + spacing.arrowStub ||
-        y < box.y - spacing.arrowStub ||
-        y > box.y + box.height + spacing.arrowStub,
-    );
-  const placed = (box, relation, points) => {
-    const clearOfLines = {
-      x: box.x - spacing.labelClear,
-      y: box.y - spacing.labelClear,
-      width: box.width + 2 * spacing.labelClear,
-      height: box.height + 2 * spacing.labelClear,
-    };
-    return (
-      ends(box, points) &&
-      box.x >= 0 &&
-      box.y >= 0 &&
-      box.x + box.width <= W &&
-      box.y + box.height <= H &&
-      !all.some((card) => near(box, card, spacing.labelGap)) &&
-      !labels.some((other) => near(box, other, spacing.labelGap)) &&
-      !stretches.some(
-        ({ id, p, q }) => id !== relation.id && insideLength(p, q, clearOfLines) > 0,
-      ) &&
-      !frame.some(([p, q]) => insideLength(p, q, clearOfLines) > 0)
-    );
-  };
+  const placed = labelClearance(field, spacing, { marks: all, lines, boundary, labels });
   const slope = ({ points }) =>
     Math.abs(points[1][1] - points[0][1]) / (Math.abs(points[1][0] - points[0][0]) + 1);
   const ordered = [...lines].sort(

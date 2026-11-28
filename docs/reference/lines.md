@@ -39,7 +39,10 @@ and its dots. There, a relation that cites files carries their number near its s
 and its line's colour, at the first place along its own line where its figures touch no part, label, line or other
 number; with no such place it stands at the first and the result carries the warning `citation_count_touches`, which
 names the plate and the relation. In an edition that draws no strip, whose build reads no checkout or whose model
-claims no files, every line is drawn alike and carries no number.
+claims no files, every line is drawn alike and carries no number. A plate drawn as a spine gives the heavier weight to
+the path along its stations instead, in any edition: its line, its turns and their arrowheads are drawn as the
+`emphasis` row draws a relation into the hub, a relation into the hub is drawn at the ordinary weight, and the key
+names the heavy line the main path.
 
 The `emphasis` row stands by the owner's ruling of 2026-11-15 and not by its reading. When the rebuilt plate was
 read, every reading named the hub, and two of eighteen gave the name of one of the parts that lead to it with one

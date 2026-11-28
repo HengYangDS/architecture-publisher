@@ -150,7 +150,8 @@ test("check, build, accept, publish and import run end to end", async (t) => {
       ["noted", "Files"],
       ["attention", "Uncited"],
       ["heading", "Plates"],
-      [plate.misses.length ? "attention" : "passed", "01"],
+      // A plate that passes every gate carries no `misses` (the manifest drops an empty list).
+      [plate.misses?.length ? "attention" : "passed", "01"],
       ["heading", "Data"],
       ["noted", "Statements"],
       ["noted", "Facts"],

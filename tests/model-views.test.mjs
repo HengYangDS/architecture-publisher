@@ -113,6 +113,7 @@ test("a view may name its plate's composition, one the schema states, and the lo
     "tiers",
     "matrix",
     "radial",
+    "spine",
   ]);
   const model = validateModel(
     minimalModel({
@@ -122,18 +123,19 @@ test("a view may name its plate's composition, one the schema states, and the lo
         { id: "w", tiers: ["g"], composition: "tiers" },
         { id: "x", members: ["a"] },
         { id: "y", members: ["a", "b"], composition: "radial" },
+        { id: "z", members: ["a", "b"], composition: "spine" },
       ],
     }),
   );
   assert.deepEqual(
     model.views.map(({ composition }) => composition),
-    ["matrix", "tiers", null, "radial"],
+    ["matrix", "tiers", null, "radial", "spine"],
   );
   assert.deepEqual(
     problemsOf(
       minimalModel({
         views: [
-          { id: "v", members: ["a"], composition: "spine" },
+          { id: "v", members: ["a"], composition: "serpentine" },
           { id: "w", members: ["a"], composition: null },
         ],
       }),

@@ -6,12 +6,14 @@ import { ROW_LIMIT, viewRows } from "../../layout/rows.mjs";
 import { two } from "../../names.mjs";
 import { refuse } from "../../refusal.mjs";
 import { setWidth } from "../spread.mjs";
-import { stripKey } from "../strip.mjs";
+import { heavyLine, stripKey } from "../strip.mjs";
 import { bandable, platesOf } from "../plate.mjs";
 import { HOUSE_STYLE, POSTER, figureStyles, linesOf } from "../tokens.mjs";
 import { balanceOfPlate, gateFailures, takesJustified } from "./gates.mjs";
 import { matrices, matrixKey, matrixSample } from "./matrix.mjs";
 import { ringOf, rings } from "./radial.mjs";
+import { spines } from "./spine.mjs";
+import { pathOf } from "./spine-path.mjs";
 
 /**
  * What every composition of an edition's plates shares: the model, its
@@ -54,21 +56,24 @@ export function gutterFor(typefaces, labels) {
  * names for its row; the ground of a part outside it, where the view shows a part on that ground; and the statuses
  * present, each by its row's shape. The key lists no kind, since every card sets its kind's icon before the kind's
  * label. A plate drawn as a matrix draws no line: its key names its cells' marks in place of the lines' samples, and
- * draws the boundary and the statuses as the matrix draws them.
+ * draws the boundary and the statuses as the matrix draws them. On a plate drawn as a spine the heavy line is the
+ * path along its stations, not the lines into the hub (`drawLines`), and the key names it so, with or without strips.
  * @param {any} model
  * @param {import("../../plan/views.mjs").View} view
  * @param {string} boundary
  * @param {import("../strip.mjs").Style} drawn the style the plate is drawn in
  * @param {readonly string[]} rows the rows of the table of lines the figure draws
- * @param {{ side: number }} [matrix] the measures of the cells of a figure drawn as a matrix
+ * @param {{ matrix?: { side: number }, spine?: boolean }} figure the measures of the cells of a figure drawn as a
+ *   matrix, or whether it is drawn as a spine
  */
-function legendOf(model, view, boundary, drawn, rows, matrix) {
+function legendOf(model, view, boundary, drawn, rows, { matrix, spine }) {
   const words = wordsOf(model.locale);
   const lines = linesOf(drawn.lines);
   const keyed = (row) => (rows.includes(row) ? lines.key(row) : null);
   const key = matrix
     ? matrixKey(model, view, drawn, rows, matrix)
-    : stripKey(model, view, drawn, rows);
+    : stripKey(model, view, drawn, spine ? rows.filter((row) => row !== "emphasis") : rows);
+  if (spine && keyed("emphasis")) key.push(heavyLine(drawn, words.spine.path));
   /** A row's sample: the shape its row of lines names, or the mark a matrix draws for it. */
   const sample = (row, shape) => (matrix ? matrixSample(drawn, matrix, row) : { shape });
   const frame = keyed("boundary");
@@ -190,19 +195,40 @@ const byMatrixRule = (view, routes) =>
   view.components.length >= MATRIX_RULE.parts && routes >= MATRIX_RULE.routes ? "matrix" : "tiers";
 
 /**
+ * The shapes of a view that the radial and the spine's rules read, from its parts and relations and its model's kinds
+ * alone, so the same in every language: its ring (`ringOf`) and its main path (`pathOf`), which the spine's rule
+ * admits or refuses (spine-path.mjs). Each is read when first asked for and kept, so a view the rules settle before
+ * the spine's walks no path.
+ * @param {any} model
+ * @param {import("../../plan/views.mjs").View} view
+ */
+export function shapesOf(model, view) {
+  /** @type {{ ring?: ReturnType<typeof ringOf>, path?: ReturnType<typeof pathOf> }} */
+  const read = {};
+  return {
+    ring: () => (read.ring === undefined ? (read.ring = ringOf(view)) : read.ring),
+    path: () => (read.path === undefined ? (read.path = pathOf(model, view)) : read.path),
+  };
+}
+
+/**
  * The composition a view is drawn in where one of that kind can be drawn: the one its author names; for a view that
- * declares no tiers, by the radial rule a radial figure, or else by the matrix's rule a matrix; and the grid of tiers
- * otherwise. The radial rule comes first, as it reads the view alone: the matrix's reads the figure in tiers, which
- * differs between languages.
+ * declares no tiers, by the radial rule a radial figure, else by the spine's rule a spine, else by the matrix's rule a
+ * matrix; and the grid of tiers otherwise. The radial and the spine's rules come before the matrix's because they
+ * read the view alone, where the matrix's reads the figure in tiers, which differs between languages. The radial rule
+ * comes before the spine's because a ring is the more special shape: a part that drives three quarters of the others
+ * is the view's centre even where a path runs past it.
  * @param {import("../../plan/views.mjs").View} view
  * @param {number} routes the route defects of its figure in tiers at the full width
- * @param {ReturnType<typeof ringOf>} [shape] the view's ring, where the caller has it
- * @returns {"tiers" | "matrix" | "radial"}
+ * @param {ReturnType<typeof shapesOf>} shapes
+ * @returns {"tiers" | "matrix" | "radial" | "spine"}
  */
-export function compositionOf(view, routes, shape = ringOf(view)) {
+export function compositionOf(view, routes, { ring, path }) {
   if (view.composition) return view.composition;
   if (view.tiers) return "tiers";
-  return drawnRound(shape) ? "radial" : byMatrixRule(view, routes);
+  if (drawnRound(ring())) return "radial";
+  if (path()?.admitted) return "spine";
+  return byMatrixRule(view, routes);
 }
 
 /**
@@ -487,9 +513,28 @@ function matrixOf(scene, view, tiers) {
 }
 
 /**
+ * A plate of a figure drawn off the grid, the best a free composition drew in the box the grid of tiers keeps: its type
+ * step, cards' details, wiring measured as the grid's is, figure and balance.
+ * @param {any} best the composition's best figure
+ * @param {{ width: number, height: number }} tiers the grid the plate is drawn in otherwise
+ */
+function freePlate(best, { width, height }) {
+  const { crossings, routes, routeDefects, bends } = best.measured;
+  const one = {
+    step: best.cards.index,
+    limit: null,
+    flat: false,
+    details: best.cards.details,
+    layout: { measures: { crossings, routes, routeDefects, bends } },
+    figure: best.drawn.figure,
+  };
+  return { one, centring: null, tierLabels: null, balance: best.drawn.balance, width, height };
+}
+
+/**
  * A view drawn as a radial figure round its centre (`rings`), in the box the grid of tiers keeps, as a matrix is: the
- * best ring that box holds, its wiring measured as the grid's is; or, where none is drawn, why: `parts` for a view
- * of fewer than three parts, which has no ring, or the furthest fault its layouts came to (`FAULTS`).
+ * best ring that box holds; or, where none is drawn, why: `parts` for a view of fewer than three parts, which has no
+ * ring, or the furthest fault its layouts came to (`FAULTS`).
  * @param {Scene} scene
  * @param {import("../../plan/views.mjs").View} view
  * @param {any} tiers the grid the plate is drawn in otherwise
@@ -503,18 +548,32 @@ function radialOf(scene, view, tiers, shape) {
     figures: [best],
     fault,
   } = rings(scene, view, { width, height }, shape);
+  return best ? { ...freePlate(best, tiers), radial: shape.centre } : { fault };
+}
+
+/**
+ * A view drawn as a spine along its main path (`spines`), in the box the grid of tiers keeps, as a radial figure is:
+ * the best spine that box holds, weighed among the type steps no smaller than its figure in tiers' where a rule takes
+ * it, and at every step the plate allows where its author names it, since, as for a radial figure, the type test is
+ * the rule's alone (`composePlates`); or, where none is drawn, why: `parts` for a view whose relations make no path,
+ * or one too short to fold or that leaves a part related to no station, or the furthest fault its layouts came to
+ * (`FAULTS`).
+ * @param {Scene} scene
+ * @param {import("../../plan/views.mjs").View} view
+ * @param {any} tiers the grid the plate is drawn in otherwise
+ * @param {ReturnType<typeof pathOf>} path the view's main path
+ * @returns {any}
+ */
+function spineOf(scene, view, tiers, path) {
+  if (!path) return { fault: "parts" };
+  const { width, height } = tiers;
+  const {
+    figures: [best],
+    fault,
+  } = spines(scene, view, { width, height }, path, view.composition ? 0 : tiers.one.step);
   if (!best) return { fault };
-  const { crossings, routes, routeDefects, bends } = best.measured;
-  const one = {
-    step: best.cards.index,
-    limit: null,
-    flat: false,
-    details: best.cards.details,
-    layout: { measures: { crossings, routes, routeDefects, bends } },
-    figure: best.drawn.figure,
-  };
-  const { balance } = best.drawn;
-  return { one, radial: shape.centre, centring: null, tierLabels: null, balance, width, height };
+  const { plan, split } = best.arrangement;
+  return { ...freePlate(best, tiers), spine: { stations: plan.stations, rows: split } };
 }
 
 /**
@@ -601,11 +660,11 @@ function justifiedBeside(scene, view, chosen) {
  * best composition at that width, measured and recorded. A view no composition lays out is refused.
  * Every plate is drawn in the edition's one style, so strip lengths and age bands keep one scale across it.
  * Each plate carries its figure's report of what it drew, as the drawing handed it back. A plate is drawn as a
- * matrix or a radial figure where its view names one or a rule takes one, in the box its tiers would have, and
- * records that kind; a matrix or a radial figure its view names that cannot be drawn there leaves the plate in
- * tiers, and the plate says so. A radial figure the rule takes is drawn at a type step no smaller than its figure in
- * tiers; where it is not drawn, the plate is drawn as the matrix's rule gives it and records why, so a view drawn
- * round its centre in one language and not in another says which and why. A plate in tiers draws the tiers figure's
+ * matrix, a radial figure or a spine where its view names one or a rule takes one, in the box its tiers would have,
+ * and records that kind; one its view names that cannot be drawn there leaves the plate in tiers, and the plate says
+ * so. A radial figure or a spine a rule takes is drawn at a type step no smaller than its figure in tiers; where it is
+ * not drawn, the plate is drawn as the matrix's rule gives it and records why, so a view drawn round its centre or
+ * along its path in one language and not in another says which and why. A plate in tiers draws the tiers figure's
  * fill (src/layout/fill.mjs) and records it: the cards it drew as bands, the bands a guard drew plain, and the
  * justified figure where it took that.
  * @param {any} model
@@ -622,28 +681,45 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
     const { full, share, reading, standfirst } = plan;
     // The matrix's rule reads the figure in tiers that would be drawn, its band where it keeps one.
     const { routes } = full.one.layout.measures;
-    const shape = ringOf(view);
-    const kind = compositionOf(view, routes, shape);
-    // A radial figure its author names is drawn wherever one can be; one the rule takes, where it sets its type no
-    // smaller than the figure in tiers would.
-    const radial = kind === "radial" ? radialOf(scene, view, plan.tiers, shape) : null;
+    const shapes = shapesOf(model, view);
+    const kind = compositionOf(view, routes, shapes);
+    // A radial figure or a spine its author names is drawn wherever one can be, at any type step; one a rule takes,
+    // where it sets its type no smaller than the figure in tiers would.
+    const free =
+      kind === "radial"
+        ? radialOf(scene, view, plan.tiers, shapes.ring())
+        : kind === "spine"
+          ? spineOf(scene, view, plan.tiers, shapes.path())
+          : null;
     const refused =
-      radial &&
-      (radial.fault ??
-        (!view.composition && radial.one.step < plan.tiers.one.step ? "type" : null));
-    // A radial figure the rule takes and the plate does not draw leaves the view to the matrix's rule; one its author
-    // names, to tiers, as a named matrix that does not fit.
-    const fallback = radial && !view.composition ? byMatrixRule(view, routes) : kind;
+      free &&
+      (free.fault ?? (!view.composition && free.one.step < plan.tiers.one.step ? "type" : null));
+    // A radial figure or a spine a rule takes and the plate does not draw leaves the view to the matrix's rule; one
+    // its author names, to tiers, as a named matrix that does not fit.
+    const fallback = free && !view.composition ? byMatrixRule(view, routes) : kind;
     const chosen =
-      radial && !refused
-        ? radial
+      free && !refused
+        ? free
         : ((fallback === "matrix" ? matrixOf(scene, view, plan.tiers) : null) ??
           justifiedBeside(scene, view, plan.tiers));
-    const { one, matrix, radial: centre, centring, tierLabels, balance, width, height } = chosen;
+    const {
+      one,
+      matrix,
+      radial: centre,
+      spine,
+      centring,
+      tierLabels,
+      balance,
+      width,
+      height,
+    } = chosen;
     // A composition the view names and its plate is not drawn in.
-    const drawn = matrix ? "matrix" : centre ? "radial" : "tiers";
+    const drawn = matrix ? "matrix" : centre ? "radial" : spine ? "spine" : "tiers";
     const unfitted = view.composition === drawn ? null : view.composition;
-    const legend = legendOf(model, view, boundaryName, style, one.figure.lines, one.figure.matrix);
+    const legend = legendOf(model, view, boundaryName, style, one.figure.lines, {
+      matrix: one.figure.matrix,
+      spine: Boolean(spine),
+    });
     return {
       page: index + 1,
       views: [view.id],
@@ -686,6 +762,9 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         ...(matrix ? { kind: "matrix", tiers: { routes } } : {}),
         // A radial figure records its centre and the type step of the figure in tiers it is weighed against.
         ...(centre ? { kind: "radial", centre, tiers: { step: plan.tiers.one.step } } : {}),
+        // A spine records the stations it folds and how many stand in each row, and the type step of the figure in
+        // tiers it is weighed against.
+        ...(spine ? { kind: "spine", ...spine, tiers: { step: plan.tiers.one.step } } : {}),
         step: one.step,
         wrap: one.limit,
         flat: one.flat,
@@ -694,10 +773,10 @@ export function composePlates(model, views, typefaces, icons, style = HOUSE_STYL
         details: one.details,
         // The tiers figure's fill: the cards drawn as bands, the bands a guard drew plain, the justified figure.
         ...(!matrix && one.layout.bands ? { bands: one.layout.bands } : {}),
-        ...(!matrix && !centre && unbanded.length ? { unbanded } : {}),
+        ...(!matrix && !centre && !spine && unbanded.length ? { unbanded } : {}),
         ...(chosen.justified ? { justified: true } : {}),
-        // A radial figure its author or the rule asked for and the plate does not draw, and why.
-        ...(refused ? { refused: { kind: "radial", why: refused } } : {}),
+        // A radial figure or a spine its author or a rule asked for and the plate does not draw, and why.
+        ...(refused ? { refused: { kind, why: refused } } : {}),
       },
       measures: {
         crossings: one.layout.measures.crossings,

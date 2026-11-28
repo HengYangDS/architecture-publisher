@@ -187,6 +187,23 @@ export function drawSegments({ x, y, strip, colors: C }, draw) {
 const KEY_ARROW = figureMetrics(figureStyles(POSTER.steps[0])).wire.arrow;
 
 /**
+ * The key's sample of the heavy line, as the figure draws one (`lineLook`): the shape the table of lines names for its
+ * emphasis, in the oldest dye, at the heavier weight and with its larger arrowhead, named by `label`.
+ * @param {Style} style
+ * @param {string} label
+ */
+export function heavyLine(style, label) {
+  const lines = linesOf(style.lines);
+  return {
+    shape: /** @type {string} */ (lines.key("emphasis")),
+    color: colorsOf(style.tokens).dye[2],
+    weight: lines.stroke(true),
+    arrow: fixed(KEY_ARROW * lines.arrow(true)),
+    label,
+  };
+}
+
+/**
  * The key's entries for what an edition's strips and lines show on one plate, only for what it shows, each mark a
  * sample drawn as the plate draws it: the age bands its strips hold, each named by its days before the commit, and
  * the date of the commit they are counted back from; a strip of a round size on the edition's scale, when a part
@@ -252,16 +269,9 @@ export function stripKey(model, view, style, drawn) {
       color: C.line,
       label: measures["cited-files"],
     });
-  const hub = keyed("emphasis");
-  if (hub) {
+  if (keyed("emphasis")) {
     const { label } = view.components.find(({ id }) => id === seen.hub);
-    key.push({
-      shape: hub,
-      color: C.dye[2],
-      weight: lines.stroke(true),
-      arrow: fixed(KEY_ARROW * lines.arrow(true)),
-      label: measures.hub(label),
-    });
+    key.push(heavyLine(style, measures.hub(label)));
   }
   return key;
 }

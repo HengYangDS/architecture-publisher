@@ -6,6 +6,7 @@ import {
   composePlates,
   compositionOf,
   compositionWarnings,
+  shapesOf,
 } from "../src/poster/compose/plates.mjs";
 import { ringOf, rings } from "../src/poster/compose/radial.mjs";
 import { HOUSE_STYLE } from "../src/poster/tokens.mjs";
@@ -97,7 +98,7 @@ async function platesOf(model) {
 /** The composition the rules give a model's one view, its figure in tiers having `routes` route defects. */
 async function ruled(model, routes = 0) {
   const [view] = await viewsOf(model);
-  return compositionOf(view, routes);
+  return compositionOf(view, routes, shapesOf(model, view));
 }
 
 test("the radial rule takes a view whose centre relates to most parts, has no second hub and drives them", async () => {
@@ -285,11 +286,12 @@ test("a view whose radial figure the rule takes and the plate refuses is drawn a
 });
 
 test("an author's radial is drawn where the rule would not take it, and warns where none can be drawn", async () => {
-  // A chain, not a star: the rule leaves it in tiers, its author's word draws it round its most related part.
+  // A chain, not a star: the radial rule leaves it to the spine's, its author's word draws it round its most related
+  // part.
   const chain = /** @type {Array<[string, string]>} */ (
     PARTS.slice(1).map(([id], index) => [PARTS[index][0], id])
   );
-  assert.equal(await ruled(ringModel(chain)), "tiers");
+  assert.equal(await ruled(ringModel(chain)), "spine");
   const [named] = await platesOf(ringModel(chain, { view: { composition: "radial" } }));
   assert.equal(named.composition.kind, "radial");
   assert.equal(named.unfitted, undefined);

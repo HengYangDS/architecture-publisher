@@ -290,8 +290,8 @@
             "minItems": 1
           },
           "composition": {
-            "description": "The composition the view's plate is drawn in: `tiers`, rows of cards joined by lines; `matrix`, a row and a column for each part and a cell for the relations from one part to another; or `radial`, the part related to the most others at the centre and the others round it. Without it, a view that declares no tiers is drawn round that part where it relates to most of the others and drives them, or as a matrix where its figure in tiers would tangle. A matrix or a radial figure that cannot be drawn in the plate is drawn in tiers, with a warning.",
-            "enum": ["tiers", "matrix", "radial"]
+            "description": "The composition the view's plate is drawn in: `tiers`, rows of cards joined by lines; `matrix`, a row and a column for each part and a cell for the relations from one part to another; `radial`, the part related to the most others at the centre and the others round it; or `spine`, the view's main path folded into rows across the plate, the other parts beside their stations. Without it, a view that declares no tiers is drawn round that part where it relates to most of the others and drives them, along its main path where its parts and relations lie mostly along that path, or as a matrix where its figure in tiers would tangle. A matrix, a radial figure or a spine that cannot be drawn in the plate is drawn in tiers, with a warning.",
+            "enum": ["tiers", "matrix", "radial", "spine"]
           }
         }
       }

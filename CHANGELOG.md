@@ -9,6 +9,15 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Added
 
+- A view whose shape is a pipeline is drawn as a spine: its path's stations in rows that alternate direction across
+  the box its tiers plate keeps, the path turning down at the box's side under an arrowhead and drawn at a hub's
+  weight, which the key names the main path, and every other part hung beside its station on an orthogonal line. The
+  rule reads the model alone, after the radial rule and before the matrix's: a path of at least five stations covering
+  at least 60 percent of the parts, every other part related to a station, at least half the relations between
+  neighbouring stations, and no station sending relations to more than three parts. A plate whose spine cannot be
+  drawn or would set smaller type is drawn as the matrix's rule or tiers would draw it, and its composition records
+  `refused` with the reason; a view may name `spine`. On the published works the rule admits Architecture Publisher's
+  `page`, whose plates stay in tiers for their type and say so; every other plate is drawn as before.
 - A view may name its `composition`, `tiers` or `matrix`. Another value is the problem
   `model_composition_invalid`; a named matrix that does not fit its plate is drawn in tiers, with the warning
   `plate_composition_unfitted`.

@@ -273,16 +273,24 @@ const statusOf = (relations) =>
 /**
  * What a mark that stands for some relations carries by the table of lines, whether it is a line or a matrix's
  * cell: its relations' status, retired before planned; whether it carries emphasis, as a mark into the view's hub
- * does unless it is retired; its colour, faint for a retired mark and the oldest dye for an emphasised one; its
- * weight; its pattern, or none; and the rows of the table it draws.
+ * does, or a mark its figure marks, unless it is retired; its colour, faint for a retired mark and the oldest dye for
+ * an emphasised one; its weight; its pattern, or none; and the rows of the table it draws.
  * @param {ReadonlyArray<{ to: string, status?: string | null }>} relations
  * @param {string | null} hub the view's hub, or none where the edition draws no strips
  * @param {ReturnType<typeof import("./tokens.mjs").linesOf>} lines
  * @param {{ faint: string, line: string, dye: readonly string[] }} colors
+ * @param {boolean} [marked] whether the mark carries emphasis where it is not retired: by default, where it leads
+ *   into the hub
  */
-export function lineLook(relations, hub, lines, colors) {
+export function lineLook(
+  relations,
+  hub,
+  lines,
+  colors,
+  marked = hub !== null && relations.every(({ to }) => to === hub),
+) {
   const status = statusOf(relations);
-  const heavy = hub !== null && status !== "retired" && relations.every(({ to }) => to === hub);
+  const heavy = marked && status !== "retired";
   return {
     status,
     heavy,
@@ -306,7 +314,10 @@ const toward = ([x, y], [tx, ty], by) => {
  * draws on: at the table's heavier stroke, in the oldest dye, with a larger
  * arrowhead that the line ends inside, so no round cap shows beside it. A
  * planned line into the hub is heavy too; a retired one keeps its faint colour,
- * its weight and its dots. Without them every line is drawn alike.
+ * its weight and its dots. Without them every line is drawn alike. A figure
+ * that marks lines of its own (`line`, the spine's path along its stations)
+ * gives those lines the emphasis in place of the lines into the hub, with
+ * strips or without, so that its heavy line means one thing.
  * @param {any} layout
  * @param {{ view: any, facts?: import("./strip.mjs").Facts | null, styles: any, metrics: any,
  *   typefaces: any,
@@ -326,15 +337,17 @@ export function drawLines(layout, scene) {
   const { at, down, text, shapes, rects } = scene;
   const seen = scene.facts ? scene.facts.view(view) : null;
   const hub = seen ? seen.hub : null;
-  const look = (relations) => lineLook(relations, hub, lines, C);
+  const marking = layout.paths.some(({ line }) => line);
+  const look = (relations, line = false) =>
+    lineLook(relations, hub, lines, C, marking ? line : undefined);
   const arrows = layout.arrows.map((arrow) => {
-    const { heavy, color } = look(arrow.relations);
+    const { heavy, color } = look(arrow.relations, arrow.line);
     const size = metrics.wire.arrow * lines.arrow(heavy);
     const tip = { ...arrow, x: at(arrow.x), y: down(arrow.y) };
     return { heavy, size, tip, corners: headOf(tip, size), color };
   });
-  const paths = layout.paths.map(({ relations, points }) => {
-    const { heavy, weight } = look(relations);
+  const paths = layout.paths.map(({ relations, points, line }) => {
+    const { heavy, weight } = look(relations, line);
     return {
       relations,
       heavy,
@@ -373,7 +386,7 @@ export function drawLines(layout, scene) {
   const standsOn = partAt(layout);
   const stroked = [];
   for (const [index, { relations, heavy, moved, weight }] of paths.entries()) {
-    const { color, dash: pattern, rows: marked } = look(relations);
+    const { color, dash: pattern, rows: marked } = look(relations, layout.paths[index].line);
     const dash = pattern ? ` stroke-dasharray="${pattern}"` : "";
     const ink = { kind: "stroke", weight: DARKNESS.stroke * darkness(color, C.paper) };
     for (const row of marked) rows.add(row);
