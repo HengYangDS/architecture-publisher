@@ -10,7 +10,7 @@ import {
 import { bandsOf, fillRows, keepOutsideOut, keptBands, unbusBands } from "./fill.mjs";
 import { measureLayout } from "./measure.mjs";
 import { placeRows, splitCrossedBuses } from "./placement.mjs";
-import { ROW_LIMIT, viewRows } from "./rows.mjs";
+import { LABELLED_ROW_LIMIT, ROW_LIMIT, viewRows } from "./rows.mjs";
 
 /**
  * Lay out one view on the grid with one medium's metrics. Coordinates are local:
@@ -72,8 +72,7 @@ export function placementOf(view, rows, metrics) {
     relations: view.relations.filter(({ from, to }) => from !== to),
     order: new Map(view.components.map(({ id }, index) => [id, index])),
     external,
-    // A row beside the row-label column holds one card fewer.
-    rowLimit: labelled ? ROW_LIMIT - 1 : ROW_LIMIT,
+    rowLimit: labelled ? LABELLED_ROW_LIMIT : ROW_LIMIT,
     contentWidth,
     card: metrics.card,
     columnGap: spacing.column,

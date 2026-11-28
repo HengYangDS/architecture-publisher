@@ -43,8 +43,8 @@ guide as prose.
    order, then views of the mechanisms the question needs. Give each view a
    short `title`, such as `Overview` or `Proof plane`, its own `question` and a
    `summary`, which its plate sets beside the figure as the view's reading. A
-   tier row holds at most five cards and a view of `members` at most six per
-   row.
+   plate's row holds at most the cards stated under "Categories, rows and
+   palettes".
 5. Run `archpub check model.json --repo <checkout> --json` and fix every
    problem at its path. A view no plate lays out is refused with
    `plan_not_admitted` and its counts and the plate size: split it or reorder
@@ -127,13 +127,19 @@ Report what the model covers and leaves out, the checks that passed and what
 remains unverified. A successful build is not acceptance, and tests do not
 replace the user's review.
 
-## Categories and palettes
+## Categories, rows and palettes
 
 <!-- categories: written from src/model/schema.json by tools/docs/references.mjs; do not edit -->
 
 The categories are `person`, `external`, `frontend`, `backend`, `database`, `cloud`, `messagebus` and `security`.
 
 <!-- end of categories -->
+
+<!-- row-limits: written from src/layout/rows.mjs by tools/docs/references.mjs; do not edit -->
+
+Where a plate is drawn in rows of cards, a tier's row holds at most five cards and a row of a view of `members` at most six.
+
+<!-- end of row-limits -->
 
 <!-- palettes: written from src/house.json by tools/docs/references.mjs; do not edit -->
 

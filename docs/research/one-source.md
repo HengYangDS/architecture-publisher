@@ -324,6 +324,20 @@ model's schema and the palettes, by their Chinese names and ids, from the house'
 skill as written, its comment lines with it, as a reader of the README's source sees them. The skill now lists the
 categories it only counted before.
 
+## The balance gates and the cards a row holds (2026-11-28)
+
+The two sets left to the compositions item of the queue are written from their sources too, by that item, which may
+change the drawing's modules. The operations reference's sentence of the four balance gates is written from `GATES`
+(`src/poster/compose/gates.mjs`) and the side of the square a hole is counted in (`HOLE`, `src/poster/balance.mjs`),
+each now exported where it stands beside the measure it limits and the pages it was calibrated on; in the house's
+tokens they would serve the writer alone and change every edition's bytes, since a manifest records the tokens'
+digest. The command-line reference's and the tutorial's example reports keep their values as examples of a run, and a
+test holds the limits they print to the gates. The most cards a row holds, which the model reference and the skill
+state, are the grid layout's (`src/layout/rows.mjs`): six to a row, and five beside the column of tier labels, which
+the layout wrote as one fewer and now states once; Archify's row limits of the interactive page are another set and
+were not what either document described. Both documents say it of a plate drawn in rows of cards. A research page that
+cites the gates, as the tiers fill's does, keeps the values of its date.
+
 ## What is not established
 
 - The rows marked a reader's count: their places were not counted again by the maintainer.

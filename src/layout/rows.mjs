@@ -5,8 +5,13 @@
  * @typedef {{ id: string, label: string | null, members: string[], tier?: string }} Row
  */
 
-/** The most cards one row may hold; rows beside row labels hold one fewer. */
+/** The most cards one row may hold. */
 export const ROW_LIMIT = 6;
+/**
+ * The most cards a row beside the row-label column holds, as a view's tiers
+ * are drawn: the column takes one card's room.
+ */
+export const LABELLED_ROW_LIMIT = ROW_LIMIT - 1;
 
 /**
  * What derived rows cost, in order of weight: a row over its limit, or an

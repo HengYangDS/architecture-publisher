@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
-import { DARKNESS, balanceOf, darkness } from "../src/poster/balance.mjs";
-import { gateFailures } from "../src/poster/compose/gates.mjs";
+import { DARKNESS, HOLE, balanceOf, darkness } from "../src/poster/balance.mjs";
+import { GATES, gateFailures } from "../src/poster/compose/gates.mjs";
 import { HOUSE_STYLE, colorsOf } from "../src/poster/tokens.mjs";
 
 /** The 2400 by 1350 px posters the review judged, and their live area inside a 64 px margin. */
@@ -81,7 +81,7 @@ test("a wire across a blank band leaves the band blank but divides the largest b
   );
 });
 
-test("holes are the empty squares of the page at least 240 px on a side", () => {
+test("holes are the empty squares of the page at least a hole's side across", () => {
   /** The live area filled with text around one empty square of `side` px. */
   const around = (side) => {
     const [x, y] = [1000, 504];
@@ -96,7 +96,7 @@ test("holes are the empty squares of the page at least 240 px on a side", () => 
   // A 40 × 40 cell square out of 284 × 153 cells.
   assert.equal(hole.holes, 0.037);
   assert.deepEqual(hole.emptyRectangle, [1000, 504, 320, 320]);
-  assert.equal(balanceOf(around(200), LIVE, PAGE).holes, 0);
+  assert.equal(balanceOf(around(HOLE - 40), LIVE, PAGE).holes, 0);
 });
 
 test("ink wholly off the page covers no cell of it", () => {
@@ -117,7 +117,7 @@ test("the centre of gravity weighs each element by how dark it prints", () => {
   // Ink only along the top sits high, and misses the gate down but not across.
   const top = text(LIVE.x, LIVE.y, LIVE.width, LIVE.height / 4);
   const high = balanceOf([top], LIVE, PAGE);
-  assert.ok(high.centroid[1] < -0.12, String(high.centroid[1]));
+  assert.ok(high.centroid[1] < -GATES.centroid[1], String(high.centroid[1]));
   assert.deepEqual(
     gateFailures(high)
       .filter(({ measure }) => measure.startsWith("centroid"))

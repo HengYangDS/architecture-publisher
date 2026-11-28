@@ -8,7 +8,7 @@ import { setWidth } from "../spread.mjs";
  * posters rejected for blank bands and empty corners fail them and the pages
  * judged balanced pass.
  */
-const GATES = Object.freeze({
+export const GATES = Object.freeze({
   /** The largest blank rectangle covers at most this share of the live area. */
   emptyShare: 0.12,
   /** No band this tall or taller runs blank across the whole live area. */

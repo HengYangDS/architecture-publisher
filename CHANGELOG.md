@@ -15,6 +15,10 @@ remain pre-release contracts and may contain incompatible changes.
 
 ### Changed
 
+- The operations reference's balance gates are written from the gates the composer measures a plate against, and the
+  model reference's and the agent Skill's most cards a plate's row holds from the grid layout's limits, where each was
+  stated by hand. `archpub skill` prints the row limits in the Skill's closing section. Every delivered byte is as
+  before.
 - The agent Skill lists the categories a kind maps to, written from the model's schema, and the built-in palettes by
   their Chinese names and ids, written from the house's tokens, where it counted the categories and named the palettes
   by hand. `archpub skill` prints the two lists with the Skill. Every delivered byte is as before.

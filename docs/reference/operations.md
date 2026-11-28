@@ -199,22 +199,25 @@ before the figure or each before the edge its tier starts at. It takes the
 fewest crossings, then the fewest route defects, then the largest step, then the
 widest wrapping, then the least of the body left blank, and the manifest records
 its composition. A tier wrapped into several rows has its label level with its
-first row, beside a bracket that spans them all. Each plate is measured against
-four balance gates over the body: its largest blank rectangle covers at most 12
-percent of it, no blank band 96 px or taller runs across it, at most 40 percent
-of it lies in empty squares of 240 px or more, and its centre of mass lies
-within 12 percent of the centre across and down. The gates a plate misses are
-recorded with their values and limits, not refused; a view no composition lays
-out is refused with `plate_unfittable`. Figure text is measured in Source Sans
-3, its semibold for heavy text, and Noto Sans CJK SC for the characters the
-first lacks; lines break at spaces but not at no-break spaces, and between Han
-and Kana characters, keeping closing punctuation on the line before. A plate
-draws each part as [one card](model.md#parts-and-palette) in the edition's
-palette; a card is a box as wide as its widest region, so placement and every
-gate run on boxes. It is composed for cards without details, and its cards set
-every detail when that costs it no room, no type step and no wiring, which its
-composition records. A plate is drawn as the SVG of its shapes and a list of
-text runs, which the edition sets as text.
+first row, beside a bracket that spans them all.
+
+<!-- balance-gates: written from src/poster/compose/gates.mjs and src/poster/balance.mjs by tools/docs/references.mjs; do not edit -->
+
+Each plate is measured against four balance gates over the body: its largest blank rectangle covers at most 12 percent of it, no blank band 96 px or taller runs across it, at most 40 percent of it lies in empty squares of 240 px or more, and its centre of mass lies within 12 percent of the centre across and down.
+
+<!-- end of balance-gates -->
+
+The gates a plate misses are recorded with their values and limits, not refused;
+a view no composition lays out is refused with `plate_unfittable`. Figure text
+is measured in Source Sans 3, its semibold for heavy text, and Noto Sans CJK SC
+for the characters the first lacks; lines break at spaces but not at no-break
+spaces, and between Han and Kana characters, keeping closing punctuation on the
+line before. A plate draws each part as [one card](model.md#parts-and-palette)
+in the edition's palette; a card is a box as wide as its widest region, so
+placement and every gate run on boxes. It is composed for cards without details,
+and its cards set every detail when that costs it no room, no type step and no
+wiring, which its composition records. A plate is drawn as the SVG of its shapes
+and a list of text runs, which the edition sets as text.
 
 A plate in tiers fills the blank its rows leave, from the model
 ([why and how](../research/tiers-fill.md)). A lone card of the figure's first or

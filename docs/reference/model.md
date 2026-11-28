@@ -510,9 +510,14 @@ title page's.
 
 - `tiers`: an ordered list of group ids or inline `{ id, label, members }`
   bands, drawn as labelled rows in that order. A component appears in at most
-  one tier of a view, and a row holds at most five cards.
-- `members`: component ids whose rows follow their relations, holding at most
-  six cards per row.
+  one tier of a view.
+- `members`: component ids whose rows follow their relations.
+
+<!-- row-limits: written from src/layout/rows.mjs by tools/docs/references.mjs; do not edit -->
+
+Where a plate is drawn in rows of cards, a tier's row holds at most five cards and a row of a view of `members` at most six.
+
+<!-- end of row-limits -->
 
 A view may name its `composition`: `tiers`, rows of cards joined by lines;
 `matrix`, a row and a column for each part it draws and a cell for the

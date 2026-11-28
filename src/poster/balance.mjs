@@ -22,7 +22,7 @@ const CELL = 8;
  * than any gutter, channel or gap the grid sets on purpose, and narrower than
  * the corners a figure of few cards leaves on a full page.
  */
-const HOLE = 240;
+export const HOLE = 240;
 
 /**
  * Darkness weights, per unit of area, of each kind of ink. A line box of text
